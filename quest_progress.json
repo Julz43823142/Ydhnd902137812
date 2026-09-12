@@ -198,12 +198,14 @@
         },
         "442597396195704832": {
           "name": "Thice",
-          "paid": [],
+          "paid": [
+            "daily:2026-09-12:minigame:minigame-1"
+          ],
           "progress": {
             "daily:2026-09-12:minigame:minigame-1": 1,
             "daily:2026-09-12:puzzle:solve-8": 5
           },
-          "updated_at": 1789243157
+          "updated_at": 1789243161
         },
         "601406103712170014": {
           "name": "TheMakina",
