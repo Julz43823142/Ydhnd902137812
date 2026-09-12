@@ -170,7 +170,7 @@
     "player_color": "white",
     "player_move_count": 4,
     "posted_at": "2026-09-12T07:59:47.154509+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -190,7 +190,8 @@
       "1546557493038284840": 1548241709761298483
     },
     "channel_id": 1468320170891022417,
-    "chat_since_refresh": 0
+    "chat_since_refresh": 0,
+    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Qf1 Rxf6+ Rf8+ Qxf8#"
   },
   "lichess_rating_used": {
     "2000": [
@@ -5456,6 +5457,24 @@
         ],
         "created_at": 1789240801.2685726,
         "message_id": "1548412890887749824"
+      },
+      "racer-open:menu-open:1548421542776406106:442597396195704832": {
+        "id": "racer-open:menu-open:1548421542776406106:442597396195704832",
+        "kind": "open_lobby",
+        "status": "open",
+        "challenger_id": "442597396195704832",
+        "challenger_name": "Thice",
+        "channel_id": 1468320170891022417,
+        "minutes": 5,
+        "stake": 0,
+        "players": [
+          {
+            "id": "442597396195704832",
+            "name": "Thice"
+          }
+        ],
+        "created_at": 1789242864.3693569,
+        "message_id": "1548421544496078879"
       }
     },
     "games": {
