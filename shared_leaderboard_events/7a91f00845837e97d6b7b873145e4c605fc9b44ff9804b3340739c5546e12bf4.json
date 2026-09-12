@@ -1,0 +1,14 @@
+{
+  "after_coins": 877.5,
+  "before_coins": 877.5,
+  "created_at": 1788613481,
+  "created_at_ns": 1788613481932036856,
+  "details": {
+    "color": "orange"
+  },
+  "display_name": "TheMakina",
+  "ledger_build": "shared-ledger-v12-snapshot-2026-09-03",
+  "operation": "equip-color",
+  "transaction_id": "equip-color:1545781716055232672:601406103712170014:orange",
+  "user_id": "601406103712170014"
+}

@@ -1,0 +1,19 @@
+{
+  "boss": false,
+  "correct": true,
+  "created_at": 1788886524,
+  "display_name": "TheMakina",
+  "elo_after": 1995.396,
+  "elo_change": 31.878,
+  "new_achievements": [
+    "titan_killer"
+  ],
+  "puzzle_id": "random_pDy2E_1788886491464",
+  "puzzle_rating": 2931,
+  "source": "random",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 13,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:random_pDy2E_1788886491464:601406103712170014",
+  "user_id": "601406103712170014"
+}

@@ -1,0 +1,14 @@
+{
+  "transaction_id": "admin-command:1546478732267749409",
+  "actor_id": "362606514764251137",
+  "operation": "give-badge",
+  "result": {
+    "name": "Thice",
+    "action": "give",
+    "kind": "badge",
+    "item": "🥷",
+    "amount": 1,
+    "active_reset": false
+  },
+  "created_at": 1788779662.858604
+}

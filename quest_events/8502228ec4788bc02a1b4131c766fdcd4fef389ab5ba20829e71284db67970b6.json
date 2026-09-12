@@ -1,0 +1,17 @@
+{
+  "action": "puzzle_solve",
+  "amount": 1,
+  "created_at": 1789215534,
+  "created_at_ns": 1789215534585643952,
+  "daily_key": "daily:2026-09-12",
+  "display_name": "TheMakina",
+  "metadata": {
+    "boss": false,
+    "source": "puzzle"
+  },
+  "operation": "quest-progress",
+  "quest_build": "quests-v1-2026-09-08",
+  "transaction_id": "quest:puzzle-solve:random_BUuYt_1789215476304:601406103712170014",
+  "user_id": "601406103712170014",
+  "weekly_key": "weekly:2026-09-07"
+}

@@ -1,0 +1,15 @@
+{
+  "after_coins": 118.95,
+  "before_coins": 118.95,
+  "created_at": 1788991483,
+  "created_at_ns": 1788991483740048951,
+  "details": {
+    "badge": "🐦‍🔥",
+    "unequipped": false
+  },
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "equip-badge",
+  "transaction_id": "profile-button-badge:1547367176049270874:442597396195704832",
+  "user_id": "442597396195704832"
+}

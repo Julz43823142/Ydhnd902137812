@@ -1,0 +1,15 @@
+{
+  "after_coins": 1418.5,
+  "before_coins": 1415.5,
+  "created_at": 1788959881,
+  "created_at_ns": 1788959881742742665,
+  "details": {
+    "credited": 3.0,
+    "source": "puzzle-rush-solve-gameplay"
+  },
+  "display_name": "TheMakina",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "coin-credit",
+  "transaction_id": "puzzle-rush-solves:rush:601406103712170014:1788959787704:601406103712170014",
+  "user_id": "601406103712170014"
+}

@@ -1,0 +1,17 @@
+{
+  "after_coins": 137.45,
+  "before_coins": 136.45,
+  "created_at": 1788876765,
+  "created_at_ns": 1788876765618457343,
+  "details": {
+    "credited": 1.0,
+    "guess_points": 201.0,
+    "previous_guess_points_coined": 200.0,
+    "source": "guess-games"
+  },
+  "display_name": "thice",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "guess-points-coin-sync",
+  "transaction_id": "guess-coin-sync:442597396195704832:201.000",
+  "user_id": "442597396195704832"
+}

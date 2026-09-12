@@ -1,0 +1,16 @@
+{
+  "action": "minigame_win",
+  "amount": 1,
+  "created_at": 1789053511,
+  "created_at_ns": 1789053511885558573,
+  "daily_key": "daily:2026-09-10",
+  "display_name": "Thice",
+  "metadata": {
+    "kind": "mines"
+  },
+  "operation": "quest-progress",
+  "quest_build": "quests-v1-2026-09-08",
+  "transaction_id": "quest:minigame-win:1547627208951070830:1789053509225:442597396195704832",
+  "user_id": "442597396195704832",
+  "weekly_key": "weekly:2026-09-07"
+}

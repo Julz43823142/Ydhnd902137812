@@ -1,0 +1,13 @@
+{
+  "after_points": 70.0,
+  "amount": 1.0,
+  "before_points": 69.0,
+  "created_at": 1788513034,
+  "created_at_ns": 1788513034181080552,
+  "display_name": "Sharkmeister",
+  "ledger_build": "shared-ledger-v12-snapshot-2026-09-03",
+  "operation": "add",
+  "source": "puzzle-first",
+  "transaction_id": "puzzle:random_XgmsY_1788512996374:first:362606514764251137",
+  "user_id": "362606514764251137"
+}

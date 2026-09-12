@@ -1,0 +1,15 @@
+{
+  "after_coins": 18.28,
+  "before_coins": 8.28,
+  "created_at": 1789135783,
+  "created_at_ns": 1789135783458823325,
+  "details": {
+    "credited": 10.0,
+    "source": "quest-bonus"
+  },
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "coin-credit",
+  "transaction_id": "quest-reward:daily:2026-09-11:daily:2026-09-11:minigame:minigame-2:442597396195704832",
+  "user_id": "442597396195704832"
+}

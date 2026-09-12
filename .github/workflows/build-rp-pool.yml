@@ -1,0 +1,74 @@
+name: Build RP Puzzle Pool
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Refresh from the official Lichess database once per month.
+    - cron: "23 4 5 * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-rp-puzzle-pool
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install pool-builder dependencies
+        run: python -m pip install --upgrade requests zstandard
+
+      - name: Build balanced offline RP pool
+        run: python build_rp_pool.py --per-band 50000
+
+      - name: Validate pool
+        run: |
+          python - <<'PY'
+          import os
+          import sqlite3
+
+          path = "rp_puzzle_pool.sqlite3"
+          assert os.path.exists(path), path
+
+          con = sqlite3.connect(path)
+          try:
+              total = con.execute("SELECT COUNT(*) FROM puzzles").fetchone()[0]
+              counts = dict(con.execute(
+                  "SELECT band, COUNT(*) FROM puzzles GROUP BY band ORDER BY band"
+              ).fetchall())
+              minimum = con.execute("SELECT MIN(rating) FROM puzzles").fetchone()[0]
+              maximum = con.execute("SELECT MAX(rating) FROM puzzles").fetchone()[0]
+          finally:
+              con.close()
+
+          assert total == 300000, total
+          assert counts == {0:50000,1:50000,2:50000,3:50000,4:50000,5:50000}, counts
+          assert 1200 <= minimum <= 1499, minimum
+          assert 2700 <= maximum <= 3199, maximum
+
+          size = os.path.getsize(path)
+          assert size < 95 * 1024 * 1024, size
+          print("Pool validated:", total, counts, minimum, maximum, size)
+          PY
+
+      - name: Commit refreshed pool
+        run: |
+          git config user.name "RP Puzzle Pool Builder"
+          git config user.email "rp-pool-builder@users.noreply.github.com"
+          git add rp_puzzle_pool.sqlite3
+          git diff --cached --quiet && exit 0
+          git commit -m "Refresh offline RP puzzle pool"
+          git pull --rebase origin "${GITHUB_REF_NAME:-main}"
+          git push origin "HEAD:${GITHUB_REF_NAME:-main}"

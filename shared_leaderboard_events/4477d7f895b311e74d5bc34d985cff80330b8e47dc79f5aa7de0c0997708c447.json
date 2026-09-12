@@ -1,0 +1,13 @@
+{
+  "after_points": 69.0,
+  "amount": -1.0,
+  "before_points": 70.0,
+  "created_at": 1788479019,
+  "created_at_ns": 1788479019677844799,
+  "display_name": "Sharkmeister",
+  "ledger_build": "shared-ledger-v12-snapshot-2026-09-03",
+  "operation": "adjust",
+  "source": "puzzle-wrong-penalty",
+  "transaction_id": "puzzle-wrong-penalty:random_alEfi_1788479009780:362606514764251137:1",
+  "user_id": "362606514764251137"
+}

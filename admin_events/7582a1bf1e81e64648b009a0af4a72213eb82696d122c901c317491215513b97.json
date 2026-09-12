@@ -1,0 +1,12 @@
+{
+  "transaction_id": "admin-command:1546477571468693614",
+  "actor_id": "362606514764251137",
+  "operation": "set-stat",
+  "result": {
+    "name": "Sharkmeister",
+    "field": "puzzle.elo",
+    "before": 1626.0,
+    "value": 1626.0
+  },
+  "created_at": 1788779385.9989471
+}

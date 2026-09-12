@@ -1,0 +1,15 @@
+{
+  "after_coins": 48.28,
+  "before_coins": 47.28,
+  "created_at": 1789133920,
+  "created_at_ns": 1789133920384272684,
+  "details": {
+    "credited": 1.0,
+    "source": "puzzle-achievement"
+  },
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "coin-credit",
+  "transaction_id": "puzzle-achievement:442597396195704832:giant_slayer",
+  "user_id": "442597396195704832"
+}

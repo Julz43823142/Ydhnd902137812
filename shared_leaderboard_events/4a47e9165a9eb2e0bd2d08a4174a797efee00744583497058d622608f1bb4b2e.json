@@ -1,0 +1,17 @@
+{
+  "after_coins": 1335.0,
+  "before_coins": 1334.0,
+  "created_at": 1788879857,
+  "created_at_ns": 1788879857047261531,
+  "details": {
+    "credited": 1.0,
+    "guess_points": 69.0,
+    "previous_guess_points_coined": 68.0,
+    "source": "guess-games"
+  },
+  "display_name": "TheMakina",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "guess-points-coin-sync",
+  "transaction_id": "guess-coin-sync:601406103712170014:69.000",
+  "user_id": "601406103712170014"
+}

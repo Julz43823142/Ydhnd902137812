@@ -1,0 +1,17 @@
+{
+  "boss": false,
+  "correct": false,
+  "created_at": 1788782308,
+  "display_name": "Chessmass",
+  "elo_after": 1809.763,
+  "elo_change": -30.211,
+  "new_achievements": [],
+  "puzzle_id": "survival:yoy:1788782272:1:gSEWq",
+  "puzzle_rating": 1349,
+  "source": "survival",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 0,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:survival:yoy:1788782272:1:gSEWq:1310661840707129370",
+  "user_id": "1310661840707129370"
+}

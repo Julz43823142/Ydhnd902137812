@@ -1,0 +1,12 @@
+{
+  "transaction_id": "admin-command:1546477782333390938",
+  "actor_id": "362606514764251137",
+  "operation": "set-stat",
+  "result": {
+    "name": "Capybrawlgames2",
+    "field": "puzzle.elo",
+    "before": 1500.0,
+    "value": 1443.0
+  },
+  "created_at": 1788779436.2831857
+}

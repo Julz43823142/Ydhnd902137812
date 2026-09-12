@@ -1,0 +1,18 @@
+{
+  "after_coins": 1621.0,
+  "before_coins": 1611.0,
+  "created_at": 1789207607,
+  "created_at_ns": 1789207607776248154,
+  "details": {
+    "activity_day": "2026-09-12",
+    "credited": 10.0,
+    "reset_hour": 5,
+    "source": "daily-activity-bonus",
+    "timezone": "Europe/Amsterdam"
+  },
+  "display_name": "TheMakina",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "daily-activity-bonus",
+  "transaction_id": "activity-bonus:2026-09-12:601406103712170014",
+  "user_id": "601406103712170014"
+}

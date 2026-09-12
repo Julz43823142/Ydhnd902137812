@@ -1,0 +1,16 @@
+{
+  "after_coins": 1337.5,
+  "before_coins": 877.5,
+  "created_at": 1788613541,
+  "created_at_ns": 1788613541164066758,
+  "details": {
+    "after_coins": 1337.5,
+    "before_coins": 877.5,
+    "source": "admin-editcoins"
+  },
+  "display_name": "TheMakina",
+  "ledger_build": "shared-ledger-v12-snapshot-2026-09-03",
+  "operation": "admin-set-coins",
+  "transaction_id": "admin-editcoins:1545781968669515807:themakina:1337.5",
+  "user_id": "601406103712170014"
+}

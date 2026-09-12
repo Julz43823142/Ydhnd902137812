@@ -1,0 +1,88 @@
+name: Guess Chatter
+
+on:
+  schedule:
+    # Guess rounds are manual-only (`n`, `!n`, `!next`).
+    # This cron only refreshes the long-running Actions process.
+    - cron: "9 */5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: guess-games-persistent-controller
+  cancel-in-progress: true
+
+jobs:
+  guess-games:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install "discord.py==2.7.1" requests python-chess cairosvg cryptography
+
+      - name: Verify new persistent Guess build
+        run: |
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+
+          def constant(filename, name):
+              tree = ast.parse(Path(filename).read_text(encoding="utf-8"))
+              for node in tree.body:
+                  if isinstance(node, ast.Assign):
+                      for target in node.targets:
+                          if isinstance(target, ast.Name) and target.id == name:
+                              return ast.literal_eval(node.value)
+              raise RuntimeError(f"{name} not found in {filename}")
+
+          controller = constant("guess_chatter.py", "GUESS_CONTROLLER_BUILD")
+          chatter = constant("guess_chatter.py", "GUESS_CHATTER_BUILD")
+          chess = constant("guess_chess_chatter.py", "GUESS_CHESS_BUILD")
+
+          assert controller == "guess-games-v7-buttons-trades-2026-09-08", controller
+          assert chatter == "guess-chatter-v7-private-chatdata-2026-09-12", chatter
+          assert chess == "guess-chess-v5-persistent-helper-2026-09-03", chess
+          assert constant("guess_chatter.py", "POLL_DURATION_MINUTES") == 8
+          assert constant("guess_chess_chatter.py", "POLL_DURATION_MINUTES") == 8
+
+          controller_source = Path("guess_chatter.py").read_text(encoding="utf-8")
+          chess_source = Path("guess_chess_chatter.py").read_text(encoding="utf-8")
+
+          assert "async def scheduler_loop" in controller_source
+          assert "No clock-based scheduler is started here." in controller_source
+          assert "asyncio.create_task(scheduler_loop" not in controller_source
+          assert '"!next"' in controller_source
+          assert '"!l"' in controller_source
+          assert "class GuessMainMenuView" in controller_source
+          assert "class GuessTradeHomeView" in controller_source
+          assert "class GuessOpenTradeView" in controller_source
+          assert "class GuessNewHereView" in controller_source
+          assert "GuessCatalogPager" in controller_source
+          assert "client.close()" not in controller_source
+          assert "client.run(" not in chess_source
+
+          print(f"Verified controller: {controller}")
+          print(f"Verified chatter: {chatter}")
+          print(f"Verified chess: {chess}")
+          PY
+
+      - name: Run persistent Guess Games controller
+        run: python guess_chatter.py
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          GUESS_CHAT_KEY: ${{ secrets.GUESS_CHAT_KEY }}

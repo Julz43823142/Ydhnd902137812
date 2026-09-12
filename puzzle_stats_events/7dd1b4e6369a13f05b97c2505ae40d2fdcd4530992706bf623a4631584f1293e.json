@@ -1,0 +1,21 @@
+{
+  "boss": false,
+  "correct": true,
+  "created_at": 1788542608,
+  "display_name": "Thice",
+  "elo_after": 1606.977,
+  "elo_change": 31.556,
+  "new_achievements": [
+    "getting_warm",
+    "on_fire",
+    "elo_1600"
+  ],
+  "puzzle_id": "random_wzirv_1788542600669",
+  "puzzle_rating": 2316,
+  "source": "random",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 5,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:random_wzirv_1788542600669:442597396195704832",
+  "user_id": "442597396195704832"
+}

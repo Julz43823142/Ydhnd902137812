@@ -1,0 +1,14 @@
+{
+  "after_coins": 815.0,
+  "before_coins": 815.0,
+  "created_at": 1788801457,
+  "created_at_ns": 1788801457303425143,
+  "details": {
+    "profile_theme": "neon"
+  },
+  "display_name": "Sharkmeister",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "equip-profile-theme",
+  "transaction_id": "equip-profile-theme-button:1546570146624180244:362606514764251137:neon",
+  "user_id": "362606514764251137"
+}

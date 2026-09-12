@@ -1,0 +1,15 @@
+{
+  "after_coins": 162.67,
+  "before_coins": 212.67,
+  "created_at": 1788637295,
+  "created_at_ns": 1788637295889425646,
+  "details": {
+    "arrow": "pink",
+    "spent": 50.0
+  },
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v12-snapshot-2026-09-03",
+  "operation": "buy-arrow",
+  "transaction_id": "catalog-buy-arrow:1545881603266314250:442597396195704832:pink",
+  "user_id": "442597396195704832"
+}

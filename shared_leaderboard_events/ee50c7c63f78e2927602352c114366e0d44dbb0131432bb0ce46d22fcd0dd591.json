@@ -1,0 +1,15 @@
+{
+  "after_coins": 160.0,
+  "before_coins": 210.0,
+  "created_at": 1788802919,
+  "created_at_ns": 1788802919705038787,
+  "details": {
+    "profile_theme": "fears_to_fathom",
+    "spent": 50.0
+  },
+  "display_name": "Sharkmeister",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "buy-profile-theme",
+  "transaction_id": "buy-profile-theme:1546576280856830065:362606514764251137:fears_to_fathom",
+  "user_id": "362606514764251137"
+}

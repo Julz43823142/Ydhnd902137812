@@ -1,0 +1,20 @@
+{
+  "boss": false,
+  "correct": false,
+  "created_at": 1788885143,
+  "display_name": "Jesse2011",
+  "elo_after": 1499.781,
+  "elo_change": -0.219,
+  "new_achievements": [
+    "first_steps",
+    "learning_experience"
+  ],
+  "puzzle_id": "random_q1hbZ_1788885060859",
+  "puzzle_rating": 2365,
+  "source": "random",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 0,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:random_q1hbZ_1788885060859:1455217865249652799",
+  "user_id": "1455217865249652799"
+}

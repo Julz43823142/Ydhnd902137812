@@ -1,0 +1,17 @@
+{
+  "boss": false,
+  "correct": true,
+  "created_at": 1788636539,
+  "display_name": "Sharkmeister",
+  "elo_after": 2183.707,
+  "elo_change": 0.113,
+  "new_achievements": [],
+  "puzzle_id": "survival:sharkmeister:1788636471:2:pshuh",
+  "puzzle_rating": 1204,
+  "source": "survival",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 15,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:survival:sharkmeister:1788636471:2:pshuh:442597396195704832",
+  "user_id": "442597396195704832"
+}

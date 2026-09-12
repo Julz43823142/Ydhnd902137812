@@ -1,0 +1,12 @@
+{
+  "transaction_id": "admin-command:1546477704201764976",
+  "actor_id": "362606514764251137",
+  "operation": "set-stat",
+  "result": {
+    "name": "TheMakina",
+    "field": "puzzle.elo",
+    "before": 1522.392620904386,
+    "value": 1807.0
+  },
+  "created_at": 1788779417.6345556
+}

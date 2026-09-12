@@ -1,0 +1,45 @@
+name: YouTube Notifications
+
+on:
+  schedule:
+    # Refresh the long-running worker every 5 hours (4 hours overnight).
+    - cron: "17 */5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  # Keep the original group: old and new notifier runs cannot overlap.
+  group: youtube-notifications
+  cancel-in-progress: true
+
+jobs:
+  youtube-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install notifier dependency
+        run: python -m pip install "discord.py==2.7.1"
+
+      - name: Check Python syntax
+        run: python -m py_compile yt_check.py
+
+      - name: Run persistent YouTube notifier
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+          YT_PERSIST_GIT: "1"
+          PYTHONUNBUFFERED: "1"
+        run: python yt_check.py

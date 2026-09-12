@@ -1,0 +1,13 @@
+{
+  "correct": false,
+  "created_at": 1788786620,
+  "display_name": "Chessmass",
+  "poll_message_id": "1546507195007639582",
+  "source": "guess-chess-chatter",
+  "source_key": "chess",
+  "stats_build": "guess-stats-v2-streaks-nemesis-2026-09-04",
+  "streak_after": 0,
+  "target_name": "Mohammad",
+  "transaction_id": "guess-stats:1546507195007639582:1310661840707129370",
+  "user_id": "1310661840707129370"
+}

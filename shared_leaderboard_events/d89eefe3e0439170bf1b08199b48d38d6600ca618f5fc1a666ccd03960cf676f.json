@@ -1,0 +1,27 @@
+{
+  "after_coins": 16.0,
+  "before_coins": 16.0,
+  "created_at": 1788630656,
+  "created_at_ns": 1788630656337980967,
+  "details": {
+    "declined_trade": {
+      "created_at": 1788630615,
+      "from_name": "Thice",
+      "from_user_id": "442597396195704832",
+      "offer": {
+        "amount": 34.0,
+        "type": "coins"
+      },
+      "request": {
+        "badge": "🥷",
+        "type": "badge"
+      },
+      "trade_id": "trade-propose:1545853581838520330:442597396195704832:362606514764251137"
+    }
+  },
+  "display_name": "Sharkmeister",
+  "ledger_build": "shared-ledger-v12-snapshot-2026-09-03",
+  "operation": "trade-decline",
+  "transaction_id": "trade-decline:1545853756451590355:362606514764251137",
+  "user_id": "362606514764251137"
+}

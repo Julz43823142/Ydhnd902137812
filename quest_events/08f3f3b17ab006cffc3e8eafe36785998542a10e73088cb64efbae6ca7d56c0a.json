@@ -1,0 +1,16 @@
+{
+  "action": "minigame_win",
+  "amount": 1,
+  "created_at": 1788983804,
+  "created_at_ns": 1788983804199686420,
+  "daily_key": "daily:2026-09-09",
+  "display_name": "Sharkmeister",
+  "metadata": {
+    "kind": "detective"
+  },
+  "operation": "quest-progress",
+  "quest_build": "quests-v1-2026-09-08",
+  "transaction_id": "quest:minigame-win:1547334766989414450:1788983801232:362606514764251137",
+  "user_id": "362606514764251137",
+  "weekly_key": "weekly:2026-09-07"
+}

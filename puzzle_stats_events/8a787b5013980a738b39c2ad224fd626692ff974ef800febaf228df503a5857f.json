@@ -1,0 +1,19 @@
+{
+  "boss": false,
+  "correct": false,
+  "created_at": 1788887427,
+  "display_name": "Thice",
+  "elo_after": 2320.276,
+  "elo_change": -12.547,
+  "new_achievements": [
+    "rough_patch"
+  ],
+  "puzzle_id": "practice_NeCCW_442597396195704832_1788887403225",
+  "puzzle_rating": 2409,
+  "source": "practice",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 0,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:practice_NeCCW_442597396195704832_1788887403225:442597396195704832",
+  "user_id": "442597396195704832"
+}

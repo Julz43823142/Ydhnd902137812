@@ -1,0 +1,20 @@
+{
+  "boss": false,
+  "correct": true,
+  "created_at": 1788507549,
+  "display_name": "WetisJas",
+  "elo_after": 1526.677,
+  "elo_change": 26.677,
+  "new_achievements": [
+    "first_steps",
+    "first_blood"
+  ],
+  "puzzle_id": "random_UTShW_1788507531239",
+  "puzzle_rating": 1780,
+  "source": "random",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 1,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:random_UTShW_1788507531239:1403636751695740971",
+  "user_id": "1403636751695740971"
+}

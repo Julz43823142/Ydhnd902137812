@@ -1,0 +1,8 @@
+{
+  "created_at": 1788449887,
+  "created_at_ns": 1788449887486599161,
+  "ledger_build": "shared-ledger-v12-snapshot-2026-09-03",
+  "operation": "migration",
+  "source": "v12-snapshot-migration",
+  "transaction_id": "__shared-ledger-v12-snapshot-migration__"
+}

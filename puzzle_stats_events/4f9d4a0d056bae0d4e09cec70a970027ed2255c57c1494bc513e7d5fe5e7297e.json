@@ -1,0 +1,20 @@
+{
+  "boss": false,
+  "correct": true,
+  "created_at": 1788771483,
+  "display_name": "Chessmass",
+  "elo_after": 1803.253,
+  "elo_change": 31.912,
+  "new_achievements": [
+    "giant_hunter",
+    "elo_1800"
+  ],
+  "puzzle_id": "random_7XEDi_1788771465456",
+  "puzzle_rating": 2795,
+  "source": "random",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 2,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:random_7XEDi_1788771465456:1310661840707129370",
+  "user_id": "1310661840707129370"
+}

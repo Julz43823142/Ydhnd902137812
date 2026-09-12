@@ -1,0 +1,14 @@
+{
+  "after_coins": 170.45,
+  "before_coins": 170.45,
+  "created_at": 1788882214,
+  "created_at_ns": 1788882214520860265,
+  "details": {
+    "profile_theme": "killer_frequency"
+  },
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "equip-profile-theme",
+  "transaction_id": "catalog-equip-theme:1546908867294797914:442597396195704832:killer_frequency",
+  "user_id": "442597396195704832"
+}

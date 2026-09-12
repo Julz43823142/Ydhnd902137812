@@ -1,0 +1,149 @@
+name: Daily Puzzle
+
+on:
+  schedule:
+    # Backup rotation. GitHub notes that scheduled runs can be delayed or even
+    # dropped under load, so bot.py also performs its own clean handoff.
+    # Minute 37 deliberately avoids the busy start-of-hour window.
+    - cron: "37 0,4,8,12,16,20 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  # Required for the worker to dispatch a fresh copy of this workflow after a
+  # planned, state-synced rotation.
+  actions: write
+
+concurrency:
+  group: daily-puzzle
+  cancel-in-progress: true
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    # Emergency ceiling only. Normal workers hand off after ~4h20.
+    timeout-minutes: 350
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install requirements
+        run: pip install -r requirements.txt
+
+      - name: Verify Daily Puzzle build and offline RP pool
+        run: |
+          python -m py_compile bot.py puzzle_move_validation.py quests.py shared_leaderboard.py
+          python -m unittest test_quests.py
+          if [ -f test_puzzle_move_validation.py ]; then
+            python -m unittest test_puzzle_move_validation.py
+          else
+            echo "test_puzzle_move_validation.py is not present; running built-in validator smoke tests instead."
+            python - <<'PYTEST'
+          import chess
+          from puzzle_move_validation import match_solution_move, move_is_solution
+
+          board = chess.Board()
+          assert move_is_solution(board, "Nf3!", {"uci": "g1f3"})
+
+          mate_board = chess.Board("7k/4Q1pp/8/8/8/8/8/K7 w - - 0 1")
+          mates = []
+          for move in list(mate_board.legal_moves):
+              trial = mate_board.copy(stack=False)
+              trial.push(move)
+              if trial.is_checkmate():
+                  mates.append(move)
+          assert len(mates) >= 2
+          accepted, played, kind = match_solution_move(
+              mate_board,
+              mate_board.san(mates[1]),
+              {"uci": mates[0].uci()},
+          )
+          assert accepted and played == mates[1] and kind == "alternative_checkmate"
+          print("Built-in puzzle validator smoke tests passed.")
+          PYTEST
+          fi
+          python - <<'PY'
+          import ast
+          import os
+          import sqlite3
+          from pathlib import Path
+
+          def constant(filename, name):
+              tree = ast.parse(Path(filename).read_text(encoding="utf-8"))
+              for node in tree.body:
+                  if isinstance(node, ast.Assign):
+                      for target in node.targets:
+                          if isinstance(target, ast.Name) and target.id == name:
+                              return ast.literal_eval(node.value)
+              raise RuntimeError(f"{name} not found in {filename}")
+
+          bot_build = constant("bot.py", "RP_BUILD")
+          ledger_build = constant("shared_leaderboard.py", "LEDGER_BUILD")
+          pool_file = constant("bot.py", "RP_POOL_FILE")
+
+          assert bot_build == "daily-rp-v12-offline-pool-2026-09-03", bot_build
+          assert ledger_build == "shared-ledger-v13-daily-activity-2026-09-07", ledger_build
+          assert os.path.exists(pool_file), (
+              f"{pool_file} is missing. Run the 'Build RP Puzzle Pool' workflow first."
+          )
+
+          con = sqlite3.connect(pool_file)
+          try:
+              total = con.execute("SELECT COUNT(*) FROM puzzles").fetchone()[0]
+              counts = dict(con.execute(
+                  "SELECT band, COUNT(*) FROM puzzles GROUP BY band ORDER BY band"
+              ).fetchall())
+          finally:
+              con.close()
+
+          assert total == 300000, total
+          assert counts == {0:50000,1:50000,2:50000,3:50000,4:50000,5:50000}, counts
+
+          source = Path("bot.py").read_text(encoding="utf-8")
+          assert "lichess.org/api/puzzle/next" not in source
+          assert "temporarily rate-limited (HTTP 429)" not in source
+          assert "daily_workflow_rotation_loop" in source
+          assert ".daily_rotation_requested" in source
+          assert "await save_all_critical(attempts=5)" in source
+
+          print(f"Verified bot build: {bot_build}")
+          print(f"Verified ledger build: {ledger_build}")
+          print(f"Verified offline RP pool: {total} puzzles")
+          print("Verified clean Daily Actions self-rotation support.")
+          PY
+
+      - name: Run Daily Puzzle
+        run: python bot.py
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          SHARKMEISTER_USER_ID: "362606514764251137"
+          # 4h20: safely below the 5h50 workflow ceiling while allowing normal
+          # cron replacement to happen first when GitHub scheduling is healthy.
+          DAILY_WORKFLOW_ROTATION_SECONDS: "15600"
+
+      - name: Dispatch replacement after planned rotation
+        # This marker only exists when bot.py has synced critical state and then
+        # deliberately closed itself. Crashes do not create restart loops.
+        if: ${{ always() }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ ! -f .daily_rotation_requested ]; then
+            echo "No planned Daily worker rotation requested."
+            exit 0
+          fi
+
+          echo "Planned rotation marker found; dispatching replacement worker."
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "/repos/${GITHUB_REPOSITORY}/actions/workflows/daily_puzzle_and_answer.yml/dispatches" \
+            -f ref="${GITHUB_REF_NAME:-main}"
+          echo "Replacement Daily Puzzle workflow dispatched."

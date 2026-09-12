@@ -1,0 +1,34 @@
+{
+  "after_coins": {
+    "442597396195704832": 88.28,
+    "601406103712170014": 1710.0
+  },
+  "amount": 5.0,
+  "before_coins": {
+    "442597396195704832": 83.28,
+    "601406103712170014": 1705.0
+  },
+  "created_at": 1789240036,
+  "created_at_ns": 1789240036453376973,
+  "draw": true,
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "multiplayer-wager-settle",
+  "payouts": {
+    "442597396195704832": 5.0,
+    "601406103712170014": 5.0
+  },
+  "players": [
+    {
+      "display_name": "Thice",
+      "user_id": "442597396195704832"
+    },
+    {
+      "display_name": "TheMakina",
+      "user_id": "601406103712170014"
+    }
+  ],
+  "pot": 10.0,
+  "source": "puzzle-racer-multiplayer-wager-settle",
+  "transaction_id": "racer-multiplayer-wager-settle:racer:racer-open:menu-open:1548407043025674321:442597396195704832",
+  "winner_user_ids": []
+}

@@ -1,0 +1,15 @@
+{
+  "after_coins": 20.0,
+  "before_coins": 520.0,
+  "created_at": 1788612942,
+  "created_at_ns": 1788612942142722079,
+  "details": {
+    "color": "red",
+    "spent": 500.0
+  },
+  "display_name": "Sharkmeister",
+  "ledger_build": "shared-ledger-v12-snapshot-2026-09-03",
+  "operation": "buy-color",
+  "transaction_id": "buy-color:1545779457149767811:362606514764251137:red",
+  "user_id": "362606514764251137"
+}

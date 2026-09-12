@@ -1,0 +1,27 @@
+{
+  "after_coins": 53.0,
+  "before_coins": 53.0,
+  "created_at": 1788897009,
+  "created_at_ns": 1788897009834285824,
+  "details": {
+    "declined_trade": {
+      "created_at": 1788896998,
+      "from_name": "TheMakina",
+      "from_user_id": "601406103712170014",
+      "offer": {
+        "amount": 10.0,
+        "type": "coins"
+      },
+      "request": {
+        "amount": 11.0,
+        "type": "coins"
+      },
+      "trade_id": "trade-propose:1546970873074942104:601406103712170014:1310661840707129370"
+    }
+  },
+  "display_name": "Chessmass",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "trade-decline",
+  "transaction_id": "trade-decline-button:1546970922945351731:1310661840707129370",
+  "user_id": "1310661840707129370"
+}

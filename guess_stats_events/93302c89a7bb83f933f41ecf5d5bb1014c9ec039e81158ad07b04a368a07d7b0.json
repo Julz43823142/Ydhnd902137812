@@ -1,0 +1,13 @@
+{
+  "correct": true,
+  "created_at": 1788562086,
+  "display_name": "Sharkmeister",
+  "poll_message_id": "1545564121209110578",
+  "source": "guess-chatter-double",
+  "source_key": "chatter",
+  "stats_build": "guess-stats-v2-streaks-nemesis-2026-09-04",
+  "streak_after": 1,
+  "target_name": "George",
+  "transaction_id": "guess-stats:1545564121209110578:362606514764251137",
+  "user_id": "362606514764251137"
+}

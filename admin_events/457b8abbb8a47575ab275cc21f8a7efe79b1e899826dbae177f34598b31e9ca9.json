@@ -1,0 +1,12 @@
+{
+  "transaction_id": "admin-command:1546481117597667410",
+  "actor_id": "362606514764251137",
+  "operation": "set-guess-points",
+  "result": {
+    "name": "Thice",
+    "field": "guess_points",
+    "before": 196.0,
+    "value": 247.0
+  },
+  "created_at": 1788780231.659604
+}

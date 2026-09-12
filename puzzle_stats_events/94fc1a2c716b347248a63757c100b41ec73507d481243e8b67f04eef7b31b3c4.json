@@ -1,0 +1,20 @@
+{
+  "boss": true,
+  "correct": true,
+  "created_at": 1788880804,
+  "display_name": "Thice",
+  "elo_after": 2332.848,
+  "elo_change": 30.866,
+  "new_achievements": [
+    "high_voltage",
+    "titan_killer"
+  ],
+  "puzzle_id": "random_aGIWE_1788880783172",
+  "puzzle_rating": 2876,
+  "source": "random",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 1,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:random_aGIWE_1788880783172:442597396195704832",
+  "user_id": "442597396195704832"
+}

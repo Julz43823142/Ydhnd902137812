@@ -1,0 +1,15 @@
+{
+  "after_coins": 36.0,
+  "before_coins": 24.0,
+  "created_at": 1788991719,
+  "created_at_ns": 1788991719920054722,
+  "details": {
+    "credited": 12.0,
+    "source": "quest-bonus"
+  },
+  "display_name": "Sharkmeister",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "coin-credit",
+  "transaction_id": "quest-reward:daily:2026-09-09:daily:2026-09-09:challenge:rush-full-1:362606514764251137",
+  "user_id": "362606514764251137"
+}

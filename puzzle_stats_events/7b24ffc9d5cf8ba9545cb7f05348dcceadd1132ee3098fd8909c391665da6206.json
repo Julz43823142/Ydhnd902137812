@@ -1,0 +1,20 @@
+{
+  "boss": false,
+  "correct": true,
+  "created_at": 1788788020,
+  "display_name": "Sharkmeister",
+  "elo_after": 1609.343,
+  "elo_change": 17.81,
+  "new_achievements": [
+    "getting_warm",
+    "elo_1600"
+  ],
+  "puzzle_id": "practice_bsVmj_362606514764251137_1788788005369",
+  "puzzle_rating": 1631,
+  "source": "practice",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 1,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:practice_bsVmj_362606514764251137_1788788005369:362606514764251137",
+  "user_id": "362606514764251137"
+}

@@ -1,0 +1,19 @@
+{
+  "boss": false,
+  "correct": true,
+  "created_at": 1789209173,
+  "display_name": "TheMakina",
+  "elo_after": 2482.226,
+  "elo_change": 27.311,
+  "new_achievements": [
+    "giant_slayer"
+  ],
+  "puzzle_id": "random_9HsdU_1789209124846",
+  "puzzle_rating": 2761,
+  "source": "random",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 7,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:random_9HsdU_1789209124846:601406103712170014",
+  "user_id": "601406103712170014"
+}

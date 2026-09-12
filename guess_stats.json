@@ -1,0 +1,642 @@
+{
+  "build": "guess-stats-v2-streaks-nemesis-2026-09-04",
+  "users": {
+    "1310661840707129370": {
+      "best_streak": 2,
+      "correct": 3,
+      "current_streak": 0,
+      "name": "Chessmass",
+      "targets": {
+        "chatter": {
+          "George": {
+            "correct": 0,
+            "total": 1,
+            "wrong": 1
+          },
+          "Mr_thice": {
+            "correct": 2,
+            "total": 3,
+            "wrong": 1
+          },
+          "Nairyaaa": {
+            "correct": 0,
+            "total": 1,
+            "wrong": 1
+          },
+          "Stepu": {
+            "correct": 0,
+            "total": 1,
+            "wrong": 1
+          }
+        },
+        "chess": {
+          "Mohammad": {
+            "correct": 0,
+            "total": 1,
+            "wrong": 1
+          },
+          "Pandarou": {
+            "correct": 0,
+            "total": 1,
+            "wrong": 1
+          },
+          "Pospos": {
+            "correct": 0,
+            "total": 2,
+            "wrong": 2
+          },
+          "Stepu": {
+            "correct": 0,
+            "total": 1,
+            "wrong": 1
+          },
+          "Sushi": {
+            "correct": 1,
+            "total": 1,
+            "wrong": 0
+          }
+        }
+      },
+      "total": 12,
+      "updated_at": 1788786671,
+      "wrong": 9
+    },
+    "1455217865249652799": {
+      "best_streak": 2,
+      "correct": 9,
+      "current_streak": 0,
+      "name": "Jesse2011",
+      "targets": {
+        "chatter": {
+          "Jessebrawlstars": {
+            "correct": 1,
+            "total": 1,
+            "wrong": 0
+          },
+          "MH": {
+            "correct": 1,
+            "total": 1,
+            "wrong": 0
+          },
+          "Martin": {
+            "correct": 0,
+            "total": 1,
+            "wrong": 1
+          },
+          "Mr_thice": {
+            "correct": 3,
+            "total": 4,
+            "wrong": 1
+          },
+          "Soyadelson": {
+            "correct": 0,
+            "total": 1,
+            "wrong": 1
+          },
+          "Stepu": {
+            "correct": 1,
+            "total": 2,
+            "wrong": 1
+          },
+          "Sushi": {
+            "correct": 0,
+            "total": 1,
+            "wrong": 1
+          }
+        },
+        "chess": {
+          "Adelson": {
+            "correct": 0,
+            "total": 1,
+            "wrong": 1
+          },
+          "Jesse": {
+            "correct": 1,
+            "total": 1,
+            "wrong": 0
+          },
+          "Mohammad": {
+            "correct": 0,
+            "total": 2,
+            "wrong": 2
+          },
+          "Pandarou": {
+            "correct": 0,
+            "total": 1,
+            "wrong": 1
+          },
+          "Shark": {
+            "correct": 1,
+            "total": 4,
+            "wrong": 3
+          },
+          "Sushi": {
+            "correct": 1,
+            "total": 3,
+            "wrong": 2
+          },
+          "Thice": {
+            "correct": 0,
+            "total": 1,
+            "wrong": 1
+          }
+        }
+      },
+      "total": 24,
+      "updated_at": 1788884959,
+      "wrong": 15
+    },
+    "1541007763931668502": {
+      "best_streak": 0,
+      "correct": 0,
+      "current_streak": 0,
+      "name": "Martin",
+      "targets": {
+        "chatter": {},
+        "chess": {}
+      },
+      "total": 1,
+      "updated_at": 1788472920,
+      "wrong": 1
+    },
+    "184101167557640192": {
+      "best_streak": 0,
+      "correct": 0,
+      "current_streak": 0,
+      "name": "Ling",
+      "targets": {
+        "chatter": {
+          "Mr_thice": {
+            "correct": 0,
+            "total": 1,
+            "wrong": 1
+          }
+        },
+        "chess": {}
+      },
+      "total": 1,
+      "updated_at": 1788647229,
+      "wrong": 1
+    },
+    "362606514764251137": {
+      "best_streak": 29,
+      "correct": 99,
+      "current_streak": 1,
+      "name": "Sharkmeister",
+      "targets": {
+        "chatter": {
+          "Ben": {
+            "correct": 0,
+            "total": 1,
+            "wrong": 1
+          },
+          "Geeflux": {
+            "correct": 1,
+            "total": 1,
+            "wrong": 0
+          },
+          "George": {
+            "correct": 6,
+            "total": 10,
+            "wrong": 4
+          },
+          "Jessebrawlstars": {
+            "correct": 1,
+            "total": 2,
+            "wrong": 1
+          },
+          "Kurupt": {
+            "correct": 1,
+            "total": 1,
+            "wrong": 0
+          },
+          "MH": {
+            "correct": 4,
+            "total": 6,
+            "wrong": 2
+          },
+          "Martin": {
+            "correct": 1,
+            "total": 4,
+            "wrong": 3
+          },
+          "Mohammad": {
+            "correct": 2,
+            "total": 5,
+            "wrong": 3
+          },
+          "Mr_thice": {
+            "correct": 12,
+            "total": 16,
+            "wrong": 4
+          },
+          "Nairyaaa": {
+            "correct": 3,
+            "total": 5,
+            "wrong": 2
+          },
+          "Pabu": {
+            "correct": 1,
+            "total": 3,
+            "wrong": 2
+          },
+          "Pandarou": {
+            "correct": 1,
+            "total": 4,
+            "wrong": 3
+          },
+          "Pospos": {
+            "correct": 1,
+            "total": 1,
+            "wrong": 0
+          },
+          "Sativahibread": {
+            "correct": 0,
+            "total": 2,
+            "wrong": 2
+          },
+          "Screamingcat": {
+            "correct": 2,
+            "total": 4,
+            "wrong": 2
+          },
+          "Sh4rkmate is the best": {
+            "correct": 2,
+            "total": 3,
+            "wrong": 1
+          },
+          "Soyadelson": {
+            "correct": 5,
+            "total": 5,
+            "wrong": 0
+          },
+          "Stepu": {
+            "correct": 4,
+            "total": 5,
+            "wrong": 1
+          },
+          "Sushi": {
+            "correct": 4,
+            "total": 9,
+            "wrong": 5
+          },
+          "Thejazzdude": {
+            "correct": 1,
+            "total": 1,
+            "wrong": 0
+          }
+        },
+        "chess": {
+          "Adelson": {
+            "correct": 1,
+            "total": 1,
+            "wrong": 0
+          },
+          "Jesse": {
+            "correct": 0,
+            "total": 1,
+            "wrong": 1
+          },
+          "Lars": {
+            "correct": 8,
+            "total": 8,
+            "wrong": 0
+          },
+          "Mohammad": {
+            "correct": 2,
+            "total": 2,
+            "wrong": 0
+          },
+          "Nairyaaa": {
+            "correct": 3,
+            "total": 8,
+            "wrong": 5
+          },
+          "Pandarou": {
+            "correct": 2,
+            "total": 5,
+            "wrong": 3
+          },
+          "Pospos": {
+            "correct": 9,
+            "total": 10,
+            "wrong": 1
+          },
+          "Shark": {
+            "correct": 3,
+            "total": 3,
+            "wrong": 0
+          },
+          "Stepu": {
+            "correct": 3,
+            "total": 6,
+            "wrong": 3
+          },
+          "Sushi": {
+            "correct": 1,
+            "total": 2,
+            "wrong": 1
+          },
+          "Thice": {
+            "correct": 7,
+            "total": 9,
+            "wrong": 2
+          }
+        }
+      },
+      "total": 151,
+      "updated_at": 1788884859,
+      "wrong": 52
+    },
+    "442597396195704832": {
+      "best_streak": 21,
+      "correct": 171,
+      "current_streak": 0,
+      "name": "thice",
+      "targets": {
+        "chatter": {
+          "Ben": {
+            "correct": 1,
+            "total": 2,
+            "wrong": 1
+          },
+          "Geeflux": {
+            "correct": 1,
+            "total": 1,
+            "wrong": 0
+          },
+          "George": {
+            "correct": 4,
+            "total": 11,
+            "wrong": 7
+          },
+          "Jessebrawlstars": {
+            "correct": 3,
+            "total": 4,
+            "wrong": 1
+          },
+          "Kurupt": {
+            "correct": 0,
+            "total": 1,
+            "wrong": 1
+          },
+          "MH": {
+            "correct": 6,
+            "total": 7,
+            "wrong": 1
+          },
+          "Martin": {
+            "correct": 2,
+            "total": 6,
+            "wrong": 4
+          },
+          "Mohammad": {
+            "correct": 1,
+            "total": 3,
+            "wrong": 2
+          },
+          "Mr_thice": {
+            "correct": 28,
+            "total": 29,
+            "wrong": 1
+          },
+          "Nairyaaa": {
+            "correct": 3,
+            "total": 5,
+            "wrong": 2
+          },
+          "Pabu": {
+            "correct": 0,
+            "total": 2,
+            "wrong": 2
+          },
+          "Pandarou": {
+            "correct": 2,
+            "total": 4,
+            "wrong": 2
+          },
+          "Sativahibread": {
+            "correct": 0,
+            "total": 4,
+            "wrong": 4
+          },
+          "Screamingcat": {
+            "correct": 0,
+            "total": 1,
+            "wrong": 1
+          },
+          "Sh4rkmate is the best": {
+            "correct": 2,
+            "total": 4,
+            "wrong": 2
+          },
+          "Soyadelson": {
+            "correct": 7,
+            "total": 11,
+            "wrong": 4
+          },
+          "Stepu": {
+            "correct": 5,
+            "total": 12,
+            "wrong": 7
+          },
+          "Sushi": {
+            "correct": 8,
+            "total": 17,
+            "wrong": 9
+          },
+          "Thejazzdude": {
+            "correct": 0,
+            "total": 1,
+            "wrong": 1
+          }
+        },
+        "chess": {
+          "Adelson": {
+            "correct": 5,
+            "total": 8,
+            "wrong": 3
+          },
+          "Jesse": {
+            "correct": 4,
+            "total": 8,
+            "wrong": 4
+          },
+          "Lars": {
+            "correct": 14,
+            "total": 17,
+            "wrong": 3
+          },
+          "Mohammad": {
+            "correct": 5,
+            "total": 9,
+            "wrong": 4
+          },
+          "Nairyaaa": {
+            "correct": 5,
+            "total": 8,
+            "wrong": 3
+          },
+          "Pandarou": {
+            "correct": 10,
+            "total": 14,
+            "wrong": 4
+          },
+          "Pospos": {
+            "correct": 9,
+            "total": 13,
+            "wrong": 4
+          },
+          "Shark": {
+            "correct": 11,
+            "total": 13,
+            "wrong": 2
+          },
+          "Stepu": {
+            "correct": 6,
+            "total": 8,
+            "wrong": 2
+          },
+          "Sushi": {
+            "correct": 7,
+            "total": 9,
+            "wrong": 2
+          },
+          "Thice": {
+            "correct": 13,
+            "total": 16,
+            "wrong": 3
+          }
+        }
+      },
+      "total": 262,
+      "updated_at": 1789063485,
+      "wrong": 91
+    },
+    "550338389535227926": {
+      "best_streak": 0,
+      "correct": 0,
+      "current_streak": 0,
+      "name": "Naira",
+      "targets": {
+        "chatter": {
+          "Mohammad": {
+            "correct": 0,
+            "total": 1,
+            "wrong": 1
+          }
+        },
+        "chess": {}
+      },
+      "total": 1,
+      "updated_at": 1788559686,
+      "wrong": 1
+    },
+    "601406103712170014": {
+      "best_streak": 5,
+      "correct": 19,
+      "current_streak": 0,
+      "name": "TheMakina",
+      "targets": {
+        "chatter": {
+          "George": {
+            "correct": 1,
+            "total": 2,
+            "wrong": 1
+          },
+          "Mr_thice": {
+            "correct": 4,
+            "total": 4,
+            "wrong": 0
+          },
+          "Nairyaaa": {
+            "correct": 1,
+            "total": 1,
+            "wrong": 0
+          },
+          "Pandarou": {
+            "correct": 0,
+            "total": 1,
+            "wrong": 1
+          },
+          "Sativahibread": {
+            "correct": 1,
+            "total": 1,
+            "wrong": 0
+          },
+          "Sh4rkmate is the best": {
+            "correct": 0,
+            "total": 1,
+            "wrong": 1
+          },
+          "Soyadelson": {
+            "correct": 3,
+            "total": 3,
+            "wrong": 0
+          },
+          "Stepu": {
+            "correct": 0,
+            "total": 1,
+            "wrong": 1
+          },
+          "Sushi": {
+            "correct": 1,
+            "total": 2,
+            "wrong": 1
+          }
+        },
+        "chess": {
+          "Adelson": {
+            "correct": 2,
+            "total": 2,
+            "wrong": 0
+          },
+          "Jesse": {
+            "correct": 0,
+            "total": 1,
+            "wrong": 1
+          },
+          "Lars": {
+            "correct": 1,
+            "total": 1,
+            "wrong": 0
+          },
+          "Mohammad": {
+            "correct": 1,
+            "total": 2,
+            "wrong": 1
+          },
+          "Nairyaaa": {
+            "correct": 1,
+            "total": 2,
+            "wrong": 1
+          },
+          "Pandarou": {
+            "correct": 1,
+            "total": 2,
+            "wrong": 1
+          },
+          "Pospos": {
+            "correct": 0,
+            "total": 1,
+            "wrong": 1
+          },
+          "Sushi": {
+            "correct": 1,
+            "total": 1,
+            "wrong": 0
+          },
+          "Thice": {
+            "correct": 1,
+            "total": 1,
+            "wrong": 0
+          }
+        }
+      },
+      "total": 29,
+      "updated_at": 1789063427,
+      "wrong": 10
+    }
+  },
+  "version": 2
+}

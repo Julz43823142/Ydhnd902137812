@@ -1,0 +1,14 @@
+{
+  "after_coins": 197.733,
+  "before_coins": 197.733,
+  "created_at": 1788634282,
+  "created_at_ns": 1788634282832262538,
+  "details": {
+    "board": "blue"
+  },
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v12-snapshot-2026-09-03",
+  "operation": "equip-board",
+  "transaction_id": "catalog-equip-board:1545868964155105430:442597396195704832:blue",
+  "user_id": "442597396195704832"
+}

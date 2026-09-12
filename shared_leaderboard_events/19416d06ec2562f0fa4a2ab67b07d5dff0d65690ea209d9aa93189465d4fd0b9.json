@@ -1,0 +1,13 @@
+{
+  "after_points": 1.0,
+  "amount": 1.0,
+  "before_points": 0.0,
+  "created_at": 1788885305,
+  "created_at_ns": 1788885305062920607,
+  "display_name": "Jesse2011",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "add",
+  "source": "puzzle-first",
+  "transaction_id": "puzzle:random_q1hbZ_1788885060859:first:1455217865249652799",
+  "user_id": "1455217865249652799"
+}

@@ -1,0 +1,17 @@
+{
+  "after_coins": 158.95,
+  "before_coins": 208.95,
+  "created_at": 1788820223,
+  "created_at_ns": 1788820223208097619,
+  "details": {
+    "badge": "🐲",
+    "rarity": "epic",
+    "rarity_label": "Epic",
+    "spent": 50.0
+  },
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "badge-box",
+  "transaction_id": "badge-box:1546648856354361386:442597396195704832",
+  "user_id": "442597396195704832"
+}

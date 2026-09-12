@@ -1,0 +1,15 @@
+{
+  "after_coins": 86.28,
+  "before_coins": 41.28,
+  "created_at": 1789198821,
+  "created_at_ns": 1789198821010561810,
+  "details": {
+    "credited": 45.0,
+    "source": "quest-bonus"
+  },
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "coin-credit",
+  "transaction_id": "quest-reward:weekly:2026-09-07:weekly:2026-09-07:puzzle:solve-60:442597396195704832",
+  "user_id": "442597396195704832"
+}

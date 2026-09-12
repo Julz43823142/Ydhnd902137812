@@ -1,0 +1,12 @@
+{
+  "boss": true,
+  "created_at": 1788636855,
+  "display_name": "Sharkmeister",
+  "new_achievements": [
+    "boss_first_blood"
+  ],
+  "puzzle_id": "random_1UwSx_1788636700753",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "transaction_id": "puzzle-first-solve:random_1UwSx_1788636700753:362606514764251137",
+  "user_id": "362606514764251137"
+}

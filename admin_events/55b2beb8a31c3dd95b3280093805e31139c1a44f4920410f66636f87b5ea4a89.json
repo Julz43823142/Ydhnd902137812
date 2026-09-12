@@ -1,0 +1,12 @@
+{
+  "transaction_id": "admin-command:1546469779488120862",
+  "actor_id": "362606514764251137",
+  "operation": "set-points",
+  "result": {
+    "name": "Sharkmeister",
+    "field": "points",
+    "before": 71.5,
+    "value": 72.5
+  },
+  "created_at": 1788777528.9420655
+}

@@ -1,0 +1,19 @@
+{
+  "boss": false,
+  "correct": true,
+  "created_at": 1788986362,
+  "display_name": "TheMakina",
+  "elo_after": 2359.651,
+  "elo_change": 12.827,
+  "new_achievements": [
+    "expert_hunter"
+  ],
+  "puzzle_id": "practice_AWLvT_601406103712170014_1788986203536",
+  "puzzle_rating": 2277,
+  "source": "practice",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 12,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:practice_AWLvT_601406103712170014_1788986203536:601406103712170014",
+  "user_id": "601406103712170014"
+}

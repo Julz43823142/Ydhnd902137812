@@ -1,0 +1,18 @@
+{
+  "after_coins": 122.0,
+  "before_coins": 112.0,
+  "created_at": 1788877604,
+  "created_at_ns": 1788877604179868970,
+  "details": {
+    "activity_day": "2026-09-08",
+    "credited": 10.0,
+    "reset_hour": 5,
+    "source": "daily-activity-bonus",
+    "timezone": "Europe/Amsterdam"
+  },
+  "display_name": "Sharkmeister",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "daily-activity-bonus",
+  "transaction_id": "activity-bonus:2026-09-08:362606514764251137",
+  "user_id": "362606514764251137"
+}

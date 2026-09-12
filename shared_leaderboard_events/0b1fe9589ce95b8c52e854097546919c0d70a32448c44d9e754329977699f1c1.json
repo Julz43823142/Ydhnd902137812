@@ -1,0 +1,15 @@
+{
+  "after_coins": 1458.0,
+  "before_coins": 1446.0,
+  "created_at": 1788960367,
+  "created_at_ns": 1788960367506424299,
+  "details": {
+    "credited": 12.0,
+    "source": "quest-bonus"
+  },
+  "display_name": "TheMakina",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "coin-credit",
+  "transaction_id": "quest-reward:daily:2026-09-09:daily:2026-09-09:challenge:rush-full-1:601406103712170014",
+  "user_id": "601406103712170014"
+}

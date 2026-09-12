@@ -1,0 +1,14 @@
+{
+  "transaction_id": "admin-command:1546478995049025616",
+  "actor_id": "362606514764251137",
+  "operation": "give-pieces",
+  "result": {
+    "name": "Thice",
+    "action": "give",
+    "kind": "pieces",
+    "item": "eyes",
+    "amount": 1,
+    "active_reset": false
+  },
+  "created_at": 1788779725.452422
+}

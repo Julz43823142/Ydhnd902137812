@@ -1,0 +1,13 @@
+{
+  "after_points": 1359.5,
+  "amount": 0.5,
+  "before_points": 1359.0,
+  "created_at": 1788457887,
+  "created_at_ns": 1788457887562844021,
+  "display_name": "TheMakina",
+  "ledger_build": "shared-ledger-v12-snapshot-2026-09-03",
+  "operation": "add",
+  "source": "puzzle-helper",
+  "transaction_id": "puzzle:random_lR5he_1788457857381:helper:601406103712170014",
+  "user_id": "601406103712170014"
+}

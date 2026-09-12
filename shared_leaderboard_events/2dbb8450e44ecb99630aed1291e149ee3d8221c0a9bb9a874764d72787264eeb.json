@@ -1,0 +1,14 @@
+{
+  "after_coins": 20.0,
+  "before_coins": 20.0,
+  "created_at": 1788612366,
+  "created_at_ns": 1788612366081436858,
+  "details": {
+    "badge": "🥷"
+  },
+  "display_name": "Sharkmeister",
+  "ledger_build": "shared-ledger-v12-snapshot-2026-09-03",
+  "operation": "equip-badge",
+  "transaction_id": "equip-badge:1545777039972372520:362606514764251137:1",
+  "user_id": "362606514764251137"
+}

@@ -1,0 +1,16 @@
+{
+  "action": "minigame_win",
+  "amount": 1,
+  "created_at": 1789059004,
+  "created_at_ns": 1789059004266308815,
+  "daily_key": "daily:2026-09-10",
+  "display_name": "Sharkmeister",
+  "metadata": {
+    "kind": "escape"
+  },
+  "operation": "quest-progress",
+  "quest_build": "quests-v1-2026-09-08",
+  "transaction_id": "quest:minigame-win:1547646055783338105:1789059000367:362606514764251137",
+  "user_id": "362606514764251137",
+  "weekly_key": "weekly:2026-09-07"
+}

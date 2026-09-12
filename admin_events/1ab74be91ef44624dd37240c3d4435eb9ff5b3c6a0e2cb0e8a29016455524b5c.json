@@ -1,0 +1,12 @@
+{
+  "transaction_id": "admin-command:1546477796329791539",
+  "actor_id": "362606514764251137",
+  "operation": "set-coins",
+  "result": {
+    "name": "Chessmass",
+    "field": "coins",
+    "before": 8.0,
+    "value": 23.0
+  },
+  "created_at": 1788779439.6824157
+}

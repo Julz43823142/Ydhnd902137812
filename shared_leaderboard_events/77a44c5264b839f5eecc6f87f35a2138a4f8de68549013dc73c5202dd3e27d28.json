@@ -1,0 +1,14 @@
+{
+  "after_coins": 62.95,
+  "before_coins": 62.95,
+  "created_at": 1789054748,
+  "created_at_ns": 1789054748370182860,
+  "details": {
+    "piece": "kiwen-suwi"
+  },
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "equip-piece",
+  "transaction_id": "catalog-equip-piece:1547632526636355615:442597396195704832:kiwen-suwi",
+  "user_id": "442597396195704832"
+}

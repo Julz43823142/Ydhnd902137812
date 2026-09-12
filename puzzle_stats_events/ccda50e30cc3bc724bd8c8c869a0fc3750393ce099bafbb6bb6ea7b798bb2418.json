@@ -1,0 +1,19 @@
+{
+  "boss": false,
+  "correct": true,
+  "created_at": 1788770944,
+  "display_name": "Chessmass",
+  "elo_after": 1727.649,
+  "elo_change": 31.941,
+  "new_achievements": [
+    "ten_down"
+  ],
+  "puzzle_id": "random_RvXTL_1788770928927",
+  "puzzle_rating": 2789,
+  "source": "random",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 1,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:random_RvXTL_1788770928927:1310661840707129370",
+  "user_id": "1310661840707129370"
+}

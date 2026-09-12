@@ -1,0 +1,15 @@
+{
+  "after_coins": 660.0,
+  "before_coins": 710.0,
+  "created_at": 1788801560,
+  "created_at_ns": 1788801560769685453,
+  "details": {
+    "profile_theme": "ice",
+    "spent": 50.0
+  },
+  "display_name": "Sharkmeister",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "buy-profile-theme",
+  "transaction_id": "buy-profile-theme:1546570580843831376:362606514764251137:ice",
+  "user_id": "362606514764251137"
+}

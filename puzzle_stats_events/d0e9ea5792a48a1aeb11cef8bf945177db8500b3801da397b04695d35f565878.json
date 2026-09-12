@@ -1,0 +1,17 @@
+{
+  "boss": false,
+  "correct": true,
+  "created_at": 1788631538,
+  "display_name": "Thice",
+  "elo_after": 2139.853,
+  "elo_change": 22.048,
+  "new_achievements": [],
+  "puzzle_id": "survival:makina:1787228543:65:zmPWu",
+  "puzzle_rating": 2256,
+  "source": "survival",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 6,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:survival:makina:1787228543:65:zmPWu:442597396195704832",
+  "user_id": "442597396195704832"
+}

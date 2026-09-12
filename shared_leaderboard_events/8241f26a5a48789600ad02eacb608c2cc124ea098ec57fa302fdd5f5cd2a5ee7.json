@@ -1,0 +1,16 @@
+{
+  "after_coins": 50.0,
+  "before_coins": 14.0,
+  "created_at": 1788646997,
+  "created_at_ns": 1788646997438852045,
+  "details": {
+    "after_coins": 50.0,
+    "before_coins": 14.0,
+    "source": "admin-editcoins"
+  },
+  "display_name": "Sharkmeister",
+  "ledger_build": "shared-ledger-v12-snapshot-2026-09-03",
+  "operation": "admin-set-coins",
+  "transaction_id": "admin-editcoins:1545922294503841832:362606514764251137:50",
+  "user_id": "362606514764251137"
+}

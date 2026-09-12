@@ -1,0 +1,27 @@
+{
+  "after_coins": 119.45,
+  "before_coins": 119.45,
+  "created_at": 1788873071,
+  "created_at_ns": 1788873071849665502,
+  "details": {
+    "declined_trade": {
+      "created_at": 1788873063,
+      "from_name": "TheMakina",
+      "from_user_id": "601406103712170014",
+      "offer": {
+        "amount": 15.0,
+        "type": "coins"
+      },
+      "request": {
+        "amount": 55.0,
+        "type": "coins"
+      },
+      "trade_id": "trade-propose:1546870479023767662:601406103712170014:442597396195704832"
+    }
+  },
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "trade-decline",
+  "transaction_id": "trade-decline-button:1546870519653994496:442597396195704832",
+  "user_id": "442597396195704832"
+}

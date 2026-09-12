@@ -1,0 +1,13 @@
+{
+  "correct": true,
+  "created_at": 1788632797,
+  "display_name": "Thice",
+  "poll_message_id": "1545862568524914788",
+  "source": "guess-chatter-normal",
+  "source_key": "chatter",
+  "stats_build": "guess-stats-v2-streaks-nemesis-2026-09-04",
+  "streak_after": 3,
+  "target_name": "Sushi",
+  "transaction_id": "guess-stats:1545862568524914788:442597396195704832",
+  "user_id": "442597396195704832"
+}

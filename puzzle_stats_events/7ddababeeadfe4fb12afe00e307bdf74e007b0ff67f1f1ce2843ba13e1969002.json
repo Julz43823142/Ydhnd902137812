@@ -1,0 +1,21 @@
+{
+  "boss": false,
+  "correct": true,
+  "created_at": 1788782921,
+  "display_name": "TheMakina",
+  "elo_after": 1874.699,
+  "elo_change": 31.828,
+  "new_achievements": [
+    "getting_warm",
+    "on_fire",
+    "giant_killer"
+  ],
+  "puzzle_id": "random_3UfNf_1788782746276",
+  "puzzle_rating": 2750,
+  "source": "random",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 5,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:random_3UfNf_1788782746276:601406103712170014",
+  "user_id": "601406103712170014"
+}

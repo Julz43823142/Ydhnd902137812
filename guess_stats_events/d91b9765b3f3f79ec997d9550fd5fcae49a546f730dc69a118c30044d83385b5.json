@@ -1,0 +1,13 @@
+{
+  "correct": true,
+  "created_at": 1788879284,
+  "display_name": "Sharkmeister",
+  "poll_message_id": "1546896508371214338",
+  "source": "guess-chess-chatter",
+  "source_key": "chess",
+  "stats_build": "guess-stats-v2-streaks-nemesis-2026-09-04",
+  "streak_after": 3,
+  "target_name": "Pandarou",
+  "transaction_id": "guess-stats:1546896508371214338:362606514764251137",
+  "user_id": "362606514764251137"
+}

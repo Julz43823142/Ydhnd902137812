@@ -1,0 +1,12 @@
+{
+  "boss": false,
+  "created_at": 1788770488,
+  "display_name": "Chessmass",
+  "new_achievements": [
+    "quick_draw"
+  ],
+  "puzzle_id": "random_7vzwM_1788770439371",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "transaction_id": "puzzle-first-solve:random_7vzwM_1788770439371:1310661840707129370",
+  "user_id": "1310661840707129370"
+}

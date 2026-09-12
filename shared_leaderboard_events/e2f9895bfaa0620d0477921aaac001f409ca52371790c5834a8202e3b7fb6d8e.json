@@ -1,0 +1,13 @@
+{
+  "after_points": 19.0,
+  "amount": 1.0,
+  "before_points": 18.0,
+  "created_at": 1788788681,
+  "created_at_ns": 1788788681343944975,
+  "display_name": "Chessmass",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "add",
+  "source": "puzzle-first",
+  "transaction_id": "puzzle:random_gSpDK_1788788571768:first:1310661840707129370",
+  "user_id": "1310661840707129370"
+}

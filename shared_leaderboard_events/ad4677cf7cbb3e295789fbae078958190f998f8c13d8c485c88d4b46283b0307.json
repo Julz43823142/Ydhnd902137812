@@ -1,0 +1,13 @@
+{
+  "after_points": 20.0,
+  "amount": 1.0,
+  "before_points": 19.0,
+  "created_at": 1788507561,
+  "created_at_ns": 1788507561779938032,
+  "display_name": "WetisJas",
+  "ledger_build": "shared-ledger-v12-snapshot-2026-09-03",
+  "operation": "add",
+  "source": "puzzle-first",
+  "transaction_id": "puzzle:random_UTShW_1788507531239:first:1403636751695740971",
+  "user_id": "1403636751695740971"
+}

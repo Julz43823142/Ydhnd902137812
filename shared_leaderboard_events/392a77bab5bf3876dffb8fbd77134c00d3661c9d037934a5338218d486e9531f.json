@@ -1,0 +1,13 @@
+{
+  "after_points": 1373.5,
+  "amount": 0.5,
+  "before_points": 1373.0,
+  "created_at": 1788459072,
+  "created_at_ns": 1788459072110251138,
+  "display_name": "TheMakina",
+  "ledger_build": "shared-ledger-v12-snapshot-2026-09-03",
+  "operation": "add",
+  "source": "puzzle-helper",
+  "transaction_id": "puzzle:random_YtPbe_1788459020070:helper:601406103712170014",
+  "user_id": "601406103712170014"
+}

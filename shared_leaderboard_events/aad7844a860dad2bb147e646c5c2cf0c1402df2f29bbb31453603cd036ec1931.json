@@ -1,0 +1,13 @@
+{
+  "after_points": 1452.5,
+  "amount": 3.0,
+  "before_points": 1449.5,
+  "created_at": 1788619590,
+  "created_at_ns": 1788619590604566000,
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v12-snapshot-2026-09-03",
+  "operation": "add",
+  "source": "rated-chess-bot-game",
+  "transaction_id": "chess-bot-game-reward:bot-1545807015698505829-442597396195704832",
+  "user_id": "442597396195704832"
+}

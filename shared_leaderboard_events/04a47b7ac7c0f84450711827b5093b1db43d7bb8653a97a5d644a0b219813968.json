@@ -1,0 +1,17 @@
+{
+  "after_coins": 1.0,
+  "before_coins": 0.0,
+  "created_at": 1788646873,
+  "created_at_ns": 1788646873965762899,
+  "details": {
+    "credited": 1.0,
+    "guess_points": 1.0,
+    "previous_guess_points_coined": 0.0,
+    "source": "guess-games"
+  },
+  "display_name": "Aleksandar",
+  "ledger_build": "shared-ledger-v12-snapshot-2026-09-03",
+  "operation": "guess-points-coin-sync",
+  "transaction_id": "guess-coin-sync:1310661840707129370:1.000",
+  "user_id": "1310661840707129370"
+}

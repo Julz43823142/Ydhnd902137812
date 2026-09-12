@@ -1,0 +1,12 @@
+{
+  "transaction_id": "admin-command:1546477661709144144",
+  "actor_id": "362606514764251137",
+  "operation": "set-points",
+  "result": {
+    "name": "Thice",
+    "field": "points",
+    "before": 1528.5,
+    "value": 1528.5
+  },
+  "created_at": 1788779407.5791552
+}

@@ -1,0 +1,14 @@
+{
+  "after_coins": 97.28,
+  "before_coins": 97.28,
+  "created_at": 1789241105,
+  "created_at_ns": 1789241105760548529,
+  "details": {
+    "piece": "eyes"
+  },
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "equip-piece",
+  "transaction_id": "equip-piece:1548414166501556359:442597396195704832:eyes",
+  "user_id": "442597396195704832"
+}

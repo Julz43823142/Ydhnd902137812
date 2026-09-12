@@ -1,0 +1,31 @@
+SHARK MINIGAMES — CONTENT AND ART CREDITS
+
+Trivia questions
+Source: Open Trivia Database / Open Trivia DB contributors
+https://opentdb.com/
+API documentation: https://opentdb.com/api_config.php
+License: Creative Commons Attribution-ShareAlike 4.0 International
+https://creativecommons.org/licenses/by-sa/4.0/
+Changes: selected general-knowledge categories, removed duplicate questions,
+decoded HTML entities, normalized records, and shuffled answer options at play time.
+The included minigames_trivia.json question collection remains under CC BY-SA 4.0.
+Questions are community-contributed; no claim of independent fact-checking is made.
+
+Unicode badge images
+Twemoji — Twitter and other contributors; maintained by the jdecked/twemoji project.
+https://github.com/jdecked/twemoji/tree/v15.1.0
+Graphics license: Creative Commons Attribution 4.0 International
+https://creativecommons.org/licenses/by/4.0/
+Selected PNG graphics are embedded in minigames_badges.py for offline rendering.
+Changes: selected assets, lossless packaging; resized when displayed.
+
+Custom community emoji
+The custom Discord emoji originate from the user's supplied shop catalogue and
+community Discord CDN images. Their creators retain their rights; these images
+are not relicensed as Twemoji artwork. Some unbundled/new custom emoji are fetched
+from Discord's CDN at runtime. Names and text badges still appear in embeds if
+an external image is unavailable; the picture falls back to name initials.
+
+Game boards, poker table, cards and escape-room illustrations
+Drawn programmatically for this project. Escape-room narratives and puzzle
+variants are original content written for this project.

@@ -1,0 +1,19 @@
+{
+  "boss": false,
+  "correct": true,
+  "created_at": 1789236423,
+  "display_name": "TheMakina",
+  "elo_after": 2367.0,
+  "elo_change": 0.167,
+  "new_achievements": [
+    "sharpshooter"
+  ],
+  "puzzle_id": "random_JEqOS_1789236416240",
+  "puzzle_rating": 1455,
+  "source": "random",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 1,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:random_JEqOS_1789236416240:601406103712170014",
+  "user_id": "601406103712170014"
+}

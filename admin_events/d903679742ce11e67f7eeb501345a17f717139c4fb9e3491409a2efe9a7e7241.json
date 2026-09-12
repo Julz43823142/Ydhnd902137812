@@ -1,0 +1,12 @@
+{
+  "transaction_id": "admin-command:1546481138682564608",
+  "actor_id": "362606514764251137",
+  "operation": "set-stat",
+  "result": {
+    "name": "Thice",
+    "field": "guess.current_streak",
+    "before": 0,
+    "value": 9
+  },
+  "created_at": 1788780236.5116036
+}

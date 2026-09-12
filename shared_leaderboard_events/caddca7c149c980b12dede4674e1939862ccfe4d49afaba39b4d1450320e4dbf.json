@@ -1,0 +1,15 @@
+{
+  "after_coins": 1715.0,
+  "before_coins": 1713.0,
+  "created_at": 1789240318,
+  "created_at_ns": 1789240318288111962,
+  "details": {
+    "credited": 2.0,
+    "source": "puzzle-racer-gameplay"
+  },
+  "display_name": "TheMakina",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "coin-credit",
+  "transaction_id": "racer-base-reward:racer:racer-open:menu-open:1548410000689336411:442597396195704832:601406103712170014",
+  "user_id": "601406103712170014"
+}

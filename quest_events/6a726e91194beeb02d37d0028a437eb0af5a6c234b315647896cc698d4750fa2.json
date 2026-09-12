@@ -1,0 +1,17 @@
+{
+  "action": "puzzle_solve",
+  "amount": 1,
+  "created_at": 1789072302,
+  "created_at_ns": 1789072302041353205,
+  "daily_key": "daily:2026-09-10",
+  "display_name": "Thice",
+  "metadata": {
+    "boss": false,
+    "source": "puzzle"
+  },
+  "operation": "quest-progress",
+  "quest_build": "quests-v1-2026-09-08",
+  "transaction_id": "quest:puzzle-solve:random_NTrUz_1789072236217:442597396195704832",
+  "user_id": "442597396195704832",
+  "weekly_key": "weekly:2026-09-07"
+}

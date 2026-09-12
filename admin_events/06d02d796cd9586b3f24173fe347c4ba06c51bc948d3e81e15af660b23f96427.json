@@ -1,0 +1,12 @@
+{
+  "transaction_id": "admin-command:1546477648430239754",
+  "actor_id": "362606514764251137",
+  "operation": "set-stat",
+  "result": {
+    "name": "Thice",
+    "field": "puzzle.elo",
+    "before": 2280.0,
+    "value": 2280.0
+  },
+  "created_at": 1788779404.3593988
+}

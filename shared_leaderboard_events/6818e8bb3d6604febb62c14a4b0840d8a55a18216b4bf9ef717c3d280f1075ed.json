@@ -1,0 +1,17 @@
+{
+  "after_coins": 38.0,
+  "before_coins": 36.0,
+  "created_at": 1788639270,
+  "created_at_ns": 1788639270783082323,
+  "details": {
+    "credited": 2.0,
+    "guess_points": 92.0,
+    "previous_guess_points_coined": 90.0,
+    "source": "guess-games"
+  },
+  "display_name": "Sharkmeister",
+  "ledger_build": "shared-ledger-v12-snapshot-2026-09-03",
+  "operation": "guess-points-coin-sync",
+  "transaction_id": "guess-coin-sync:362606514764251137:92.000",
+  "user_id": "362606514764251137"
+}

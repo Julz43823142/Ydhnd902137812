@@ -1,0 +1,15 @@
+{
+  "after_coins": 1383.5,
+  "before_coins": 1377.5,
+  "created_at": 1788958432,
+  "created_at_ns": 1788958432673280363,
+  "details": {
+    "credited": 6.0,
+    "source": "quest-bonus"
+  },
+  "display_name": "TheMakina",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "coin-credit",
+  "transaction_id": "quest-reward:daily:2026-09-09:daily:2026-09-09:minigame:minigame-1:601406103712170014",
+  "user_id": "601406103712170014"
+}

@@ -1,0 +1,12 @@
+{
+  "transaction_id": "admin-command:1546477718340771922",
+  "actor_id": "362606514764251137",
+  "operation": "set-points",
+  "result": {
+    "name": "TheMakina",
+    "field": "points",
+    "before": 1378.0,
+    "value": 1393.0
+  },
+  "created_at": 1788779421.0230951
+}

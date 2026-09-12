@@ -1,0 +1,17 @@
+{
+  "boss": false,
+  "correct": true,
+  "created_at": 1788614816,
+  "display_name": "Thice",
+  "elo_after": 1910.687,
+  "elo_change": 4.645,
+  "new_achievements": [],
+  "puzzle_id": "random_dKOVa_1788614795693",
+  "puzzle_rating": 1598,
+  "source": "random",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 1,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:random_dKOVa_1788614795693:442597396195704832",
+  "user_id": "442597396195704832"
+}

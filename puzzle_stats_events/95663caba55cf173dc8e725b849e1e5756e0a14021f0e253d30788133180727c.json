@@ -1,0 +1,21 @@
+{
+  "boss": true,
+  "correct": true,
+  "created_at": 1788620603,
+  "display_name": "Sharkmeister",
+  "elo_after": 1563.236,
+  "elo_change": 31.974,
+  "new_achievements": [
+    "giant_killer",
+    "boss_encounter",
+    "boss_slayer"
+  ],
+  "puzzle_id": "random_Ye03L_1788620585157",
+  "puzzle_rating": 2766,
+  "source": "random",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 2,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:random_Ye03L_1788620585157:362606514764251137",
+  "user_id": "362606514764251137"
+}

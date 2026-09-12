@@ -1,0 +1,15 @@
+{
+  "after_coins": 190.45,
+  "before_coins": 178.45,
+  "created_at": 1788945605,
+  "created_at_ns": 1788945605092330260,
+  "details": {
+    "credited": 12.0,
+    "source": "quest-bonus"
+  },
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "coin-credit",
+  "transaction_id": "quest-reward:daily:2026-09-09:daily:2026-09-09:challenge:rush-full-1:442597396195704832",
+  "user_id": "442597396195704832"
+}

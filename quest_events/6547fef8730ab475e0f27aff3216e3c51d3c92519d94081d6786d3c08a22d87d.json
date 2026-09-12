@@ -1,0 +1,16 @@
+{
+  "action": "minigame_win",
+  "amount": 1,
+  "created_at": 1789071877,
+  "created_at_ns": 1789071877721000750,
+  "daily_key": "daily:2026-09-10",
+  "display_name": "Sharkmeister",
+  "metadata": {
+    "kind": "blackjack"
+  },
+  "operation": "quest-progress",
+  "quest_build": "quests-v1-2026-09-08",
+  "transaction_id": "quest:minigame-win:1547702334102966312:1789071874860:362606514764251137",
+  "user_id": "362606514764251137",
+  "weekly_key": "weekly:2026-09-07"
+}

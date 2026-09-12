@@ -1,0 +1,17 @@
+{
+  "after_coins": 19.0,
+  "amount": 1.0,
+  "before_coins": 20.0,
+  "created_at": 1788617536,
+  "created_at_ns": 1788617536279206124,
+  "display_name": "Sharkmeister",
+  "ledger_build": "shared-ledger-v12-snapshot-2026-09-03",
+  "operation": "coin-transfer",
+  "recipient_after_coins": 896.5,
+  "recipient_before_coins": 895.5,
+  "recipient_display_name": "Thice",
+  "recipient_user_id": "442597396195704832",
+  "source": "puzzle-donation",
+  "transaction_id": "coin-donate:1545798722225438720:362606514764251137:442597396195704832",
+  "user_id": "362606514764251137"
+}

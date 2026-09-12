@@ -1,0 +1,16 @@
+{
+  "after_coins": 200.0,
+  "before_coins": 199.733,
+  "created_at": 1788634846,
+  "created_at_ns": 1788634846567781073,
+  "details": {
+    "after_coins": 200.0,
+    "before_coins": 199.733,
+    "source": "admin-editcoins"
+  },
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v12-snapshot-2026-09-03",
+  "operation": "admin-set-coins",
+  "transaction_id": "admin-editcoins:1545871329339904181:thice:200",
+  "user_id": "442597396195704832"
+}

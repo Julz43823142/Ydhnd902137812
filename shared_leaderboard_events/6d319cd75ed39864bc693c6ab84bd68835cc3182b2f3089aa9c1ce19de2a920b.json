@@ -1,0 +1,13 @@
+{
+  "after_points": 75.5,
+  "amount": 1.0,
+  "before_points": 74.5,
+  "created_at": 1788805207,
+  "created_at_ns": 1788805207556740688,
+  "display_name": "Sharkmeister",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "add",
+  "source": "rated-practice-solve",
+  "transaction_id": "practice:practice_oqKme_362606514764251137_1788805184056:solve:362606514764251137",
+  "user_id": "362606514764251137"
+}

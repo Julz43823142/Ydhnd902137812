@@ -1,0 +1,10 @@
+{
+  "transaction_id": "admin-command:1546481167618932797",
+  "user_id": "362606514764251137",
+  "display_name": "Sharkmeister",
+  "amount": 34.0,
+  "source": "admin-guess-correction",
+  "created_at": 1788780243,
+  "before": 122.0,
+  "after": 156.0
+}

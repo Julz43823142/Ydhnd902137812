@@ -1,0 +1,9 @@
+{
+  "created_at": 1788773684,
+  "details": {
+    "wallets": {}
+  },
+  "ledger_build": "shared-ledger-v12-snapshot-2026-09-03",
+  "operation": "minigames",
+  "transaction_id": "minigames:retire-mine-stakes-v1"
+}

@@ -1,0 +1,10 @@
+{
+  "created_at": 1788889534,
+  "created_at_ns": 1788889534125226401,
+  "credited": 3.0,
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "guess-points-backfill",
+  "source": "guess-games-1.2",
+  "transaction_id": "guess-coins-backfill-v1",
+  "users": 1
+}

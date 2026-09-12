@@ -1,0 +1,16 @@
+{
+  "action": "rush_complete",
+  "amount": 1,
+  "created_at": 1788960365,
+  "created_at_ns": 1788960365461516334,
+  "daily_key": "daily:2026-09-09",
+  "display_name": "TheMakina",
+  "metadata": {
+    "score": 20
+  },
+  "operation": "quest-progress",
+  "quest_build": "quests-v1-2026-09-08",
+  "transaction_id": "quest:rush-complete:rush:601406103712170014:1788960052751:601406103712170014",
+  "user_id": "601406103712170014",
+  "weekly_key": "weekly:2026-09-07"
+}

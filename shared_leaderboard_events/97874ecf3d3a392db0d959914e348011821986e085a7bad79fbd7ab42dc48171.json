@@ -1,0 +1,13 @@
+{
+  "after_points": 1436.5,
+  "amount": 1.0,
+  "before_points": 1435.5,
+  "created_at": 1788986166,
+  "created_at_ns": 1788986166934701574,
+  "display_name": "TheMakina",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "add",
+  "source": "rated-practice-solve",
+  "transaction_id": "practice:practice_hzFQ9_601406103712170014_1788986099552:solve:601406103712170014",
+  "user_id": "601406103712170014"
+}

@@ -1,0 +1,15 @@
+{
+  "after_coins": 1554.0,
+  "before_coins": 1553.0,
+  "created_at": 1789038022,
+  "created_at_ns": 1789038022334084653,
+  "details": {
+    "credited": 1.0,
+    "source": "puzzle-achievement"
+  },
+  "display_name": "TheMakina",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "coin-credit",
+  "transaction_id": "puzzle-achievement:601406103712170014:rough_patch",
+  "user_id": "601406103712170014"
+}

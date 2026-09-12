@@ -1,0 +1,18 @@
+{
+  "after_coins": 103.95,
+  "amount": 100.0,
+  "before_coins": 203.95,
+  "created_at": 1788794380,
+  "created_at_ns": 1788794380885456482,
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "chess-wager-reserve",
+  "opponent_after_coins": 1246.5,
+  "opponent_before_coins": 1346.5,
+  "opponent_display_name": "TheMakina",
+  "opponent_user_id": "601406103712170014",
+  "pot": 200.0,
+  "source": "chess-wager-reserve",
+  "transaction_id": "chess-wager-reserve:pvp-challenge:1546538088912920788:442597396195704832:601406103712170014",
+  "user_id": "442597396195704832"
+}

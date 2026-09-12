@@ -1,0 +1,13 @@
+{
+  "correct": false,
+  "created_at": 1788545339,
+  "display_name": "Thice",
+  "poll_message_id": "1545493859801505812",
+  "source": "guess-chess-chatter",
+  "source_key": "chess",
+  "stats_build": "guess-stats-v2-streaks-nemesis-2026-09-04",
+  "streak_after": 0,
+  "target_name": "Jesse",
+  "transaction_id": "guess-stats:1545493859801505812:442597396195704832",
+  "user_id": "442597396195704832"
+}

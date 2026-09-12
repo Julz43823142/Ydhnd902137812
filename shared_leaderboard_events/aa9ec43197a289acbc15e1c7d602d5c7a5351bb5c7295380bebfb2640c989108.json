@@ -1,0 +1,9 @@
+{
+  "created_at": 1789064275,
+  "details": {
+    "wallets": {}
+  },
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "minigames",
+  "transaction_id": "minigames:mine-panel-v2:1547672449024397423:1547672477897986049:1547672479940481146:1547672482473971743:1547672484713865308"
+}

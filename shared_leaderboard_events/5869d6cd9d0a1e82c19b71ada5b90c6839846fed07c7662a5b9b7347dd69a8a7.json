@@ -1,0 +1,23 @@
+{
+  "created_at": 1788619330,
+  "created_at_ns": 1788619330252025468,
+  "details": {
+    "created_at": 1788619330,
+    "from_name": "Thice",
+    "from_user_id": "442597396195704832",
+    "offer": {
+      "badge": "🍅",
+      "type": "badge"
+    },
+    "request": {
+      "badge": "🌕",
+      "type": "badge"
+    },
+    "trade_id": "trade-propose:1545806247440424970:442597396195704832:362606514764251137"
+  },
+  "ledger_build": "shared-ledger-v12-snapshot-2026-09-03",
+  "operation": "trade-propose",
+  "recipient_user_id": "362606514764251137",
+  "transaction_id": "trade-propose:1545806247440424970:442597396195704832:362606514764251137",
+  "user_id": "442597396195704832"
+}

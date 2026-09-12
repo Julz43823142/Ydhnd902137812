@@ -1,0 +1,20 @@
+{
+  "boss": false,
+  "correct": true,
+  "created_at": 1788769083,
+  "display_name": "Chessmass",
+  "elo_after": 1505.964,
+  "elo_change": 5.964,
+  "new_achievements": [
+    "first_steps",
+    "first_blood"
+  ],
+  "puzzle_id": "random_RKX8S_1788769061831",
+  "puzzle_rating": 1244,
+  "source": "random",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 1,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:random_RKX8S_1788769061831:1310661840707129370",
+  "user_id": "1310661840707129370"
+}

@@ -1,0 +1,15 @@
+{
+  "after_coins": 209.67,
+  "before_coins": 208.67,
+  "created_at": 1788636509,
+  "created_at_ns": 1788636509682679947,
+  "details": {
+    "credited": 1.0,
+    "source": "survival-first"
+  },
+  "display_name": "Sharkmeister",
+  "ledger_build": "shared-ledger-v12-snapshot-2026-09-03",
+  "operation": "coin-credit",
+  "transaction_id": "survival-coin:sharkmeister:1788636471:1:first:442597396195704832",
+  "user_id": "442597396195704832"
+}

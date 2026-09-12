@@ -1,0 +1,12 @@
+{
+  "transaction_id": "admin-command:1546481197138313276",
+  "actor_id": "362606514764251137",
+  "operation": "set-stat",
+  "result": {
+    "name": "Sharkmeister",
+    "field": "guess.best_streak",
+    "before": 28,
+    "value": 28
+  },
+  "created_at": 1788780250.3809674
+}

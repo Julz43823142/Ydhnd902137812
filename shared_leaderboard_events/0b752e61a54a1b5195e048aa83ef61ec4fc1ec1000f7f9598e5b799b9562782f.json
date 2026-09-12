@@ -1,0 +1,15 @@
+{
+  "after_coins": 1343.0,
+  "before_coins": 1342.0,
+  "created_at": 1788886526,
+  "created_at_ns": 1788886526423834649,
+  "details": {
+    "credited": 1.0,
+    "source": "puzzle-achievement"
+  },
+  "display_name": "TheMakina",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "coin-credit",
+  "transaction_id": "puzzle-achievement:601406103712170014:titan_killer",
+  "user_id": "601406103712170014"
+}

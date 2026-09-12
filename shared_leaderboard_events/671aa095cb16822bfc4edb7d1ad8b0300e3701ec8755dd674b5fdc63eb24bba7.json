@@ -1,0 +1,23 @@
+{
+  "created_at": 1788618064,
+  "created_at_ns": 1788618064022066524,
+  "details": {
+    "created_at": 1788618064,
+    "from_name": "Sharkmeister",
+    "from_user_id": "362606514764251137",
+    "offer": {
+      "amount": 10.0,
+      "type": "coins"
+    },
+    "request": {
+      "amount": 10.0,
+      "type": "coins"
+    },
+    "trade_id": "trade-propose:1545800934381060167:362606514764251137:442597396195704832"
+  },
+  "ledger_build": "shared-ledger-v12-snapshot-2026-09-03",
+  "operation": "trade-propose",
+  "recipient_user_id": "442597396195704832",
+  "transaction_id": "trade-propose:1545800934381060167:362606514764251137:442597396195704832",
+  "user_id": "362606514764251137"
+}

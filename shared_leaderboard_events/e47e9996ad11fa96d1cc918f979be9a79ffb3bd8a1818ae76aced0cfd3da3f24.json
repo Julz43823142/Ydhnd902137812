@@ -1,0 +1,17 @@
+{
+  "after_coins": 14.67,
+  "before_coins": 64.67,
+  "created_at": 1789071315,
+  "created_at_ns": 1789071315546499368,
+  "details": {
+    "badge": "🟤",
+    "rarity": "basic",
+    "rarity_label": "Basic",
+    "spent": 50.0
+  },
+  "display_name": "Sharkmeister",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "badge-box",
+  "transaction_id": "badge-box:1547702012806823936:362606514764251137",
+  "user_id": "362606514764251137"
+}

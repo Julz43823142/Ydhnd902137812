@@ -1,0 +1,14 @@
+{
+  "created_at": 1789072422,
+  "details": {
+    "wallets": {
+      "442597396195704832": {
+        "after_coins": 64.28,
+        "before_coins": 63.28
+      }
+    }
+  },
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "minigames",
+  "transaction_id": "minigames:timer:1547706371276013658:7"
+}

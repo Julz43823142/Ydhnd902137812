@@ -1,0 +1,20 @@
+{
+  "after_coins": 1359.5,
+  "amount": 17.0,
+  "before_coins": 1359.5,
+  "created_at": 1788896518,
+  "created_at_ns": 1788896518742733292,
+  "display_name": "TheMakina",
+  "draw": false,
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "chess-wager-settle",
+  "opponent_after_coins": 34.45,
+  "opponent_before_coins": 0.45,
+  "opponent_display_name": "Thice",
+  "opponent_user_id": "442597396195704832",
+  "pot": 34.0,
+  "source": "chess-wager-settle",
+  "transaction_id": "chess-wager-settle:pvp-1546967456915001344-601406103712170014-442597396195704832",
+  "user_id": "601406103712170014",
+  "winner_user_id": "442597396195704832"
+}

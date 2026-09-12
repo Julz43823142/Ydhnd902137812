@@ -1,0 +1,142 @@
+[
+  {
+    "transaction_id": "baseline:442597396195704832:181",
+    "user_id": "442597396195704832",
+    "name": "Thice",
+    "points": 181.0,
+    "source": "legacy-daily-baseline"
+  },
+  {
+    "transaction_id": "baseline:362606514764251137:3",
+    "user_id": "362606514764251137",
+    "name": "Sharkmeister",
+    "points": 3.0,
+    "source": "legacy-daily-baseline"
+  },
+  {
+    "transaction_id": "baseline:601406103712170014:57.5",
+    "user_id": "601406103712170014",
+    "name": "TheMakina",
+    "points": 57.5,
+    "source": "legacy-daily-baseline"
+  },
+  {
+    "transaction_id": "baseline:1110650885509500928:1",
+    "user_id": "1110650885509500928",
+    "name": "Miloo",
+    "points": 1.0,
+    "source": "legacy-daily-baseline"
+  },
+  {
+    "transaction_id": "baseline:550338389535227926:7",
+    "user_id": "550338389535227926",
+    "name": "Nairyaaa",
+    "points": 7.0,
+    "source": "legacy-daily-baseline"
+  },
+  {
+    "transaction_id": "daily-random:random_1787056595879:first:442597396195704832",
+    "user_id": "442597396195704832",
+    "name": "Thice",
+    "points": 1.0,
+    "source": "daily-random-first"
+  },
+  {
+    "transaction_id": "daily-random:random_1787056683738:first:442597396195704832",
+    "user_id": "442597396195704832",
+    "name": "Thice",
+    "points": 1.0,
+    "source": "daily-random-first"
+  },
+  {
+    "transaction_id": "daily-random:random_1787056769454:first:442597396195704832",
+    "user_id": "442597396195704832",
+    "name": "Thice",
+    "points": 1.0,
+    "source": "daily-random-first"
+  },
+  {
+    "transaction_id": "daily-random:random_1787056769454:helper:362606514764251137",
+    "user_id": "362606514764251137",
+    "name": "Sharkmeister",
+    "points": 0.5,
+    "source": "daily-random-helper"
+  },
+  {
+    "transaction_id": "daily-random:random_1787057046219:first:442597396195704832",
+    "user_id": "442597396195704832",
+    "name": "Thice",
+    "points": 1.0,
+    "source": "daily-random-first"
+  },
+  {
+    "transaction_id": "daily-random:random_1787057046219:helper:362606514764251137",
+    "user_id": "362606514764251137",
+    "name": "Sharkmeister",
+    "points": 0.5,
+    "source": "daily-random-helper"
+  },
+  {
+    "transaction_id": "daily-random:random_1787057123970:first:442597396195704832",
+    "user_id": "442597396195704832",
+    "name": "Thice",
+    "points": 1.0,
+    "source": "daily-random-first"
+  },
+  {
+    "transaction_id": "daily-random:random_1787121717890:first:550338389535227926",
+    "user_id": "550338389535227926",
+    "name": "Nairyaaa",
+    "points": 1.0,
+    "source": "daily-random-first"
+  },
+  {
+    "transaction_id": "daily-random:random_1787121770911:first:550338389535227926",
+    "user_id": "550338389535227926",
+    "name": "Nairyaaa",
+    "points": 1.0,
+    "source": "daily-random-first"
+  },
+  {
+    "transaction_id": "daily-random:random_1787122027823:first:550338389535227926",
+    "user_id": "550338389535227926",
+    "name": "Nairyaaa",
+    "points": 1.0,
+    "source": "daily-random-first"
+  },
+  {
+    "transaction_id": "daily-random:random_1787122090626:first:550338389535227926",
+    "user_id": "550338389535227926",
+    "name": "Nairyaaa",
+    "points": 1.0,
+    "source": "daily-random-first"
+  },
+  {
+    "transaction_id": "daily-random:random_1787122238570:first:550338389535227926",
+    "user_id": "550338389535227926",
+    "name": "Nairyaaa",
+    "points": 1.0,
+    "source": "daily-random-first"
+  },
+  {
+    "transaction_id": "daily-random:random_1787122315695:first:550338389535227926",
+    "user_id": "550338389535227926",
+    "name": "Nairyaaa",
+    "points": 1.0,
+    "source": "daily-random-first"
+  },
+  {
+    "transaction_id": "daily-random:random_1787122355495:first:550338389535227926",
+    "user_id": "550338389535227926",
+    "name": "Nairyaaa",
+    "points": 1.0,
+    "source": "daily-random-first"
+  },
+  {
+    "transaction_id": "daily-random:random_1787122439173:first:550338389535227926",
+    "user_id": "550338389535227926",
+    "name": "Nairyaaa",
+    "points": 1.0,
+    "source": "daily-random-first"
+  }
+]

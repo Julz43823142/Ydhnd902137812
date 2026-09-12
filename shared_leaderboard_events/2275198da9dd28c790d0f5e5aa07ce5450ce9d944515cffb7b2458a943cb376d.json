@@ -1,0 +1,15 @@
+{
+  "after_coins": 24.28,
+  "before_coins": 21.28,
+  "created_at": 1789147898,
+  "created_at_ns": 1789147898357171790,
+  "details": {
+    "credited": 3.0,
+    "source": "puzzle-rush-solve-gameplay"
+  },
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "coin-credit",
+  "transaction_id": "puzzle-rush-solves:rush:442597396195704832:1789147691114:442597396195704832",
+  "user_id": "442597396195704832"
+}

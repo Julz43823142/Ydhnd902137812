@@ -1,0 +1,13 @@
+{
+  "correct": true,
+  "created_at": 1788638976,
+  "display_name": "Sharkmeister",
+  "poll_message_id": "1545888219785068634",
+  "source": "guess-chess-clock-scramble",
+  "source_key": "chess",
+  "stats_build": "guess-stats-v2-streaks-nemesis-2026-09-04",
+  "streak_after": 1,
+  "target_name": "Mohammad",
+  "transaction_id": "guess-stats:1545888219785068634:362606514764251137",
+  "user_id": "362606514764251137"
+}

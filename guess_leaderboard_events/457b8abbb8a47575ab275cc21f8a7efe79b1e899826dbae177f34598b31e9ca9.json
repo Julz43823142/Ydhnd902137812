@@ -1,0 +1,10 @@
+{
+  "transaction_id": "admin-command:1546481117597667410",
+  "user_id": "442597396195704832",
+  "display_name": "Thice",
+  "amount": 51.0,
+  "source": "admin-guess-correction",
+  "created_at": 1788780231,
+  "before": 196.0,
+  "after": 247.0
+}

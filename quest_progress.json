@@ -1,0 +1,270 @@
+{
+  "build": "quests-v1-2026-09-08",
+  "periods": {
+    "daily:2026-09-08": {
+      "users": {
+        "1": {
+          "name": "Player 1",
+          "paid": [
+            "daily:2026-09-08:minigame:minigame-2"
+          ],
+          "progress": {
+            "daily:2026-09-08:minigame:minigame-2": 6
+          },
+          "updated_at": 1788906987
+        },
+        "442597396195704832": {
+          "name": "Thice",
+          "paid": [
+            "daily:2026-09-08:challenge:bot-1800",
+            "daily:2026-09-08:minigame:minigame-2",
+            "daily:2026-09-08:puzzle:solve-10"
+          ],
+          "progress": {
+            "daily:2026-09-08:challenge:bot-1800": 1,
+            "daily:2026-09-08:minigame:minigame-2": 8,
+            "daily:2026-09-08:puzzle:solve-10": 10
+          },
+          "updated_at": 1788903987
+        },
+        "601406103712170014": {
+          "name": "TheMakina",
+          "paid": [
+            "daily:2026-09-08:challenge:bot-1800",
+            "daily:2026-09-08:minigame:minigame-2"
+          ],
+          "progress": {
+            "daily:2026-09-08:challenge:bot-1800": 1,
+            "daily:2026-09-08:minigame:minigame-2": 2
+          },
+          "updated_at": 1788902633
+        }
+      }
+    },
+    "daily:2026-09-09": {
+      "users": {
+        "1": {
+          "name": "Player 1",
+          "paid": [
+            "daily:2026-09-09:minigame:minigame-1"
+          ],
+          "progress": {
+            "daily:2026-09-09:minigame:minigame-1": 119
+          },
+          "updated_at": 1788997998
+        },
+        "362606514764251137": {
+          "name": "Sharkmeister",
+          "paid": [
+            "daily:2026-09-09:minigame:minigame-1",
+            "daily:2026-09-09:challenge:rush-full-1"
+          ],
+          "progress": {
+            "daily:2026-09-09:challenge:rush-full-1": 1,
+            "daily:2026-09-09:minigame:minigame-1": 5
+          },
+          "updated_at": 1788995055
+        },
+        "442597396195704832": {
+          "name": "Thice",
+          "paid": [
+            "daily:2026-09-09:minigame:minigame-1",
+            "daily:2026-09-09:challenge:rush-full-1",
+            "daily:2026-09-09:puzzle:solve-5"
+          ],
+          "progress": {
+            "daily:2026-09-09:challenge:rush-full-1": 2,
+            "daily:2026-09-09:minigame:minigame-1": 26,
+            "daily:2026-09-09:puzzle:solve-5": 14
+          },
+          "updated_at": 1788996454
+        },
+        "601406103712170014": {
+          "name": "TheMakina",
+          "paid": [
+            "daily:2026-09-09:minigame:minigame-1",
+            "daily:2026-09-09:challenge:rush-full-1",
+            "daily:2026-09-09:puzzle:solve-5"
+          ],
+          "progress": {
+            "daily:2026-09-09:challenge:rush-full-1": 1,
+            "daily:2026-09-09:minigame:minigame-1": 6,
+            "daily:2026-09-09:puzzle:solve-5": 27
+          },
+          "updated_at": 1788994821
+        }
+      }
+    },
+    "daily:2026-09-10": {
+      "users": {
+        "1": {
+          "name": "Player 1",
+          "paid": [
+            "daily:2026-09-10:minigame:minigame-3"
+          ],
+          "progress": {
+            "daily:2026-09-10:minigame:minigame-3": 51
+          },
+          "updated_at": 1789079502
+        },
+        "362606514764251137": {
+          "name": "Sharkmeister",
+          "paid": [
+            "daily:2026-09-10:minigame:minigame-3"
+          ],
+          "progress": {
+            "daily:2026-09-10:minigame:minigame-3": 11
+          },
+          "updated_at": 1789071938
+        },
+        "442597396195704832": {
+          "name": "Thice",
+          "paid": [
+            "daily:2026-09-10:minigame:minigame-3",
+            "daily:2026-09-10:puzzle:solve-8"
+          ],
+          "progress": {
+            "daily:2026-09-10:minigame:minigame-3": 9,
+            "daily:2026-09-10:puzzle:solve-8": 21
+          },
+          "updated_at": 1789073113
+        },
+        "601406103712170014": {
+          "name": "TheMakina",
+          "paid": [
+            "daily:2026-09-10:puzzle:solve-8"
+          ],
+          "progress": {
+            "daily:2026-09-10:minigame:minigame-3": 1,
+            "daily:2026-09-10:puzzle:solve-8": 15
+          },
+          "updated_at": 1789052022
+        }
+      }
+    },
+    "daily:2026-09-11": {
+      "users": {
+        "1": {
+          "name": "Player 1",
+          "paid": [
+            "daily:2026-09-11:minigame:minigame-2"
+          ],
+          "progress": {
+            "daily:2026-09-11:minigame:minigame-2": 15
+          },
+          "updated_at": 1789165899
+        },
+        "362606514764251137": {
+          "name": "Sharkmeister",
+          "paid": [],
+          "progress": {
+            "daily:2026-09-11:puzzle:solve-8": 1
+          },
+          "updated_at": 1789133093
+        },
+        "442597396195704832": {
+          "name": "Thice",
+          "paid": [
+            "daily:2026-09-11:puzzle:solve-8",
+            "daily:2026-09-11:minigame:minigame-2"
+          ],
+          "progress": {
+            "daily:2026-09-11:minigame:minigame-2": 2,
+            "daily:2026-09-11:puzzle:solve-8": 14
+          },
+          "updated_at": 1789143484
+        },
+        "601406103712170014": {
+          "name": "TheMakina",
+          "paid": [],
+          "progress": {
+            "daily:2026-09-11:puzzle:solve-8": 4
+          },
+          "updated_at": 1789138458
+        }
+      }
+    },
+    "daily:2026-09-12": {
+      "users": {
+        "1": {
+          "name": "Player 1",
+          "paid": [
+            "daily:2026-09-12:minigame:minigame-1"
+          ],
+          "progress": {
+            "daily:2026-09-12:minigame:minigame-1": 12
+          },
+          "updated_at": 1789235074
+        },
+        "442597396195704832": {
+          "name": "Thice",
+          "paid": [],
+          "progress": {
+            "daily:2026-09-12:puzzle:solve-8": 5
+          },
+          "updated_at": 1789241223
+        },
+        "601406103712170014": {
+          "name": "TheMakina",
+          "paid": [
+            "daily:2026-09-12:puzzle:solve-8"
+          ],
+          "progress": {
+            "daily:2026-09-12:puzzle:solve-8": 37
+          },
+          "updated_at": 1789241127
+        }
+      }
+    },
+    "weekly:2026-09-07": {
+      "users": {
+        "1": {
+          "name": "Player 1",
+          "paid": [
+            "weekly:2026-09-07:minigame:minigame-5"
+          ],
+          "progress": {
+            "weekly:2026-09-07:minigame:minigame-5": 203
+          },
+          "updated_at": 1789235074
+        },
+        "362606514764251137": {
+          "name": "Sharkmeister",
+          "paid": [
+            "weekly:2026-09-07:minigame:minigame-5"
+          ],
+          "progress": {
+            "weekly:2026-09-07:minigame:minigame-5": 16,
+            "weekly:2026-09-07:puzzle:solve-60": 1
+          },
+          "updated_at": 1789133093
+        },
+        "442597396195704832": {
+          "name": "Thice",
+          "paid": [
+            "weekly:2026-09-07:minigame:minigame-5",
+            "weekly:2026-09-07:puzzle:solve-60"
+          ],
+          "progress": {
+            "weekly:2026-09-07:minigame:minigame-5": 45,
+            "weekly:2026-09-07:puzzle:solve-60": 64
+          },
+          "updated_at": 1789241223
+        },
+        "601406103712170014": {
+          "name": "TheMakina",
+          "paid": [
+            "weekly:2026-09-07:minigame:minigame-5",
+            "weekly:2026-09-07:puzzle:solve-60"
+          ],
+          "progress": {
+            "weekly:2026-09-07:minigame:minigame-5": 9,
+            "weekly:2026-09-07:puzzle:solve-60": 83
+          },
+          "updated_at": 1789241127
+        }
+      }
+    }
+  },
+  "version": 1
+}

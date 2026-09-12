@@ -1,0 +1,17 @@
+{
+  "boss": false,
+  "correct": false,
+  "created_at": 1788968745,
+  "display_name": "Thice",
+  "elo_after": 2359.181,
+  "elo_change": -31.905,
+  "new_achievements": [],
+  "puzzle_id": "survival:thice2:1788968530:4:G9TZa",
+  "puzzle_rating": 1381,
+  "source": "survival",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 0,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:survival:thice2:1788968530:4:G9TZa:442597396195704832",
+  "user_id": "442597396195704832"
+}

@@ -1,0 +1,15 @@
+{
+  "after_coins": 174.67,
+  "before_coins": 173.67,
+  "created_at": 1788637806,
+  "created_at_ns": 1788637806105843698,
+  "details": {
+    "credited": 1.0,
+    "source": "survival-first"
+  },
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v12-snapshot-2026-09-03",
+  "operation": "coin-credit",
+  "transaction_id": "survival-coin:sh4rkmate:1788637231:11:first:442597396195704832",
+  "user_id": "442597396195704832"
+}

@@ -1,0 +1,12 @@
+{
+  "transaction_id": "admin-command:1546481167618932797",
+  "actor_id": "362606514764251137",
+  "operation": "set-guess-points",
+  "result": {
+    "name": "Sharkmeister",
+    "field": "guess_points",
+    "before": 122.0,
+    "value": 156.0
+  },
+  "created_at": 1788780243.4111373
+}

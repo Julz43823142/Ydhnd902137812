@@ -1,0 +1,14 @@
+{
+  "transaction_id": "admin-command:1546478663573442620",
+  "actor_id": "362606514764251137",
+  "operation": "give-badge",
+  "result": {
+    "name": "TheMakina",
+    "action": "give",
+    "kind": "badge",
+    "item": "🫘",
+    "amount": 1,
+    "active_reset": false
+  },
+  "created_at": 1788779646.4388974
+}

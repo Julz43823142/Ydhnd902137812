@@ -1,0 +1,12 @@
+{
+  "transaction_id": "admin-command:1546477748699009125",
+  "actor_id": "362606514764251137",
+  "operation": "set-coins",
+  "result": {
+    "name": "TheMakina",
+    "field": "coins",
+    "before": 1338.0,
+    "value": 1345.0
+  },
+  "created_at": 1788779428.3345382
+}

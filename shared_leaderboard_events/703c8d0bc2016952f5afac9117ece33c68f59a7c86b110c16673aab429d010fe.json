@@ -1,0 +1,13 @@
+{
+  "after_points": 2.0,
+  "amount": -1.0,
+  "before_points": 3.0,
+  "created_at": 1788771320,
+  "created_at_ns": 1788771320097105624,
+  "display_name": "Chessmass",
+  "ledger_build": "shared-ledger-v12-snapshot-2026-09-03",
+  "operation": "adjust",
+  "source": "puzzle-wrong-penalty",
+  "transaction_id": "puzzle-wrong-penalty:random_wFv8x_1788771267955:1310661840707129370:1",
+  "user_id": "1310661840707129370"
+}

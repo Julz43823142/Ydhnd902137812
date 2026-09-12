@@ -1,0 +1,15 @@
+{
+  "after_coins": 24.0,
+  "before_coins": 14.0,
+  "created_at": 1788991716,
+  "created_at_ns": 1788991716404903565,
+  "details": {
+    "credited": 10.0,
+    "source": "puzzle-rush-complete"
+  },
+  "display_name": "Sharkmeister",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "coin-credit",
+  "transaction_id": "puzzle-rush-complete:rush:362606514764251137:1788991405748:362606514764251137",
+  "user_id": "362606514764251137"
+}

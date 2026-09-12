@@ -1,0 +1,17 @@
+{
+  "boss": false,
+  "correct": true,
+  "created_at": 1789133065,
+  "display_name": "Sharkmeister",
+  "elo_after": 1704.74,
+  "elo_change": 16.254,
+  "new_achievements": [],
+  "puzzle_id": "practice_gpe6n_362606514764251137_1789133055199",
+  "puzzle_rating": 1694,
+  "source": "practice",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 7,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:practice_gpe6n_362606514764251137_1789133055199:362606514764251137",
+  "user_id": "362606514764251137"
+}

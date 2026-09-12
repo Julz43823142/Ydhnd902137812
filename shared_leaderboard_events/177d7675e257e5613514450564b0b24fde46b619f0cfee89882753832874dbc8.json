@@ -1,0 +1,13 @@
+{
+  "after_points": 1550.0,
+  "amount": 1.0,
+  "before_points": 1549.0,
+  "created_at": 1788887520,
+  "created_at_ns": 1788887520483802651,
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "add",
+  "source": "rated-practice-solve",
+  "transaction_id": "practice:practice_NeCCW_442597396195704832_1788887403225:solve:442597396195704832",
+  "user_id": "442597396195704832"
+}

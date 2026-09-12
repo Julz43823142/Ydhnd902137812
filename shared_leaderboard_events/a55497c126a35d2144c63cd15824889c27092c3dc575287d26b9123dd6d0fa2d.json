@@ -1,0 +1,15 @@
+{
+  "after_coins": 70.28,
+  "before_coins": 65.28,
+  "created_at": 1789056840,
+  "created_at_ns": 1789056840288396953,
+  "details": {
+    "credited": 5.0,
+    "source": "puzzle-racer-gameplay"
+  },
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "coin-credit",
+  "transaction_id": "racer-base-reward:racer:racer-open:menu-open:1547640923817775124:362606514764251137:442597396195704832",
+  "user_id": "442597396195704832"
+}

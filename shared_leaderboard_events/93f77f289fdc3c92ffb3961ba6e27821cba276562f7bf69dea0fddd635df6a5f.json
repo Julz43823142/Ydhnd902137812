@@ -1,0 +1,15 @@
+{
+  "after_coins": 82.0,
+  "before_coins": 76.0,
+  "created_at": 1789187276,
+  "created_at_ns": 1789187276929800258,
+  "details": {
+    "credited": 6.0,
+    "source": "quest-bonus"
+  },
+  "display_name": "Player 1",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "coin-credit",
+  "transaction_id": "quest-reward:daily:2026-09-12:daily:2026-09-12:minigame:minigame-1:1",
+  "user_id": "1"
+}

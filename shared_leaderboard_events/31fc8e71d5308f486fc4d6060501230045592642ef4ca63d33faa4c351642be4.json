@@ -1,0 +1,17 @@
+{
+  "after_coins": 9.0,
+  "before_coins": 0.0,
+  "created_at": 1788884863,
+  "created_at_ns": 1788884863522755875,
+  "details": {
+    "credited": 9.0,
+    "guess_points": 9.0,
+    "previous_guess_points_coined": 0.0,
+    "source": "guess-games"
+  },
+  "display_name": "Jesse2011",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "guess-points-coin-sync",
+  "transaction_id": "guess-coin-sync:1455217865249652799:9.000",
+  "user_id": "1455217865249652799"
+}

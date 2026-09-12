@@ -1,0 +1,13 @@
+{
+  "after_points": 1398.0,
+  "amount": 1.0,
+  "before_points": 1397.0,
+  "created_at": 1788461092,
+  "created_at_ns": 1788461092258303197,
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v12-snapshot-2026-09-03",
+  "operation": "add",
+  "source": "puzzle-first",
+  "transaction_id": "puzzle:random_EpkZF_1788461084147:first:442597396195704832",
+  "user_id": "442597396195704832"
+}

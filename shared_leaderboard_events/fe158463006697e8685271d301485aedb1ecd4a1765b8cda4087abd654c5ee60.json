@@ -1,0 +1,15 @@
+{
+  "after_coins": 2.28,
+  "before_coins": 1.28,
+  "created_at": 1789135287,
+  "created_at_ns": 1789135287711286183,
+  "details": {
+    "credited": 1.0,
+    "source": "puzzle-achievement"
+  },
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "coin-credit",
+  "transaction_id": "puzzle-achievement:442597396195704832:boss_hunter",
+  "user_id": "442597396195704832"
+}

@@ -1,0 +1,15 @@
+{
+  "after_coins": 61.05,
+  "before_coins": 60.05,
+  "created_at": 1788788036,
+  "created_at_ns": 1788788036444891305,
+  "details": {
+    "credited": 1.0,
+    "source": "rated-practice-solve"
+  },
+  "display_name": "Sharkmeister",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "coin-credit",
+  "transaction_id": "practice:practice_bsVmj_362606514764251137_1788788005369:solve:362606514764251137:coins",
+  "user_id": "362606514764251137"
+}

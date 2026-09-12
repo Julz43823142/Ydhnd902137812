@@ -1,0 +1,12 @@
+{
+  "transaction_id": "admin-command:1546477692210118747",
+  "actor_id": "362606514764251137",
+  "operation": "set-coins",
+  "result": {
+    "name": "Thice",
+    "field": "coins",
+    "before": 178.67,
+    "value": 190.95
+  },
+  "created_at": 1788779414.7990022
+}

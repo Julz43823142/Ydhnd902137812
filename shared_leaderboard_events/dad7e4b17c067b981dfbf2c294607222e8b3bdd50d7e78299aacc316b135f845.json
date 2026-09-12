@@ -1,0 +1,15 @@
+{
+  "after_coins": 37.28,
+  "before_coins": 36.28,
+  "created_at": 1789133630,
+  "created_at_ns": 1789133630160563711,
+  "details": {
+    "credited": 1.0,
+    "source": "puzzle-streak-bonus"
+  },
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "coin-credit",
+  "transaction_id": "puzzle-streak-bonus:random_aLvVd_1789133617213:442597396195704832",
+  "user_id": "442597396195704832"
+}

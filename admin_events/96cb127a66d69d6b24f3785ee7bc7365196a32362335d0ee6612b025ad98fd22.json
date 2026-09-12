@@ -1,0 +1,12 @@
+{
+  "transaction_id": "admin-command:1546469795510227004",
+  "actor_id": "362606514764251137",
+  "operation": "set-coins",
+  "result": {
+    "name": "Sharkmeister",
+    "field": "coins",
+    "before": 4.0,
+    "value": 49.05
+  },
+  "created_at": 1788777532.693069
+}

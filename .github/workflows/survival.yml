@@ -1,0 +1,75 @@
+name: Survival Mode
+
+on:
+  schedule:
+    # Refresh the long-running worker roughly every 5 hours, before GitHub's
+    # 6-hour hosted-runner limit. The new run cancels/replaces the old one.
+    - cron: "13 0,5,10,15,20 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: survival-mode-bot
+  cancel-in-progress: true
+
+jobs:
+  survival:
+    runs-on: ubuntu-latest
+    # Fallback only: scheduled rotation should replace this run at ~5 hours.
+    timeout-minutes: 350
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install requirements
+        run: |
+          python -m pip install --upgrade pip
+          pip install "discord.py==2.7.1" requests python-chess cairosvg
+
+      - name: Verify Survival puzzle validation
+        run: |
+          python -m py_compile survival_bot.py puzzle_move_validation.py
+          if [ -f test_puzzle_move_validation.py ]; then
+            python -m unittest test_puzzle_move_validation.py
+          else
+            echo "test_puzzle_move_validation.py is not present; running built-in validator smoke tests instead."
+            python - <<'PYTEST'
+          import chess
+          from puzzle_move_validation import match_solution_move, move_is_solution
+
+          board = chess.Board()
+          assert move_is_solution(board, "Nf3!", {"uci": "g1f3"})
+
+          mate_board = chess.Board("7k/4Q1pp/8/8/8/8/8/K7 w - - 0 1")
+          mates = []
+          for move in list(mate_board.legal_moves):
+              trial = mate_board.copy(stack=False)
+              trial.push(move)
+              if trial.is_checkmate():
+                  mates.append(move)
+          assert len(mates) >= 2
+          accepted, played, kind = match_solution_move(
+              mate_board,
+              mate_board.san(mates[1]),
+              {"uci": mates[0].uci()},
+          )
+          assert accepted and played == mates[1] and kind == "alternative_checkmate"
+          print("Built-in puzzle validator smoke tests passed.")
+          PYTEST
+          fi
+
+      - name: Run Survival
+        run: python survival_bot.py
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}

@@ -1,0 +1,12 @@
+{
+  "transaction_id": "admin-command:1546477808644128860",
+  "actor_id": "362606514764251137",
+  "operation": "set-coins",
+  "result": {
+    "name": "Martin",
+    "field": "coins",
+    "before": 3.0,
+    "value": 6.0
+  },
+  "created_at": 1788779442.5544415
+}
