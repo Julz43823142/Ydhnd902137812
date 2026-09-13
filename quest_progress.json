@@ -227,9 +227,9 @@
             "daily:2026-09-13:minigame:minigame-2"
           ],
           "progress": {
-            "daily:2026-09-13:minigame:minigame-2": 13
+            "daily:2026-09-13:minigame:minigame-2": 14
           },
-          "updated_at": 1789338154
+          "updated_at": 1789338156
         }
       }
     },
@@ -241,9 +241,9 @@
             "weekly:2026-09-07:minigame:minigame-5"
           ],
           "progress": {
-            "weekly:2026-09-07:minigame:minigame-5": 219
+            "weekly:2026-09-07:minigame:minigame-5": 220
           },
-          "updated_at": 1789338154
+          "updated_at": 1789338156
         },
         "362606514764251137": {
           "name": "Sharkmeister",
