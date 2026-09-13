@@ -236,10 +236,10 @@
     },
     "442597396195704832": {
       "name": "Thice",
-      "elo": 1577.747,
-      "peak_elo": 1577.747,
-      "games": 19,
-      "wins": 8,
+      "elo": 1591.262,
+      "peak_elo": 1591.262,
+      "games": 20,
+      "wins": 9,
       "draws": 1,
       "losses": 10
     },
@@ -254,12 +254,12 @@
     },
     "601406103712170014": {
       "name": "TheMakina",
-      "elo": 1523.344,
+      "elo": 1509.829,
       "peak_elo": 1523.344,
-      "games": 6,
+      "games": 7,
       "wins": 3,
       "draws": 0,
-      "losses": 3
+      "losses": 4
     },
     "1310661840707129370": {
       "name": "Chessmass",
@@ -1491,7 +1491,7 @@
     },
     "pvp-1546546286055133194-442597396195704832-601406103712170014": {
       "game_id": "pvp-1546546286055133194-442597396195704832-601406103712170014",
-      "status": "active",
+      "status": "finished",
       "mode": "pvp",
       "white_id": "442597396195704832",
       "white_name": "Thice",
@@ -1550,9 +1550,9 @@
       "wager_settled": false,
       "clock": {
         "white": 86400.0,
-        "black": 86400.0,
+        "black": 0,
         "increment": 0,
-        "at": 1789199212.5915701,
+        "at": 1789285614.1872396,
         "label": "Daily · 24 hours per move",
         "daily": true
       },
@@ -1560,7 +1560,12 @@
       "last_move_at": 1789199212.593528,
       "chat_since_refresh": 0,
       "message_id": 1548238456671576065,
-      "channel_id": 1468320170891022417
+      "channel_id": 1468320170891022417,
+      "result": "1-0",
+      "finished_at": 1789285614.1872528,
+      "finish_reason": "Time expired",
+      "white_rating_after": 1591.2619263846934,
+      "black_rating_after": 1509.8290736153067
     },
     "bot-1546831553756139541-442597396195704832": {
       "game_id": "bot-1546831553756139541-442597396195704832",
