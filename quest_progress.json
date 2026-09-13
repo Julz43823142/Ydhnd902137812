@@ -225,9 +225,9 @@
           "name": "Player 1",
           "paid": [],
           "progress": {
-            "daily:2026-09-13:minigame:minigame-2": 1
+            "daily:2026-09-13:minigame:minigame-2": 2
           },
-          "updated_at": 1789274401
+          "updated_at": 1789274404
         }
       }
     },
@@ -239,9 +239,9 @@
             "weekly:2026-09-07:minigame:minigame-5"
           ],
           "progress": {
-            "weekly:2026-09-07:minigame:minigame-5": 207
+            "weekly:2026-09-07:minigame:minigame-5": 208
           },
-          "updated_at": 1789274401
+          "updated_at": 1789274404
         },
         "362606514764251137": {
           "name": "Sharkmeister",
