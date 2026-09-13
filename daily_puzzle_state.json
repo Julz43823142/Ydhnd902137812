@@ -102,96 +102,104 @@
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-13",
   "current_puzzle": {
-    "url": "https://www.chess.com/daily/2026-09-12",
-    "title": "Fully Charged ⚡",
-    "fen": "3r2k1/1p3Rpp/2n5/r3b2P/4p3/1B1P4/P1P3K1/qN1Q4 w - - 0 1",
-    "current_fen": "3r2k1/1p3Rpp/2n5/r3b2P/4p3/1B1P4/P1P3K1/qN1Q4 w - - 0 1",
+    "url": "https://www.chess.com/daily/2026-09-13",
+    "title": "Corner, Circle, Knock Out",
+    "fen": "3r4/p5bk/1pn3Np/2q3p1/8/PQ1B2P1/KP6/8 w - - 0 1",
+    "current_fen": "3r4/p5bk/1pn3Np/2q3p1/8/PQ1B2P1/KP6/8 w - - 0 1",
     "last_move_uci": null,
-    "pgn": "[Result \"1-0\"]\n[FEN \"3r2k1/1p3Rpp/2n5/r3b2P/4p3/1B1P4/P1P3K1/qN1Q4 w - - 0 1\"]\n\n1. Qf1 Bf6 2. Rxf6+ Kh8 3. Rf8+ Rxf8 4. Qxf8# 1-0",
+    "pgn": "[Result \"1-0\"]\n[FEN \"3r4/p5bk/1pn3Np/2q3p1/8/PQ1B2P1/KP6/8 w - - 0 1\"]\n\n1. Ne7+ Kh8 2. Qg8+ Rxg8 3. Ng6+ Kh7 4. Ne5+ Kh8 5. Nf7# 1-0",
     "all_moves": [
       {
-        "uci": "d1f1",
-        "san": "Qf1",
+        "uci": "g6e7",
+        "san": "Ne7+",
         "color": "white"
       },
       {
-        "uci": "e5f6",
-        "san": "Bf6",
-        "color": "black"
-      },
-      {
-        "uci": "f7f6",
-        "san": "Rxf6+",
-        "color": "white"
-      },
-      {
-        "uci": "g8h8",
+        "uci": "h7h8",
         "san": "Kh8",
         "color": "black"
       },
       {
-        "uci": "f6f8",
-        "san": "Rf8+",
+        "uci": "b3g8",
+        "san": "Qg8+",
         "color": "white"
       },
       {
-        "uci": "d8f8",
-        "san": "Rxf8",
+        "uci": "d8g8",
+        "san": "Rxg8",
         "color": "black"
       },
       {
-        "uci": "f1f8",
-        "san": "Qxf8#",
+        "uci": "e7g6",
+        "san": "Ng6+",
+        "color": "white"
+      },
+      {
+        "uci": "h8h7",
+        "san": "Kh7",
+        "color": "black"
+      },
+      {
+        "uci": "g6e5",
+        "san": "Ne5+",
+        "color": "white"
+      },
+      {
+        "uci": "h7h8",
+        "san": "Kh8",
+        "color": "black"
+      },
+      {
+        "uci": "e5f7",
+        "san": "Nf7#",
         "color": "white"
       }
     ],
     "player_moves": [
       {
-        "uci": "d1f1",
-        "san": "Qf1",
+        "uci": "g6e7",
+        "san": "Ne7+",
         "color": "white"
       },
       {
-        "uci": "f7f6",
-        "san": "Rxf6+",
+        "uci": "b3g8",
+        "san": "Qg8+",
         "color": "white"
       },
       {
-        "uci": "f6f8",
-        "san": "Rf8+",
+        "uci": "e7g6",
+        "san": "Ng6+",
         "color": "white"
       },
       {
-        "uci": "f1f8",
-        "san": "Qxf8#",
+        "uci": "g6e5",
+        "san": "Ne5+",
+        "color": "white"
+      },
+      {
+        "uci": "e5f7",
+        "san": "Nf7#",
         "color": "white"
       }
     ],
     "player_color": "white",
-    "player_move_count": 4,
-    "posted_at": "2026-09-12T07:59:47.154509+00:00",
-    "answer_posted": true,
+    "player_move_count": 5,
+    "posted_at": "2026-09-13T07:11:02.127502+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "daily_1789199987154",
+    "puzzle_id": "daily_1789283462127",
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_id": 1548241704673480715,
+    "message_id": null,
     "attempted_users": {},
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "message_ids": {
-      "1468320170891022417": 1548241704673480715,
-      "1546557493038284840": 1548241709761298483
-    },
-    "channel_id": 1468320170891022417,
-    "chat_since_refresh": 0,
-    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Qf1 Rxf6+ Rf8+ Qxf8#"
+    "helper_candidate_users": []
   },
   "lichess_rating_used": {
     "2000": [
