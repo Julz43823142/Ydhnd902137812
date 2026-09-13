@@ -1565,7 +1565,8 @@
       "finished_at": 1789285614.1872528,
       "finish_reason": "Time expired",
       "white_rating_after": 1591.2619263846934,
-      "black_rating_after": 1509.8290736153067
+      "black_rating_after": 1509.8290736153067,
+      "brilliant_coin_rewards_v1": {}
     },
     "bot-1546831553756139541-442597396195704832": {
       "game_id": "bot-1546831553756139541-442597396195704832",
