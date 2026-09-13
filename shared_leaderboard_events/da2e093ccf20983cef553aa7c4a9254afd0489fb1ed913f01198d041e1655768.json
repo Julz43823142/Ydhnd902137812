@@ -1,0 +1,15 @@
+{
+  "after_coins": 1756.0,
+  "before_coins": 1716.0,
+  "created_at": 1789336816,
+  "created_at_ns": 1789336816519758989,
+  "details": {
+    "credited": 40.0,
+    "source": "puzzle-rush-weekly"
+  },
+  "display_name": "TheMakina",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "coin-credit",
+  "transaction_id": "puzzle-rush-weekly:2026-W37:2:601406103712170014",
+  "user_id": "601406103712170014"
+}
