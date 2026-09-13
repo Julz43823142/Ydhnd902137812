@@ -219,6 +219,18 @@
         }
       }
     },
+    "daily:2026-09-13": {
+      "users": {
+        "1": {
+          "name": "Player 1",
+          "paid": [],
+          "progress": {
+            "daily:2026-09-13:minigame:minigame-2": 1
+          },
+          "updated_at": 1789274401
+        }
+      }
+    },
     "weekly:2026-09-07": {
       "users": {
         "1": {
@@ -227,9 +239,9 @@
             "weekly:2026-09-07:minigame:minigame-5"
           ],
           "progress": {
-            "weekly:2026-09-07:minigame:minigame-5": 206
+            "weekly:2026-09-07:minigame:minigame-5": 207
           },
-          "updated_at": 1789251247
+          "updated_at": 1789274401
         },
         "362606514764251137": {
           "name": "Sharkmeister",
