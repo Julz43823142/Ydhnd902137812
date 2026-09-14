@@ -140,7 +140,7 @@
     "player_color": "black",
     "player_move_count": 2,
     "posted_at": "2026-09-14T07:10:12.288376+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -148,7 +148,7 @@
     "next_solution_index": 3,
     "next_player_index": 2,
     "solved": true,
-    "message_id": 1549019926168080475,
+    "message_id": 1549019992937201716,
     "attempted_users": {
       "601406103712170014": {
         "name": "TheMakina",
@@ -163,8 +163,8 @@
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1549019926168080475,
-      "1546557493038284840": 1549019931297845348
+      "1468320170891022417": 1549019992937201716,
+      "1546557493038284840": 1549019998717087754
     },
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
@@ -203,7 +203,7 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kxg5",
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, TheMakina!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1500.5 points.**\n🔥 **Daily Activity Bonus: +10 coins**\n\n💡 **Solution:** g5+ Qxa7\n\n🏆 **Your ranking**\n**#1 🟦 Thice — 1627 points**\n**#2 🍅 TheMakina — 1500.5 points ← you**\n**#3 💀 Sharkmeister — 76.5 points**",
     "activity_bonus_users": [
       "601406103712170014"
     ]
