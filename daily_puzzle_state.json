@@ -105,8 +105,8 @@
     "url": "https://www.chess.com/daily/2026-09-14",
     "title": "Surprise! 🥳",
     "fen": "4k3/Q5pq/4p3/3p3P/3P3K/4P1P1/8/8 b - - 0 1",
-    "current_fen": "4k3/Q5pq/4p3/3p3P/3P3K/4P1P1/8/8 b - - 0 1",
-    "last_move_uci": null,
+    "current_fen": "4k3/q7/4p3/3p2KP/3P4/4P1P1/8/8 w - - 0 3",
+    "last_move_uci": "h7a7",
     "pgn": "[Result \"*\"]\n[FEN \"4k3/Q5pq/4p3/3p3P/3P3K/4P1P1/8/8 b - - 0 1\"]\n\n1... g5+ 2. Kxg5 Qxa7 *",
     "all_moves": [
       {
@@ -145,22 +145,65 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1789369812288",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 3,
+    "next_player_index": 2,
     "solved": false,
-    "message_id": 1548954003369361468,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "message_id": 1549019926168080475,
+    "attempted_users": {
+      "601406103712170014": {
+        "name": "TheMakina",
+        "move": "Qxa7",
+        "correct": true,
+        "timestamp": "2026-09-14T11:32:12.279742+00:00"
+      }
+    },
+    "first_move_user_id": "601406103712170014",
+    "first_move_user_name": "TheMakina",
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1548954003369361468,
-      "1546557493038284840": 1548954010650939426
+      "1468320170891022417": 1549019926168080475,
+      "1546557493038284840": 1549019931297845348
     },
     "channel_id": 1468320170891022417,
-    "chat_since_refresh": 0
+    "chat_since_refresh": 0,
+    "last_card_activity_at": "2026-09-14T11:32:12.279412+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1789385528.0332086,
+        "fen_before": "4k3/Q5pq/4p3/3p3P/3P3K/4P1P1/8/8 b - - 0 1",
+        "expected": {
+          "uci": "g7g5",
+          "san": "g5+",
+          "color": "black"
+        },
+        "accepted_uci": "g7g5"
+      },
+      {
+        "accepted_at": 1789385532.2797472,
+        "fen_before": "4k3/Q6q/4p3/3p2KP/3P4/4P1P1/8/8 b - - 0 2",
+        "expected": {
+          "uci": "h7a7",
+          "san": "Qxa7",
+          "color": "black"
+        },
+        "accepted_uci": "h7a7"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "g5+",
+        "uci": "g7g5",
+        "principal": true
+      },
+      {
+        "san": "Qxa7",
+        "uci": "h7a7",
+        "principal": true
+      }
+    ],
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kxg5"
   },
   "lichess_rating_used": {
     "2000": [
