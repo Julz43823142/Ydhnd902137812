@@ -263,9 +263,9 @@
             "daily:2026-09-15:minigame:minigame-1"
           ],
           "progress": {
-            "daily:2026-09-15:minigame:minigame-1": 10
+            "daily:2026-09-15:minigame:minigame-1": 11
           },
-          "updated_at": 1789498595
+          "updated_at": 1789498598
         },
         "601406103712170014": {
           "name": "TheMakina",
@@ -334,9 +334,9 @@
             "weekly:2026-09-14:minigame:minigame-5"
           ],
           "progress": {
-            "weekly:2026-09-14:minigame:minigame-5": 22
+            "weekly:2026-09-14:minigame:minigame-5": 23
           },
-          "updated_at": 1789498595
+          "updated_at": 1789498598
         },
         "601406103712170014": {
           "name": "TheMakina",
