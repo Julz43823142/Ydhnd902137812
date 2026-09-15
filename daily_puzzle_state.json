@@ -148,13 +148,18 @@
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_id": null,
+    "message_id": 1549318417134129183,
     "attempted_users": {},
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "message_ids": {
+      "1468320170891022417": 1549318417134129183
+    },
+    "channel_id": 1468320170891022417,
+    "chat_since_refresh": 0
   },
   "lichess_rating_used": {
     "2000": [
