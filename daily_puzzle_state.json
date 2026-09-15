@@ -105,8 +105,8 @@
     "url": "https://www.chess.com/daily/2026-09-15",
     "title": "Bowling Pins 🎳",
     "fen": "rn2kb1r/ppqbpppp/5n2/3P4/2B5/1Q6/PP1P1PPP/RNB1K1NR b KQkq - 0 7",
-    "current_fen": "rn2kb1r/ppqbpppp/5n2/3P4/2B5/1Q6/PP1P1PPP/RNB1K1NR b KQkq - 0 7",
-    "last_move_uci": null,
+    "current_fen": "rn2kb1r/p1qbpppp/5n2/1B1P4/8/1Q6/PP1P1PPP/RNB1K1NR b KQkq - 0 8",
+    "last_move_uci": "c4b5",
     "pgn": "[Event \"April 15 Early 2025\"]\n[Date \"2025.04.15\"]\n[White \"Oleksandr Yevchenko\"]\n[Black \"Nadya Toncheva\"]\n[Result \"0-1\"]\n[FEN \"rn2kb1r/ppqbpppp/5n2/3P4/2B5/1Q6/PP1P1PPP/RNB1K1NR b KQkq - 0 7\"]\n\n7... b5 8. Bxb5 Qxc1+ 0-1",
     "all_moves": [
       {
@@ -145,22 +145,50 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1789456695374",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
-    "message_id": 1549318417134129183,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "message_id": 1549320337051746395,
+    "attempted_users": {
+      "601406103712170014": {
+        "name": "TheMakina",
+        "move": "b5",
+        "correct": true,
+        "timestamp": "2026-09-15T07:25:49.302102+00:00"
+      }
+    },
+    "first_move_user_id": "601406103712170014",
+    "first_move_user_name": "TheMakina",
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1549318417134129183,
-      "1546557493038284840": 1549318432590401536
+      "1468320170891022417": 1549320337051746395,
+      "1546557493038284840": 1549320345750732841
     },
     "channel_id": 1468320170891022417,
-    "chat_since_refresh": 0
+    "chat_since_refresh": 0,
+    "last_card_activity_at": "2026-09-15T07:25:49.301448+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1789457149.302108,
+        "fen_before": "rn2kb1r/ppqbpppp/5n2/3P4/2B5/1Q6/PP1P1PPP/RNB1K1NR b KQkq - 0 7",
+        "expected": {
+          "uci": "b7b5",
+          "san": "b5",
+          "color": "black"
+        },
+        "accepted_uci": "b7b5"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "b5",
+        "uci": "b7b5",
+        "principal": true
+      }
+    ],
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Bxb5"
   },
   "lichess_rating_used": {
     "2000": [
