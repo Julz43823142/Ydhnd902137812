@@ -102,111 +102,59 @@
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-15",
   "current_puzzle": {
-    "url": "https://www.chess.com/daily/2026-09-14",
-    "title": "Surprise! 🥳",
-    "fen": "4k3/Q5pq/4p3/3p3P/3P3K/4P1P1/8/8 b - - 0 1",
-    "current_fen": "4k3/q7/4p3/3p2KP/3P4/4P1P1/8/8 w - - 0 3",
-    "last_move_uci": "h7a7",
-    "pgn": "[Result \"*\"]\n[FEN \"4k3/Q5pq/4p3/3p3P/3P3K/4P1P1/8/8 b - - 0 1\"]\n\n1... g5+ 2. Kxg5 Qxa7 *",
+    "url": "https://www.chess.com/daily/2026-09-15",
+    "title": "Bowling Pins 🎳",
+    "fen": "rn2kb1r/ppqbpppp/5n2/3P4/2B5/1Q6/PP1P1PPP/RNB1K1NR b KQkq - 0 7",
+    "current_fen": "rn2kb1r/ppqbpppp/5n2/3P4/2B5/1Q6/PP1P1PPP/RNB1K1NR b KQkq - 0 7",
+    "last_move_uci": null,
+    "pgn": "[Event \"April 15 Early 2025\"]\n[Date \"2025.04.15\"]\n[White \"Oleksandr Yevchenko\"]\n[Black \"Nadya Toncheva\"]\n[Result \"0-1\"]\n[FEN \"rn2kb1r/ppqbpppp/5n2/3P4/2B5/1Q6/PP1P1PPP/RNB1K1NR b KQkq - 0 7\"]\n\n7... b5 8. Bxb5 Qxc1+ 0-1",
     "all_moves": [
       {
-        "uci": "g7g5",
-        "san": "g5+",
+        "uci": "b7b5",
+        "san": "b5",
         "color": "black"
       },
       {
-        "uci": "h4g5",
-        "san": "Kxg5",
+        "uci": "c4b5",
+        "san": "Bxb5",
         "color": "white"
       },
       {
-        "uci": "h7a7",
-        "san": "Qxa7",
+        "uci": "c7c1",
+        "san": "Qxc1+",
         "color": "black"
       }
     ],
     "player_moves": [
       {
-        "uci": "g7g5",
-        "san": "g5+",
+        "uci": "b7b5",
+        "san": "b5",
         "color": "black"
       },
       {
-        "uci": "h7a7",
-        "san": "Qxa7",
+        "uci": "c7c1",
+        "san": "Qxc1+",
         "color": "black"
       }
     ],
     "player_color": "black",
     "player_move_count": 2,
-    "posted_at": "2026-09-14T07:10:12.288376+00:00",
-    "answer_posted": true,
+    "posted_at": "2026-09-15T07:18:15.374555+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "daily_1789369812288",
-    "next_solution_index": 3,
-    "next_player_index": 2,
-    "solved": true,
-    "message_id": 1549019992937201716,
-    "attempted_users": {
-      "601406103712170014": {
-        "name": "TheMakina",
-        "move": "Qxa7",
-        "correct": true,
-        "timestamp": "2026-09-14T11:32:12.279742+00:00"
-      }
-    },
-    "first_move_user_id": "601406103712170014",
-    "first_move_user_name": "TheMakina",
-    "first_move_awarded": true,
+    "puzzle_id": "daily_1789456695374",
+    "next_solution_index": 0,
+    "next_player_index": 0,
+    "solved": false,
+    "message_id": null,
+    "attempted_users": {},
+    "first_move_user_id": null,
+    "first_move_user_name": null,
+    "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "message_ids": {
-      "1468320170891022417": 1549019992937201716,
-      "1546557493038284840": 1549019998717087754
-    },
-    "channel_id": 1468320170891022417,
-    "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-09-14T11:32:12.279412+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1789385528.0332086,
-        "fen_before": "4k3/Q5pq/4p3/3p3P/3P3K/4P1P1/8/8 b - - 0 1",
-        "expected": {
-          "uci": "g7g5",
-          "san": "g5+",
-          "color": "black"
-        },
-        "accepted_uci": "g7g5"
-      },
-      {
-        "accepted_at": 1789385532.2797472,
-        "fen_before": "4k3/Q6q/4p3/3p2KP/3P4/4P1P1/8/8 b - - 0 2",
-        "expected": {
-          "uci": "h7a7",
-          "san": "Qxa7",
-          "color": "black"
-        },
-        "accepted_uci": "h7a7"
-      }
-    ],
-    "accepted_solution_moves": [
-      {
-        "san": "g5+",
-        "uci": "g7g5",
-        "principal": true
-      },
-      {
-        "san": "Qxa7",
-        "uci": "h7a7",
-        "principal": true
-      }
-    ],
-    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, TheMakina!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1500.5 points.**\n🔥 **Daily Activity Bonus: +10 coins**\n\n💡 **Solution:** g5+ Qxa7\n\n🏆 **Your ranking**\n**#1 🟦 Thice — 1627 points**\n**#2 🍅 TheMakina — 1500.5 points ← you**\n**#3 💀 Sharkmeister — 76.5 points**",
-    "activity_bonus_users": [
-      "601406103712170014"
-    ]
+    "helper_candidate_users": []
   },
   "lichess_rating_used": {
     "2000": [
