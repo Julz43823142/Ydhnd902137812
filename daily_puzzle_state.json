@@ -2639,7 +2639,7 @@
       "started_at": 1789586791.6679428,
       "run_id": "rush:442597396195704832:1789586791667",
       "end_at": 1789587091.6679428,
-      "score": 17,
+      "score": 18,
       "wrong": 2,
       "mistakes": [
         {
@@ -2679,75 +2679,75 @@
       ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/gy54P",
-        "title": "Lichess • 1887",
-        "fen": "r6r/p2k1ppp/1q2p3/3p1nP1/1b6/2N5/PPPBQP1P/2KR3R w - - 4 16",
-        "current_fen": "r6r/p2k1ppp/8/3p1nP1/1q6/8/PPP1QP1P/2KR3R w - - 0 18",
-        "last_move_uci": "b6b4",
-        "pgn": "Nxd5 exd5 Bxb4 Qxb4 Rxd5+",
+        "url": "https://lichess.org/training/mqTL1",
+        "title": "Lichess • 1926",
+        "fen": "k7/1RR5/6p1/pB2p3/4P1P1/1P3P2/PKPq4/3r4 b - - 6 37",
+        "current_fen": "k7/1RR5/6p1/pB2p3/4P1P1/1P3P2/PKPq4/3r4 b - - 6 37",
+        "last_move_uci": "c3b2",
+        "pgn": "Qc1+ Kc3 Qa1+ Kc4 Qd4#",
         "all_moves": [
           {
-            "uci": "c3d5",
-            "san": "Nxd5",
-            "color": "white"
-          },
-          {
-            "uci": "e6d5",
-            "san": "exd5",
+            "uci": "d2c1",
+            "san": "Qc1+",
             "color": "black"
           },
           {
-            "uci": "d2b4",
-            "san": "Bxb4",
+            "uci": "b2c3",
+            "san": "Kc3",
             "color": "white"
           },
           {
-            "uci": "b6b4",
-            "san": "Qxb4",
+            "uci": "c1a1",
+            "san": "Qa1+",
             "color": "black"
           },
           {
-            "uci": "d1d5",
-            "san": "Rxd5+",
+            "uci": "c3c4",
+            "san": "Kc4",
             "color": "white"
+          },
+          {
+            "uci": "a1d4",
+            "san": "Qd4#",
+            "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "c3d5",
-            "san": "Nxd5",
-            "color": "white"
+            "uci": "d2c1",
+            "san": "Qc1+",
+            "color": "black"
           },
           {
-            "uci": "d2b4",
-            "san": "Bxb4",
-            "color": "white"
+            "uci": "c1a1",
+            "san": "Qa1+",
+            "color": "black"
           },
           {
-            "uci": "d1d5",
-            "san": "Rxd5+",
-            "color": "white"
+            "uci": "a1d4",
+            "san": "Qd4#",
+            "color": "black"
           }
         ],
-        "player_color": "white",
+        "player_color": "black",
         "player_move_count": 3,
-        "posted_at": "2026-09-16T19:30:17.563978+00:00",
+        "posted_at": "2026-09-16T19:30:35.522905+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_gy54P_1789587017563",
-        "rating": 1887,
-        "next_solution_index": 4,
+        "puzzle_id": "practice_rush_442597396195704832_mqTL1_1789587035522",
+        "rating": 1926,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1549865071780569088,
+      "message_id": 1549865089744769134,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789587032.024846,
-      "last_feedback": "✅ **Bxb4** • Opponent: **Qxb4**"
+      "last_card_activity_at": 1789587035.5166302,
+      "last_feedback": "✅ **Rxd5+** — solved! Score: **18**."
     },
     "362606514764251137": {
       "active": false,
