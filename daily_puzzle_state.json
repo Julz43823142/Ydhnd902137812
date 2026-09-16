@@ -38,7 +38,7 @@
     "player_color": "white",
     "player_move_count": 2,
     "posted_at": "2026-09-16T14:12:02.721169+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -54,9 +54,9 @@
     "next_player_index": 0,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1549785074164170934
+      "1468320170891022417": 1549785137452023910
     },
-    "message_id": 1549785074164170934,
+    "message_id": 1549785137452023910,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
@@ -77,9 +77,9 @@
     "wrong_attempt_counts": {
       "601406103712170014": 2
     },
-    "last_feedback": "❌ **You played that like you were quoting theory. Unfortunately, it was the wrong book.**\n↪️ **Move played:** `Bc1`"
+    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** g4 Nxh4"
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-16",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-16",
