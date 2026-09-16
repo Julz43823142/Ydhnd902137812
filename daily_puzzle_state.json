@@ -2665,8 +2665,8 @@
         "url": "https://lichess.org/training/oGVnQ",
         "title": "Lichess • 1814",
         "fen": "3q1rk1/1p1n1ppp/p2N1b2/3P1P1b/5B2/1PPB2QP/4r1PK/RR6 b - - 2 26",
-        "current_fen": "3q1rk1/1p1n1ppp/p2N1b2/3P1P1b/5B2/1PPB2QP/4r1PK/RR6 b - - 2 26",
-        "last_move_uci": "c2d3",
+        "current_fen": "3q1rk1/1p1n1ppp/p2N4/3P1P1b/5B1b/1PP3QP/4B1PK/RR6 b - - 0 27",
+        "last_move_uci": "d3e2",
         "pgn": "Bh4 Bxe2 Bxg3+",
         "all_moves": [
           {
@@ -2706,16 +2706,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_oGVnQ_1789587003012",
         "rating": 1814,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1549864948992184401,
+      "message_id": 1549864968478916710,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789587003.006538,
-      "last_feedback": "✅ **fxg6** — solved! Score: **16**."
+      "last_card_activity_at": 1789587008.4583209,
+      "last_feedback": "✅ **Bh4** • Opponent: **Bxe2**"
     },
     "362606514764251137": {
       "active": false,
