@@ -2633,93 +2633,71 @@
   },
   "puzzle_rush": {
     "442597396195704832": {
-      "active": false,
+      "active": true,
       "user_id": "442597396195704832",
       "name": "Thice",
-      "started_at": 1789147691.114252,
-      "run_id": "rush:442597396195704832:1789147691114",
-      "end_at": 1789147991.114252,
-      "score": 6,
-      "wrong": 1,
-      "mistakes": [
-        {
-          "puzzle_number": 6,
-          "submitted": "qxe4",
-          "correct": "Rxg3",
-          "puzzle": {
-            "puzzle_id": "practice_rush_442597396195704832_S3Mc1_1789147835886",
-            "fen": "6r1/1k1b1p2/5P1b/2pP4/1q2B3/6Np/1PP4P/5RQK b - - 0 31",
-            "current_fen": "6r1/1k1b1p2/5P1b/2pP4/1q2B3/6Np/1PP4P/5RQK b - - 0 31",
-            "last_move_uci": "f3e4",
-            "player_color": "black",
-            "rating": 1447,
-            "board_theme": "blue",
-            "piece_theme": "kiwen-suwi",
-            "arrow_theme": "pink"
-          },
-          "recorded_at": 1789147853.3920887
-        }
-      ],
+      "started_at": 1789577654.9628522,
+      "run_id": "rush:442597396195704832:1789577654962",
+      "end_at": 1789577954.9628522,
+      "score": 0,
+      "wrong": 0,
+      "mistakes": [],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/hZLCT",
-        "title": "Lichess • 1473",
-        "fen": "n1r2k2/5p2/2r3p1/B2KP1Pp/p1pR1P1P/8/PPR5/8 b - - 13 36",
-        "current_fen": "n1r2k2/5p2/2r3p1/B2KP1Pp/p1pR1P1P/8/PPR5/8 b - - 13 36",
-        "last_move_uci": "e4d5",
-        "pgn": "Rc5+ Ke4 Rxa5",
+        "url": "https://lichess.org/training/GxBaZ",
+        "title": "Lichess • 1206",
+        "fen": "6r1/p3kp1p/2p5/2N1P2r/1P2KPb1/2P5/P2R3P/R7 b - - 6 29",
+        "current_fen": "6r1/p3kp1p/2p5/2N1P2r/1P2KPb1/2P5/P2R3P/R7 b - - 6 29",
+        "last_move_uci": "f3e4",
+        "pgn": "Bf5+ Kd4 Rd8+",
         "all_moves": [
           {
-            "uci": "c6c5",
-            "san": "Rc5+",
+            "uci": "g4f5",
+            "san": "Bf5+",
             "color": "black"
           },
           {
-            "uci": "d5e4",
-            "san": "Ke4",
+            "uci": "e4d4",
+            "san": "Kd4",
             "color": "white"
           },
           {
-            "uci": "c5a5",
-            "san": "Rxa5",
+            "uci": "g8d8",
+            "san": "Rd8+",
             "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "c6c5",
-            "san": "Rc5+",
+            "uci": "g4f5",
+            "san": "Bf5+",
             "color": "black"
           },
           {
-            "uci": "c5a5",
-            "san": "Rxa5",
+            "uci": "g8d8",
+            "san": "Rd8+",
             "color": "black"
           }
         ],
         "player_color": "black",
         "player_move_count": 2,
-        "posted_at": "2026-09-11T17:31:21.982111+00:00",
+        "posted_at": "2026-09-16T16:54:14.965791+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_hZLCT_1789147881982",
-        "rating": 1473,
+        "puzzle_id": "practice_rush_442597396195704832_GxBaZ_1789577654965",
+        "rating": 1206,
         "next_solution_index": 0,
         "board_theme": "blue",
-        "piece_theme": "kiwen-suwi",
+        "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1548023160916672564,
+      "message_id": 1549825762649964594,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789147881.9766788,
-      "last_feedback": "✅ **Bxd5** — solved! Score: **6**.",
-      "forfeited": true,
-      "ended_at": 1789147898.069315,
-      "solve_reward_coins": 3.0,
-      "solve_reward_paid": true
+      "last_card_activity_at": 1789577654.9628587,
+      "last_feedback": "🎯 **Type your move in chat.** Your answer message will be removed. You have **3 lives**."
     },
     "362606514764251137": {
       "active": false,
