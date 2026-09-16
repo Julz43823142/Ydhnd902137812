@@ -2639,7 +2639,7 @@
       "started_at": 1789586791.6679428,
       "run_id": "rush:442597396195704832:1789586791667",
       "end_at": 1789587091.6679428,
-      "score": 20,
+      "score": 21,
       "wrong": 2,
       "mistakes": [
         {
@@ -2679,75 +2679,75 @@
       ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/Ahgtc",
-        "title": "Lichess • 2029",
-        "fen": "5rk1/5pp1/p3p2p/4P3/1pR1qnQ1/1P5P/PB3PP1/6K1 b - - 4 25",
-        "current_fen": "5rk1/5pp1/p3p2p/4P3/1pR5/1P5P/PB2QPPK/4q3 b - - 0 27",
-        "last_move_uci": "g4e2",
-        "pgn": "Qe1+ Kh2 Ne2 Qxe2 Qxe2",
+        "url": "https://lichess.org/training/fAosQ",
+        "title": "Lichess • 1998",
+        "fen": "3q1r1k/2p3p1/6Q1/4PpN1/3P4/3n3P/1r4P1/R3R1K1 b - - 2 28",
+        "current_fen": "3q1r1k/2p3p1/6Q1/4PpN1/3P4/3n3P/1r4P1/R3R1K1 b - - 2 28",
+        "last_move_uci": "f3g5",
+        "pgn": "Rxg2+ Kxg2 Nf4+ Kf1 Nxg6",
         "all_moves": [
           {
-            "uci": "e4e1",
-            "san": "Qe1+",
+            "uci": "b2g2",
+            "san": "Rxg2+",
             "color": "black"
           },
           {
-            "uci": "g1h2",
-            "san": "Kh2",
+            "uci": "g1g2",
+            "san": "Kxg2",
             "color": "white"
           },
           {
-            "uci": "f4e2",
-            "san": "Ne2",
+            "uci": "d3f4",
+            "san": "Nf4+",
             "color": "black"
           },
           {
-            "uci": "g4e2",
-            "san": "Qxe2",
+            "uci": "g2f1",
+            "san": "Kf1",
             "color": "white"
           },
           {
-            "uci": "e1e2",
-            "san": "Qxe2",
+            "uci": "f4g6",
+            "san": "Nxg6",
             "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "e4e1",
-            "san": "Qe1+",
+            "uci": "b2g2",
+            "san": "Rxg2+",
             "color": "black"
           },
           {
-            "uci": "f4e2",
-            "san": "Ne2",
+            "uci": "d3f4",
+            "san": "Nf4+",
             "color": "black"
           },
           {
-            "uci": "e1e2",
-            "san": "Qxe2",
+            "uci": "f4g6",
+            "san": "Nxg6",
             "color": "black"
           }
         ],
         "player_color": "black",
         "player_move_count": 3,
-        "posted_at": "2026-09-16T19:31:04.515560+00:00",
+        "posted_at": "2026-09-16T19:31:19.454327+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_Ahgtc_1789587064515",
-        "rating": 2029,
-        "next_solution_index": 4,
+        "puzzle_id": "practice_rush_442597396195704832_fAosQ_1789587079454",
+        "rating": 1998,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1549865246380916888,
+      "message_id": 1549865272213504000,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789587075.5519965,
-      "last_feedback": "✅ **Ne2** • Opponent: **Qxe2**"
+      "last_card_activity_at": 1789587079.448933,
+      "last_feedback": "✅ **Qxe2** — solved! Score: **21**."
     },
     "362606514764251137": {
       "active": false,
