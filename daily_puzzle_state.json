@@ -2639,65 +2639,65 @@
       "started_at": 1789577654.9628522,
       "run_id": "rush:442597396195704832:1789577654962",
       "end_at": 1789577954.9628522,
-      "score": 5,
+      "score": 6,
       "wrong": 0,
       "mistakes": [],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/e1FNM",
-        "title": "Lichess • 1396",
-        "fen": "8/4k1p1/7p/2RP3r/4K3/1P6/8/8 w - - 2 41",
-        "current_fen": "8/6p1/3k3p/2R4r/4K3/1P6/8/8 w - - 0 42",
-        "last_move_uci": "e7d6",
-        "pgn": "d6+ Kxd6 Rxh5",
+        "url": "https://lichess.org/training/xuUmu",
+        "title": "Lichess • 1402",
+        "fen": "6k1/8/5PPP/8/8/1K5R/8/q7 w - - 0 62",
+        "current_fen": "6k1/8/5PPP/8/8/1K5R/8/q7 w - - 0 62",
+        "last_move_uci": "a2a1q",
+        "pgn": "h7+ Kh8 g7#",
         "all_moves": [
           {
-            "uci": "d5d6",
-            "san": "d6+",
+            "uci": "h6h7",
+            "san": "h7+",
             "color": "white"
           },
           {
-            "uci": "e7d6",
-            "san": "Kxd6",
+            "uci": "g8h8",
+            "san": "Kh8",
             "color": "black"
           },
           {
-            "uci": "c5h5",
-            "san": "Rxh5",
+            "uci": "g6g7",
+            "san": "g7#",
             "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "d5d6",
-            "san": "d6+",
+            "uci": "h6h7",
+            "san": "h7+",
             "color": "white"
           },
           {
-            "uci": "c5h5",
-            "san": "Rxh5",
+            "uci": "g6g7",
+            "san": "g7#",
             "color": "white"
           }
         ],
         "player_color": "white",
         "player_move_count": 2,
-        "posted_at": "2026-09-16T16:55:09.098436+00:00",
+        "posted_at": "2026-09-16T16:55:17.230943+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_e1FNM_1789577709098",
-        "rating": 1396,
-        "next_solution_index": 2,
+        "puzzle_id": "practice_rush_442597396195704832_xuUmu_1789577717230",
+        "rating": 1402,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1549825987267665930,
+      "message_id": 1549826006846677174,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789577714.2884495,
-      "last_feedback": "✅ **d6+** • Opponent: **Kxd6**"
+      "last_card_activity_at": 1789577717.2275627,
+      "last_feedback": "✅ **Rxh5** — solved! Score: **6**."
     },
     "362606514764251137": {
       "active": false,
