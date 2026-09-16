@@ -2647,8 +2647,8 @@
         "url": "https://lichess.org/training/l4T2r",
         "title": "Lichess • 1470",
         "fen": "rnbqkb1r/pp3pp1/2p2n1p/1B2p1N1/8/8/PPP2PPP/RNBQ1RK1 w kq - 0 8",
-        "current_fen": "rnbqkb1r/pp3pp1/2p2n1p/1B2p1N1/8/8/PPP2PPP/RNBQ1RK1 w kq - 0 8",
-        "last_move_uci": "c7c6",
+        "current_fen": "rnbk1b1r/pp3pp1/2p2n1p/1B2p1N1/8/8/PPP2PPP/RNB2RK1 w - - 0 9",
+        "last_move_uci": "e8d8",
         "pgn": "Qxd8+ Kxd8 Nxf7+",
         "all_moves": [
           {
@@ -2688,16 +2688,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_l4T2r_1789577737270",
         "rating": 1470,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1549826093043814481,
+      "message_id": 1549826105001906187,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789577737.266636,
-      "last_feedback": "✅ **fxe6** — solved! Score: **8**."
+      "last_card_activity_at": 1789577743.8437996,
+      "last_feedback": "✅ **Qxd8+** • Opponent: **Kxd8**"
     },
     "362606514764251137": {
       "active": false,
