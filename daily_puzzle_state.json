@@ -2665,8 +2665,8 @@
         "url": "https://lichess.org/training/PkElS",
         "title": "Lichess • 1715",
         "fen": "6k1/4bpp1/2r1p2p/3p4/3P4/rpq1PBP1/1Q3PP1/RR4K1 w - - 0 29",
-        "current_fen": "6k1/4bpp1/2r1p2p/3p4/3P4/rpq1PBP1/1Q3PP1/RR4K1 w - - 0 29",
-        "last_move_uci": "a8a3",
+        "current_fen": "6k1/5pp1/2r1p2p/3p4/3P4/bpq1PBP1/1Q3PP1/1R4K1 w - - 0 30",
+        "last_move_uci": "e7a3",
         "pgn": "Rxa3 Bxa3 Qxa3",
         "all_moves": [
           {
@@ -2706,16 +2706,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_PkElS_1789586948815",
         "rating": 1715,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1549864725032996995,
+      "message_id": 1549864741042913367,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789586948.8096714,
-      "last_feedback": "✅ **Rxf2** — solved! Score: **12**."
+      "last_card_activity_at": 1789586957.2510655,
+      "last_feedback": "✅ **Rxa3** • Opponent: **Bxa3**"
     },
     "362606514764251137": {
       "active": false,
