@@ -2639,40 +2639,70 @@
       "started_at": 1789586791.6679428,
       "run_id": "rush:442597396195704832:1789586791667",
       "end_at": 1789587091.6679428,
-      "score": 0,
+      "score": 1,
       "wrong": 0,
       "mistakes": [],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/NZADz",
-        "title": "Lichess • 1211",
-        "fen": "R7/P7/8/4k1pB/8/1bp3P1/r7/2K5 b - - 5 49",
-        "current_fen": "R7/P7/8/4k1pB/8/1bp3P1/r7/2K5 b - - 5 49",
-        "last_move_uci": "d1c1",
-        "pgn": "Ra1#",
+        "url": "https://lichess.org/training/mDwYu",
+        "title": "Lichess • 1250",
+        "fen": "7r/3b1k2/1p1bp2q/pP1p4/P1pP1pP1/2P2R1r/2B1RPK1/7Q w - - 0 43",
+        "current_fen": "7r/3b1k2/1p1bp2q/pP1p4/P1pP1pP1/2P2R1r/2B1RPK1/7Q w - - 0 43",
+        "last_move_uci": "h4h3",
+        "pgn": "Rxh3 Qxh3+ Qxh3 Rxh3 Kxh3",
         "all_moves": [
           {
-            "uci": "a2a1",
-            "san": "Ra1#",
+            "uci": "f3h3",
+            "san": "Rxh3",
+            "color": "white"
+          },
+          {
+            "uci": "h6h3",
+            "san": "Qxh3+",
             "color": "black"
+          },
+          {
+            "uci": "h1h3",
+            "san": "Qxh3",
+            "color": "white"
+          },
+          {
+            "uci": "h8h3",
+            "san": "Rxh3",
+            "color": "black"
+          },
+          {
+            "uci": "g2h3",
+            "san": "Kxh3",
+            "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "a2a1",
-            "san": "Ra1#",
-            "color": "black"
+            "uci": "f3h3",
+            "san": "Rxh3",
+            "color": "white"
+          },
+          {
+            "uci": "h1h3",
+            "san": "Qxh3",
+            "color": "white"
+          },
+          {
+            "uci": "g2h3",
+            "san": "Kxh3",
+            "color": "white"
           }
         ],
-        "player_color": "black",
-        "player_move_count": 1,
-        "posted_at": "2026-09-16T19:26:31.671785+00:00",
+        "player_color": "white",
+        "player_move_count": 3,
+        "posted_at": "2026-09-16T19:26:37.505253+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_NZADz_1789586791671",
-        "rating": 1211,
+        "puzzle_id": "practice_rush_442597396195704832_mDwYu_1789586797505",
+        "rating": 1250,
         "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
@@ -2681,8 +2711,8 @@
       "message_id": 1549864082906292365,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789586791.667951,
-      "last_feedback": "🎯 **Type your move in chat.** Your answer message will be removed. You have **3 lives**."
+      "last_card_activity_at": 1789586797.4985468,
+      "last_feedback": "✅ **Ra1#** — solved! Score: **1**."
     },
     "362606514764251137": {
       "active": false,
