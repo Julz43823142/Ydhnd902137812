@@ -2639,7 +2639,7 @@
       "started_at": 1789586791.6679428,
       "run_id": "rush:442597396195704832:1789586791667",
       "end_at": 1789587091.6679428,
-      "score": 18,
+      "score": 19,
       "wrong": 2,
       "mistakes": [
         {
@@ -2679,75 +2679,105 @@
       ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/mqTL1",
-        "title": "Lichess • 1926",
-        "fen": "k7/1RR5/6p1/pB2p3/4P1P1/1P3P2/PKPq4/3r4 b - - 6 37",
-        "current_fen": "k7/1RR5/6p1/pB2p3/2K1P1P1/1P3P2/P1P5/q2r4 b - - 10 39",
-        "last_move_uci": "c3c4",
-        "pgn": "Qc1+ Kc3 Qa1+ Kc4 Qd4#",
+        "url": "https://lichess.org/training/XJ5D2",
+        "title": "Lichess • 1941",
+        "fen": "K1k5/P7/1p5p/2p3p1/2P3P1/7P/8/8 b - - 0 50",
+        "current_fen": "K1k5/P7/1p5p/2p3p1/2P3P1/7P/8/8 b - - 0 50",
+        "last_move_uci": "a6a7",
+        "pgn": "Kc7 h4 gxh4 g5 h3 g6 h2 g7 h1=Q#",
         "all_moves": [
           {
-            "uci": "d2c1",
-            "san": "Qc1+",
+            "uci": "c8c7",
+            "san": "Kc7",
             "color": "black"
           },
           {
-            "uci": "b2c3",
-            "san": "Kc3",
+            "uci": "h3h4",
+            "san": "h4",
             "color": "white"
           },
           {
-            "uci": "c1a1",
-            "san": "Qa1+",
+            "uci": "g5h4",
+            "san": "gxh4",
             "color": "black"
           },
           {
-            "uci": "c3c4",
-            "san": "Kc4",
+            "uci": "g4g5",
+            "san": "g5",
             "color": "white"
           },
           {
-            "uci": "a1d4",
-            "san": "Qd4#",
+            "uci": "h4h3",
+            "san": "h3",
+            "color": "black"
+          },
+          {
+            "uci": "g5g6",
+            "san": "g6",
+            "color": "white"
+          },
+          {
+            "uci": "h3h2",
+            "san": "h2",
+            "color": "black"
+          },
+          {
+            "uci": "g6g7",
+            "san": "g7",
+            "color": "white"
+          },
+          {
+            "uci": "h2h1q",
+            "san": "h1=Q#",
             "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "d2c1",
-            "san": "Qc1+",
+            "uci": "c8c7",
+            "san": "Kc7",
             "color": "black"
           },
           {
-            "uci": "c1a1",
-            "san": "Qa1+",
+            "uci": "g5h4",
+            "san": "gxh4",
             "color": "black"
           },
           {
-            "uci": "a1d4",
-            "san": "Qd4#",
+            "uci": "h4h3",
+            "san": "h3",
+            "color": "black"
+          },
+          {
+            "uci": "h3h2",
+            "san": "h2",
+            "color": "black"
+          },
+          {
+            "uci": "h2h1q",
+            "san": "h1=Q#",
             "color": "black"
           }
         ],
         "player_color": "black",
-        "player_move_count": 3,
-        "posted_at": "2026-09-16T19:30:35.522905+00:00",
+        "player_move_count": 5,
+        "posted_at": "2026-09-16T19:30:47.159546+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_mqTL1_1789587035522",
-        "rating": 1926,
-        "next_solution_index": 4,
+        "puzzle_id": "practice_rush_442597396195704832_XJ5D2_1789587047159",
+        "rating": 1941,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1549865126654386217,
+      "message_id": 1549865139170181271,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789587043.9033873,
-      "last_feedback": "✅ **Qa1+** • Opponent: **Kc4**"
+      "last_card_activity_at": 1789587047.153529,
+      "last_feedback": "✅ **Qd4#** — solved! Score: **19**."
     },
     "362606514764251137": {
       "active": false,
