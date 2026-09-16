@@ -2640,7 +2640,7 @@
       "run_id": "rush:442597396195704832:1789577654962",
       "end_at": 1789577954.9628522,
       "score": 17,
-      "wrong": 1,
+      "wrong": 2,
       "mistakes": [
         {
           "puzzle_number": 16,
@@ -2658,79 +2658,111 @@
             "arrow_theme": "pink"
           },
           "recorded_at": 1789577821.7114887
+        },
+        {
+          "puzzle_number": 19,
+          "submitted": "ke5",
+          "correct": "f5",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_eg4yn_1789577849040",
+            "fen": "8/8/p5p1/1p6/1P3Pk1/P3K3/8/8 w - - 0 56",
+            "current_fen": "8/8/p5p1/1p6/1P2KP2/P5k1/8/8 w - - 2 57",
+            "last_move_uci": "g4g3",
+            "player_color": "white",
+            "rating": 1872,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1789577858.1290464
         }
       ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/eg4yn",
-        "title": "Lichess • 1872",
-        "fen": "8/8/p5p1/1p6/1P3Pk1/P3K3/8/8 w - - 0 56",
-        "current_fen": "8/8/p5p1/1p6/1P2KP2/P5k1/8/8 w - - 2 57",
-        "last_move_uci": "g4g3",
-        "pgn": "Ke4 Kg3 f5 gxf5+ Kxf5",
+        "url": "https://lichess.org/training/tfwhD",
+        "title": "Lichess • 1850",
+        "fen": "4r1k1/pp3pp1/2pb3p/3p4/3Pn1q1/2PQ2P1/PP1N1PP1/2B1RK2 b - - 7 22",
+        "current_fen": "4r1k1/pp3pp1/2pb3p/3p4/3Pn1q1/2PQ2P1/PP1N1PP1/2B1RK2 b - - 7 22",
+        "last_move_uci": "f3d2",
+        "pgn": "Nxg3+ fxg3 Rxe1+ Kxe1 Bxg3+ Qxg3 Qxg3+",
         "all_moves": [
           {
-            "uci": "e3e4",
-            "san": "Ke4",
+            "uci": "e4g3",
+            "san": "Nxg3+",
+            "color": "black"
+          },
+          {
+            "uci": "f2g3",
+            "san": "fxg3",
+            "color": "white"
+          },
+          {
+            "uci": "e8e1",
+            "san": "Rxe1+",
+            "color": "black"
+          },
+          {
+            "uci": "f1e1",
+            "san": "Kxe1",
+            "color": "white"
+          },
+          {
+            "uci": "d6g3",
+            "san": "Bxg3+",
+            "color": "black"
+          },
+          {
+            "uci": "d3g3",
+            "san": "Qxg3",
             "color": "white"
           },
           {
             "uci": "g4g3",
-            "san": "Kg3",
+            "san": "Qxg3+",
             "color": "black"
-          },
-          {
-            "uci": "f4f5",
-            "san": "f5",
-            "color": "white"
-          },
-          {
-            "uci": "g6f5",
-            "san": "gxf5+",
-            "color": "black"
-          },
-          {
-            "uci": "e4f5",
-            "san": "Kxf5",
-            "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "e3e4",
-            "san": "Ke4",
-            "color": "white"
+            "uci": "e4g3",
+            "san": "Nxg3+",
+            "color": "black"
           },
           {
-            "uci": "f4f5",
-            "san": "f5",
-            "color": "white"
+            "uci": "e8e1",
+            "san": "Rxe1+",
+            "color": "black"
           },
           {
-            "uci": "e4f5",
-            "san": "Kxf5",
-            "color": "white"
+            "uci": "d6g3",
+            "san": "Bxg3+",
+            "color": "black"
+          },
+          {
+            "uci": "g4g3",
+            "san": "Qxg3+",
+            "color": "black"
           }
         ],
-        "player_color": "white",
-        "player_move_count": 3,
-        "posted_at": "2026-09-16T16:57:29.040623+00:00",
+        "player_color": "black",
+        "player_move_count": 4,
+        "posted_at": "2026-09-16T16:57:38.132323+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_eg4yn_1789577849040",
-        "rating": 1872,
-        "next_solution_index": 2,
+        "puzzle_id": "practice_rush_442597396195704832_tfwhD_1789577858132",
+        "rating": 1850,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1549826573702664376,
+      "message_id": 1549826595525632101,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789577854.6459234,
-      "last_feedback": "✅ **Ke4** • Opponent: **Kg3**"
+      "last_card_activity_at": 1789577858.1289089,
+      "last_feedback": "❌ **ke5** was wrong. Correct move: **f5**."
     },
     "362606514764251137": {
       "active": false,
