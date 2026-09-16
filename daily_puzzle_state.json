@@ -43,7 +43,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_Dlw8k_1789567922721",
-    "last_activity_at": "2026-09-16T14:12:33.433477+00:00",
+    "last_activity_at": "2026-09-16T14:12:49.800248+00:00",
     "rating": 2402,
     "rp_band": 4,
     "boss": false,
@@ -54,17 +54,17 @@
     "next_player_index": 0,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1549784948129529906
+      "1468320170891022417": 1549785074164170934
     },
-    "message_id": 1549784948129529906,
+    "message_id": 1549785074164170934,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "601406103712170014": {
         "name": "TheMakina",
-        "move": "Bc1",
+        "move": "Rfb1",
         "correct": false,
-        "timestamp": "2026-09-16T14:12:33.433778+00:00"
+        "timestamp": "2026-09-16T14:12:49.800613+00:00"
       }
     },
     "first_move_user_id": null,
@@ -72,11 +72,12 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-16T14:12:33.433477+00:00",
+    "last_card_activity_at": "2026-09-16T14:12:49.800248+00:00",
     "recent_accepted_moves": [],
     "wrong_attempt_counts": {
-      "601406103712170014": 1
-    }
+      "601406103712170014": 2
+    },
+    "last_feedback": "❌ **You played that like you were quoting theory. Unfortunately, it was the wrong book.**\n↪️ **Move played:** `Bc1`"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-09-16",
