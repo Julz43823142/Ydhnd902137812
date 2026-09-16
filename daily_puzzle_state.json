@@ -2665,8 +2665,8 @@
         "url": "https://lichess.org/training/eg4yn",
         "title": "Lichess • 1872",
         "fen": "8/8/p5p1/1p6/1P3Pk1/P3K3/8/8 w - - 0 56",
-        "current_fen": "8/8/p5p1/1p6/1P3Pk1/P3K3/8/8 w - - 0 56",
-        "last_move_uci": "b6b5",
+        "current_fen": "8/8/p5p1/1p6/1P2KP2/P5k1/8/8 w - - 2 57",
+        "last_move_uci": "g4g3",
         "pgn": "Ke4 Kg3 f5 gxf5+ Kxf5",
         "all_moves": [
           {
@@ -2721,16 +2721,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_eg4yn_1789577849040",
         "rating": 1872,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1549826561903960075,
+      "message_id": 1549826573702664376,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789577849.0368237,
-      "last_feedback": "✅ **Qxd1** — solved! Score: **17**."
+      "last_card_activity_at": 1789577854.6459234,
+      "last_feedback": "✅ **Ke4** • Opponent: **Kg3**"
     },
     "362606514764251137": {
       "active": false,
