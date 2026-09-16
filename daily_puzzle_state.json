@@ -2665,8 +2665,8 @@
         "url": "https://lichess.org/training/IwsZF",
         "title": "Lichess • 1806",
         "fen": "r1b1k1nB/pppp3p/2n2p2/2b5/8/1QP2NP1/Pq1PPP1P/RN2KB1R b KQq - 2 9",
-        "current_fen": "r1b1k1nB/pppp3p/2n2p2/2b5/8/2P2NP1/P2PPP1P/RNqQKB1R b KQq - 4 10",
-        "last_move_uci": "b3d1",
+        "current_fen": "r1b1k1nB/pppp3p/2n2p2/8/8/2P2NP1/P2PPK1P/RNqQ1B1R b q - 0 11",
+        "last_move_uci": "e1f2",
         "pgn": "Qc1+ Qd1 Bxf2+ Kxf2 Qxd1",
         "all_moves": [
           {
@@ -2721,16 +2721,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_IwsZF_1789577836642",
         "rating": 1806,
-        "next_solution_index": 2,
+        "next_solution_index": 4,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1549826522133692416,
+      "message_id": 1549826553121349683,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789577844.3223524,
-      "last_feedback": "✅ **Qc1+** • Opponent: **Qd1**"
+      "last_card_activity_at": 1789577846.5754774,
+      "last_feedback": "✅ **Bxf2+** • Opponent: **Kxf2**"
     },
     "362606514764251137": {
       "active": false,
