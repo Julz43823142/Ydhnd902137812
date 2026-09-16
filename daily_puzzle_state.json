@@ -170,7 +170,7 @@
     "player_color": "black",
     "player_move_count": 4,
     "posted_at": "2026-09-16T07:27:42.101403+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -178,7 +178,7 @@
     "next_solution_index": 7,
     "next_player_index": 4,
     "solved": true,
-    "message_id": 1549683533721772066,
+    "message_id": 1549683605335183371,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
@@ -193,8 +193,8 @@
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1549683533721772066,
-      "1546557493038284840": 1549683539123904545
+      "1468320170891022417": 1549683605335183371,
+      "1546557493038284840": 1549683613866533005
     },
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
@@ -243,7 +243,7 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kg1",
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1628 points.**\n🔥 **Daily Activity Bonus: +10 coins**\n\n💡 **Solution:** Qh4+ Rh1+ Qxh3+ Qxg2#\n\n🏆 **Your ranking**\n**#1 🟦 Thice — 1628 points ← you**\n**#2 🍅 TheMakina — 1501.5 points**",
     "activity_bonus_users": [
       "442597396195704832"
     ]
