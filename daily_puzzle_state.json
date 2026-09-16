@@ -2682,8 +2682,8 @@
         "url": "https://lichess.org/training/tfwhD",
         "title": "Lichess • 1850",
         "fen": "4r1k1/pp3pp1/2pb3p/3p4/3Pn1q1/2PQ2P1/PP1N1PP1/2B1RK2 b - - 7 22",
-        "current_fen": "4r1k1/pp3pp1/2pb3p/3p4/3Pn1q1/2PQ2P1/PP1N1PP1/2B1RK2 b - - 7 22",
-        "last_move_uci": "f3d2",
+        "current_fen": "4r1k1/pp3pp1/2pb3p/3p4/3P2q1/2PQ2P1/PP1N2P1/2B1RK2 b - - 0 23",
+        "last_move_uci": "f2g3",
         "pgn": "Nxg3+ fxg3 Rxe1+ Kxe1 Bxg3+ Qxg3 Qxg3+",
         "all_moves": [
           {
@@ -2753,16 +2753,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_tfwhD_1789577858132",
         "rating": 1850,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1549826595525632101,
+      "message_id": 1549826612302848130,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789577858.1289089,
-      "last_feedback": "❌ **ke5** was wrong. Correct move: **f5**."
+      "last_card_activity_at": 1789577884.0111845,
+      "last_feedback": "✅ **Nxg3+** • Opponent: **fxg3**"
     },
     "362606514764251137": {
       "active": false,
