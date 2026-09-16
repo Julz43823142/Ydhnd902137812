@@ -2682,8 +2682,8 @@
         "url": "https://lichess.org/training/mqTL1",
         "title": "Lichess • 1926",
         "fen": "k7/1RR5/6p1/pB2p3/4P1P1/1P3P2/PKPq4/3r4 b - - 6 37",
-        "current_fen": "k7/1RR5/6p1/pB2p3/4P1P1/1P3P2/PKPq4/3r4 b - - 6 37",
-        "last_move_uci": "c3b2",
+        "current_fen": "k7/1RR5/6p1/pB2p3/4P1P1/1PK2P2/P1P5/2qr4 b - - 8 38",
+        "last_move_uci": "b2c3",
         "pgn": "Qc1+ Kc3 Qa1+ Kc4 Qd4#",
         "all_moves": [
           {
@@ -2738,16 +2738,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_mqTL1_1789587035522",
         "rating": 1926,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1549865089744769134,
+      "message_id": 1549865104823029782,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789587035.5166302,
-      "last_feedback": "✅ **Rxd5+** — solved! Score: **18**."
+      "last_card_activity_at": 1789587041.124393,
+      "last_feedback": "✅ **Qc1+** • Opponent: **Kc3**"
     },
     "362606514764251137": {
       "active": false,
