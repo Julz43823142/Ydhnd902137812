@@ -277,6 +277,18 @@
         }
       }
     },
+    "daily:2026-09-16": {
+      "users": {
+        "1": {
+          "name": "Player 1",
+          "paid": [],
+          "progress": {
+            "daily:2026-09-16:minigame:minigame-1": 1
+          },
+          "updated_at": 1789533823
+        }
+      }
+    },
     "weekly:2026-09-07": {
       "users": {
         "1": {
@@ -334,9 +346,9 @@
             "weekly:2026-09-14:minigame:minigame-5"
           ],
           "progress": {
-            "weekly:2026-09-14:minigame:minigame-5": 27
+            "weekly:2026-09-14:minigame:minigame-5": 28
           },
-          "updated_at": 1789512734
+          "updated_at": 1789533823
         },
         "601406103712170014": {
           "name": "TheMakina",
