@@ -2665,8 +2665,8 @@
         "url": "https://lichess.org/training/z5Rsc",
         "title": "Lichess • 1446",
         "fen": "1k6/5p2/KP1P4/7P/4p3/5p2/3bB3/8 b - - 0 45",
-        "current_fen": "1k6/5p2/KP1P4/7P/4p3/5p2/3bB3/8 b - - 0 45",
-        "last_move_uci": "d5d6",
+        "current_fen": "1k6/3P1p2/KP6/7P/4p3/8/3bp3/8 b - - 0 46",
+        "last_move_uci": "d6d7",
         "pgn": "fxe2 d7 Bg5",
         "all_moves": [
           {
@@ -2706,16 +2706,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_z5Rsc_1789586871491",
         "rating": 1446,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1549864397223235684,
+      "message_id": 1549864416634339539,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789586871.4861743,
-      "last_feedback": "✅ **Nb7#** — solved! Score: **7**."
+      "last_card_activity_at": 1789586880.658124,
+      "last_feedback": "✅ **fxe2** • Opponent: **d7**"
     },
     "362606514764251137": {
       "active": false,
