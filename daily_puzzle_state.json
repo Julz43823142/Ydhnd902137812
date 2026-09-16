@@ -2682,8 +2682,8 @@
         "url": "https://lichess.org/training/nbTSP",
         "title": "Lichess • 2009",
         "fen": "r3kb1r/ppp1pppp/2n5/4q3/8/5BP1/PPPPQP1P/R1B1K2R b KQkq - 2 9",
-        "current_fen": "r3kb1r/ppp1pppp/2n5/4q3/8/5BP1/PPPPQP1P/R1B1K2R b KQkq - 2 9",
-        "last_move_uci": "d1e2",
+        "current_fen": "r3kb1r/ppp1pppp/8/4Q3/3n4/5BP1/PPPP1P1P/R1B1K2R b KQkq - 0 10",
+        "last_move_uci": "e2e5",
         "pgn": "Nd4 Qxe5 Nxf3+ Kf1 Nxe5",
         "all_moves": [
           {
@@ -2738,16 +2738,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_nbTSP_1789577921417",
         "rating": 2009,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1549826812987711608,
+      "message_id": 1549826878032838727,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789577921.4143093,
-      "last_feedback": "✅ **Rxd8** — solved! Score: **19**."
+      "last_card_activity_at": 1789577927.2904446,
+      "last_feedback": "✅ **Nd4** • Opponent: **Qxe5**"
     },
     "362606514764251137": {
       "active": false,
