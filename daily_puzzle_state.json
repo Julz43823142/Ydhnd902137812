@@ -2639,65 +2639,65 @@
       "started_at": 1789577654.9628522,
       "run_id": "rush:442597396195704832:1789577654962",
       "end_at": 1789577954.9628522,
-      "score": 4,
+      "score": 5,
       "wrong": 0,
       "mistakes": [],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/NqBWe",
-        "title": "Lichess • 1366",
-        "fen": "8/4b3/3pk1pp/8/4Pp2/7P/2r1N1P1/3R1K2 w - - 0 39",
-        "current_fen": "8/4b3/3p2pp/4k3/3NPp2/7P/2r3P1/3R1K2 w - - 2 40",
-        "last_move_uci": "e6e5",
-        "pgn": "Nd4+ Ke5 Nxc2",
+        "url": "https://lichess.org/training/e1FNM",
+        "title": "Lichess • 1396",
+        "fen": "8/4k1p1/7p/2RP3r/4K3/1P6/8/8 w - - 2 41",
+        "current_fen": "8/4k1p1/7p/2RP3r/4K3/1P6/8/8 w - - 2 41",
+        "last_move_uci": "f7e7",
+        "pgn": "d6+ Kxd6 Rxh5",
         "all_moves": [
           {
-            "uci": "e2d4",
-            "san": "Nd4+",
+            "uci": "d5d6",
+            "san": "d6+",
             "color": "white"
           },
           {
-            "uci": "e6e5",
-            "san": "Ke5",
+            "uci": "e7d6",
+            "san": "Kxd6",
             "color": "black"
           },
           {
-            "uci": "d4c2",
-            "san": "Nxc2",
+            "uci": "c5h5",
+            "san": "Rxh5",
             "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "e2d4",
-            "san": "Nd4+",
+            "uci": "d5d6",
+            "san": "d6+",
             "color": "white"
           },
           {
-            "uci": "d4c2",
-            "san": "Nxc2",
+            "uci": "c5h5",
+            "san": "Rxh5",
             "color": "white"
           }
         ],
         "player_color": "white",
         "player_move_count": 2,
-        "posted_at": "2026-09-16T16:55:02.901640+00:00",
+        "posted_at": "2026-09-16T16:55:09.098436+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_NqBWe_1789577702901",
-        "rating": 1366,
-        "next_solution_index": 2,
+        "puzzle_id": "practice_rush_442597396195704832_e1FNM_1789577709098",
+        "rating": 1396,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1549825961401393182,
+      "message_id": 1549825975490060351,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789577706.7934752,
-      "last_feedback": "✅ **Nd4+** • Opponent: **Ke5**"
+      "last_card_activity_at": 1789577709.0950663,
+      "last_feedback": "✅ **Nxc2** — solved! Score: **5**."
     },
     "362606514764251137": {
       "active": false,
