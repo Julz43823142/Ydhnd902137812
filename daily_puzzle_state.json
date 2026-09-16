@@ -2639,7 +2639,7 @@
       "started_at": 1789577654.9628522,
       "run_id": "rush:442597396195704832:1789577654962",
       "end_at": 1789577954.9628522,
-      "score": 19,
+      "score": 20,
       "wrong": 2,
       "mistakes": [
         {
@@ -2679,75 +2679,75 @@
       ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/nbTSP",
-        "title": "Lichess • 2009",
-        "fen": "r3kb1r/ppp1pppp/2n5/4q3/8/5BP1/PPPPQP1P/R1B1K2R b KQkq - 2 9",
-        "current_fen": "r3kb1r/ppp1pppp/8/4Q3/8/5nP1/PPPP1P1P/R1B2K1R b kq - 1 11",
-        "last_move_uci": "e1f1",
-        "pgn": "Nd4 Qxe5 Nxf3+ Kf1 Nxe5",
+        "url": "https://lichess.org/training/ZDECU",
+        "title": "Lichess • 1958",
+        "fen": "6k1/6p1/1Q5p/8/P3pqP1/7P/6K1/8 w - - 0 55",
+        "current_fen": "6k1/6p1/1Q5p/8/P3pqP1/7P/6K1/8 w - - 0 55",
+        "last_move_uci": "e5e4",
+        "pgn": "Qe6+ Kf8 Qf5+ Qxf5 gxf5",
         "all_moves": [
           {
-            "uci": "c6d4",
-            "san": "Nd4",
-            "color": "black"
-          },
-          {
-            "uci": "e2e5",
-            "san": "Qxe5",
+            "uci": "b6e6",
+            "san": "Qe6+",
             "color": "white"
           },
           {
-            "uci": "d4f3",
-            "san": "Nxf3+",
+            "uci": "g8f8",
+            "san": "Kf8",
             "color": "black"
           },
           {
-            "uci": "e1f1",
-            "san": "Kf1",
+            "uci": "e6f5",
+            "san": "Qf5+",
             "color": "white"
           },
           {
-            "uci": "f3e5",
-            "san": "Nxe5",
+            "uci": "f4f5",
+            "san": "Qxf5",
             "color": "black"
+          },
+          {
+            "uci": "g4f5",
+            "san": "gxf5",
+            "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "c6d4",
-            "san": "Nd4",
-            "color": "black"
+            "uci": "b6e6",
+            "san": "Qe6+",
+            "color": "white"
           },
           {
-            "uci": "d4f3",
-            "san": "Nxf3+",
-            "color": "black"
+            "uci": "e6f5",
+            "san": "Qf5+",
+            "color": "white"
           },
           {
-            "uci": "f3e5",
-            "san": "Nxe5",
-            "color": "black"
+            "uci": "g4f5",
+            "san": "gxf5",
+            "color": "white"
           }
         ],
-        "player_color": "black",
+        "player_color": "white",
         "player_move_count": 3,
-        "posted_at": "2026-09-16T16:58:41.417833+00:00",
+        "posted_at": "2026-09-16T16:58:53.937113+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_nbTSP_1789577921417",
-        "rating": 2009,
-        "next_solution_index": 4,
+        "puzzle_id": "practice_rush_442597396195704832_ZDECU_1789577933937",
+        "rating": 1958,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1549826900417978410,
+      "message_id": 1549826918071664650,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789577931.3834093,
-      "last_feedback": "✅ **Nxf3+** • Opponent: **Kf1**"
+      "last_card_activity_at": 1789577933.9337327,
+      "last_feedback": "✅ **Nxe5** — solved! Score: **20**."
     },
     "362606514764251137": {
       "active": false,
