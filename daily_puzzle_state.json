@@ -2640,64 +2640,97 @@
       "run_id": "rush:442597396195704832:1789586791667",
       "end_at": 1789587091.6679428,
       "score": 5,
-      "wrong": 0,
-      "mistakes": [],
+      "wrong": 1,
+      "mistakes": [
+        {
+          "puzzle_number": 6,
+          "submitted": "rxf8",
+          "correct": "Qh6+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_QiLYA_1789586830462",
+            "fen": "5r1k/2r5/3p2Q1/1p2q3/5R2/7P/P1B3PK/8 w - - 5 45",
+            "current_fen": "5r1k/2r5/3p2Q1/1p2q3/5R2/7P/P1B3PK/8 w - - 5 45",
+            "last_move_uci": "g8h8",
+            "player_color": "white",
+            "rating": 1386,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1789586836.2643058
+        }
+      ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/QiLYA",
-        "title": "Lichess • 1386",
-        "fen": "5r1k/2r5/3p2Q1/1p2q3/5R2/7P/P1B3PK/8 w - - 5 45",
-        "current_fen": "5r1k/2r5/3p2Q1/1p2q3/5R2/7P/P1B3PK/8 w - - 5 45",
-        "last_move_uci": "g8h8",
-        "pgn": "Qh6+ Rh7 Qxf8#",
+        "url": "https://lichess.org/training/vVQsq",
+        "title": "Lichess • 1387",
+        "fen": "r1bq1rk1/ppp4p/4p1pB/3pn3/6P1/1PP5/P3B1QP/RN2K2R b KQ - 2 17",
+        "current_fen": "r1bq1rk1/ppp4p/4p1pB/3pn3/6P1/1PP5/P3B1QP/RN2K2R b KQ - 2 17",
+        "last_move_uci": "c1h6",
+        "pgn": "Qh4+ Qg3 Qxh6 g5 Qg7",
         "all_moves": [
           {
-            "uci": "g6h6",
-            "san": "Qh6+",
-            "color": "white"
-          },
-          {
-            "uci": "c7h7",
-            "san": "Rh7",
+            "uci": "d8h4",
+            "san": "Qh4+",
             "color": "black"
           },
           {
-            "uci": "h6f8",
-            "san": "Qxf8#",
+            "uci": "g2g3",
+            "san": "Qg3",
             "color": "white"
+          },
+          {
+            "uci": "h4h6",
+            "san": "Qxh6",
+            "color": "black"
+          },
+          {
+            "uci": "g4g5",
+            "san": "g5",
+            "color": "white"
+          },
+          {
+            "uci": "h6g7",
+            "san": "Qg7",
+            "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "g6h6",
-            "san": "Qh6+",
-            "color": "white"
+            "uci": "d8h4",
+            "san": "Qh4+",
+            "color": "black"
           },
           {
-            "uci": "h6f8",
-            "san": "Qxf8#",
-            "color": "white"
+            "uci": "h4h6",
+            "san": "Qxh6",
+            "color": "black"
+          },
+          {
+            "uci": "h6g7",
+            "san": "Qg7",
+            "color": "black"
           }
         ],
-        "player_color": "white",
-        "player_move_count": 2,
-        "posted_at": "2026-09-16T19:27:10.462061+00:00",
+        "player_color": "black",
+        "player_move_count": 3,
+        "posted_at": "2026-09-16T19:27:16.269573+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_QiLYA_1789586830462",
-        "rating": 1386,
+        "puzzle_id": "practice_rush_442597396195704832_vVQsq_1789586836269",
+        "rating": 1387,
         "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1549864233120829543,
+      "message_id": 1549864244751761539,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789586830.4563854,
-      "last_feedback": "✅ **Qxc2** — solved! Score: **5**."
+      "last_card_activity_at": 1789586836.2634342,
+      "last_feedback": "❌ **rxf8** was wrong. Correct move: **Qh6+**."
     },
     "362606514764251137": {
       "active": false,
