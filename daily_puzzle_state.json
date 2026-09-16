@@ -2682,8 +2682,8 @@
         "url": "https://lichess.org/training/XJ5D2",
         "title": "Lichess • 1941",
         "fen": "K1k5/P7/1p5p/2p3p1/2P3P1/7P/8/8 b - - 0 50",
-        "current_fen": "K1k5/P7/1p5p/2p3p1/2P3P1/7P/8/8 b - - 0 50",
-        "last_move_uci": "a6a7",
+        "current_fen": "K7/P1k5/1p5p/2p3p1/2P3PP/8/8/8 b - - 0 51",
+        "last_move_uci": "h3h4",
         "pgn": "Kc7 h4 gxh4 g5 h3 g6 h2 g7 h1=Q#",
         "all_moves": [
           {
@@ -2768,16 +2768,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_XJ5D2_1789587047159",
         "rating": 1941,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1549865139170181271,
+      "message_id": 1549865153607114813,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789587047.153529,
-      "last_feedback": "✅ **Qd4#** — solved! Score: **19**."
+      "last_card_activity_at": 1789587053.3970118,
+      "last_feedback": "✅ **Kc7** • Opponent: **h4**"
     },
     "362606514764251137": {
       "active": false,
