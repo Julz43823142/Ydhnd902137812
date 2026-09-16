@@ -102,101 +102,89 @@
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-16",
   "current_puzzle": {
-    "url": "https://www.chess.com/daily/2026-09-15",
-    "title": "Bowling Pins 🎳",
-    "fen": "rn2kb1r/ppqbpppp/5n2/3P4/2B5/1Q6/PP1P1PPP/RNB1K1NR b KQkq - 0 7",
-    "current_fen": "rn2kb1r/p2bpppp/5n2/1B1P4/8/1Q6/PP1P1PPP/RNq1K1NR w KQkq - 0 9",
-    "last_move_uci": "c7c1",
-    "pgn": "[Event \"April 15 Early 2025\"]\n[Date \"2025.04.15\"]\n[White \"Oleksandr Yevchenko\"]\n[Black \"Nadya Toncheva\"]\n[Result \"0-1\"]\n[FEN \"rn2kb1r/ppqbpppp/5n2/3P4/2B5/1Q6/PP1P1PPP/RNB1K1NR b KQkq - 0 7\"]\n\n7... b5 8. Bxb5 Qxc1+ 0-1",
+    "url": "https://www.chess.com/daily/2026-09-16",
+    "title": "Tide In, Tide Out",
+    "fen": "5n1k/1R6/2p2p1p/3b3P/P2P1q2/3B2R1/1Q3PPK/4r3 b - - 0 47",
+    "current_fen": "5n1k/1R6/2p2p1p/3b3P/P2P1q2/3B2R1/1Q3PPK/4r3 b - - 0 47",
+    "last_move_uci": null,
+    "pgn": "[Event \"Elekes Memorial GM\"]\n[Site \"Budapest\"]\n[Date \"2000.05.29\"]\n[Round \"8\"]\n[White \"Gyimesi, Zoltan Missed Opportunity\"]\n[Black \"Horvath, Jozsef\"]\n[Result \"0-1\"]\n[ECO \"D56\"]\n[WhiteElo \"2518\"]\n[BlackElo \"2552\"]\n[FEN \"5n1k/1R6/2p2p1p/3b3P/P2P1q2/3B2R1/1Q3PPK/4r3 b - - 0 47\"]\n\n47... Qh4+ 48. Rh3 Rh1+ 49. Kxh1 Qxh3+ 50. Kg1 Qxg2# 0-1",
     "all_moves": [
       {
-        "uci": "b7b5",
-        "san": "b5",
+        "uci": "f4h4",
+        "san": "Qh4+",
         "color": "black"
       },
       {
-        "uci": "c4b5",
-        "san": "Bxb5",
+        "uci": "g3h3",
+        "san": "Rh3",
         "color": "white"
       },
       {
-        "uci": "c7c1",
-        "san": "Qxc1+",
+        "uci": "e1h1",
+        "san": "Rh1+",
+        "color": "black"
+      },
+      {
+        "uci": "h2h1",
+        "san": "Kxh1",
+        "color": "white"
+      },
+      {
+        "uci": "h4h3",
+        "san": "Qxh3+",
+        "color": "black"
+      },
+      {
+        "uci": "h1g1",
+        "san": "Kg1",
+        "color": "white"
+      },
+      {
+        "uci": "h3g2",
+        "san": "Qxg2#",
         "color": "black"
       }
     ],
     "player_moves": [
       {
-        "uci": "b7b5",
-        "san": "b5",
+        "uci": "f4h4",
+        "san": "Qh4+",
         "color": "black"
       },
       {
-        "uci": "c7c1",
-        "san": "Qxc1+",
+        "uci": "e1h1",
+        "san": "Rh1+",
+        "color": "black"
+      },
+      {
+        "uci": "h4h3",
+        "san": "Qxh3+",
+        "color": "black"
+      },
+      {
+        "uci": "h3g2",
+        "san": "Qxg2#",
         "color": "black"
       }
     ],
     "player_color": "black",
-    "player_move_count": 2,
-    "posted_at": "2026-09-15T07:18:15.374555+00:00",
-    "answer_posted": true,
+    "player_move_count": 4,
+    "posted_at": "2026-09-16T07:27:42.101403+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "daily_1789456695374",
-    "next_solution_index": 3,
-    "next_player_index": 2,
-    "solved": true,
-    "message_id": 1549320412805079101,
-    "attempted_users": {
-      "601406103712170014": {
-        "name": "TheMakina",
-        "move": "Qxc1",
-        "correct": true,
-        "timestamp": "2026-09-15T07:26:00.272480+00:00"
-      }
-    },
-    "first_move_user_id": "601406103712170014",
-    "first_move_user_name": "TheMakina",
-    "first_move_awarded": true,
+    "puzzle_id": "daily_1789543662101",
+    "next_solution_index": 0,
+    "next_player_index": 0,
+    "solved": false,
+    "message_id": null,
+    "attempted_users": {},
+    "first_move_user_id": null,
+    "first_move_user_name": null,
+    "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "message_ids": {
-      "1468320170891022417": 1549320412805079101,
-      "1546557493038284840": 1549320422187737112
-    },
-    "channel_id": 1468320170891022417,
-    "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-09-15T07:26:00.272013+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1789457160.2724876,
-        "fen_before": "rn2kb1r/p1qbpppp/5n2/1B1P4/8/1Q6/PP1P1PPP/RNB1K1NR b KQkq - 0 8",
-        "expected": {
-          "uci": "c7c1",
-          "san": "Qxc1+",
-          "color": "black"
-        },
-        "accepted_uci": "c7c1"
-      }
-    ],
-    "accepted_solution_moves": [
-      {
-        "san": "b5",
-        "uci": "b7b5",
-        "principal": true
-      },
-      {
-        "san": "Qxc1+",
-        "uci": "c7c1",
-        "principal": true
-      }
-    ],
-    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, TheMakina!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1501.5 points.**\n🔥 **Daily Activity Bonus: +10 coins**\n\n💡 **Solution:** b5 Qxc1+\n\n🏆 **Your ranking**\n**#1 🟦 Thice — 1627 points**\n**#2 🍅 TheMakina — 1501.5 points ← you**\n**#3 💀 Sharkmeister — 76.5 points**",
-    "activity_bonus_users": [
-      "601406103712170014"
-    ]
+    "helper_candidate_users": []
   },
   "lichess_rating_used": {
     "2000": [
