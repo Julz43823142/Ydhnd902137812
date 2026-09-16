@@ -2647,8 +2647,8 @@
         "url": "https://lichess.org/training/Dv07Q",
         "title": "Lichess • 1660",
         "fen": "r3k3/p2n1p1p/1q2pn2/2b5/N7/P3QN2/1P1PPPrP/R1B1K2R b KQq - 8 16",
-        "current_fen": "r3k3/p2n1p1p/1q2pn2/2b5/N7/P3QN2/1P1PPPrP/R1B1K2R b KQq - 8 16",
-        "last_move_uci": "c3a4",
+        "current_fen": "r3k3/p2n1p1p/1N2pn2/8/8/P3bN2/1P1PPPrP/R1B1K2R b KQq - 0 17",
+        "last_move_uci": "a4b6",
         "pgn": "Bxe3 Nxb6 Bxb6",
         "all_moves": [
           {
@@ -2688,16 +2688,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_Dv07Q_1789577770507",
         "rating": 1660,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1549826232861073478,
+      "message_id": 1549826244730822767,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789577770.503858,
-      "last_feedback": "✅ **Rxb2** — solved! Score: **11**."
+      "last_card_activity_at": 1789577776.913276,
+      "last_feedback": "✅ **Bxe3** • Opponent: **Nxb6**"
     },
     "362606514764251137": {
       "active": false,
