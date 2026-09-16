@@ -2640,7 +2640,7 @@
       "run_id": "rush:442597396195704832:1789586791667",
       "end_at": 1789587091.6679428,
       "score": 21,
-      "wrong": 2,
+      "wrong": 3,
       "mistakes": [
         {
           "puzzle_number": 6,
@@ -2675,6 +2675,23 @@
             "arrow_theme": "pink"
           },
           "recorded_at": 1789587017.5589547
+        },
+        {
+          "puzzle_number": 24,
+          "submitted": "qxd4",
+          "correct": "Rxg2+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_fAosQ_1789587079454",
+            "fen": "3q1r1k/2p3p1/6Q1/4PpN1/3P4/3n3P/1r4P1/R3R1K1 b - - 2 28",
+            "current_fen": "3q1r1k/2p3p1/6Q1/4PpN1/3P4/3n3P/1r4P1/R3R1K1 b - - 2 28",
+            "last_move_uci": "f3g5",
+            "player_color": "black",
+            "rating": 1998,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1789587085.8003583
         }
       ],
       "ruleset": "universal-1200-plus40-v1",
@@ -2743,11 +2760,11 @@
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1549865272213504000,
+      "message_id": 1549865289074606141,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789587079.448933,
-      "last_feedback": "✅ **Qxe2** — solved! Score: **21**."
+      "last_card_activity_at": 1789587085.7997203,
+      "last_feedback": "❌ **qxd4** was wrong. Correct move: **Rxg2+**."
     },
     "362606514764251137": {
       "active": false,
