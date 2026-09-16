@@ -2639,65 +2639,65 @@
       "started_at": 1789577654.9628522,
       "run_id": "rush:442597396195704832:1789577654962",
       "end_at": 1789577954.9628522,
-      "score": 1,
+      "score": 2,
       "wrong": 0,
       "mistakes": [],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/R9tut",
-        "title": "Lichess • 1215",
-        "fen": "2k4r/1pp3p1/p1n1p3/8/1P3PQ1/P1P3b1/3P1KPq/1R3R2 w - - 0 28",
-        "current_fen": "2k4r/1pp3p1/p1n1p3/8/1P3P2/P1P3q1/3P1KP1/1R3R2 w - - 0 29",
-        "last_move_uci": "h2g3",
-        "pgn": "Qxg3 Qxg3+ Kxg3",
+        "url": "https://lichess.org/training/dgyiR",
+        "title": "Lichess • 1268",
+        "fen": "1r3r1k/pp2b1pq/6Q1/2p1pR2/2P5/4P1P1/P7/3R2K1 w - - 0 29",
+        "current_fen": "1r3r1k/pp2b1pq/6Q1/2p1pR2/2P5/4P1P1/P7/3R2K1 w - - 0 29",
+        "last_move_uci": "h3h7",
+        "pgn": "Rh5 Qxh5 Qxh5+",
         "all_moves": [
           {
-            "uci": "g4g3",
-            "san": "Qxg3",
+            "uci": "f5h5",
+            "san": "Rh5",
             "color": "white"
           },
           {
-            "uci": "h2g3",
-            "san": "Qxg3+",
+            "uci": "h7h5",
+            "san": "Qxh5",
             "color": "black"
           },
           {
-            "uci": "f2g3",
-            "san": "Kxg3",
+            "uci": "g6h5",
+            "san": "Qxh5+",
             "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "g4g3",
-            "san": "Qxg3",
+            "uci": "f5h5",
+            "san": "Rh5",
             "color": "white"
           },
           {
-            "uci": "f2g3",
-            "san": "Kxg3",
+            "uci": "g6h5",
+            "san": "Qxh5+",
             "color": "white"
           }
         ],
         "player_color": "white",
         "player_move_count": 2,
-        "posted_at": "2026-09-16T16:54:34.359924+00:00",
+        "posted_at": "2026-09-16T16:54:42.180260+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_R9tut_1789577674359",
-        "rating": 1215,
-        "next_solution_index": 2,
+        "puzzle_id": "practice_rush_442597396195704832_dgyiR_1789577682180",
+        "rating": 1268,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1549825841574445067,
+      "message_id": 1549825858775031879,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789577678.9473226,
-      "last_feedback": "✅ **Qxg3** • Opponent: **Qxg3+**"
+      "last_card_activity_at": 1789577682.1768994,
+      "last_feedback": "✅ **Kxg3** — solved! Score: **2**."
     },
     "362606514764251137": {
       "active": false,
