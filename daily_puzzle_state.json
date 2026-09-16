@@ -2640,7 +2640,7 @@
       "run_id": "rush:442597396195704832:1789577654962",
       "end_at": 1789577954.9628522,
       "score": 20,
-      "wrong": 2,
+      "wrong": 3,
       "mistakes": [
         {
           "puzzle_number": 16,
@@ -2675,6 +2675,23 @@
             "arrow_theme": "pink"
           },
           "recorded_at": 1789577858.1290464
+        },
+        {
+          "puzzle_number": 23,
+          "submitted": "qd8",
+          "correct": "Qe6+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_ZDECU_1789577933937",
+            "fen": "6k1/6p1/1Q5p/8/P3pqP1/7P/6K1/8 w - - 0 55",
+            "current_fen": "6k1/6p1/1Q5p/8/P3pqP1/7P/6K1/8 w - - 0 55",
+            "last_move_uci": "e5e4",
+            "player_color": "white",
+            "rating": 1958,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1789577947.3734598
         }
       ],
       "ruleset": "universal-1200-plus40-v1",
@@ -2743,11 +2760,11 @@
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1549826918071664650,
+      "message_id": 1549826929832624209,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789577933.9337327,
-      "last_feedback": "✅ **Nxe5** — solved! Score: **20**."
+      "last_card_activity_at": 1789577947.3733034,
+      "last_feedback": "❌ **qd8** was wrong. Correct move: **Qe6+**."
     },
     "362606514764251137": {
       "active": false,
