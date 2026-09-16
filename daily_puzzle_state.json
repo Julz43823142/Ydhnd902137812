@@ -2639,7 +2639,7 @@
       "started_at": 1789577654.9628522,
       "run_id": "rush:442597396195704832:1789577654962",
       "end_at": 1789577954.9628522,
-      "score": 18,
+      "score": 19,
       "wrong": 2,
       "mistakes": [
         {
@@ -2679,60 +2679,75 @@
       ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/bDyDn",
-        "title": "Lichess • 1943",
-        "fen": "3r2k1/ppp3pp/1b3p2/4R3/5q2/1P6/PB2QPPP/6K1 w - - 0 24",
-        "current_fen": "3rR3/ppp2kpp/1b3p2/8/5q2/1P6/PB2QPPP/6K1 w - - 2 25",
-        "last_move_uci": "g8f7",
-        "pgn": "Re8+ Kf7 Rxd8",
+        "url": "https://lichess.org/training/nbTSP",
+        "title": "Lichess • 2009",
+        "fen": "r3kb1r/ppp1pppp/2n5/4q3/8/5BP1/PPPPQP1P/R1B1K2R b KQkq - 2 9",
+        "current_fen": "r3kb1r/ppp1pppp/2n5/4q3/8/5BP1/PPPPQP1P/R1B1K2R b KQkq - 2 9",
+        "last_move_uci": "d1e2",
+        "pgn": "Nd4 Qxe5 Nxf3+ Kf1 Nxe5",
         "all_moves": [
           {
-            "uci": "e5e8",
-            "san": "Re8+",
-            "color": "white"
-          },
-          {
-            "uci": "g8f7",
-            "san": "Kf7",
+            "uci": "c6d4",
+            "san": "Nd4",
             "color": "black"
           },
           {
-            "uci": "e8d8",
-            "san": "Rxd8",
+            "uci": "e2e5",
+            "san": "Qxe5",
             "color": "white"
+          },
+          {
+            "uci": "d4f3",
+            "san": "Nxf3+",
+            "color": "black"
+          },
+          {
+            "uci": "e1f1",
+            "san": "Kf1",
+            "color": "white"
+          },
+          {
+            "uci": "f3e5",
+            "san": "Nxe5",
+            "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "e5e8",
-            "san": "Re8+",
-            "color": "white"
+            "uci": "c6d4",
+            "san": "Nd4",
+            "color": "black"
           },
           {
-            "uci": "e8d8",
-            "san": "Rxd8",
-            "color": "white"
+            "uci": "d4f3",
+            "san": "Nxf3+",
+            "color": "black"
+          },
+          {
+            "uci": "f3e5",
+            "san": "Nxe5",
+            "color": "black"
           }
         ],
-        "player_color": "white",
-        "player_move_count": 2,
-        "posted_at": "2026-09-16T16:58:19.683907+00:00",
+        "player_color": "black",
+        "player_move_count": 3,
+        "posted_at": "2026-09-16T16:58:41.417833+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_bDyDn_1789577899683",
-        "rating": 1943,
-        "next_solution_index": 2,
+        "puzzle_id": "practice_rush_442597396195704832_nbTSP_1789577921417",
+        "rating": 2009,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1549826787389743274,
+      "message_id": 1549826812987711608,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789577906.1655314,
-      "last_feedback": "✅ **Re8+** • Opponent: **Kf7**"
+      "last_card_activity_at": 1789577921.4143093,
+      "last_feedback": "✅ **Rxd8** — solved! Score: **19**."
     },
     "362606514764251137": {
       "active": false,
