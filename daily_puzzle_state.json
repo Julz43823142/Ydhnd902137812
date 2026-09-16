@@ -105,8 +105,8 @@
     "url": "https://www.chess.com/daily/2026-09-16",
     "title": "Tide In, Tide Out",
     "fen": "5n1k/1R6/2p2p1p/3b3P/P2P1q2/3B2R1/1Q3PPK/4r3 b - - 0 47",
-    "current_fen": "5n1k/1R6/2p2p1p/3b3P/P2P3q/3B3R/1Q3PPK/4r3 b - - 2 48",
-    "last_move_uci": "g3h3",
+    "current_fen": "5n1k/1R6/2p2p1p/3b3P/P2P3q/3B3R/1Q3PP1/7K b - - 0 49",
+    "last_move_uci": "h2h1",
     "pgn": "[Event \"Elekes Memorial GM\"]\n[Site \"Budapest\"]\n[Date \"2000.05.29\"]\n[Round \"8\"]\n[White \"Gyimesi, Zoltan Missed Opportunity\"]\n[Black \"Horvath, Jozsef\"]\n[Result \"0-1\"]\n[ECO \"D56\"]\n[WhiteElo \"2518\"]\n[BlackElo \"2552\"]\n[FEN \"5n1k/1R6/2p2p1p/3b3P/P2P1q2/3B2R1/1Q3PPK/4r3 b - - 0 47\"]\n\n47... Qh4+ 48. Rh3 Rh1+ 49. Kxh1 Qxh3+ 50. Kg1 Qxg2# 0-1",
     "all_moves": [
       {
@@ -175,16 +175,16 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1789543662101",
-    "next_solution_index": 2,
-    "next_player_index": 1,
+    "next_solution_index": 4,
+    "next_player_index": 2,
     "solved": false,
-    "message_id": 1549683486531518504,
+    "message_id": 1549683510481002566,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Qh4",
+        "move": "Rh1",
         "correct": true,
-        "timestamp": "2026-09-16T07:28:52.815396+00:00"
+        "timestamp": "2026-09-16T07:28:59.894260+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
@@ -193,12 +193,12 @@
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1549683486531518504,
-      "1546557493038284840": 1549683494056230984
+      "1468320170891022417": 1549683510481002566,
+      "1546557493038284840": 1549683515799642172
     },
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-09-16T07:28:52.814511+00:00",
+    "last_card_activity_at": "2026-09-16T07:28:59.893295+00:00",
     "recent_accepted_moves": [
       {
         "accepted_at": 1789543732.815405,
@@ -209,6 +209,16 @@
           "color": "black"
         },
         "accepted_uci": "f4h4"
+      },
+      {
+        "accepted_at": 1789543739.8942695,
+        "fen_before": "5n1k/1R6/2p2p1p/3b3P/P2P3q/3B3R/1Q3PPK/4r3 b - - 2 48",
+        "expected": {
+          "uci": "e1h1",
+          "san": "Rh1+",
+          "color": "black"
+        },
+        "accepted_uci": "e1h1"
       }
     ],
     "accepted_solution_moves": [
@@ -216,9 +226,14 @@
         "san": "Qh4+",
         "uci": "f4h4",
         "principal": true
+      },
+      {
+        "san": "Rh1+",
+        "uci": "e1h1",
+        "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 3 moves remaining.**\n↩️ **Opponent replies:** Rh3"
+    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Kxh1"
   },
   "lichess_rating_used": {
     "2000": [
