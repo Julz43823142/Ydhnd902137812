@@ -2647,8 +2647,8 @@
         "url": "https://lichess.org/training/e1FNM",
         "title": "Lichess • 1396",
         "fen": "8/4k1p1/7p/2RP3r/4K3/1P6/8/8 w - - 2 41",
-        "current_fen": "8/4k1p1/7p/2RP3r/4K3/1P6/8/8 w - - 2 41",
-        "last_move_uci": "f7e7",
+        "current_fen": "8/6p1/3k3p/2R4r/4K3/1P6/8/8 w - - 0 42",
+        "last_move_uci": "e7d6",
         "pgn": "d6+ Kxd6 Rxh5",
         "all_moves": [
           {
@@ -2688,16 +2688,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_e1FNM_1789577709098",
         "rating": 1396,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1549825975490060351,
+      "message_id": 1549825987267665930,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789577709.0950663,
-      "last_feedback": "✅ **Nxc2** — solved! Score: **5**."
+      "last_card_activity_at": 1789577714.2884495,
+      "last_feedback": "✅ **d6+** • Opponent: **Kxd6**"
     },
     "362606514764251137": {
       "active": false,
