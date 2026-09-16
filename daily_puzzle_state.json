@@ -2639,65 +2639,65 @@
       "started_at": 1789577654.9628522,
       "run_id": "rush:442597396195704832:1789577654962",
       "end_at": 1789577954.9628522,
-      "score": 11,
+      "score": 12,
       "wrong": 0,
       "mistakes": [],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/Dv07Q",
-        "title": "Lichess • 1660",
-        "fen": "r3k3/p2n1p1p/1q2pn2/2b5/N7/P3QN2/1P1PPPrP/R1B1K2R b KQq - 8 16",
-        "current_fen": "r3k3/p2n1p1p/1N2pn2/8/8/P3bN2/1P1PPPrP/R1B1K2R b KQq - 0 17",
-        "last_move_uci": "a4b6",
-        "pgn": "Bxe3 Nxb6 Bxb6",
+        "url": "https://lichess.org/training/Tcjye",
+        "title": "Lichess • 1635",
+        "fen": "r1bq1rk1/1pp2ppp/5n2/p1n3N1/1b1N4/1B2P3/P1QB1PPP/R4K1R w - - 2 15",
+        "current_fen": "r1bq1rk1/1pp2ppp/5n2/p1n3N1/1b1N4/1B2P3/P1QB1PPP/R4K1R w - - 2 15",
+        "last_move_uci": "d3c5",
+        "pgn": "Bxb4 axb4 Qxc5",
         "all_moves": [
           {
-            "uci": "c5e3",
-            "san": "Bxe3",
-            "color": "black"
-          },
-          {
-            "uci": "a4b6",
-            "san": "Nxb6",
+            "uci": "d2b4",
+            "san": "Bxb4",
             "color": "white"
           },
           {
-            "uci": "e3b6",
-            "san": "Bxb6",
+            "uci": "a5b4",
+            "san": "axb4",
             "color": "black"
+          },
+          {
+            "uci": "c2c5",
+            "san": "Qxc5",
+            "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "c5e3",
-            "san": "Bxe3",
-            "color": "black"
+            "uci": "d2b4",
+            "san": "Bxb4",
+            "color": "white"
           },
           {
-            "uci": "e3b6",
-            "san": "Bxb6",
-            "color": "black"
+            "uci": "c2c5",
+            "san": "Qxc5",
+            "color": "white"
           }
         ],
-        "player_color": "black",
+        "player_color": "white",
         "player_move_count": 2,
-        "posted_at": "2026-09-16T16:56:10.507483+00:00",
+        "posted_at": "2026-09-16T16:56:19.475978+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_Dv07Q_1789577770507",
-        "rating": 1660,
-        "next_solution_index": 2,
+        "puzzle_id": "practice_rush_442597396195704832_Tcjye_1789577779475",
+        "rating": 1635,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1549826244730822767,
+      "message_id": 1549826270442029179,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789577776.913276,
-      "last_feedback": "✅ **Bxe3** • Opponent: **Nxb6**"
+      "last_card_activity_at": 1789577779.472543,
+      "last_feedback": "✅ **Bxb6** — solved! Score: **12**."
     },
     "362606514764251137": {
       "active": false,
