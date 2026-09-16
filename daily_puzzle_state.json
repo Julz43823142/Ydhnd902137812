@@ -2647,8 +2647,8 @@
         "url": "https://lichess.org/training/mDwYu",
         "title": "Lichess • 1250",
         "fen": "7r/3b1k2/1p1bp2q/pP1p4/P1pP1pP1/2P2R1r/2B1RPK1/7Q w - - 0 43",
-        "current_fen": "7r/3b1k2/1p1bp2q/pP1p4/P1pP1pP1/2P2R1r/2B1RPK1/7Q w - - 0 43",
-        "last_move_uci": "h4h3",
+        "current_fen": "7r/3b1k2/1p1bp3/pP1p4/P1pP1pP1/2P4q/2B1RPK1/7Q w - - 0 44",
+        "last_move_uci": "h6h3",
         "pgn": "Rxh3 Qxh3+ Qxh3 Rxh3 Kxh3",
         "all_moves": [
           {
@@ -2703,16 +2703,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_mDwYu_1789586797505",
         "rating": 1250,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1549864082906292365,
+      "message_id": 1549864106490732595,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789586797.4985468,
-      "last_feedback": "✅ **Ra1#** — solved! Score: **1**."
+      "last_card_activity_at": 1789586802.2463946,
+      "last_feedback": "✅ **Rxh3** • Opponent: **Qxh3+**"
     },
     "362606514764251137": {
       "active": false,
