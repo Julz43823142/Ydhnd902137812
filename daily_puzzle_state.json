@@ -2647,8 +2647,8 @@
         "url": "https://lichess.org/training/xuUmu",
         "title": "Lichess • 1402",
         "fen": "6k1/8/5PPP/8/8/1K5R/8/q7 w - - 0 62",
-        "current_fen": "6k1/8/5PPP/8/8/1K5R/8/q7 w - - 0 62",
-        "last_move_uci": "a2a1q",
+        "current_fen": "7k/7P/5PP1/8/8/1K5R/8/q7 w - - 1 63",
+        "last_move_uci": "g8h8",
         "pgn": "h7+ Kh8 g7#",
         "all_moves": [
           {
@@ -2688,16 +2688,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_xuUmu_1789577717230",
         "rating": 1402,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1549826006846677174,
+      "message_id": 1549826020712915057,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789577717.2275627,
-      "last_feedback": "✅ **Rxh5** — solved! Score: **6**."
+      "last_card_activity_at": 1789577725.2841408,
+      "last_feedback": "✅ **h7+** • Opponent: **Kh8**"
     },
     "362606514764251137": {
       "active": false,
