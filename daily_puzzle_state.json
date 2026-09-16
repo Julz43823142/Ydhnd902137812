@@ -2633,7 +2633,7 @@
   },
   "puzzle_rush": {
     "442597396195704832": {
-      "active": true,
+      "active": false,
       "user_id": "442597396195704832",
       "name": "Thice",
       "started_at": 1789577654.9628522,
@@ -2760,11 +2760,14 @@
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1549826929832624209,
+      "message_id": 1549826984564228208,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
       "last_card_activity_at": 1789577947.3733034,
-      "last_feedback": "❌ **qd8** was wrong. Correct move: **Qe6+**."
+      "last_feedback": "❌ **qd8** was wrong. Correct move: **Qe6+**.",
+      "ended_at": 1789577948.394347,
+      "solve_reward_coins": 15.0,
+      "solve_reward_paid": true
     },
     "362606514764251137": {
       "active": false,
@@ -3097,6 +3100,14 @@
         "name": "Sharkmeister",
         "updated_at": "2026-09-09T22:08:35.794975+00:00",
         "achieved_at": "2026-09-09T22:08:35.794975+00:00"
+      }
+    },
+    "2026-W38": {
+      "442597396195704832": {
+        "score": 20,
+        "name": "Thice",
+        "updated_at": "2026-09-16T16:59:08.394369+00:00",
+        "achieved_at": "2026-09-16T16:59:08.394369+00:00"
       }
     }
   },
@@ -3520,6 +3531,14 @@
       "achieved_at": "2026-09-11T17:31:38.069340+00:00",
       "started_at": 1789147691.114252,
       "week": "2026-W37"
+    },
+    "rush:442597396195704832:1789577654962": {
+      "user_id": "442597396195704832",
+      "name": "Thice",
+      "score": 20,
+      "achieved_at": "2026-09-16T16:59:08.394369+00:00",
+      "started_at": 1789577654.9628522,
+      "week": "2026-W38"
     }
   },
   "puzzle_rush_runs_seeded_v1": true,
@@ -5252,6 +5271,65 @@
             "arrow_theme": "pink"
           },
           "recorded_at": 1789147853.3920887
+        }
+      ]
+    },
+    "rush:442597396195704832:1789577654962": {
+      "run_id": "rush:442597396195704832:1789577654962",
+      "user_id": "442597396195704832",
+      "name": "Thice",
+      "ended_at": 1789577948.394347,
+      "mistakes": [
+        {
+          "puzzle_number": 16,
+          "submitted": "qg3",
+          "correct": "Rg8",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_pDsDi_1789577811286",
+            "fen": "2k4r/2p4p/2p2p2/3p4/3P2P1/P1N1p1qP/2P1Q3/5R1K b - - 7 27",
+            "current_fen": "2k4r/2p4p/2p2p2/3p4/3P2P1/P1N1p2q/2P1Q3/5RK1 b - - 1 28",
+            "last_move_uci": "h1g1",
+            "player_color": "black",
+            "rating": 1816,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1789577821.7114887
+        },
+        {
+          "puzzle_number": 19,
+          "submitted": "ke5",
+          "correct": "f5",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_eg4yn_1789577849040",
+            "fen": "8/8/p5p1/1p6/1P3Pk1/P3K3/8/8 w - - 0 56",
+            "current_fen": "8/8/p5p1/1p6/1P2KP2/P5k1/8/8 w - - 2 57",
+            "last_move_uci": "g4g3",
+            "player_color": "white",
+            "rating": 1872,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1789577858.1290464
+        },
+        {
+          "puzzle_number": 23,
+          "submitted": "qd8",
+          "correct": "Qe6+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_ZDECU_1789577933937",
+            "fen": "6k1/6p1/1Q5p/8/P3pqP1/7P/6K1/8 w - - 0 55",
+            "current_fen": "6k1/6p1/1Q5p/8/P3pqP1/7P/6K1/8 w - - 0 55",
+            "last_move_uci": "e5e4",
+            "player_color": "white",
+            "rating": 1958,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1789577947.3734598
         }
       ]
     }
