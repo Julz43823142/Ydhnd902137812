@@ -2667,8 +2667,8 @@
         "url": "https://lichess.org/training/IwsMS",
         "title": "Lichess • 1246",
         "fen": "5r2/3r3Q/4kpP1/3pn2P/8/Pp3q2/1P6/K2RR3 w - - 1 35",
-        "current_fen": "5r2/3r3Q/4kpP1/3pn2P/8/Pp3q2/1P6/K2RR3 w - - 1 35",
-        "last_move_uci": "d8d7",
+        "current_fen": "5r2/6rQ/4kp2/3pn2P/8/Pp3q2/1P6/K2RR3 w - - 0 36",
+        "last_move_uci": "d7g7",
         "pgn": "g7 Rxg7 Qxg7",
         "all_moves": [
           {
@@ -2708,16 +2708,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_IwsMS_1789672714461",
         "rating": 1246,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1550224452887781488,
+      "message_id": 1550224471649165395,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789672714.4561105,
-      "last_feedback": "✅ **Qa4#** — solved! Score: **1**."
+      "last_card_activity_at": 1789672725.32511,
+      "last_feedback": "✅ **g7** • Opponent: **Rxg7**"
     },
     "362606514764251137": {
       "active": false,
