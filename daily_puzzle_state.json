@@ -2685,8 +2685,8 @@
         "url": "https://lichess.org/training/UDCqk",
         "title": "Lichess • 1662",
         "fen": "r6k/7b/p2p3p/3Nnp1P/4pQ2/2P1N3/P1BK2P1/q7 w - - 0 29",
-        "current_fen": "r6k/7b/p2p3p/3Nnp1P/4pQ2/2P1N3/P1BK2P1/q7 w - - 0 29",
-        "last_move_uci": "f7f5",
+        "current_fen": "r6k/7b/p2p3Q/3N1p1P/4p3/2P1Nn2/P1BK2P1/q7 w - - 1 30",
+        "last_move_uci": "e5f3",
         "pgn": "Qxh6 Nf3+ gxf3",
         "all_moves": [
           {
@@ -2726,16 +2726,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_UDCqk_1789672818491",
         "rating": 1662,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1550224863120064552,
+      "message_id": 1550224904937406629,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789672818.486103,
-      "last_feedback": "✅ **Bc3** — solved! Score: **11**."
+      "last_card_activity_at": 1789672831.973863,
+      "last_feedback": "✅ **Qxh6** • Opponent: **Nf3+**"
     },
     "362606514764251137": {
       "active": false,
