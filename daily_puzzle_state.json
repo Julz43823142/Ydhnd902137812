@@ -2660,7 +2660,7 @@
       "run_id": "rush:442597396195704832:1789672710974",
       "end_at": 1789673010.9746318,
       "score": 14,
-      "wrong": 2,
+      "wrong": 3,
       "mistakes": [
         {
           "puzzle_number": 6,
@@ -2695,6 +2695,23 @@
             "arrow_theme": "pink"
           },
           "recorded_at": 1789672874.6667373
+        },
+        {
+          "puzzle_number": 17,
+          "submitted": "a4",
+          "correct": "Kf6",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_Le5AW_1789672874671",
+            "fen": "8/p2p4/2pP4/1pP1KP1p/1P5P/P5k1/b7/8 w - - 1 46",
+            "current_fen": "8/p2p4/2pP4/1pP1KP1p/1P5P/P5k1/b7/8 w - - 1 46",
+            "last_move_uci": "e6a2",
+            "player_color": "white",
+            "rating": 1766,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1789672886.185751
         }
       ],
       "ruleset": "universal-1200-plus40-v1",
@@ -2748,11 +2765,11 @@
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1550225103403352154,
+      "message_id": 1550225139138822225,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789672874.6663234,
-      "last_feedback": "❌ **be5** was wrong. Correct move: **e2**."
+      "last_card_activity_at": 1789672886.1853852,
+      "last_feedback": "❌ **a4** was wrong. Correct move: **Kf6**."
     },
     "362606514764251137": {
       "active": false,
