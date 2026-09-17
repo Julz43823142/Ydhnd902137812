@@ -2659,7 +2659,7 @@
       "started_at": 1789672710.9746318,
       "run_id": "rush:442597396195704832:1789672710974",
       "end_at": 1789673010.9746318,
-      "score": 10,
+      "score": 11,
       "wrong": 1,
       "mistakes": [
         {
@@ -2682,75 +2682,60 @@
       ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/ecBMx",
-        "title": "Lichess • 1594",
-        "fen": "b7/P5k1/3B4/2p3P1/2Pb2KP/4pp2/8/5B2 b - - 0 52",
-        "current_fen": "b7/P5k1/8/2p3P1/2Pb2KP/6B1/4p3/8 b - - 1 54",
-        "last_move_uci": "d6g3",
-        "pgn": "e2 Bxe2 fxe2 Bg3 Bc3",
+        "url": "https://lichess.org/training/UDCqk",
+        "title": "Lichess • 1662",
+        "fen": "r6k/7b/p2p3p/3Nnp1P/4pQ2/2P1N3/P1BK2P1/q7 w - - 0 29",
+        "current_fen": "r6k/7b/p2p3p/3Nnp1P/4pQ2/2P1N3/P1BK2P1/q7 w - - 0 29",
+        "last_move_uci": "f7f5",
+        "pgn": "Qxh6 Nf3+ gxf3",
         "all_moves": [
           {
-            "uci": "e3e2",
-            "san": "e2",
-            "color": "black"
-          },
-          {
-            "uci": "f1e2",
-            "san": "Bxe2",
+            "uci": "f4h6",
+            "san": "Qxh6",
             "color": "white"
           },
           {
-            "uci": "f3e2",
-            "san": "fxe2",
+            "uci": "e5f3",
+            "san": "Nf3+",
             "color": "black"
           },
           {
-            "uci": "d6g3",
-            "san": "Bg3",
+            "uci": "g2f3",
+            "san": "gxf3",
             "color": "white"
-          },
-          {
-            "uci": "d4c3",
-            "san": "Bc3",
-            "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "e3e2",
-            "san": "e2",
-            "color": "black"
+            "uci": "f4h6",
+            "san": "Qxh6",
+            "color": "white"
           },
           {
-            "uci": "f3e2",
-            "san": "fxe2",
-            "color": "black"
-          },
-          {
-            "uci": "d4c3",
-            "san": "Bc3",
-            "color": "black"
+            "uci": "g2f3",
+            "san": "gxf3",
+            "color": "white"
           }
         ],
-        "player_color": "black",
-        "player_move_count": 3,
-        "posted_at": "2026-09-17T19:20:01.132313+00:00",
+        "player_color": "white",
+        "player_move_count": 2,
+        "posted_at": "2026-09-17T19:20:18.491921+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_ecBMx_1789672801132",
-        "rating": 1594,
-        "next_solution_index": 4,
+        "puzzle_id": "practice_rush_442597396195704832_UDCqk_1789672818491",
+        "rating": 1662,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1550224848033419286,
+      "message_id": 1550224863120064552,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789672808.6441336,
-      "last_feedback": "✅ **fxe2** • Opponent: **Bg3**"
+      "last_card_activity_at": 1789672818.486103,
+      "last_feedback": "✅ **Bc3** — solved! Score: **11**."
     },
     "362606514764251137": {
       "active": false,
