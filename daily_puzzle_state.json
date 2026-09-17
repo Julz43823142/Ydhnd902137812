@@ -2660,64 +2660,97 @@
       "run_id": "rush:442597396195704832:1789672710974",
       "end_at": 1789673010.9746318,
       "score": 5,
-      "wrong": 0,
-      "mistakes": [],
+      "wrong": 1,
+      "mistakes": [
+        {
+          "puzzle_number": 6,
+          "submitted": "ne4",
+          "correct": "Rdxc5",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_q7xIO_1789672752490",
+            "fen": "2r2rk1/5ppp/p3bq2/2bR4/8/P5QP/4BNP1/2R3K1 w - - 4 31",
+            "current_fen": "2r2rk1/5ppp/p3bq2/2bR4/8/P5QP/4BNP1/2R3K1 w - - 4 31",
+            "last_move_uci": "f5e6",
+            "player_color": "white",
+            "rating": 1362,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1789672759.2034214
+        }
+      ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/q7xIO",
-        "title": "Lichess • 1362",
-        "fen": "2r2rk1/5ppp/p3bq2/2bR4/8/P5QP/4BNP1/2R3K1 w - - 4 31",
-        "current_fen": "2r2rk1/5ppp/p3bq2/2bR4/8/P5QP/4BNP1/2R3K1 w - - 4 31",
-        "last_move_uci": "f5e6",
-        "pgn": "Rdxc5 Rxc5 Rxc5",
+        "url": "https://lichess.org/training/HLzxT",
+        "title": "Lichess • 1409",
+        "fen": "6k1/3r3p/2b2p1P/6pP/3p2R1/pPqN1P2/2P3Q1/1K4R1 b - - 0 32",
+        "current_fen": "6k1/3r3p/2b2p1P/6pP/3p2R1/pPqN1P2/2P3Q1/1K4R1 b - - 0 32",
+        "last_move_uci": "a2b3",
+        "pgn": "a2+ Kxa2 Ra7+ Kb1 Qa1#",
         "all_moves": [
           {
-            "uci": "d5c5",
-            "san": "Rdxc5",
-            "color": "white"
-          },
-          {
-            "uci": "c8c5",
-            "san": "Rxc5",
+            "uci": "a3a2",
+            "san": "a2+",
             "color": "black"
           },
           {
-            "uci": "c1c5",
-            "san": "Rxc5",
+            "uci": "b1a2",
+            "san": "Kxa2",
             "color": "white"
+          },
+          {
+            "uci": "d7a7",
+            "san": "Ra7+",
+            "color": "black"
+          },
+          {
+            "uci": "a2b1",
+            "san": "Kb1",
+            "color": "white"
+          },
+          {
+            "uci": "c3a1",
+            "san": "Qa1#",
+            "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "d5c5",
-            "san": "Rdxc5",
-            "color": "white"
+            "uci": "a3a2",
+            "san": "a2+",
+            "color": "black"
           },
           {
-            "uci": "c1c5",
-            "san": "Rxc5",
-            "color": "white"
+            "uci": "d7a7",
+            "san": "Ra7+",
+            "color": "black"
+          },
+          {
+            "uci": "c3a1",
+            "san": "Qa1#",
+            "color": "black"
           }
         ],
-        "player_color": "white",
-        "player_move_count": 2,
-        "posted_at": "2026-09-17T19:19:12.490076+00:00",
+        "player_color": "black",
+        "player_move_count": 3,
+        "posted_at": "2026-09-17T19:19:19.208917+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_q7xIO_1789672752490",
-        "rating": 1362,
+        "puzzle_id": "practice_rush_442597396195704832_HLzxT_1789672759208",
+        "rating": 1409,
         "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1550224613110456423,
+      "message_id": 1550224626716639297,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789672752.4848404,
-      "last_feedback": "✅ **Nf6#** — solved! Score: **5**."
+      "last_card_activity_at": 1789672759.2021222,
+      "last_feedback": "❌ **ne4** was wrong. Correct move: **Rdxc5**."
     },
     "362606514764251137": {
       "active": false,
