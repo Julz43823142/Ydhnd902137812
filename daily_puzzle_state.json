@@ -2659,40 +2659,55 @@
       "started_at": 1789672710.9746318,
       "run_id": "rush:442597396195704832:1789672710974",
       "end_at": 1789673010.9746318,
-      "score": 0,
+      "score": 1,
       "wrong": 0,
       "mistakes": [],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/gH90o",
-        "title": "Lichess • 1236",
-        "fen": "r6r/pp1Q2pp/4R3/2pp4/2kq4/8/PPP2PPP/6K1 w - - 10 27",
-        "current_fen": "r6r/pp1Q2pp/4R3/2pp4/2kq4/8/PPP2PPP/6K1 w - - 10 27",
-        "last_move_uci": "b5c4",
-        "pgn": "Qa4#",
+        "url": "https://lichess.org/training/IwsMS",
+        "title": "Lichess • 1246",
+        "fen": "5r2/3r3Q/4kpP1/3pn2P/8/Pp3q2/1P6/K2RR3 w - - 1 35",
+        "current_fen": "5r2/3r3Q/4kpP1/3pn2P/8/Pp3q2/1P6/K2RR3 w - - 1 35",
+        "last_move_uci": "d8d7",
+        "pgn": "g7 Rxg7 Qxg7",
         "all_moves": [
           {
-            "uci": "d7a4",
-            "san": "Qa4#",
+            "uci": "g6g7",
+            "san": "g7",
+            "color": "white"
+          },
+          {
+            "uci": "d7g7",
+            "san": "Rxg7",
+            "color": "black"
+          },
+          {
+            "uci": "h7g7",
+            "san": "Qxg7",
             "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "d7a4",
-            "san": "Qa4#",
+            "uci": "g6g7",
+            "san": "g7",
+            "color": "white"
+          },
+          {
+            "uci": "h7g7",
+            "san": "Qxg7",
             "color": "white"
           }
         ],
         "player_color": "white",
-        "player_move_count": 1,
-        "posted_at": "2026-09-17T19:18:30.978400+00:00",
+        "player_move_count": 2,
+        "posted_at": "2026-09-17T19:18:34.461369+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_gH90o_1789672710978",
-        "rating": 1236,
+        "puzzle_id": "practice_rush_442597396195704832_IwsMS_1789672714461",
+        "rating": 1246,
         "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
@@ -2701,8 +2716,8 @@
       "message_id": 1550224452887781488,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789672710.9746394,
-      "last_feedback": "🎯 **Type your move in chat.** Your answer message will be removed. You have **3 lives**."
+      "last_card_activity_at": 1789672714.4561105,
+      "last_feedback": "✅ **Qa4#** — solved! Score: **1**."
     },
     "362606514764251137": {
       "active": false,
