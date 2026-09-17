@@ -2659,50 +2659,65 @@
       "started_at": 1789672710.9746318,
       "run_id": "rush:442597396195704832:1789672710974",
       "end_at": 1789673010.9746318,
-      "score": 4,
+      "score": 5,
       "wrong": 0,
       "mistakes": [],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/09zx6",
-        "title": "Lichess • 1403",
-        "fen": "r1bqkb1r/pp2np1p/3p2p1/3Np3/2PpP3/3B2PP/PP1P1P2/R1BQK2R w KQkq - 2 10",
-        "current_fen": "r1bqkb1r/pp2np1p/3p2p1/3Np3/2PpP3/3B2PP/PP1P1P2/R1BQK2R w KQkq - 2 10",
-        "last_move_uci": "g8e7",
-        "pgn": "Nf6#",
+        "url": "https://lichess.org/training/q7xIO",
+        "title": "Lichess • 1362",
+        "fen": "2r2rk1/5ppp/p3bq2/2bR4/8/P5QP/4BNP1/2R3K1 w - - 4 31",
+        "current_fen": "2r2rk1/5ppp/p3bq2/2bR4/8/P5QP/4BNP1/2R3K1 w - - 4 31",
+        "last_move_uci": "f5e6",
+        "pgn": "Rdxc5 Rxc5 Rxc5",
         "all_moves": [
           {
-            "uci": "d5f6",
-            "san": "Nf6#",
+            "uci": "d5c5",
+            "san": "Rdxc5",
+            "color": "white"
+          },
+          {
+            "uci": "c8c5",
+            "san": "Rxc5",
+            "color": "black"
+          },
+          {
+            "uci": "c1c5",
+            "san": "Rxc5",
             "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "d5f6",
-            "san": "Nf6#",
+            "uci": "d5c5",
+            "san": "Rdxc5",
+            "color": "white"
+          },
+          {
+            "uci": "c1c5",
+            "san": "Rxc5",
             "color": "white"
           }
         ],
         "player_color": "white",
-        "player_move_count": 1,
-        "posted_at": "2026-09-17T19:19:09.220425+00:00",
+        "player_move_count": 2,
+        "posted_at": "2026-09-17T19:19:12.490076+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_09zx6_1789672749220",
-        "rating": 1403,
+        "puzzle_id": "practice_rush_442597396195704832_q7xIO_1789672752490",
+        "rating": 1362,
         "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1550224600594522213,
+      "message_id": 1550224613110456423,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789672749.2150896,
-      "last_feedback": "✅ **Kxd7** — solved! Score: **4**."
+      "last_card_activity_at": 1789672752.4848404,
+      "last_feedback": "✅ **Nf6#** — solved! Score: **5**."
     },
     "362606514764251137": {
       "active": false,
