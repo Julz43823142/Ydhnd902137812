@@ -2685,8 +2685,8 @@
         "url": "https://lichess.org/training/HLzxT",
         "title": "Lichess • 1409",
         "fen": "6k1/3r3p/2b2p1P/6pP/3p2R1/pPqN1P2/2P3Q1/1K4R1 b - - 0 32",
-        "current_fen": "6k1/3r3p/2b2p1P/6pP/3p2R1/pPqN1P2/2P3Q1/1K4R1 b - - 0 32",
-        "last_move_uci": "a2b3",
+        "current_fen": "6k1/3r3p/2b2p1P/6pP/3p2R1/1PqN1P2/K1P3Q1/6R1 b - - 0 33",
+        "last_move_uci": "b1a2",
         "pgn": "a2+ Kxa2 Ra7+ Kb1 Qa1#",
         "all_moves": [
           {
@@ -2741,16 +2741,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_HLzxT_1789672759208",
         "rating": 1409,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1550224626716639297,
+      "message_id": 1550224655120597164,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789672759.2021222,
-      "last_feedback": "❌ **ne4** was wrong. Correct move: **Rdxc5**."
+      "last_card_activity_at": 1789672762.7623177,
+      "last_feedback": "✅ **a2+** • Opponent: **Kxa2**"
     },
     "362606514764251137": {
       "active": false,
