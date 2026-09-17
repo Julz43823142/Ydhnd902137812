@@ -2659,7 +2659,7 @@
       "started_at": 1789672710.9746318,
       "run_id": "rush:442597396195704832:1789672710974",
       "end_at": 1789673010.9746318,
-      "score": 12,
+      "score": 13,
       "wrong": 1,
       "mistakes": [
         {
@@ -2682,75 +2682,105 @@
       ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/S6Z34",
-        "title": "Lichess • 1638",
-        "fen": "r1bq1rk1/pp2nppp/2n1p3/3pP3/1b1P4/2NB1N2/PP3PPP/R1BQK2R w KQ - 7 9",
-        "current_fen": "r1bq1rk1/pp2npp1/2n1p3/3pP1N1/1b1P4/2N5/PP3PPP/R1BQK2R w KQ - 2 11",
-        "last_move_uci": "h7g8",
-        "pgn": "Bxh7+ Kxh7 Ng5+ Kg8 Qh5",
+        "url": "https://lichess.org/training/8xE2h",
+        "title": "Lichess • 1761",
+        "fen": "1N5r/1p3pk1/8/p5p1/3P1q2/3Q4/P3B2P/1R4K1 b - - 0 30",
+        "current_fen": "1N5r/1p3pk1/8/p5p1/3P1q2/3Q4/P3B2P/1R4K1 b - - 0 30",
+        "last_move_uci": "d7b8",
+        "pgn": "Qxh2+ Kf1 Qh1+ Kf2 Rh2+ Ke3 Rh3+ Kd2 Rxd3+",
         "all_moves": [
           {
-            "uci": "d3h7",
-            "san": "Bxh7+",
-            "color": "white"
-          },
-          {
-            "uci": "g8h7",
-            "san": "Kxh7",
+            "uci": "f4h2",
+            "san": "Qxh2+",
             "color": "black"
           },
           {
-            "uci": "f3g5",
-            "san": "Ng5+",
+            "uci": "g1f1",
+            "san": "Kf1",
             "color": "white"
           },
           {
-            "uci": "h7g8",
-            "san": "Kg8",
+            "uci": "h2h1",
+            "san": "Qh1+",
             "color": "black"
           },
           {
-            "uci": "d1h5",
-            "san": "Qh5",
+            "uci": "f1f2",
+            "san": "Kf2",
             "color": "white"
+          },
+          {
+            "uci": "h8h2",
+            "san": "Rh2+",
+            "color": "black"
+          },
+          {
+            "uci": "f2e3",
+            "san": "Ke3",
+            "color": "white"
+          },
+          {
+            "uci": "h2h3",
+            "san": "Rh3+",
+            "color": "black"
+          },
+          {
+            "uci": "e3d2",
+            "san": "Kd2",
+            "color": "white"
+          },
+          {
+            "uci": "h3d3",
+            "san": "Rxd3+",
+            "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "d3h7",
-            "san": "Bxh7+",
-            "color": "white"
+            "uci": "f4h2",
+            "san": "Qxh2+",
+            "color": "black"
           },
           {
-            "uci": "f3g5",
-            "san": "Ng5+",
-            "color": "white"
+            "uci": "h2h1",
+            "san": "Qh1+",
+            "color": "black"
           },
           {
-            "uci": "d1h5",
-            "san": "Qh5",
-            "color": "white"
+            "uci": "h8h2",
+            "san": "Rh2+",
+            "color": "black"
+          },
+          {
+            "uci": "h2h3",
+            "san": "Rh3+",
+            "color": "black"
+          },
+          {
+            "uci": "h3d3",
+            "san": "Rxd3+",
+            "color": "black"
           }
         ],
-        "player_color": "white",
-        "player_move_count": 3,
-        "posted_at": "2026-09-17T19:20:36.080337+00:00",
+        "player_color": "black",
+        "player_move_count": 5,
+        "posted_at": "2026-09-17T19:20:47.448585+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_S6Z34_1789672836080",
-        "rating": 1638,
-        "next_solution_index": 4,
+        "puzzle_id": "practice_rush_442597396195704832_8xE2h_1789672847448",
+        "rating": 1761,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1550224994313838633,
+      "message_id": 1550225010407514135,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789672844.1180916,
-      "last_feedback": "✅ **Ng5+** • Opponent: **Kg8**"
+      "last_card_activity_at": 1789672847.4426248,
+      "last_feedback": "✅ **Qh5** — solved! Score: **13**."
     },
     "362606514764251137": {
       "active": false,
