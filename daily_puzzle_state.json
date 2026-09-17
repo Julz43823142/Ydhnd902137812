@@ -85,8 +85,8 @@
     "url": "https://www.chess.com/daily/2026-09-17",
     "title": "Unleash the Beast",
     "fen": "2qrk3/3p1b2/6Rn/1p1N3B/1B1pP3/P1pP4/KP6/8 w - - 0 1",
-    "current_fen": "2qrk3/5b2/4p2n/1p1N3B/1B1pP3/P1pP4/KP6/8 w - - 0 2",
-    "last_move_uci": "d7e6",
+    "current_fen": "2qrk3/5b2/4pN1n/1p5B/1B1pP3/P1pP4/KP6/8 b - - 1 2",
+    "last_move_uci": "d5f6",
     "pgn": "[White \"CyriacAntony\"]\n[Black \"Daily Puzzle Inspiration\"]\n[Result \"1-0\"]\n[FEN \"2qrk3/3p1b2/6Rn/1p1N3B/1B1pP3/P1pP4/KP6/8 w - - 0 1\"]\n\n1. Re6+ dxe6 2. Nf6# 1-0",
     "all_moves": [
       {
@@ -125,21 +125,21 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1789630476174",
-    "next_solution_index": 2,
-    "next_player_index": 1,
-    "solved": false,
+    "next_solution_index": 3,
+    "next_player_index": 2,
+    "solved": true,
     "message_id": 1550062900088021026,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Re6",
+        "move": "Nf6",
         "correct": true,
-        "timestamp": "2026-09-17T08:36:32.427238+00:00"
+        "timestamp": "2026-09-17T08:36:37.699393+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
     "first_move_user_name": "Thice",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
@@ -148,7 +148,7 @@
     },
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-09-17T08:36:32.426754+00:00",
+    "last_card_activity_at": "2026-09-17T08:36:37.698934+00:00",
     "recent_accepted_moves": [
       {
         "accepted_at": 1789634192.4272456,
@@ -159,6 +159,16 @@
           "color": "white"
         },
         "accepted_uci": "g6e6"
+      },
+      {
+        "accepted_at": 1789634197.6994011,
+        "fen_before": "2qrk3/5b2/4p2n/1p1N3B/1B1pP3/P1pP4/KP6/8 w - - 0 2",
+        "expected": {
+          "uci": "d5f6",
+          "san": "Nf6#",
+          "color": "white"
+        },
+        "accepted_uci": "d5f6"
       }
     ],
     "accepted_solution_moves": [
@@ -166,9 +176,17 @@
         "san": "Re6+",
         "uci": "g6e6",
         "principal": true
+      },
+      {
+        "san": "Nf6#",
+        "uci": "d5f6",
+        "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** dxe6"
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** dxe6",
+    "activity_bonus_users": [
+      "442597396195704832"
+    ]
   },
   "lichess_rating_used": {
     "2000": [
