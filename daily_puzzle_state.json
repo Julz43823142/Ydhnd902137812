@@ -2659,7 +2659,7 @@
       "started_at": 1789672710.9746318,
       "run_id": "rush:442597396195704832:1789672710974",
       "end_at": 1789673010.9746318,
-      "score": 6,
+      "score": 7,
       "wrong": 1,
       "mistakes": [
         {
@@ -2682,75 +2682,45 @@
       ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/7gfXq",
-        "title": "Lichess • 1425",
-        "fen": "8/8/8/6p1/P3p1P1/1P2k2P/2P5/5K2 b - - 2 41",
-        "current_fen": "8/8/8/6p1/P5P1/1P2pK1P/2Pk4/8 b - - 1 43",
-        "last_move_uci": "f2f3",
-        "pgn": "Kd2 Kf2 e3+ Kf3 e2",
+        "url": "https://lichess.org/training/R6Sho",
+        "title": "Lichess • 1431",
+        "fen": "r3kb1r/pb1p1pp1/1p2p3/2p4p/2P1P1nq/1P1P1N2/PB3PB1/RN1QRK2 b kq - 1 15",
+        "current_fen": "r3kb1r/pb1p1pp1/1p2p3/2p4p/2P1P1nq/1P1P1N2/PB3PB1/RN1QRK2 b kq - 1 15",
+        "last_move_uci": "g5f3",
+        "pgn": "Qxf2#",
         "all_moves": [
           {
-            "uci": "e3d2",
-            "san": "Kd2",
-            "color": "black"
-          },
-          {
-            "uci": "f1f2",
-            "san": "Kf2",
-            "color": "white"
-          },
-          {
-            "uci": "e4e3",
-            "san": "e3+",
-            "color": "black"
-          },
-          {
-            "uci": "f2f3",
-            "san": "Kf3",
-            "color": "white"
-          },
-          {
-            "uci": "e3e2",
-            "san": "e2",
+            "uci": "h4f2",
+            "san": "Qxf2#",
             "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "e3d2",
-            "san": "Kd2",
-            "color": "black"
-          },
-          {
-            "uci": "e4e3",
-            "san": "e3+",
-            "color": "black"
-          },
-          {
-            "uci": "e3e2",
-            "san": "e2",
+            "uci": "h4f2",
+            "san": "Qxf2#",
             "color": "black"
           }
         ],
         "player_color": "black",
-        "player_move_count": 3,
-        "posted_at": "2026-09-17T19:19:27.957561+00:00",
+        "player_move_count": 1,
+        "posted_at": "2026-09-17T19:19:35.987784+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_7gfXq_1789672767957",
-        "rating": 1425,
-        "next_solution_index": 4,
+        "puzzle_id": "practice_rush_442597396195704832_R6Sho_1789672775987",
+        "rating": 1431,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1550224706894823486,
+      "message_id": 1550224715870642192,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789672773.807336,
-      "last_feedback": "✅ **e3+** • Opponent: **Kf3**"
+      "last_card_activity_at": 1789672775.9824996,
+      "last_feedback": "✅ **e2** — solved! Score: **7**."
     },
     "362606514764251137": {
       "active": false,
