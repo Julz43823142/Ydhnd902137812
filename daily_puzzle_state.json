@@ -2653,141 +2653,56 @@
   },
   "puzzle_rush": {
     "442597396195704832": {
-      "active": false,
+      "active": true,
       "user_id": "442597396195704832",
       "name": "Thice",
-      "started_at": 1789586791.6679428,
-      "run_id": "rush:442597396195704832:1789586791667",
-      "end_at": 1789587091.6679428,
-      "score": 21,
-      "wrong": 3,
-      "mistakes": [
-        {
-          "puzzle_number": 6,
-          "submitted": "rxf8",
-          "correct": "Qh6+",
-          "puzzle": {
-            "puzzle_id": "practice_rush_442597396195704832_QiLYA_1789586830462",
-            "fen": "5r1k/2r5/3p2Q1/1p2q3/5R2/7P/P1B3PK/8 w - - 5 45",
-            "current_fen": "5r1k/2r5/3p2Q1/1p2q3/5R2/7P/P1B3PK/8 w - - 5 45",
-            "last_move_uci": "g8h8",
-            "player_color": "white",
-            "rating": 1386,
-            "board_theme": "blue",
-            "piece_theme": "classic",
-            "arrow_theme": "pink"
-          },
-          "recorded_at": 1789586836.2643058
-        },
-        {
-          "puzzle_number": 19,
-          "submitted": "nf3",
-          "correct": "Bf8",
-          "puzzle": {
-            "puzzle_id": "practice_rush_442597396195704832_9U6CH_1789587012197",
-            "fen": "4r2k/5rb1/2pQ3p/3bp3/1P1p1pPn/3P3P/3N3K/4RR2 b - - 7 34",
-            "current_fen": "4r2k/5rb1/2pQ3p/3bp3/1P1p1pPn/3P3P/3N3K/4RR2 b - - 7 34",
-            "last_move_uci": "d1e1",
-            "player_color": "black",
-            "rating": 1930,
-            "board_theme": "blue",
-            "piece_theme": "classic",
-            "arrow_theme": "pink"
-          },
-          "recorded_at": 1789587017.5589547
-        },
-        {
-          "puzzle_number": 24,
-          "submitted": "qxd4",
-          "correct": "Rxg2+",
-          "puzzle": {
-            "puzzle_id": "practice_rush_442597396195704832_fAosQ_1789587079454",
-            "fen": "3q1r1k/2p3p1/6Q1/4PpN1/3P4/3n3P/1r4P1/R3R1K1 b - - 2 28",
-            "current_fen": "3q1r1k/2p3p1/6Q1/4PpN1/3P4/3n3P/1r4P1/R3R1K1 b - - 2 28",
-            "last_move_uci": "f3g5",
-            "player_color": "black",
-            "rating": 1998,
-            "board_theme": "blue",
-            "piece_theme": "classic",
-            "arrow_theme": "pink"
-          },
-          "recorded_at": 1789587085.8003583
-        }
-      ],
+      "started_at": 1789672710.9746318,
+      "run_id": "rush:442597396195704832:1789672710974",
+      "end_at": 1789673010.9746318,
+      "score": 0,
+      "wrong": 0,
+      "mistakes": [],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/fAosQ",
-        "title": "Lichess • 1998",
-        "fen": "3q1r1k/2p3p1/6Q1/4PpN1/3P4/3n3P/1r4P1/R3R1K1 b - - 2 28",
-        "current_fen": "3q1r1k/2p3p1/6Q1/4PpN1/3P4/3n3P/1r4P1/R3R1K1 b - - 2 28",
-        "last_move_uci": "f3g5",
-        "pgn": "Rxg2+ Kxg2 Nf4+ Kf1 Nxg6",
+        "url": "https://lichess.org/training/gH90o",
+        "title": "Lichess • 1236",
+        "fen": "r6r/pp1Q2pp/4R3/2pp4/2kq4/8/PPP2PPP/6K1 w - - 10 27",
+        "current_fen": "r6r/pp1Q2pp/4R3/2pp4/2kq4/8/PPP2PPP/6K1 w - - 10 27",
+        "last_move_uci": "b5c4",
+        "pgn": "Qa4#",
         "all_moves": [
           {
-            "uci": "b2g2",
-            "san": "Rxg2+",
-            "color": "black"
-          },
-          {
-            "uci": "g1g2",
-            "san": "Kxg2",
+            "uci": "d7a4",
+            "san": "Qa4#",
             "color": "white"
-          },
-          {
-            "uci": "d3f4",
-            "san": "Nf4+",
-            "color": "black"
-          },
-          {
-            "uci": "g2f1",
-            "san": "Kf1",
-            "color": "white"
-          },
-          {
-            "uci": "f4g6",
-            "san": "Nxg6",
-            "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "b2g2",
-            "san": "Rxg2+",
-            "color": "black"
-          },
-          {
-            "uci": "d3f4",
-            "san": "Nf4+",
-            "color": "black"
-          },
-          {
-            "uci": "f4g6",
-            "san": "Nxg6",
-            "color": "black"
+            "uci": "d7a4",
+            "san": "Qa4#",
+            "color": "white"
           }
         ],
-        "player_color": "black",
-        "player_move_count": 3,
-        "posted_at": "2026-09-16T19:31:19.454327+00:00",
+        "player_color": "white",
+        "player_move_count": 1,
+        "posted_at": "2026-09-17T19:18:30.978400+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_fAosQ_1789587079454",
-        "rating": 1998,
+        "puzzle_id": "practice_rush_442597396195704832_gH90o_1789672710978",
+        "rating": 1236,
         "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1549865314169393365,
+      "message_id": 1550224452887781488,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789587085.7997203,
-      "last_feedback": "❌ **qxd4** was wrong. Correct move: **Rxg2+**.",
-      "ended_at": 1789587087.4073153,
-      "solve_reward_coins": 16.0,
-      "solve_reward_paid": true
+      "last_card_activity_at": 1789672710.9746394,
+      "last_feedback": "🎯 **Type your move in chat.** Your answer message will be removed. You have **3 lives**."
     },
     "362606514764251137": {
       "active": false,
