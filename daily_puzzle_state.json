@@ -58,7 +58,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_0obp7_1789670102390",
-    "last_activity_at": "2026-09-17T18:35:27.240902+00:00",
+    "last_activity_at": "2026-09-17T18:35:50.117276+00:00",
     "rating": 2713,
     "rp_band": 5,
     "boss": true,
@@ -69,17 +69,17 @@
     "next_player_index": 1,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1550213584779346020
+      "1468320170891022417": 1550213615938699465
     },
-    "message_id": 1550213584779346020,
+    "message_id": 1550213615938699465,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Rh2",
+        "move": "Qc8",
         "correct": false,
-        "timestamp": "2026-09-17T18:35:27.241716+00:00"
+        "timestamp": "2026-09-17T18:35:50.117659+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
@@ -87,7 +87,7 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-17T18:35:27.240902+00:00",
+    "last_card_activity_at": "2026-09-17T18:35:50.117276+00:00",
     "recent_accepted_moves": [],
     "accepted_solution_moves": [
       {
@@ -96,9 +96,9 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Rh4",
+    "last_feedback": "❌ **Wrong, Thice. your tactical instinct arrived, looked at the board and immediately left.**\n↪️ **Move played:** `Rh2`",
     "wrong_attempt_counts": {
-      "442597396195704832": 1
+      "442597396195704832": 2
     }
   },
   "latest_puzzle_type": "random",
