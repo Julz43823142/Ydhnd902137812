@@ -2659,7 +2659,7 @@
       "started_at": 1789672710.9746318,
       "run_id": "rush:442597396195704832:1789672710974",
       "end_at": 1789673010.9746318,
-      "score": 7,
+      "score": 8,
       "wrong": 1,
       "mistakes": [
         {
@@ -2682,45 +2682,60 @@
       ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/R6Sho",
-        "title": "Lichess • 1431",
-        "fen": "r3kb1r/pb1p1pp1/1p2p3/2p4p/2P1P1nq/1P1P1N2/PB3PB1/RN1QRK2 b kq - 1 15",
-        "current_fen": "r3kb1r/pb1p1pp1/1p2p3/2p4p/2P1P1nq/1P1P1N2/PB3PB1/RN1QRK2 b kq - 1 15",
-        "last_move_uci": "g5f3",
-        "pgn": "Qxf2#",
+        "url": "https://lichess.org/training/SgP1G",
+        "title": "Lichess • 1540",
+        "fen": "4r1k1/Q1P2pp1/7p/8/4b3/1P5P/3q1PP1/4R1K1 w - - 3 32",
+        "current_fen": "4r1k1/Q1P2pp1/7p/8/4b3/1P5P/3q1PP1/4R1K1 w - - 3 32",
+        "last_move_uci": "d5d2",
+        "pgn": "Rxe4 Qd1+ Kh2",
         "all_moves": [
           {
-            "uci": "h4f2",
-            "san": "Qxf2#",
+            "uci": "e1e4",
+            "san": "Rxe4",
+            "color": "white"
+          },
+          {
+            "uci": "d2d1",
+            "san": "Qd1+",
             "color": "black"
+          },
+          {
+            "uci": "g1h2",
+            "san": "Kh2",
+            "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "h4f2",
-            "san": "Qxf2#",
-            "color": "black"
+            "uci": "e1e4",
+            "san": "Rxe4",
+            "color": "white"
+          },
+          {
+            "uci": "g1h2",
+            "san": "Kh2",
+            "color": "white"
           }
         ],
-        "player_color": "black",
-        "player_move_count": 1,
-        "posted_at": "2026-09-17T19:19:35.987784+00:00",
+        "player_color": "white",
+        "player_move_count": 2,
+        "posted_at": "2026-09-17T19:19:40.960543+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_R6Sho_1789672775987",
-        "rating": 1431,
+        "puzzle_id": "practice_rush_442597396195704832_SgP1G_1789672780960",
+        "rating": 1540,
         "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1550224715870642192,
+      "message_id": 1550224726771761205,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789672775.9824996,
-      "last_feedback": "✅ **e2** — solved! Score: **7**."
+      "last_card_activity_at": 1789672780.9543722,
+      "last_feedback": "✅ **Qxf2#** — solved! Score: **8**."
     },
     "362606514764251137": {
       "active": false,
