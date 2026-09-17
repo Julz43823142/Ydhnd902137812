@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/xtfFP",
     "title": "Lichess • 2279",
     "fen": "8/2R1r1b1/pk4pp/2nB1b2/K1p1p2P/4B1P1/P7/8 w - - 2 35",
-    "current_fen": "8/3br1b1/pk4pp/2RB4/K1p1p2P/4B1P1/P7/8 w - - 1 36",
-    "last_move_uci": "f5d7",
+    "current_fen": "8/3br1b1/pk4pp/2RB4/1Kp1p2P/4B1P1/P7/8 b - - 2 36",
+    "last_move_uci": "a4b4",
     "pgn": "Rxc5 Bd7+ Kb4",
     "all_moves": [
       {
@@ -43,50 +43,66 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_xtfFP_1789670231519",
-    "last_activity_at": "2026-09-17T18:37:56.698231+00:00",
+    "last_activity_at": "2026-09-17T18:38:07.373340+00:00",
     "rating": 2279,
     "rp_band": 3,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 2,
-    "next_player_index": 1,
-    "solved": false,
+    "next_solution_index": 3,
+    "next_player_index": 2,
+    "solved": true,
     "message_ids": {
-      "1468320170891022417": 1550214216861098024
+      "1468320170891022417": 1550214243880665229
     },
-    "message_id": 1550214216861098024,
+    "message_id": 1550214243880665229,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Rc6",
-        "correct": false,
-        "timestamp": "2026-09-17T18:37:56.698556+00:00"
+        "move": "Kb4",
+        "correct": true,
+        "timestamp": "2026-09-17T18:38:07.373516+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
     "first_move_user_name": "Thice",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-17T18:37:56.698231+00:00",
-    "recent_accepted_moves": [],
+    "last_card_activity_at": "2026-09-17T18:38:07.373340+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1789670287.3735235,
+        "fen_before": "8/3br1b1/pk4pp/2RB4/K1p1p2P/4B1P1/P7/8 w - - 1 36",
+        "expected": {
+          "uci": "a4b4",
+          "san": "Kb4",
+          "color": "white"
+        },
+        "accepted_uci": "a4b4"
+      }
+    ],
     "accepted_solution_moves": [
       {
         "san": "Rxc5",
         "uci": "c7c5",
         "principal": true
+      },
+      {
+        "san": "Kb4",
+        "uci": "a4b4",
+        "principal": true
       }
     ],
-    "last_feedback": "❌ **Another one for the collection, Thice: you turned a puzzle into a demonstration of why checking your work matters.**\n↪️ **Move played:** `Rb5`",
+    "last_feedback": "❌ **Live from the blunder department, Thice: your move was so wrong it made the obvious move look brilliant.**\n↪️ **Move played:** `Rc6`",
     "wrong_attempt_counts": {
       "442597396195704832": 2
     }
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-17",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-17",
