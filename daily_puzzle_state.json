@@ -58,7 +58,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_0obp7_1789670102390",
-    "last_activity_at": "2026-09-17T18:35:18.145683+00:00",
+    "last_activity_at": "2026-09-17T18:35:27.240902+00:00",
     "rating": 2713,
     "rp_band": 5,
     "boss": true,
@@ -77,9 +77,9 @@
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Qh8",
-        "correct": true,
-        "timestamp": "2026-09-17T18:35:18.146047+00:00"
+        "move": "Rh2",
+        "correct": false,
+        "timestamp": "2026-09-17T18:35:27.241716+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
@@ -87,19 +87,8 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-17T18:35:18.145683+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1789670118.146058,
-        "fen_before": "1kq5/pp6/6p1/1QP5/P5R1/7K/3r4/2R5 b - - 0 35",
-        "expected": {
-          "uci": "c8h8",
-          "san": "Qh8+",
-          "color": "black"
-        },
-        "accepted_uci": "c8h8"
-      }
-    ],
+    "last_card_activity_at": "2026-09-17T18:35:27.240902+00:00",
+    "recent_accepted_moves": [],
     "accepted_solution_moves": [
       {
         "san": "Qh8+",
@@ -107,7 +96,10 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Rh4"
+    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Rh4",
+    "wrong_attempt_counts": {
+      "442597396195704832": 1
+    }
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-09-17",
