@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/0obp7",
     "title": "Lichess • 2713",
     "fen": "1kq5/pp6/6p1/1QP5/P5R1/7K/3r4/2R5 b - - 0 35",
-    "current_fen": "1k5q/pp6/6p1/1QP5/P6R/7K/3r4/2R5 b - - 2 36",
-    "last_move_uci": "g4h4",
+    "current_fen": "1k2Q3/pp6/6p1/2P1q3/P6R/7K/3r4/2R5 b - - 4 37",
+    "last_move_uci": "b5e8",
     "pgn": "Qh8+ Rh4 Qe5 Qe8+ Qxe8",
     "all_moves": [
       {
@@ -58,28 +58,28 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_0obp7_1789670102390",
-    "last_activity_at": "2026-09-17T18:35:50.117276+00:00",
+    "last_activity_at": "2026-09-17T18:36:12.191817+00:00",
     "rating": 2713,
     "rp_band": 5,
     "boss": true,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 2,
-    "next_player_index": 1,
+    "next_solution_index": 4,
+    "next_player_index": 2,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1550213615938699465
+      "1468320170891022417": 1550213804351029370
     },
-    "message_id": 1550213615938699465,
+    "message_id": 1550213804351029370,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Qc8",
-        "correct": false,
-        "timestamp": "2026-09-17T18:35:50.117659+00:00"
+        "move": "Qe5",
+        "correct": true,
+        "timestamp": "2026-09-17T18:36:12.192260+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
@@ -87,16 +87,32 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-17T18:35:50.117276+00:00",
-    "recent_accepted_moves": [],
+    "last_card_activity_at": "2026-09-17T18:36:12.191817+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1789670172.1922686,
+        "fen_before": "1k5q/pp6/6p1/1QP5/P6R/7K/3r4/2R5 b - - 2 36",
+        "expected": {
+          "uci": "h8e5",
+          "san": "Qe5",
+          "color": "black"
+        },
+        "accepted_uci": "h8e5"
+      }
+    ],
     "accepted_solution_moves": [
       {
         "san": "Qh8+",
         "uci": "c8h8",
         "principal": true
+      },
+      {
+        "san": "Qe5",
+        "uci": "h8e5",
+        "principal": true
       }
     ],
-    "last_feedback": "❌ **Wrong, Thice. your tactical instinct arrived, looked at the board and immediately left.**\n↪️ **Move played:** `Rh2`",
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Qe8+",
     "wrong_attempt_counts": {
       "442597396195704832": 2
     }
