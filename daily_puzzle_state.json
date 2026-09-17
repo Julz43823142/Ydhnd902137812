@@ -2660,7 +2660,7 @@
       "run_id": "rush:442597396195704832:1789672710974",
       "end_at": 1789673010.9746318,
       "score": 14,
-      "wrong": 1,
+      "wrong": 2,
       "mistakes": [
         {
           "puzzle_number": 6,
@@ -2678,64 +2678,81 @@
             "arrow_theme": "pink"
           },
           "recorded_at": 1789672759.2034214
+        },
+        {
+          "puzzle_number": 16,
+          "submitted": "be5",
+          "correct": "e2",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_h5mD6_1789672866030",
+            "fen": "8/6bk/4q1b1/2p3P1/3p1QP1/4p1PK/1P6/3B1R2 b - - 0 48",
+            "current_fen": "8/6bk/4q1b1/2p3P1/3p1QP1/4p1PK/1P6/3B1R2 b - - 0 48",
+            "last_move_uci": "h2h3",
+            "player_color": "black",
+            "rating": 1725,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1789672874.6667373
         }
       ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/h5mD6",
-        "title": "Lichess • 1725",
-        "fen": "8/6bk/4q1b1/2p3P1/3p1QP1/4p1PK/1P6/3B1R2 b - - 0 48",
-        "current_fen": "8/6bk/4q1b1/2p3P1/3p1QP1/4p1PK/1P6/3B1R2 b - - 0 48",
-        "last_move_uci": "h2h3",
-        "pgn": "e2 Re1 exd1=Q",
+        "url": "https://lichess.org/training/Le5AW",
+        "title": "Lichess • 1766",
+        "fen": "8/p2p4/2pP4/1pP1KP1p/1P5P/P5k1/b7/8 w - - 1 46",
+        "current_fen": "8/p2p4/2pP4/1pP1KP1p/1P5P/P5k1/b7/8 w - - 1 46",
+        "last_move_uci": "e6a2",
+        "pgn": "Kf6 Kxh4 Ke7",
         "all_moves": [
           {
-            "uci": "e3e2",
-            "san": "e2",
-            "color": "black"
-          },
-          {
-            "uci": "f1e1",
-            "san": "Re1",
+            "uci": "e5f6",
+            "san": "Kf6",
             "color": "white"
           },
           {
-            "uci": "e2d1q",
-            "san": "exd1=Q",
+            "uci": "g3h4",
+            "san": "Kxh4",
             "color": "black"
+          },
+          {
+            "uci": "f6e7",
+            "san": "Ke7",
+            "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "e3e2",
-            "san": "e2",
-            "color": "black"
+            "uci": "e5f6",
+            "san": "Kf6",
+            "color": "white"
           },
           {
-            "uci": "e2d1q",
-            "san": "exd1=Q",
-            "color": "black"
+            "uci": "f6e7",
+            "san": "Ke7",
+            "color": "white"
           }
         ],
-        "player_color": "black",
+        "player_color": "white",
         "player_move_count": 2,
-        "posted_at": "2026-09-17T19:21:06.030627+00:00",
+        "posted_at": "2026-09-17T19:21:14.671301+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_h5mD6_1789672866030",
-        "rating": 1725,
+        "puzzle_id": "practice_rush_442597396195704832_Le5AW_1789672874671",
+        "rating": 1766,
         "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1550225088496926834,
+      "message_id": 1550225103403352154,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789672866.0253568,
-      "last_feedback": "✅ **Rxd3+** — solved! Score: **14**."
+      "last_card_activity_at": 1789672874.6663234,
+      "last_feedback": "❌ **be5** was wrong. Correct move: **e2**."
     },
     "362606514764251137": {
       "active": false,
