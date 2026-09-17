@@ -2659,7 +2659,7 @@
       "started_at": 1789672710.9746318,
       "run_id": "rush:442597396195704832:1789672710974",
       "end_at": 1789673010.9746318,
-      "score": 5,
+      "score": 6,
       "wrong": 1,
       "mistakes": [
         {
@@ -2682,75 +2682,75 @@
       ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/HLzxT",
-        "title": "Lichess • 1409",
-        "fen": "6k1/3r3p/2b2p1P/6pP/3p2R1/pPqN1P2/2P3Q1/1K4R1 b - - 0 32",
-        "current_fen": "6k1/r6p/2b2p1P/6pP/3p2R1/1PqN1P2/2P3Q1/1K4R1 b - - 2 34",
-        "last_move_uci": "a2b1",
-        "pgn": "a2+ Kxa2 Ra7+ Kb1 Qa1#",
+        "url": "https://lichess.org/training/7gfXq",
+        "title": "Lichess • 1425",
+        "fen": "8/8/8/6p1/P3p1P1/1P2k2P/2P5/5K2 b - - 2 41",
+        "current_fen": "8/8/8/6p1/P3p1P1/1P2k2P/2P5/5K2 b - - 2 41",
+        "last_move_uci": "g2f1",
+        "pgn": "Kd2 Kf2 e3+ Kf3 e2",
         "all_moves": [
           {
-            "uci": "a3a2",
-            "san": "a2+",
+            "uci": "e3d2",
+            "san": "Kd2",
             "color": "black"
           },
           {
-            "uci": "b1a2",
-            "san": "Kxa2",
+            "uci": "f1f2",
+            "san": "Kf2",
             "color": "white"
           },
           {
-            "uci": "d7a7",
-            "san": "Ra7+",
+            "uci": "e4e3",
+            "san": "e3+",
             "color": "black"
           },
           {
-            "uci": "a2b1",
-            "san": "Kb1",
+            "uci": "f2f3",
+            "san": "Kf3",
             "color": "white"
           },
           {
-            "uci": "c3a1",
-            "san": "Qa1#",
+            "uci": "e3e2",
+            "san": "e2",
             "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "a3a2",
-            "san": "a2+",
+            "uci": "e3d2",
+            "san": "Kd2",
             "color": "black"
           },
           {
-            "uci": "d7a7",
-            "san": "Ra7+",
+            "uci": "e4e3",
+            "san": "e3+",
             "color": "black"
           },
           {
-            "uci": "c3a1",
-            "san": "Qa1#",
+            "uci": "e3e2",
+            "san": "e2",
             "color": "black"
           }
         ],
         "player_color": "black",
         "player_move_count": 3,
-        "posted_at": "2026-09-17T19:19:19.208917+00:00",
+        "posted_at": "2026-09-17T19:19:27.957561+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_HLzxT_1789672759208",
-        "rating": 1409,
-        "next_solution_index": 4,
+        "puzzle_id": "practice_rush_442597396195704832_7gfXq_1789672767957",
+        "rating": 1425,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1550224669087629454,
+      "message_id": 1550224678453518507,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789672764.865641,
-      "last_feedback": "✅ **Ra7+** • Opponent: **Kb1**"
+      "last_card_activity_at": 1789672767.951711,
+      "last_feedback": "✅ **Ra1#** — solved! Score: **6**. Alternate checkmate accepted."
     },
     "362606514764251137": {
       "active": false,
