@@ -2685,8 +2685,8 @@
         "url": "https://lichess.org/training/SgP1G",
         "title": "Lichess • 1540",
         "fen": "4r1k1/Q1P2pp1/7p/8/4b3/1P5P/3q1PP1/4R1K1 w - - 3 32",
-        "current_fen": "4r1k1/Q1P2pp1/7p/8/4b3/1P5P/3q1PP1/4R1K1 w - - 3 32",
-        "last_move_uci": "d5d2",
+        "current_fen": "4r1k1/Q1P2pp1/7p/8/4R3/1P5P/5PP1/3q2K1 w - - 1 33",
+        "last_move_uci": "d2d1",
         "pgn": "Rxe4 Qd1+ Kh2",
         "all_moves": [
           {
@@ -2726,16 +2726,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_SgP1G_1789672780960",
         "rating": 1540,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1550224726771761205,
+      "message_id": 1550224746124156999,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1789672780.9543722,
-      "last_feedback": "✅ **Qxf2#** — solved! Score: **8**."
+      "last_card_activity_at": 1789672785.093286,
+      "last_feedback": "✅ **Rxe4** • Opponent: **Qd1+**"
     },
     "362606514764251137": {
       "active": false,
