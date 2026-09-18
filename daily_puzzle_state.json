@@ -145,8 +145,8 @@
     "url": "https://www.chess.com/daily/2026-09-18",
     "title": "I'll Be Back!",
     "fen": "4r3/R3P1kp/1p4p1/4q3/4p3/P6P/6P1/5Q1K w - - 0 47",
-    "current_fen": "4r3/R3P1kp/1p4p1/4q3/4p3/P6P/6P1/5Q1K w - - 0 47",
-    "last_move_uci": null,
+    "current_fen": "5r2/R3P1kp/1p4p1/4q3/4p3/P6P/6P1/7K w - - 0 48",
+    "last_move_uci": "e8f8",
     "pgn": "[Event \"39th Olympiad Men\"]\n[Site \"Khanty-Mansiysk RUS\"]\n[Date \"2010.09.29\"]\n[Round \"8\"]\n[White \"Mchedlishvili, Mikheil\"]\n[Black \"Podolchenko, Evgeniy\"]\n[Result \"1-0\"]\n[WhiteElo \"2628\"]\n[BlackElo \"2506\"]\n[FEN \"4r3/R3P1kp/1p4p1/4q3/4p3/P6P/6P1/5Q1K w - - 0 47\"]\n\n47. Qf8+ Rxf8 48. e8=Q+ Kf6 49. Qxf8+ 1-0",
     "all_moves": [
       {
@@ -200,22 +200,50 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1789717477662",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
-    "message_id": 1550412217000656938,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "message_id": 1550459790906630266,
+    "attempted_users": {
+      "442597396195704832": {
+        "name": "Thice",
+        "move": "Qf8",
+        "correct": true,
+        "timestamp": "2026-09-18T10:53:37.857488+00:00"
+      }
+    },
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1550412217000656938,
-      "1546557493038284840": 1550412224529432719
+      "1468320170891022417": 1550459790906630266,
+      "1546557493038284840": 1550459786892410956
     },
     "channel_id": 1468320170891022417,
-    "chat_since_refresh": 0
+    "chat_since_refresh": 0,
+    "last_card_activity_at": "2026-09-18T10:53:37.856972+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1789728817.8574948,
+        "fen_before": "4r3/R3P1kp/1p4p1/4q3/4p3/P6P/6P1/5Q1K w - - 0 47",
+        "expected": {
+          "uci": "f1f8",
+          "san": "Qf8+",
+          "color": "white"
+        },
+        "accepted_uci": "f1f8"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "Qf8+",
+        "uci": "f1f8",
+        "principal": true
+      }
+    ],
+    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Rxf8"
   },
   "lichess_rating_used": {
     "2000": [
