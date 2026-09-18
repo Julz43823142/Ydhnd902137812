@@ -98,7 +98,7 @@
     "player_color": "black",
     "player_move_count": 6,
     "posted_at": "2026-09-18T16:51:40.317059+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -114,9 +114,9 @@
     "next_player_index": 6,
     "solved": true,
     "message_ids": {
-      "1468320170891022417": 1550550155743330527
+      "1468320170891022417": 1550550262773579936
     },
-    "message_id": 1550550155743330527,
+    "message_id": 1550550262773579936,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
@@ -177,7 +177,7 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kf2",
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1639 points.**\n\n💡 **Solution:** Rxd2 Bxe4+ Nxg4+ Qh6+ Qh1+ Bxf5\n\n🏆 **Your ranking**\n**#1 🔥 Thice — 1639 points ← you**\n**#2 🍅 TheMakina — 1506 points**",
     "wrong_attempt_counts": {
       "442597396195704832": 1
     }
