@@ -195,7 +195,7 @@
     "player_color": "white",
     "player_move_count": 3,
     "posted_at": "2026-09-18T07:44:37.662577+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -203,7 +203,7 @@
     "next_solution_index": 5,
     "next_player_index": 3,
     "solved": true,
-    "message_id": 1550459825375416361,
+    "message_id": 1550459904794304554,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
@@ -218,8 +218,8 @@
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1550459825375416361,
-      "1546557493038284840": 1550459821172592670
+      "1468320170891022417": 1550459904794304554,
+      "1546557493038284840": 1550459896837841027
     },
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
@@ -253,7 +253,7 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kf6",
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1636 points.**\n🔥 **Daily Activity Bonus: +10 coins**\n\n💡 **Solution:** Qf8+ e8=Q+ Qxf8+\n\n🏆 **Your ranking**\n**#1 🔥 Thice — 1636 points ← you**\n**#2 🍅 TheMakina — 1501.5 points**",
     "activity_bonus_users": [
       "442597396195704832"
     ]
