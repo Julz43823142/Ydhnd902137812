@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/gPJjD",
     "title": "Lichess • 1670",
     "fen": "4r2r/k4p1p/pp1Bb3/4P1p1/5bP1/7P/PP4B1/1KR1R3 b - - 3 30",
-    "current_fen": "4r2r/k4p1p/pp1Bb3/4P1p1/6P1/7P/PP4B1/1KR5 b - - 0 31",
-    "last_move_uci": "e1c1",
+    "current_fen": "2r4r/k4p1p/pp1Bb3/4P1p1/6P1/7P/PP4B1/1KR5 w - - 1 32",
+    "last_move_uci": "e8c8",
     "pgn": "Bxc1 Rxc1 Rc8",
     "all_moves": [
       {
@@ -43,16 +43,16 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_gPJjD_1789748246746",
-    "last_activity_at": "2026-09-18T16:17:53.268994+00:00",
+    "last_activity_at": "2026-09-18T16:17:59.119856+00:00",
     "rating": 1670,
     "rp_band": 1,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 2,
-    "next_player_index": 1,
-    "solved": false,
+    "next_solution_index": 3,
+    "next_player_index": 2,
+    "solved": true,
     "message_ids": {
       "1468320170891022417": 1550541388947529750
     },
@@ -62,17 +62,17 @@
     "attempted_users": {
       "601406103712170014": {
         "name": "TheMakina",
-        "move": "Bxc1",
+        "move": "Rc8",
         "correct": true,
-        "timestamp": "2026-09-18T16:17:53.269397+00:00"
+        "timestamp": "2026-09-18T16:17:59.120043+00:00"
       }
     },
     "first_move_user_id": "601406103712170014",
     "first_move_user_name": "TheMakina",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-18T16:17:53.268994+00:00",
+    "last_card_activity_at": "2026-09-18T16:17:59.119856+00:00",
     "recent_accepted_moves": [
       {
         "accepted_at": 1789748273.2694013,
@@ -83,6 +83,16 @@
           "color": "black"
         },
         "accepted_uci": "f4c1"
+      },
+      {
+        "accepted_at": 1789748279.1200476,
+        "fen_before": "4r2r/k4p1p/pp1Bb3/4P1p1/6P1/7P/PP4B1/1KR5 b - - 0 31",
+        "expected": {
+          "uci": "e8c8",
+          "san": "Rc8",
+          "color": "black"
+        },
+        "accepted_uci": "e8c8"
       }
     ],
     "accepted_solution_moves": [
@@ -90,11 +100,16 @@
         "san": "Bxc1",
         "uci": "f4c1",
         "principal": true
+      },
+      {
+        "san": "Rc8",
+        "uci": "e8c8",
+        "principal": true
       }
     ],
     "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Rxc1"
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-18",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-18",
