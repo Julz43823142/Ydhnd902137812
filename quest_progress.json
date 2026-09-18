@@ -335,9 +335,9 @@
             "daily:2026-09-18:minigame:minigame-1"
           ],
           "progress": {
-            "daily:2026-09-18:minigame:minigame-1": 1
+            "daily:2026-09-18:minigame:minigame-1": 2
           },
-          "updated_at": 1789706183
+          "updated_at": 1789706186
         }
       }
     },
@@ -398,9 +398,9 @@
             "weekly:2026-09-14:minigame:minigame-5"
           ],
           "progress": {
-            "weekly:2026-09-14:minigame:minigame-5": 58
+            "weekly:2026-09-14:minigame:minigame-5": 59
           },
-          "updated_at": 1789706179
+          "updated_at": 1789706186
         },
         "442597396195704832": {
           "name": "Thice",
