@@ -58,7 +58,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_BZx3m_1789748188096",
-    "last_activity_at": "2026-09-18T16:16:57.525404+00:00",
+    "last_activity_at": "2026-09-18T16:17:03.744754+00:00",
     "rating": 2622,
     "rp_band": 4,
     "boss": false,
@@ -77,9 +77,9 @@
     "attempted_users": {
       "601406103712170014": {
         "name": "TheMakina",
-        "move": "Kxd3",
-        "correct": true,
-        "timestamp": "2026-09-18T16:16:57.525526+00:00"
+        "move": "Kc2",
+        "correct": false,
+        "timestamp": "2026-09-18T16:17:03.745069+00:00"
       }
     },
     "first_move_user_id": "601406103712170014",
@@ -87,7 +87,7 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-18T16:16:57.525404+00:00",
+    "last_card_activity_at": "2026-09-18T16:17:03.744754+00:00",
     "recent_accepted_moves": [
       {
         "accepted_at": 1789748217.5255308,
@@ -112,7 +112,10 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kg4"
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kg4",
+    "wrong_attempt_counts": {
+      "601406103712170014": 1
+    }
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-09-18",
