@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/oHA0H",
     "title": "Lichess • 2180",
     "fen": "r4rk1/pp1n2pp/2p1b3/3pPp2/1P3P2/P1N1q1P1/1B3nBP/R2Q1R1K w - - 2 18",
-    "current_fen": "r4rk1/pp4pp/1np1b3/3pPp2/NP1q1P2/P5P1/6BP/R2Q3K w - - 0 21",
-    "last_move_uci": "f2d4",
+    "current_fen": "r4rk1/pp4pp/1np1b3/3pPp2/NP1Q1P2/P5P1/6BP/R6K b - - 0 21",
+    "last_move_uci": "d1d4",
     "pgn": "Rxf2 Qxf2 Na4 Nb6 Bd4 Qxd4 Qxd4",
     "all_moves": [
       {
@@ -73,16 +73,16 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_oHA0H_1789747378072",
-    "last_activity_at": "2026-09-18T16:03:55.560123+00:00",
+    "last_activity_at": "2026-09-18T16:04:01.724090+00:00",
     "rating": 2180,
     "rp_band": 3,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 6,
-    "next_player_index": 3,
-    "solved": false,
+    "next_solution_index": 7,
+    "next_player_index": 4,
+    "solved": true,
     "message_ids": {
       "1468320170891022417": 1550537872753299477
     },
@@ -92,28 +92,18 @@
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Bd4",
+        "move": "Qxd4",
         "correct": true,
-        "timestamp": "2026-09-18T16:03:55.560350+00:00"
+        "timestamp": "2026-09-18T16:04:01.724345+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
     "first_move_user_name": "Thice",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-18T16:03:55.560123+00:00",
+    "last_card_activity_at": "2026-09-18T16:04:01.724090+00:00",
     "recent_accepted_moves": [
-      {
-        "accepted_at": 1789747428.1917646,
-        "fen_before": "r4rk1/pp1n2pp/2p1b3/3pPp2/1P3P2/P1N3P1/1B3qBP/R2Q3K w - - 0 19",
-        "expected": {
-          "uci": "c3a4",
-          "san": "Na4",
-          "color": "white"
-        },
-        "accepted_uci": "c3a4"
-      },
       {
         "accepted_at": 1789747435.5603552,
         "fen_before": "r4rk1/pp4pp/1np1b3/3pPp2/NP3P2/P5P1/1B3qBP/R2Q3K w - - 2 20",
@@ -123,6 +113,16 @@
           "color": "white"
         },
         "accepted_uci": "b2d4"
+      },
+      {
+        "accepted_at": 1789747441.7243497,
+        "fen_before": "r4rk1/pp4pp/1np1b3/3pPp2/NP1q1P2/P5P1/6BP/R2Q3K w - - 0 21",
+        "expected": {
+          "uci": "d1d4",
+          "san": "Qxd4",
+          "color": "white"
+        },
+        "accepted_uci": "d1d4"
       }
     ],
     "accepted_solution_moves": [
@@ -140,11 +140,16 @@
         "san": "Bd4",
         "uci": "b2d4",
         "principal": true
+      },
+      {
+        "san": "Qxd4",
+        "uci": "d1d4",
+        "principal": true
       }
     ],
     "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Qxd4"
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-18",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-18",
