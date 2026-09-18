@@ -43,7 +43,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_cBKeP_1789754951226",
-    "last_activity_at": "2026-09-18T18:09:29.019199+00:00",
+    "last_activity_at": "2026-09-18T18:09:54.516485+00:00",
     "rating": 2199,
     "rp_band": 3,
     "boss": false,
@@ -62,9 +62,9 @@
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "hxg4",
-        "correct": true,
-        "timestamp": "2026-09-18T18:09:29.020093+00:00"
+        "move": "qe1",
+        "correct": false,
+        "timestamp": "2026-09-18T18:09:54.517107+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
@@ -72,19 +72,8 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-18T18:09:29.019199+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1789754969.020101,
-        "fen_before": "2rqr1k1/3b1ppp/pb1p1n2/3P4/1ppNP1n1/4BP1P/PP1QB3/R2N1R1K w - - 0 20",
-        "expected": {
-          "uci": "h3g4",
-          "san": "hxg4",
-          "color": "white"
-        },
-        "accepted_uci": "h3g4"
-      }
-    ],
+    "last_card_activity_at": "2026-09-18T18:09:54.516485+00:00",
+    "recent_accepted_moves": [],
     "accepted_solution_moves": [
       {
         "san": "hxg4",
@@ -92,7 +81,10 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Nxe4"
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Nxe4",
+    "wrong_attempt_counts": {
+      "442597396195704832": 1
+    }
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-09-18",
