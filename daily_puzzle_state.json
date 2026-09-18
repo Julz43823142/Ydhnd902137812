@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/xvxPb",
     "title": "Lichess • 2567",
     "fen": "6k1/5R2/6KP/1P6/8/8/8/1r6 b - - 4 51",
-    "current_fen": "6k1/5r2/7P/1P1K4/8/8/8/8 b - - 1 54",
-    "last_move_uci": "e5d5",
+    "current_fen": "5k2/5r2/7P/1P1K4/8/8/8/8 w - - 2 55",
+    "last_move_uci": "g8f8",
     "pgn": "Rg1+ Kf6 Rf1+ Ke5 Rxf7 Kd5 Kf8",
     "all_moves": [
       {
@@ -73,37 +73,48 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_xvxPb_1789760816323",
-    "last_activity_at": "2026-09-18T19:48:04.696785+00:00",
+    "last_activity_at": "2026-09-18T19:48:10.049515+00:00",
     "rating": 2567,
     "rp_band": 4,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 6,
-    "next_player_index": 3,
-    "solved": false,
+    "next_solution_index": 7,
+    "next_player_index": 4,
+    "solved": true,
     "message_ids": {
-      "1468320170891022417": 1550594171797245995
+      "1468320170891022417": 1550594282120024165
     },
-    "message_id": 1550594171797245995,
+    "message_id": 1550594282120024165,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "rf6",
-        "correct": false,
-        "timestamp": "2026-09-18T19:48:04.697271+00:00"
+        "move": "kf8",
+        "correct": true,
+        "timestamp": "2026-09-18T19:48:10.049682+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
     "first_move_user_name": "Thice",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-18T19:48:04.696785+00:00",
-    "recent_accepted_moves": [],
+    "last_card_activity_at": "2026-09-18T19:48:10.049515+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1789760890.0496888,
+        "fen_before": "6k1/5r2/7P/1P1K4/8/8/8/8 b - - 1 54",
+        "expected": {
+          "uci": "g8f8",
+          "san": "Kf8",
+          "color": "black"
+        },
+        "accepted_uci": "g8f8"
+      }
+    ],
     "accepted_solution_moves": [
       {
         "san": "Rg1+",
@@ -119,14 +130,19 @@
         "san": "Rxf7",
         "uci": "f1f7",
         "principal": true
+      },
+      {
+        "san": "Kf8",
+        "uci": "g8f8",
+        "principal": true
       }
     ],
-    "last_feedback": "❌ **Thice, the board would like you to know that you managed to lose the argument against a position that cannot speak.**\n↪️ **Move played:** `kh7`",
+    "last_feedback": "❌ **Live from the blunder department, Thice: you found a move so creative the position wants it deleted.**\n↪️ **Move played:** `rf6`",
     "wrong_attempt_counts": {
       "442597396195704832": 2
     }
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-18",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-18",
