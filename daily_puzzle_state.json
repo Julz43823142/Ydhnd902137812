@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/B1hLd",
     "title": "Lichess • 1641",
     "fen": "5bk1/2qr3p/p3R1p1/3Q1p2/7P/3P4/PP3PP1/6K1 w - - 1 35",
-    "current_fen": "5b1k/2qr3p/p5R1/3Q1p2/7P/3P4/PP3PP1/6K1 w - - 1 36",
-    "last_move_uci": "g8h8",
+    "current_fen": "5bQk/2qr3p/p5R1/5p2/7P/3P4/PP3PP1/6K1 b - - 2 36",
+    "last_move_uci": "d5g8",
     "pgn": "Rxg6+ Kh8 Qg8#",
     "all_moves": [
       {
@@ -43,16 +43,16 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_B1hLd_1789748128231",
-    "last_activity_at": "2026-09-18T16:15:49.774276+00:00",
+    "last_activity_at": "2026-09-18T16:15:54.122514+00:00",
     "rating": 1641,
     "rp_band": 1,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 2,
-    "next_player_index": 1,
-    "solved": false,
+    "next_solution_index": 3,
+    "next_player_index": 2,
+    "solved": true,
     "message_ids": {
       "1468320170891022417": 1550540866232393871
     },
@@ -62,17 +62,17 @@
     "attempted_users": {
       "601406103712170014": {
         "name": "TheMakina",
-        "move": "Rxg6",
+        "move": "Qg8",
         "correct": true,
-        "timestamp": "2026-09-18T16:15:49.774450+00:00"
+        "timestamp": "2026-09-18T16:15:54.122815+00:00"
       }
     },
     "first_move_user_id": "601406103712170014",
     "first_move_user_name": "TheMakina",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-18T16:15:49.774276+00:00",
+    "last_card_activity_at": "2026-09-18T16:15:54.122514+00:00",
     "recent_accepted_moves": [
       {
         "accepted_at": 1789748149.7744548,
@@ -83,6 +83,16 @@
           "color": "white"
         },
         "accepted_uci": "e6g6"
+      },
+      {
+        "accepted_at": 1789748154.12282,
+        "fen_before": "5b1k/2qr3p/p5R1/3Q1p2/7P/3P4/PP3PP1/6K1 w - - 1 36",
+        "expected": {
+          "uci": "d5g8",
+          "san": "Qg8#",
+          "color": "white"
+        },
+        "accepted_uci": "d5g8"
       }
     ],
     "wrong_attempt_counts": {
@@ -94,10 +104,15 @@
         "san": "Rxg6+",
         "uci": "e6g6",
         "principal": true
+      },
+      {
+        "san": "Qg8#",
+        "uci": "d5g8",
+        "principal": true
       }
     ]
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-18",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-18",
