@@ -1,0 +1,19 @@
+{
+  "boss": false,
+  "correct": true,
+  "created_at": 1789756713,
+  "display_name": "Thice",
+  "elo_after": 2503.259,
+  "elo_change": 0.092,
+  "new_achievements": [
+    "sniper"
+  ],
+  "puzzle_id": "random_ItHwk_1789756705533",
+  "puzzle_rating": 1488,
+  "source": "random",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 5,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:random_ItHwk_1789756705533:442597396195704832",
+  "user_id": "442597396195704832"
+}
