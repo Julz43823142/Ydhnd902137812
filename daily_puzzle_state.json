@@ -68,7 +68,7 @@
     "player_color": "black",
     "player_move_count": 4,
     "posted_at": "2026-09-18T19:46:56.323870+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -84,9 +84,9 @@
     "next_player_index": 4,
     "solved": true,
     "message_ids": {
-      "1468320170891022417": 1550594282120024165
+      "1468320170891022417": 1550594367222456401
     },
-    "message_id": 1550594282120024165,
+    "message_id": 1550594367222456401,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
@@ -137,7 +137,7 @@
         "principal": true
       }
     ],
-    "last_feedback": "❌ **Live from the blunder department, Thice: you found a move so creative the position wants it deleted.**\n↪️ **Move played:** `rf6`",
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1645 points.**\n\n💡 **Solution:** Rg1+ Rf1+ Rxf7 Kf8\n\n🏆 **Your ranking**\n**#1 🔥 Thice — 1645 points ← you**\n**#2 🍅 TheMakina — 1506 points**",
     "wrong_attempt_counts": {
       "442597396195704832": 2
     }
