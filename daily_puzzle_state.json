@@ -53,7 +53,7 @@
     "player_color": "black",
     "player_move_count": 3,
     "posted_at": "2026-09-18T16:50:53.539661+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -69,9 +69,9 @@
     "next_player_index": 3,
     "solved": true,
     "message_ids": {
-      "1468320170891022417": 1550549762845966412
+      "1468320170891022417": 1550549838507155537
     },
-    "message_id": 1550549762845966412,
+    "message_id": 1550549838507155537,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
@@ -117,7 +117,7 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Rcc1"
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1638 points.**\n\n💡 **Solution:** Qxa3 Rb1 a1=Q\n\n🏆 **Your ranking**\n**#1 🔥 Thice — 1638 points ← you**\n**#2 🍅 TheMakina — 1506 points**"
   },
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-18",
