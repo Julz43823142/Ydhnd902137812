@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/KzicN",
     "title": "Lichess • 2242",
     "fen": "r4r1k/1qpRbb1p/p4p2/1p6/5PQ1/P6P/1PP2PPN/5RK1 w - - 7 22",
-    "current_fen": "r5rk/1qp1Rb1p/p4p2/1p6/5PQ1/P6P/1PP2PPN/5RK1 w - - 1 23",
-    "last_move_uci": "f8g8",
+    "current_fen": "r5rk/1qp2R1p/p4p2/1p6/5PQ1/P6P/1PP2PPN/5RK1 b - - 0 23",
+    "last_move_uci": "e7f7",
     "pgn": "Rxe7 Rg8 Rxf7",
     "all_moves": [
       {
@@ -43,46 +43,46 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_KzicN_1789760725557",
-    "last_activity_at": "2026-09-18T19:46:20.685394+00:00",
+    "last_activity_at": "2026-09-18T19:46:36.296527+00:00",
     "rating": 2242,
     "rp_band": 3,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 2,
-    "next_player_index": 1,
-    "solved": false,
+    "next_solution_index": 3,
+    "next_player_index": 2,
+    "solved": true,
     "message_ids": {
-      "1468320170891022417": 1550593828056993953
+      "1468320170891022417": 1550593849062068385
     },
-    "message_id": 1550593828056993953,
+    "message_id": 1550593849062068385,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "qf3",
-        "correct": false,
-        "timestamp": "2026-09-18T19:46:20.686551+00:00"
+        "move": "rxf7",
+        "correct": true,
+        "timestamp": "2026-09-18T19:46:36.296768+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
     "first_move_user_name": "Thice",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-18T19:46:20.685394+00:00",
+    "last_card_activity_at": "2026-09-18T19:46:36.296527+00:00",
     "recent_accepted_moves": [
       {
-        "accepted_at": 1789760775.019467,
-        "fen_before": "r4r1k/1qpRbb1p/p4p2/1p6/5PQ1/P6P/1PP2PPN/5RK1 w - - 7 22",
+        "accepted_at": 1789760796.2967765,
+        "fen_before": "r5rk/1qp1Rb1p/p4p2/1p6/5PQ1/P6P/1PP2PPN/5RK1 w - - 1 23",
         "expected": {
-          "uci": "d7e7",
-          "san": "Rxe7",
+          "uci": "e7f7",
+          "san": "Rxf7",
           "color": "white"
         },
-        "accepted_uci": "d7e7"
+        "accepted_uci": "e7f7"
       }
     ],
     "accepted_solution_moves": [
@@ -90,14 +90,19 @@
         "san": "Rxe7",
         "uci": "d7e7",
         "principal": true
+      },
+      {
+        "san": "Rxf7",
+        "uci": "e7f7",
+        "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Rg8",
+    "last_feedback": "❌ **Live from the blunder department, Thice: you somehow made overconfidence look like an opening system.**\n↪️ **Move played:** `qf3`",
     "wrong_attempt_counts": {
       "442597396195704832": 1
     }
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-18",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-18",
