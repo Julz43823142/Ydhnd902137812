@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/P02UQ",
     "title": "Lichess • 2456",
     "fen": "b2r1r1k/6p1/1q3n2/1p2BRp1/1P2P1P1/R1P4P/3NQ3/7K b - - 0 36",
-    "current_fen": "5r1k/6p1/8/1p2BRp1/1P2b1P1/R1P5/3Q1K2/7q b - - 4 41",
-    "last_move_uci": "g1f2",
+    "current_fen": "5r1k/6p1/8/1p2Bbp1/1P4P1/R1P5/3Q1K2/7q w - - 0 42",
+    "last_move_uci": "e4f5",
     "pgn": "Rxd2 Qxd2 Bxe4+ Kh2 Nxg4+ hxg4 Qh6+ Kg1 Qh1+ Kf2 Bxf5",
     "all_moves": [
       {
@@ -103,16 +103,16 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_P02UQ_1789750300317",
-    "last_activity_at": "2026-09-18T16:52:44.519204+00:00",
+    "last_activity_at": "2026-09-18T16:53:01.787402+00:00",
     "rating": 2456,
     "rp_band": 4,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 10,
-    "next_player_index": 5,
-    "solved": false,
+    "next_solution_index": 11,
+    "next_player_index": 6,
+    "solved": true,
     "message_ids": {
       "1468320170891022417": 1550550155743330527
     },
@@ -122,27 +122,27 @@
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Qh1",
+        "move": "Bxf5",
         "correct": true,
-        "timestamp": "2026-09-18T16:52:44.519645+00:00"
+        "timestamp": "2026-09-18T16:53:01.787723+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
     "first_move_user_name": "Thice",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-18T16:52:44.519204+00:00",
+    "last_card_activity_at": "2026-09-18T16:53:01.787402+00:00",
     "recent_accepted_moves": [
       {
-        "accepted_at": 1789750364.5196497,
-        "fen_before": "5r1k/6p1/7q/1p2BRp1/1P2b1P1/R1P5/3Q4/6K1 b - - 2 40",
+        "accepted_at": 1789750381.787728,
+        "fen_before": "5r1k/6p1/8/1p2BRp1/1P2b1P1/R1P5/3Q1K2/7q b - - 4 41",
         "expected": {
-          "uci": "h6h1",
-          "san": "Qh1+",
+          "uci": "e4f5",
+          "san": "Bxf5",
           "color": "black"
         },
-        "accepted_uci": "h6h1"
+        "accepted_uci": "e4f5"
       }
     ],
     "accepted_solution_moves": [
@@ -170,6 +170,11 @@
         "san": "Qh1+",
         "uci": "h6h1",
         "principal": true
+      },
+      {
+        "san": "Bxf5",
+        "uci": "e4f5",
+        "principal": true
       }
     ],
     "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kf2",
@@ -177,7 +182,7 @@
       "442597396195704832": 1
     }
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-18",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-18",
