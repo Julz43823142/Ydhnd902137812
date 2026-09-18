@@ -3850,4 +3850,3923 @@
       "number": 5,
       "kind": "ide",
       "title": "BUY STUFF WITH CHANNELPOINTS AND ADD CHESSLE TO MINIGAMES AND THIS IS A TEST MESSAGE TO CHECK THE M",
-      
+      "details": "BUY STUFF WITH CHANNELPOINTS AND ADD CHESSLE TO MINIGAMES AND THIS IS A TEST MESSAGE TO CHECK THE MAX AMOUNT OF CHARACTERS IN THE SHORT TITLE",
+      "area": "Not specified",
+      "reporter_id": "362606514764251137",
+      "reporter_name": "Sharkmeister",
+      "status": "submitted",
+      "created_at": 1788870691.7030482,
+      "channel_id": 1546831642193170472,
+      "message_id": "1546860539148369992",
+      "thread_id": "1546860539148369992"
+    },
+    "ticket-006": {
+      "ticket_id": "ticket-006",
+      "number": 6,
+      "title": "Buy stuff with channelpoints",
+      "reporter_id": "362606514764251137",
+      "reporter_name": "Sharkmeister",
+      "status": "planned",
+      "created_at": 1788870976.7213957,
+      "channel_id": 1546831642193170472,
+      "message_id": "1546861734445326351",
+      "thread_id": "1546861734445326351",
+      "updated_at": 1788871066.2426639,
+      "updated_by_id": "362606514764251137",
+      "updated_by_name": "Sharkmeister"
+    },
+    "ticket-007": {
+      "ticket_id": "ticket-007",
+      "number": 7,
+      "title": "Add chessle to minigames",
+      "reporter_id": "362606514764251137",
+      "reporter_name": "Sharkmeister",
+      "status": "planned",
+      "created_at": 1788871055.4263062,
+      "channel_id": 1546831642193170472,
+      "message_id": "1546862064692101183",
+      "thread_id": "1546862064692101183",
+      "updated_at": 1788871072.4035506,
+      "updated_by_id": "362606514764251137",
+      "updated_by_name": "Sharkmeister"
+    },
+    "ticket-008": {
+      "ticket_id": "ticket-008",
+      "number": 8,
+      "title": "Buy stuff with channelpoints",
+      "reporter_id": "362606514764251137",
+      "reporter_name": "Sharkmeister",
+      "status": "planned",
+      "created_at": 1788871878.0874102,
+      "channel_id": 1546831642193170472,
+      "message_id": "1546865516189188117",
+      "thread_id": "1546865516189188117",
+      "updated_at": 1788871956.3967135,
+      "updated_by_id": "362606514764251137",
+      "updated_by_name": "Sharkmeister"
+    },
+    "ticket-009": {
+      "ticket_id": "ticket-009",
+      "number": 9,
+      "title": "Buy stuff with channelpoints",
+      "reporter_id": "362606514764251137",
+      "reporter_name": "Sharkmeister",
+      "status": "planned",
+      "created_at": 1788872475.8146038,
+      "channel_id": 1546831642193170472,
+      "message_id": "1546868023087079485",
+      "thread_id": "1546868023087079485",
+      "updated_at": 1788872545.6125345,
+      "updated_by_id": "362606514764251137",
+      "updated_by_name": "Sharkmeister"
+    },
+    "ticket-010": {
+      "ticket_id": "ticket-010",
+      "number": 10,
+      "title": "Add chessle to minigames",
+      "reporter_id": "362606514764251137",
+      "reporter_name": "Sharkmeister",
+      "status": "completed",
+      "created_at": 1788872496.7144446,
+      "channel_id": 1546831642193170472,
+      "message_id": "1546868110152433739",
+      "thread_id": "1546868110152433739",
+      "updated_at": 1788892436.8222113,
+      "updated_by_id": "362606514764251137",
+      "updated_by_name": "Sharkmeister"
+    },
+    "ticket-011": {
+      "ticket_id": "ticket-011",
+      "number": 11,
+      "title": "Daily's / Weekly's",
+      "reporter_id": "442597396195704832",
+      "reporter_name": "Thice",
+      "status": "completed",
+      "created_at": 1788888479.2805188,
+      "channel_id": 1546831642193170472,
+      "message_id": "1546935146035417172",
+      "thread_id": "1546935146035417172",
+      "updated_at": 1788896822.0833275,
+      "updated_by_id": "362606514764251137",
+      "updated_by_name": "Sharkmeister"
+    },
+    "ticket-012": {
+      "ticket_id": "ticket-012",
+      "number": 12,
+      "title": "Show wrong answers in Puzzles",
+      "reporter_id": "442597396195704832",
+      "reporter_name": "Thice",
+      "status": "completed",
+      "created_at": 1788889033.7619057,
+      "channel_id": 1546831642193170472,
+      "message_id": "1546937471747629182",
+      "thread_id": "1546937471747629182",
+      "updated_at": 1788896833.935311,
+      "updated_by_id": "362606514764251137",
+      "updated_by_name": "Sharkmeister"
+    },
+    "ticket-013": {
+      "ticket_id": "ticket-013",
+      "number": 13,
+      "title": "Make the escape room more diverse (with different activities) and more challenging (maybe more complex math patterns and other stuff)",
+      "reporter_id": "601406103712170014",
+      "reporter_name": "TheMakina",
+      "status": "completed",
+      "created_at": 1788903030.1772158,
+      "channel_id": 1546831642193170472,
+      "message_id": "1546996176962850907",
+      "thread_id": "1546996176962850907",
+      "updated_at": 1788956073.6762693,
+      "updated_by_id": "362606514764251137",
+      "updated_by_name": "Sharkmeister"
+    },
+    "ticket-014": {
+      "ticket_id": "ticket-014",
+      "number": 14,
+      "title": "Multiple solutions not (always) working in rp",
+      "reporter_id": "442597396195704832",
+      "reporter_name": "Thice",
+      "status": "completed",
+      "created_at": 1788903534.0923374,
+      "channel_id": 1546831642193170472,
+      "message_id": "1546998290359394379",
+      "thread_id": "1546998290359394379",
+      "updated_at": 1788956081.5483506,
+      "updated_by_id": "362606514764251137",
+      "updated_by_name": "Sharkmeister"
+    }
+  },
+  "bot_ideas_ticket_counter_v1": 14,
+  "bot_ideas_idle_v1": {
+    "last_activity_at": 1788998113.2606084,
+    "reminder_sent": true,
+    "reminder_message_id": "1547402591720443978",
+    "tickets_since_prompt": 0
+  },
+  "bot_ideas_panel_message_id_v1": "1546854821351395401",
+  "open_shop_trades_v1": {
+    "open-shop:1546904661850853406:442597396195704832": {
+      "trade_id": "open-shop:1546904661850853406:442597396195704832",
+      "seller_id": "442597396195704832",
+      "seller_name": "Thice",
+      "offer": {
+        "type": "badge",
+        "badge": "🐲"
+      },
+      "request": {
+        "type": "coins",
+        "amount": 144.0
+      },
+      "status": "open",
+      "created_at": 1788881211.8420987,
+      "guild_id": 1298908892507410462,
+      "channel_id": 1468320170891022417,
+      "message_id": "1546904666246217739"
+    },
+    "open-shop:1546906359193280562:442597396195704832": {
+      "trade_id": "open-shop:1546906359193280562:442597396195704832",
+      "seller_id": "442597396195704832",
+      "seller_name": "Thice",
+      "offer": {
+        "type": "badge",
+        "badge": "🍅"
+      },
+      "request": {
+        "type": "coins",
+        "amount": 50.0
+      },
+      "status": "open",
+      "created_at": 1788881616.9821978,
+      "guild_id": 1298908892507410462,
+      "channel_id": 1468320170891022417,
+      "message_id": "1546906362959761500"
+    },
+    "open-shop:1546906507872960586:442597396195704832": {
+      "trade_id": "open-shop:1546906507872960586:442597396195704832",
+      "seller_id": "442597396195704832",
+      "seller_name": "Thice",
+      "offer": {
+        "type": "badge",
+        "badge": "🥷"
+      },
+      "request": {
+        "type": "coins",
+        "amount": 87.0
+      },
+      "status": "open",
+      "created_at": 1788881651.9734285,
+      "guild_id": 1298908892507410462,
+      "channel_id": 1468320170891022417,
+      "message_id": "1546906509424984119"
+    },
+    "open-shop:1546906563816591380:442597396195704832": {
+      "trade_id": "open-shop:1546906563816591380:442597396195704832",
+      "seller_id": "442597396195704832",
+      "seller_name": "Thice",
+      "offer": {
+        "type": "coins",
+        "amount": 25.0
+      },
+      "request": {
+        "type": "coins",
+        "amount": 40.0
+      },
+      "status": "cancelled",
+      "created_at": 1788881665.379266,
+      "guild_id": 1298908892507410462,
+      "channel_id": 1468320170891022417,
+      "message_id": "1546906565901160470",
+      "closed_at": 1788881702.781091,
+      "cancelled_by": "362606514764251137"
+    },
+    "open-shop:1546907458088206456:442597396195704832": {
+      "trade_id": "open-shop:1546907458088206456:442597396195704832",
+      "seller_id": "442597396195704832",
+      "seller_name": "Thice",
+      "offer": {
+        "type": "coins",
+        "amount": 3.0
+      },
+      "request": {
+        "type": "coins",
+        "amount": 2.67
+      },
+      "status": "cancelled",
+      "created_at": 1788881878.6312332,
+      "guild_id": 1298908892507410462,
+      "channel_id": 1468320170891022417,
+      "message_id": "1546907468557189241",
+      "closed_at": 1788881962.840956,
+      "cancelled_by": "362606514764251137"
+    },
+    "open-shop:1546958656342589510:442597396195704832": {
+      "trade_id": "open-shop:1546958656342589510:442597396195704832",
+      "seller_id": "442597396195704832",
+      "seller_name": "Thice",
+      "offer": {
+        "type": "coins",
+        "amount": 1.0
+      },
+      "request": {
+        "type": "coins",
+        "amount": 100.0
+      },
+      "status": "cancelled",
+      "created_at": 1788894085.3776603,
+      "guild_id": 1298908892507410462,
+      "channel_id": 1468320170891022417,
+      "message_id": "1546958659790311539",
+      "closed_at": 1788894098.4351168,
+      "cancelled_by": "362606514764251137"
+    }
+  },
+  "puzzle_rush_mistake_reviews_v1": {
+    "rush:442597396195704832:1788899354763": {
+      "run_id": "rush:442597396195704832:1788899354763",
+      "user_id": "442597396195704832",
+      "name": "Thice",
+      "ended_at": 1788899656.3768315,
+      "mistakes": [
+        {
+          "puzzle_number": 1,
+          "submitted": "fxe3",
+          "correct": "Bb5",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_5dyHh_1788899354770",
+            "fen": "r3kb1r/pp1q1ppp/4p3/2P2b2/1Q6/4n3/PP2BPPP/R4RK1 w kq - 0 15",
+            "current_fen": "r3kb1r/pp1q1ppp/4p3/2P2b2/1Q6/4n3/PP2BPPP/R4RK1 w kq - 0 15",
+            "last_move_uci": "c4e3",
+            "player_color": "white",
+            "rating": 1212,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1788899359.8525057
+        }
+      ]
+    },
+    "rush:601406103712170014:1788899674552": {
+      "run_id": "rush:601406103712170014:1788899674552",
+      "user_id": "601406103712170014",
+      "name": "TheMakina",
+      "ended_at": 1788899686.9222615,
+      "mistakes": [
+        {
+          "puzzle_number": 2,
+          "submitted": "Qa2",
+          "correct": "Qa3+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_d8wI2_1788899679457",
+            "fen": "2k4r/pp2qpp1/2p1p3/1r2P2P/3P4/2P4P/P1Q4B/2KR2R1 b - - 6 26",
+            "current_fen": "2k4r/pp2qpp1/2p1p3/1r2P2P/3P4/2P4P/P1Q4B/2KR2R1 b - - 6 26",
+            "last_move_uci": "b2c2",
+            "player_color": "black",
+            "rating": 1274,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1788899684.0479984
+        }
+      ]
+    },
+    "rush:601406103712170014:1788899693500": {
+      "run_id": "rush:601406103712170014:1788899693500",
+      "user_id": "601406103712170014",
+      "name": "TheMakina",
+      "ended_at": 1788899721.4467072,
+      "mistakes": [
+        {
+          "puzzle_number": 2,
+          "submitted": "Rf1",
+          "correct": "e6",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_Tce5U_1788899698884",
+            "fen": "8/p1bn2p1/1p2k2p/2p1Pr2/3p4/6B1/PP4KP/4RR2 w - - 2 34",
+            "current_fen": "8/p1bn2p1/1p5p/2p1Pk2/3p4/6B1/PP4KP/4R3 w - - 0 35",
+            "last_move_uci": "e6f5",
+            "player_color": "white",
+            "rating": 1232,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1788899713.3018136
+        }
+      ]
+    },
+    "rush:601406103712170014:1788899725024": {
+      "run_id": "rush:601406103712170014:1788899725024",
+      "user_id": "601406103712170014",
+      "name": "TheMakina",
+      "ended_at": 1788900007.750822,
+      "mistakes": [
+        {
+          "puzzle_number": 3,
+          "submitted": "Qh5",
+          "correct": "Qf2#",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_4GCPe_1788899743300",
+            "fen": "r1b2rk1/pp5p/3p2pn/4B3/4P2q/3B3P/PP1NK1P1/R2Q3R b - - 0 17",
+            "current_fen": "r1b2rk1/pp5p/3p2pn/4B3/4P2q/3B3P/PP1NK1P1/R2Q3R b - - 0 17",
+            "last_move_uci": "d4e5",
+            "player_color": "black",
+            "rating": 1256,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1788899753.157735
+        },
+        {
+          "puzzle_number": 10,
+          "submitted": "Rh8",
+          "correct": "Rxg6+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_hDITN_1788899811488",
+            "fen": "6k1/2p2p2/p4PnR/1p1P2P1/5r2/4rPK1/PPP5/7R w - - 3 35",
+            "current_fen": "6k1/2p2p2/p4PnR/1p1P2P1/5r2/4rPK1/PPP5/7R w - - 3 35",
+            "last_move_uci": "e8e3",
+            "player_color": "white",
+            "rating": 1561,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1788899819.3234165
+        },
+        {
+          "puzzle_number": 21,
+          "submitted": "h6",
+          "correct": "h4",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_Jb8MT_1788899998242",
+            "fen": "8/7p/1Pk5/2P5/3Pp3/8/2K5/8 b - - 0 45",
+            "current_fen": "8/8/1Pk5/2P4p/3Pp3/8/3K4/8 b - - 1 46",
+            "last_move_uci": "c2d2",
+            "player_color": "black",
+            "rating": 1893,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1788900006.9253042
+        }
+      ]
+    },
+    "rush:601406103712170014:1788900026616": {
+      "run_id": "rush:601406103712170014:1788900026616",
+      "user_id": "601406103712170014",
+      "name": "TheMakina",
+      "ended_at": 1788900074.4346066,
+      "mistakes": [
+        {
+          "puzzle_number": 4,
+          "submitted": "axb6",
+          "correct": "axb5+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_TQ04b_1788900057666",
+            "fen": "8/7R/ppkp4/4b3/KPP1P2p/R7/r7/8 b - - 2 54",
+            "current_fen": "8/7R/p1kp4/1P2b3/KP2P2p/R7/r7/8 b - - 0 55",
+            "last_move_uci": "c4b5",
+            "player_color": "black",
+            "rating": 1279,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1788900067.191072
+        }
+      ]
+    },
+    "rush:601406103712170014:1788900076311": {
+      "run_id": "rush:601406103712170014:1788900076311",
+      "user_id": "601406103712170014",
+      "name": "TheMakina",
+      "ended_at": 1788900088.3459826,
+      "mistakes": [
+        {
+          "puzzle_number": 1,
+          "submitted": "Qa5",
+          "correct": "Qb4+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_YOR7W_1788900076315",
+            "fen": "r3k2r/pp2qppp/2n2n2/1B1p4/5Bb1/4PN2/PPP2PPP/R2QK2R b KQkq - 2 10",
+            "current_fen": "r3k2r/pp2qppp/2n2n2/1B1p4/5Bb1/4PN2/PPP2PPP/R2QK2R b KQkq - 2 10",
+            "last_move_uci": "f1b5",
+            "player_color": "black",
+            "rating": 1224,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1788900081.1410291
+        },
+        {
+          "puzzle_number": 2,
+          "submitted": "Qxb5",
+          "correct": "Bxf7",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_syeqP_1788900081144",
+            "fen": "r2qrbk1/5Ppp/p2p1n2/1pp4b/3R4/1B3N1P/PP2QPP1/RNB3K1 b - - 0 16",
+            "current_fen": "r2qrbk1/5Ppp/p2p1n2/1pp4b/3R4/1B3N1P/PP2QPP1/RNB3K1 b - - 0 16",
+            "last_move_uci": "e6f7",
+            "player_color": "black",
+            "rating": 1238,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1788900083.9659252
+        }
+      ]
+    },
+    "rush:601406103712170014:1788900091075": {
+      "run_id": "rush:601406103712170014:1788900091075",
+      "user_id": "601406103712170014",
+      "name": "TheMakina",
+      "ended_at": 1788900258.497806,
+      "mistakes": [
+        {
+          "puzzle_number": 5,
+          "submitted": "Nhf6",
+          "correct": "Nhf3+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_5Jzvy_1788900139548",
+            "fen": "5r1k/6p1/2N2pqp/P2Qp1n1/7n/2P3P1/1P3P1P/R4RK1 b - - 0 31",
+            "current_fen": "5r1k/6p1/2N2pqp/P2Qp1n1/7n/2P3P1/1P3P1P/R4RK1 b - - 0 31",
+            "last_move_uci": "g2g3",
+            "player_color": "black",
+            "rating": 1314,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1788900166.5155487
+        },
+        {
+          "puzzle_number": 12,
+          "submitted": "Be3",
+          "correct": "Qf4+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_0miBz_1788900246177",
+            "fen": "r1b2rk1/1pqpBppp/p3p3/2b4n/2Q1P3/1BN5/PPP2PPP/2KR3R b - - 1 12",
+            "current_fen": "r1b2rk1/1pqpBppp/p3p3/2b4n/2Q1P3/1BN5/PPP2PPP/2KR3R b - - 1 12",
+            "last_move_uci": "g5e7",
+            "player_color": "black",
+            "rating": 1595,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1788900253.6684914
+        },
+        {
+          "puzzle_number": 13,
+          "submitted": "Qxc4",
+          "correct": "Rh6+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_EPW5R_1788900253674",
+            "fen": "rr6/3R4/1qp1pnk1/6p1/2B1P3/p1Q2P2/1PP5/2K4R w - - 2 31",
+            "current_fen": "rr6/3R4/1qp1pnk1/6p1/2B1P3/p1Q2P2/1PP5/2K4R w - - 2 31",
+            "last_move_uci": "g7g6",
+            "player_color": "white",
+            "rating": 1564,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1788900257.3647456
+        }
+      ]
+    },
+    "rush:442597396195704832:1788956869990": {
+      "run_id": "rush:442597396195704832:1788956869990",
+      "user_id": "442597396195704832",
+      "name": "Thice",
+      "ended_at": 1788957137.3858752,
+      "mistakes": [
+        {
+          "puzzle_number": 3,
+          "submitted": "re2",
+          "correct": "Qxg5+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_AZQKP_1788956888311",
+            "fen": "1k6/1p5q/p3p3/2Q1PpR1/2P1r3/1PB3K1/P7/8 b - - 2 43",
+            "current_fen": "1k6/1p6/p3p3/2Q1PpR1/2P1r2q/1PB5/P5K1/8 b - - 4 44",
+            "last_move_uci": "g3g2",
+            "player_color": "black",
+            "rating": 1257,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1788956896.52646
+        },
+        {
+          "puzzle_number": 13,
+          "submitted": "bf4",
+          "correct": "h3",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_3pA0z_1788957000903",
+            "fen": "r2qk2r/3p1ppp/b1p3n1/4n3/4P3/P1N5/1PB1NbPP/R1BQR1K1 w kq - 0 16",
+            "current_fen": "r3k2r/3p1ppp/b1p3n1/8/4P1nq/P1N5/1PB1N1PP/R1BQR1K1 w kq - 3 18",
+            "last_move_uci": "d8h4",
+            "player_color": "white",
+            "rating": 1610,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1788957018.6885648
+        },
+        {
+          "puzzle_number": 17,
+          "submitted": "nh2",
+          "correct": "Nxe1",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_itIVo_1788957080582",
+            "fen": "1r4k1/r2b4/3p4/PP1Pp1p1/4PpPn/1NR1qP2/4BR2/4Q1K1 b - - 4 36",
+            "current_fen": "1r4k1/r2b4/3p4/PP1Pp1p1/4PpP1/1NR1qn2/4BR2/4QK2 b - - 1 37",
+            "last_move_uci": "g1f1",
+            "player_color": "black",
+            "rating": 1804,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1788957136.2176342
+        }
+      ]
+    },
+    "rush:601406103712170014:1788957609671": {
+      "run_id": "rush:601406103712170014:1788957609671",
+      "user_id": "601406103712170014",
+      "name": "TheMakina",
+      "ended_at": 1788957619.76973,
+      "mistakes": [
+        {
+          "puzzle_number": 1,
+          "submitted": "Qe1",
+          "correct": "Qg1#",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_JtjsE_1788957609675",
+            "fen": "8/6pk/3P2n1/p3PQ2/Pp4P1/4qRKP/8/8 b - - 4 43",
+            "current_fen": "8/6pk/3P2n1/p3PQ2/Pp4P1/4qRKP/8/8 b - - 4 43",
+            "last_move_uci": "f1f3",
+            "player_color": "black",
+            "rating": 1216,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1788957615.0994856
+        }
+      ]
+    },
+    "rush:601406103712170014:1788957622255": {
+      "run_id": "rush:601406103712170014:1788957622255",
+      "user_id": "601406103712170014",
+      "name": "TheMakina",
+      "ended_at": 1788957822.829151,
+      "mistakes": [
+        {
+          "puzzle_number": 9,
+          "submitted": "qh1",
+          "correct": "Rxg7+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_Duv8F_1788957714633",
+            "fen": "r5k1/5Rbp/6p1/ppB5/8/1P5P/1r4P1/5RK1 w - - 1 34",
+            "current_fen": "r5k1/5Rbp/6p1/ppB5/8/1P5P/1r4P1/5RK1 w - - 1 34",
+            "last_move_uci": "a2b2",
+            "player_color": "white",
+            "rating": 1527,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1788957716.9611852
+        },
+        {
+          "puzzle_number": 17,
+          "submitted": "kxe3",
+          "correct": "fxe3",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_AQSBr_1788957812068",
+            "fen": "8/7p/5N2/2p5/2P2p1P/1P1kR3/PK6/2r5 b - - 0 42",
+            "current_fen": "8/7p/5N2/2p5/2P2p1P/1P1kR3/PK6/2r5 b - - 0 42",
+            "last_move_uci": "e2e3",
+            "player_color": "black",
+            "rating": 1770,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1788957818.474456
+        },
+        {
+          "puzzle_number": 18,
+          "submitted": "f3",
+          "correct": "gxf4",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_P76Dh_1788957818479",
+            "fen": "8/1p1k4/p2P4/P2K2pp/5p2/6PP/1P6/8 w - - 0 39",
+            "current_fen": "8/1p1k4/p2P4/P2K2pp/5p2/6PP/1P6/8 w - - 0 39",
+            "last_move_uci": "f5f4",
+            "player_color": "white",
+            "rating": 1819,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1788957820.71883
+        }
+      ]
+    },
+    "rush:601406103712170014:1788958939198": {
+      "run_id": "rush:601406103712170014:1788958939198",
+      "user_id": "601406103712170014",
+      "name": "TheMakina",
+      "ended_at": 1788958951.2990701,
+      "mistakes": [
+        {
+          "puzzle_number": 1,
+          "submitted": "qh1",
+          "correct": "Qg1#",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_6uwpQ_1788958939202",
+            "fen": "2kr4/1pp1Q2p/p5p1/8/8/2P5/PPP1R1Pq/4K3 b - - 1 26",
+            "current_fen": "2kr4/1pp1Q2p/p5p1/8/8/2P5/PPP1R1Pq/4K3 b - - 1 26",
+            "last_move_uci": "a3e7",
+            "player_color": "black",
+            "rating": 1229,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1788958945.2469075
+        }
+      ]
+    },
+    "rush:442597396195704832:1788958952713": {
+      "run_id": "rush:442597396195704832:1788958952713",
+      "user_id": "442597396195704832",
+      "name": "Thice",
+      "ended_at": 1788959050.3127863,
+      "mistakes": [
+        {
+          "puzzle_number": 4,
+          "submitted": "nh6",
+          "correct": "Qxg7#",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_cvOZs_1788958977780",
+            "fen": "1r2rb1k/1np2p1p/p3qp1B/1p2PNQ1/8/PP5P/2P2PP1/4R1K1 w - - 0 26",
+            "current_fen": "1r2r2k/1np2pbp/p3qp2/1p2PNQ1/8/PP5P/2P2PP1/4R1K1 w - - 0 27",
+            "last_move_uci": "f8g7",
+            "player_color": "white",
+            "rating": 1356,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1788958987.0943632
+        },
+        {
+          "puzzle_number": 7,
+          "submitted": "rxa8",
+          "correct": "Rb1#",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_rMFTP_1788959029549",
+            "fen": "Qr3r1k/3R2bp/p2Rp1b1/P1N5/2P3pP/B3PnP1/4BP2/2K5 b - - 0 34",
+            "current_fen": "Qr3r1k/3R2bp/p2Rp1b1/P1N5/2P3pP/B3PnP1/4BP2/2K5 b - - 0 34",
+            "last_move_uci": "b7a8",
+            "player_color": "black",
+            "rating": 1391,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1788959036.8126395
+        },
+        {
+          "puzzle_number": 8,
+          "submitted": "cxd3",
+          "correct": "Bh6",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_tbHuX_1788959036818",
+            "fen": "2rr2k1/2q2p2/p3pQp1/4P1B1/1p6/3b4/PPP3PP/R5K1 w - - 0 29",
+            "current_fen": "2rr2k1/2q2p2/p3pQp1/4P1B1/1p6/3b4/PPP3PP/R5K1 w - - 0 29",
+            "last_move_uci": "c4d3",
+            "player_color": "white",
+            "rating": 1401,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1788959049.0525858
+        }
+      ]
+    },
+    "rush:601406103712170014:1788958954014": {
+      "run_id": "rush:601406103712170014:1788958954014",
+      "user_id": "601406103712170014",
+      "name": "TheMakina",
+      "ended_at": 1788959167.7566612,
+      "mistakes": [
+        {
+          "puzzle_number": 8,
+          "submitted": "nxd2",
+          "correct": "Nexd2",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_kfgCH_1788959025625",
+            "fen": "4r1k1/5p1p/p5p1/q1bp1b2/4nB2/2N2N2/PPPQ2PP/2KR4 w - - 2 21",
+            "current_fen": "4r1k1/5p1p/p5p1/2bp1b2/4NB2/5N2/PPPq2PP/2KR4 w - - 0 22",
+            "last_move_uci": "a5d2",
+            "player_color": "white",
+            "rating": 1516,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1788959034.411888
+        },
+        {
+          "puzzle_number": 14,
+          "submitted": "nxe4",
+          "correct": "Ng4+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_iZW3A_1788959113627",
+            "fen": "4r3/8/5n2/5P1p/3nP3/2R1R3/3k1KPP/8 b - - 16 41",
+            "current_fen": "4r3/8/5n2/5P1p/3nP3/2R1R3/3k1KPP/8 b - - 16 41",
+            "last_move_uci": "c7c3",
+            "player_color": "black",
+            "rating": 1685,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1788959125.0518563
+        },
+        {
+          "puzzle_number": 15,
+          "submitted": "ne7",
+          "correct": "Nxg7",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_Wm6nT_1788959125056",
+            "fen": "5rk1/1pp3q1/1pbp3p/5N2/1P6/P7/5QPP/6K1 w - - 0 32",
+            "current_fen": "6k1/1pp2rq1/1pbp3p/5N2/1P6/P7/Q5PP/6K1 w - - 2 33",
+            "last_move_uci": "f8f7",
+            "player_color": "white",
+            "rating": 1727,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1788959166.650423
+        }
+      ]
+    },
+    "rush:442597396195704832:1788959127713": {
+      "run_id": "rush:442597396195704832:1788959127713",
+      "user_id": "442597396195704832",
+      "name": "Thice",
+      "ended_at": 1788959375.6330583,
+      "mistakes": [
+        {
+          "puzzle_number": 10,
+          "submitted": "rxh7",
+          "correct": "Qxg6+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_HiTZP_1788959256970",
+            "fen": "4r1k1/1pp1r2p/p2pNnp1/3P4/8/4q3/PPP3Q1/1K4RR w - - 4 27",
+            "current_fen": "4r1k1/1pp1r2p/p2pNnp1/3P4/8/4q3/PPP3Q1/1K4RR w - - 4 27",
+            "last_move_uci": "d7f6",
+            "player_color": "white",
+            "rating": 1566,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1788959262.5287302
+        },
+        {
+          "puzzle_number": 14,
+          "submitted": "re1",
+          "correct": "Qh4+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_UhY9r_1788959301896",
+            "fen": "4r2k/pR5p/2p2n2/5p2/5q2/2Q5/PP4R1/7K b - - 2 32",
+            "current_fen": "4r2k/pR5p/2p2n2/5p2/5q2/2Q5/PP4R1/7K b - - 2 32",
+            "last_move_uci": "h3c3",
+            "player_color": "black",
+            "rating": 1636,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1788959307.6195242
+        },
+        {
+          "puzzle_number": 17,
+          "submitted": "qf4",
+          "correct": "Rd8+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_HBzAi_1788959358664",
+            "fen": "1r2k3/p4p1r/2p1p3/4P1p1/Nq4P1/bPQ4P/P2K1P2/3R3R b - - 0 24",
+            "current_fen": "1r2k3/p4p1r/2p1p3/4P1p1/Nq4P1/bPQ4P/P2K1P2/3R3R b - - 0 24",
+            "last_move_uci": "f3c3",
+            "player_color": "black",
+            "rating": 1792,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1788959374.425586
+        }
+      ]
+    },
+    "rush:601406103712170014:1788959179013": {
+      "run_id": "rush:601406103712170014:1788959179013",
+      "user_id": "601406103712170014",
+      "name": "TheMakina",
+      "ended_at": 1788959452.734188,
+      "mistakes": [
+        {
+          "puzzle_number": 19,
+          "submitted": "xf5",
+          "correct": "Nxf5+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_Im1Dc_1788959430779",
+            "fen": "r7/1R5p/3N2pk/P2R1p2/4pP1b/7P/r4P2/6K1 w - - 1 46",
+            "current_fen": "r7/1R5p/3N2pk/P2R1p2/4pP1b/7P/r4P2/6K1 w - - 1 46",
+            "last_move_uci": "f8a8",
+            "player_color": "white",
+            "rating": 1889,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1788959440.3027396
+        },
+        {
+          "puzzle_number": 20,
+          "submitted": "nxf5",
+          "correct": "b2",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_DC9tt_1788959440307",
+            "fen": "8/8/3k4/4p3/2p1P3/1p3K2/8/R7 b - - 1 69",
+            "current_fen": "8/8/3k4/4p3/2p1P3/1p3K2/8/R7 b - - 1 69",
+            "last_move_uci": "g4f3",
+            "player_color": "black",
+            "rating": 1898,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1788959442.4655416
+        },
+        {
+          "puzzle_number": 21,
+          "submitted": "kg2",
+          "correct": "Bf1",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_Zd1XK_1788959442470",
+            "fen": "8/7p/1pbk2p1/p2p1p2/3P1P1P/1P1B2P1/P2R1K2/7r w - - 3 45",
+            "current_fen": "8/7p/1pbk2p1/p2p1p2/3P1P1P/1P1B2P1/P2R1K2/7r w - - 3 45",
+            "last_move_uci": "e1h1",
+            "player_color": "white",
+            "rating": 1933,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1788959451.4910948
+        }
+      ]
+    },
+    "rush:601406103712170014:1788959787704": {
+      "run_id": "rush:601406103712170014:1788959787704",
+      "user_id": "601406103712170014",
+      "name": "TheMakina",
+      "ended_at": 1788959881.1588364,
+      "mistakes": [
+        {
+          "puzzle_number": 7,
+          "submitted": "1e1",
+          "correct": "Qe1+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_Sii6G_1788959851159",
+            "fen": "5q1k/6p1/7p/8/8/P2Q4/3p2PP/6K1 b - - 1 41",
+            "current_fen": "7k/6p1/7p/8/8/P2Q4/3pK1PP/2q5 b - - 5 43",
+            "last_move_uci": "f1e2",
+            "player_color": "black",
+            "rating": 1463,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1788959871.0557585
+        },
+        {
+          "puzzle_number": 8,
+          "submitted": "qe1",
+          "correct": "Qxb7",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_RujQ4_1788959871060",
+            "fen": "3r4/pn2q2k/1p1Nnpp1/1P1Qp2p/P7/2P1N1PP/5P2/3R2K1 w - - 1 36",
+            "current_fen": "3r4/pn2q2k/1p1Nnpp1/1P1Qp2p/P7/2P1N1PP/5P2/3R2K1 w - - 1 36",
+            "last_move_uci": "a5b7",
+            "player_color": "white",
+            "rating": 1450,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1788959872.7462428
+        }
+      ]
+    },
+    "rush:601406103712170014:1788959889919": {
+      "run_id": "rush:601406103712170014:1788959889919",
+      "user_id": "601406103712170014",
+      "name": "TheMakina",
+      "ended_at": 1788959930.0669317,
+      "mistakes": [
+        {
+          "puzzle_number": 1,
+          "submitted": "qce4",
+          "correct": "Qxe4+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_YVKxa_1788959889923",
+            "fen": "r7/6Q1/3kqp2/p2pN3/1r1P1P2/4P3/Pp6/1K4RR b - - 1 32",
+            "current_fen": "r7/6Q1/3k1p2/p2pNq2/1r1PPP2/8/Pp6/1K4RR b - - 0 33",
+            "last_move_uci": "e3e4",
+            "player_color": "black",
+            "rating": 1234,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1788959899.3613102
+        },
+        {
+          "puzzle_number": 2,
+          "submitted": "qxe4",
+          "correct": "Nxd4",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_uXcIO_1788959899365",
+            "fen": "3rq2r/2p3kp/1pnb1pp1/1B6/1P1R4/1QP1B2P/P4PP1/R5K1 b - - 2 24",
+            "current_fen": "3rq2r/2p3kp/1pnb1pp1/1B6/1P1R4/1QP1B2P/P4PP1/R5K1 b - - 2 24",
+            "last_move_uci": "e2b5",
+            "player_color": "black",
+            "rating": 1243,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1788959900.9627967
+        }
+      ]
+    },
+    "rush:601406103712170014:1788959958266": {
+      "run_id": "rush:601406103712170014:1788959958266",
+      "user_id": "601406103712170014",
+      "name": "TheMakina",
+      "ended_at": 1788960046.461843,
+      "mistakes": [
+        {
+          "puzzle_number": 6,
+          "submitted": "nxd1",
+          "correct": "Rd1",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_OgQTH_1788960019419",
+            "fen": "3r2k1/ppp1rp2/2p3pp/8/2PqP3/1P2NQB1/P4P2/R4K2 w - - 0 25",
+            "current_fen": "3r2k1/ppp1rp2/2p3pp/8/2PqP3/1P2NQB1/P4P2/R4K2 w - - 0 25",
+            "last_move_uci": "d2d4",
+            "player_color": "white",
+            "rating": 1389,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1788960032.159145
+        },
+        {
+          "puzzle_number": 7,
+          "submitted": "rd1",
+          "correct": "Qc8+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_CMe1D_1788960032164",
+            "fen": "7k/1Q4p1/p3rb1p/8/7P/qP4P1/P4P2/3R2K1 w - - 0 30",
+            "current_fen": "7k/1Q4p1/p3rb1p/8/7P/qP4P1/P4P2/3R2K1 w - - 0 30",
+            "last_move_uci": "e8e6",
+            "player_color": "white",
+            "rating": 1383,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1788960034.7673898
+        }
+      ]
+    },
+    "rush:601406103712170014:1788960052751": {
+      "run_id": "rush:601406103712170014:1788960052751",
+      "user_id": "601406103712170014",
+      "name": "TheMakina",
+      "ended_at": 1788960360.1605349,
+      "mistakes": [
+        {
+          "puzzle_number": 17,
+          "submitted": "qh1",
+          "correct": "e2",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_zHxPd_1788960289539",
+            "fen": "8/1bR3pk/1p6/p7/3Pq1pp/1P2p3/P1Q4P/6K1 b - - 3 39",
+            "current_fen": "8/1bR3pk/1p6/p7/3Pq1pp/1P2p3/P1Q4P/6K1 b - - 3 39",
+            "last_move_uci": "e2c2",
+            "player_color": "black",
+            "rating": 1805,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1788960296.480843
+        }
+      ]
+    },
+    "rush:442597396195704832:1788962236847": {
+      "run_id": "rush:442597396195704832:1788962236847",
+      "user_id": "442597396195704832",
+      "name": "Thice",
+      "ended_at": 1788962427.42459,
+      "mistakes": [
+        {
+          "puzzle_number": 6,
+          "submitted": "rxh2",
+          "correct": "Rxa7+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_bZzrm_1788962296885",
+            "fen": "8/rk3p1p/2b1p3/8/3N4/8/6PP/R5K1 w - - 0 39",
+            "current_fen": "8/rk3p1p/2b1p3/8/3N4/8/6PP/R5K1 w - - 0 39",
+            "last_move_uci": "d5c6",
+            "player_color": "white",
+            "rating": 1384,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1788962301.2168918
+        },
+        {
+          "puzzle_number": 10,
+          "submitted": "qe5",
+          "correct": "Qd5+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_6xNcm_1788962336872",
+            "fen": "6k1/4R3/3P2p1/5p1p/5P2/1P1K2Q1/2P2q1P/5r2 b - - 1 35",
+            "current_fen": "6k1/4R3/3P2p1/1K3p1p/3q1P2/1P4Q1/2P4P/3r4 b - - 5 37",
+            "last_move_uci": "c4b5",
+            "player_color": "black",
+            "rating": 1501,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1788962354.4094625
+        },
+        {
+          "puzzle_number": 17,
+          "submitted": "qd6",
+          "correct": "Qe8#",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_dMSiw_1788962415357",
+            "fen": "1Q6/8/4k3/p1K1npP1/P7/7P/8/5q2 w - - 0 49",
+            "current_fen": "1Q6/8/4k3/p1K1npP1/P7/7P/8/5q2 w - - 0 49",
+            "last_move_uci": "f2f1q",
+            "player_color": "white",
+            "rating": 1783,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1788962426.226621
+        }
+      ]
+    },
+    "rush:442597396195704832:1788986388737": {
+      "run_id": "rush:442597396195704832:1788986388737",
+      "user_id": "442597396195704832",
+      "name": "Thice",
+      "ended_at": 1788986650.8773346,
+      "mistakes": [
+        {
+          "puzzle_number": 5,
+          "submitted": "rd8",
+          "correct": "Qd8#",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_qDYLV_1788986420512",
+            "fen": "rnb1k3/ppp1ppb1/6pr/4q1N1/2B5/4B3/PPP2PP1/R2QK3 w Qq - 0 13",
+            "current_fen": "rnb2k2/ppp1pBb1/6pr/4q1N1/8/4B3/PPP2PP1/R2QK3 w Q - 1 14",
+            "last_move_uci": "e8f8",
+            "player_color": "white",
+            "rating": 1381,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1788986427.778211
+        },
+        {
+          "puzzle_number": 7,
+          "submitted": "qh5",
+          "correct": "Qxg7#",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_HXprt_1788986434752",
+            "fen": "r1b2r2/p4ppk/2p1N3/2qpnP2/6Q1/8/PPPBKbPP/R6R w - - 1 18",
+            "current_fen": "r1b2r2/p4ppk/2p1N3/2qpnP2/6Q1/8/PPPBKbPP/R6R w - - 1 18",
+            "last_move_uci": "h6h7",
+            "player_color": "white",
+            "rating": 1439,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1788986439.905477
+        },
+        {
+          "puzzle_number": 23,
+          "submitted": "qa8",
+          "correct": "Qa7",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_PLACe_1788986625522",
+            "fen": "r1b3k1/2q2p1p/p4bp1/1pp1r3/8/1P5P/P1B2PP1/R2QRNK1 w - - 0 22",
+            "current_fen": "Q7/1bq2pkp/p4bp1/1pp1r3/8/1P5P/P1B2PP1/R3RNK1 w - - 1 24",
+            "last_move_uci": "c8b7",
+            "player_color": "white",
+            "rating": 1976,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1788986646.4862454
+        }
+      ]
+    },
+    "rush:442597396195704832:1788987321184": {
+      "run_id": "rush:442597396195704832:1788987321184",
+      "user_id": "442597396195704832",
+      "name": "Thice",
+      "ended_at": 1788987623.190909,
+      "mistakes": [
+        {
+          "puzzle_number": 7,
+          "submitted": "h6",
+          "correct": "f4+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_2bGOl_1788987381048",
+            "fen": "8/8/4p3/4k1K1/7P/3n1P2/8/8 w - - 11 69",
+            "current_fen": "8/8/4p3/4k1KP/8/5P2/8/4n3 w - - 1 70",
+            "last_move_uci": "d3e1",
+            "player_color": "white",
+            "rating": 1401,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1788987392.0947368
+        },
+        {
+          "puzzle_number": 18,
+          "submitted": "hxg4",
+          "correct": "f5",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_BZK2H_1788987517768",
+            "fen": "2rbr1k1/pp4pp/1n1qPp1n/3p4/1PpP1PpN/2P1B2P/P3Q2R/R4NK1 w - - 0 25",
+            "current_fen": "2rbr1k1/pp4pp/1n1qPp1n/3p4/1PpP1PpN/2P1B2P/P3Q2R/R4NK1 w - - 0 25",
+            "last_move_uci": "f5g4",
+            "player_color": "white",
+            "rating": 1820,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1788987532.8797197
+        }
+      ]
+    },
+    "rush:601406103712170014:1789052945060": {
+      "run_id": "rush:601406103712170014:1789052945060",
+      "user_id": "601406103712170014",
+      "name": "TheMakina",
+      "ended_at": 1789053011.6366682,
+      "mistakes": [
+        {
+          "puzzle_number": 5,
+          "submitted": "Bxd6",
+          "correct": "Bxd5+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_R5Zgi_1789052992582",
+            "fen": "5rk1/pp1b4/3q2nr/3p1nN1/3Q2P1/PBP5/8/4RRK1 w - - 0 33",
+            "current_fen": "5rk1/pp1b4/3q2nr/3p1nN1/3Q2P1/PBP5/8/4RRK1 w - - 0 33",
+            "last_move_uci": "h4f5",
+            "player_color": "white",
+            "rating": 1387,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1789053004.1261878
+        }
+      ]
+    },
+    "rush:601406103712170014:1789053118028": {
+      "run_id": "rush:601406103712170014:1789053118028",
+      "user_id": "601406103712170014",
+      "name": "TheMakina",
+      "ended_at": 1789053199.22217,
+      "mistakes": [
+        {
+          "puzzle_number": 2,
+          "submitted": "g4",
+          "correct": "Nxd7",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_zLARh_1789053126964",
+            "fen": "r4rk1/ppqnbpp1/4p2p/3pn2b/3P4/4QN1P/PPBN1PP1/R1B1R1K1 w - - 0 16",
+            "current_fen": "r4rk1/pp1nbpp1/4p2p/3pN2b/3P4/4Q2P/PPqN1PP1/R1B1R1K1 w - - 0 17",
+            "last_move_uci": "c7c2",
+            "player_color": "white",
+            "rating": 1270,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1789053155.7619362
+        },
+        {
+          "puzzle_number": 6,
+          "submitted": "Qh2",
+          "correct": "Nxf7+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_ccgFr_1789053186409",
+            "fen": "r3r1k1/pp3pn1/2pq2p1/6N1/3p2P1/5N2/PPPQ1P2/2K4R w - - 0 24",
+            "current_fen": "r3r2k/pp3pn1/2pq2p1/6N1/3p2P1/5N2/PPPQ1P2/2K5 w - - 0 25",
+            "last_move_uci": "g8h8",
+            "player_color": "white",
+            "rating": 1327,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1789053195.801984
+        },
+        {
+          "puzzle_number": 7,
+          "submitted": "Qh7",
+          "correct": "Rxe3",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_6yvrh_1789053195807",
+            "fen": "4rrk1/pp5p/2p3p1/3q4/3P2QP/1P2b3/P2N4/4RRK1 w - - 0 24",
+            "current_fen": "4rrk1/pp5p/2p3p1/3q4/3P2QP/1P2b3/P2N4/4RRK1 w - - 0 24",
+            "last_move_uci": "h6e3",
+            "player_color": "white",
+            "rating": 1406,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1789053198.1128237
+        }
+      ]
+    },
+    "rush:601406103712170014:1789053204993": {
+      "run_id": "rush:601406103712170014:1789053204993",
+      "user_id": "601406103712170014",
+      "name": "TheMakina",
+      "ended_at": 1789053319.5195034,
+      "mistakes": [
+        {
+          "puzzle_number": 5,
+          "submitted": "Rf1",
+          "correct": "Rxc1",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_9ijKY_1789053269260",
+            "fen": "r5k1/PQ4bp/3p1p2/3Pp2p/1P2P3/4qR1P/6P1/R1r4K w - - 4 27",
+            "current_fen": "r5k1/PQ4bp/3p1p2/3Pp2p/1P2P3/4qR1P/6P1/R1r4K w - - 4 27",
+            "last_move_uci": "c8c1",
+            "player_color": "white",
+            "rating": 1318,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1789053281.081872
+        },
+        {
+          "puzzle_number": 8,
+          "submitted": "Qb3",
+          "correct": "Qd5+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_601406103712170014_9qsQO_1789053309553",
+            "fen": "rnbq1bkr/ppp3pp/3p4/4P1N1/6n1/2p5/PP3PPP/RNBQK2R w KQ - 2 9",
+            "current_fen": "rnbq1bkr/ppp3pp/3p4/4P1N1/6n1/2p5/PP3PPP/RNBQK2R w KQ - 2 9",
+            "last_move_uci": "f7g8",
+            "player_color": "white",
+            "rating": 1395,
+            "board_theme": "classic",
+            "piece_theme": "classic",
+            "arrow_theme": "green"
+          },
+          "recorded_at": 1789053314.4595573
+        }
+      ]
+    },
+    "rush:442597396195704832:1789147691114": {
+      "run_id": "rush:442597396195704832:1789147691114",
+      "user_id": "442597396195704832",
+      "name": "Thice",
+      "ended_at": 1789147898.069315,
+      "mistakes": [
+        {
+          "puzzle_number": 6,
+          "submitted": "qxe4",
+          "correct": "Rxg3",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_S3Mc1_1789147835886",
+            "fen": "6r1/1k1b1p2/5P1b/2pP4/1q2B3/6Np/1PP4P/5RQK b - - 0 31",
+            "current_fen": "6r1/1k1b1p2/5P1b/2pP4/1q2B3/6Np/1PP4P/5RQK b - - 0 31",
+            "last_move_uci": "f3e4",
+            "player_color": "black",
+            "rating": 1447,
+            "board_theme": "blue",
+            "piece_theme": "kiwen-suwi",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1789147853.3920887
+        }
+      ]
+    },
+    "rush:442597396195704832:1789577654962": {
+      "run_id": "rush:442597396195704832:1789577654962",
+      "user_id": "442597396195704832",
+      "name": "Thice",
+      "ended_at": 1789577948.394347,
+      "mistakes": [
+        {
+          "puzzle_number": 16,
+          "submitted": "qg3",
+          "correct": "Rg8",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_pDsDi_1789577811286",
+            "fen": "2k4r/2p4p/2p2p2/3p4/3P2P1/P1N1p1qP/2P1Q3/5R1K b - - 7 27",
+            "current_fen": "2k4r/2p4p/2p2p2/3p4/3P2P1/P1N1p2q/2P1Q3/5RK1 b - - 1 28",
+            "last_move_uci": "h1g1",
+            "player_color": "black",
+            "rating": 1816,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1789577821.7114887
+        },
+        {
+          "puzzle_number": 19,
+          "submitted": "ke5",
+          "correct": "f5",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_eg4yn_1789577849040",
+            "fen": "8/8/p5p1/1p6/1P3Pk1/P3K3/8/8 w - - 0 56",
+            "current_fen": "8/8/p5p1/1p6/1P2KP2/P5k1/8/8 w - - 2 57",
+            "last_move_uci": "g4g3",
+            "player_color": "white",
+            "rating": 1872,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1789577858.1290464
+        },
+        {
+          "puzzle_number": 23,
+          "submitted": "qd8",
+          "correct": "Qe6+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_ZDECU_1789577933937",
+            "fen": "6k1/6p1/1Q5p/8/P3pqP1/7P/6K1/8 w - - 0 55",
+            "current_fen": "6k1/6p1/1Q5p/8/P3pqP1/7P/6K1/8 w - - 0 55",
+            "last_move_uci": "e5e4",
+            "player_color": "white",
+            "rating": 1958,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1789577947.3734598
+        }
+      ]
+    },
+    "rush:442597396195704832:1789586791667": {
+      "run_id": "rush:442597396195704832:1789586791667",
+      "user_id": "442597396195704832",
+      "name": "Thice",
+      "ended_at": 1789587087.4073153,
+      "mistakes": [
+        {
+          "puzzle_number": 6,
+          "submitted": "rxf8",
+          "correct": "Qh6+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_QiLYA_1789586830462",
+            "fen": "5r1k/2r5/3p2Q1/1p2q3/5R2/7P/P1B3PK/8 w - - 5 45",
+            "current_fen": "5r1k/2r5/3p2Q1/1p2q3/5R2/7P/P1B3PK/8 w - - 5 45",
+            "last_move_uci": "g8h8",
+            "player_color": "white",
+            "rating": 1386,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1789586836.2643058
+        },
+        {
+          "puzzle_number": 19,
+          "submitted": "nf3",
+          "correct": "Bf8",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_9U6CH_1789587012197",
+            "fen": "4r2k/5rb1/2pQ3p/3bp3/1P1p1pPn/3P3P/3N3K/4RR2 b - - 7 34",
+            "current_fen": "4r2k/5rb1/2pQ3p/3bp3/1P1p1pPn/3P3P/3N3K/4RR2 b - - 7 34",
+            "last_move_uci": "d1e1",
+            "player_color": "black",
+            "rating": 1930,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1789587017.5589547
+        },
+        {
+          "puzzle_number": 24,
+          "submitted": "qxd4",
+          "correct": "Rxg2+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_fAosQ_1789587079454",
+            "fen": "3q1r1k/2p3p1/6Q1/4PpN1/3P4/3n3P/1r4P1/R3R1K1 b - - 2 28",
+            "current_fen": "3q1r1k/2p3p1/6Q1/4PpN1/3P4/3n3P/1r4P1/R3R1K1 b - - 2 28",
+            "last_move_uci": "f3g5",
+            "player_color": "black",
+            "rating": 1998,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1789587085.8003583
+        }
+      ]
+    },
+    "rush:442597396195704832:1789672710974": {
+      "run_id": "rush:442597396195704832:1789672710974",
+      "user_id": "442597396195704832",
+      "name": "Thice",
+      "ended_at": 1789672887.1709352,
+      "mistakes": [
+        {
+          "puzzle_number": 6,
+          "submitted": "ne4",
+          "correct": "Rdxc5",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_q7xIO_1789672752490",
+            "fen": "2r2rk1/5ppp/p3bq2/2bR4/8/P5QP/4BNP1/2R3K1 w - - 4 31",
+            "current_fen": "2r2rk1/5ppp/p3bq2/2bR4/8/P5QP/4BNP1/2R3K1 w - - 4 31",
+            "last_move_uci": "f5e6",
+            "player_color": "white",
+            "rating": 1362,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1789672759.2034214
+        },
+        {
+          "puzzle_number": 16,
+          "submitted": "be5",
+          "correct": "e2",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_h5mD6_1789672866030",
+            "fen": "8/6bk/4q1b1/2p3P1/3p1QP1/4p1PK/1P6/3B1R2 b - - 0 48",
+            "current_fen": "8/6bk/4q1b1/2p3P1/3p1QP1/4p1PK/1P6/3B1R2 b - - 0 48",
+            "last_move_uci": "h2h3",
+            "player_color": "black",
+            "rating": 1725,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1789672874.6667373
+        },
+        {
+          "puzzle_number": 17,
+          "submitted": "a4",
+          "correct": "Kf6",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_Le5AW_1789672874671",
+            "fen": "8/p2p4/2pP4/1pP1KP1p/1P5P/P5k1/b7/8 w - - 1 46",
+            "current_fen": "8/p2p4/2pP4/1pP1KP1p/1P5P/P5k1/b7/8 w - - 1 46",
+            "last_move_uci": "e6a2",
+            "player_color": "white",
+            "rating": 1766,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1789672886.185751
+        }
+      ]
+    }
+  },
+  "puzzle_racers_v1": {
+    "pending": {
+      "racer-challenge:menu:1547381792007524432:442597396195704832:601406103712170014": {
+        "id": "racer-challenge:menu:1547381792007524432:442597396195704832:601406103712170014",
+        "status": "accepted",
+        "challenger_id": "442597396195704832",
+        "challenger_name": "Thice",
+        "target_id": "601406103712170014",
+        "target_name": "TheMakina",
+        "channel_id": 1468320170891022417,
+        "minutes": 5,
+        "stake": 0,
+        "created_at": 1788994968.8074286,
+        "message_id": "1547381794637090869",
+        "closed_at": 1788995314.7008939
+      },
+      "racer-challenge:menu:1547384981666664458:601406103712170014:442597396195704832": {
+        "id": "racer-challenge:menu:1547384981666664458:601406103712170014:442597396195704832",
+        "status": "accepted",
+        "challenger_id": "601406103712170014",
+        "challenger_name": "TheMakina",
+        "target_id": "442597396195704832",
+        "target_name": "Thice",
+        "channel_id": 1468320170891022417,
+        "minutes": 3,
+        "stake": 0,
+        "created_at": 1788995728.862598,
+        "message_id": "1547384982828486738",
+        "closed_at": 1788995741.5186808
+      },
+      "racer-challenge:menu:1547621622410911794:442597396195704832:601406103712170014": {
+        "id": "racer-challenge:menu:1547621622410911794:442597396195704832:601406103712170014",
+        "status": "accepted",
+        "challenger_id": "442597396195704832",
+        "challenger_name": "Thice",
+        "target_id": "601406103712170014",
+        "target_name": "TheMakina",
+        "channel_id": 1468320170891022417,
+        "minutes": 5,
+        "stake": 0,
+        "created_at": 1789052148.5856318,
+        "message_id": "1547621624302280757",
+        "closed_at": 1789052165.1081886
+      },
+      "racer-challenge:menu:1547623235980361759:601406103712170014:442597396195704832": {
+        "id": "racer-challenge:menu:1547623235980361759:601406103712170014:442597396195704832",
+        "status": "accepted",
+        "challenger_id": "601406103712170014",
+        "challenger_name": "TheMakina",
+        "target_id": "442597396195704832",
+        "target_name": "Thice",
+        "channel_id": 1468320170891022417,
+        "minutes": 5,
+        "stake": 0,
+        "created_at": 1789052533.3066106,
+        "message_id": "1547623237956014143",
+        "closed_at": 1789052539.5698938
+      },
+      "racer-open:menu-open:1547639446483112007:442597396195704832": {
+        "id": "racer-open:menu-open:1547639446483112007:442597396195704832",
+        "kind": "open_lobby",
+        "status": "cancelled",
+        "challenger_id": "442597396195704832",
+        "challenger_name": "Thice",
+        "channel_id": 1468320170891022417,
+        "minutes": 3,
+        "stake": 0,
+        "players": [
+          {
+            "id": "442597396195704832",
+            "name": "Thice"
+          }
+        ],
+        "created_at": 1789056398.3460693,
+        "message_id": "1547639449226322001",
+        "closed_at": 1789056423.7492948
+      },
+      "racer-open:menu-open:1547640055558971522:362606514764251137": {
+        "id": "racer-open:menu-open:1547640055558971522:362606514764251137",
+        "kind": "open_lobby",
+        "status": "cancelled",
+        "challenger_id": "362606514764251137",
+        "challenger_name": "Sharkmeister",
+        "channel_id": 1468320170891022417,
+        "minutes": 3,
+        "stake": 0,
+        "players": [
+          {
+            "id": "362606514764251137",
+            "name": "Sharkmeister"
+          }
+        ],
+        "created_at": 1789056543.3237479,
+        "message_id": "1547640057282826311",
+        "closed_at": 1789056546.2248406
+      },
+      "racer-open:menu-open:1547640169518202880:362606514764251137": {
+        "id": "racer-open:menu-open:1547640169518202880:362606514764251137",
+        "kind": "open_lobby",
+        "status": "cancelled",
+        "challenger_id": "362606514764251137",
+        "challenger_name": "Sharkmeister",
+        "channel_id": 1546557493038284840,
+        "minutes": 3,
+        "stake": 0,
+        "players": [
+          {
+            "id": "362606514764251137",
+            "name": "Sharkmeister"
+          }
+        ],
+        "created_at": 1789056570.450006,
+        "message_id": "1547640171036545075",
+        "closed_at": 1789056609.5676565
+      },
+      "racer-open:menu-open:1547640923817775124:362606514764251137": {
+        "id": "racer-open:menu-open:1547640923817775124:362606514764251137",
+        "kind": "open_lobby",
+        "status": "started",
+        "challenger_id": "362606514764251137",
+        "challenger_name": "Sharkmeister",
+        "channel_id": 1546557493038284840,
+        "minutes": 3,
+        "stake": 0,
+        "players": [
+          {
+            "id": "362606514764251137",
+            "name": "Sharkmeister"
+          },
+          {
+            "id": "442597396195704832",
+            "name": "Thice"
+          }
+        ],
+        "created_at": 1789056750.3216298,
+        "message_id": "1547640925390643346",
+        "closed_at": 1789056778.7981436
+      },
+      "racer-open:menu-open:1547643593164980325:362606514764251137": {
+        "id": "racer-open:menu-open:1547643593164980325:362606514764251137",
+        "kind": "open_lobby",
+        "status": "cancelled",
+        "challenger_id": "362606514764251137",
+        "challenger_name": "Sharkmeister",
+        "channel_id": 1468320170891022417,
+        "minutes": 10,
+        "stake": 0,
+        "players": [
+          {
+            "id": "362606514764251137",
+            "name": "Sharkmeister"
+          }
+        ],
+        "created_at": 1789057386.7574806,
+        "message_id": "1547643594804830242",
+        "closed_at": 1789057404.2794352
+      },
+      "racer-open:menu-open:1547644216165802004:442597396195704832": {
+        "id": "racer-open:menu-open:1547644216165802004:442597396195704832",
+        "kind": "open_lobby",
+        "status": "cancelled",
+        "challenger_id": "442597396195704832",
+        "challenger_name": "Thice",
+        "channel_id": 1468320170891022417,
+        "minutes": 3,
+        "stake": 0,
+        "players": [
+          {
+            "id": "442597396195704832",
+            "name": "Thice"
+          }
+        ],
+        "created_at": 1789057535.2576761,
+        "message_id": "1547644217646518435",
+        "closed_at": 1789060027.119061
+      },
+      "racer-open:menu-open:1547665558764527676:442597396195704832": {
+        "id": "racer-open:menu-open:1547665558764527676:442597396195704832",
+        "kind": "open_lobby",
+        "status": "open",
+        "challenger_id": "442597396195704832",
+        "challenger_name": "Thice",
+        "channel_id": 1468320170891022417,
+        "minutes": 3,
+        "stake": 5,
+        "players": [
+          {
+            "id": "442597396195704832",
+            "name": "Thice"
+          }
+        ],
+        "created_at": 1789062624.1895568,
+        "message_id": "1547665562224689353"
+      },
+      "racer-open:menu-open:1547704340351946932:442597396195704832": {
+        "id": "racer-open:menu-open:1547704340351946932:442597396195704832",
+        "kind": "open_lobby",
+        "status": "open",
+        "challenger_id": "442597396195704832",
+        "challenger_name": "Thice",
+        "channel_id": 1468320170891022417,
+        "minutes": 5,
+        "stake": 5,
+        "players": [
+          {
+            "id": "442597396195704832",
+            "name": "Thice"
+          }
+        ],
+        "created_at": 1789071870.5232074,
+        "message_id": "1547704344214904843"
+      },
+      "racer-open:menu-open:1547926475305517168:442597396195704832": {
+        "id": "racer-open:menu-open:1547926475305517168:442597396195704832",
+        "kind": "open_lobby",
+        "status": "cancelled",
+        "challenger_id": "442597396195704832",
+        "challenger_name": "Thice",
+        "channel_id": 1468320170891022417,
+        "minutes": 5,
+        "stake": 5,
+        "players": [
+          {
+            "id": "442597396195704832",
+            "name": "Thice"
+          }
+        ],
+        "created_at": 1789124831.5031798,
+        "message_id": "1547926478489124877",
+        "closed_at": 1789125064.451855
+      },
+      "racer-open:menu-open:1548015407401799790:442597396195704832": {
+        "id": "racer-open:menu-open:1548015407401799790:442597396195704832",
+        "kind": "open_lobby",
+        "status": "open",
+        "challenger_id": "442597396195704832",
+        "challenger_name": "Thice",
+        "channel_id": 1468320170891022417,
+        "minutes": 3,
+        "stake": 0,
+        "players": [
+          {
+            "id": "442597396195704832",
+            "name": "Thice"
+          }
+        ],
+        "created_at": 1789146034.1051688,
+        "message_id": "1548015409058291814"
+      },
+      "racer-open:menu-open:1548407043025674321:442597396195704832": {
+        "id": "racer-open:menu-open:1548407043025674321:442597396195704832",
+        "kind": "open_lobby",
+        "status": "started",
+        "challenger_id": "442597396195704832",
+        "challenger_name": "Thice",
+        "channel_id": 1468320170891022417,
+        "minutes": 3,
+        "stake": 5,
+        "players": [
+          {
+            "id": "442597396195704832",
+            "name": "Thice"
+          },
+          {
+            "id": "601406103712170014",
+            "name": "TheMakina"
+          }
+        ],
+        "created_at": 1789239409.20166,
+        "message_id": "1548407052236234823",
+        "closed_at": 1789239928.565061
+      },
+      "racer-open:menu-open:1548410000689336411:442597396195704832": {
+        "id": "racer-open:menu-open:1548410000689336411:442597396195704832",
+        "kind": "open_lobby",
+        "status": "started",
+        "challenger_id": "442597396195704832",
+        "challenger_name": "Thice",
+        "channel_id": 1468320170891022417,
+        "minutes": 5,
+        "stake": 0,
+        "players": [
+          {
+            "id": "442597396195704832",
+            "name": "Thice"
+          },
+          {
+            "id": "601406103712170014",
+            "name": "TheMakina"
+          }
+        ],
+        "created_at": 1789240112.4928966,
+        "message_id": "1548410002073456764",
+        "closed_at": 1789240120.9450474
+      },
+      "racer-open:menu-open:1548412888954437663:442597396195704832": {
+        "id": "racer-open:menu-open:1548412888954437663:442597396195704832",
+        "kind": "open_lobby",
+        "status": "open",
+        "challenger_id": "442597396195704832",
+        "challenger_name": "Thice",
+        "channel_id": 1468320170891022417,
+        "minutes": 5,
+        "stake": 0,
+        "players": [
+          {
+            "id": "442597396195704832",
+            "name": "Thice"
+          },
+          {
+            "id": "601406103712170014",
+            "name": "TheMakina"
+          }
+        ],
+        "created_at": 1789240801.2685726,
+        "message_id": "1548412890887749824"
+      },
+      "racer-open:menu-open:1548421542776406106:442597396195704832": {
+        "id": "racer-open:menu-open:1548421542776406106:442597396195704832",
+        "kind": "open_lobby",
+        "status": "open",
+        "challenger_id": "442597396195704832",
+        "challenger_name": "Thice",
+        "channel_id": 1468320170891022417,
+        "minutes": 5,
+        "stake": 0,
+        "players": [
+          {
+            "id": "442597396195704832",
+            "name": "Thice"
+          }
+        ],
+        "created_at": 1789242864.3693569,
+        "message_id": "1548421544496078879"
+      },
+      "racer-open:menu-open:1549869387329310911:442597396195704832": {
+        "id": "racer-open:menu-open:1549869387329310911:442597396195704832",
+        "kind": "open_lobby",
+        "status": "open",
+        "challenger_id": "442597396195704832",
+        "challenger_name": "Thice",
+        "channel_id": 1468320170891022417,
+        "minutes": 5,
+        "stake": 0,
+        "players": [
+          {
+            "id": "442597396195704832",
+            "name": "Thice"
+          }
+        ],
+        "created_at": 1789588057.3048432,
+        "message_id": "1549869388411314208"
+      }
+    },
+    "games": {
+      "racer:racer-challenge:menu:1547381792007524432:442597396195704832:601406103712170014": {
+        "id": "racer:racer-challenge:menu:1547381792007524432:442597396195704832:601406103712170014",
+        "status": "finished",
+        "channel_id": 1468320170891022417,
+        "message_id": "1547383246742884404",
+        "challenge_id": "racer-challenge:menu:1547381792007524432:442597396195704832:601406103712170014",
+        "player1_id": "442597396195704832",
+        "player1_name": "Thice",
+        "player2_id": "601406103712170014",
+        "player2_name": "TheMakina",
+        "minutes": 5,
+        "stake": 0,
+        "board_theme": "blue",
+        "piece_theme": "classic",
+        "arrow_theme": "pink",
+        "started_at": 1788995314.7008939,
+        "winner_id": "442597396195704832",
+        "rewards_settled": true,
+        "data": {
+          "puzzles": [
+            {
+              "id": "2P3vZ",
+              "fen": "2rr3k/3q1Qpp/4pB2/p2b1p2/4p3/4P3/PP3PPP/1R3RK1 w - - 0 32",
+              "setup_uci": "c7d7",
+              "expected_uci": "f6g7",
+              "expected_move": "Bxg7#",
+              "rating": 1248
+            },
+            {
+              "id": "mFvdI",
+              "fen": "4r2k/1pp3p1/1p4np/8/PP1P2N1/2P2P2/3Q2PK/4r3 b - - 2 41",
+              "setup_uci": "g1h2",
+              "expected_uci": "e8e2",
+              "expected_move": "R8e2",
+              "rating": 1472
+            },
+            {
+              "id": "Z4kzq",
+              "fen": "r1b2rk1/1p5p/2q1p1p1/2Np1nB1/p2b4/6PP/PP3PB1/2RQR1K1 w - - 0 21",
+              "setup_uci": "g7d4",
+              "expected_uci": "c5e6",
+              "expected_move": "Nxe6",
+              "rating": 1447
+            },
+            {
+              "id": "F3Kq9",
+              "fen": "2r1r1k1/pp3pp1/2pR1n2/4p3/2P1q3/1PB2QP1/P6P/3R2K1 w - - 0 35",
+              "setup_uci": "g6e4",
+              "expected_uci": "d6f6",
+              "expected_move": "Rxf6",
+              "rating": 1547
+            },
+            {
+              "id": "92uDl",
+              "fen": "r2q1rk1/pp1bp1b1/3p1pn1/6Nn/3pP3/P2B1PP1/1PPN1K2/R2QR3 w - - 0 18",
+              "setup_uci": "f7f6",
+              "expected_uci": "d3c4",
+              "expected_move": "Bc4+",
+              "rating": 1694
+            },
+            {
+              "id": "UyU0W",
+              "fen": "2b3r1/p2k1p2/2pp3p/8/8/Pr1BR1P1/6PP/5RK1 w - - 1 30",
+              "setup_uci": "e8d7",
+              "expected_uci": "d3f5",
+              "expected_move": "Bf5+",
+              "rating": 1919
+            },
+            {
+              "id": "1GzDO",
+              "fen": "7k/7p/3p2p1/1B6/1R6/4pr2/1p4KP/1r6 w - - 0 44",
+              "setup_uci": "f6f3",
+              "expected_uci": "g2f3",
+              "expected_move": "Kxf3",
+              "rating": 1912
+            },
+            {
+              "id": "LMkal",
+              "fen": "2kr2r1/1pp1bp2/p3pn2/4B1p1/3PN1qp/P3P3/1PQ2P1P/2RR2K1 w - - 2 20",
+              "setup_uci": "f3g4",
+              "expected_uci": "g1f1",
+              "expected_move": "Kf1",
+              "rating": 2194
+            },
+            {
+              "id": "7xaQf",
+              "fen": "8/8/3n4/8/p6R/1kpK3P/6P1/8 b - - 0 52",
+              "setup_uci": "f4h4",
+              "expected_uci": "c3c2",
+              "expected_move": "c2",
+              "rating": 2201
+            },
+            {
+              "id": "mM0WW",
+              "fen": "5k2/pp3p1p/8/3pRqr1/3P4/1PP2BP1/P4P1P/4R1K1 b - - 2 27",
+              "setup_uci": "e3e5",
+              "expected_uci": "f5f3",
+              "expected_move": "Qxf3",
+              "rating": 2202
+            }
+          ],
+          "round": 9,
+          "scores": {
+            "442597396195704832": 8,
+            "601406103712170014": 6
+          },
+          "round_answers": {
+            "442597396195704832": false,
+            "601406103712170014": false
+          },
+          "history": {
+            "442597396195704832": [
+              {
+                "round": 1,
+                "id": "2P3vZ",
+                "rating": 1248,
+                "fen": "2rr3k/3q1Qpp/4pB2/p2b1p2/4p3/4P3/PP3PPP/1R3RK1 w - - 0 32",
+                "expected": "Bxg7#",
+                "submitted": "Bxg7",
+                "correct": true,
+                "seconds": 13.42,
+                "timeout": false
+              },
+              {
+                "round": 2,
+                "id": "mFvdI",
+                "rating": 1472,
+                "fen": "4r2k/1pp3p1/1p4np/8/PP1P2N1/2P2P2/3Q2PK/4r3 b - - 2 41",
+                "expected": "R8e2",
+                "submitted": "R8e2",
+                "correct": true,
+                "seconds": 16.94,
+                "timeout": false
+              },
+              {
+                "round": 3,
+                "id": "Z4kzq",
+                "rating": 1447,
+                "fen": "r1b2rk1/1p5p/2q1p1p1/2Np1nB1/p2b4/6PP/PP3PB1/2RQR1K1 w - - 0 21",
+                "expected": "Nxe6",
+                "submitted": "—",
+                "correct": false,
+                "seconds": 30,
+                "timeout": true
+              },
+              {
+                "round": 4,
+                "id": "F3Kq9",
+                "rating": 1547,
+                "fen": "2r1r1k1/pp3pp1/2pR1n2/4p3/2P1q3/1PB2QP1/P6P/3R2K1 w - - 0 35",
+                "expected": "Rxf6",
+                "submitted": "Rxf6",
+                "correct": true,
+                "seconds": 9.13,
+                "timeout": false
+              },
+              {
+                "round": 5,
+                "id": "92uDl",
+                "rating": 1694,
+                "fen": "r2q1rk1/pp1bp1b1/3p1pn1/6Nn/3pP3/P2B1PP1/1PPN1K2/R2QR3 w - - 0 18",
+                "expected": "Bc4+",
+                "submitted": "Bc4",
+                "correct": true,
+                "seconds": 22.64,
+                "timeout": false
+              },
+              {
+                "round": 6,
+                "id": "UyU0W",
+                "rating": 1919,
+                "fen": "2b3r1/p2k1p2/2pp3p/8/8/Pr1BR1P1/6PP/5RK1 w - - 1 30",
+                "expected": "Bf5+",
+                "submitted": "Bf5",
+                "correct": true,
+                "seconds": 13.44,
+                "timeout": false
+              },
+              {
+                "round": 7,
+                "id": "1GzDO",
+                "rating": 1912,
+                "fen": "7k/7p/3p2p1/1B6/1R6/4pr2/1p4KP/1r6 w - - 0 44",
+                "expected": "Kxf3",
+                "submitted": "Kxf3",
+                "correct": true,
+                "seconds": 10.36,
+                "timeout": false
+              },
+              {
+                "round": 8,
+                "id": "LMkal",
+                "rating": 2194,
+                "fen": "2kr2r1/1pp1bp2/p3pn2/4B1p1/3PN1qp/P3P3/1PQ2P1P/2RR2K1 w - - 2 20",
+                "expected": "Kf1",
+                "submitted": "Kf1",
+                "correct": true,
+                "seconds": 17.14,
+                "timeout": false
+              },
+              {
+                "round": 9,
+                "id": "7xaQf",
+                "rating": 2201,
+                "fen": "8/8/3n4/8/p6R/1kpK3P/6P1/8 b - - 0 52",
+                "expected": "c2",
+                "submitted": "C2",
+                "correct": true,
+                "seconds": 15.22,
+                "timeout": false
+              },
+              {
+                "round": 10,
+                "id": "mM0WW",
+                "rating": 2202,
+                "fen": "5k2/pp3p1p/8/3pRqr1/3P4/1PP2BP1/P4P1P/4R1K1 b - - 2 27",
+                "expected": "Qxf3",
+                "submitted": "Qf6",
+                "correct": false,
+                "seconds": 23.06,
+                "timeout": false
+              }
+            ],
+            "601406103712170014": [
+              {
+                "round": 1,
+                "id": "2P3vZ",
+                "rating": 1248,
+                "fen": "2rr3k/3q1Qpp/4pB2/p2b1p2/4p3/4P3/PP3PPP/1R3RK1 w - - 0 32",
+                "expected": "Bxg7#",
+                "submitted": "Bxg7",
+                "correct": true,
+                "seconds": 14.0,
+                "timeout": false
+              },
+              {
+                "round": 2,
+                "id": "mFvdI",
+                "rating": 1472,
+                "fen": "4r2k/1pp3p1/1p4np/8/PP1P2N1/2P2P2/3Q2PK/4r3 b - - 2 41",
+                "expected": "R8e2",
+                "submitted": "R8e2",
+                "correct": true,
+                "seconds": 27.96,
+                "timeout": false
+              },
+              {
+                "round": 3,
+                "id": "Z4kzq",
+                "rating": 1447,
+                "fen": "r1b2rk1/1p5p/2q1p1p1/2Np1nB1/p2b4/6PP/PP3PB1/2RQR1K1 w - - 0 21",
+                "expected": "Nxe6",
+                "submitted": "—",
+                "correct": false,
+                "seconds": 30,
+                "timeout": true
+              },
+              {
+                "round": 4,
+                "id": "F3Kq9",
+                "rating": 1547,
+                "fen": "2r1r1k1/pp3pp1/2pR1n2/4p3/2P1q3/1PB2QP1/P6P/3R2K1 w - - 0 35",
+                "expected": "Rxf6",
+                "submitted": "Rxf6",
+                "correct": true,
+                "seconds": 11.94,
+                "timeout": false
+              },
+              {
+                "round": 5,
+                "id": "92uDl",
+                "rating": 1694,
+                "fen": "r2q1rk1/pp1bp1b1/3p1pn1/6Nn/3pP3/P2B1PP1/1PPN1K2/R2QR3 w - - 0 18",
+                "expected": "Bc4+",
+                "submitted": "—",
+                "correct": false,
+                "seconds": 30,
+                "timeout": true
+              },
+              {
+                "round": 6,
+                "id": "UyU0W",
+                "rating": 1919,
+                "fen": "2b3r1/p2k1p2/2pp3p/8/8/Pr1BR1P1/6PP/5RK1 w - - 1 30",
+                "expected": "Bf5+",
+                "submitted": "g4",
+                "correct": false,
+                "seconds": 1.52,
+                "timeout": false
+              },
+              {
+                "round": 7,
+                "id": "1GzDO",
+                "rating": 1912,
+                "fen": "7k/7p/3p2p1/1B6/1R6/4pr2/1p4KP/1r6 w - - 0 44",
+                "expected": "Kxf3",
+                "submitted": "Kxf3",
+                "correct": true,
+                "seconds": 18.6,
+                "timeout": false
+              },
+              {
+                "round": 8,
+                "id": "LMkal",
+                "rating": 2194,
+                "fen": "2kr2r1/1pp1bp2/p3pn2/4B1p1/3PN1qp/P3P3/1PQ2P1P/2RR2K1 w - - 2 20",
+                "expected": "Kf1",
+                "submitted": "Kf1",
+                "correct": true,
+                "seconds": 29.1,
+                "timeout": false
+              },
+              {
+                "round": 9,
+                "id": "7xaQf",
+                "rating": 2201,
+                "fen": "8/8/3n4/8/p6R/1kpK3P/6P1/8 b - - 0 52",
+                "expected": "c2",
+                "submitted": "c2",
+                "correct": true,
+                "seconds": 20.05,
+                "timeout": false
+              },
+              {
+                "round": 10,
+                "id": "mM0WW",
+                "rating": 2202,
+                "fen": "5k2/pp3p1p/8/3pRqr1/3P4/1PP2BP1/P4P1P/4R1K1 b - - 2 27",
+                "expected": "Qxf3",
+                "submitted": "—",
+                "correct": false,
+                "seconds": 30,
+                "timeout": true
+              }
+            ]
+          },
+          "round_started_at": 1788995588.8722317,
+          "deadline": 1788995618.8722317
+        },
+        "ended_at": 1788995619.509018,
+        "result_text": "All scheduled puzzles completed."
+      },
+      "racer:racer-challenge:menu:1547384981666664458:601406103712170014:442597396195704832": {
+        "id": "racer:racer-challenge:menu:1547384981666664458:601406103712170014:442597396195704832",
+        "status": "finished",
+        "channel_id": 1468320170891022417,
+        "message_id": "1547385037186670743",
+        "challenge_id": "racer-challenge:menu:1547384981666664458:601406103712170014:442597396195704832",
+        "player1_id": "601406103712170014",
+        "player1_name": "TheMakina",
+        "player2_id": "442597396195704832",
+        "player2_name": "Thice",
+        "minutes": 3,
+        "stake": 0,
+        "board_theme": "classic",
+        "piece_theme": "classic",
+        "arrow_theme": "green",
+        "started_at": 1788995741.5186808,
+        "winner_id": null,
+        "rewards_settled": true,
+        "data": {
+          "puzzles": [
+            {
+              "id": "ag31u",
+              "fen": "2r1r1k1/pb2npp1/1p2p3/2qpP1PQ/4n3/PP1B3R/1BPN3P/R4K2 b - - 4 21",
+              "setup_uci": "g1f1",
+              "expected_uci": "c5f2",
+              "expected_move": "Qf2#",
+              "rating": 1337
+            },
+            {
+              "id": "d3bP7",
+              "fen": "3q4/5Q2/1pk3p1/2p2p1p/4p3/P3P1P1/1PP2P2/1K6 b - - 1 35",
+              "setup_uci": "a7f7",
+              "expected_uci": "d8d1",
+              "expected_move": "Qd1+",
+              "rating": 1377
+            },
+            {
+              "id": "UqcqQ",
+              "fen": "7k/pp4pp/2p5/3P3b/1BR1n2P/4P1r1/PP3p2/2R2K2 b - - 0 31",
+              "setup_uci": "d4d5",
+              "expected_uci": "g3g1",
+              "expected_move": "Rg1#",
+              "rating": 1628
+            },
+            {
+              "id": "MVAK0",
+              "fen": "8/6b1/5B2/3k1PP1/pp6/3P4/6K1/8 b - - 0 57",
+              "setup_uci": "a1f6",
+              "expected_uci": "g7f6",
+              "expected_move": "Bxf6",
+              "rating": 1783
+            },
+            {
+              "id": "n2wne",
+              "fen": "r3r1k1/p2b1ppp/n7/1p1P4/q2b3P/4B3/PPQ1BPP1/K2R3R w - - 0 22",
+              "setup_uci": "f6d4",
+              "expected_uci": "c2a4",
+              "expected_move": "Qxa4",
+              "rating": 1973
+            },
+            {
+              "id": "NtYHG",
+              "fen": "8/2k2p2/3p2p1/3PPpP1/1K3P1p/7P/8/8 w - - 1 44",
+              "setup_uci": "b6c7",
+              "expected_uci": "e5d6",
+              "expected_move": "exd6+",
+              "rating": 2263
+            }
+          ],
+          "round": 5,
+          "scores": {
+            "601406103712170014": 5,
+            "442597396195704832": 5
+          },
+          "round_answers": {
+            "442597396195704832": false,
+            "601406103712170014": false
+          },
+          "history": {
+            "601406103712170014": [
+              {
+                "round": 1,
+                "id": "ag31u",
+                "rating": 1337,
+                "fen": "2r1r1k1/pb2npp1/1p2p3/2qpP1PQ/4n3/PP1B3R/1BPN3P/R4K2 b - - 4 21",
+                "expected": "Qf2#",
+                "submitted": "Qf2",
+                "correct": true,
+                "seconds": 9.59,
+                "timeout": false
+              },
+              {
+                "round": 2,
+                "id": "d3bP7",
+                "rating": 1377,
+                "fen": "3q4/5Q2/1pk3p1/2p2p1p/4p3/P3P1P1/1PP2P2/1K6 b - - 1 35",
+                "expected": "Qd1+",
+                "submitted": "Qd1",
+                "correct": true,
+                "seconds": 11.99,
+                "timeout": false
+              },
+              {
+                "round": 3,
+                "id": "UqcqQ",
+                "rating": 1628,
+                "fen": "7k/pp4pp/2p5/3P3b/1BR1n2P/4P1r1/PP3p2/2R2K2 b - - 0 31",
+                "expected": "Rg1#",
+                "submitted": "Rg1",
+                "correct": true,
+                "seconds": 13.65,
+                "timeout": false
+              },
+              {
+                "round": 4,
+                "id": "MVAK0",
+                "rating": 1783,
+                "fen": "8/6b1/5B2/3k1PP1/pp6/3P4/6K1/8 b - - 0 57",
+                "expected": "Bxf6",
+                "submitted": "Bxf6",
+                "correct": true,
+                "seconds": 15.21,
+                "timeout": false
+              },
+              {
+                "round": 5,
+                "id": "n2wne",
+                "rating": 1973,
+                "fen": "r3r1k1/p2b1ppp/n7/1p1P4/q2b3P/4B3/PPQ1BPP1/K2R3R w - - 0 22",
+                "expected": "Qxa4",
+                "submitted": "Qxa4",
+                "correct": true,
+                "seconds": 22.73,
+                "timeout": false
+              },
+              {
+                "round": 6,
+                "id": "NtYHG",
+                "rating": 2263,
+                "fen": "8/2k2p2/3p2p1/3PPpP1/1K3P1p/7P/8/8 w - - 1 44",
+                "expected": "exd6+",
+                "submitted": "Kb5",
+                "correct": false,
+                "seconds": 21.18,
+                "timeout": false
+              }
+            ],
+            "442597396195704832": [
+              {
+                "round": 1,
+                "id": "ag31u",
+                "rating": 1337,
+                "fen": "2r1r1k1/pb2npp1/1p2p3/2qpP1PQ/4n3/PP1B3R/1BPN3P/R4K2 b - - 4 21",
+                "expected": "Qf2#",
+                "submitted": "Qf2",
+                "correct": true,
+                "seconds": 6.12,
+                "timeout": false
+              },
+              {
+                "round": 2,
+                "id": "d3bP7",
+                "rating": 1377,
+                "fen": "3q4/5Q2/1pk3p1/2p2p1p/4p3/P3P1P1/1PP2P2/1K6 b - - 1 35",
+                "expected": "Qd1+",
+                "submitted": "Qd1",
+                "correct": true,
+                "seconds": 14.89,
+                "timeout": false
+              },
+              {
+                "round": 3,
+                "id": "UqcqQ",
+                "rating": 1628,
+                "fen": "7k/pp4pp/2p5/3P3b/1BR1n2P/4P1r1/PP3p2/2R2K2 b - - 0 31",
+                "expected": "Rg1#",
+                "submitted": "Rg1",
+                "correct": true,
+                "seconds": 9.32,
+                "timeout": false
+              },
+              {
+                "round": 4,
+                "id": "MVAK0",
+                "rating": 1783,
+                "fen": "8/6b1/5B2/3k1PP1/pp6/3P4/6K1/8 b - - 0 57",
+                "expected": "Bxf6",
+                "submitted": "Bxf6",
+                "correct": true,
+                "seconds": 9.36,
+                "timeout": false
+              },
+              {
+                "round": 5,
+                "id": "n2wne",
+                "rating": 1973,
+                "fen": "r3r1k1/p2b1ppp/n7/1p1P4/q2b3P/4B3/PPQ1BPP1/K2R3R w - - 0 22",
+                "expected": "Qxa4",
+                "submitted": "Qxa4",
+                "correct": true,
+                "seconds": 12.29,
+                "timeout": false
+              },
+              {
+                "round": 6,
+                "id": "NtYHG",
+                "rating": 2263,
+                "fen": "8/2k2p2/3p2p1/3PPpP1/1K3P1p/7P/8/8 w - - 1 44",
+                "expected": "exd6+",
+                "submitted": "E6",
+                "correct": false,
+                "seconds": 12.45,
+                "timeout": false
+              }
+            ]
+          },
+          "round_started_at": 1788995894.022266,
+          "deadline": 1788995924.022266
+        },
+        "ended_at": 1788995924.6346903,
+        "result_text": "All scheduled puzzles completed."
+      },
+      "racer:racer-challenge:menu:1547621622410911794:442597396195704832:601406103712170014": {
+        "id": "racer:racer-challenge:menu:1547621622410911794:442597396195704832:601406103712170014",
+        "status": "finished",
+        "channel_id": 1468320170891022417,
+        "message_id": "1547622388156604479",
+        "challenge_id": "racer-challenge:menu:1547621622410911794:442597396195704832:601406103712170014",
+        "player1_id": "442597396195704832",
+        "player1_name": "Thice",
+        "player2_id": "601406103712170014",
+        "player2_name": "TheMakina",
+        "minutes": 5,
+        "stake": 0,
+        "board_theme": "blue",
+        "piece_theme": "classic",
+        "arrow_theme": "pink",
+        "started_at": 1789052165.1081886,
+        "winner_id": "442597396195704832",
+        "rewards_settled": true,
+        "data": {
+          "puzzles": [
+            {
+              "id": "LfYMf",
+              "fen": "r2q1rk1/2pb1ppp/p1p5/3n4/2B3PP/4BP2/PPPQ4/R3K2R b KQ - 1 17",
+              "setup_uci": "c3d2",
+              "expected_uci": "d5e3",
+              "expected_move": "Nxe3",
+              "rating": 1344
+            },
+            {
+              "id": "wPNey",
+              "fen": "1k4r1/pp6/1q1N1b1p/3Q4/2p2p2/P1Pn1N2/1P3PPP/R3R1K1 b - - 2 26",
+              "setup_uci": "f7d6",
+              "expected_uci": "b6f2",
+              "expected_move": "Qxf2+",
+              "rating": 1426
+            },
+            {
+              "id": "SG7it",
+              "fen": "4r1rk/p4R1p/b2p4/2p5/2pPq1PQ/P1P1P2P/3K4/5R2 w - - 2 34",
+              "setup_uci": "a8e8",
+              "expected_uci": "h4f6",
+              "expected_move": "Qf6+",
+              "rating": 1568
+            },
+            {
+              "id": "L5pOR",
+              "fen": "r1b2k2/3p1ppp/p7/1p1qP3/5B2/1P5P/1PQ2PP1/R5K1 b - - 1 21",
+              "setup_uci": "e2c2",
+              "expected_uci": "c8b7",
+              "expected_move": "Bb7",
+              "rating": 1514
+            },
+            {
+              "id": "xAIA8",
+              "fen": "r2q1r2/ppp1ppkp/3p1np1/5b2/1n1P4/P1N2N2/1PPQPPPP/2K1RB1R b - - 0 10",
+              "setup_uci": "a2a3",
+              "expected_uci": "b4c2",
+              "expected_move": "Nxc2",
+              "rating": 1629
+            },
+            {
+              "id": "1BuhB",
+              "fen": "6k1/p4R1p/1p4pq/2p1p3/4b3/3B4/P1P3PP/5RK1 w - - 0 31",
+              "setup_uci": "b7e4",
+              "expected_uci": "f7f8",
+              "expected_move": "Rf8+",
+              "rating": 1889
+            },
+            {
+              "id": "SiHt5",
+              "fen": "8/1b5p/1k2p1pP/p2p1pP1/1p1P1P2/1P2P3/PK2B3/8 w - - 9 42",
+              "setup_uci": "c6b7",
+              "expected_uci": "e2h5",
+              "expected_move": "Bh5",
+              "rating": 1992
+            },
+            {
+              "id": "X3hgZ",
+              "fen": "r3k2r/ppqb1pp1/5b2/2pPp2p/8/1NPB4/PP3PPP/R2QR1K1 b kq - 1 14",
+              "setup_uci": "f1e1",
+              "expected_uci": "c5c4",
+              "expected_move": "c4",
+              "rating": 2005
+            },
+            {
+              "id": "sHD1W",
+              "fen": "4k3/p4pp1/1p2p1n1/1P1pP1P1/P1qQ2N1/5N2/5PK1/8 b - - 10 40",
+              "setup_uci": "d2d4",
+              "expected_uci": "g6h4",
+              "expected_move": "Nh4+",
+              "rating": 2182
+            },
+            {
+              "id": "hog53",
+              "fen": "8/1p6/p2K4/P1P5/1k6/8/8/8 b - - 1 46",
+              "setup_uci": "d5d6",
+              "expected_uci": "b4b5",
+              "expected_move": "Kb5",
+              "rating": 2179
+            }
+          ],
+          "round": 9,
+          "scores": {
+            "442597396195704832": 9,
+            "601406103712170014": 8
+          },
+          "round_answers": {
+            "601406103712170014": true,
+            "442597396195704832": false
+          },
+          "history": {
+            "442597396195704832": [
+              {
+                "round": 1,
+                "id": "LfYMf",
+                "rating": 1344,
+                "fen": "r2q1rk1/2pb1ppp/p1p5/3n4/2B3PP/4BP2/PPPQ4/R3K2R b KQ - 1 17",
+                "expected": "Nxe3",
+                "submitted": "Nxe3",
+                "correct": true,
+                "seconds": 14.87,
+                "timeout": false
+              },
+              {
+                "round": 2,
+                "id": "wPNey",
+                "rating": 1426,
+                "fen": "1k4r1/pp6/1q1N1b1p/3Q4/2p2p2/P1Pn1N2/1P3PPP/R3R1K1 b - - 2 26",
+                "expected": "Qxf2+",
+                "submitted": "Qxf2",
+                "correct": true,
+                "seconds": 9.24,
+                "timeout": false
+              },
+              {
+                "round": 3,
+                "id": "SG7it",
+                "rating": 1568,
+                "fen": "4r1rk/p4R1p/b2p4/2p5/2pPq1PQ/P1P1P2P/3K4/5R2 w - - 2 34",
+                "expected": "Qf6+",
+                "submitted": "Qf6",
+                "correct": true,
+                "seconds": 8.67,
+                "timeout": false
+              },
+              {
+                "round": 4,
+                "id": "L5pOR",
+                "rating": 1514,
+                "fen": "r1b2k2/3p1ppp/p7/1p1qP3/5B2/1P5P/1PQ2PP1/R5K1 b - - 1 21",
+                "expected": "Bb7",
+                "submitted": "Bb7",
+                "correct": true,
+                "seconds": 12.99,
+                "timeout": false
+              },
+              {
+                "round": 5,
+                "id": "xAIA8",
+                "rating": 1629,
+                "fen": "r2q1r2/ppp1ppkp/3p1np1/5b2/1n1P4/P1N2N2/1PPQPPPP/2K1RB1R b - - 0 10",
+                "expected": "Nxc2",
+                "submitted": "Nxc2",
+                "correct": true,
+                "seconds": 18.01,
+                "timeout": false
+              },
+              {
+                "round": 6,
+                "id": "1BuhB",
+                "rating": 1889,
+                "fen": "6k1/p4R1p/1p4pq/2p1p3/4b3/3B4/P1P3PP/5RK1 w - - 0 31",
+                "expected": "Rf8+",
+                "submitted": "Rf8",
+                "correct": true,
+                "seconds": 10.23,
+                "timeout": false
+              },
+              {
+                "round": 7,
+                "id": "SiHt5",
+                "rating": 1992,
+                "fen": "8/1b5p/1k2p1pP/p2p1pP1/1p1P1P2/1P2P3/PK2B3/8 w - - 9 42",
+                "expected": "Bh5",
+                "submitted": "Bh5",
+                "correct": true,
+                "seconds": 13.2,
+                "timeout": false
+              },
+              {
+                "round": 8,
+                "id": "X3hgZ",
+                "rating": 2005,
+                "fen": "r3k2r/ppqb1pp1/5b2/2pPp2p/8/1NPB4/PP3PPP/R2QR1K1 b kq - 1 14",
+                "expected": "c4",
+                "submitted": "C4",
+                "correct": true,
+                "seconds": 7.47,
+                "timeout": false
+              },
+              {
+                "round": 9,
+                "id": "sHD1W",
+                "rating": 2182,
+                "fen": "4k3/p4pp1/1p2p1n1/1P1pP1P1/P1qQ2N1/5N2/5PK1/8 b - - 10 40",
+                "expected": "Nh4+",
+                "submitted": "Nh4",
+                "correct": true,
+                "seconds": 9.12,
+                "timeout": false
+              },
+              {
+                "round": 10,
+                "id": "hog53",
+                "rating": 2179,
+                "fen": "8/1p6/p2K4/P1P5/1k6/8/8/8 b - - 1 46",
+                "expected": "Kb5",
+                "submitted": "Kxa5",
+                "correct": false,
+                "seconds": 12.31,
+                "timeout": false
+              }
+            ],
+            "601406103712170014": [
+              {
+                "round": 1,
+                "id": "LfYMf",
+                "rating": 1344,
+                "fen": "r2q1rk1/2pb1ppp/p1p5/3n4/2B3PP/4BP2/PPPQ4/R3K2R b KQ - 1 17",
+                "expected": "Nxe3",
+                "submitted": "Nxe3",
+                "correct": true,
+                "seconds": 11.41,
+                "timeout": false
+              },
+              {
+                "round": 2,
+                "id": "wPNey",
+                "rating": 1426,
+                "fen": "1k4r1/pp6/1q1N1b1p/3Q4/2p2p2/P1Pn1N2/1P3PPP/R3R1K1 b - - 2 26",
+                "expected": "Qxf2+",
+                "submitted": "Rd8",
+                "correct": false,
+                "seconds": 15.08,
+                "timeout": false
+              },
+              {
+                "round": 3,
+                "id": "SG7it",
+                "rating": 1568,
+                "fen": "4r1rk/p4R1p/b2p4/2p5/2pPq1PQ/P1P1P2P/3K4/5R2 w - - 2 34",
+                "expected": "Qf6+",
+                "submitted": "Qf6",
+                "correct": true,
+                "seconds": 16.28,
+                "timeout": false
+              },
+              {
+                "round": 4,
+                "id": "L5pOR",
+                "rating": 1514,
+                "fen": "r1b2k2/3p1ppp/p7/1p1qP3/5B2/1P5P/1PQ2PP1/R5K1 b - - 1 21",
+                "expected": "Bb7",
+                "submitted": "Bb7",
+                "correct": true,
+                "seconds": 19.16,
+                "timeout": false
+              },
+              {
+                "round": 5,
+                "id": "xAIA8",
+                "rating": 1629,
+                "fen": "r2q1r2/ppp1ppkp/3p1np1/5b2/1n1P4/P1N2N2/1PPQPPPP/2K1RB1R b - - 0 10",
+                "expected": "Nxc2",
+                "submitted": "Nxc2",
+                "correct": true,
+                "seconds": 23.34,
+                "timeout": false
+              },
+              {
+                "round": 6,
+                "id": "1BuhB",
+                "rating": 1889,
+                "fen": "6k1/p4R1p/1p4pq/2p1p3/4b3/3B4/P1P3PP/5RK1 w - - 0 31",
+                "expected": "Rf8+",
+                "submitted": "Bc4",
+                "correct": false,
+                "seconds": 15.82,
+                "timeout": false
+              },
+              {
+                "round": 7,
+                "id": "SiHt5",
+                "rating": 1992,
+                "fen": "8/1b5p/1k2p1pP/p2p1pP1/1p1P1P2/1P2P3/PK2B3/8 w - - 9 42",
+                "expected": "Bh5",
+                "submitted": "Bh5",
+                "correct": true,
+                "seconds": 14.16,
+                "timeout": false
+              },
+              {
+                "round": 8,
+                "id": "X3hgZ",
+                "rating": 2005,
+                "fen": "r3k2r/ppqb1pp1/5b2/2pPp2p/8/1NPB4/PP3PPP/R2QR1K1 b kq - 1 14",
+                "expected": "c4",
+                "submitted": "c4",
+                "correct": true,
+                "seconds": 14.41,
+                "timeout": false
+              },
+              {
+                "round": 9,
+                "id": "sHD1W",
+                "rating": 2182,
+                "fen": "4k3/p4pp1/1p2p1n1/1P1pP1P1/P1qQ2N1/5N2/5PK1/8 b - - 10 40",
+                "expected": "Nh4+",
+                "submitted": "Nh4",
+                "correct": true,
+                "seconds": 13.96,
+                "timeout": false
+              },
+              {
+                "round": 10,
+                "id": "hog53",
+                "rating": 2179,
+                "fen": "8/1p6/p2K4/P1P5/1k6/8/8/8 b - - 1 46",
+                "expected": "Kb5",
+                "submitted": "Kb5",
+                "correct": true,
+                "seconds": 11.28,
+                "timeout": false
+              }
+            ]
+          },
+          "round_started_at": 1789052312.2356036,
+          "deadline": 1789052342.2356036
+        },
+        "ended_at": 1789052324.5465908,
+        "result_text": "All scheduled puzzles completed."
+      },
+      "racer:racer-challenge:menu:1547623235980361759:601406103712170014:442597396195704832": {
+        "id": "racer:racer-challenge:menu:1547623235980361759:601406103712170014:442597396195704832",
+        "status": "finished",
+        "channel_id": 1468320170891022417,
+        "message_id": "1547624060387725354",
+        "challenge_id": "racer-challenge:menu:1547623235980361759:601406103712170014:442597396195704832",
+        "player1_id": "601406103712170014",
+        "player1_name": "TheMakina",
+        "player2_id": "442597396195704832",
+        "player2_name": "Thice",
+        "minutes": 5,
+        "stake": 0,
+        "board_theme": "classic",
+        "piece_theme": "classic",
+        "arrow_theme": "green",
+        "started_at": 1789052539.5698938,
+        "winner_id": "601406103712170014",
+        "rewards_settled": true,
+        "data": {
+          "puzzles": [
+            {
+              "id": "t4ztW",
+              "fen": "5rk1/p1q1bpp1/4b2p/8/3pN3/3N2Q1/P1r2PPP/R1R3K1 w - - 0 24",
+              "setup_uci": "c4c2",
+              "expected_uci": "g3c7",
+              "expected_move": "Qxc7",
+              "rating": 1349
+            },
+            {
+              "id": "WBb03",
+              "fen": "8/8/5p1k/p3pB2/1p3nPP/1P3PK1/8/8 b - - 8 42",
+              "setup_uci": "e4f5",
+              "expected_uci": "f4e2",
+              "expected_move": "Ne2+",
+              "rating": 1363
+            },
+            {
+              "id": "USOax",
+              "fen": "4r1k1/R2Q1q1p/1pp1rp1P/3p2p1/3P4/2P1P3/5PP1/5RK1 b - - 0 34",
+              "setup_uci": "a1a7",
+              "expected_uci": "e6e7",
+              "expected_move": "R6e7",
+              "rating": 1496
+            },
+            {
+              "id": "RFeVQ",
+              "fen": "8/5r2/p3P1k1/1p1N4/3P2K1/2P2p2/PP6/8 b - - 0 38",
+              "setup_uci": "e5e6",
+              "expected_uci": "f3f2",
+              "expected_move": "f2",
+              "rating": 1687
+            },
+            {
+              "id": "TWKTo",
+              "fen": "1r3rk1/p1pq1ppp/3bp2B/2p5/6Q1/1PP4P/P1P2PP1/R4RK1 b - - 1 15",
+              "setup_uci": "e3h6",
+              "expected_uci": "f7f5",
+              "expected_move": "f5",
+              "rating": 1721
+            },
+            {
+              "id": "64sUw",
+              "fen": "8/p3k1pp/1p2pp2/1Rr1PP2/P1P3P1/3K3P/8/8 w - - 0 29",
+              "setup_uci": "f7f6",
+              "expected_uci": "b5c5",
+              "expected_move": "Rxc5",
+              "rating": 1946
+            },
+            {
+              "id": "3UAoX",
+              "fen": "6k1/p4ppp/8/3bp3/2p5/P1P5/1rr1BPPP/R1R2K2 w - - 6 26",
+              "setup_uci": "b8b2",
+              "expected_uci": "c1c2",
+              "expected_move": "Rxc2",
+              "rating": 1957
+            },
+            {
+              "id": "5Cgjp",
+              "fen": "5b1k/3n1p1P/4p3/4P3/3pnQN1/2p2NP1/4qPK1/8 w - - 0 42",
+              "setup_uci": "c4c3",
+              "expected_uci": "f4f7",
+              "expected_move": "Qxf7",
+              "rating": 2124
+            },
+            {
+              "id": "zJG14",
+              "fen": "3k3r/6R1/1pp5/8/3P3r/4P2p/6P1/4R2K w - - 2 34",
+              "setup_uci": "d7d8",
+              "expected_uci": "e1a1",
+              "expected_move": "Ra1",
+              "rating": 2164
+            },
+            {
+              "id": "3sWoB",
+              "fen": "3rk2r/1pb1npp1/2n3qp/p1BQ4/8/P4N1P/1PP2PP1/2KRR3 w k - 1 22",
+              "setup_uci": "a8d8",
+              "expected_uci": "d5c6",
+              "expected_move": "Qxc6+",
+              "rating": 2366
+            }
+          ],
+          "round": 9,
+          "scores": {
+            "601406103712170014": 10,
+            "442597396195704832": 8
+          },
+          "round_answers": {
+            "442597396195704832": false,
+            "601406103712170014": true
+          },
+          "history": {
+            "601406103712170014": [
+              {
+                "round": 1,
+                "id": "t4ztW",
+                "rating": 1349,
+                "fen": "5rk1/p1q1bpp1/4b2p/8/3pN3/3N2Q1/P1r2PPP/R1R3K1 w - - 0 24",
+                "expected": "Qxc7",
+                "submitted": "Qxc7",
+                "correct": true,
+                "seconds": 11.56,
+                "timeout": false
+              },
+              {
+                "round": 2,
+                "id": "WBb03",
+                "rating": 1363,
+                "fen": "8/8/5p1k/p3pB2/1p3nPP/1P3PK1/8/8 b - - 8 42",
+                "expected": "Ne2+",
+                "submitted": "Ne2",
+                "correct": true,
+                "seconds": 27.44,
+                "timeout": false
+              },
+              {
+                "round": 3,
+                "id": "USOax",
+                "rating": 1496,
+                "fen": "4r1k1/R2Q1q1p/1pp1rp1P/3p2p1/3P4/2P1P3/5PP1/5RK1 b - - 0 34",
+                "expected": "R6e7",
+                "submitted": "R6e7",
+                "correct": true,
+                "seconds": 21.18,
+                "timeout": false
+              },
+              {
+                "round": 4,
+                "id": "RFeVQ",
+                "rating": 1687,
+                "fen": "8/5r2/p3P1k1/1p1N4/3P2K1/2P2p2/PP6/8 b - - 0 38",
+                "expected": "f2",
+                "submitted": "f2",
+                "correct": true,
+                "seconds": 16.14,
+                "timeout": false
+              },
+              {
+                "round": 5,
+                "id": "TWKTo",
+                "rating": 1721,
+                "fen": "1r3rk1/p1pq1ppp/3bp2B/2p5/6Q1/1PP4P/P1P2PP1/R4RK1 b - - 1 15",
+                "expected": "f5",
+                "submitted": "f5",
+                "correct": true,
+                "seconds": 13.49,
+                "timeout": false
+              },
+              {
+                "round": 6,
+                "id": "64sUw",
+                "rating": 1946,
+                "fen": "8/p3k1pp/1p2pp2/1Rr1PP2/P1P3P1/3K3P/8/8 w - - 0 29",
+                "expected": "Rxc5",
+                "submitted": "Rxc5",
+                "correct": true,
+                "seconds": 20.22,
+                "timeout": false
+              },
+              {
+                "round": 7,
+                "id": "3UAoX",
+                "rating": 1957,
+                "fen": "6k1/p4ppp/8/3bp3/2p5/P1P5/1rr1BPPP/R1R2K2 w - - 6 26",
+                "expected": "Rxc2",
+                "submitted": "Rxc2",
+                "correct": true,
+                "seconds": 19.59,
+                "timeout": false
+              },
+              {
+                "round": 8,
+                "id": "5Cgjp",
+                "rating": 2124,
+                "fen": "5b1k/3n1p1P/4p3/4P3/3pnQN1/2p2NP1/4qPK1/8 w - - 0 42",
+                "expected": "Qxf7",
+                "submitted": "Qxf7",
+                "correct": true,
+                "seconds": 16.72,
+                "timeout": false
+              },
+              {
+                "round": 9,
+                "id": "zJG14",
+                "rating": 2164,
+                "fen": "3k3r/6R1/1pp5/8/3P3r/4P2p/6P1/4R2K w - - 2 34",
+                "expected": "Ra1",
+                "submitted": "Ra1",
+                "correct": true,
+                "seconds": 16.47,
+                "timeout": false
+              },
+              {
+                "round": 10,
+                "id": "3sWoB",
+                "rating": 2366,
+                "fen": "3rk2r/1pb1npp1/2n3qp/p1BQ4/8/P4N1P/1PP2PP1/2KRR3 w k - 1 22",
+                "expected": "Qxc6+",
+                "submitted": "Qxc6",
+                "correct": true,
+                "seconds": 18.0,
+                "timeout": false
+              }
+            ],
+            "442597396195704832": [
+              {
+                "round": 1,
+                "id": "t4ztW",
+                "rating": 1349,
+                "fen": "5rk1/p1q1bpp1/4b2p/8/3pN3/3N2Q1/P1r2PPP/R1R3K1 w - - 0 24",
+                "expected": "Qxc7",
+                "submitted": "Qxc7",
+                "correct": true,
+                "seconds": 8.96,
+                "timeout": false
+              },
+              {
+                "round": 2,
+                "id": "WBb03",
+                "rating": 1363,
+                "fen": "8/8/5p1k/p3pB2/1p3nPP/1P3PK1/8/8 b - - 8 42",
+                "expected": "Ne2+",
+                "submitted": "Ne2",
+                "correct": true,
+                "seconds": 13.98,
+                "timeout": false
+              },
+              {
+                "round": 3,
+                "id": "USOax",
+                "rating": 1496,
+                "fen": "4r1k1/R2Q1q1p/1pp1rp1P/3p2p1/3P4/2P1P3/5PP1/5RK1 b - - 0 34",
+                "expected": "R6e7",
+                "submitted": "R6e7",
+                "correct": true,
+                "seconds": 13.16,
+                "timeout": false
+              },
+              {
+                "round": 4,
+                "id": "RFeVQ",
+                "rating": 1687,
+                "fen": "8/5r2/p3P1k1/1p1N4/3P2K1/2P2p2/PP6/8 b - - 0 38",
+                "expected": "f2",
+                "submitted": "F2",
+                "correct": true,
+                "seconds": 14.75,
+                "timeout": false
+              },
+              {
+                "round": 5,
+                "id": "TWKTo",
+                "rating": 1721,
+                "fen": "1r3rk1/p1pq1ppp/3bp2B/2p5/6Q1/1PP4P/P1P2PP1/R4RK1 b - - 1 15",
+                "expected": "f5",
+                "submitted": "F5",
+                "correct": true,
+                "seconds": 9.94,
+                "timeout": false
+              },
+              {
+                "round": 6,
+                "id": "64sUw",
+                "rating": 1946,
+                "fen": "8/p3k1pp/1p2pp2/1Rr1PP2/P1P3P1/3K3P/8/8 w - - 0 29",
+                "expected": "Rxc5",
+                "submitted": "Rxc5",
+                "correct": true,
+                "seconds": 10.98,
+                "timeout": false
+              },
+              {
+                "round": 7,
+                "id": "3UAoX",
+                "rating": 1957,
+                "fen": "6k1/p4ppp/8/3bp3/2p5/P1P5/1rr1BPPP/R1R2K2 w - - 6 26",
+                "expected": "Rxc2",
+                "submitted": "Rxc2",
+                "correct": true,
+                "seconds": 15.65,
+                "timeout": false
+              },
+              {
+                "round": 8,
+                "id": "5Cgjp",
+                "rating": 2124,
+                "fen": "5b1k/3n1p1P/4p3/4P3/3pnQN1/2p2NP1/4qPK1/8 w - - 0 42",
+                "expected": "Qxf7",
+                "submitted": "Nxd4",
+                "correct": false,
+                "seconds": 14.5,
+                "timeout": false
+              },
+              {
+                "round": 9,
+                "id": "zJG14",
+                "rating": 2164,
+                "fen": "3k3r/6R1/1pp5/8/3P3r/4P2p/6P1/4R2K w - - 2 34",
+                "expected": "Ra1",
+                "submitted": "Ra1",
+                "correct": true,
+                "seconds": 20.09,
+                "timeout": false
+              },
+              {
+                "round": 10,
+                "id": "3sWoB",
+                "rating": 2366,
+                "fen": "3rk2r/1pb1npp1/2n3qp/p1BQ4/8/P4N1P/1PP2PP1/2KRR3 w k - 1 22",
+                "expected": "Qxc6+",
+                "submitted": "Rxe7",
+                "correct": false,
+                "seconds": 10.19,
+                "timeout": false
+              }
+            ]
+          },
+          "round_started_at": 1789052706.0560682,
+          "deadline": 1789052736.0560682
+        },
+        "ended_at": 1789052724.0588887,
+        "result_text": "All scheduled puzzles completed."
+      },
+      "racer:racer-open:menu-open:1547640923817775124:362606514764251137": {
+        "id": "racer:racer-open:menu-open:1547640923817775124:362606514764251137",
+        "status": "finished",
+        "channel_id": 1546557493038284840,
+        "message_id": "1547641320162599103",
+        "challenge_id": "racer-open:menu-open:1547640923817775124:362606514764251137",
+        "players": [
+          {
+            "id": "362606514764251137",
+            "name": "Sharkmeister"
+          },
+          {
+            "id": "442597396195704832",
+            "name": "Thice"
+          }
+        ],
+        "player1_id": "362606514764251137",
+        "player1_name": "Sharkmeister",
+        "player2_id": "442597396195704832",
+        "player2_name": "Thice",
+        "minutes": 3,
+        "stake": 0,
+        "open_multiplayer": true,
+        "board_theme": "classic",
+        "piece_theme": "classic",
+        "arrow_theme": "green",
+        "started_at": 1789056778.7981436,
+        "winner_id": "442597396195704832",
+        "tied_winner_ids": [],
+        "forfeit_ids": [
+          "362606514764251137"
+        ],
+        "rewards_settled": true,
+        "data": {
+          "puzzles": [
+            {
+              "id": "3v8Gv",
+              "fen": "Q3n1k1/5bpp/4N3/3p4/3Pp3/6PB/1r2q2P/5R1K w - - 5 29",
+              "setup_uci": "f6e8",
+              "expected_uci": "a8e8",
+              "expected_move": "Qxe8+",
+              "rating": 1329
+            },
+            {
+              "id": "pOBZa",
+              "fen": "6rk/p7/2Q2R2/5p2/3P1B1K/6P1/PPP5/5q2 b - - 2 34",
+              "setup_uci": "h3h4",
+              "expected_uci": "g8g4",
+              "expected_move": "Rg4+",
+              "rating": 1539
+            },
+            {
+              "id": "nHtDX",
+              "fen": "r4r2/pp3kb1/2nppqp1/2p1p2p/2PnP2P/2NPB1PB/PP3PK1/R2QR3 w - - 4 22",
+              "setup_uci": "h8f8",
+              "expected_uci": "e3g5",
+              "expected_move": "Bg5",
+              "rating": 1586
+            },
+            {
+              "id": "ckuMj",
+              "fen": "8/6pk/7p/1Q3P1K/4q2P/6P1/8/8 b - - 10 62",
+              "setup_uci": "g4h5",
+              "expected_uci": "g7g6",
+              "expected_move": "g6+",
+              "rating": 1845
+            },
+            {
+              "id": "3T1gd",
+              "fen": "8/4bk1p/1p2p1pP/5q2/3R1PQ1/7P/P4K2/8 b - - 3 36",
+              "setup_uci": "e2g4",
+              "expected_uci": "f5g4",
+              "expected_move": "Qxg4",
+              "rating": 2240
+            },
+            {
+              "id": "aPa7r",
+              "fen": "3r3k/6pp/7b/pP6/2P1Q2P/KR2p3/P7/2B1q3 w - - 1 34",
+              "setup_uci": "e2e1",
+              "expected_uci": "c1e3",
+              "expected_move": "Bxe3",
+              "rating": 2201
+            }
+          ],
+          "round": 2,
+          "scores": {
+            "362606514764251137": 0,
+            "442597396195704832": 2
+          },
+          "round_answers": {},
+          "history": {
+            "362606514764251137": [
+              {
+                "round": 1,
+                "id": "3v8Gv",
+                "rating": 1329,
+                "fen": "Q3n1k1/5bpp/4N3/3p4/3Pp3/6PB/1r2q2P/5R1K w - - 5 29",
+                "expected": "Qxe8+",
+                "submitted": "—",
+                "correct": false,
+                "seconds": 30,
+                "timeout": true
+              },
+              {
+                "round": 2,
+                "id": "pOBZa",
+                "rating": 1539,
+                "fen": "6rk/p7/2Q2R2/5p2/3P1B1K/6P1/PPP5/5q2 b - - 2 34",
+                "expected": "Rg4+",
+                "submitted": "qh1",
+                "correct": false,
+                "seconds": 12.46,
+                "timeout": false
+              }
+            ],
+            "442597396195704832": [
+              {
+                "round": 1,
+                "id": "3v8Gv",
+                "rating": 1329,
+                "fen": "Q3n1k1/5bpp/4N3/3p4/3Pp3/6PB/1r2q2P/5R1K w - - 5 29",
+                "expected": "Qxe8+",
+                "submitted": "Qxe8",
+                "correct": true,
+                "seconds": 11.37,
+                "timeout": false
+              },
+              {
+                "round": 2,
+                "id": "pOBZa",
+                "rating": 1539,
+                "fen": "6rk/p7/2Q2R2/5p2/3P1B1K/6P1/PPP5/5q2 b - - 2 34",
+                "expected": "Rg4+",
+                "submitted": "Rg4",
+                "correct": true,
+                "seconds": 22.6,
+                "timeout": false
+              }
+            ]
+          },
+          "round_started_at": 1789056832.080046,
+          "deadline": 1789056862.080046
+        },
+        "forfeit_id": "362606514764251137",
+        "ended_at": 1789056839.9347727,
+        "result_text": "Sharkmeister forfeited the race."
+      },
+      "racer:racer-open:menu-open:1548407043025674321:442597396195704832": {
+        "id": "racer:racer-open:menu-open:1548407043025674321:442597396195704832",
+        "status": "finished",
+        "channel_id": 1468320170891022417,
+        "message_id": "1548409707230789785",
+        "challenge_id": "racer-open:menu-open:1548407043025674321:442597396195704832",
+        "players": [
+          {
+            "id": "442597396195704832",
+            "name": "Thice"
+          },
+          {
+            "id": "601406103712170014",
+            "name": "TheMakina"
+          }
+        ],
+        "player1_id": "442597396195704832",
+        "player1_name": "Thice",
+        "player2_id": "601406103712170014",
+        "player2_name": "TheMakina",
+        "minutes": 3,
+        "stake": 5,
+        "wager_reserved": true,
+        "open_multiplayer": true,
+        "board_theme": "blue",
+        "piece_theme": "kiwen-suwi",
+        "arrow_theme": "pink",
+        "started_at": 1789239928.565061,
+        "winner_id": null,
+        "tied_winner_ids": [],
+        "forfeit_ids": [],
+        "rewards_settled": true,
+        "data": {
+          "puzzles": [
+            {
+              "id": "hrPWo",
+              "fen": "1k2r3/1p5p/p1p5/P1Pp4/2n2NQ1/1PPK2P1/5PBq/R7 b - - 2 32",
+              "setup_uci": "e2d3",
+              "expected_uci": "c4e5",
+              "expected_move": "Ne5+",
+              "rating": 1295
+            },
+            {
+              "id": "9m8dg",
+              "fen": "8/R7/5kp1/3q3p/8/8/1K4P1/R7 w - - 0 44",
+              "setup_uci": "c4d5",
+              "expected_uci": "a1a6",
+              "expected_move": "R1a6+",
+              "rating": 1521
+            },
+            {
+              "id": "jID4S",
+              "fen": "r1b1r2k/1p2q1pp/p1n1BB2/8/8/5N2/PP2QPPP/R3R1K1 b - - 0 17",
+              "setup_uci": "g5f6",
+              "expected_uci": "e7f6",
+              "expected_move": "Qxf6",
+              "rating": 1579
+            },
+            {
+              "id": "Wfw0k",
+              "fen": "2k5/1p3p1p/p3p3/2p1P1b1/2Pp4/1PqP2BQ/P3KP1P/4RNr1 b - - 9 27",
+              "setup_uci": "a1e1",
+              "expected_uci": "c3c2",
+              "expected_move": "Qc2+",
+              "rating": 1864
+            },
+            {
+              "id": "Ahgtc",
+              "fen": "5rk1/5pp1/p3p2p/4P3/1pR1qnQ1/1P5P/PB3PP1/6K1 b - - 4 25",
+              "setup_uci": "c5c4",
+              "expected_uci": "e4e1",
+              "expected_move": "Qe1+",
+              "rating": 2029
+            },
+            {
+              "id": "lIvJ6",
+              "fen": "8/p7/2pkp1pp/1p3P2/1P2K1PP/P1P5/8/8 b - - 0 32",
+              "setup_uci": "f4f5",
+              "expected_uci": "e6f5",
+              "expected_move": "exf5+",
+              "rating": 2416
+            }
+          ],
+          "round": 5,
+          "scores": {
+            "442597396195704832": 6,
+            "601406103712170014": 6
+          },
+          "round_answers": {
+            "442597396195704832": true,
+            "601406103712170014": true
+          },
+          "history": {
+            "442597396195704832": [
+              {
+                "round": 1,
+                "id": "hrPWo",
+                "rating": 1295,
+                "fen": "1k2r3/1p5p/p1p5/P1Pp4/2n2NQ1/1PPK2P1/5PBq/R7 b - - 2 32",
+                "expected": "Ne5+",
+                "submitted": "ne5",
+                "correct": true,
+                "seconds": 18.74,
+                "timeout": false
+              },
+              {
+                "round": 2,
+                "id": "9m8dg",
+                "rating": 1521,
+                "fen": "8/R7/5kp1/3q3p/8/8/1K4P1/R7 w - - 0 44",
+                "expected": "R1a6+",
+                "submitted": "R1a6",
+                "correct": true,
+                "seconds": 17.06,
+                "timeout": false
+              },
+              {
+                "round": 3,
+                "id": "jID4S",
+                "rating": 1579,
+                "fen": "r1b1r2k/1p2q1pp/p1n1BB2/8/8/5N2/PP2QPPP/R3R1K1 b - - 0 17",
+                "expected": "Qxf6",
+                "submitted": "qxf6",
+                "correct": true,
+                "seconds": 15.08,
+                "timeout": false
+              },
+              {
+                "round": 4,
+                "id": "Wfw0k",
+                "rating": 1864,
+                "fen": "2k5/1p3p1p/p3p3/2p1P1b1/2Pp4/1PqP2BQ/P3KP1P/4RNr1 b - - 9 27",
+                "expected": "Qc2+",
+                "submitted": "qc2",
+                "correct": true,
+                "seconds": 11.74,
+                "timeout": false
+              },
+              {
+                "round": 5,
+                "id": "Ahgtc",
+                "rating": 2029,
+                "fen": "5rk1/5pp1/p3p2p/4P3/1pR1qnQ1/1P5P/PB3PP1/6K1 b - - 4 25",
+                "expected": "Qe1+",
+                "submitted": "Qe1",
+                "correct": true,
+                "seconds": 11.54,
+                "timeout": false
+              },
+              {
+                "round": 6,
+                "id": "lIvJ6",
+                "rating": 2416,
+                "fen": "8/p7/2pkp1pp/1p3P2/1P2K1PP/P1P5/8/8 b - - 0 32",
+                "expected": "exf5+",
+                "submitted": "exf5",
+                "correct": true,
+                "seconds": 11.99,
+                "timeout": false
+              }
+            ],
+            "601406103712170014": [
+              {
+                "round": 1,
+                "id": "hrPWo",
+                "rating": 1295,
+                "fen": "1k2r3/1p5p/p1p5/P1Pp4/2n2NQ1/1PPK2P1/5PBq/R7 b - - 2 32",
+                "expected": "Ne5+",
+                "submitted": "Ne5",
+                "correct": true,
+                "seconds": 12.75,
+                "timeout": false
+              },
+              {
+                "round": 2,
+                "id": "9m8dg",
+                "rating": 1521,
+                "fen": "8/R7/5kp1/3q3p/8/8/1K4P1/R7 w - - 0 44",
+                "expected": "R1a6+",
+                "submitted": "R1a6",
+                "correct": true,
+                "seconds": 14.15,
+                "timeout": false
+              },
+              {
+                "round": 3,
+                "id": "jID4S",
+                "rating": 1579,
+                "fen": "r1b1r2k/1p2q1pp/p1n1BB2/8/8/5N2/PP2QPPP/R3R1K1 b - - 0 17",
+                "expected": "Qxf6",
+                "submitted": "Qxf6",
+                "correct": true,
+                "seconds": 16.17,
+                "timeout": false
+              },
+              {
+                "round": 4,
+                "id": "Wfw0k",
+                "rating": 1864,
+                "fen": "2k5/1p3p1p/p3p3/2p1P1b1/2Pp4/1PqP2BQ/P3KP1P/4RNr1 b - - 9 27",
+                "expected": "Qc2+",
+                "submitted": "Qc2",
+                "correct": true,
+                "seconds": 21.85,
+                "timeout": false
+              },
+              {
+                "round": 5,
+                "id": "Ahgtc",
+                "rating": 2029,
+                "fen": "5rk1/5pp1/p3p2p/4P3/1pR1qnQ1/1P5P/PB3PP1/6K1 b - - 4 25",
+                "expected": "Qe1+",
+                "submitted": "Qe1",
+                "correct": true,
+                "seconds": 15.01,
+                "timeout": false
+              },
+              {
+                "round": 6,
+                "id": "lIvJ6",
+                "rating": 2416,
+                "fen": "8/p7/2pkp1pp/1p3P2/1P2K1PP/P1P5/8/8 b - - 0 32",
+                "expected": "exf5+",
+                "submitted": "exf5",
+                "correct": true,
+                "seconds": 18.84,
+                "timeout": false
+              }
+            ]
+          },
+          "round_started_at": 1789240017.4103174,
+          "deadline": 1789240047.4103174
+        },
+        "ended_at": 1789240036.260724,
+        "result_text": "All scheduled puzzles completed."
+      },
+      "racer:racer-open:menu-open:1548410000689336411:442597396195704832": {
+        "id": "racer:racer-open:menu-open:1548410000689336411:442597396195704832",
+        "status": "finished",
+        "channel_id": 1468320170891022417,
+        "message_id": "1548410871225524319",
+        "challenge_id": "racer-open:menu-open:1548410000689336411:442597396195704832",
+        "players": [
+          {
+            "id": "442597396195704832",
+            "name": "Thice"
+          },
+          {
+            "id": "601406103712170014",
+            "name": "TheMakina"
+          }
+        ],
+        "player1_id": "442597396195704832",
+        "player1_name": "Thice",
+        "player2_id": "601406103712170014",
+        "player2_name": "TheMakina",
+        "minutes": 5,
+        "stake": 0,
+        "wager_reserved": false,
+        "open_multiplayer": true,
+        "board_theme": "classic",
+        "piece_theme": "kiwen-suwi",
+        "arrow_theme": "pink",
+        "started_at": 1789240120.9450474,
+        "winner_id": "442597396195704832",
+        "tied_winner_ids": [],
+        "forfeit_ids": [],
+        "rewards_settled": true,
+        "data": {
+          "puzzles": [
+            {
+              "id": "ivh2j",
+              "fen": "6R1/8/8/2b1rkp1/7p/4B2P/4K1P1/8 w - - 1 50",
+              "setup_uci": "d5e5",
+              "expected_uci": "g8g5",
+              "expected_move": "Rxg5+",
+              "rating": 1431
+            },
+            {
+              "id": "jnnxm",
+              "fen": "8/8/3p2p1/p2P2P1/3kP3/1R2r1K1/8/8 w - - 1 51",
+              "setup_uci": "e2e3",
+              "expected_uci": "b3e3",
+              "expected_move": "Rxe3",
+              "rating": 1441
+            },
+            {
+              "id": "XP7Gt",
+              "fen": "rn1qk2r/p2bbppp/1p3n2/1B1N4/3Pp3/2N1P3/PP3PPP/R1BQK2R b KQkq - 0 10",
+              "setup_uci": "f4d5",
+              "expected_uci": "f6d5",
+              "expected_move": "Nxd5",
+              "rating": 1433
+            },
+            {
+              "id": "EkskD",
+              "fen": "8/4kp1Q/p2r1qn1/1p2p3/4B1R1/P7/KP6/8 w - - 10 41",
+              "setup_uci": "e6d6",
+              "expected_uci": "g4g6",
+              "expected_move": "Rxg6",
+              "rating": 1658
+            },
+            {
+              "id": "kJc8m",
+              "fen": "1n6/p2n2k1/1p2p1pp/1B1pP3/3P4/1P3N2/q4PP1/4QK2 w - - 2 31",
+              "setup_uci": "c6b8",
+              "expected_uci": "e1b4",
+              "expected_move": "Qb4",
+              "rating": 1666
+            },
+            {
+              "id": "x2l5V",
+              "fen": "6rk/pp3p1r/3p4/2b1p3/4P3/3B3Q/PPP4K/R7 b - - 4 35",
+              "setup_uci": "g2h2",
+              "expected_uci": "c5g1",
+              "expected_move": "Bg1+",
+              "rating": 1911
+            },
+            {
+              "id": "NJxPp",
+              "fen": "5b2/pp2k3/1q2pr2/4p3/4B2r/2R5/PP2QPR1/6K1 w - - 13 32",
+              "setup_uci": "h6f8",
+              "expected_uci": "c3b3",
+              "expected_move": "Rb3",
+              "rating": 1831
+            },
+            {
+              "id": "SuLCC",
+              "fen": "8/6pk/p1Q4p/3p3r/4q3/P1P5/1P4PN/5R1K b - - 6 46",
+              "setup_uci": "f3h2",
+              "expected_uci": "e4e5",
+              "expected_move": "Qe5",
+              "rating": 1968
+            },
+            {
+              "id": "ttnjN",
+              "fen": "4r3/p1pk2P1/1p1bp3/nR3B2/3P1p1r/2P5/P1PB1P2/4R1K1 b - - 0 26",
+              "setup_uci": "g6g7",
+              "expected_uci": "e6f5",
+              "expected_move": "exf5",
+              "rating": 2120
+            },
+            {
+              "id": "eC9jE",
+              "fen": "rn2k2r/1b1qRppp/p4n2/1ppp4/3N1B2/1BN5/PPPQ1PPP/R5K1 b kq - 0 14",
+              "setup_uci": "e1e7",
+              "expected_uci": "e8e7",
+              "expected_move": "Kxe7",
+              "rating": 2417
+            }
+          ],
+          "round": 9,
+          "scores": {
+            "442597396195704832": 7,
+            "601406103712170014": 6
+          },
+          "round_answers": {
+            "442597396195704832": true,
+            "601406103712170014": true
+          },
+          "history": {
+            "442597396195704832": [
+              {
+                "round": 1,
+                "id": "ivh2j",
+                "rating": 1431,
+                "fen": "6R1/8/8/2b1rkp1/7p/4B2P/4K1P1/8 w - - 1 50",
+                "expected": "Rxg5+",
+                "submitted": "rxg5",
+                "correct": true,
+                "seconds": 17.55,
+                "timeout": false
+              },
+              {
+                "round": 2,
+                "id": "jnnxm",
+                "rating": 1441,
+                "fen": "8/8/3p2p1/p2P2P1/3kP3/1R2r1K1/8/8 w - - 1 51",
+                "expected": "Rxe3",
+                "submitted": "Rxe3",
+                "correct": true,
+                "seconds": 7.85,
+                "timeout": false
+              },
+              {
+                "round": 3,
+                "id": "XP7Gt",
+                "rating": 1433,
+                "fen": "rn1qk2r/p2bbppp/1p3n2/1B1N4/3Pp3/2N1P3/PP3PPP/R1BQK2R b KQkq - 0 10",
+                "expected": "Nxd5",
+                "submitted": "Nxd5",
+                "correct": true,
+                "seconds": 11.33,
+                "timeout": false
+              },
+              {
+                "round": 4,
+                "id": "EkskD",
+                "rating": 1658,
+                "fen": "8/4kp1Q/p2r1qn1/1p2p3/4B1R1/P7/KP6/8 w - - 10 41",
+                "expected": "Rxg6",
+                "submitted": "rxg6",
+                "correct": true,
+                "seconds": 12.06,
+                "timeout": false
+              },
+              {
+                "round": 5,
+                "id": "kJc8m",
+                "rating": 1666,
+                "fen": "1n6/p2n2k1/1p2p1pp/1B1pP3/3P4/1P3N2/q4PP1/4QK2 w - - 2 31",
+                "expected": "Qb4",
+                "submitted": "Bxd7",
+                "correct": false,
+                "seconds": 23.81,
+                "timeout": false
+              },
+              {
+                "round": 6,
+                "id": "x2l5V",
+                "rating": 1911,
+                "fen": "6rk/pp3p1r/3p4/2b1p3/4P3/3B3Q/PPP4K/R7 b - - 4 35",
+                "expected": "Bg1+",
+                "submitted": "Rxh3",
+                "correct": false,
+                "seconds": 15.49,
+                "timeout": false
+              },
+              {
+                "round": 7,
+                "id": "NJxPp",
+                "rating": 1831,
+                "fen": "5b2/pp2k3/1q2pr2/4p3/4B2r/2R5/PP2QPR1/6K1 w - - 13 32",
+                "expected": "Rb3",
+                "submitted": "—",
+                "correct": false,
+                "seconds": 30,
+                "timeout": true
+              },
+              {
+                "round": 8,
+                "id": "SuLCC",
+                "rating": 1968,
+                "fen": "8/6pk/p1Q4p/3p3r/4q3/P1P5/1P4PN/5R1K b - - 6 46",
+                "expected": "Qe5",
+                "submitted": "qe5",
+                "correct": true,
+                "seconds": 12.3,
+                "timeout": false
+              },
+              {
+                "round": 9,
+                "id": "ttnjN",
+                "rating": 2120,
+                "fen": "4r3/p1pk2P1/1p1bp3/nR3B2/3P1p1r/2P5/P1PB1P2/4R1K1 b - - 0 26",
+                "expected": "exf5",
+                "submitted": "exf5",
+                "correct": true,
+                "seconds": 10.79,
+                "timeout": false
+              },
+              {
+                "round": 10,
+                "id": "eC9jE",
+                "rating": 2417,
+                "fen": "rn2k2r/1b1qRppp/p4n2/1ppp4/3N1B2/1BN5/PPPQ1PPP/R5K1 b kq - 0 14",
+                "expected": "Kxe7",
+                "submitted": "Kxe7",
+                "correct": true,
+                "seconds": 13.07,
+                "timeout": false
+              }
+            ],
+            "601406103712170014": [
+              {
+                "round": 1,
+                "id": "ivh2j",
+                "rating": 1431,
+                "fen": "6R1/8/8/2b1rkp1/7p/4B2P/4K1P1/8 w - - 1 50",
+                "expected": "Rxg5+",
+                "submitted": "Rxg5",
+                "correct": true,
+                "seconds": 11.63,
+                "timeout": false
+              },
+              {
+                "round": 2,
+                "id": "jnnxm",
+                "rating": 1441,
+                "fen": "8/8/3p2p1/p2P2P1/3kP3/1R2r1K1/8/8 w - - 1 51",
+                "expected": "Rxe3",
+                "submitted": "Rxe3",
+                "correct": true,
+                "seconds": 9.56,
+                "timeout": false
+              },
+              {
+                "round": 3,
+                "id": "XP7Gt",
+                "rating": 1433,
+                "fen": "rn1qk2r/p2bbppp/1p3n2/1B1N4/3Pp3/2N1P3/PP3PPP/R1BQK2R b KQkq - 0 10",
+                "expected": "Nxd5",
+                "submitted": "Nxd5",
+                "correct": true,
+                "seconds": 14.93,
+                "timeout": false
+              },
+              {
+                "round": 4,
+                "id": "EkskD",
+                "rating": 1658,
+                "fen": "8/4kp1Q/p2r1qn1/1p2p3/4B1R1/P7/KP6/8 w - - 10 41",
+                "expected": "Rxg6",
+                "submitted": "Bxg6",
+                "correct": false,
+                "seconds": 15.15,
+                "timeout": false
+              },
+              {
+                "round": 5,
+                "id": "kJc8m",
+                "rating": 1666,
+                "fen": "1n6/p2n2k1/1p2p1pp/1B1pP3/3P4/1P3N2/q4PP1/4QK2 w - - 2 31",
+                "expected": "Qb4",
+                "submitted": "—",
+                "correct": false,
+                "seconds": 30,
+                "timeout": true
+              },
+              {
+                "round": 6,
+                "id": "x2l5V",
+                "rating": 1911,
+                "fen": "6rk/pp3p1r/3p4/2b1p3/4P3/3B3Q/PPP4K/R7 b - - 4 35",
+                "expected": "Bg1+",
+                "submitted": "Rxh3",
+                "correct": false,
+                "seconds": 22.84,
+                "timeout": false
+              },
+              {
+                "round": 7,
+                "id": "NJxPp",
+                "rating": 1831,
+                "fen": "5b2/pp2k3/1q2pr2/4p3/4B2r/2R5/PP2QPR1/6K1 w - - 13 32",
+                "expected": "Rb3",
+                "submitted": "Rb3",
+                "correct": true,
+                "seconds": 23.92,
+                "timeout": false
+              },
+              {
+                "round": 8,
+                "id": "SuLCC",
+                "rating": 1968,
+                "fen": "8/6pk/p1Q4p/3p3r/4q3/P1P5/1P4PN/5R1K b - - 6 46",
+                "expected": "Qe5",
+                "submitted": "Qe5",
+                "correct": true,
+                "seconds": 14.89,
+                "timeout": false
+              },
+              {
+                "round": 9,
+                "id": "ttnjN",
+                "rating": 2120,
+                "fen": "4r3/p1pk2P1/1p1bp3/nR3B2/3P1p1r/2P5/P1PB1P2/4R1K1 b - - 0 26",
+                "expected": "exf5",
+                "submitted": "f3",
+                "correct": false,
+                "seconds": 19.41,
+                "timeout": false
+              },
+              {
+                "round": 10,
+                "id": "eC9jE",
+                "rating": 2417,
+                "fen": "rn2k2r/1b1qRppp/p4n2/1ppp4/3N1B2/1BN5/PPPQ1PPP/R5K1 b kq - 0 14",
+                "expected": "Kxe7",
+                "submitted": "Kxe7",
+                "correct": true,
+                "seconds": 19.0,
+                "timeout": false
+              }
+            ]
+          },
+          "round_started_at": 1789240296.3254502,
+          "deadline": 1789240326.3254502
+        },
+        "ended_at": 1789240315.3298569,
+        "result_text": "All scheduled puzzles completed."
+      }
+    }
+  }
+}
