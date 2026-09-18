@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/kMZk3",
     "title": "Lichess • 1308",
     "fen": "5k2/q7/8/3PQ3/6p1/1P6/1KP5/8 b - - 0 56",
-    "current_fen": "5k2/q7/8/3PQ3/6p1/1P6/1KP5/8 b - - 0 56",
-    "last_move_uci": "e4d5",
+    "current_fen": "8/6k1/8/3P4/6p1/1P6/1KP5/8 w - - 0 58",
+    "last_move_uci": "f8g7",
     "pgn": "Qg7 Qxg7+ Kxg7",
     "all_moves": [
       {
@@ -43,26 +43,71 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_kMZk3_1789760694900",
-    "last_activity_at": "2026-09-18T19:44:54.900744+00:00",
+    "last_activity_at": "2026-09-18T19:45:06.749409+00:00",
     "rating": 1308,
     "rp_band": 0,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 3,
+    "next_player_index": 2,
     "solved": false,
-    "message_ids": {},
-    "message_id": null,
+    "message_ids": {
+      "1468320170891022417": 1550593516541968504
+    },
+    "message_id": 1550593516541968504,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "attempted_users": {
+      "442597396195704832": {
+        "name": "Thice",
+        "move": "kxg7",
+        "correct": true,
+        "timestamp": "2026-09-18T19:45:06.749630+00:00"
+      }
+    },
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "last_card_activity_at": "2026-09-18T19:45:06.749409+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1789760700.814167,
+        "fen_before": "5k2/q7/8/3PQ3/6p1/1P6/1KP5/8 b - - 0 56",
+        "expected": {
+          "uci": "a7g7",
+          "san": "Qg7",
+          "color": "black"
+        },
+        "accepted_uci": "a7g7"
+      },
+      {
+        "accepted_at": 1789760706.7496371,
+        "fen_before": "5k2/6Q1/8/3P4/6p1/1P6/1KP5/8 b - - 0 57",
+        "expected": {
+          "uci": "f8g7",
+          "san": "Kxg7",
+          "color": "black"
+        },
+        "accepted_uci": "f8g7"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "Qg7",
+        "uci": "a7g7",
+        "principal": true
+      },
+      {
+        "san": "Kxg7",
+        "uci": "f8g7",
+        "principal": true
+      }
+    ],
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Qxg7+"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-09-18",
