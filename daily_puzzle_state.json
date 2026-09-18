@@ -38,7 +38,7 @@
     "player_color": "white",
     "player_move_count": 2,
     "posted_at": "2026-09-18T18:09:11.226546+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -54,9 +54,9 @@
     "next_player_index": 2,
     "solved": true,
     "message_ids": {
-      "1468320170891022417": 1550569576012583053
+      "1468320170891022417": 1550569649337401487
     },
-    "message_id": 1550569576012583053,
+    "message_id": 1550569649337401487,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
@@ -97,7 +97,7 @@
         "principal": true
       }
     ],
-    "last_feedback": "❌ **Thice, congratulations: the puzzle asked for precision and you answered with pure ego.**\n↪️ **Move played:** `qe1`",
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1640 points.**\n\n💡 **Solution:** hxg4 fxe4\n\n🏆 **Your ranking**\n**#1 🔥 Thice — 1640 points ← you**\n**#2 🍅 TheMakina — 1506 points**",
     "wrong_attempt_counts": {
       "442597396195704832": 1
     }
