@@ -142,111 +142,74 @@
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-18",
   "current_puzzle": {
-    "url": "https://www.chess.com/daily/2026-09-17",
-    "title": "Unleash the Beast",
-    "fen": "2qrk3/3p1b2/6Rn/1p1N3B/1B1pP3/P1pP4/KP6/8 w - - 0 1",
-    "current_fen": "2qrk3/5b2/4pN1n/1p5B/1B1pP3/P1pP4/KP6/8 b - - 1 2",
-    "last_move_uci": "d5f6",
-    "pgn": "[White \"CyriacAntony\"]\n[Black \"Daily Puzzle Inspiration\"]\n[Result \"1-0\"]\n[FEN \"2qrk3/3p1b2/6Rn/1p1N3B/1B1pP3/P1pP4/KP6/8 w - - 0 1\"]\n\n1. Re6+ dxe6 2. Nf6# 1-0",
+    "url": "https://www.chess.com/daily/2026-09-18",
+    "title": "I'll Be Back!",
+    "fen": "4r3/R3P1kp/1p4p1/4q3/4p3/P6P/6P1/5Q1K w - - 0 47",
+    "current_fen": "4r3/R3P1kp/1p4p1/4q3/4p3/P6P/6P1/5Q1K w - - 0 47",
+    "last_move_uci": null,
+    "pgn": "[Event \"39th Olympiad Men\"]\n[Site \"Khanty-Mansiysk RUS\"]\n[Date \"2010.09.29\"]\n[Round \"8\"]\n[White \"Mchedlishvili, Mikheil\"]\n[Black \"Podolchenko, Evgeniy\"]\n[Result \"1-0\"]\n[WhiteElo \"2628\"]\n[BlackElo \"2506\"]\n[FEN \"4r3/R3P1kp/1p4p1/4q3/4p3/P6P/6P1/5Q1K w - - 0 47\"]\n\n47. Qf8+ Rxf8 48. e8=Q+ Kf6 49. Qxf8+ 1-0",
     "all_moves": [
       {
-        "uci": "g6e6",
-        "san": "Re6+",
+        "uci": "f1f8",
+        "san": "Qf8+",
         "color": "white"
       },
       {
-        "uci": "d7e6",
-        "san": "dxe6",
+        "uci": "e8f8",
+        "san": "Rxf8",
         "color": "black"
       },
       {
-        "uci": "d5f6",
-        "san": "Nf6#",
+        "uci": "e7e8q",
+        "san": "e8=Q+",
+        "color": "white"
+      },
+      {
+        "uci": "g7f6",
+        "san": "Kf6",
+        "color": "black"
+      },
+      {
+        "uci": "e8f8",
+        "san": "Qxf8+",
         "color": "white"
       }
     ],
     "player_moves": [
       {
-        "uci": "g6e6",
-        "san": "Re6+",
+        "uci": "f1f8",
+        "san": "Qf8+",
         "color": "white"
       },
       {
-        "uci": "d5f6",
-        "san": "Nf6#",
+        "uci": "e7e8q",
+        "san": "e8=Q+",
+        "color": "white"
+      },
+      {
+        "uci": "e8f8",
+        "san": "Qxf8+",
         "color": "white"
       }
     ],
     "player_color": "white",
-    "player_move_count": 2,
-    "posted_at": "2026-09-17T07:34:36.174605+00:00",
-    "answer_posted": true,
+    "player_move_count": 3,
+    "posted_at": "2026-09-18T07:44:37.662577+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "daily_1789630476174",
-    "next_solution_index": 3,
-    "next_player_index": 2,
-    "solved": true,
-    "message_id": 1550062964109746196,
-    "attempted_users": {
-      "442597396195704832": {
-        "name": "Thice",
-        "move": "Nf6",
-        "correct": true,
-        "timestamp": "2026-09-17T08:36:37.699393+00:00"
-      }
-    },
-    "first_move_user_id": "442597396195704832",
-    "first_move_user_name": "Thice",
-    "first_move_awarded": true,
+    "puzzle_id": "daily_1789717477662",
+    "next_solution_index": 0,
+    "next_player_index": 0,
+    "solved": false,
+    "message_id": null,
+    "attempted_users": {},
+    "first_move_user_id": null,
+    "first_move_user_name": null,
+    "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "message_ids": {
-      "1468320170891022417": 1550062964109746196,
-      "1546557493038284840": 1550062971278073857
-    },
-    "channel_id": 1468320170891022417,
-    "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-09-17T08:36:37.698934+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1789634192.4272456,
-        "fen_before": "2qrk3/3p1b2/6Rn/1p1N3B/1B1pP3/P1pP4/KP6/8 w - - 0 1",
-        "expected": {
-          "uci": "g6e6",
-          "san": "Re6+",
-          "color": "white"
-        },
-        "accepted_uci": "g6e6"
-      },
-      {
-        "accepted_at": 1789634197.6994011,
-        "fen_before": "2qrk3/5b2/4p2n/1p1N3B/1B1pP3/P1pP4/KP6/8 w - - 0 2",
-        "expected": {
-          "uci": "d5f6",
-          "san": "Nf6#",
-          "color": "white"
-        },
-        "accepted_uci": "d5f6"
-      }
-    ],
-    "accepted_solution_moves": [
-      {
-        "san": "Re6+",
-        "uci": "g6e6",
-        "principal": true
-      },
-      {
-        "san": "Nf6#",
-        "uci": "d5f6",
-        "principal": true
-      }
-    ],
-    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1629 points.**\n🔥 **Daily Activity Bonus: +10 coins**\n\n💡 **Solution:** Re6+ Nf6#\n\n🏆 **Your ranking**\n**#1 🟦 Thice — 1629 points ← you**\n**#2 🍅 TheMakina — 1501.5 points**",
-    "activity_bonus_users": [
-      "442597396195704832"
-    ]
+    "helper_candidate_users": []
   },
   "lichess_rating_used": {
     "2000": [
