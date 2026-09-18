@@ -52,7 +52,7 @@
     "arrow_theme": "pink",
     "next_solution_index": 3,
     "next_player_index": 2,
-    "solved": false,
+    "solved": true,
     "message_ids": {
       "1468320170891022417": 1550593516541968504
     },
@@ -69,7 +69,7 @@
     },
     "first_move_user_id": "442597396195704832",
     "first_move_user_name": "Thice",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "last_card_activity_at": "2026-09-18T19:45:06.749409+00:00",
@@ -109,7 +109,7 @@
     ],
     "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Qxg7+"
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-18",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-18",
