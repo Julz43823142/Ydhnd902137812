@@ -3721,7 +3721,7 @@
         "player_color": "white",
         "player_move_count": 3,
         "posted_at": "2026-09-19T10:18:50.649441+00:00",
-        "answer_posted": false,
+        "answer_posted": true,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
@@ -3737,7 +3737,7 @@
         "next_player_index": 3,
         "solved": true,
         "message_ids": {
-          "1546557493038284840": 1550813491496226858
+          "1546557493038284840": 1550813563080146975
         },
         "chat_since_refresh": 0,
         "attempted_users": {
@@ -3784,7 +3784,7 @@
             "principal": true
           }
         ],
-        "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kh8"
+        "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1648 points.**\n\n💡 **Solution:** Nxc6 Nxe7+ Bxd3\n\n🏆 **Your ranking**\n**#1 🔥 Thice — 1648 points ← you**\n**#2 🍅 TheMakina — 1506 points**"
       }
     }
   },
