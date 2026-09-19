@@ -3666,7 +3666,7 @@
   },
   "channel_puzzle_state": {
     "1546557493038284840": {
-      "latest_puzzle_type": "random",
+      "latest_puzzle_type": "daily",
       "latest_random_puzzle": {
         "url": "https://lichess.org/training/bMZ4i",
         "title": "Lichess • 2515",
@@ -3736,7 +3736,7 @@
         "player_color": "black",
         "player_move_count": 4,
         "posted_at": "2026-09-19T10:37:14.071099+00:00",
-        "answer_posted": false,
+        "answer_posted": true,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
@@ -3794,7 +3794,7 @@
             "principal": true
           }
         ],
-        "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Ng5+",
+        "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Nxc5 Kxh7 Kg8 Ne4",
         "wrong_attempt_counts": {
           "442597396195704832": 1
         }
