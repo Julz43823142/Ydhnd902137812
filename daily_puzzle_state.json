@@ -3666,7 +3666,7 @@
   },
   "channel_puzzle_state": {
     "1546557493038284840": {
-      "latest_puzzle_type": "random",
+      "latest_puzzle_type": "daily",
       "latest_random_puzzle": {
         "url": "https://lichess.org/training/1Yg6a",
         "title": "Lichess • 2710",
@@ -3736,7 +3736,7 @@
         "player_color": "black",
         "player_move_count": 4,
         "posted_at": "2026-09-19T10:29:47.722470+00:00",
-        "answer_posted": false,
+        "answer_posted": true,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
@@ -3751,7 +3751,9 @@
         "next_solution_index": 0,
         "next_player_index": 0,
         "solved": false,
-        "message_ids": {},
+        "message_ids": {
+          "1546557493038284840": 1550816172864442451
+        },
         "chat_since_refresh": 0,
         "attempted_users": {},
         "first_move_user_id": null,
@@ -3759,7 +3761,8 @@
         "first_move_awarded": false,
         "helper_awarded_users": [],
         "helper_candidate_users": [],
-        "channel_id": 1546557493038284840
+        "channel_id": 1546557493038284840,
+        "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Qxh2 Na5 Nxe2 Kxg7"
       }
     }
   },
