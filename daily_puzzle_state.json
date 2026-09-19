@@ -3741,7 +3741,7 @@
         "winner_name": null,
         "latest_attempts": {},
         "puzzle_id": "random_bMZ4i_1789814234071",
-        "last_activity_at": "2026-09-19T10:37:28.261168+00:00",
+        "last_activity_at": "2026-09-19T10:37:55.276378+00:00",
         "rating": 2515,
         "rp_band": 4,
         "boss": false,
@@ -3758,9 +3758,9 @@
         "attempted_users": {
           "442597396195704832": {
             "name": "Thice",
-            "move": "Nxc5",
-            "correct": true,
-            "timestamp": "2026-09-19T10:37:28.261439+00:00"
+            "move": "Kh8",
+            "correct": false,
+            "timestamp": "2026-09-19T10:37:55.276547+00:00"
           }
         },
         "first_move_user_id": "442597396195704832",
@@ -3769,19 +3769,8 @@
         "helper_awarded_users": [],
         "helper_candidate_users": [],
         "channel_id": 1546557493038284840,
-        "last_card_activity_at": "2026-09-19T10:37:28.261168+00:00",
-        "recent_accepted_moves": [
-          {
-            "accepted_at": 1789814248.2614434,
-            "fen_before": "r1b2rk1/1p1n1ppp/2n1p3/p1RpP3/3N1P2/q2BBN2/P5PP/3Q1RK1 b - - 0 15",
-            "expected": {
-              "uci": "d7c5",
-              "san": "Nxc5",
-              "color": "black"
-            },
-            "accepted_uci": "d7c5"
-          }
-        ],
+        "last_card_activity_at": "2026-09-19T10:37:55.276378+00:00",
+        "recent_accepted_moves": [],
         "accepted_solution_moves": [
           {
             "san": "Nxc5",
@@ -3789,7 +3778,10 @@
             "principal": true
           }
         ],
-        "last_feedback": "**✅ Correct! 3 moves remaining.**\n↩️ **Opponent replies:** Bxh7+"
+        "last_feedback": "**✅ Correct! 3 moves remaining.**\n↩️ **Opponent replies:** Bxh7+",
+        "wrong_attempt_counts": {
+          "442597396195704832": 1
+        }
       }
     }
   },
