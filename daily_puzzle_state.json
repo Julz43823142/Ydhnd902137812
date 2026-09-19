@@ -148,8 +148,8 @@
     "url": "https://www.chess.com/daily/2026-09-19",
     "title": "Queen's g7 Dream",
     "fen": "q3rn1k/2QR4/pp2pp2/8/P1P5/1P4N1/6n1/6K1 w - - 0 50",
-    "current_fen": "q3rnk1/3R4/pp3p2/5p2/P1P5/1P6/6nQ/6K1 w - - 2 52",
-    "last_move_uci": "h8g8",
+    "current_fen": "q3rn1k/3R4/pp3p2/5p2/P1P5/1P4Q1/6n1/6K1 w - - 4 53",
+    "last_move_uci": "g8h8",
     "pgn": "[Event \"FRG-ch int 4th\"]\n[Site \"Bad Lauterberg\"]\n[Date \"1977.??.??\"]\n[Round \"12\"]\n[White \"Karpov, Anatoly\"]\n[Black \"Csom, Istvan\"]\n[Result \"1-0\"]\n[ECO \"A30\"]\n[WhiteElo \"2690\"]\n[BlackElo \"2535\"]\n[FEN \"q3rn1k/2QR4/pp2pp2/8/P1P5/1P4N1/6n1/6K1 w - - 0 50\"]\n\n50. Nf5 exf5 51. Qh2+ Kg8 52. Qg3+ Kh8 53. Qg7# 1-0",
     "all_moves": [
       {
@@ -218,16 +218,16 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1789804245106",
-    "next_solution_index": 4,
-    "next_player_index": 2,
+    "next_solution_index": 6,
+    "next_player_index": 3,
     "solved": false,
-    "message_id": 1550779214557483018,
+    "message_id": 1550779241593966644,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "qh2",
+        "move": "qg3",
         "correct": true,
-        "timestamp": "2026-09-19T08:02:53.350608+00:00"
+        "timestamp": "2026-09-19T08:03:00.753923+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
@@ -236,12 +236,12 @@
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1550779214557483018,
-      "1546557493038284840": 1550779219829727252
+      "1468320170891022417": 1550779241593966644,
+      "1546557493038284840": 1550779247466123294
     },
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-09-19T08:02:53.350179+00:00",
+    "last_card_activity_at": "2026-09-19T08:03:00.753410+00:00",
     "recent_accepted_moves": [
       {
         "accepted_at": 1789804973.3506157,
@@ -252,6 +252,16 @@
           "color": "white"
         },
         "accepted_uci": "c7h2"
+      },
+      {
+        "accepted_at": 1789804980.75393,
+        "fen_before": "q3rnk1/3R4/pp3p2/5p2/P1P5/1P6/6nQ/6K1 w - - 2 52",
+        "expected": {
+          "uci": "h2g3",
+          "san": "Qg3+",
+          "color": "white"
+        },
+        "accepted_uci": "h2g3"
       }
     ],
     "accepted_solution_moves": [
@@ -264,9 +274,14 @@
         "san": "Qh2+",
         "uci": "c7h2",
         "principal": true
+      },
+      {
+        "san": "Qg3+",
+        "uci": "h2g3",
+        "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Kg8"
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kh8"
   },
   "lichess_rating_used": {
     "2000": [
