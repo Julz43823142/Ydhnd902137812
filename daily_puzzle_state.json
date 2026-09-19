@@ -3671,8 +3671,8 @@
         "url": "https://lichess.org/training/fn8Y2",
         "title": "Lichess • 1727",
         "fen": "2r1brk1/4bppp/p1n1pn2/1p2N3/1P1q1B2/P1NQ4/5PPP/RB2R1K1 w - - 0 18",
-        "current_fen": "2r1brk1/4bppp/p1n1pn2/1p2N3/1P1q1B2/P1NQ4/5PPP/RB2R1K1 w - - 0 18",
-        "last_move_uci": "d8d4",
+        "current_fen": "2r1brk1/4bppp/p1N1pn2/1p6/1P3B2/P1Nq4/5PPP/RB2R1K1 w - - 0 19",
+        "last_move_uci": "d4d3",
         "pgn": "Nxc6 Qxd3 Nxe7+ Kh8 Bxd3",
         "all_moves": [
           {
@@ -3726,25 +3726,55 @@
         "winner_name": null,
         "latest_attempts": {},
         "puzzle_id": "random_fn8Y2_1789813130649",
-        "last_activity_at": "2026-09-19T10:18:50.649441+00:00",
+        "last_activity_at": "2026-09-19T10:19:00.728546+00:00",
         "rating": 1727,
         "rp_band": 1,
         "boss": false,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink",
-        "next_solution_index": 0,
-        "next_player_index": 0,
+        "next_solution_index": 2,
+        "next_player_index": 1,
         "solved": false,
-        "message_ids": {},
+        "message_ids": {
+          "1546557493038284840": 1550813465269116958
+        },
         "chat_since_refresh": 0,
-        "attempted_users": {},
-        "first_move_user_id": null,
-        "first_move_user_name": null,
+        "attempted_users": {
+          "442597396195704832": {
+            "name": "Thice",
+            "move": "Nxc6",
+            "correct": true,
+            "timestamp": "2026-09-19T10:19:00.728756+00:00"
+          }
+        },
+        "first_move_user_id": "442597396195704832",
+        "first_move_user_name": "Thice",
         "first_move_awarded": false,
         "helper_awarded_users": [],
         "helper_candidate_users": [],
-        "channel_id": 1546557493038284840
+        "channel_id": 1546557493038284840,
+        "last_card_activity_at": "2026-09-19T10:19:00.728546+00:00",
+        "recent_accepted_moves": [
+          {
+            "accepted_at": 1789813140.72876,
+            "fen_before": "2r1brk1/4bppp/p1n1pn2/1p2N3/1P1q1B2/P1NQ4/5PPP/RB2R1K1 w - - 0 18",
+            "expected": {
+              "uci": "e5c6",
+              "san": "Nxc6",
+              "color": "white"
+            },
+            "accepted_uci": "e5c6"
+          }
+        ],
+        "accepted_solution_moves": [
+          {
+            "san": "Nxc6",
+            "uci": "e5c6",
+            "principal": true
+          }
+        ],
+        "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Qxd3"
       }
     }
   },
