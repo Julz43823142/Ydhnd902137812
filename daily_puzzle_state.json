@@ -3671,8 +3671,8 @@
         "url": "https://lichess.org/training/JX828",
         "title": "Lichess • 2252",
         "fen": "r4r1k/p1p2qp1/1p1pRnBp/3Q4/P1Pp1p2/2P5/5PPP/1R4K1 w - - 6 21",
-        "current_fen": "r4r1k/p1p2qp1/1p1pRnBp/3Q4/P1Pp1p2/2P5/5PPP/1R4K1 w - - 6 21",
-        "last_move_uci": "d7f6",
+        "current_fen": "Q4rqk/p1p3p1/1p1pRnBp/8/P1Pp1p2/2P5/5PPP/1R4K1 w - - 1 22",
+        "last_move_uci": "f7g8",
         "pgn": "Qxa8 Qg8 Qxf8",
         "all_moves": [
           {
@@ -3711,25 +3711,55 @@
         "winner_name": null,
         "latest_attempts": {},
         "puzzle_id": "random_JX828_1789812879200",
-        "last_activity_at": "2026-09-19T10:14:39.200704+00:00",
+        "last_activity_at": "2026-09-19T10:15:10.059155+00:00",
         "rating": 2252,
         "rp_band": 3,
         "boss": false,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink",
-        "next_solution_index": 0,
-        "next_player_index": 0,
+        "next_solution_index": 2,
+        "next_player_index": 1,
         "solved": false,
-        "message_ids": {},
+        "message_ids": {
+          "1546557493038284840": 1550812498494496853
+        },
         "chat_since_refresh": 0,
-        "attempted_users": {},
-        "first_move_user_id": null,
-        "first_move_user_name": null,
+        "attempted_users": {
+          "442597396195704832": {
+            "name": "Thice",
+            "move": "Qxa8",
+            "correct": true,
+            "timestamp": "2026-09-19T10:15:10.059609+00:00"
+          }
+        },
+        "first_move_user_id": "442597396195704832",
+        "first_move_user_name": "Thice",
         "first_move_awarded": false,
         "helper_awarded_users": [],
         "helper_candidate_users": [],
-        "channel_id": 1546557493038284840
+        "channel_id": 1546557493038284840,
+        "last_card_activity_at": "2026-09-19T10:15:10.059155+00:00",
+        "recent_accepted_moves": [
+          {
+            "accepted_at": 1789812910.0596144,
+            "fen_before": "r4r1k/p1p2qp1/1p1pRnBp/3Q4/P1Pp1p2/2P5/5PPP/1R4K1 w - - 6 21",
+            "expected": {
+              "uci": "d5a8",
+              "san": "Qxa8",
+              "color": "white"
+            },
+            "accepted_uci": "d5a8"
+          }
+        ],
+        "accepted_solution_moves": [
+          {
+            "san": "Qxa8",
+            "uci": "d5a8",
+            "principal": true
+          }
+        ],
+        "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Qg8"
       }
     }
   },
