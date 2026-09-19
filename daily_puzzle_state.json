@@ -213,7 +213,7 @@
     "player_color": "white",
     "player_move_count": 4,
     "posted_at": "2026-09-19T07:50:45.106638+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -221,7 +221,7 @@
     "next_solution_index": 7,
     "next_player_index": 4,
     "solved": true,
-    "message_id": 1550779241593966644,
+    "message_id": 1550779311294914590,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
@@ -236,8 +236,8 @@
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1550779241593966644,
-      "1546557493038284840": 1550779247466123294
+      "1468320170891022417": 1550779311294914590,
+      "1546557493038284840": 1550779320946004105
     },
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
@@ -286,7 +286,7 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kh8"
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1646 points.**\n\n💡 **Solution:** Nf5 Qh2+ Qg3+ Qg7#\n\n🏆 **Your ranking**\n**#1 🔥 Thice — 1646 points ← you**\n**#2 🍅 TheMakina — 1506 points**"
   },
   "lichess_rating_used": {
     "2000": [
