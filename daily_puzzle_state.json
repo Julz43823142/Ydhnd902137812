@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/Bu1hI",
     "title": "Lichess • 1904",
     "fen": "8/3bP1K1/4k3/5p2/6pB/6P1/8/8 w - - 18 62",
-    "current_fen": "5K2/3bP3/8/5k2/5PpB/8/8/8 w - - 1 64",
-    "last_move_uci": "e6f5",
+    "current_fen": "5K2/3bP3/8/5k2/5Pp1/6B1/8/8 b - - 2 64",
+    "last_move_uci": "h4g3",
     "pgn": "Kf8 f4 gxf4 Kf5 Bg3",
     "all_moves": [
       {
@@ -58,16 +58,16 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_Bu1hI_1789932803299",
-    "last_activity_at": "2026-09-20T19:33:43.821513+00:00",
+    "last_activity_at": "2026-09-20T19:33:58.597767+00:00",
     "rating": 1904,
     "rp_band": 2,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 4,
-    "next_player_index": 2,
-    "solved": false,
+    "next_solution_index": 5,
+    "next_player_index": 3,
+    "solved": true,
     "message_ids": {
       "1468320170891022417": 1551315445699838105
     },
@@ -77,27 +77,27 @@
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Gxf4",
+        "move": "Bg3",
         "correct": true,
-        "timestamp": "2026-09-20T19:33:43.821845+00:00"
+        "timestamp": "2026-09-20T19:33:58.598088+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
     "first_move_user_name": "Thice",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-20T19:33:43.821513+00:00",
+    "last_card_activity_at": "2026-09-20T19:33:58.597767+00:00",
     "recent_accepted_moves": [
       {
-        "accepted_at": 1789932823.8218527,
-        "fen_before": "5K2/3bP3/4k3/8/5ppB/6P1/8/8 w - - 0 63",
+        "accepted_at": 1789932838.598097,
+        "fen_before": "5K2/3bP3/8/5k2/5PpB/8/8/8 w - - 1 64",
         "expected": {
-          "uci": "g3f4",
-          "san": "gxf4",
+          "uci": "h4g3",
+          "san": "Bg3",
           "color": "white"
         },
-        "accepted_uci": "g3f4"
+        "accepted_uci": "h4g3"
       }
     ],
     "accepted_solution_moves": [
@@ -110,11 +110,16 @@
         "san": "gxf4",
         "uci": "g3f4",
         "principal": true
+      },
+      {
+        "san": "Bg3",
+        "uci": "h4g3",
+        "principal": true
       }
     ],
     "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kf5"
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-20",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-20",
