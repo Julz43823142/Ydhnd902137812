@@ -228,7 +228,7 @@
     "player_color": "black",
     "player_move_count": 5,
     "posted_at": "2026-09-20T07:53:23.145507+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -236,7 +236,7 @@
     "next_solution_index": 9,
     "next_player_index": 5,
     "solved": true,
-    "message_id": 1551156132029141177,
+    "message_id": 1551156200417001567,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
@@ -251,8 +251,8 @@
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1551156132029141177,
-      "1546557493038284840": 1551156137875734568
+      "1468320170891022417": 1551156200417001567,
+      "1546557493038284840": 1551156207371292754
     },
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
@@ -306,7 +306,7 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Ka2",
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1650 points.**\n🔥 **Daily Activity Bonus: +10 coins**\n\n💡 **Solution:** Bb1 Kc2 axb3 b2+ b1=Q#\n\n🏆 **Your ranking**\n**#1 🔥 Thice — 1650 points ← you**\n**#2 🍅 TheMakina — 1506 points**",
     "activity_bonus_users": [
       "442597396195704832"
     ]
