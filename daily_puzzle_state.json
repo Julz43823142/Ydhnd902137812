@@ -148,8 +148,8 @@
     "url": "https://www.chess.com/daily/2026-09-20",
     "title": "Level Up!",
     "fen": "6Q1/5P2/1pp3P1/3p4/pB6/PqPk3p/2b4P/K6R b - - 0 1",
-    "current_fen": "6Q1/5P2/1pp3P1/3p4/pB6/PqPk3p/7P/KR6 b - - 0 2",
-    "last_move_uci": "h1b1",
+    "current_fen": "6Q1/5P2/1pp3P1/3p4/pB6/PRP4p/2k4P/K7 b - - 0 3",
+    "last_move_uci": "b1b3",
     "pgn": "[Result \"0-1\"]\n[FEN \"6Q1/5P2/1pp3P1/3p4/pB6/PqPk3p/2b4P/K6R b - - 0 1\"]\n\n1... Bb1 2. Rxb1 Kc2 3. Rxb3 axb3 4. f8=Q b2+ 5. Ka2 b1=Q# 0-1",
     "all_moves": [
       {
@@ -233,16 +233,16 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1789890803145",
-    "next_solution_index": 2,
-    "next_player_index": 1,
+    "next_solution_index": 4,
+    "next_player_index": 2,
     "solved": false,
-    "message_id": 1551156057487712286,
+    "message_id": 1551156081017888791,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Bb1",
+        "move": "Kc2",
         "correct": true,
-        "timestamp": "2026-09-20T09:00:20.887558+00:00"
+        "timestamp": "2026-09-20T09:00:27.117595+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
@@ -251,12 +251,12 @@
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1551156057487712286,
-      "1546557493038284840": 1551156065876451408
+      "1468320170891022417": 1551156081017888791,
+      "1546557493038284840": 1551156088433541190
     },
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-09-20T09:00:20.886924+00:00",
+    "last_card_activity_at": "2026-09-20T09:00:27.117316+00:00",
     "recent_accepted_moves": [
       {
         "accepted_at": 1789894820.8875654,
@@ -267,6 +267,16 @@
           "color": "black"
         },
         "accepted_uci": "c2b1"
+      },
+      {
+        "accepted_at": 1789894827.1176028,
+        "fen_before": "6Q1/5P2/1pp3P1/3p4/pB6/PqPk3p/7P/KR6 b - - 0 2",
+        "expected": {
+          "uci": "d3c2",
+          "san": "Kc2",
+          "color": "black"
+        },
+        "accepted_uci": "d3c2"
       }
     ],
     "accepted_solution_moves": [
@@ -274,9 +284,14 @@
         "san": "Bb1",
         "uci": "c2b1",
         "principal": true
+      },
+      {
+        "san": "Kc2",
+        "uci": "d3c2",
+        "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 4 moves remaining.**\n↩️ **Opponent replies:** Rxb1"
+    "last_feedback": "**✅ Correct! 3 moves remaining.**\n↩️ **Opponent replies:** Rxb3"
   },
   "lichess_rating_used": {
     "2000": [
