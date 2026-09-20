@@ -113,7 +113,7 @@
     "player_color": "black",
     "player_move_count": 7,
     "posted_at": "2026-09-20T10:42:09.276936+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -129,9 +129,9 @@
     "next_player_index": 7,
     "solved": true,
     "message_ids": {
-      "1468320170891022417": 1551181892068446308
+      "1468320170891022417": 1551182023652155513
     },
-    "message_id": 1551181892068446308,
+    "message_id": 1551182023652155513,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
@@ -197,7 +197,7 @@
         "principal": true
       }
     ],
-    "last_feedback": "❌ **Stockfish report for Thice: Mr Thick has entered the chat and the correct move has quietly left.**\n↪️ **Move played:** `Qg1`",
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1652 points.**\n\n💡 **Solution:** a5 a4 b3 a3 a2 a1=Q+ Qa8+\n\n🏆 **Your ranking**\n**#1 🔥 Thice — 1652 points ← you**\n**#2 🍅 TheMakina — 1506 points**",
     "wrong_attempt_counts": {
       "442597396195704832": 1
     }
