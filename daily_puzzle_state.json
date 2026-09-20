@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/8lxBc",
     "title": "Lichess • 2197",
     "fen": "8/4k1K1/p7/8/1p5P/8/P7/8 b - - 3 50",
-    "current_fen": "6KQ/4k3/8/8/8/1P6/8/q7 b - - 1 56",
-    "last_move_uci": "g7g8",
+    "current_fen": "q5KQ/4k3/8/8/8/1P6/8/8 w - - 2 57",
+    "last_move_uci": "a1a8",
     "pgn": "a5 h5 a4 h6 b3 axb3 a3 h7 a2 h8=Q a1=Q+ Kg8 Qa8+",
     "all_moves": [
       {
@@ -118,37 +118,48 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_8lxBc_1789900929276",
-    "last_activity_at": "2026-09-20T10:43:01.083590+00:00",
+    "last_activity_at": "2026-09-20T10:43:26.833572+00:00",
     "rating": 2197,
     "rp_band": 3,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 12,
-    "next_player_index": 6,
-    "solved": false,
+    "next_solution_index": 13,
+    "next_player_index": 7,
+    "solved": true,
     "message_ids": {
-      "1468320170891022417": 1551181819867566141
+      "1468320170891022417": 1551181892068446308
     },
-    "message_id": 1551181819867566141,
+    "message_id": 1551181892068446308,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Qg1",
-        "correct": false,
-        "timestamp": "2026-09-20T10:43:01.084244+00:00"
+        "move": "Qa8",
+        "correct": true,
+        "timestamp": "2026-09-20T10:43:26.833950+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
     "first_move_user_name": "Thice",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-20T10:43:01.083590+00:00",
-    "recent_accepted_moves": [],
+    "last_card_activity_at": "2026-09-20T10:43:26.833572+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1789901006.8339584,
+        "fen_before": "6KQ/4k3/8/8/8/1P6/8/q7 b - - 1 56",
+        "expected": {
+          "uci": "a1a8",
+          "san": "Qa8+",
+          "color": "black"
+        },
+        "accepted_uci": "a1a8"
+      }
+    ],
     "accepted_solution_moves": [
       {
         "san": "a5",
@@ -179,14 +190,19 @@
         "san": "a1=Q+",
         "uci": "a2a1q",
         "principal": true
+      },
+      {
+        "san": "Qa8+",
+        "uci": "a1a8",
+        "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kg8",
+    "last_feedback": "❌ **Stockfish report for Thice: Mr Thick has entered the chat and the correct move has quietly left.**\n↪️ **Move played:** `Qg1`",
     "wrong_attempt_counts": {
       "442597396195704832": 1
     }
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-20",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-20",
