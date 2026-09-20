@@ -398,13 +398,14 @@
         "442597396195704832": {
           "name": "Thice",
           "paid": [
-            "daily:2026-09-20:puzzle:solve-8"
+            "daily:2026-09-20:puzzle:solve-8",
+            "daily:2026-09-20:minigame:minigame-2"
           ],
           "progress": {
             "daily:2026-09-20:minigame:minigame-2": 2,
             "daily:2026-09-20:puzzle:solve-8": 8
           },
-          "updated_at": 1789934356
+          "updated_at": 1789934360
         }
       }
     },
