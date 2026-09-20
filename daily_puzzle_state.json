@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/1tpno",
     "title": "Lichess • 2424",
     "fen": "2r1r1k1/p1B1bpp1/2Q2n2/3p4/1q5p/PPN4P/2P2PP1/R4RK1 b - - 0 23",
-    "current_fen": "2r1r1k1/p1B1bpp1/5n2/2Qp4/7p/PPN4P/2P2PP1/R4RK1 b - - 0 24",
-    "last_move_uci": "c6c5",
+    "current_fen": "2r1r1k1/p1B2pp1/5n2/2bp4/7p/PPN4P/2P2PP1/R4RK1 w - - 0 25",
+    "last_move_uci": "e7c5",
     "pgn": "Qc5 Qxc5 Bxc5",
     "all_moves": [
       {
@@ -43,16 +43,16 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_1tpno_1789934175778",
-    "last_activity_at": "2026-09-20T19:57:30.547187+00:00",
+    "last_activity_at": "2026-09-20T19:57:37.164061+00:00",
     "rating": 2424,
     "rp_band": 4,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 2,
-    "next_player_index": 1,
-    "solved": false,
+    "next_solution_index": 3,
+    "next_player_index": 2,
+    "solved": true,
     "message_ids": {
       "1468320170891022417": 1551321429859901573
     },
@@ -62,17 +62,17 @@
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Qc5",
+        "move": "Bxc5",
         "correct": true,
-        "timestamp": "2026-09-20T19:57:30.547996+00:00"
+        "timestamp": "2026-09-20T19:57:37.164630+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
     "first_move_user_name": "Thice",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-20T19:57:30.547187+00:00",
+    "last_card_activity_at": "2026-09-20T19:57:37.164061+00:00",
     "recent_accepted_moves": [
       {
         "accepted_at": 1789934250.5480063,
@@ -83,6 +83,16 @@
           "color": "black"
         },
         "accepted_uci": "b4c5"
+      },
+      {
+        "accepted_at": 1789934257.1646378,
+        "fen_before": "2r1r1k1/p1B1bpp1/5n2/2Qp4/7p/PPN4P/2P2PP1/R4RK1 b - - 0 24",
+        "expected": {
+          "uci": "e7c5",
+          "san": "Bxc5",
+          "color": "black"
+        },
+        "accepted_uci": "e7c5"
       }
     ],
     "wrong_attempt_counts": {
@@ -94,10 +104,15 @@
         "san": "Qc5",
         "uci": "b4c5",
         "principal": true
+      },
+      {
+        "san": "Bxc5",
+        "uci": "e7c5",
+        "principal": true
       }
     ]
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-20",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-20",
