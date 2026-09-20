@@ -399,9 +399,9 @@
           "name": "Thice",
           "paid": [],
           "progress": {
-            "daily:2026-09-20:puzzle:solve-8": 4
+            "daily:2026-09-20:puzzle:solve-8": 5
           },
-          "updated_at": 1789932842
+          "updated_at": 1789932946
         }
       }
     },
@@ -473,9 +473,9 @@
           ],
           "progress": {
             "weekly:2026-09-14:minigame:minigame-5": 4,
-            "weekly:2026-09-14:puzzle:solve-25": 25
+            "weekly:2026-09-14:puzzle:solve-25": 26
           },
-          "updated_at": 1789932846
+          "updated_at": 1789932946
         },
         "601406103712170014": {
           "name": "TheMakina",
