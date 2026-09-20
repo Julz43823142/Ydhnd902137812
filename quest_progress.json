@@ -472,13 +472,14 @@
         "442597396195704832": {
           "name": "Thice",
           "paid": [
-            "weekly:2026-09-14:puzzle:solve-25"
+            "weekly:2026-09-14:puzzle:solve-25",
+            "weekly:2026-09-14:minigame:minigame-5"
           ],
           "progress": {
             "weekly:2026-09-14:minigame:minigame-5": 5,
             "weekly:2026-09-14:puzzle:solve-25": 29
           },
-          "updated_at": 1789934336
+          "updated_at": 1789934339
         },
         "601406103712170014": {
           "name": "TheMakina",
