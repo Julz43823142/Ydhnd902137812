@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/Bu1hI",
     "title": "Lichess • 1904",
     "fen": "8/3bP1K1/4k3/5p2/6pB/6P1/8/8 w - - 18 62",
-    "current_fen": "5K2/3bP3/4k3/8/5ppB/6P1/8/8 w - - 0 63",
-    "last_move_uci": "f5f4",
+    "current_fen": "5K2/3bP3/8/5k2/5PpB/8/8/8 w - - 1 64",
+    "last_move_uci": "e6f5",
     "pgn": "Kf8 f4 gxf4 Kf5 Bg3",
     "all_moves": [
       {
@@ -58,28 +58,28 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_Bu1hI_1789932803299",
-    "last_activity_at": "2026-09-20T19:33:35.603584+00:00",
+    "last_activity_at": "2026-09-20T19:33:43.821513+00:00",
     "rating": 1904,
     "rp_band": 2,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 2,
-    "next_player_index": 1,
+    "next_solution_index": 4,
+    "next_player_index": 2,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1551315415710564532
+      "1468320170891022417": 1551315445699838105
     },
-    "message_id": 1551315415710564532,
+    "message_id": 1551315445699838105,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Kf8",
+        "move": "Gxf4",
         "correct": true,
-        "timestamp": "2026-09-20T19:33:35.603950+00:00"
+        "timestamp": "2026-09-20T19:33:43.821845+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
@@ -87,17 +87,17 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-20T19:33:35.603584+00:00",
+    "last_card_activity_at": "2026-09-20T19:33:43.821513+00:00",
     "recent_accepted_moves": [
       {
-        "accepted_at": 1789932815.6039577,
-        "fen_before": "8/3bP1K1/4k3/5p2/6pB/6P1/8/8 w - - 18 62",
+        "accepted_at": 1789932823.8218527,
+        "fen_before": "5K2/3bP3/4k3/8/5ppB/6P1/8/8 w - - 0 63",
         "expected": {
-          "uci": "g7f8",
-          "san": "Kf8",
+          "uci": "g3f4",
+          "san": "gxf4",
           "color": "white"
         },
-        "accepted_uci": "g7f8"
+        "accepted_uci": "g3f4"
       }
     ],
     "accepted_solution_moves": [
@@ -105,9 +105,14 @@
         "san": "Kf8",
         "uci": "g7f8",
         "principal": true
+      },
+      {
+        "san": "gxf4",
+        "uci": "g3f4",
+        "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** f4"
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kf5"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-09-20",
