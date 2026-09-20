@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/uWjdq",
     "title": "Lichess • 2137",
     "fen": "r1q1rbk1/6p1/p1n1pn1p/2N1p3/2Q1P2N/P3B2P/2P2PP1/R4RK1 b - - 2 21",
-    "current_fen": "r1q1rbk1/6p1/p1n1pn1p/2N1p3/2Q1P2N/P3B2P/2P2PP1/R4RK1 b - - 2 21",
-    "last_move_uci": "f3h4",
+    "current_fen": "r1q1rbk1/6p1/p3pn1p/2N1p3/2QBP2N/P6P/2P2PP1/R4RK1 b - - 0 22",
+    "last_move_uci": "e3d4",
     "pgn": "Nd4 Bxd4 exd4",
     "all_moves": [
       {
@@ -43,41 +43,59 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_uWjdq_1789932857833",
-    "last_activity_at": "2026-09-20T19:35:18.295153+00:00",
+    "last_activity_at": "2026-09-20T19:35:36.156172+00:00",
     "rating": 2137,
     "rp_band": 3,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1551315716878237769
+      "1468320170891022417": 1551315917131219026
     },
-    "message_id": 1551315716878237769,
+    "message_id": 1551315917131219026,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "G5",
-        "correct": false,
-        "timestamp": "2026-09-20T19:35:18.296111+00:00"
+        "move": "Nd4",
+        "correct": true,
+        "timestamp": "2026-09-20T19:35:36.156959+00:00"
       }
     },
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-20T19:35:18.295153+00:00",
-    "recent_accepted_moves": [],
+    "last_card_activity_at": "2026-09-20T19:35:36.156172+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1789932936.156967,
+        "fen_before": "r1q1rbk1/6p1/p1n1pn1p/2N1p3/2Q1P2N/P3B2P/2P2PP1/R4RK1 b - - 2 21",
+        "expected": {
+          "uci": "c6d4",
+          "san": "Nd4",
+          "color": "black"
+        },
+        "accepted_uci": "c6d4"
+      }
+    ],
     "wrong_attempt_counts": {
       "442597396195704832": 2
     },
-    "last_feedback": "❌ **Puzzle verdict on Thice: your move was so convinced of itself it forgot to be good.**\n↪️ **Move played:** `Na5`"
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Bxd4",
+    "accepted_solution_moves": [
+      {
+        "san": "Nd4",
+        "uci": "c6d4",
+        "principal": true
+      }
+    ]
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-09-20",
