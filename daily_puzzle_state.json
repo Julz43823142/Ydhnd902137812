@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/SIlgc",
     "title": "Lichess • 1799",
     "fen": "5rk1/1b2qp1p/p4bp1/8/1PQN4/P2pP3/5PPP/R2R2K1 b - - 3 24",
-    "current_fen": "5rk1/1b3p1p/p4bp1/8/1PQNq3/P2pPP2/6PP/R2R2K1 b - - 0 25",
-    "last_move_uci": "f2f3",
+    "current_fen": "5rk1/1b3p1p/p4bp1/8/1PQN4/P2pqP2/6PP/R2R2K1 w - - 0 26",
+    "last_move_uci": "e4e3",
     "pgn": "Qe4 f3 Qxe3+",
     "all_moves": [
       {
@@ -43,16 +43,16 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_SIlgc_1789900892993",
-    "last_activity_at": "2026-09-20T10:41:48.914296+00:00",
+    "last_activity_at": "2026-09-20T10:41:55.459926+00:00",
     "rating": 1799,
     "rp_band": 1,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 2,
-    "next_player_index": 1,
-    "solved": false,
+    "next_solution_index": 3,
+    "next_player_index": 2,
+    "solved": true,
     "message_ids": {
       "1468320170891022417": 1551181589340356651
     },
@@ -62,17 +62,17 @@
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Qe4",
+        "move": "Qxe3",
         "correct": true,
-        "timestamp": "2026-09-20T10:41:48.915002+00:00"
+        "timestamp": "2026-09-20T10:41:55.460824+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
     "first_move_user_name": "Thice",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-20T10:41:48.914296+00:00",
+    "last_card_activity_at": "2026-09-20T10:41:55.459926+00:00",
     "recent_accepted_moves": [
       {
         "accepted_at": 1789900908.915009,
@@ -83,6 +83,16 @@
           "color": "black"
         },
         "accepted_uci": "e7e4"
+      },
+      {
+        "accepted_at": 1789900915.4608326,
+        "fen_before": "5rk1/1b3p1p/p4bp1/8/1PQNq3/P2pPP2/6PP/R2R2K1 b - - 0 25",
+        "expected": {
+          "uci": "e4e3",
+          "san": "Qxe3+",
+          "color": "black"
+        },
+        "accepted_uci": "e4e3"
       }
     ],
     "accepted_solution_moves": [
@@ -90,11 +100,16 @@
         "san": "Qe4",
         "uci": "e7e4",
         "principal": true
+      },
+      {
+        "san": "Qxe3+",
+        "uci": "e4e3",
+        "principal": true
       }
     ],
     "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** f3"
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-20",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-20",
