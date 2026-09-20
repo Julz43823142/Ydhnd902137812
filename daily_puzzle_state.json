@@ -1,51 +1,51 @@
 {
   "latest_random_puzzle": {
-    "url": "https://lichess.org/training/Mdz9D",
-    "title": "Lichess • 1238",
-    "fen": "r2k1b1r/ppqnp1pp/2p2n2/5B1b/3PN3/1Q2P3/PP3PPP/R1B1K1NR b KQ - 6 10",
-    "current_fen": "r2k1b1r/ppqnp1pp/2p2n2/5B1b/3PN3/1Q2P3/PP3PPP/R1B1K1NR b KQ - 6 10",
-    "last_move_uci": "c3e4",
-    "pgn": "Qa5+ Nc3 Qxf5",
+    "url": "https://lichess.org/training/SIlgc",
+    "title": "Lichess • 1799",
+    "fen": "5rk1/1b2qp1p/p4bp1/8/1PQN4/P2pP3/5PPP/R2R2K1 b - - 3 24",
+    "current_fen": "5rk1/1b2qp1p/p4bp1/8/1PQN4/P2pP3/5PPP/R2R2K1 b - - 3 24",
+    "last_move_uci": "a2c4",
+    "pgn": "Qe4 f3 Qxe3+",
     "all_moves": [
       {
-        "uci": "c7a5",
-        "san": "Qa5+",
+        "uci": "e7e4",
+        "san": "Qe4",
         "color": "black"
       },
       {
-        "uci": "e4c3",
-        "san": "Nc3",
+        "uci": "f2f3",
+        "san": "f3",
         "color": "white"
       },
       {
-        "uci": "a5f5",
-        "san": "Qxf5",
+        "uci": "e4e3",
+        "san": "Qxe3+",
         "color": "black"
       }
     ],
     "player_moves": [
       {
-        "uci": "c7a5",
-        "san": "Qa5+",
+        "uci": "e7e4",
+        "san": "Qe4",
         "color": "black"
       },
       {
-        "uci": "a5f5",
-        "san": "Qxf5",
+        "uci": "e4e3",
+        "san": "Qxe3+",
         "color": "black"
       }
     ],
     "player_color": "black",
     "player_move_count": 2,
-    "posted_at": "2026-09-20T10:26:48.805186+00:00",
-    "answer_posted": true,
+    "posted_at": "2026-09-20T10:41:32.993257+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "random_Mdz9D_1789900008805",
-    "last_activity_at": "2026-09-20T10:26:48.805186+00:00",
-    "rating": 1238,
-    "rp_band": 0,
+    "puzzle_id": "random_SIlgc_1789900892993",
+    "last_activity_at": "2026-09-20T10:41:32.993257+00:00",
+    "rating": 1799,
+    "rp_band": 1,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
@@ -53,10 +53,8 @@
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_ids": {
-      "1468320170891022417": 1551177810045968384
-    },
-    "message_id": 1551177810045968384,
+    "message_ids": {},
+    "message_id": null,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {},
@@ -64,10 +62,9 @@
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Qa5+ Qxf5"
+    "helper_candidate_users": []
   },
-  "latest_puzzle_type": "daily",
+  "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-09-20",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-20",
