@@ -138,7 +138,7 @@
     "player_color": "black",
     "player_move_count": 1,
     "posted_at": "2026-09-21T07:00:44.468191+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -146,7 +146,7 @@
     "next_solution_index": 1,
     "next_player_index": 1,
     "solved": true,
-    "message_id": 1551488337804787823,
+    "message_id": 1551524780983717909,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
@@ -161,8 +161,8 @@
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1551488337804787823,
-      "1546557493038284840": 1551488351889268736
+      "1468320170891022417": 1551524780983717909,
+      "1546557493038284840": 1551524771315847308
     },
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
@@ -188,7 +188,8 @@
     ],
     "activity_bonus_users": [
       "442597396195704832"
-    ]
+    ],
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1658 points.**\n🔥 **Daily Activity Bonus: +10 coins**\n\n💡 **Solution:** Bb4#\n\n🏆 **Your ranking**\n**#1 🔥 Thice — 1658 points ← you**\n**#2 🍅 TheMakina — 1506 points**"
   },
   "lichess_rating_used": {
     "2000": [
