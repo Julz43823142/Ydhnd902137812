@@ -115,171 +115,44 @@
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-21",
   "current_puzzle": {
-    "url": "https://www.chess.com/daily/2026-09-20",
-    "title": "Level Up!",
-    "fen": "6Q1/5P2/1pp3P1/3p4/pB6/PqPk3p/2b4P/K6R b - - 0 1",
-    "current_fen": "5QQ1/8/1pp3P1/3p4/1B6/P1P4p/K1k4P/1q6 w - - 0 6",
-    "last_move_uci": "b2b1q",
-    "pgn": "[Result \"0-1\"]\n[FEN \"6Q1/5P2/1pp3P1/3p4/pB6/PqPk3p/2b4P/K6R b - - 0 1\"]\n\n1... Bb1 2. Rxb1 Kc2 3. Rxb3 axb3 4. f8=Q b2+ 5. Ka2 b1=Q# 0-1",
+    "url": "https://www.chess.com/daily/2026-09-21",
+    "title": "The Anti-Fork",
+    "fen": "r1b1q1kr/ppNnb1pp/5n2/8/3P4/8/PPP2PPP/R1BQKB1R b KQ - 0 10",
+    "current_fen": "r1b1q1kr/ppNnb1pp/5n2/8/3P4/8/PPP2PPP/R1BQKB1R b KQ - 0 10",
+    "last_move_uci": null,
+    "pgn": "[Event \"FRG-ch 01st\"]\n[Site \"Bad Pyrmont\"]\n[Date \"1950.??.??\"]\n[Round \"16\"]\n[White \"Lohmann, Heinrich\"]\n[Black \"Teschner, Rudolf\"]\n[Result \"0-1\"]\n[FEN \"r1b1q1kr/ppNnb1pp/5n2/8/3P4/8/PPP2PPP/R1BQKB1R b KQ - 0 10\"]\n\n10... Bb4# 0-1",
     "all_moves": [
       {
-        "uci": "c2b1",
-        "san": "Bb1",
-        "color": "black"
-      },
-      {
-        "uci": "h1b1",
-        "san": "Rxb1",
-        "color": "white"
-      },
-      {
-        "uci": "d3c2",
-        "san": "Kc2",
-        "color": "black"
-      },
-      {
-        "uci": "b1b3",
-        "san": "Rxb3",
-        "color": "white"
-      },
-      {
-        "uci": "a4b3",
-        "san": "axb3",
-        "color": "black"
-      },
-      {
-        "uci": "f7f8q",
-        "san": "f8=Q",
-        "color": "white"
-      },
-      {
-        "uci": "b3b2",
-        "san": "b2+",
-        "color": "black"
-      },
-      {
-        "uci": "a1a2",
-        "san": "Ka2",
-        "color": "white"
-      },
-      {
-        "uci": "b2b1q",
-        "san": "b1=Q#",
+        "uci": "e7b4",
+        "san": "Bb4#",
         "color": "black"
       }
     ],
     "player_moves": [
       {
-        "uci": "c2b1",
-        "san": "Bb1",
-        "color": "black"
-      },
-      {
-        "uci": "d3c2",
-        "san": "Kc2",
-        "color": "black"
-      },
-      {
-        "uci": "a4b3",
-        "san": "axb3",
-        "color": "black"
-      },
-      {
-        "uci": "b3b2",
-        "san": "b2+",
-        "color": "black"
-      },
-      {
-        "uci": "b2b1q",
-        "san": "b1=Q#",
+        "uci": "e7b4",
+        "san": "Bb4#",
         "color": "black"
       }
     ],
     "player_color": "black",
-    "player_move_count": 5,
-    "posted_at": "2026-09-20T07:53:23.145507+00:00",
-    "answer_posted": true,
+    "player_move_count": 1,
+    "posted_at": "2026-09-21T07:00:44.468191+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "daily_1789890803145",
-    "next_solution_index": 9,
-    "next_player_index": 5,
-    "solved": true,
-    "message_id": 1551156200417001567,
-    "attempted_users": {
-      "442597396195704832": {
-        "name": "Thice",
-        "move": "b1=q",
-        "correct": true,
-        "timestamp": "2026-09-20T09:00:45.024909+00:00"
-      }
-    },
-    "first_move_user_id": "442597396195704832",
-    "first_move_user_name": "Thice",
-    "first_move_awarded": true,
+    "puzzle_id": "daily_1789974044468",
+    "next_solution_index": 0,
+    "next_player_index": 0,
+    "solved": false,
+    "message_id": null,
+    "attempted_users": {},
+    "first_move_user_id": null,
+    "first_move_user_name": null,
+    "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "message_ids": {
-      "1468320170891022417": 1551156200417001567,
-      "1546557493038284840": 1551156207371292754
-    },
-    "channel_id": 1468320170891022417,
-    "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-09-20T09:00:45.024569+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1789894840.0754166,
-        "fen_before": "5QQ1/8/1pp3P1/3p4/1B6/PpP4p/2k4P/K7 b - - 0 4",
-        "expected": {
-          "uci": "b3b2",
-          "san": "b2+",
-          "color": "black"
-        },
-        "accepted_uci": "b3b2"
-      },
-      {
-        "accepted_at": 1789894845.0249157,
-        "fen_before": "5QQ1/8/1pp3P1/3p4/1B6/P1P4p/Kpk4P/8 b - - 1 5",
-        "expected": {
-          "uci": "b2b1q",
-          "san": "b1=Q#",
-          "color": "black"
-        },
-        "accepted_uci": "b2b1q"
-      }
-    ],
-    "accepted_solution_moves": [
-      {
-        "san": "Bb1",
-        "uci": "c2b1",
-        "principal": true
-      },
-      {
-        "san": "Kc2",
-        "uci": "d3c2",
-        "principal": true
-      },
-      {
-        "san": "axb3",
-        "uci": "a4b3",
-        "principal": true
-      },
-      {
-        "san": "b2+",
-        "uci": "b3b2",
-        "principal": true
-      },
-      {
-        "san": "b1=Q#",
-        "uci": "b2b1q",
-        "principal": true
-      }
-    ],
-    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1650 points.**\n🔥 **Daily Activity Bonus: +10 coins**\n\n💡 **Solution:** Bb1 Kc2 axb3 b2+ b1=Q#\n\n🏆 **Your ranking**\n**#1 🔥 Thice — 1650 points ← you**\n**#2 🍅 TheMakina — 1506 points**",
-    "activity_bonus_users": [
-      "442597396195704832"
-    ]
+    "helper_candidate_users": []
   },
   "lichess_rating_used": {
     "2000": [
