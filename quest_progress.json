@@ -526,11 +526,13 @@
       "users": {
         "1": {
           "name": "Player 1",
-          "paid": [],
+          "paid": [
+            "weekly:2026-09-21:minigame:minigame-8"
+          ],
           "progress": {
             "weekly:2026-09-21:minigame:minigame-8": 8
           },
-          "updated_at": 1790020688
+          "updated_at": 1790020692
         },
         "442597396195704832": {
           "name": "Thice",
