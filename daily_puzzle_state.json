@@ -118,8 +118,8 @@
     "url": "https://www.chess.com/daily/2026-09-21",
     "title": "The Anti-Fork",
     "fen": "r1b1q1kr/ppNnb1pp/5n2/8/3P4/8/PPP2PPP/R1BQKB1R b KQ - 0 10",
-    "current_fen": "r1b1q1kr/ppNnb1pp/5n2/8/3P4/8/PPP2PPP/R1BQKB1R b KQ - 0 10",
-    "last_move_uci": null,
+    "current_fen": "r1b1q1kr/ppNn2pp/5n2/8/1b1P4/8/PPP2PPP/R1BQKB1R w KQ - 1 11",
+    "last_move_uci": "e7b4",
     "pgn": "[Event \"FRG-ch 01st\"]\n[Site \"Bad Pyrmont\"]\n[Date \"1950.??.??\"]\n[Round \"16\"]\n[White \"Lohmann, Heinrich\"]\n[Black \"Teschner, Rudolf\"]\n[Result \"0-1\"]\n[FEN \"r1b1q1kr/ppNnb1pp/5n2/8/3P4/8/PPP2PPP/R1BQKB1R b KQ - 0 10\"]\n\n10... Bb4# 0-1",
     "all_moves": [
       {
@@ -143,14 +143,21 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1789974044468",
-    "next_solution_index": 0,
-    "next_player_index": 0,
-    "solved": false,
+    "next_solution_index": 1,
+    "next_player_index": 1,
+    "solved": true,
     "message_id": 1551488337804787823,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
-    "first_move_awarded": false,
+    "attempted_users": {
+      "442597396195704832": {
+        "name": "Thice",
+        "move": "Bb4",
+        "correct": true,
+        "timestamp": "2026-09-21T09:25:21.798272+00:00"
+      }
+    },
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
@@ -158,7 +165,30 @@
       "1546557493038284840": 1551488351889268736
     },
     "channel_id": 1468320170891022417,
-    "chat_since_refresh": 0
+    "chat_since_refresh": 0,
+    "last_card_activity_at": "2026-09-21T09:25:21.797569+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1789982721.7982802,
+        "fen_before": "r1b1q1kr/ppNnb1pp/5n2/8/3P4/8/PPP2PPP/R1BQKB1R b KQ - 0 10",
+        "expected": {
+          "uci": "e7b4",
+          "san": "Bb4#",
+          "color": "black"
+        },
+        "accepted_uci": "e7b4"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "Bb4#",
+        "uci": "e7b4",
+        "principal": true
+      }
+    ],
+    "activity_bonus_users": [
+      "442597396195704832"
+    ]
   },
   "lichess_rating_used": {
     "2000": [
