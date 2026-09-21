@@ -53,7 +53,7 @@
     "player_color": "white",
     "player_move_count": 3,
     "posted_at": "2026-09-21T09:35:11.047898+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -69,9 +69,9 @@
     "next_player_index": 3,
     "solved": true,
     "message_ids": {
-      "1468320170891022417": 1551527337206747168
+      "1468320170891022417": 1551527391300558969
     },
-    "message_id": 1551527337206747168,
+    "message_id": 1551527391300558969,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
@@ -113,7 +113,7 @@
     "wrong_attempt_counts": {
       "601406103712170014": 2
     },
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Ka5",
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, TheMakina!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1508 points.**\n\n💡 **Solution:** Ke3 Kd4 Kxc4\n\n🏆 **Your ranking**\n**#1 🔥 Thice — 1658 points**\n**#2 🍅 TheMakina — 1508 points ← you**\n**#3 💀 Sharkmeister — 76.5 points**",
     "accepted_solution_moves": [
       {
         "san": "Ke3",
