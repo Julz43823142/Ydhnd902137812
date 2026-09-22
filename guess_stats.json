@@ -350,8 +350,8 @@
     },
     "442597396195704832": {
       "best_streak": 21,
-      "correct": 175,
-      "current_streak": 1,
+      "correct": 176,
+      "current_streak": 2,
       "name": "thice",
       "targets": {
         "chatter": {
@@ -498,8 +498,8 @@
             "wrong": 2
           },
           "Sushi": {
-            "correct": 7,
-            "total": 9,
+            "correct": 8,
+            "total": 10,
             "wrong": 2
           },
           "Thice": {
@@ -509,8 +509,8 @@
           }
         }
       },
-      "total": 267,
-      "updated_at": 1790101353,
+      "total": 268,
+      "updated_at": 1790101380,
       "wrong": 92
     },
     "550338389535227926": {
