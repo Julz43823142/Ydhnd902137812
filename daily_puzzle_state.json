@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/0Ngvo",
     "title": "Lichess • 1470",
     "fen": "7r/1pk2pp1/p2r3p/8/1b6/2N5/PP3PPP/3R1RK1 w - - 0 22",
-    "current_fen": "7r/1pk2pp1/p6p/3r4/1b6/8/PP3PPP/3R1RK1 w - - 0 23",
-    "last_move_uci": "d6d5",
+    "current_fen": "7r/1pk2pp1/p6p/3R4/1b6/8/PP3PPP/5RK1 b - - 0 23",
+    "last_move_uci": "d1d5",
     "pgn": "Nd5+ Rxd5 Rxd5",
     "all_moves": [
       {
@@ -43,16 +43,16 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_0Ngvo_1790099077847",
-    "last_activity_at": "2026-09-22T17:44:48.009433+00:00",
+    "last_activity_at": "2026-09-22T17:44:57.317535+00:00",
     "rating": 1470,
     "rp_band": 0,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 2,
-    "next_player_index": 1,
-    "solved": false,
+    "next_solution_index": 3,
+    "next_player_index": 2,
+    "solved": true,
     "message_ids": {
       "1468320170891022417": 1552012813864796332
     },
@@ -62,27 +62,27 @@
     "attempted_users": {
       "601406103712170014": {
         "name": "TheMakina",
-        "move": "Nd5",
+        "move": "Rxd5",
         "correct": true,
-        "timestamp": "2026-09-22T17:44:48.009565+00:00"
+        "timestamp": "2026-09-22T17:44:57.317692+00:00"
       }
     },
     "first_move_user_id": "601406103712170014",
     "first_move_user_name": "TheMakina",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-22T17:44:48.009433+00:00",
+    "last_card_activity_at": "2026-09-22T17:44:57.317535+00:00",
     "recent_accepted_moves": [
       {
-        "accepted_at": 1790099088.009569,
-        "fen_before": "7r/1pk2pp1/p2r3p/8/1b6/2N5/PP3PPP/3R1RK1 w - - 0 22",
+        "accepted_at": 1790099097.3176968,
+        "fen_before": "7r/1pk2pp1/p6p/3r4/1b6/8/PP3PPP/3R1RK1 w - - 0 23",
         "expected": {
-          "uci": "c3d5",
-          "san": "Nd5+",
+          "uci": "d1d5",
+          "san": "Rxd5",
           "color": "white"
         },
-        "accepted_uci": "c3d5"
+        "accepted_uci": "d1d5"
       }
     ],
     "accepted_solution_moves": [
@@ -90,11 +90,16 @@
         "san": "Nd5+",
         "uci": "c3d5",
         "principal": true
+      },
+      {
+        "san": "Rxd5",
+        "uci": "d1d5",
+        "principal": true
       }
     ],
     "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Rxd5"
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-22",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-22",
