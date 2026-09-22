@@ -350,8 +350,8 @@
     },
     "442597396195704832": {
       "best_streak": 21,
-      "correct": 174,
-      "current_streak": 0,
+      "correct": 175,
+      "current_streak": 1,
       "name": "thice",
       "targets": {
         "chatter": {
@@ -426,8 +426,8 @@
             "wrong": 1
           },
           "Sh4rkmate is the best": {
-            "correct": 2,
-            "total": 4,
+            "correct": 3,
+            "total": 5,
             "wrong": 2
           },
           "Soyadelson": {
@@ -509,8 +509,8 @@
           }
         }
       },
-      "total": 266,
-      "updated_at": 1790101325,
+      "total": 267,
+      "updated_at": 1790101353,
       "wrong": 92
     },
     "550338389535227926": {
