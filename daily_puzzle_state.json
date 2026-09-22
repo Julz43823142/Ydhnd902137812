@@ -2592,8 +2592,8 @@
         "url": "https://lichess.org/training/8yhAQ",
         "title": "Lichess • 1328",
         "fen": "1k2r2r/pbpp1pp1/1p6/8/2BP1bp1/6N1/PPP2PP1/RN1Q1K2 b - - 5 19",
-        "current_fen": "1k2r2r/pbpp1pp1/1p6/8/2BP2p1/6P1/PPP3P1/RN1Q1K2 b - - 0 20",
-        "last_move_uci": "f2g3",
+        "current_fen": "1k2r3/pbpp1pp1/1p6/8/2BP2p1/6P1/PPP2KP1/RN1Q3r b - - 2 21",
+        "last_move_uci": "f1f2",
         "pgn": "Bxg3 fxg3 Rh1+ Kf2 Rxd1",
         "all_moves": [
           {
@@ -2648,16 +2648,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_8yhAQ_1790111474268",
         "rating": 1328,
-        "next_solution_index": 2,
+        "next_solution_index": 4,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552064760919621662,
+      "message_id": 1552064796684451881,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790111483.2120144,
-      "last_feedback": "✅ **Bxg3** • Opponent: **fxg3**"
+      "last_card_activity_at": 1790111517.4679837,
+      "last_feedback": "✅ **Rh1+** • Opponent: **Kf2**"
     },
     "362606514764251137": {
       "active": false,
