@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/rQfFK",
     "title": "Lichess • 1369",
     "fen": "4rkn1/p2n3p/1pQ5/6b1/2B5/5P1b/PPP2K1P/R1B5 b - - 7 24",
-    "current_fen": "4rkn1/p2n3p/1pQ5/6b1/2B5/5P1b/PPP2K1P/R1B5 b - - 7 24",
-    "last_move_uci": "e1f2",
+    "current_fen": "4rkn1/p2n3p/1pQ5/8/2B4b/5P1b/PPP4P/R1B3K1 b - - 9 25",
+    "last_move_uci": "f2g1",
     "pgn": "Bh4+ Kg1 Re1+ Bf1 Rxf1#",
     "all_moves": [
       {
@@ -58,41 +58,59 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_rQfFK_1790065654746",
-    "last_activity_at": "2026-09-22T08:27:45.201481+00:00",
+    "last_activity_at": "2026-09-22T08:27:48.574950+00:00",
     "rating": 1369,
     "rp_band": 0,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1551872621841490031
+      "1468320170891022417": 1551872637586636850
     },
-    "message_id": 1551872621841490031,
+    "message_id": 1551872637586636850,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "601406103712170014": {
         "name": "TheMakina",
-        "move": "Bg4",
-        "correct": false,
-        "timestamp": "2026-09-22T08:27:45.202419+00:00"
+        "move": "Bh4",
+        "correct": true,
+        "timestamp": "2026-09-22T08:27:48.575629+00:00"
       }
     },
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "first_move_user_id": "601406103712170014",
+    "first_move_user_name": "TheMakina",
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-22T08:27:45.201481+00:00",
-    "recent_accepted_moves": [],
+    "last_card_activity_at": "2026-09-22T08:27:48.574950+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1790065668.5756366,
+        "fen_before": "4rkn1/p2n3p/1pQ5/6b1/2B5/5P1b/PPP2K1P/R1B5 b - - 7 24",
+        "expected": {
+          "uci": "g5h4",
+          "san": "Bh4+",
+          "color": "black"
+        },
+        "accepted_uci": "g5h4"
+      }
+    ],
     "wrong_attempt_counts": {
       "601406103712170014": 2
     },
-    "last_feedback": "❌ **Bro plays like he already knows the answer. He absolutely does not.**\n↪️ **Move played:** `Bh5`"
+    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Kg1",
+    "accepted_solution_moves": [
+      {
+        "san": "Bh4+",
+        "uci": "g5h4",
+        "principal": true
+      }
+    ]
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-09-22",
