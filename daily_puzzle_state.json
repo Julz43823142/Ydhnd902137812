@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/mileY",
     "title": "Lichess • 1991",
     "fen": "8/5k2/4p1p1/pp1pPp1p/3P1P2/PP3K2/6PP/8 w - - 8 46",
-    "current_fen": "8/5k2/4p3/pp1pPppp/3P1P2/PP4K1/6PP/8 w - - 0 47",
-    "last_move_uci": "g6g5",
+    "current_fen": "8/5k2/4p3/pp1pPpPp/3P4/PP4K1/6PP/8 b - - 0 47",
+    "last_move_uci": "f4g5",
     "pgn": "Kg3 g5 fxg5",
     "all_moves": [
       {
@@ -43,16 +43,16 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_mileY_1790099292791",
-    "last_activity_at": "2026-09-22T17:48:27.149347+00:00",
+    "last_activity_at": "2026-09-22T17:48:45.547635+00:00",
     "rating": 1991,
     "rp_band": 2,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 2,
-    "next_player_index": 1,
-    "solved": false,
+    "next_solution_index": 3,
+    "next_player_index": 2,
+    "solved": true,
     "message_ids": {
       "1468320170891022417": 1552013732849131610
     },
@@ -62,27 +62,27 @@
     "attempted_users": {
       "601406103712170014": {
         "name": "TheMakina",
-        "move": "Kg3",
+        "move": "fxg5",
         "correct": true,
-        "timestamp": "2026-09-22T17:48:27.149470+00:00"
+        "timestamp": "2026-09-22T17:48:45.547806+00:00"
       }
     },
     "first_move_user_id": "601406103712170014",
     "first_move_user_name": "TheMakina",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-22T17:48:27.149347+00:00",
+    "last_card_activity_at": "2026-09-22T17:48:45.547635+00:00",
     "recent_accepted_moves": [
       {
-        "accepted_at": 1790099307.1494732,
-        "fen_before": "8/5k2/4p1p1/pp1pPp1p/3P1P2/PP3K2/6PP/8 w - - 8 46",
+        "accepted_at": 1790099325.5478098,
+        "fen_before": "8/5k2/4p3/pp1pPppp/3P1P2/PP4K1/6PP/8 w - - 0 47",
         "expected": {
-          "uci": "f3g3",
-          "san": "Kg3",
+          "uci": "f4g5",
+          "san": "fxg5",
           "color": "white"
         },
-        "accepted_uci": "f3g3"
+        "accepted_uci": "f4g5"
       }
     ],
     "accepted_solution_moves": [
@@ -90,11 +90,16 @@
         "san": "Kg3",
         "uci": "f3g3",
         "principal": true
+      },
+      {
+        "san": "fxg5",
+        "uci": "f4g5",
+        "principal": true
       }
     ],
     "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** g5"
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-22",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-22",
