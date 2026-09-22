@@ -351,7 +351,7 @@
     "442597396195704832": {
       "best_streak": 21,
       "correct": 180,
-      "current_streak": 4,
+      "current_streak": 0,
       "name": "thice",
       "targets": {
         "chatter": {
@@ -459,8 +459,8 @@
           },
           "Jesse": {
             "correct": 4,
-            "total": 8,
-            "wrong": 4
+            "total": 9,
+            "wrong": 5
           },
           "Lars": {
             "correct": 14,
@@ -509,9 +509,9 @@
           }
         }
       },
-      "total": 275,
-      "updated_at": 1790103197,
-      "wrong": 95
+      "total": 276,
+      "updated_at": 1790103238,
+      "wrong": 96
     },
     "550338389535227926": {
       "best_streak": 0,
