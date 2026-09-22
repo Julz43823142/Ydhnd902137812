@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/FTdZB",
     "title": "Lichess • 1879",
     "fen": "8/8/5b2/2p2P2/6Kp/PPk1N2P/8/8 b - - 2 49",
-    "current_fen": "8/8/5b2/2p2P2/6Kp/PPk1N2P/8/8 b - - 2 49",
-    "last_move_uci": "c4e3",
+    "current_fen": "8/8/5b2/2p2P1K/7p/Pk2N2P/8/8 b - - 1 50",
+    "last_move_uci": "g4h5",
     "pgn": "Kxb3 Kh5 c4",
     "all_moves": [
       {
@@ -43,26 +43,56 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_FTdZB_1790099848588",
-    "last_activity_at": "2026-09-22T17:57:28.588648+00:00",
+    "last_activity_at": "2026-09-22T17:57:43.528634+00:00",
     "rating": 1879,
     "rp_band": 2,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
-    "message_ids": {},
-    "message_id": null,
+    "message_ids": {
+      "1468320170891022417": 1552016066614530089
+    },
+    "message_id": 1552016066614530089,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "attempted_users": {
+      "601406103712170014": {
+        "name": "TheMakina",
+        "move": "Kxb3",
+        "correct": true,
+        "timestamp": "2026-09-22T17:57:43.528888+00:00"
+      }
+    },
+    "first_move_user_id": "601406103712170014",
+    "first_move_user_name": "TheMakina",
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "last_card_activity_at": "2026-09-22T17:57:43.528634+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1790099863.5288928,
+        "fen_before": "8/8/5b2/2p2P2/6Kp/PPk1N2P/8/8 b - - 2 49",
+        "expected": {
+          "uci": "c3b3",
+          "san": "Kxb3",
+          "color": "black"
+        },
+        "accepted_uci": "c3b3"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "Kxb3",
+        "uci": "c3b3",
+        "principal": true
+      }
+    ],
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kh5"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-09-22",
