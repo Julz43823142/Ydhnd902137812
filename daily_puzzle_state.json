@@ -1,135 +1,85 @@
 {
   "latest_random_puzzle": {
-    "url": "https://lichess.org/training/Nh5xN",
-    "title": "Lichess • 1511",
-    "fen": "2r5/ppp1k3/2n5/1N1pr1q1/6Qp/8/PPP2RPK/R7 w - - 10 28",
-    "current_fen": "2Q5/ppp1k3/2n5/1N1pr3/7p/8/PPP2KP1/R7 b - - 0 30",
-    "last_move_uci": "g1f2",
-    "pgn": "Qxc8 Qg3+ Kg1 Qxf2+ Kxf2",
+    "url": "https://lichess.org/training/guWKB",
+    "title": "Lichess • 2173",
+    "fen": "3qk3/1b2ppb1/p2p2p1/1p4P1/2rNnP2/1PN1B3/P1PQK3/7R w - - 0 21",
+    "current_fen": "3qk3/1b2ppb1/p2p2p1/1p4P1/2rNnP2/1PN1B3/P1PQK3/7R w - - 0 21",
+    "last_move_uci": "c5e4",
+    "pgn": "Nxe4 Bxe4 Rh7 Rc7 Rxg7",
     "all_moves": [
       {
-        "uci": "g4c8",
-        "san": "Qxc8",
+        "uci": "c3e4",
+        "san": "Nxe4",
         "color": "white"
       },
       {
-        "uci": "g5g3",
-        "san": "Qg3+",
+        "uci": "b7e4",
+        "san": "Bxe4",
         "color": "black"
       },
       {
-        "uci": "h2g1",
-        "san": "Kg1",
+        "uci": "h1h7",
+        "san": "Rh7",
         "color": "white"
       },
       {
-        "uci": "g3f2",
-        "san": "Qxf2+",
+        "uci": "c4c7",
+        "san": "Rc7",
         "color": "black"
       },
       {
-        "uci": "g1f2",
-        "san": "Kxf2",
+        "uci": "h7g7",
+        "san": "Rxg7",
         "color": "white"
       }
     ],
     "player_moves": [
       {
-        "uci": "g4c8",
-        "san": "Qxc8",
+        "uci": "c3e4",
+        "san": "Nxe4",
         "color": "white"
       },
       {
-        "uci": "h2g1",
-        "san": "Kg1",
+        "uci": "h1h7",
+        "san": "Rh7",
         "color": "white"
       },
       {
-        "uci": "g1f2",
-        "san": "Kxf2",
+        "uci": "h7g7",
+        "san": "Rxg7",
         "color": "white"
       }
     ],
     "player_color": "white",
     "player_move_count": 3,
-    "posted_at": "2026-09-22T17:45:10.246228+00:00",
-    "answer_posted": true,
+    "posted_at": "2026-09-22T17:45:59.479286+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "random_Nh5xN_1790099110246",
-    "last_activity_at": "2026-09-22T17:45:40.801034+00:00",
-    "rating": 1511,
-    "rp_band": 1,
+    "puzzle_id": "random_guWKB_1790099159479",
+    "last_activity_at": "2026-09-22T17:45:59.479286+00:00",
+    "rating": 2173,
+    "rp_band": 3,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 5,
-    "next_player_index": 3,
-    "solved": true,
-    "message_ids": {
-      "1468320170891022417": 1552013067900944405
-    },
-    "message_id": 1552013067900944405,
+    "next_solution_index": 0,
+    "next_player_index": 0,
+    "solved": false,
+    "message_ids": {},
+    "message_id": null,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {
-      "601406103712170014": {
-        "name": "TheMakina",
-        "move": "Kxf2",
-        "correct": true,
-        "timestamp": "2026-09-22T17:45:40.801199+00:00"
-      }
-    },
-    "first_move_user_id": "601406103712170014",
-    "first_move_user_name": "TheMakina",
-    "first_move_awarded": true,
+    "attempted_users": {},
+    "first_move_user_id": null,
+    "first_move_user_name": null,
+    "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-22T17:45:40.801034+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1790099133.609686,
-        "fen_before": "2Q5/ppp1k3/2n5/1N1pr3/7p/6q1/PPP2RPK/R7 w - - 1 29",
-        "expected": {
-          "uci": "h2g1",
-          "san": "Kg1",
-          "color": "white"
-        },
-        "accepted_uci": "h2g1"
-      },
-      {
-        "accepted_at": 1790099140.8012037,
-        "fen_before": "2Q5/ppp1k3/2n5/1N1pr3/7p/8/PPP2qP1/R5K1 w - - 0 30",
-        "expected": {
-          "uci": "g1f2",
-          "san": "Kxf2",
-          "color": "white"
-        },
-        "accepted_uci": "g1f2"
-      }
-    ],
-    "accepted_solution_moves": [
-      {
-        "san": "Qxc8",
-        "uci": "g4c8",
-        "principal": true
-      },
-      {
-        "san": "Kg1",
-        "uci": "h2g1",
-        "principal": true
-      },
-      {
-        "san": "Kxf2",
-        "uci": "g1f2",
-        "principal": true
-      }
-    ],
-    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, TheMakina!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1517 points.**\n\n💡 **Solution:** Qxc8 Kg1 Kxf2\n\n🏆 **Your ranking**\n**#1 🔥 Thice — 1661 points**\n**#2 🍅 TheMakina — 1517 points ← you**\n**#3 💀 Sharkmeister — 76.5 points**"
+    "helper_candidate_users": []
   },
-  "latest_puzzle_type": "daily",
+  "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-09-22",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-22",
