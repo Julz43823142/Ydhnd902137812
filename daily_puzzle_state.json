@@ -2584,7 +2584,7 @@
       "started_at": 1790111445.5410662,
       "run_id": "rush:442597396195704832:1790111445541",
       "end_at": 1790111745.5410662,
-      "score": 3,
+      "score": 4,
       "wrong": 1,
       "mistakes": [
         {
@@ -2607,60 +2607,60 @@
       ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/IRkbw",
-        "title": "Lichess • 1271",
-        "fen": "8/R1K5/4k3/1r2r3/8/8/3R4/8 b - - 5 54",
-        "current_fen": "3K4/R7/4k3/1rr5/8/8/3R4/8 b - - 7 55",
-        "last_move_uci": "c7d8",
-        "pgn": "Rec5+ Kd8 Rb8#",
+        "url": "https://lichess.org/training/EDTIr",
+        "title": "Lichess • 1361",
+        "fen": "4Q3/2qp1pkp/p1b1p1p1/3pP3/P7/7P/5PP1/1R4K1 w - - 1 31",
+        "current_fen": "4Q3/2qp1pkp/p1b1p1p1/3pP3/P7/7P/5PP1/1R4K1 w - - 1 31",
+        "last_move_uci": "b5c6",
+        "pgn": "Rb8 Qxb8 Qxb8",
         "all_moves": [
           {
-            "uci": "e5c5",
-            "san": "Rec5+",
-            "color": "black"
-          },
-          {
-            "uci": "c7d8",
-            "san": "Kd8",
+            "uci": "b1b8",
+            "san": "Rb8",
             "color": "white"
           },
           {
-            "uci": "b5b8",
-            "san": "Rb8#",
+            "uci": "c7b8",
+            "san": "Qxb8",
             "color": "black"
+          },
+          {
+            "uci": "e8b8",
+            "san": "Qxb8",
+            "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "e5c5",
-            "san": "Rec5+",
-            "color": "black"
+            "uci": "b1b8",
+            "san": "Rb8",
+            "color": "white"
           },
           {
-            "uci": "b5b8",
-            "san": "Rb8#",
-            "color": "black"
+            "uci": "e8b8",
+            "san": "Qxb8",
+            "color": "white"
           }
         ],
-        "player_color": "black",
+        "player_color": "white",
         "player_move_count": 2,
-        "posted_at": "2026-09-22T21:11:58.525665+00:00",
+        "posted_at": "2026-09-22T21:12:16.306772+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_IRkbw_1790111518525",
-        "rating": 1271,
-        "next_solution_index": 2,
+        "puzzle_id": "practice_rush_442597396195704832_EDTIr_1790111536306",
+        "rating": 1361,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552064946811043912,
+      "message_id": 1552065000816779365,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790111531.5571282,
-      "last_feedback": "✅ **Rec5+** • Opponent: **Kd8**"
+      "last_card_activity_at": 1790111536.3006127,
+      "last_feedback": "✅ **Rb8#** — solved! Score: **4**."
     },
     "362606514764251137": {
       "active": false,
