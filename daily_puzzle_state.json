@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/rQfFK",
     "title": "Lichess • 1369",
     "fen": "4rkn1/p2n3p/1pQ5/6b1/2B5/5P1b/PPP2K1P/R1B5 b - - 7 24",
-    "current_fen": "5kn1/p2n3p/1pQ5/8/7b/5P1b/PPP4P/R1B1rBK1 b - - 11 26",
-    "last_move_uci": "c4f1",
+    "current_fen": "5kn1/p2n3p/1pQ5/8/7b/5P1b/PPP4P/R1B2rK1 w - - 0 27",
+    "last_move_uci": "e1f1",
     "pgn": "Bh4+ Kg1 Re1+ Bf1 Rxf1#",
     "all_moves": [
       {
@@ -58,16 +58,16 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_rQfFK_1790065654746",
-    "last_activity_at": "2026-09-22T08:27:54.256992+00:00",
+    "last_activity_at": "2026-09-22T08:27:58.694297+00:00",
     "rating": 1369,
     "rp_band": 0,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 4,
-    "next_player_index": 2,
-    "solved": false,
+    "next_solution_index": 5,
+    "next_player_index": 3,
+    "solved": true,
     "message_ids": {
       "1468320170891022417": 1551872661565472838
     },
@@ -77,28 +77,18 @@
     "attempted_users": {
       "601406103712170014": {
         "name": "TheMakina",
-        "move": "Re1",
+        "move": "Rxf1",
         "correct": true,
-        "timestamp": "2026-09-22T08:27:54.257568+00:00"
+        "timestamp": "2026-09-22T08:27:58.695095+00:00"
       }
     },
     "first_move_user_id": "601406103712170014",
     "first_move_user_name": "TheMakina",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-22T08:27:54.256992+00:00",
+    "last_card_activity_at": "2026-09-22T08:27:58.694297+00:00",
     "recent_accepted_moves": [
-      {
-        "accepted_at": 1790065668.5756366,
-        "fen_before": "4rkn1/p2n3p/1pQ5/6b1/2B5/5P1b/PPP2K1P/R1B5 b - - 7 24",
-        "expected": {
-          "uci": "g5h4",
-          "san": "Bh4+",
-          "color": "black"
-        },
-        "accepted_uci": "g5h4"
-      },
       {
         "accepted_at": 1790065674.257577,
         "fen_before": "4rkn1/p2n3p/1pQ5/8/2B4b/5P1b/PPP4P/R1B3K1 b - - 9 25",
@@ -108,6 +98,16 @@
           "color": "black"
         },
         "accepted_uci": "e8e1"
+      },
+      {
+        "accepted_at": 1790065678.695103,
+        "fen_before": "5kn1/p2n3p/1pQ5/8/7b/5P1b/PPP4P/R1B1rBK1 b - - 11 26",
+        "expected": {
+          "uci": "e1f1",
+          "san": "Rxf1#",
+          "color": "black"
+        },
+        "accepted_uci": "e1f1"
       }
     ],
     "wrong_attempt_counts": {
@@ -124,10 +124,15 @@
         "san": "Re1+",
         "uci": "e8e1",
         "principal": true
+      },
+      {
+        "san": "Rxf1#",
+        "uci": "e1f1",
+        "principal": true
       }
     ]
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-22",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-22",
