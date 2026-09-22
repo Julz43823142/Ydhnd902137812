@@ -407,8 +407,8 @@
           },
           "Pabu": {
             "correct": 0,
-            "total": 2,
-            "wrong": 2
+            "total": 3,
+            "wrong": 3
           },
           "Pandarou": {
             "correct": 2,
@@ -509,9 +509,9 @@
           }
         }
       },
-      "total": 284,
-      "updated_at": 1790103520,
-      "wrong": 97
+      "total": 285,
+      "updated_at": 1790103542,
+      "wrong": 98
     },
     "550338389535227926": {
       "best_streak": 0,
