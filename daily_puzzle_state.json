@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/7o88W",
     "title": "Lichess • 1273",
     "fen": "k7/1Rr5/p2q4/3Bp1p1/Q3PpP1/P3b3/1PPr4/1K3R2 b - - 0 41",
-    "current_fen": "k7/1B6/p2q4/4p1p1/Q3PpP1/P3b3/1PPr4/1K3R2 b - - 0 42",
-    "last_move_uci": "d5b7",
+    "current_fen": "8/1k6/p2q4/4p1p1/Q3PpP1/P3b3/1PPr4/1K3R2 w - - 0 43",
+    "last_move_uci": "a8b7",
     "pgn": "Rxb7 Bxb7+ Kxb7",
     "all_moves": [
       {
@@ -43,16 +43,16 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_7o88W_1790099469755",
-    "last_activity_at": "2026-09-22T17:51:48.909241+00:00",
+    "last_activity_at": "2026-09-22T17:51:56.941227+00:00",
     "rating": 1273,
     "rp_band": 0,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 2,
-    "next_player_index": 1,
-    "solved": false,
+    "next_solution_index": 3,
+    "next_player_index": 2,
+    "solved": true,
     "message_ids": {
       "1468320170891022417": 1552014578991497267
     },
@@ -62,27 +62,27 @@
     "attempted_users": {
       "601406103712170014": {
         "name": "TheMakina",
-        "move": "Rxb7",
+        "move": "Kxb7",
         "correct": true,
-        "timestamp": "2026-09-22T17:51:48.909456+00:00"
+        "timestamp": "2026-09-22T17:51:56.941379+00:00"
       }
     },
     "first_move_user_id": "601406103712170014",
     "first_move_user_name": "TheMakina",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-22T17:51:48.909241+00:00",
+    "last_card_activity_at": "2026-09-22T17:51:56.941227+00:00",
     "recent_accepted_moves": [
       {
-        "accepted_at": 1790099508.9094594,
-        "fen_before": "k7/1Rr5/p2q4/3Bp1p1/Q3PpP1/P3b3/1PPr4/1K3R2 b - - 0 41",
+        "accepted_at": 1790099516.941383,
+        "fen_before": "k7/1B6/p2q4/4p1p1/Q3PpP1/P3b3/1PPr4/1K3R2 b - - 0 42",
         "expected": {
-          "uci": "c7b7",
-          "san": "Rxb7",
+          "uci": "a8b7",
+          "san": "Kxb7",
           "color": "black"
         },
-        "accepted_uci": "c7b7"
+        "accepted_uci": "a8b7"
       }
     ],
     "accepted_solution_moves": [
@@ -90,11 +90,16 @@
         "san": "Rxb7",
         "uci": "c7b7",
         "principal": true
+      },
+      {
+        "san": "Kxb7",
+        "uci": "a8b7",
+        "principal": true
       }
     ],
     "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Bxb7+"
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-22",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-22",
