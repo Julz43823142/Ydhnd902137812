@@ -350,8 +350,8 @@
     },
     "442597396195704832": {
       "best_streak": 21,
-      "correct": 183,
-      "current_streak": 3,
+      "correct": 184,
+      "current_streak": 4,
       "name": "thice",
       "targets": {
         "chatter": {
@@ -463,8 +463,8 @@
             "wrong": 5
           },
           "Lars": {
-            "correct": 14,
-            "total": 17,
+            "correct": 15,
+            "total": 18,
             "wrong": 3
           },
           "Mohammad": {
@@ -509,8 +509,8 @@
           }
         }
       },
-      "total": 279,
-      "updated_at": 1790103370,
+      "total": 280,
+      "updated_at": 1790103394,
       "wrong": 96
     },
     "550338389535227926": {
