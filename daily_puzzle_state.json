@@ -53,7 +53,7 @@
     "player_color": "white",
     "player_move_count": 3,
     "posted_at": "2026-09-22T17:42:53.784886+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -69,9 +69,9 @@
     "next_player_index": 3,
     "solved": true,
     "message_ids": {
-      "1468320170891022417": 1552012411832111335
+      "1468320170891022417": 1552012463728361557
     },
-    "message_id": 1552012411832111335,
+    "message_id": 1552012463728361557,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
@@ -127,7 +127,7 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Qxg4+"
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, TheMakina!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1514 points.**\n\n💡 **Solution:** Qe7 Kg2 Bxg4\n\n🏆 **Your ranking**\n**#1 🔥 Thice — 1661 points**\n**#2 🍅 TheMakina — 1514 points ← you**\n**#3 💀 Sharkmeister — 76.5 points**"
   },
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-22",
