@@ -38,7 +38,7 @@
     "player_color": "white",
     "player_move_count": 2,
     "posted_at": "2026-09-22T22:05:00.585934+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -54,9 +54,9 @@
     "next_player_index": 2,
     "solved": true,
     "message_ids": {
-      "1468320170891022417": 1552078451182403746
+      "1468320170891022417": 1552078559709765673
     },
-    "message_id": 1552078451182403746,
+    "message_id": 1552078559709765673,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
@@ -97,7 +97,7 @@
         "principal": true
       }
     ],
-    "last_feedback": "❌ **Live from the blunder department, Thice: you saw ghosts, tactics, sacrifices and apparently no legal solution.**\n↪️ **Move played:** `Rxc7`",
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1663 points.**\n\n💡 **Solution:** Qf6+ Nxd6\n\n🏆 **Your ranking**\n**#1 🔥 Thice — 1663 points ← you**\n**#2 🍅 TheMakina — 1530 points**",
     "wrong_attempt_counts": {
       "442597396195704832": 2
     }
