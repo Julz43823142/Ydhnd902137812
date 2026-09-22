@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/4qPhv",
     "title": "Lichess • 2295",
     "fen": "2kr2n1/Qpp3b1/8/4p1p1/1PN5/P2P2q1/RB2P1Br/6K1 w - - 1 25",
-    "current_fen": "2kr2n1/Qp4b1/1p6/4p1p1/1P6/P2P2q1/RB2P1Br/6K1 w - - 0 26",
-    "last_move_uci": "c7b6",
+    "current_fen": "2kr2n1/1Q4b1/1p6/4p1p1/1P6/P2P2q1/RB2P1Br/6K1 b - - 0 26",
+    "last_move_uci": "a7b7",
     "pgn": "Nb6+ cxb6 Qxb7#",
     "all_moves": [
       {
@@ -43,16 +43,16 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_4qPhv_1790107666328",
-    "last_activity_at": "2026-09-22T20:08:01.173628+00:00",
+    "last_activity_at": "2026-09-22T20:08:08.150696+00:00",
     "rating": 2295,
     "rp_band": 3,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 2,
-    "next_player_index": 1,
-    "solved": false,
+    "next_solution_index": 3,
+    "next_player_index": 2,
+    "solved": true,
     "message_ids": {
       "1468320170891022417": 1552048855514619985
     },
@@ -62,17 +62,17 @@
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Nb6",
+        "move": "Qxb7",
         "correct": true,
-        "timestamp": "2026-09-22T20:08:01.174283+00:00"
+        "timestamp": "2026-09-22T20:08:08.151027+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
     "first_move_user_name": "Thice",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-22T20:08:01.173628+00:00",
+    "last_card_activity_at": "2026-09-22T20:08:08.150696+00:00",
     "recent_accepted_moves": [
       {
         "accepted_at": 1790107681.1742907,
@@ -83,6 +83,16 @@
           "color": "white"
         },
         "accepted_uci": "c4b6"
+      },
+      {
+        "accepted_at": 1790107688.1510353,
+        "fen_before": "2kr2n1/Qp4b1/1p6/4p1p1/1P6/P2P2q1/RB2P1Br/6K1 w - - 0 26",
+        "expected": {
+          "uci": "a7b7",
+          "san": "Qxb7#",
+          "color": "white"
+        },
+        "accepted_uci": "a7b7"
       }
     ],
     "accepted_solution_moves": [
@@ -90,11 +100,16 @@
         "san": "Nb6+",
         "uci": "c4b6",
         "principal": true
+      },
+      {
+        "san": "Qxb7#",
+        "uci": "a7b7",
+        "principal": true
       }
     ],
     "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** cxb6"
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-22",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-22",
