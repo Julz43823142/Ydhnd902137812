@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/guWKB",
     "title": "Lichess • 2173",
     "fen": "3qk3/1b2ppb1/p2p2p1/1p4P1/2rNnP2/1PN1B3/P1PQK3/7R w - - 0 21",
-    "current_fen": "3qk3/4ppb1/p2p2p1/1p4P1/2rNbP2/1P2B3/P1PQK3/7R w - - 0 22",
-    "last_move_uci": "b7e4",
+    "current_fen": "3qk3/2r1ppbR/p2p2p1/1p4P1/3NbP2/1P2B3/P1PQK3/8 w - - 2 23",
+    "last_move_uci": "c4c7",
     "pgn": "Nxe4 Bxe4 Rh7 Rc7 Rxg7",
     "all_moves": [
       {
@@ -58,28 +58,28 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_guWKB_1790099159479",
-    "last_activity_at": "2026-09-22T17:46:32.235887+00:00",
+    "last_activity_at": "2026-09-22T17:46:53.484392+00:00",
     "rating": 2173,
     "rp_band": 3,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 2,
-    "next_player_index": 1,
+    "next_solution_index": 4,
+    "next_player_index": 2,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1552013211283230740
+      "1468320170891022417": 1552013335052947598
     },
-    "message_id": 1552013211283230740,
+    "message_id": 1552013335052947598,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "601406103712170014": {
         "name": "TheMakina",
-        "move": "bxc4",
-        "correct": false,
-        "timestamp": "2026-09-22T17:46:32.236374+00:00"
+        "move": "Rh7",
+        "correct": true,
+        "timestamp": "2026-09-22T17:46:53.484743+00:00"
       }
     },
     "first_move_user_id": "601406103712170014",
@@ -87,16 +87,32 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-22T17:46:32.235887+00:00",
-    "recent_accepted_moves": [],
+    "last_card_activity_at": "2026-09-22T17:46:53.484392+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1790099213.484747,
+        "fen_before": "3qk3/4ppb1/p2p2p1/1p4P1/2rNbP2/1P2B3/P1PQK3/7R w - - 0 22",
+        "expected": {
+          "uci": "h1h7",
+          "san": "Rh7",
+          "color": "white"
+        },
+        "accepted_uci": "h1h7"
+      }
+    ],
     "accepted_solution_moves": [
       {
         "san": "Nxe4",
         "uci": "c3e4",
         "principal": true
+      },
+      {
+        "san": "Rh7",
+        "uci": "h1h7",
+        "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Bxe4",
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Rc7",
     "wrong_attempt_counts": {
       "601406103712170014": 1
     }
