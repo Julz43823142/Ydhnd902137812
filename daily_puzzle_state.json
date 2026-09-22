@@ -58,7 +58,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_rQfFK_1790065654746",
-    "last_activity_at": "2026-09-22T08:27:34.746518+00:00",
+    "last_activity_at": "2026-09-22T08:27:42.978021+00:00",
     "rating": 1369,
     "rp_band": 0,
     "boss": false,
@@ -68,16 +68,30 @@
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_ids": {},
-    "message_id": null,
+    "message_ids": {
+      "1468320170891022417": 1551872581236162640
+    },
+    "message_id": 1551872581236162640,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {},
+    "attempted_users": {
+      "601406103712170014": {
+        "name": "TheMakina",
+        "move": "Bh5",
+        "correct": false,
+        "timestamp": "2026-09-22T08:27:42.979093+00:00"
+      }
+    },
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "last_card_activity_at": "2026-09-22T08:27:42.978021+00:00",
+    "recent_accepted_moves": [],
+    "wrong_attempt_counts": {
+      "601406103712170014": 1
+    }
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-09-22",
