@@ -1,105 +1,85 @@
 {
   "latest_random_puzzle": {
-    "url": "https://lichess.org/training/mileY",
-    "title": "Lichess • 1991",
-    "fen": "8/5k2/4p1p1/pp1pPp1p/3P1P2/PP3K2/6PP/8 w - - 8 46",
-    "current_fen": "8/5k2/4p3/pp1pPpPp/3P4/PP4K1/6PP/8 b - - 0 47",
-    "last_move_uci": "f4g5",
-    "pgn": "Kg3 g5 fxg5",
+    "url": "https://lichess.org/training/tNUKw",
+    "title": "Lichess • 2252",
+    "fen": "r3q2k/r2n1Rp1/7p/2pQP3/p2p4/8/3B2PP/1R4K1 w - - 2 30",
+    "current_fen": "r3q2k/r2n1Rp1/7p/2pQP3/p2p4/8/3B2PP/1R4K1 w - - 2 30",
+    "last_move_uci": "e7e8",
+    "pgn": "Bxh6 gxh6 e6 Qxf7 exf7",
     "all_moves": [
       {
-        "uci": "f3g3",
-        "san": "Kg3",
+        "uci": "d2h6",
+        "san": "Bxh6",
         "color": "white"
       },
       {
-        "uci": "g6g5",
-        "san": "g5",
+        "uci": "g7h6",
+        "san": "gxh6",
         "color": "black"
       },
       {
-        "uci": "f4g5",
-        "san": "fxg5",
+        "uci": "e5e6",
+        "san": "e6",
+        "color": "white"
+      },
+      {
+        "uci": "e8f7",
+        "san": "Qxf7",
+        "color": "black"
+      },
+      {
+        "uci": "e6f7",
+        "san": "exf7",
         "color": "white"
       }
     ],
     "player_moves": [
       {
-        "uci": "f3g3",
-        "san": "Kg3",
+        "uci": "d2h6",
+        "san": "Bxh6",
         "color": "white"
       },
       {
-        "uci": "f4g5",
-        "san": "fxg5",
+        "uci": "e5e6",
+        "san": "e6",
+        "color": "white"
+      },
+      {
+        "uci": "e6f7",
+        "san": "exf7",
         "color": "white"
       }
     ],
     "player_color": "white",
-    "player_move_count": 2,
-    "posted_at": "2026-09-22T17:48:12.791644+00:00",
-    "answer_posted": true,
+    "player_move_count": 3,
+    "posted_at": "2026-09-22T17:48:59.191373+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "random_mileY_1790099292791",
-    "last_activity_at": "2026-09-22T17:48:45.547635+00:00",
-    "rating": 1991,
-    "rp_band": 2,
+    "puzzle_id": "random_tNUKw_1790099339191",
+    "last_activity_at": "2026-09-22T17:48:59.191373+00:00",
+    "rating": 2252,
+    "rp_band": 3,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 3,
-    "next_player_index": 2,
-    "solved": true,
-    "message_ids": {
-      "1468320170891022417": 1552013841116958760
-    },
-    "message_id": 1552013841116958760,
+    "next_solution_index": 0,
+    "next_player_index": 0,
+    "solved": false,
+    "message_ids": {},
+    "message_id": null,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {
-      "601406103712170014": {
-        "name": "TheMakina",
-        "move": "fxg5",
-        "correct": true,
-        "timestamp": "2026-09-22T17:48:45.547806+00:00"
-      }
-    },
-    "first_move_user_id": "601406103712170014",
-    "first_move_user_name": "TheMakina",
-    "first_move_awarded": true,
+    "attempted_users": {},
+    "first_move_user_id": null,
+    "first_move_user_name": null,
+    "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-22T17:48:45.547635+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1790099325.5478098,
-        "fen_before": "8/5k2/4p3/pp1pPppp/3P1P2/PP4K1/6PP/8 w - - 0 47",
-        "expected": {
-          "uci": "f4g5",
-          "san": "fxg5",
-          "color": "white"
-        },
-        "accepted_uci": "f4g5"
-      }
-    ],
-    "accepted_solution_moves": [
-      {
-        "san": "Kg3",
-        "uci": "f3g3",
-        "principal": true
-      },
-      {
-        "san": "fxg5",
-        "uci": "f4g5",
-        "principal": true
-      }
-    ],
-    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, TheMakina!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1520 points.**\n\n💡 **Solution:** Kg3 fxg5\n\n🏆 **Your ranking**\n**#1 🔥 Thice — 1661 points**\n**#2 🍅 TheMakina — 1520 points ← you**\n**#3 💀 Sharkmeister — 76.5 points**"
+    "helper_candidate_users": []
   },
-  "latest_puzzle_type": "daily",
+  "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-09-22",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-22",
