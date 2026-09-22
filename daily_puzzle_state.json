@@ -2584,40 +2584,70 @@
       "started_at": 1790111445.5410662,
       "run_id": "rush:442597396195704832:1790111445541",
       "end_at": 1790111745.5410662,
-      "score": 0,
+      "score": 1,
       "wrong": 0,
       "mistakes": [],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/gjAx8",
-        "title": "Lichess • 1238",
-        "fen": "rn2k1r1/pQp1bp1p/8/8/2B5/1P5K/P2P1P1P/R1Bq3R b q - 4 15",
-        "current_fen": "rn2k1r1/pQp1bp1p/8/8/2B5/1P5K/P2P1P1P/R1Bq3R b q - 4 15",
-        "last_move_uci": "g2h3",
-        "pgn": "Qg4#",
+        "url": "https://lichess.org/training/GnWDD",
+        "title": "Lichess • 1252",
+        "fen": "1r2kr2/p5pp/n1p1b3/2b1P3/2Bp4/P2Q4/1P4PP/RNB3K1 b - - 2 22",
+        "current_fen": "1r2kr2/p5pp/n1p1b3/2b1P3/2Bp4/P2Q4/1P4PP/RNB3K1 b - - 2 22",
+        "last_move_uci": "f1d3",
+        "pgn": "Bxc4 Qxc4 d3+ Qxc5 Nxc5",
         "all_moves": [
           {
-            "uci": "d1g4",
-            "san": "Qg4#",
+            "uci": "e6c4",
+            "san": "Bxc4",
+            "color": "black"
+          },
+          {
+            "uci": "d3c4",
+            "san": "Qxc4",
+            "color": "white"
+          },
+          {
+            "uci": "d4d3",
+            "san": "d3+",
+            "color": "black"
+          },
+          {
+            "uci": "c4c5",
+            "san": "Qxc5",
+            "color": "white"
+          },
+          {
+            "uci": "a6c5",
+            "san": "Nxc5",
             "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "d1g4",
-            "san": "Qg4#",
+            "uci": "e6c4",
+            "san": "Bxc4",
+            "color": "black"
+          },
+          {
+            "uci": "d4d3",
+            "san": "d3+",
+            "color": "black"
+          },
+          {
+            "uci": "a6c5",
+            "san": "Nxc5",
             "color": "black"
           }
         ],
         "player_color": "black",
-        "player_move_count": 1,
-        "posted_at": "2026-09-22T21:10:45.545267+00:00",
+        "player_move_count": 3,
+        "posted_at": "2026-09-22T21:10:50.147139+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_gjAx8_1790111445545",
-        "rating": 1238,
+        "puzzle_id": "practice_rush_442597396195704832_GnWDD_1790111450147",
+        "rating": 1252,
         "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
@@ -2626,8 +2656,8 @@
       "message_id": 1552064640077266964,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790111445.541074,
-      "last_feedback": "🎯 **Type your move in chat.** Your answer message will be removed. You have **3 lives**."
+      "last_card_activity_at": 1790111450.1412663,
+      "last_feedback": "✅ **Qg4#** — solved! Score: **1**."
     },
     "362606514764251137": {
       "active": false,
