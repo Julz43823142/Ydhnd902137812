@@ -282,13 +282,14 @@
       "🎰",
       "🦅",
       "🐛",
-      "🐊"
+      "🐊",
+      "🖖"
     ],
     "boards": [
       "ruby",
       "blue"
     ],
-    "coins": 81.28,
+    "coins": 31.28,
     "colors": [],
     "donation_inbox": [],
     "guess_points_coined": 255.0,
