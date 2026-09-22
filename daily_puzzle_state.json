@@ -2592,8 +2592,8 @@
         "url": "https://lichess.org/training/6HXm7",
         "title": "Lichess • 1318",
         "fen": "r5k1/r1R3p1/5p1p/P3p3/1Q1p4/3q2P1/5P1P/R5K1 w - - 2 40",
-        "current_fen": "6k1/r5p1/5p1p/P3p3/1Q1p4/3q2P1/5P1P/R5K1 w - - 0 41",
-        "last_move_uci": "a8a7",
+        "current_fen": "1Q6/r5pk/5p1p/P3p3/3p4/3q2P1/5P1P/R5K1 w - - 2 42",
+        "last_move_uci": "g8h7",
         "pgn": "Rxa7 Rxa7 Qb8+ Kh7 Qxa7",
         "all_moves": [
           {
@@ -2648,16 +2648,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_6HXm7_1790111462910",
         "rating": 1318,
-        "next_solution_index": 2,
+        "next_solution_index": 4,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552064712584204380,
+      "message_id": 1552064737670598757,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790111469.1299865,
-      "last_feedback": "✅ **Rxa7** • Opponent: **Rxa7**"
+      "last_card_activity_at": 1790111470.9623034,
+      "last_feedback": "✅ **Qb8+** • Opponent: **Kh7**"
     },
     "362606514764251137": {
       "active": false,
