@@ -461,11 +461,13 @@
         },
         "601406103712170014": {
           "name": "TheMakina",
-          "paid": [],
+          "paid": [
+            "daily:2026-09-22:puzzle:solve-5"
+          ],
           "progress": {
             "daily:2026-09-22:puzzle:solve-5": 5
           },
-          "updated_at": 1790098955
+          "updated_at": 1790098961
         }
       }
     },
