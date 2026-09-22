@@ -1,0 +1,15 @@
+{
+  "after_coins": 1825.5,
+  "before_coins": 1820.5,
+  "created_at": 1790098959,
+  "created_at_ns": 1790098959485607904,
+  "details": {
+    "credited": 5.0,
+    "source": "quest-bonus"
+  },
+  "display_name": "TheMakina",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "coin-credit",
+  "transaction_id": "quest-reward:daily:2026-09-22:daily:2026-09-22:puzzle:solve-5:601406103712170014",
+  "user_id": "601406103712170014"
+}
