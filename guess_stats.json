@@ -351,7 +351,7 @@
     "442597396195704832": {
       "best_streak": 21,
       "correct": 187,
-      "current_streak": 7,
+      "current_streak": 0,
       "name": "thice",
       "targets": {
         "chatter": {
@@ -494,8 +494,8 @@
           },
           "Stepu": {
             "correct": 7,
-            "total": 9,
-            "wrong": 2
+            "total": 10,
+            "wrong": 3
           },
           "Sushi": {
             "correct": 9,
@@ -509,9 +509,9 @@
           }
         }
       },
-      "total": 283,
-      "updated_at": 1790103484,
-      "wrong": 96
+      "total": 284,
+      "updated_at": 1790103520,
+      "wrong": 97
     },
     "550338389535227926": {
       "best_streak": 0,
