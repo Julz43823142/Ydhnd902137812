@@ -135,81 +135,59 @@
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-22",
   "current_puzzle": {
-    "url": "https://www.chess.com/daily/2026-09-21",
-    "title": "The Anti-Fork",
-    "fen": "r1b1q1kr/ppNnb1pp/5n2/8/3P4/8/PPP2PPP/R1BQKB1R b KQ - 0 10",
-    "current_fen": "r1b1q1kr/ppNn2pp/5n2/8/1b1P4/8/PPP2PPP/R1BQKB1R w KQ - 1 11",
-    "last_move_uci": "e7b4",
-    "pgn": "[Event \"FRG-ch 01st\"]\n[Site \"Bad Pyrmont\"]\n[Date \"1950.??.??\"]\n[Round \"16\"]\n[White \"Lohmann, Heinrich\"]\n[Black \"Teschner, Rudolf\"]\n[Result \"0-1\"]\n[FEN \"r1b1q1kr/ppNnb1pp/5n2/8/3P4/8/PPP2PPP/R1BQKB1R b KQ - 0 10\"]\n\n10... Bb4# 0-1",
+    "url": "https://www.chess.com/daily/2026-09-22",
+    "title": "Discover Your Gift",
+    "fen": "r3kb1r/ppnqp2p/2ppNnp1/8/3P2P1/5Q2/PPP2P1P/RNB1R1K1 w kq - 0 15",
+    "current_fen": "r3kb1r/ppnqp2p/2ppNnp1/8/3P2P1/5Q2/PPP2P1P/RNB1R1K1 w kq - 0 15",
+    "last_move_uci": null,
+    "pgn": "[Event \"SLO-chT1 West\"]\n[Site \"Bled\"]\n[Date \"2000.??.??\"]\n[White \"Furlan, Miha\"]\n[Black \"Raspor, Gregor\"]\n[Result \"1-0\"]\n[ECO \"B05\"]\n[WhiteElo \"2362\"]\n[BlackElo \"2125\"]\n[FEN \"r3kb1r/ppnqp2p/2ppNnp1/8/3P2P1/5Q2/PPP2P1P/RNB1R1K1 w kq - 0 15\"]\n\n15. Nxc7+ Qxc7 16. Qxf6 1-0",
     "all_moves": [
       {
-        "uci": "e7b4",
-        "san": "Bb4#",
+        "uci": "e6c7",
+        "san": "Nxc7+",
+        "color": "white"
+      },
+      {
+        "uci": "d7c7",
+        "san": "Qxc7",
         "color": "black"
+      },
+      {
+        "uci": "f3f6",
+        "san": "Qxf6",
+        "color": "white"
       }
     ],
     "player_moves": [
       {
-        "uci": "e7b4",
-        "san": "Bb4#",
-        "color": "black"
+        "uci": "e6c7",
+        "san": "Nxc7+",
+        "color": "white"
+      },
+      {
+        "uci": "f3f6",
+        "san": "Qxf6",
+        "color": "white"
       }
     ],
-    "player_color": "black",
-    "player_move_count": 1,
-    "posted_at": "2026-09-21T07:00:44.468191+00:00",
-    "answer_posted": true,
+    "player_color": "white",
+    "player_move_count": 2,
+    "posted_at": "2026-09-22T07:06:35.700553+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "daily_1789974044468",
-    "next_solution_index": 1,
-    "next_player_index": 1,
-    "solved": true,
-    "message_id": 1551524780983717909,
-    "attempted_users": {
-      "442597396195704832": {
-        "name": "Thice",
-        "move": "Bb4",
-        "correct": true,
-        "timestamp": "2026-09-21T09:25:21.798272+00:00"
-      }
-    },
-    "first_move_user_id": "442597396195704832",
-    "first_move_user_name": "Thice",
-    "first_move_awarded": true,
+    "puzzle_id": "daily_1790060795700",
+    "next_solution_index": 0,
+    "next_player_index": 0,
+    "solved": false,
+    "message_id": null,
+    "attempted_users": {},
+    "first_move_user_id": null,
+    "first_move_user_name": null,
+    "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "message_ids": {
-      "1468320170891022417": 1551524780983717909,
-      "1546557493038284840": 1551524771315847308
-    },
-    "channel_id": 1468320170891022417,
-    "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-09-21T09:25:21.797569+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1789982721.7982802,
-        "fen_before": "r1b1q1kr/ppNnb1pp/5n2/8/3P4/8/PPP2PPP/R1BQKB1R b KQ - 0 10",
-        "expected": {
-          "uci": "e7b4",
-          "san": "Bb4#",
-          "color": "black"
-        },
-        "accepted_uci": "e7b4"
-      }
-    ],
-    "accepted_solution_moves": [
-      {
-        "san": "Bb4#",
-        "uci": "e7b4",
-        "principal": true
-      }
-    ],
-    "activity_bonus_users": [
-      "442597396195704832"
-    ],
-    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1658 points.**\n🔥 **Daily Activity Bonus: +10 coins**\n\n💡 **Solution:** Bb4#\n\n🏆 **Your ranking**\n**#1 🔥 Thice — 1658 points ← you**\n**#2 🍅 TheMakina — 1506 points**"
+    "helper_candidate_users": []
   },
   "lichess_rating_used": {
     "2000": [
