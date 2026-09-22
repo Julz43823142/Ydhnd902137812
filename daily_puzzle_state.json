@@ -54,9 +54,9 @@
     "next_player_index": 1,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1552014679495417976
+      "1468320170891022417": 1552014740606288055
     },
-    "message_id": 1552014679495417976,
+    "message_id": 1552014740606288055,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
@@ -67,8 +67,8 @@
         "timestamp": "2026-09-22T17:52:28.247392+00:00"
       }
     },
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "first_move_user_id": "601406103712170014",
+    "first_move_user_name": "TheMakina",
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
@@ -94,7 +94,8 @@
         "uci": "d4d5",
         "principal": true
       }
-    ]
+    ],
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Qxb5"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-09-22",
