@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/xiAXq",
     "title": "Lichess • 1675",
     "fen": "kn1r4/1p1r4/p1q2p2/1N4p1/R2P3p/4Q2P/5PP1/1R4K1 w - - 7 35",
-    "current_fen": "kn1r4/1p1r4/p1q2p2/1N4p1/R2P3p/4Q2P/5PP1/1R4K1 w - - 7 35",
-    "last_move_uci": "c8d8",
+    "current_fen": "kn1r4/1p1r4/p4p2/1q1P2p1/R6p/4Q2P/5PP1/1R4K1 w - - 0 36",
+    "last_move_uci": "c6b5",
     "pgn": "d5 Qxb5 Rxb5",
     "all_moves": [
       {
@@ -43,26 +43,58 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_xiAXq_1790099534073",
-    "last_activity_at": "2026-09-22T17:52:14.073342+00:00",
+    "last_activity_at": "2026-09-22T17:52:28.246819+00:00",
     "rating": 1675,
     "rp_band": 1,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
-    "message_ids": {},
-    "message_id": null,
+    "message_ids": {
+      "1468320170891022417": 1552014679495417976
+    },
+    "message_id": 1552014679495417976,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {},
+    "attempted_users": {
+      "601406103712170014": {
+        "name": "TheMakina",
+        "move": "d5",
+        "correct": true,
+        "timestamp": "2026-09-22T17:52:28.247392+00:00"
+      }
+    },
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "last_card_activity_at": "2026-09-22T17:52:28.246819+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1790099548.247397,
+        "fen_before": "kn1r4/1p1r4/p1q2p2/1N4p1/R2P3p/4Q2P/5PP1/1R4K1 w - - 7 35",
+        "expected": {
+          "uci": "d4d5",
+          "san": "d5",
+          "color": "white"
+        },
+        "accepted_uci": "d4d5"
+      }
+    ],
+    "wrong_attempt_counts": {
+      "601406103712170014": 1
+    },
+    "accepted_solution_moves": [
+      {
+        "san": "d5",
+        "uci": "d4d5",
+        "principal": true
+      }
+    ]
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-09-22",
