@@ -2610,8 +2610,8 @@
         "url": "https://lichess.org/training/IRkbw",
         "title": "Lichess • 1271",
         "fen": "8/R1K5/4k3/1r2r3/8/8/3R4/8 b - - 5 54",
-        "current_fen": "8/R1K5/4k3/1r2r3/8/8/3R4/8 b - - 5 54",
-        "last_move_uci": "b6c7",
+        "current_fen": "3K4/R7/4k3/1rr5/8/8/3R4/8 b - - 7 55",
+        "last_move_uci": "c7d8",
         "pgn": "Rec5+ Kd8 Rb8#",
         "all_moves": [
           {
@@ -2651,16 +2651,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_IRkbw_1790111518525",
         "rating": 1271,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552064940376854538,
+      "message_id": 1552064946811043912,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790111518.5193772,
-      "last_feedback": "❌ **rh1** was wrong. Correct move: **Rxd1**."
+      "last_card_activity_at": 1790111531.5571282,
+      "last_feedback": "✅ **Rec5+** • Opponent: **Kd8**"
     },
     "362606514764251137": {
       "active": false,
