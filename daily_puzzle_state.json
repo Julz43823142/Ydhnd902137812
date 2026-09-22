@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/LFH0F",
     "title": "Lichess • 1509",
     "fen": "r4n2/pp3Pkp/2p3p1/3p4/3P2N1/6N1/PPPn4/4R1K1 w - - 1 31",
-    "current_fen": "r3Rn2/pp3k1p/2p3p1/3p4/3P2N1/6N1/PPPn4/6K1 w - - 0 32",
-    "last_move_uci": "g7f7",
+    "current_fen": "R4n2/pp3k1p/2p3p1/3p4/3P2N1/6N1/PPPn4/6K1 b - - 0 32",
+    "last_move_uci": "e8a8",
     "pgn": "Re8 Kxf7 Rxa8",
     "all_moves": [
       {
@@ -43,16 +43,16 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_LFH0F_1790065700162",
-    "last_activity_at": "2026-09-22T08:28:32.160629+00:00",
+    "last_activity_at": "2026-09-22T08:28:44.461887+00:00",
     "rating": 1509,
     "rp_band": 1,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 2,
-    "next_player_index": 1,
-    "solved": false,
+    "next_solution_index": 3,
+    "next_player_index": 2,
+    "solved": true,
     "message_ids": {
       "1468320170891022417": 1551872832844210326
     },
@@ -62,27 +62,27 @@
     "attempted_users": {
       "601406103712170014": {
         "name": "TheMakina",
-        "move": "Re8",
+        "move": "Rxa8",
         "correct": true,
-        "timestamp": "2026-09-22T08:28:32.161193+00:00"
+        "timestamp": "2026-09-22T08:28:44.462191+00:00"
       }
     },
     "first_move_user_id": "601406103712170014",
     "first_move_user_name": "TheMakina",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-22T08:28:32.160629+00:00",
+    "last_card_activity_at": "2026-09-22T08:28:44.461887+00:00",
     "recent_accepted_moves": [
       {
-        "accepted_at": 1790065712.1612017,
-        "fen_before": "r4n2/pp3Pkp/2p3p1/3p4/3P2N1/6N1/PPPn4/4R1K1 w - - 1 31",
+        "accepted_at": 1790065724.462198,
+        "fen_before": "r3Rn2/pp3k1p/2p3p1/3p4/3P2N1/6N1/PPPn4/6K1 w - - 0 32",
         "expected": {
-          "uci": "e1e8",
-          "san": "Re8",
+          "uci": "e8a8",
+          "san": "Rxa8",
           "color": "white"
         },
-        "accepted_uci": "e1e8"
+        "accepted_uci": "e8a8"
       }
     ],
     "accepted_solution_moves": [
@@ -90,11 +90,16 @@
         "san": "Re8",
         "uci": "e1e8",
         "principal": true
+      },
+      {
+        "san": "Rxa8",
+        "uci": "e8a8",
+        "principal": true
       }
     ],
     "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kxf7"
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-22",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-22",
