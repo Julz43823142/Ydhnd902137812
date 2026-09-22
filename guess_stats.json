@@ -494,8 +494,8 @@
           },
           "Stepu": {
             "correct": 7,
-            "total": 10,
-            "wrong": 3
+            "total": 11,
+            "wrong": 4
           },
           "Sushi": {
             "correct": 9,
@@ -509,9 +509,9 @@
           }
         }
       },
-      "total": 285,
-      "updated_at": 1790103542,
-      "wrong": 98
+      "total": 286,
+      "updated_at": 1790103582,
+      "wrong": 99
     },
     "550338389535227926": {
       "best_streak": 0,
