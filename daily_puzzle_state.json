@@ -2578,7 +2578,7 @@
   },
   "puzzle_rush": {
     "442597396195704832": {
-      "active": true,
+      "active": false,
       "user_id": "442597396195704832",
       "name": "Thice",
       "started_at": 1790111445.5410662,
@@ -2656,11 +2656,15 @@
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552065000816779365,
+      "message_id": 1552065020614025317,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
       "last_card_activity_at": 1790111536.3006127,
-      "last_feedback": "✅ **Rb8#** — solved! Score: **4**."
+      "last_feedback": "✅ **Rb8#** — solved! Score: **4**.",
+      "forfeited": true,
+      "ended_at": 1790111548.3706756,
+      "solve_reward_coins": 2.0,
+      "solve_reward_paid": true
     },
     "362606514764251137": {
       "active": false,
@@ -3001,6 +3005,14 @@
         "name": "Thice",
         "updated_at": "2026-09-16T19:31:27.407348+00:00",
         "achieved_at": "2026-09-16T19:31:27.407348+00:00"
+      }
+    },
+    "2026-W39": {
+      "442597396195704832": {
+        "score": 4,
+        "name": "Thice",
+        "updated_at": "2026-09-22T21:12:28.370705+00:00",
+        "achieved_at": "2026-09-22T21:12:28.370705+00:00"
       }
     }
   },
@@ -3461,6 +3473,14 @@
       "achieved_at": "2026-09-17T19:21:27.170970+00:00",
       "started_at": 1789672710.9746318,
       "week": "2026-W38"
+    },
+    "rush:442597396195704832:1790111445541": {
+      "user_id": "442597396195704832",
+      "name": "Thice",
+      "score": 4,
+      "achieved_at": "2026-09-22T21:12:28.370705+00:00",
+      "started_at": 1790111445.5410662,
+      "week": "2026-W39"
     }
   },
   "puzzle_rush_runs_seeded_v1": true,
@@ -5375,6 +5395,31 @@
             "arrow_theme": "pink"
           },
           "recorded_at": 1789672886.185751
+        }
+      ]
+    },
+    "rush:442597396195704832:1790111445541": {
+      "run_id": "rush:442597396195704832:1790111445541",
+      "user_id": "442597396195704832",
+      "name": "Thice",
+      "ended_at": 1790111548.3706756,
+      "mistakes": [
+        {
+          "puzzle_number": 4,
+          "submitted": "rh1",
+          "correct": "Rxd1",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_8yhAQ_1790111474268",
+            "fen": "1k2r2r/pbpp1pp1/1p6/8/2BP1bp1/6N1/PPP2PP1/RN1Q1K2 b - - 5 19",
+            "current_fen": "1k2r3/pbpp1pp1/1p6/8/2BP2p1/6P1/PPP2KP1/RN1Q3r b - - 2 21",
+            "last_move_uci": "f1f2",
+            "player_color": "black",
+            "rating": 1328,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1790111518.5202575
         }
       ]
     }
