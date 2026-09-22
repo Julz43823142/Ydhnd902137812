@@ -163,7 +163,7 @@
     "player_color": "white",
     "player_move_count": 2,
     "posted_at": "2026-09-22T07:06:35.700553+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -183,7 +183,8 @@
       "1546557493038284840": 1551852207610134658
     },
     "channel_id": 1468320170891022417,
-    "chat_since_refresh": 0
+    "chat_since_refresh": 0,
+    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Nxc7+ Qxf6"
   },
   "lichess_rating_used": {
     "2000": [
