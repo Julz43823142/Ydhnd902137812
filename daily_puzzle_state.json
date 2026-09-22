@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/NPL1K",
     "title": "Lichess • 2177",
     "fen": "3r1k2/p5b1/2Q1B2p/8/8/4pPP1/PP2q3/2R3K1 b - - 1 35",
-    "current_fen": "3r1k2/p5b1/2Q1B2p/8/8/4pPP1/PP3q2/2R4K b - - 3 36",
-    "last_move_uci": "g1h1",
+    "current_fen": "3r1k2/p5b1/2Q1B2p/8/8/5PP1/PP2pq2/2R4K w - - 0 37",
+    "last_move_uci": "e3e2",
     "pgn": "Qf2+ Kh1 e2",
     "all_moves": [
       {
@@ -43,16 +43,16 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_NPL1K_1790099597392",
-    "last_activity_at": "2026-09-22T17:53:52.845784+00:00",
+    "last_activity_at": "2026-09-22T17:54:07.724254+00:00",
     "rating": 2177,
     "rp_band": 3,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 2,
-    "next_player_index": 1,
-    "solved": false,
+    "next_solution_index": 3,
+    "next_player_index": 2,
+    "solved": true,
     "message_ids": {
       "1468320170891022417": 1552015094735704144
     },
@@ -62,27 +62,27 @@
     "attempted_users": {
       "601406103712170014": {
         "name": "TheMakina",
-        "move": "Qf2",
+        "move": "e2",
         "correct": true,
-        "timestamp": "2026-09-22T17:53:52.846250+00:00"
+        "timestamp": "2026-09-22T17:54:07.724766+00:00"
       }
     },
     "first_move_user_id": "601406103712170014",
     "first_move_user_name": "TheMakina",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-22T17:53:52.845784+00:00",
+    "last_card_activity_at": "2026-09-22T17:54:07.724254+00:00",
     "recent_accepted_moves": [
       {
-        "accepted_at": 1790099632.8462553,
-        "fen_before": "3r1k2/p5b1/2Q1B2p/8/8/4pPP1/PP2q3/2R3K1 b - - 1 35",
+        "accepted_at": 1790099647.7247703,
+        "fen_before": "3r1k2/p5b1/2Q1B2p/8/8/4pPP1/PP3q2/2R4K b - - 3 36",
         "expected": {
-          "uci": "e2f2",
-          "san": "Qf2+",
+          "uci": "e3e2",
+          "san": "e2",
           "color": "black"
         },
-        "accepted_uci": "e2f2"
+        "accepted_uci": "e3e2"
       }
     ],
     "wrong_attempt_counts": {
@@ -94,10 +94,15 @@
         "san": "Qf2+",
         "uci": "e2f2",
         "principal": true
+      },
+      {
+        "san": "e2",
+        "uci": "e3e2",
+        "principal": true
       }
     ]
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-22",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-22",
