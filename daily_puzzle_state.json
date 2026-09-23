@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/oXrkl",
     "title": "Lichess • 1625",
     "fen": "r7/5r2/8/5R1R/P2k4/1P2p3/2Kp4/8 w - - 0 53",
-    "current_fen": "r7/5r2/8/5R1R/P2k4/1P2p3/2Kp4/8 w - - 0 53",
-    "last_move_uci": "e4e3",
+    "current_fen": "r7/5r2/8/5R2/P2k3R/1P2p3/2Kp4/8 b - - 1 53",
+    "last_move_uci": "h5h4",
     "pgn": "Rh4#",
     "all_moves": [
       {
@@ -28,28 +28,57 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_oXrkl_1790185444419",
-    "last_activity_at": "2026-09-23T17:44:04.419509+00:00",
+    "last_activity_at": "2026-09-23T17:44:28.857326+00:00",
     "rating": 1625,
     "rp_band": 1,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 0,
-    "next_player_index": 0,
-    "solved": false,
-    "message_ids": {},
-    "message_id": null,
+    "next_solution_index": 1,
+    "next_player_index": 1,
+    "solved": true,
+    "message_ids": {
+      "1468320170891022417": 1552375013129195572
+    },
+    "message_id": 1552375013129195572,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
-    "first_move_awarded": false,
+    "attempted_users": {
+      "601406103712170014": {
+        "name": "TheMakina",
+        "move": "Rh4",
+        "correct": true,
+        "timestamp": "2026-09-23T17:44:28.857647+00:00"
+      }
+    },
+    "first_move_user_id": "601406103712170014",
+    "first_move_user_name": "TheMakina",
+    "first_move_awarded": true,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "last_card_activity_at": "2026-09-23T17:44:28.857326+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1790185468.857653,
+        "fen_before": "r7/5r2/8/5R1R/P2k4/1P2p3/2Kp4/8 w - - 0 53",
+        "expected": {
+          "uci": "h5h4",
+          "san": "Rh4#",
+          "color": "white"
+        },
+        "accepted_uci": "h5h4"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "Rh4#",
+        "uci": "h5h4",
+        "principal": true
+      }
+    ]
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-23",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-23",
