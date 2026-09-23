@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/1kiZ0",
     "title": "Lichess • 2272",
     "fen": "8/8/8/4p2p/KP2k1pP/6P1/8/8 b - - 1 48",
-    "current_fen": "8/8/8/1P2p2p/K5pP/5kP1/8/8 b - - 0 49",
-    "last_move_uci": "b4b5",
+    "current_fen": "8/8/1P6/7p/K3p1pP/5kP1/8/8 b - - 0 50",
+    "last_move_uci": "b5b6",
     "pgn": "Kf3 b5 e4 b6 e3 b7 e2 b8=Q e1=Q",
     "all_moves": [
       {
@@ -88,28 +88,28 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_1kiZ0_1790186238417",
-    "last_activity_at": "2026-09-23T17:57:37.114118+00:00",
+    "last_activity_at": "2026-09-23T17:57:45.544371+00:00",
     "rating": 2272,
     "rp_band": 3,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 2,
-    "next_player_index": 1,
+    "next_solution_index": 4,
+    "next_player_index": 2,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1552378429611966575
+      "1468320170891022417": 1552378457764397116
     },
-    "message_id": 1552378429611966575,
+    "message_id": 1552378457764397116,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "601406103712170014": {
         "name": "TheMakina",
-        "move": "Kf3",
+        "move": "e4",
         "correct": true,
-        "timestamp": "2026-09-23T17:57:37.114376+00:00"
+        "timestamp": "2026-09-23T17:57:45.544653+00:00"
       }
     },
     "first_move_user_id": "601406103712170014",
@@ -117,17 +117,17 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-23T17:57:37.114118+00:00",
+    "last_card_activity_at": "2026-09-23T17:57:45.544371+00:00",
     "recent_accepted_moves": [
       {
-        "accepted_at": 1790186257.1143825,
-        "fen_before": "8/8/8/4p2p/KP2k1pP/6P1/8/8 b - - 1 48",
+        "accepted_at": 1790186265.5446599,
+        "fen_before": "8/8/8/1P2p2p/K5pP/5kP1/8/8 b - - 0 49",
         "expected": {
-          "uci": "e4f3",
-          "san": "Kf3",
+          "uci": "e5e4",
+          "san": "e4",
           "color": "black"
         },
-        "accepted_uci": "e4f3"
+        "accepted_uci": "e5e4"
       }
     ],
     "accepted_solution_moves": [
@@ -135,9 +135,14 @@
         "san": "Kf3",
         "uci": "e4f3",
         "principal": true
+      },
+      {
+        "san": "e4",
+        "uci": "e5e4",
+        "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 4 moves remaining.**\n↩️ **Opponent replies:** b5"
+    "last_feedback": "**✅ Correct! 3 moves remaining.**\n↩️ **Opponent replies:** b6"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-09-23",
