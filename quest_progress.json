@@ -501,9 +501,9 @@
             "daily:2026-09-23:puzzle:solve-5"
           ],
           "progress": {
-            "daily:2026-09-23:puzzle:solve-5": 9
+            "daily:2026-09-23:puzzle:solve-5": 10
           },
-          "updated_at": 1790186116
+          "updated_at": 1790186163
         }
       }
     },
@@ -617,9 +617,9 @@
             "weekly:2026-09-21:puzzle:solve-25"
           ],
           "progress": {
-            "weekly:2026-09-21:puzzle:solve-25": 33
+            "weekly:2026-09-21:puzzle:solve-25": 34
           },
-          "updated_at": 1790186116
+          "updated_at": 1790186163
         }
       }
     }
