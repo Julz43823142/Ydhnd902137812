@@ -2640,94 +2640,97 @@
       "run_id": "rush:442597396195704832:1790187411375",
       "end_at": 1790187711.3750587,
       "score": 10,
-      "wrong": 0,
-      "mistakes": [],
+      "wrong": 1,
+      "mistakes": [
+        {
+          "puzzle_number": 11,
+          "submitted": "hxg4",
+          "correct": "Rxh8+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_TfMfK_1790187549729",
+            "fen": "6kr/p1p2pp1/6q1/5b2/6n1/1PN4P/P2BBPPK/3RR3 w - - 9 30",
+            "current_fen": "4R2r/p1p2ppk/6q1/8/6b1/1PN4P/P2B1PPK/3R4 w - - 2 32",
+            "last_move_uci": "g8h7",
+            "player_color": "white",
+            "rating": 1577,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1790187558.6624324
+        }
+      ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/TfMfK",
-        "title": "Lichess • 1577",
-        "fen": "6kr/p1p2pp1/6q1/5b2/6n1/1PN4P/P2BBPPK/3RR3 w - - 9 30",
-        "current_fen": "4R2r/p1p2ppk/6q1/8/6b1/1PN4P/P2B1PPK/3R4 w - - 2 32",
-        "last_move_uci": "g8h7",
-        "pgn": "Bxg4 Bxg4 Re8+ Kh7 Rxh8+ Kxh8 hxg4",
+        "url": "https://lichess.org/training/TPPhK",
+        "title": "Lichess • 1607",
+        "fen": "3q1r1k/2n3pP/2Qp1b2/2p2N2/1p1p4/3P4/1PPK1P2/R5R1 b - - 7 31",
+        "current_fen": "3q1r1k/2n3pP/2Qp1b2/2p2N2/1p1p4/3P4/1PPK1P2/R5R1 b - - 7 31",
+        "last_move_uci": "e4c6",
+        "pgn": "Bg5+ Kd1 Rxf5 Ra7 Rf7",
         "all_moves": [
           {
-            "uci": "e2g4",
-            "san": "Bxg4",
-            "color": "white"
-          },
-          {
-            "uci": "f5g4",
-            "san": "Bxg4",
+            "uci": "f6g5",
+            "san": "Bg5+",
             "color": "black"
           },
           {
-            "uci": "e1e8",
-            "san": "Re8+",
+            "uci": "d2d1",
+            "san": "Kd1",
             "color": "white"
           },
           {
-            "uci": "g8h7",
-            "san": "Kh7",
+            "uci": "f8f5",
+            "san": "Rxf5",
             "color": "black"
           },
           {
-            "uci": "e8h8",
-            "san": "Rxh8+",
+            "uci": "a1a7",
+            "san": "Ra7",
             "color": "white"
           },
           {
-            "uci": "h7h8",
-            "san": "Kxh8",
+            "uci": "f5f7",
+            "san": "Rf7",
             "color": "black"
-          },
-          {
-            "uci": "h3g4",
-            "san": "hxg4",
-            "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "e2g4",
-            "san": "Bxg4",
-            "color": "white"
+            "uci": "f6g5",
+            "san": "Bg5+",
+            "color": "black"
           },
           {
-            "uci": "e1e8",
-            "san": "Re8+",
-            "color": "white"
+            "uci": "f8f5",
+            "san": "Rxf5",
+            "color": "black"
           },
           {
-            "uci": "e8h8",
-            "san": "Rxh8+",
-            "color": "white"
-          },
-          {
-            "uci": "h3g4",
-            "san": "hxg4",
-            "color": "white"
+            "uci": "f5f7",
+            "san": "Rf7",
+            "color": "black"
           }
         ],
-        "player_color": "white",
-        "player_move_count": 4,
-        "posted_at": "2026-09-23T18:19:09.729551+00:00",
+        "player_color": "black",
+        "player_move_count": 3,
+        "posted_at": "2026-09-23T18:19:18.667526+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_TfMfK_1790187549729",
-        "rating": 1577,
-        "next_solution_index": 4,
+        "puzzle_id": "practice_rush_442597396195704832_TPPhK_1790187558667",
+        "rating": 1607,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552383861542092881,
+      "message_id": 1552383871977259078,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790187556.7105796,
-      "last_feedback": "✅ **Re8+** • Opponent: **Kh7**"
+      "last_card_activity_at": 1790187558.6614592,
+      "last_feedback": "❌ **hxg4** was wrong. Correct move: **Rxh8+**."
     },
     "362606514764251137": {
       "active": false,
