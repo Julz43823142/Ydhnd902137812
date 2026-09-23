@@ -38,7 +38,7 @@
     "player_color": "black",
     "player_move_count": 2,
     "posted_at": "2026-09-23T17:48:54.215431+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -54,9 +54,9 @@
     "next_player_index": 2,
     "solved": true,
     "message_ids": {
-      "1468320170891022417": 1552376305163444234
+      "1468320170891022417": 1552376347853193257
     },
-    "message_id": 1552376305163444234,
+    "message_id": 1552376347853193257,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
@@ -107,7 +107,7 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kxf2"
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, TheMakina!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1536 points.**\n\n💡 **Solution:** Qxf2+ Bxh8\n\n🏆 **Your ranking**\n**#1 🔥 Thice — 1664 points**\n**#2 🍅 TheMakina — 1536 points ← you**\n**#3 💀 Sharkmeister — 76.5 points**"
   },
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-23",
