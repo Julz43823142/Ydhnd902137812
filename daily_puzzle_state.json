@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/lVvfE",
     "title": "Lichess • 2733",
     "fen": "6Q1/pppk1p2/4bqp1/2N5/8/3P4/PP2rP2/2KR2R1 b - - 6 25",
-    "current_fen": "6Q1/ppp1kp2/4bqp1/2N5/3P4/8/PP2rP2/2KR2R1 b - - 0 26",
-    "last_move_uci": "d3d4",
+    "current_fen": "6Q1/ppp1kp2/4b1p1/8/3P4/3N4/PP2rq2/2KR2R1 b - - 1 27",
+    "last_move_uci": "c5d3",
     "pgn": "Ke7 d4 Qxf2 Nd3 Qxd4",
     "all_moves": [
       {
@@ -58,28 +58,28 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_lVvfE_1790185909630",
-    "last_activity_at": "2026-09-23T17:53:04.455082+00:00",
+    "last_activity_at": "2026-09-23T17:53:19.152285+00:00",
     "rating": 2733,
     "rp_band": 5,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 2,
-    "next_player_index": 1,
+    "next_solution_index": 4,
+    "next_player_index": 2,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1552377245723533434
+      "1468320170891022417": 1552377339747500193
     },
-    "message_id": 1552377245723533434,
+    "message_id": 1552377339747500193,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "601406103712170014": {
         "name": "TheMakina",
-        "move": "Qf4",
-        "correct": false,
-        "timestamp": "2026-09-23T17:53:04.455458+00:00"
+        "move": "Qxf2",
+        "correct": true,
+        "timestamp": "2026-09-23T17:53:19.152721+00:00"
       }
     },
     "first_move_user_id": "601406103712170014",
@@ -87,16 +87,32 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-23T17:53:04.455082+00:00",
-    "recent_accepted_moves": [],
+    "last_card_activity_at": "2026-09-23T17:53:19.152285+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1790185999.1527286,
+        "fen_before": "6Q1/ppp1kp2/4bqp1/2N5/3P4/8/PP2rP2/2KR2R1 b - - 0 26",
+        "expected": {
+          "uci": "f6f2",
+          "san": "Qxf2",
+          "color": "black"
+        },
+        "accepted_uci": "f6f2"
+      }
+    ],
     "wrong_attempt_counts": {
       "601406103712170014": 3
     },
-    "last_feedback": "❌ **TheMakina, maybe think less highly of yourself before making the move.**\n↪️ **Move played:** `Qf5`",
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Nd3",
     "accepted_solution_moves": [
       {
         "san": "Ke7",
         "uci": "d7e7",
+        "principal": true
+      },
+      {
+        "san": "Qxf2",
+        "uci": "f6f2",
         "principal": true
       }
     ]
