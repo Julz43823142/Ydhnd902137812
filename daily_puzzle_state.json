@@ -2633,93 +2633,71 @@
   },
   "puzzle_rush": {
     "442597396195704832": {
-      "active": false,
+      "active": true,
       "user_id": "442597396195704832",
       "name": "Thice",
-      "started_at": 1790111445.5410662,
-      "run_id": "rush:442597396195704832:1790111445541",
-      "end_at": 1790111745.5410662,
-      "score": 4,
-      "wrong": 1,
-      "mistakes": [
-        {
-          "puzzle_number": 4,
-          "submitted": "rh1",
-          "correct": "Rxd1",
-          "puzzle": {
-            "puzzle_id": "practice_rush_442597396195704832_8yhAQ_1790111474268",
-            "fen": "1k2r2r/pbpp1pp1/1p6/8/2BP1bp1/6N1/PPP2PP1/RN1Q1K2 b - - 5 19",
-            "current_fen": "1k2r3/pbpp1pp1/1p6/8/2BP2p1/6P1/PPP2KP1/RN1Q3r b - - 2 21",
-            "last_move_uci": "f1f2",
-            "player_color": "black",
-            "rating": 1328,
-            "board_theme": "blue",
-            "piece_theme": "classic",
-            "arrow_theme": "pink"
-          },
-          "recorded_at": 1790111518.5202575
-        }
-      ],
+      "started_at": 1790187411.3750587,
+      "run_id": "rush:442597396195704832:1790187411375",
+      "end_at": 1790187711.3750587,
+      "score": 0,
+      "wrong": 0,
+      "mistakes": [],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/EDTIr",
-        "title": "Lichess • 1361",
-        "fen": "4Q3/2qp1pkp/p1b1p1p1/3pP3/P7/7P/5PP1/1R4K1 w - - 1 31",
-        "current_fen": "4Q3/2qp1pkp/p1b1p1p1/3pP3/P7/7P/5PP1/1R4K1 w - - 1 31",
-        "last_move_uci": "b5c6",
-        "pgn": "Rb8 Qxb8 Qxb8",
+        "url": "https://lichess.org/training/3EPTc",
+        "title": "Lichess • 1242",
+        "fen": "7r/5kp1/p3Nbp1/1p3p2/1P1p1P1r/7P/P2BR1K1/3R4 b - - 1 30",
+        "current_fen": "7r/5kp1/p3Nbp1/1p3p2/1P1p1P1r/7P/P2BR1K1/3R4 b - - 1 30",
+        "last_move_uci": "e3e2",
+        "pgn": "Rxh3 Ree1 Rh2+",
         "all_moves": [
           {
-            "uci": "b1b8",
-            "san": "Rb8",
-            "color": "white"
-          },
-          {
-            "uci": "c7b8",
-            "san": "Qxb8",
+            "uci": "h4h3",
+            "san": "Rxh3",
             "color": "black"
           },
           {
-            "uci": "e8b8",
-            "san": "Qxb8",
+            "uci": "e2e1",
+            "san": "Ree1",
             "color": "white"
+          },
+          {
+            "uci": "h3h2",
+            "san": "Rh2+",
+            "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "b1b8",
-            "san": "Rb8",
-            "color": "white"
+            "uci": "h4h3",
+            "san": "Rxh3",
+            "color": "black"
           },
           {
-            "uci": "e8b8",
-            "san": "Qxb8",
-            "color": "white"
+            "uci": "h3h2",
+            "san": "Rh2+",
+            "color": "black"
           }
         ],
-        "player_color": "white",
+        "player_color": "black",
         "player_move_count": 2,
-        "posted_at": "2026-09-22T21:12:16.306772+00:00",
+        "posted_at": "2026-09-23T18:16:51.379512+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_EDTIr_1790111536306",
-        "rating": 1361,
+        "puzzle_id": "practice_rush_442597396195704832_3EPTc_1790187411379",
+        "rating": 1242,
         "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552065020614025317,
+      "message_id": 1552383266567233599,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790111536.3006127,
-      "last_feedback": "✅ **Rb8#** — solved! Score: **4**.",
-      "forfeited": true,
-      "ended_at": 1790111548.3706756,
-      "solve_reward_coins": 2.0,
-      "solve_reward_paid": true
+      "last_card_activity_at": 1790187411.375066,
+      "last_feedback": "🎯 **Type your move in chat.** Your answer message will be removed. You have **3 lives**."
     },
     "362606514764251137": {
       "active": false,
