@@ -58,7 +58,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_9tKtF_1790185551125",
-    "last_activity_at": "2026-09-23T17:46:21.521738+00:00",
+    "last_activity_at": "2026-09-23T17:46:30.101902+00:00",
     "rating": 2883,
     "rp_band": 5,
     "boss": false,
@@ -77,9 +77,9 @@
     "attempted_users": {
       "601406103712170014": {
         "name": "TheMakina",
-        "move": "c5",
-        "correct": true,
-        "timestamp": "2026-09-23T17:46:21.522014+00:00"
+        "move": "a4",
+        "correct": false,
+        "timestamp": "2026-09-23T17:46:30.102212+00:00"
       }
     },
     "first_move_user_id": "601406103712170014",
@@ -87,19 +87,8 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-23T17:46:21.521738+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1790185581.5220213,
-        "fen_before": "8/1p3k2/p1p2p2/5K1p/2P4P/6P1/P7/8 w - - 0 41",
-        "expected": {
-          "uci": "c4c5",
-          "san": "c5",
-          "color": "white"
-        },
-        "accepted_uci": "c4c5"
-      }
-    ],
+    "last_card_activity_at": "2026-09-23T17:46:30.101902+00:00",
+    "recent_accepted_moves": [],
     "accepted_solution_moves": [
       {
         "san": "c5",
@@ -107,7 +96,10 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** a5"
+    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** a5",
+    "wrong_attempt_counts": {
+      "601406103712170014": 1
+    }
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-09-23",
