@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/lVvfE",
     "title": "Lichess • 2733",
     "fen": "6Q1/pppk1p2/4bqp1/2N5/8/3P4/PP2rP2/2KR2R1 b - - 6 25",
-    "current_fen": "6Q1/ppp1kp2/4b1p1/8/3P4/3N4/PP2rq2/2KR2R1 b - - 1 27",
-    "last_move_uci": "c5d3",
+    "current_fen": "6Q1/ppp1kp2/4b1p1/8/3q4/3N4/PP2r3/2KR2R1 w - - 0 28",
+    "last_move_uci": "f2d4",
     "pgn": "Ke7 d4 Qxf2 Nd3 Qxd4",
     "all_moves": [
       {
@@ -58,41 +58,52 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_lVvfE_1790185909630",
-    "last_activity_at": "2026-09-23T17:54:05.197878+00:00",
+    "last_activity_at": "2026-09-23T17:54:23.136760+00:00",
     "rating": 2733,
     "rp_band": 5,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 4,
-    "next_player_index": 2,
-    "solved": false,
+    "next_solution_index": 5,
+    "next_player_index": 3,
+    "solved": true,
     "message_ids": {
-      "1468320170891022417": 1552377425650782340
+      "1468320170891022417": 1552377533096402984
     },
-    "message_id": 1552377425650782340,
+    "message_id": 1552377533096402984,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "601406103712170014": {
         "name": "TheMakina",
-        "move": "Rc2",
-        "correct": false,
-        "timestamp": "2026-09-23T17:54:05.198698+00:00"
+        "move": "Qxd4",
+        "correct": true,
+        "timestamp": "2026-09-23T17:54:23.137411+00:00"
       }
     },
     "first_move_user_id": "601406103712170014",
     "first_move_user_name": "TheMakina",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-23T17:54:05.197878+00:00",
-    "recent_accepted_moves": [],
+    "last_card_activity_at": "2026-09-23T17:54:23.136760+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1790186063.1374202,
+        "fen_before": "6Q1/ppp1kp2/4b1p1/8/3P4/3N4/PP2rq2/2KR2R1 b - - 1 27",
+        "expected": {
+          "uci": "f2d4",
+          "san": "Qxd4",
+          "color": "black"
+        },
+        "accepted_uci": "f2d4"
+      }
+    ],
     "wrong_attempt_counts": {
       "601406103712170014": 5
     },
-    "last_feedback": "❌ **TheMakina is once again the victim of his own self-image.**\n↪️ **Move played:** `Qe3`",
+    "last_feedback": "❌ **You don't need to be that confident about a move that makes no sense.**\n↪️ **Move played:** `Rc2`",
     "accepted_solution_moves": [
       {
         "san": "Ke7",
@@ -103,10 +114,15 @@
         "san": "Qxf2",
         "uci": "f6f2",
         "principal": true
+      },
+      {
+        "san": "Qxd4",
+        "uci": "f2d4",
+        "principal": true
       }
     ]
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-23",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-23",
