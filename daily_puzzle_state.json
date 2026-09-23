@@ -43,7 +43,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_uawT7_1790186301579",
-    "last_activity_at": "2026-09-23T17:58:50.395410+00:00",
+    "last_activity_at": "2026-09-23T17:59:03.789973+00:00",
     "rating": 2962,
     "rp_band": 5,
     "boss": false,
@@ -54,17 +54,17 @@
     "next_player_index": 1,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1552378680486133961
+      "1468320170891022417": 1552378728569507841
     },
-    "message_id": 1552378680486133961,
+    "message_id": 1552378728569507841,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "601406103712170014": {
         "name": "TheMakina",
-        "move": "Kc4",
+        "move": "c4",
         "correct": false,
-        "timestamp": "2026-09-23T17:58:50.395679+00:00"
+        "timestamp": "2026-09-23T17:59:03.790273+00:00"
       }
     },
     "first_move_user_id": "601406103712170014",
@@ -72,7 +72,7 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-23T17:58:50.395410+00:00",
+    "last_card_activity_at": "2026-09-23T17:59:03.789973+00:00",
     "recent_accepted_moves": [],
     "accepted_solution_moves": [
       {
@@ -81,9 +81,9 @@
         "principal": true
       }
     ],
-    "last_feedback": "❌ **The move was wrong. The confidence was even more wrong.**\n↪️ **Move played:** `Kxe4`",
+    "last_feedback": "❌ **TheMakina, the puzzle asked for a move, not an ego trip.**\n↪️ **Move played:** `Kc4`",
     "wrong_attempt_counts": {
-      "601406103712170014": 2
+      "601406103712170014": 3
     }
   },
   "latest_puzzle_type": "random",
