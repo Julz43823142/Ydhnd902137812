@@ -73,7 +73,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_3TL7d_1790185360896",
-    "last_activity_at": "2026-09-23T17:43:09.459724+00:00",
+    "last_activity_at": "2026-09-23T17:43:16.001856+00:00",
     "rating": 2020,
     "rp_band": 2,
     "boss": false,
@@ -92,9 +92,9 @@
     "attempted_users": {
       "601406103712170014": {
         "name": "TheMakina",
-        "move": "Rc1",
-        "correct": true,
-        "timestamp": "2026-09-23T17:43:09.459945+00:00"
+        "move": "Rc3",
+        "correct": false,
+        "timestamp": "2026-09-23T17:43:16.002255+00:00"
       }
     },
     "first_move_user_id": "601406103712170014",
@@ -102,7 +102,7 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-23T17:43:09.459724+00:00",
+    "last_card_activity_at": "2026-09-23T17:43:16.001856+00:00",
     "recent_accepted_moves": [
       {
         "accepted_at": 1790185389.4599555,
@@ -127,7 +127,10 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Qf6"
+    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Qf6",
+    "wrong_attempt_counts": {
+      "601406103712170014": 1
+    }
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-09-23",
