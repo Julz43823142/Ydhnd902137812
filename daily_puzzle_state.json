@@ -2640,7 +2640,7 @@
       "run_id": "rush:442597396195704832:1790187411375",
       "end_at": 1790187711.3750587,
       "score": 11,
-      "wrong": 2,
+      "wrong": 3,
       "mistakes": [
         {
           "puzzle_number": 11,
@@ -2675,6 +2675,23 @@
             "arrow_theme": "pink"
           },
           "recorded_at": 1790187578.504028
+        },
+        {
+          "puzzle_number": 14,
+          "submitted": "nxf7",
+          "correct": "Kxf7",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_cAeXj_1790187592959",
+            "fen": "8/2b2Rkp/2P1R1p1/6n1/6P1/4P3/6K1/8 b - - 0 44",
+            "current_fen": "8/2b2Rkp/2P1R1p1/6n1/6P1/4P3/6K1/8 b - - 0 44",
+            "last_move_uci": "f1f7",
+            "player_color": "black",
+            "rating": 1620,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1790187597.2313075
         }
       ],
       "ruleset": "universal-1200-plus40-v1",
@@ -2728,11 +2745,11 @@
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552384000088215633,
+      "message_id": 1552384025350643762,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790187592.95415,
-      "last_feedback": "✅ **Nc4** — solved! Score: **11**."
+      "last_card_activity_at": 1790187597.2309468,
+      "last_feedback": "❌ **nxf7** was wrong. Correct move: **Kxf7**."
     },
     "362606514764251137": {
       "active": false,
