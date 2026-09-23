@@ -2647,8 +2647,8 @@
         "url": "https://lichess.org/training/rniEO",
         "title": "Lichess • 1373",
         "fen": "8/8/1p4k1/p4p1p/P1p2K1P/2P5/1P6/8 w - - 1 54",
-        "current_fen": "8/8/1p4k1/p3K2p/P1p2p1P/2P5/1P6/8 w - - 0 55",
-        "last_move_uci": "f5f4",
+        "current_fen": "8/8/1p3k2/p6p/P1p2K1P/2P5/1P6/8 w - - 1 56",
+        "last_move_uci": "g6f6",
         "pgn": "Ke5 f4 Kxf4 Kf6 Ke4",
         "all_moves": [
           {
@@ -2703,16 +2703,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_rniEO_1790187467180",
         "rating": 1373,
-        "next_solution_index": 2,
+        "next_solution_index": 4,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552383497337962496,
+      "message_id": 1552383530036760589,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790187475.2972589,
-      "last_feedback": "✅ **Ke5** • Opponent: **f4**"
+      "last_card_activity_at": 1790187478.7775245,
+      "last_feedback": "✅ **Kxf4** • Opponent: **Kf6**"
     },
     "362606514764251137": {
       "active": false,
