@@ -58,7 +58,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_lVvfE_1790185909630",
-    "last_activity_at": "2026-09-23T17:52:56.209862+00:00",
+    "last_activity_at": "2026-09-23T17:53:04.455082+00:00",
     "rating": 2733,
     "rp_band": 5,
     "boss": false,
@@ -69,17 +69,17 @@
     "next_player_index": 1,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1552377162219262064
+      "1468320170891022417": 1552377245723533434
     },
-    "message_id": 1552377162219262064,
+    "message_id": 1552377245723533434,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "601406103712170014": {
         "name": "TheMakina",
-        "move": "Qf5",
+        "move": "Qf4",
         "correct": false,
-        "timestamp": "2026-09-23T17:52:56.210261+00:00"
+        "timestamp": "2026-09-23T17:53:04.455458+00:00"
       }
     },
     "first_move_user_id": "601406103712170014",
@@ -87,12 +87,12 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-23T17:52:56.209862+00:00",
+    "last_card_activity_at": "2026-09-23T17:53:04.455082+00:00",
     "recent_accepted_moves": [],
     "wrong_attempt_counts": {
-      "601406103712170014": 2
+      "601406103712170014": 3
     },
-    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** d4",
+    "last_feedback": "❌ **TheMakina, maybe think less highly of yourself before making the move.**\n↪️ **Move played:** `Qf5`",
     "accepted_solution_moves": [
       {
         "san": "Ke7",
