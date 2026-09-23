@@ -475,6 +475,18 @@
         }
       }
     },
+    "daily:2026-09-23": {
+      "users": {
+        "1": {
+          "name": "Player 1",
+          "paid": [],
+          "progress": {
+            "daily:2026-09-23:minigame:minigame-2": 1
+          },
+          "updated_at": 1790138369
+        }
+      }
+    },
     "weekly:2026-09-07": {
       "users": {
         "1": {
@@ -566,9 +578,9 @@
             "weekly:2026-09-21:minigame:minigame-8"
           ],
           "progress": {
-            "weekly:2026-09-21:minigame:minigame-8": 27
+            "weekly:2026-09-21:minigame:minigame-8": 28
           },
-          "updated_at": 1790117707
+          "updated_at": 1790138369
         },
         "442597396195704832": {
           "name": "Thice",
