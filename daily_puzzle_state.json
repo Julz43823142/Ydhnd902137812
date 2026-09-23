@@ -58,7 +58,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_lVvfE_1790185909630",
-    "last_activity_at": "2026-09-23T17:52:36.776550+00:00",
+    "last_activity_at": "2026-09-23T17:52:56.209862+00:00",
     "rating": 2733,
     "rp_band": 5,
     "boss": false,
@@ -77,9 +77,9 @@
     "attempted_users": {
       "601406103712170014": {
         "name": "TheMakina",
-        "move": "Ke7",
-        "correct": true,
-        "timestamp": "2026-09-23T17:52:36.776758+00:00"
+        "move": "Qf5",
+        "correct": false,
+        "timestamp": "2026-09-23T17:52:56.210261+00:00"
       }
     },
     "first_move_user_id": "601406103712170014",
@@ -87,21 +87,10 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-23T17:52:36.776550+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1790185956.776766,
-        "fen_before": "6Q1/pppk1p2/4bqp1/2N5/8/3P4/PP2rP2/2KR2R1 b - - 6 25",
-        "expected": {
-          "uci": "d7e7",
-          "san": "Ke7",
-          "color": "black"
-        },
-        "accepted_uci": "d7e7"
-      }
-    ],
+    "last_card_activity_at": "2026-09-23T17:52:56.209862+00:00",
+    "recent_accepted_moves": [],
     "wrong_attempt_counts": {
-      "601406103712170014": 1
+      "601406103712170014": 2
     },
     "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** d4",
     "accepted_solution_moves": [
