@@ -108,8 +108,8 @@
     "url": "https://www.chess.com/daily/2026-09-23",
     "title": "The Loneliest Piece",
     "fen": "1r1r2k1/p3b1pp/1p2pp2/1Nppq3/7P/P2P1QP1/2P3P1/1R3RK1 w - - 0 21",
-    "current_fen": "1r1r2k1/p3b1pp/1p3p2/1Npp1p2/7P/P2P2P1/2P3P1/1R2R1K1 w - - 0 23",
-    "last_move_uci": "e6f5",
+    "current_fen": "1r1r2k1/p3R1pp/1p3p2/1Npp1p2/7P/P2P2P1/2P3P1/1R4K1 b - - 0 23",
+    "last_move_uci": "e1e7",
     "pgn": "[White \"chesstiger787\"]\n[Black \"Daily Puzzle Inspiration\"]\n[Result \"*\"]\n[FEN \"1r1r2k1/p3b1pp/1p2pp2/1Nppq3/7P/P2P1QP1/2P3P1/1R3RK1 w - - 0 21\"]\n\n21. Rfe1 Qf5 22. Qxf5 exf5 23. Rxe7 *",
     "all_moves": [
       {
@@ -163,21 +163,21 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1790147630194",
-    "next_solution_index": 4,
-    "next_player_index": 2,
-    "solved": false,
+    "next_solution_index": 5,
+    "next_player_index": 3,
+    "solved": true,
     "message_id": 1552310449259806851,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Qxf5",
+        "move": "Rxe7",
         "correct": true,
-        "timestamp": "2026-09-23T13:27:29.084371+00:00"
+        "timestamp": "2026-09-23T13:27:34.282537+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
     "first_move_user_name": "Thice",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
@@ -186,18 +186,8 @@
     },
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-09-23T13:27:29.084014+00:00",
+    "last_card_activity_at": "2026-09-23T13:27:34.282169+00:00",
     "recent_accepted_moves": [
-      {
-        "accepted_at": 1790170041.6732478,
-        "fen_before": "1r1r2k1/p3b1pp/1p2pp2/1Nppq3/7P/P2P1QP1/2P3P1/1R3RK1 w - - 0 21",
-        "expected": {
-          "uci": "f1e1",
-          "san": "Rfe1",
-          "color": "white"
-        },
-        "accepted_uci": "f1e1"
-      },
       {
         "accepted_at": 1790170049.0843801,
         "fen_before": "1r1r2k1/p3b1pp/1p2pp2/1Npp1q2/7P/P2P1QP1/2P3P1/1R2R1K1 w - - 2 22",
@@ -207,6 +197,16 @@
           "color": "white"
         },
         "accepted_uci": "f3f5"
+      },
+      {
+        "accepted_at": 1790170054.282544,
+        "fen_before": "1r1r2k1/p3b1pp/1p3p2/1Npp1p2/7P/P2P2P1/2P3P1/1R2R1K1 w - - 0 23",
+        "expected": {
+          "uci": "e1e7",
+          "san": "Rxe7",
+          "color": "white"
+        },
+        "accepted_uci": "e1e7"
       }
     ],
     "accepted_solution_moves": [
@@ -219,9 +219,17 @@
         "san": "Qxf5",
         "uci": "f3f5",
         "principal": true
+      },
+      {
+        "san": "Rxe7",
+        "uci": "e1e7",
+        "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** exf5"
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** exf5",
+    "activity_bonus_users": [
+      "442597396195704832"
+    ]
   },
   "lichess_rating_used": {
     "2000": [
