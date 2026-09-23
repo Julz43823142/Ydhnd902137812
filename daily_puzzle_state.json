@@ -23,7 +23,7 @@
     "player_color": "white",
     "player_move_count": 1,
     "posted_at": "2026-09-23T17:44:04.419509+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -39,9 +39,9 @@
     "next_player_index": 1,
     "solved": true,
     "message_ids": {
-      "1468320170891022417": 1552375013129195572
+      "1468320170891022417": 1552375151729967106
     },
-    "message_id": 1552375013129195572,
+    "message_id": 1552375151729967106,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
@@ -76,7 +76,8 @@
         "uci": "h5h4",
         "principal": true
       }
-    ]
+    ],
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, TheMakina!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1532 points.**\n\n💡 **Solution:** Rh4#\n\n🏆 **Your ranking**\n**#1 🔥 Thice — 1664 points**\n**#2 🍅 TheMakina — 1532 points ← you**\n**#3 💀 Sharkmeister — 76.5 points**"
   },
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-23",
