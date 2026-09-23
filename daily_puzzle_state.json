@@ -105,66 +105,74 @@
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-23",
   "current_puzzle": {
-    "url": "https://www.chess.com/daily/2026-09-22",
-    "title": "Discover Your Gift",
-    "fen": "r3kb1r/ppnqp2p/2ppNnp1/8/3P2P1/5Q2/PPP2P1P/RNB1R1K1 w kq - 0 15",
-    "current_fen": "r3kb1r/ppnqp2p/2ppNnp1/8/3P2P1/5Q2/PPP2P1P/RNB1R1K1 w kq - 0 15",
+    "url": "https://www.chess.com/daily/2026-09-23",
+    "title": "The Loneliest Piece",
+    "fen": "1r1r2k1/p3b1pp/1p2pp2/1Nppq3/7P/P2P1QP1/2P3P1/1R3RK1 w - - 0 21",
+    "current_fen": "1r1r2k1/p3b1pp/1p2pp2/1Nppq3/7P/P2P1QP1/2P3P1/1R3RK1 w - - 0 21",
     "last_move_uci": null,
-    "pgn": "[Event \"SLO-chT1 West\"]\n[Site \"Bled\"]\n[Date \"2000.??.??\"]\n[White \"Furlan, Miha\"]\n[Black \"Raspor, Gregor\"]\n[Result \"1-0\"]\n[ECO \"B05\"]\n[WhiteElo \"2362\"]\n[BlackElo \"2125\"]\n[FEN \"r3kb1r/ppnqp2p/2ppNnp1/8/3P2P1/5Q2/PPP2P1P/RNB1R1K1 w kq - 0 15\"]\n\n15. Nxc7+ Qxc7 16. Qxf6 1-0",
+    "pgn": "[White \"chesstiger787\"]\n[Black \"Daily Puzzle Inspiration\"]\n[Result \"*\"]\n[FEN \"1r1r2k1/p3b1pp/1p2pp2/1Nppq3/7P/P2P1QP1/2P3P1/1R3RK1 w - - 0 21\"]\n\n21. Rfe1 Qf5 22. Qxf5 exf5 23. Rxe7 *",
     "all_moves": [
       {
-        "uci": "e6c7",
-        "san": "Nxc7+",
+        "uci": "f1e1",
+        "san": "Rfe1",
         "color": "white"
       },
       {
-        "uci": "d7c7",
-        "san": "Qxc7",
+        "uci": "e5f5",
+        "san": "Qf5",
         "color": "black"
       },
       {
-        "uci": "f3f6",
-        "san": "Qxf6",
+        "uci": "f3f5",
+        "san": "Qxf5",
+        "color": "white"
+      },
+      {
+        "uci": "e6f5",
+        "san": "exf5",
+        "color": "black"
+      },
+      {
+        "uci": "e1e7",
+        "san": "Rxe7",
         "color": "white"
       }
     ],
     "player_moves": [
       {
-        "uci": "e6c7",
-        "san": "Nxc7+",
+        "uci": "f1e1",
+        "san": "Rfe1",
         "color": "white"
       },
       {
-        "uci": "f3f6",
-        "san": "Qxf6",
+        "uci": "f3f5",
+        "san": "Qxf5",
+        "color": "white"
+      },
+      {
+        "uci": "e1e7",
+        "san": "Rxe7",
         "color": "white"
       }
     ],
     "player_color": "white",
-    "player_move_count": 2,
-    "posted_at": "2026-09-22T07:06:35.700553+00:00",
-    "answer_posted": true,
+    "player_move_count": 3,
+    "posted_at": "2026-09-23T07:13:50.194145+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "daily_1790060795700",
+    "puzzle_id": "daily_1790147630194",
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_id": 1551852198831464478,
+    "message_id": null,
     "attempted_users": {},
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "message_ids": {
-      "1468320170891022417": 1551852198831464478,
-      "1546557493038284840": 1551852207610134658
-    },
-    "channel_id": 1468320170891022417,
-    "chat_since_refresh": 0,
-    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Nxc7+ Qxf6"
+    "helper_candidate_users": []
   },
   "lichess_rating_used": {
     "2000": [
