@@ -2647,8 +2647,8 @@
         "url": "https://lichess.org/training/TfMfK",
         "title": "Lichess • 1577",
         "fen": "6kr/p1p2pp1/6q1/5b2/6n1/1PN4P/P2BBPPK/3RR3 w - - 9 30",
-        "current_fen": "6kr/p1p2pp1/6q1/8/6b1/1PN4P/P2B1PPK/3RR3 w - - 0 31",
-        "last_move_uci": "f5g4",
+        "current_fen": "4R2r/p1p2ppk/6q1/8/6b1/1PN4P/P2B1PPK/3R4 w - - 2 32",
+        "last_move_uci": "g8h7",
         "pgn": "Bxg4 Bxg4 Re8+ Kh7 Rxh8+ Kxh8 hxg4",
         "all_moves": [
           {
@@ -2718,16 +2718,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_TfMfK_1790187549729",
         "rating": 1577,
-        "next_solution_index": 2,
+        "next_solution_index": 4,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552383843858915388,
+      "message_id": 1552383861542092881,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790187554.205833,
-      "last_feedback": "✅ **Bxg4** • Opponent: **Bxg4**"
+      "last_card_activity_at": 1790187556.7105796,
+      "last_feedback": "✅ **Re8+** • Opponent: **Kh7**"
     },
     "362606514764251137": {
       "active": false,
