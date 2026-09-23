@@ -2647,8 +2647,8 @@
         "url": "https://lichess.org/training/bGJQG",
         "title": "Lichess • 1450",
         "fen": "6k1/7p/1p2p1p1/1P3p2/Pb1Pp3/2q1P2P/QN3PP1/6K1 b - - 6 35",
-        "current_fen": "6k1/7p/1p2p1p1/1P3p2/Pb1Pp3/4P2P/QN3PPK/4q3 b - - 8 36",
-        "last_move_uci": "g1h2",
+        "current_fen": "6k1/7p/1p1bp1p1/1P3p2/P2Pp3/4P1PP/QN3P1K/4q3 b - - 0 37",
+        "last_move_uci": "g2g3",
         "pgn": "Qe1+ Kh2 Bd6+ g3 Qxf2+",
         "all_moves": [
           {
@@ -2703,16 +2703,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_bGJQG_1790187483090",
         "rating": 1450,
-        "next_solution_index": 2,
+        "next_solution_index": 4,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552383564157554739,
+      "message_id": 1552383585598705784,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790187488.3975844,
-      "last_feedback": "✅ **Qe1+** • Opponent: **Kh2**"
+      "last_card_activity_at": 1790187490.6967974,
+      "last_feedback": "✅ **Bd6+** • Opponent: **g3**"
     },
     "362606514764251137": {
       "active": false,
