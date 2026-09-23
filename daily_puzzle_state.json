@@ -2647,8 +2647,8 @@
         "url": "https://lichess.org/training/x3bt1",
         "title": "Lichess • 1550",
         "fen": "r1b1k2r/pp1n3p/2p2pp1/4q3/4Pb1B/Q1N2P1P/PPP2P2/3RKB1R b Kkq - 4 16",
-        "current_fen": "r1b1k2r/pp1n3p/2p2p2/4q1p1/4Pb2/Q1N2PBP/PPP2P2/3RKB1R b Kkq - 1 17",
-        "last_move_uci": "h4g3",
+        "current_fen": "r1b1k2r/pp1n3p/2p2p2/4q1p1/4P3/Q1N2PPP/PPP5/3RKB1R b Kkq - 0 18",
+        "last_move_uci": "f2g3",
         "pgn": "g5 Bg3 Bxg3 fxg3 Qxg3+",
         "all_moves": [
           {
@@ -2703,16 +2703,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_x3bt1_1790187537705",
         "rating": 1550,
-        "next_solution_index": 2,
+        "next_solution_index": 4,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552383793359487047,
+      "message_id": 1552383817782661120,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790187543.7538862,
-      "last_feedback": "✅ **g5** • Opponent: **Bg3**"
+      "last_card_activity_at": 1790187547.46935,
+      "last_feedback": "✅ **Bxg3** • Opponent: **fxg3**"
     },
     "362606514764251137": {
       "active": false,
