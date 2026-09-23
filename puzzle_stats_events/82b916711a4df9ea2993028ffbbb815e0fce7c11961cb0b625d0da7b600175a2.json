@@ -1,0 +1,17 @@
+{
+  "boss": false,
+  "correct": true,
+  "created_at": 1790186312,
+  "display_name": "TheMakina",
+  "elo_after": 2375.065,
+  "elo_change": 31.113,
+  "new_achievements": [],
+  "puzzle_id": "random_uawT7_1790186301579",
+  "puzzle_rating": 2962,
+  "source": "random",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 5,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:random_uawT7_1790186301579:601406103712170014",
+  "user_id": "601406103712170014"
+}
