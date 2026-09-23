@@ -2640,7 +2640,7 @@
       "run_id": "rush:442597396195704832:1790187411375",
       "end_at": 1790187711.3750587,
       "score": 10,
-      "wrong": 1,
+      "wrong": 2,
       "mistakes": [
         {
           "puzzle_number": 11,
@@ -2658,79 +2658,81 @@
             "arrow_theme": "pink"
           },
           "recorded_at": 1790187558.6624324
+        },
+        {
+          "puzzle_number": 12,
+          "submitted": "ne6",
+          "correct": "Rf7",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_TPPhK_1790187558667",
+            "fen": "3q1r1k/2n3pP/2Qp1b2/2p2N2/1p1p4/3P4/1PPK1P2/R5R1 b - - 7 31",
+            "current_fen": "3q3k/R1n3pP/2Qp4/2p2rb1/1p1p4/3P4/1PP2P2/3K2R1 b - - 1 33",
+            "last_move_uci": "a1a7",
+            "player_color": "black",
+            "rating": 1607,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1790187578.504028
         }
       ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/TPPhK",
-        "title": "Lichess • 1607",
-        "fen": "3q1r1k/2n3pP/2Qp1b2/2p2N2/1p1p4/3P4/1PPK1P2/R5R1 b - - 7 31",
-        "current_fen": "3q3k/R1n3pP/2Qp4/2p2rb1/1p1p4/3P4/1PP2P2/3K2R1 b - - 1 33",
-        "last_move_uci": "a1a7",
-        "pgn": "Bg5+ Kd1 Rxf5 Ra7 Rf7",
+        "url": "https://lichess.org/training/Is1qW",
+        "title": "Lichess • 1562",
+        "fen": "r1bqk2r/pp1n1ppp/2pB4/3np3/Q7/2P3P1/P2PPPBP/R3K1NR b KQkq - 3 9",
+        "current_fen": "r1bqk2r/pp1n1ppp/2pB4/3np3/Q7/2P3P1/P2PPPBP/R3K1NR b KQkq - 3 9",
+        "last_move_uci": "a3d6",
+        "pgn": "N7b6 Qa3 Nc4",
         "all_moves": [
           {
-            "uci": "f6g5",
-            "san": "Bg5+",
+            "uci": "d7b6",
+            "san": "N7b6",
             "color": "black"
           },
           {
-            "uci": "d2d1",
-            "san": "Kd1",
+            "uci": "a4a3",
+            "san": "Qa3",
             "color": "white"
           },
           {
-            "uci": "f8f5",
-            "san": "Rxf5",
-            "color": "black"
-          },
-          {
-            "uci": "a1a7",
-            "san": "Ra7",
-            "color": "white"
-          },
-          {
-            "uci": "f5f7",
-            "san": "Rf7",
+            "uci": "b6c4",
+            "san": "Nc4",
             "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "f6g5",
-            "san": "Bg5+",
+            "uci": "d7b6",
+            "san": "N7b6",
             "color": "black"
           },
           {
-            "uci": "f8f5",
-            "san": "Rxf5",
-            "color": "black"
-          },
-          {
-            "uci": "f5f7",
-            "san": "Rf7",
+            "uci": "b6c4",
+            "san": "Nc4",
             "color": "black"
           }
         ],
         "player_color": "black",
-        "player_move_count": 3,
-        "posted_at": "2026-09-23T18:19:18.667526+00:00",
+        "player_move_count": 2,
+        "posted_at": "2026-09-23T18:19:38.508906+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_TPPhK_1790187558667",
-        "rating": 1607,
-        "next_solution_index": 4,
+        "puzzle_id": "practice_rush_442597396195704832_Is1qW_1790187578508",
+        "rating": 1562,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552383918903394384,
+      "message_id": 1552383933880995851,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790187571.4098036,
-      "last_feedback": "✅ **Rxf5** • Opponent: **Ra7**"
+      "last_card_activity_at": 1790187578.503556,
+      "last_feedback": "❌ **ne6** was wrong. Correct move: **Rf7**."
     },
     "362606514764251137": {
       "active": false,
