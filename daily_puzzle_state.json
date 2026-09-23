@@ -108,8 +108,8 @@
     "url": "https://www.chess.com/daily/2026-09-23",
     "title": "The Loneliest Piece",
     "fen": "1r1r2k1/p3b1pp/1p2pp2/1Nppq3/7P/P2P1QP1/2P3P1/1R3RK1 w - - 0 21",
-    "current_fen": "1r1r2k1/p3b1pp/1p2pp2/1Nppq3/7P/P2P1QP1/2P3P1/1R3RK1 w - - 0 21",
-    "last_move_uci": null,
+    "current_fen": "1r1r2k1/p3b1pp/1p2pp2/1Npp1q2/7P/P2P1QP1/2P3P1/1R2R1K1 w - - 2 22",
+    "last_move_uci": "e5f5",
     "pgn": "[White \"chesstiger787\"]\n[Black \"Daily Puzzle Inspiration\"]\n[Result \"*\"]\n[FEN \"1r1r2k1/p3b1pp/1p2pp2/1Nppq3/7P/P2P1QP1/2P3P1/1R3RK1 w - - 0 21\"]\n\n21. Rfe1 Qf5 22. Qxf5 exf5 23. Rxe7 *",
     "all_moves": [
       {
@@ -163,22 +163,50 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1790147630194",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
-    "message_id": 1552216412645498950,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "message_id": 1552310421447508061,
+    "attempted_users": {
+      "442597396195704832": {
+        "name": "Thice",
+        "move": "Rfe1",
+        "correct": true,
+        "timestamp": "2026-09-23T13:27:21.673239+00:00"
+      }
+    },
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1552216412645498950,
-      "1546557493038284840": 1552216419847110659
+      "1468320170891022417": 1552310421447508061,
+      "1546557493038284840": 1552310416028344432
     },
     "channel_id": 1468320170891022417,
-    "chat_since_refresh": 0
+    "chat_since_refresh": 0,
+    "last_card_activity_at": "2026-09-23T13:27:21.672477+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1790170041.6732478,
+        "fen_before": "1r1r2k1/p3b1pp/1p2pp2/1Nppq3/7P/P2P1QP1/2P3P1/1R3RK1 w - - 0 21",
+        "expected": {
+          "uci": "f1e1",
+          "san": "Rfe1",
+          "color": "white"
+        },
+        "accepted_uci": "f1e1"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "Rfe1",
+        "uci": "f1e1",
+        "principal": true
+      }
+    ],
+    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Qf5"
   },
   "lichess_rating_used": {
     "2000": [
