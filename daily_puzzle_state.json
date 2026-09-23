@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/ePA3M",
     "title": "Lichess • 1622",
     "fen": "8/P1n5/4k1p1/3p1p1p/bN1P1P2/8/6PP/6K1 w - - 1 37",
-    "current_fen": "n7/P7/3k2p1/2Np1p1p/b2P1P2/8/6PP/6K1 w - - 5 39",
-    "last_move_uci": "e6d6",
+    "current_fen": "n7/P7/3k2p1/3p1p1p/N2P1P2/8/6PP/6K1 b - - 0 39",
+    "last_move_uci": "c5a4",
     "pgn": "Na6 Na8 Nc5+ Kd6 Nxa4",
     "all_moves": [
       {
@@ -58,16 +58,16 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_ePA3M_1790186186072",
-    "last_activity_at": "2026-09-23T17:56:54.457389+00:00",
+    "last_activity_at": "2026-09-23T17:57:01.614819+00:00",
     "rating": 1622,
     "rp_band": 1,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 4,
-    "next_player_index": 2,
-    "solved": false,
+    "next_solution_index": 5,
+    "next_player_index": 3,
+    "solved": true,
     "message_ids": {
       "1468320170891022417": 1552378247084515508
     },
@@ -77,17 +77,17 @@
     "attempted_users": {
       "601406103712170014": {
         "name": "TheMakina",
-        "move": "Nc5",
+        "move": "Nxa4",
         "correct": true,
-        "timestamp": "2026-09-23T17:56:54.457619+00:00"
+        "timestamp": "2026-09-23T17:57:01.615134+00:00"
       }
     },
     "first_move_user_id": "601406103712170014",
     "first_move_user_name": "TheMakina",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-23T17:56:54.457389+00:00",
+    "last_card_activity_at": "2026-09-23T17:57:01.614819+00:00",
     "recent_accepted_moves": [
       {
         "accepted_at": 1790186214.4576256,
@@ -98,6 +98,16 @@
           "color": "white"
         },
         "accepted_uci": "a6c5"
+      },
+      {
+        "accepted_at": 1790186221.6151416,
+        "fen_before": "n7/P7/3k2p1/2Np1p1p/b2P1P2/8/6PP/6K1 w - - 5 39",
+        "expected": {
+          "uci": "c5a4",
+          "san": "Nxa4",
+          "color": "white"
+        },
+        "accepted_uci": "c5a4"
       }
     ],
     "accepted_solution_moves": [
@@ -110,11 +120,16 @@
         "san": "Nc5+",
         "uci": "a6c5",
         "principal": true
+      },
+      {
+        "san": "Nxa4",
+        "uci": "c5a4",
+        "principal": true
       }
     ],
     "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kd6"
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-23",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-23",
