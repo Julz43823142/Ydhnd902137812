@@ -2647,8 +2647,8 @@
         "url": "https://lichess.org/training/MAKxH",
         "title": "Lichess • 1286",
         "fen": "8/6Kp/8/8/6kP/8/8/8 b - - 2 67",
-        "current_fen": "8/6Kp/8/8/6kP/8/8/8 b - - 2 67",
-        "last_move_uci": "f7g7",
+        "current_fen": "8/8/5K2/7p/6kP/8/8/8 b - - 1 68",
+        "last_move_uci": "g7f6",
         "pgn": "h5 Kf6 Kxh4",
         "all_moves": [
           {
@@ -2688,16 +2688,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_MAKxH_1790187433822",
         "rating": 1286,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552383344615104536,
+      "message_id": 1552383357323837550,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790187433.817178,
-      "last_feedback": "✅ **Bxf8** — solved! Score: **2**."
+      "last_card_activity_at": 1790187438.1056328,
+      "last_feedback": "✅ **h5** • Opponent: **Kf6**"
     },
     "362606514764251137": {
       "active": false,
