@@ -2682,8 +2682,8 @@
         "url": "https://lichess.org/training/Is1qW",
         "title": "Lichess • 1562",
         "fen": "r1bqk2r/pp1n1ppp/2pB4/3np3/Q7/2P3P1/P2PPPBP/R3K1NR b KQkq - 3 9",
-        "current_fen": "r1bqk2r/pp1n1ppp/2pB4/3np3/Q7/2P3P1/P2PPPBP/R3K1NR b KQkq - 3 9",
-        "last_move_uci": "a3d6",
+        "current_fen": "r1bqk2r/pp3ppp/1npB4/3np3/8/Q1P3P1/P2PPPBP/R3K1NR b KQkq - 5 10",
+        "last_move_uci": "a4a3",
         "pgn": "N7b6 Qa3 Nc4",
         "all_moves": [
           {
@@ -2723,16 +2723,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_Is1qW_1790187578508",
         "rating": 1562,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552383933880995851,
+      "message_id": 1552383964512002059,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790187578.503556,
-      "last_feedback": "❌ **ne6** was wrong. Correct move: **Rf7**."
+      "last_card_activity_at": 1790187587.260322,
+      "last_feedback": "✅ **N7b6** • Opponent: **Qa3**"
     },
     "362606514764251137": {
       "active": false,
