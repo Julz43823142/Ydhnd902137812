@@ -68,7 +68,7 @@
     "player_color": "white",
     "player_move_count": 4,
     "posted_at": "2026-09-23T17:42:40.896538+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -84,9 +84,9 @@
     "next_player_index": 4,
     "solved": true,
     "message_ids": {
-      "1468320170891022417": 1552374818647707722
+      "1468320170891022417": 1552374894300364811
     },
-    "message_id": 1552374818647707722,
+    "message_id": 1552374894300364811,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
@@ -147,7 +147,7 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Ke3",
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, TheMakina!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1531 points.**\n🔥 **Daily Activity Bonus: +10 coins**\n\n💡 **Solution:** Rxc4 Rc1 Rc2+ c8=Q\n\n🏆 **Your ranking**\n**#1 🔥 Thice — 1664 points**\n**#2 🍅 TheMakina — 1531 points ← you**\n**#3 💀 Sharkmeister — 76.5 points**",
     "wrong_attempt_counts": {
       "601406103712170014": 1
     },
