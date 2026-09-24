@@ -2687,8 +2687,8 @@
         "url": "https://lichess.org/training/t0qnq",
         "title": "Lichess • 1631",
         "fen": "1rbq1rk1/p2n2pp/2Bb4/3p4/8/4B3/PPP3PP/R2Q1RK1 w - - 0 16",
-        "current_fen": "1rbq1rk1/p2n2pp/2Bb4/3p4/8/4B3/PPP3PP/R2Q1RK1 w - - 0 16",
-        "last_move_uci": "e6d5",
+        "current_fen": "1rbq1r1k/p2n2pp/2Bb4/3Q4/8/4B3/PPP3PP/R4RK1 w - - 1 17",
+        "last_move_uci": "g8h8",
         "pgn": "Qxd5+ Kh8 Qxd6",
         "all_moves": [
           {
@@ -2728,16 +2728,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_t0qnq_1790279336117",
         "rating": 1631,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552768804621389894,
+      "message_id": 1552768823625785481,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790279336.1118796,
-      "last_feedback": "✅ **Nxd6+** — solved! Score: **12**."
+      "last_card_activity_at": 1790279340.588725,
+      "last_feedback": "✅ **Qxd5+** • Opponent: **Kh8**"
     },
     "362606514764251137": {
       "active": false,
