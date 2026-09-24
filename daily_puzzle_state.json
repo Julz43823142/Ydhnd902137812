@@ -38,7 +38,7 @@
     "player_color": "white",
     "player_move_count": 2,
     "posted_at": "2026-09-24T18:56:54.312622+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -54,9 +54,9 @@
     "next_player_index": 2,
     "solved": true,
     "message_ids": {
-      "1468320170891022417": 1552756018348302367
+      "1468320170891022417": 1552756235923755050
     },
-    "message_id": 1552756018348302367,
+    "message_id": 1552756235923755050,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
@@ -97,7 +97,7 @@
         "principal": true
       }
     ],
-    "last_feedback": "❌ **Thice, congratulations: your tactical instinct arrived, looked at the board and immediately left.**\n↪️ **Move played:** `Bg5`",
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1672 points.**\n\n💡 **Solution:** Qxg6+ h4\n\n🏆 **Your ranking**\n**#1 🙂 Thice — 1672 points ← you**\n**#2 🍅 TheMakina — 1545 points**",
     "wrong_attempt_counts": {
       "442597396195704832": 3
     }
