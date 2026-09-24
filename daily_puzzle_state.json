@@ -2687,8 +2687,8 @@
         "url": "https://lichess.org/training/JooOQ",
         "title": "Lichess • 2052",
         "fen": "1rb2rk1/p4pBp/3p2p1/q2np3/1p1N2PP/5P2/PPPQ4/1K1R1BNR b - - 0 16",
-        "current_fen": "1rb2rk1/p4pBp/3p2p1/q3p3/1p1N2PP/2P2P2/P1PQ4/1K1R1BNR b - - 0 17",
-        "last_move_uci": "b2c3",
+        "current_fen": "1rb2rk1/p4pBp/3p2p1/q3p3/6PP/1Np2P2/P1PQ4/1K1R1BNR b - - 1 18",
+        "last_move_uci": "d4b3",
         "pgn": "Nc3+ bxc3 bxc3+ Nb3 cxd2 Bxf8 Kxf8",
         "all_moves": [
           {
@@ -2758,16 +2758,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_JooOQ_1790279460594",
         "rating": 2052,
-        "next_solution_index": 2,
+        "next_solution_index": 4,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552769345728286751,
+      "message_id": 1552769368017080342,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790279465.7122087,
-      "last_feedback": "✅ **Nc3+** • Opponent: **bxc3**"
+      "last_card_activity_at": 1790279470.5360534,
+      "last_feedback": "✅ **bxc3+** • Opponent: **Nb3**"
     },
     "362606514764251137": {
       "active": false,
