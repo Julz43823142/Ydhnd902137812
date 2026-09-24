@@ -521,11 +521,13 @@
         },
         "442597396195704832": {
           "name": "Thice",
-          "paid": [],
+          "paid": [
+            "daily:2026-09-24:puzzle:solve-8"
+          ],
           "progress": {
             "daily:2026-09-24:puzzle:solve-8": 8
           },
-          "updated_at": 1790276327
+          "updated_at": 1790276332
         },
         "601406103712170014": {
           "name": "TheMakina",
