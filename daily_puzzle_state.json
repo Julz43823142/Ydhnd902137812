@@ -2679,80 +2679,125 @@
       "started_at": 1790279223.0019848,
       "run_id": "rush:442597396195704832:1790279223001",
       "end_at": 1790279523.0019848,
-      "score": 16,
+      "score": 17,
       "wrong": 0,
       "mistakes": [],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/6pyPP",
-        "title": "Lichess • 1840",
-        "fen": "r3k2r/1pp2ppp/pn2p3/3p1Q2/1b1P4/1PN1P1P1/P1P2P1P/R1B1K2R b KQkq - 0 12",
-        "current_fen": "r3k2r/1pp2ppp/pn2p3/3p1Q2/3P4/1P2P1P1/P1PK1P1P/R6R b kq - 0 14",
-        "last_move_uci": "e1d2",
-        "pgn": "Bxc3+ Bd2 Bxd2+ Kxd2 exf5",
+        "url": "https://lichess.org/training/4A1Bp",
+        "title": "Lichess • 1917",
+        "fen": "8/5K2/4p3/4Pk1p/3P4/8/8/8 w - - 1 44",
+        "current_fen": "8/5K2/4p3/4Pk1p/3P4/8/8/8 w - - 1 44",
+        "last_move_uci": "g5f5",
+        "pgn": "d5 h4 dxe6 h3 e7 h2 e8=Q h1=Q Qe6+ Kf4 Qf6+",
         "all_moves": [
           {
-            "uci": "b4c3",
-            "san": "Bxc3+",
-            "color": "black"
-          },
-          {
-            "uci": "c1d2",
-            "san": "Bd2",
+            "uci": "d4d5",
+            "san": "d5",
             "color": "white"
           },
           {
-            "uci": "c3d2",
-            "san": "Bxd2+",
+            "uci": "h5h4",
+            "san": "h4",
             "color": "black"
           },
           {
-            "uci": "e1d2",
-            "san": "Kxd2",
+            "uci": "d5e6",
+            "san": "dxe6",
             "color": "white"
           },
           {
-            "uci": "e6f5",
-            "san": "exf5",
+            "uci": "h4h3",
+            "san": "h3",
             "color": "black"
+          },
+          {
+            "uci": "e6e7",
+            "san": "e7",
+            "color": "white"
+          },
+          {
+            "uci": "h3h2",
+            "san": "h2",
+            "color": "black"
+          },
+          {
+            "uci": "e7e8q",
+            "san": "e8=Q",
+            "color": "white"
+          },
+          {
+            "uci": "h2h1q",
+            "san": "h1=Q",
+            "color": "black"
+          },
+          {
+            "uci": "e8e6",
+            "san": "Qe6+",
+            "color": "white"
+          },
+          {
+            "uci": "f5f4",
+            "san": "Kf4",
+            "color": "black"
+          },
+          {
+            "uci": "e6f6",
+            "san": "Qf6+",
+            "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "b4c3",
-            "san": "Bxc3+",
-            "color": "black"
+            "uci": "d4d5",
+            "san": "d5",
+            "color": "white"
           },
           {
-            "uci": "c3d2",
-            "san": "Bxd2+",
-            "color": "black"
+            "uci": "d5e6",
+            "san": "dxe6",
+            "color": "white"
           },
           {
-            "uci": "e6f5",
-            "san": "exf5",
-            "color": "black"
+            "uci": "e6e7",
+            "san": "e7",
+            "color": "white"
+          },
+          {
+            "uci": "e7e8q",
+            "san": "e8=Q",
+            "color": "white"
+          },
+          {
+            "uci": "e8e6",
+            "san": "Qe6+",
+            "color": "white"
+          },
+          {
+            "uci": "e6f6",
+            "san": "Qf6+",
+            "color": "white"
           }
         ],
-        "player_color": "black",
-        "player_move_count": 3,
-        "posted_at": "2026-09-24T19:49:31.238559+00:00",
+        "player_color": "white",
+        "player_move_count": 6,
+        "posted_at": "2026-09-24T19:49:41.250441+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_6pyPP_1790279371238",
-        "rating": 1840,
-        "next_solution_index": 4,
+        "puzzle_id": "practice_rush_442597396195704832_4A1Bp_1790279381250",
+        "rating": 1917,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552768988734562434,
+      "message_id": 1552769001103302746,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790279378.6698725,
-      "last_feedback": "✅ **Bxd2+** • Opponent: **Kxd2**"
+      "last_card_activity_at": 1790279381.2445748,
+      "last_feedback": "✅ **exf5** — solved! Score: **17**."
     },
     "362606514764251137": {
       "active": false,
