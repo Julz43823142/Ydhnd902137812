@@ -2687,8 +2687,8 @@
         "url": "https://lichess.org/training/6pyPP",
         "title": "Lichess • 1840",
         "fen": "r3k2r/1pp2ppp/pn2p3/3p1Q2/1b1P4/1PN1P1P1/P1P2P1P/R1B1K2R b KQkq - 0 12",
-        "current_fen": "r3k2r/1pp2ppp/pn2p3/3p1Q2/1b1P4/1PN1P1P1/P1P2P1P/R1B1K2R b KQkq - 0 12",
-        "last_move_uci": "d3f5",
+        "current_fen": "r3k2r/1pp2ppp/pn2p3/3p1Q2/3P4/1Pb1P1P1/P1PB1P1P/R3K2R b KQkq - 1 13",
+        "last_move_uci": "c1d2",
         "pgn": "Bxc3+ Bd2 Bxd2+ Kxd2 exf5",
         "all_moves": [
           {
@@ -2743,16 +2743,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_6pyPP_1790279371238",
         "rating": 1840,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552768950709002251,
+      "message_id": 1552768970275164372,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790279371.2323077,
-      "last_feedback": "✅ **exf6** — solved! Score: **16**."
+      "last_card_activity_at": 1790279375.674061,
+      "last_feedback": "✅ **Bxc3+** • Opponent: **Bd2**"
     },
     "362606514764251137": {
       "active": false,
