@@ -1,108 +1,70 @@
 {
   "latest_random_puzzle": {
-    "url": "https://lichess.org/training/BsZhj",
-    "title": "Lichess • 2845",
-    "fen": "rn1qk2r/3bb3/p3p1p1/P2pP3/1p1P4/1Pp2N2/2Q2PPP/R1B1K2R w KQkq - 0 16",
-    "current_fen": "rn1q1k1r/3bb3/p3p1Q1/P2pP3/1p1P3P/1Pp2N2/5PP1/R1B1K2R b KQ - 0 17",
-    "last_move_uci": "h2h4",
-    "pgn": "Qxg6+ Kf8 h4",
+    "url": "https://lichess.org/training/z6lQ9",
+    "title": "Lichess • 1869",
+    "fen": "8/8/2p3K1/p1P2p2/4k3/1P4P1/8/8 w - - 4 63",
+    "current_fen": "8/8/2p3K1/p1P2p2/4k3/1P4P1/8/8 w - - 4 63",
+    "last_move_uci": "e5e4",
+    "pgn": "Kf6 Kd5 Kxf5",
     "all_moves": [
       {
-        "uci": "c2g6",
-        "san": "Qxg6+",
+        "uci": "g6f6",
+        "san": "Kf6",
         "color": "white"
       },
       {
-        "uci": "e8f8",
-        "san": "Kf8",
+        "uci": "e4d5",
+        "san": "Kd5",
         "color": "black"
       },
       {
-        "uci": "h2h4",
-        "san": "h4",
+        "uci": "f6f5",
+        "san": "Kxf5",
         "color": "white"
       }
     ],
     "player_moves": [
       {
-        "uci": "c2g6",
-        "san": "Qxg6+",
+        "uci": "g6f6",
+        "san": "Kf6",
         "color": "white"
       },
       {
-        "uci": "h2h4",
-        "san": "h4",
+        "uci": "f6f5",
+        "san": "Kxf5",
         "color": "white"
       }
     ],
     "player_color": "white",
     "player_move_count": 2,
-    "posted_at": "2026-09-24T18:56:54.312622+00:00",
-    "answer_posted": true,
+    "posted_at": "2026-09-24T18:59:09.313100+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "random_BsZhj_1790276214312",
-    "last_activity_at": "2026-09-24T18:58:43.157416+00:00",
-    "rating": 2845,
-    "rp_band": 5,
+    "puzzle_id": "random_z6lQ9_1790276349313",
+    "last_activity_at": "2026-09-24T18:59:09.313100+00:00",
+    "rating": 1869,
+    "rp_band": 2,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 3,
-    "next_player_index": 2,
-    "solved": true,
-    "message_ids": {
-      "1468320170891022417": 1552756235923755050
-    },
-    "message_id": 1552756235923755050,
+    "next_solution_index": 0,
+    "next_player_index": 0,
+    "solved": false,
+    "message_ids": {},
+    "message_id": null,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {
-      "442597396195704832": {
-        "name": "Thice",
-        "move": "H4",
-        "correct": true,
-        "timestamp": "2026-09-24T18:58:43.158516+00:00"
-      }
-    },
-    "first_move_user_id": "442597396195704832",
-    "first_move_user_name": "Thice",
-    "first_move_awarded": true,
+    "attempted_users": {},
+    "first_move_user_id": null,
+    "first_move_user_name": null,
+    "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-24T18:58:43.157416+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1790276323.1585252,
-        "fen_before": "rn1q1k1r/3bb3/p3p1Q1/P2pP3/1p1P4/1Pp2N2/5PPP/R1B1K2R w KQ - 1 17",
-        "expected": {
-          "uci": "h2h4",
-          "san": "h4",
-          "color": "white"
-        },
-        "accepted_uci": "h2h4"
-      }
-    ],
-    "accepted_solution_moves": [
-      {
-        "san": "Qxg6+",
-        "uci": "c2g6",
-        "principal": true
-      },
-      {
-        "san": "h4",
-        "uci": "h2h4",
-        "principal": true
-      }
-    ],
-    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1672 points.**\n\n💡 **Solution:** Qxg6+ h4\n\n🏆 **Your ranking**\n**#1 🙂 Thice — 1672 points ← you**\n**#2 🍅 TheMakina — 1545 points**",
-    "wrong_attempt_counts": {
-      "442597396195704832": 3
-    }
+    "helper_candidate_users": []
   },
-  "latest_puzzle_type": "daily",
+  "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-09-24",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-24",
