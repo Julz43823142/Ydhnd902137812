@@ -2679,65 +2679,50 @@
       "started_at": 1790279223.0019848,
       "run_id": "rush:442597396195704832:1790279223001",
       "end_at": 1790279523.0019848,
-      "score": 3,
+      "score": 4,
       "wrong": 0,
       "mistakes": [],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/fqc9P",
-        "title": "Lichess • 1289",
-        "fen": "8/P7/1pk2K2/r7/2P5/8/4R3/8 b - - 0 64",
-        "current_fen": "8/r7/1pk1RK2/8/2P5/8/8/8 b - - 1 65",
-        "last_move_uci": "e2e6",
-        "pgn": "Rxa7 Re6+ Kc5",
+        "url": "https://lichess.org/training/f0fPa",
+        "title": "Lichess • 1401",
+        "fen": "8/5p2/1p2pQpk/3qP2p/5P2/7P/1P4PK/3r4 w - - 6 32",
+        "current_fen": "8/5p2/1p2pQpk/3qP2p/5P2/7P/1P4PK/3r4 w - - 6 32",
+        "last_move_uci": "g7h6",
+        "pgn": "Qh8#",
         "all_moves": [
           {
-            "uci": "a5a7",
-            "san": "Rxa7",
-            "color": "black"
-          },
-          {
-            "uci": "e2e6",
-            "san": "Re6+",
+            "uci": "f6h8",
+            "san": "Qh8#",
             "color": "white"
-          },
-          {
-            "uci": "c6c5",
-            "san": "Kc5",
-            "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "a5a7",
-            "san": "Rxa7",
-            "color": "black"
-          },
-          {
-            "uci": "c6c5",
-            "san": "Kc5",
-            "color": "black"
+            "uci": "f6h8",
+            "san": "Qh8#",
+            "color": "white"
           }
         ],
-        "player_color": "black",
-        "player_move_count": 2,
-        "posted_at": "2026-09-24T19:47:20.663321+00:00",
+        "player_color": "white",
+        "player_move_count": 1,
+        "posted_at": "2026-09-24T19:47:33.383257+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_fqc9P_1790279240663",
-        "rating": 1289,
-        "next_solution_index": 2,
+        "puzzle_id": "practice_rush_442597396195704832_f0fPa_1790279253383",
+        "rating": 1401,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552768423107493978,
+      "message_id": 1552768460436668506,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790279249.5939085,
-      "last_feedback": "✅ **Rxa7** • Opponent: **Re6+**"
+      "last_card_activity_at": 1790279253.3779783,
+      "last_feedback": "✅ **Kc5** — solved! Score: **4**."
     },
     "362606514764251137": {
       "active": false,
