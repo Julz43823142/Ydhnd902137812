@@ -519,6 +519,14 @@
           },
           "updated_at": 1790262018
         },
+        "442597396195704832": {
+          "name": "Thice",
+          "paid": [],
+          "progress": {
+            "daily:2026-09-24:puzzle:solve-8": 1
+          },
+          "updated_at": 1790267243
+        },
         "601406103712170014": {
           "name": "TheMakina",
           "paid": [],
@@ -629,9 +637,9 @@
           "paid": [],
           "progress": {
             "weekly:2026-09-21:minigame:minigame-8": 2,
-            "weekly:2026-09-21:puzzle:solve-25": 7
+            "weekly:2026-09-21:puzzle:solve-25": 8
           },
-          "updated_at": 1790170062
+          "updated_at": 1790267243
         },
         "601406103712170014": {
           "name": "TheMakina",
