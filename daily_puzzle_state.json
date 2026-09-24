@@ -2687,8 +2687,8 @@
         "url": "https://lichess.org/training/06TQu",
         "title": "Lichess • 1956",
         "fen": "r2qr1k1/ppp2ppp/5n2/3N2B1/1b2P1b1/5N2/PPP1QPPP/R4RK1 b - - 2 14",
-        "current_fen": "r2qr1k1/ppp2ppp/5n2/3N2B1/1b2P1b1/5N2/PPP1QPPP/R4RK1 b - - 2 14",
-        "last_move_uci": "c3d5",
+        "current_fen": "r3r1k1/ppp2ppp/5n2/3P2B1/1b4b1/5N2/PPP1QPPP/R4RK1 b - - 0 15",
+        "last_move_uci": "e4d5",
         "pgn": "Qxd5 exd5 Rxe2",
         "all_moves": [
           {
@@ -2728,16 +2728,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_06TQu_1790279438444",
         "rating": 1956,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552769227470012446,
+      "message_id": 1552769253244010496,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790279438.439185,
-      "last_feedback": "✅ **Kxc5** — solved! Score: **19**."
+      "last_card_activity_at": 1790279446.1536229,
+      "last_feedback": "✅ **Qxd5** • Opponent: **exd5**"
     },
     "362606514764251137": {
       "active": false,
