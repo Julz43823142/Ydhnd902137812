@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/n8beP",
     "title": "Lichess • 2452",
     "fen": "r1b2rk1/pp2q1p1/2n1p3/3p2pQ/3PpP1P/4P3/PP1N2P1/R4RK1 w - - 0 18",
-    "current_fen": "r1b3k1/pp2q1p1/2n1p3/3p1rPQ/3Pp2P/4P3/PP1N2P1/R4RK1 w - - 1 19",
-    "last_move_uci": "f8f5",
+    "current_fen": "r1b3k1/pp2q1p1/2n1p3/3p1rPQ/3Pp1PP/4P3/PP1N4/R4RK1 b - - 0 19",
+    "last_move_uci": "g2g4",
     "pgn": "fxg5 Rf5 g4",
     "all_moves": [
       {
@@ -43,16 +43,16 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_n8beP_1790275734628",
-    "last_activity_at": "2026-09-24T18:49:21.895456+00:00",
+    "last_activity_at": "2026-09-24T18:49:42.470524+00:00",
     "rating": 2452,
     "rp_band": 4,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 2,
-    "next_player_index": 1,
-    "solved": false,
+    "next_solution_index": 3,
+    "next_player_index": 2,
+    "solved": true,
     "message_ids": {
       "1468320170891022417": 1552753850425933824
     },
@@ -62,27 +62,27 @@
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Fxg5",
+        "move": "G4",
         "correct": true,
-        "timestamp": "2026-09-24T18:49:21.896293+00:00"
+        "timestamp": "2026-09-24T18:49:42.471510+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
     "first_move_user_name": "Thice",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-24T18:49:21.895456+00:00",
+    "last_card_activity_at": "2026-09-24T18:49:42.470524+00:00",
     "recent_accepted_moves": [
       {
-        "accepted_at": 1790275761.8963006,
-        "fen_before": "r1b2rk1/pp2q1p1/2n1p3/3p2pQ/3PpP1P/4P3/PP1N2P1/R4RK1 w - - 0 18",
+        "accepted_at": 1790275782.471518,
+        "fen_before": "r1b3k1/pp2q1p1/2n1p3/3p1rPQ/3Pp2P/4P3/PP1N2P1/R4RK1 w - - 1 19",
         "expected": {
-          "uci": "f4g5",
-          "san": "fxg5",
+          "uci": "g2g4",
+          "san": "g4",
           "color": "white"
         },
-        "accepted_uci": "f4g5"
+        "accepted_uci": "g2g4"
       }
     ],
     "accepted_solution_moves": [
@@ -90,11 +90,16 @@
         "san": "fxg5",
         "uci": "f4g5",
         "principal": true
+      },
+      {
+        "san": "g4",
+        "uci": "g2g4",
+        "principal": true
       }
     ],
     "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Rf5"
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-24",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-24",
