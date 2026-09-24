@@ -2687,8 +2687,8 @@
         "url": "https://lichess.org/training/iAL8v",
         "title": "Lichess • 1249",
         "fen": "5rk1/pp3p1p/2p3p1/2b5/6Q1/2BPP3/qPP3PP/2KR1B1R b - - 0 18",
-        "current_fen": "5rk1/pp3p1p/2p3p1/2b5/6Q1/2BPP3/qPP3PP/2KR1B1R b - - 0 18",
-        "last_move_uci": "f2e3",
+        "current_fen": "5rk1/pp3p1p/2p3p1/8/6Q1/3Pb3/qPPB2PP/2KR1B1R b - - 1 19",
+        "last_move_uci": "c3d2",
         "pgn": "Bxe3+ Bd2 Qa1#",
         "all_moves": [
           {
@@ -2728,7 +2728,7 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_iAL8v_1790279223005",
         "rating": 1249,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
@@ -2736,8 +2736,8 @@
       "message_id": 1552768349115781245,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790279223.0019917,
-      "last_feedback": "🎯 **Type your move in chat.** Your answer message will be removed. You have **3 lives**."
+      "last_card_activity_at": 1790279227.1639853,
+      "last_feedback": "✅ **Bxe3+** • Opponent: **Bd2**"
     },
     "362606514764251137": {
       "active": false,
