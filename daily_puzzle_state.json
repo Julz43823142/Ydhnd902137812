@@ -2687,8 +2687,8 @@
         "url": "https://lichess.org/training/Ms0ZS",
         "title": "Lichess • 1471",
         "fen": "rn1q1rk1/pp1bb1pp/2p2n2/6B1/B3N3/5Q2/PPP2PPP/2KR2NR b - - 0 12",
-        "current_fen": "rn1q1rk1/pp1bb1pp/2p5/6B1/4n3/1B3Q2/PPP2PPP/2KR2NR b - - 1 13",
-        "last_move_uci": "a4b3",
+        "current_fen": "rn1q1r1k/pp1bB1pp/2p5/8/4n3/1B3Q2/PPP2PPP/2KR2NR b - - 0 14",
+        "last_move_uci": "g5e7",
         "pgn": "Nxe4 Bb3+ Kh8 Bxe7 Qxe7",
         "all_moves": [
           {
@@ -2743,16 +2743,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_Ms0ZS_1790279272744",
         "rating": 1471,
-        "next_solution_index": 2,
+        "next_solution_index": 4,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552768557559840788,
+      "message_id": 1552768578741342219,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790279277.8803113,
-      "last_feedback": "✅ **Nxe4** • Opponent: **Bb3+**"
+      "last_card_activity_at": 1790279284.4069808,
+      "last_feedback": "✅ **Kh8** • Opponent: **Bxe7**"
     },
     "362606514764251137": {
       "active": false,
