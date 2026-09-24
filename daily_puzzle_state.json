@@ -2679,65 +2679,65 @@
       "started_at": 1790279223.0019848,
       "run_id": "rush:442597396195704832:1790279223001",
       "end_at": 1790279523.0019848,
-      "score": 14,
+      "score": 15,
       "wrong": 0,
       "mistakes": [],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/OAOQA",
-        "title": "Lichess • 1716",
-        "fen": "r4rk1/pb3pp1/1qpR1b1p/1N6/2Q1P3/5N2/PPP2PPP/R5K1 b - - 0 16",
-        "current_fen": "r4rk1/pb3pp1/2pR1b1p/1Q6/4P3/5N2/PPP2PPP/R5K1 b - - 0 17",
-        "last_move_uci": "c4b5",
-        "pgn": "Qxb5 Qxb5 cxb5",
+        "url": "https://lichess.org/training/yFjo1",
+        "title": "Lichess • 1800",
+        "fen": "r4rk1/ppq2ppp/4p3/3pP3/5BQ1/2n1R3/P1P2PPP/R5K1 w - - 0 18",
+        "current_fen": "r4rk1/ppq2ppp/4p3/3pP3/5BQ1/2n1R3/P1P2PPP/R5K1 w - - 0 18",
+        "last_move_uci": "e4c3",
+        "pgn": "Bh6 f5 exf6",
         "all_moves": [
           {
-            "uci": "b6b5",
-            "san": "Qxb5",
-            "color": "black"
-          },
-          {
-            "uci": "c4b5",
-            "san": "Qxb5",
+            "uci": "f4h6",
+            "san": "Bh6",
             "color": "white"
           },
           {
-            "uci": "c6b5",
-            "san": "cxb5",
+            "uci": "f7f5",
+            "san": "f5",
             "color": "black"
+          },
+          {
+            "uci": "e5f6",
+            "san": "exf6",
+            "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "b6b5",
-            "san": "Qxb5",
-            "color": "black"
+            "uci": "f4h6",
+            "san": "Bh6",
+            "color": "white"
           },
           {
-            "uci": "c6b5",
-            "san": "cxb5",
-            "color": "black"
+            "uci": "e5f6",
+            "san": "exf6",
+            "color": "white"
           }
         ],
-        "player_color": "black",
+        "player_color": "white",
         "player_move_count": 2,
-        "posted_at": "2026-09-24T19:49:13.774532+00:00",
+        "posted_at": "2026-09-24T19:49:22.231262+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_OAOQA_1790279353774",
-        "rating": 1716,
-        "next_solution_index": 2,
+        "puzzle_id": "practice_rush_442597396195704832_yFjo1_1790279362231",
+        "rating": 1800,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552768897621688321,
+      "message_id": 1552768918018461791,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790279358.7347758,
-      "last_feedback": "✅ **Qxb5** • Opponent: **Qxb5**"
+      "last_card_activity_at": 1790279362.2257454,
+      "last_feedback": "✅ **cxb5** — solved! Score: **15**."
     },
     "362606514764251137": {
       "active": false,
