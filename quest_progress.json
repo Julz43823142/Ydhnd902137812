@@ -518,6 +518,14 @@
             "daily:2026-09-24:minigame:minigame-2": 3
           },
           "updated_at": 1790224814
+        },
+        "601406103712170014": {
+          "name": "TheMakina",
+          "paid": [],
+          "progress": {
+            "daily:2026-09-24:puzzle:solve-8": 1
+          },
+          "updated_at": 1790235310
         }
       }
     },
@@ -631,9 +639,9 @@
             "weekly:2026-09-21:puzzle:solve-25"
           ],
           "progress": {
-            "weekly:2026-09-21:puzzle:solve-25": 38
+            "weekly:2026-09-21:puzzle:solve-25": 39
           },
-          "updated_at": 1790186449
+          "updated_at": 1790235310
         }
       }
     }
