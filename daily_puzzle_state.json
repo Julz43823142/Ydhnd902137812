@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/bELex",
     "title": "Lichess • 1781",
     "fen": "q5k1/p3Nr1p/Np3ppb/1P3b2/1QPp1n2/P2P4/6PP/4RRK1 b - - 1 27",
-    "current_fen": "q5k1/p3Nr1p/Np3ppb/1P3b2/1QPp1n2/P2P4/6PP/4RRK1 b - - 1 27",
-    "last_move_uci": "c6e7",
+    "current_fen": "q5k1/p3r2p/Np3ppb/1P3b2/1QPp1R2/P2P4/6PP/4R1K1 b - - 0 28",
+    "last_move_uci": "f1f4",
     "pgn": "Rxe7 Rxf4 Rxe1+ Qxe1 Bxf4",
     "all_moves": [
       {
@@ -58,26 +58,56 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_bELex_1790277535340",
-    "last_activity_at": "2026-09-24T19:18:55.340406+00:00",
+    "last_activity_at": "2026-09-24T19:19:06.197122+00:00",
     "rating": 1781,
     "rp_band": 1,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
-    "message_ids": {},
-    "message_id": null,
+    "message_ids": {
+      "1468320170891022417": 1552761321181941830
+    },
+    "message_id": 1552761321181941830,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "attempted_users": {
+      "442597396195704832": {
+        "name": "Thice",
+        "move": "Rxe7",
+        "correct": true,
+        "timestamp": "2026-09-24T19:19:06.197385+00:00"
+      }
+    },
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "last_card_activity_at": "2026-09-24T19:19:06.197122+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1790277546.1973908,
+        "fen_before": "q5k1/p3Nr1p/Np3ppb/1P3b2/1QPp1n2/P2P4/6PP/4RRK1 b - - 1 27",
+        "expected": {
+          "uci": "f7e7",
+          "san": "Rxe7",
+          "color": "black"
+        },
+        "accepted_uci": "f7e7"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "Rxe7",
+        "uci": "f7e7",
+        "principal": true
+      }
+    ],
+    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Rxf4"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-09-24",
