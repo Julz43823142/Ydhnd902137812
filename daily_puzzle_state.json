@@ -2687,8 +2687,8 @@
         "url": "https://lichess.org/training/blvTF",
         "title": "Lichess • 1363",
         "fen": "1n4k1/4rp2/1Pp1p1pp/1qPp4/3P4/4P3/1Q3PPP/R5K1 w - - 2 27",
-        "current_fen": "1n4k1/4rp2/1Pp1p1pp/1qPp4/3P4/4P3/1Q3PPP/R5K1 w - - 2 27",
-        "last_move_uci": "a6b5",
+        "current_fen": "1n4k1/4rp2/1P2p1pp/1pPp4/3P4/4P3/5PPP/R5K1 w - - 0 28",
+        "last_move_uci": "c6b5",
         "pgn": "Qxb5 cxb5 Ra8",
         "all_moves": [
           {
@@ -2728,16 +2728,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_blvTF_1790279257261",
         "rating": 1363,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552768476467298307,
+      "message_id": 1552768492644868136,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790279257.2569256,
-      "last_feedback": "✅ **Qh8#** — solved! Score: **5**."
+      "last_card_activity_at": 1790279262.0961368,
+      "last_feedback": "✅ **Qxb5** • Opponent: **cxb5**"
     },
     "362606514764251137": {
       "active": false,
