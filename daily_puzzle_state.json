@@ -53,7 +53,7 @@
     "player_color": "black",
     "player_move_count": 3,
     "posted_at": "2026-09-24T18:53:17.303187+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -69,9 +69,9 @@
     "next_player_index": 1,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1552755049334046833
+      "1468320170891022417": 1552755214006755391
     },
-    "message_id": 1552755049334046833,
+    "message_id": 1552755214006755391,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
@@ -96,12 +96,12 @@
         "principal": true
       }
     ],
-    "last_feedback": "❌ **Another one for the collection, Thice: that move had the confidence of a grandmaster and the evidence of a coin flip.**\n↪️ **Move played:** `Rh2`",
+    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Rxg2+ Rd2 Qd7",
     "wrong_attempt_counts": {
       "442597396195704832": 3
     }
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-24",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-24",
