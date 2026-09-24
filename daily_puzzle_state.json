@@ -2687,8 +2687,8 @@
         "url": "https://lichess.org/training/a10IR",
         "title": "Lichess • 2002",
         "fen": "8/p7/1p1p1k2/3Ppppp/PPK1P2P/5PP1/8/8 b - - 1 33",
-        "current_fen": "8/p7/1p1p1k2/3Ppppp/PPK1P2P/5PP1/8/8 b - - 1 33",
-        "last_move_uci": "d3c4",
+        "current_fen": "8/p7/1p1p1k2/3Pp1Pp/PPK1Pp2/5PP1/8/8 b - - 0 34",
+        "last_move_uci": "h4g5",
         "pgn": "f4 hxg5+ Kxg5",
         "all_moves": [
           {
@@ -2728,16 +2728,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_a10IR_1790279451592",
         "rating": 2002,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552769284428668978,
+      "message_id": 1552769307925291109,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790279451.5878053,
-      "last_feedback": "✅ **Rxe2** — solved! Score: **20**."
+      "last_card_activity_at": 1790279457.334579,
+      "last_feedback": "✅ **f4** • Opponent: **hxg5+**"
     },
     "362606514764251137": {
       "active": false,
