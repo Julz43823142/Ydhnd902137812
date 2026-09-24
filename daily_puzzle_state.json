@@ -2687,8 +2687,8 @@
         "url": "https://lichess.org/training/06FcT",
         "title": "Lichess • 1899",
         "fen": "8/8/p1p1k1pp/2P5/PP6/5P1P/5P2/5K2 b - - 2 40",
-        "current_fen": "8/8/p1p1k1pp/2P5/PP6/5P1P/5P2/5K2 b - - 2 40",
-        "last_move_uci": "g1f1",
+        "current_fen": "8/8/p1p3pp/2Pk4/PP3P2/7P/5P2/5K2 b - - 0 41",
+        "last_move_uci": "f3f4",
         "pgn": "Kd5 f4 Kc4 Ke2 Kxb4 Kf3 Kxc5",
         "all_moves": [
           {
@@ -2758,16 +2758,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_06FcT_1790279419600",
         "rating": 1899,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552769150366126203,
+      "message_id": 1552769177301946448,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790279419.5942035,
-      "last_feedback": "✅ **Qf6+** — solved! Score: **18**."
+      "last_card_activity_at": 1790279425.538759,
+      "last_feedback": "✅ **Kd5** • Opponent: **f4**"
     },
     "362606514764251137": {
       "active": false,
