@@ -2679,65 +2679,95 @@
       "started_at": 1790279223.0019848,
       "run_id": "rush:442597396195704832:1790279223001",
       "end_at": 1790279523.0019848,
-      "score": 20,
+      "score": 21,
       "wrong": 0,
       "mistakes": [],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/a10IR",
-        "title": "Lichess • 2002",
-        "fen": "8/p7/1p1p1k2/3Ppppp/PPK1P2P/5PP1/8/8 b - - 1 33",
-        "current_fen": "8/p7/1p1p1k2/3Pp1Pp/PPK1Pp2/5PP1/8/8 b - - 0 34",
-        "last_move_uci": "h4g5",
-        "pgn": "f4 hxg5+ Kxg5",
+        "url": "https://lichess.org/training/JooOQ",
+        "title": "Lichess • 2052",
+        "fen": "1rb2rk1/p4pBp/3p2p1/q2np3/1p1N2PP/5P2/PPPQ4/1K1R1BNR b - - 0 16",
+        "current_fen": "1rb2rk1/p4pBp/3p2p1/q2np3/1p1N2PP/5P2/PPPQ4/1K1R1BNR b - - 0 16",
+        "last_move_uci": "h6g7",
+        "pgn": "Nc3+ bxc3 bxc3+ Nb3 cxd2 Bxf8 Kxf8",
         "all_moves": [
           {
-            "uci": "f5f4",
-            "san": "f4",
+            "uci": "d5c3",
+            "san": "Nc3+",
             "color": "black"
           },
           {
-            "uci": "h4g5",
-            "san": "hxg5+",
+            "uci": "b2c3",
+            "san": "bxc3",
             "color": "white"
           },
           {
-            "uci": "f6g5",
-            "san": "Kxg5",
+            "uci": "b4c3",
+            "san": "bxc3+",
+            "color": "black"
+          },
+          {
+            "uci": "d4b3",
+            "san": "Nb3",
+            "color": "white"
+          },
+          {
+            "uci": "c3d2",
+            "san": "cxd2",
+            "color": "black"
+          },
+          {
+            "uci": "g7f8",
+            "san": "Bxf8",
+            "color": "white"
+          },
+          {
+            "uci": "g8f8",
+            "san": "Kxf8",
             "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "f5f4",
-            "san": "f4",
+            "uci": "d5c3",
+            "san": "Nc3+",
             "color": "black"
           },
           {
-            "uci": "f6g5",
-            "san": "Kxg5",
+            "uci": "b4c3",
+            "san": "bxc3+",
+            "color": "black"
+          },
+          {
+            "uci": "c3d2",
+            "san": "cxd2",
+            "color": "black"
+          },
+          {
+            "uci": "g8f8",
+            "san": "Kxf8",
             "color": "black"
           }
         ],
         "player_color": "black",
-        "player_move_count": 2,
-        "posted_at": "2026-09-24T19:50:51.592976+00:00",
+        "player_move_count": 4,
+        "posted_at": "2026-09-24T19:51:00.594407+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_a10IR_1790279451592",
-        "rating": 2002,
-        "next_solution_index": 2,
+        "puzzle_id": "practice_rush_442597396195704832_JooOQ_1790279460594",
+        "rating": 2052,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552769307925291109,
+      "message_id": 1552769330918334625,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790279457.334579,
-      "last_feedback": "✅ **f4** • Opponent: **hxg5+**"
+      "last_card_activity_at": 1790279460.5890746,
+      "last_feedback": "✅ **Kxg5** — solved! Score: **21**."
     },
     "362606514764251137": {
       "active": false,
