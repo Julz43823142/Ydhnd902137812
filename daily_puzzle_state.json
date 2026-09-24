@@ -2687,8 +2687,8 @@
         "url": "https://lichess.org/training/zIe88",
         "title": "Lichess • 1637",
         "fen": "7k/p1R1q1pp/4nr2/1r1PQ3/8/5P2/PP1RP2P/1K6 b - - 0 24",
-        "current_fen": "7k/p1R1q1pp/4nr2/1r1PQ3/8/5P2/PP1RP2P/1K6 b - - 0 24",
-        "last_move_uci": "c1c7",
+        "current_fen": "7k/p1Q3pp/4nr2/1r1P4/8/5P2/PP1RP2P/1K6 b - - 0 25",
+        "last_move_uci": "e5c7",
         "pgn": "Qxc7 Qxc7 Nxc7",
         "all_moves": [
           {
@@ -2728,16 +2728,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_zIe88_1790279316460",
         "rating": 1637,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552768721968435290,
+      "message_id": 1552768741039669409,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790279316.4548821,
-      "last_feedback": "✅ **Nxg3+** — solved! Score: **10**."
+      "last_card_activity_at": 1790279323.968986,
+      "last_feedback": "✅ **Qxc7** • Opponent: **Qxc7**"
     },
     "362606514764251137": {
       "active": false,
