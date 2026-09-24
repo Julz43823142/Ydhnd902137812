@@ -3646,7 +3646,7 @@
   },
   "channel_puzzle_state": {
     "1546557493038284840": {
-      "latest_puzzle_type": "random",
+      "latest_puzzle_type": "daily",
       "latest_random_puzzle": {
         "url": "https://lichess.org/training/TcIHT",
         "title": "Lichess • 1695",
@@ -3686,7 +3686,7 @@
         "player_color": "black",
         "player_move_count": 2,
         "posted_at": "2026-09-24T07:40:36.916599+00:00",
-        "answer_posted": false,
+        "answer_posted": true,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
@@ -3711,7 +3711,8 @@
         "first_move_awarded": false,
         "helper_awarded_users": [],
         "helper_candidate_users": [],
-        "channel_id": 1546557493038284840
+        "channel_id": 1546557493038284840,
+        "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Nxh4 Kh8"
       }
     }
   },
