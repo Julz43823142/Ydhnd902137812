@@ -2705,8 +2705,8 @@
         "url": "https://lichess.org/training/b9RA7",
         "title": "Lichess • 2086",
         "fen": "6k1/6bp/3Rp1p1/2r5/3NP3/Pr3P2/2P3PP/2K4R b - - 0 28",
-        "current_fen": "6k1/6bp/3Rp1p1/2r5/3NP3/Pr3P2/2P3PP/2K4R b - - 0 28",
-        "last_move_uci": "e2d4",
+        "current_fen": "6k1/7p/3Rp1pb/2r5/3NP3/Pr3P2/2P3PP/3K3R b - - 2 29",
+        "last_move_uci": "c1d1",
         "pgn": "Bh6+ Kd1 Rb1+ Ke2 Rxh1",
         "all_moves": [
           {
@@ -2761,16 +2761,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_b9RA7_1790279497313",
         "rating": 2086,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552769485042094211,
+      "message_id": 1552769500133335201,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790279497.307497,
-      "last_feedback": "✅ **Qxg5** — solved! Score: **22**."
+      "last_card_activity_at": 1790279512.9478347,
+      "last_feedback": "✅ **Bh6+** • Opponent: **Kd1**"
     },
     "362606514764251137": {
       "active": false,
