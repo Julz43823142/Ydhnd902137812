@@ -511,11 +511,13 @@
       "users": {
         "1": {
           "name": "Player 1",
-          "paid": [],
+          "paid": [
+            "daily:2026-09-24:minigame:minigame-2"
+          ],
           "progress": {
             "daily:2026-09-24:minigame:minigame-2": 2
           },
-          "updated_at": 1790224807
+          "updated_at": 1790224812
         }
       }
     },
