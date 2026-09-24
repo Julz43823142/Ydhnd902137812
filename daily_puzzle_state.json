@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/BsZhj",
     "title": "Lichess • 2845",
     "fen": "rn1qk2r/3bb3/p3p1p1/P2pP3/1p1P4/1Pp2N2/2Q2PPP/R1B1K2R w KQkq - 0 16",
-    "current_fen": "rn1q1k1r/3bb3/p3p1Q1/P2pP3/1p1P4/1Pp2N2/5PPP/R1B1K2R w KQ - 1 17",
-    "last_move_uci": "e8f8",
+    "current_fen": "rn1q1k1r/3bb3/p3p1Q1/P2pP3/1p1P3P/1Pp2N2/5PP1/R1B1K2R b KQ - 0 17",
+    "last_move_uci": "h2h4",
     "pgn": "Qxg6+ Kf8 h4",
     "all_moves": [
       {
@@ -43,50 +43,66 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_BsZhj_1790276214312",
-    "last_activity_at": "2026-09-24T18:58:02.958993+00:00",
+    "last_activity_at": "2026-09-24T18:58:43.157416+00:00",
     "rating": 2845,
     "rp_band": 5,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 2,
-    "next_player_index": 1,
-    "solved": false,
+    "next_solution_index": 3,
+    "next_player_index": 2,
+    "solved": true,
     "message_ids": {
-      "1468320170891022417": 1552756000254205952
+      "1468320170891022417": 1552756018348302367
     },
-    "message_id": 1552756000254205952,
+    "message_id": 1552756018348302367,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Bg5",
-        "correct": false,
-        "timestamp": "2026-09-24T18:58:02.959978+00:00"
+        "move": "H4",
+        "correct": true,
+        "timestamp": "2026-09-24T18:58:43.158516+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
     "first_move_user_name": "Thice",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-24T18:58:02.958993+00:00",
-    "recent_accepted_moves": [],
+    "last_card_activity_at": "2026-09-24T18:58:43.157416+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1790276323.1585252,
+        "fen_before": "rn1q1k1r/3bb3/p3p1Q1/P2pP3/1p1P4/1Pp2N2/5PPP/R1B1K2R w KQ - 1 17",
+        "expected": {
+          "uci": "h2h4",
+          "san": "h4",
+          "color": "white"
+        },
+        "accepted_uci": "h2h4"
+      }
+    ],
     "accepted_solution_moves": [
       {
         "san": "Qxg6+",
         "uci": "c2g6",
         "principal": true
+      },
+      {
+        "san": "h4",
+        "uci": "h2h4",
+        "principal": true
       }
     ],
-    "last_feedback": "❌ **Stockfish report for Thice: you found the best move in a completely different position.**\n↪️ **Move played:** `Ng5`",
+    "last_feedback": "❌ **Thice, congratulations: your tactical instinct arrived, looked at the board and immediately left.**\n↪️ **Move played:** `Bg5`",
     "wrong_attempt_counts": {
       "442597396195704832": 3
     }
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-24",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-24",
