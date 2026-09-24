@@ -105,8 +105,8 @@
     "url": "https://www.chess.com/daily/2026-09-24",
     "title": "Botez's Comeback Queen 🎉",
     "fen": "4r2r/5pk1/p2P1bp1/8/Q3q3/1P3RPp/P4P1N/3R2K1 b - - 0 45",
-    "current_fen": "4r2r/5pk1/p2P1bp1/8/Q7/1P3RPp/P4P1N/4R1K1 b - - 0 46",
-    "last_move_uci": "d1e1",
+    "current_fen": "7r/5pk1/p2P1bp1/8/Q7/1P3RPp/P4P2/4rNK1 b - - 1 47",
+    "last_move_uci": "h2f1",
     "pgn": "[White \"Botez Blitz Inspiration\"]\n[Black \"Happy Birthday Alexandra Botez\"]\n[Result \"0-1\"]\n[FEN \"4r2r/5pk1/p2P1bp1/8/Q3q3/1P3RPp/P4P1N/3R2K1 b - - 0 45\"]\n\n45... Qe1+ 46. Rxe1 Rxe1+ 47. Nf1 h2+ 48. Kg2 h1=Q# 0-1",
     "all_moves": [
       {
@@ -175,16 +175,16 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1790234468894",
-    "next_solution_index": 2,
-    "next_player_index": 1,
+    "next_solution_index": 4,
+    "next_player_index": 2,
     "solved": false,
-    "message_id": 1552584065276706896,
+    "message_id": 1552584088869806080,
     "attempted_users": {
       "601406103712170014": {
         "name": "TheMakina",
-        "move": "Qe1",
+        "move": "Rxe1",
         "correct": true,
-        "timestamp": "2026-09-24T07:34:44.040765+00:00"
+        "timestamp": "2026-09-24T07:34:51.700728+00:00"
       }
     },
     "first_move_user_id": "601406103712170014",
@@ -193,12 +193,12 @@
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1552584065276706896,
-      "1546557493038284840": 1552584070817644645
+      "1468320170891022417": 1552584088869806080,
+      "1546557493038284840": 1552584096079937616
     },
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-09-24T07:34:44.039451+00:00",
+    "last_card_activity_at": "2026-09-24T07:34:51.700013+00:00",
     "recent_accepted_moves": [
       {
         "accepted_at": 1790235284.0407734,
@@ -209,6 +209,16 @@
           "color": "black"
         },
         "accepted_uci": "e4e1"
+      },
+      {
+        "accepted_at": 1790235291.7007375,
+        "fen_before": "4r2r/5pk1/p2P1bp1/8/Q7/1P3RPp/P4P1N/4R1K1 b - - 0 46",
+        "expected": {
+          "uci": "e8e1",
+          "san": "Rxe1+",
+          "color": "black"
+        },
+        "accepted_uci": "e8e1"
       }
     ],
     "accepted_solution_moves": [
@@ -216,9 +226,14 @@
         "san": "Qe1+",
         "uci": "e4e1",
         "principal": true
+      },
+      {
+        "san": "Rxe1+",
+        "uci": "e8e1",
+        "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 3 moves remaining.**\n↩️ **Opponent replies:** Rxe1"
+    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Nf1"
   },
   "lichess_rating_used": {
     "2000": [
