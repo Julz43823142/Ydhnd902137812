@@ -2687,8 +2687,8 @@
         "url": "https://lichess.org/training/SR2AR",
         "title": "Lichess • 1289",
         "fen": "k2r4/pp1P1p2/6Q1/2p5/8/6r1/PP6/3RR2K b - - 0 32",
-        "current_fen": "k2r4/pp1P1p2/6Q1/2p5/8/6r1/PP6/3RR2K b - - 0 32",
-        "last_move_uci": "h5g6",
+        "current_fen": "k6r/pp1P1p1Q/8/2p5/8/6r1/PP6/3RR2K b - - 2 33",
+        "last_move_uci": "g6h7",
         "pgn": "Rh8+ Qh7 Rxh7#",
         "all_moves": [
           {
@@ -2728,16 +2728,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_SR2AR_1790279234702",
         "rating": 1289,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552768382602977280,
+      "message_id": 1552768397866049710,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790279234.6963727,
-      "last_feedback": "✅ **Qxh2#** — solved! Score: **2**."
+      "last_card_activity_at": 1790279238.2951972,
+      "last_feedback": "✅ **Rh8+** • Opponent: **Qh7**"
     },
     "362606514764251137": {
       "active": false,
