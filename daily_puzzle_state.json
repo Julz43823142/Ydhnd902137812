@@ -2687,8 +2687,8 @@
         "url": "https://lichess.org/training/OAOQA",
         "title": "Lichess • 1716",
         "fen": "r4rk1/pb3pp1/1qpR1b1p/1N6/2Q1P3/5N2/PPP2PPP/R5K1 b - - 0 16",
-        "current_fen": "r4rk1/pb3pp1/1qpR1b1p/1N6/2Q1P3/5N2/PPP2PPP/R5K1 b - - 0 16",
-        "last_move_uci": "d1d6",
+        "current_fen": "r4rk1/pb3pp1/2pR1b1p/1Q6/4P3/5N2/PPP2PPP/R5K1 b - - 0 17",
+        "last_move_uci": "c4b5",
         "pgn": "Qxb5 Qxb5 cxb5",
         "all_moves": [
           {
@@ -2728,16 +2728,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_OAOQA_1790279353774",
         "rating": 1716,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552768882811347005,
+      "message_id": 1552768897621688321,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790279353.7689683,
-      "last_feedback": "✅ **Qxc3** — solved! Score: **14**."
+      "last_card_activity_at": 1790279358.7347758,
+      "last_feedback": "✅ **Qxb5** • Opponent: **Qxb5**"
     },
     "362606514764251137": {
       "active": false,
