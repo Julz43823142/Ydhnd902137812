@@ -2687,8 +2687,8 @@
         "url": "https://lichess.org/training/4A1Bp",
         "title": "Lichess • 1917",
         "fen": "8/5K2/4p3/4Pk1p/3P4/8/8/8 w - - 1 44",
-        "current_fen": "8/4PK2/8/4Pk2/8/8/7p/8 w - - 0 47",
-        "last_move_uci": "h3h2",
+        "current_fen": "4Q3/5K2/8/4Pk2/8/8/8/7q w - - 0 48",
+        "last_move_uci": "h2h1q",
         "pgn": "d5 h4 dxe6 h3 e7 h2 e8=Q h1=Q Qe6+ Kf4 Qf6+",
         "all_moves": [
           {
@@ -2788,16 +2788,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_4A1Bp_1790279381250",
         "rating": 1917,
-        "next_solution_index": 6,
+        "next_solution_index": 8,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1552769067461382219,
+      "message_id": 1552769080358994013,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790279397.4677074,
-      "last_feedback": "✅ **e7** • Opponent: **h2**"
+      "last_card_activity_at": 1790279400.531638,
+      "last_feedback": "✅ **e8=Q** • Opponent: **h1=Q**"
     },
     "362606514764251137": {
       "active": false,
