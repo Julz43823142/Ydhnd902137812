@@ -125,8 +125,8 @@
     "url": "https://www.chess.com/daily/2026-09-25",
     "title": "The Price of Victory",
     "fen": "r4rk1/p2q1ppp/1nQ5/5P2/Np6/1P2p3/PB3b1P/K1R2R2 w - - 0 1",
-    "current_fen": "r4rk1/p2q1p1p/1n3p2/5P2/Np6/1P2p3/PB3b1P/K1R2R2 w - - 0 2",
-    "last_move_uci": "g7f6",
+    "current_fen": "r4rk1/p2q1p1p/1n3p2/5P2/Np6/1P2p3/PB5P/K1R3b1 w - - 0 3",
+    "last_move_uci": "f2g1",
     "pgn": "[White \"JohanVA\"]\n[Black \"Daily Puzzle Inspiration\"]\n[Result \"1-0\"]\n[FEN \"r4rk1/p2q1ppp/1nQ5/5P2/Np6/1P2p3/PB3b1P/K1R2R2 w - - 0 1\"]\n\n1. Qf6 gxf6 2. Rg1+ Bxg1 3. Rxg1+ Kh8 4. Bxf6# 1-0",
     "all_moves": [
       {
@@ -195,16 +195,16 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1790321207435",
-    "next_solution_index": 2,
-    "next_player_index": 1,
+    "next_solution_index": 4,
+    "next_player_index": 2,
     "solved": false,
-    "message_id": 1553001710899830844,
+    "message_id": 1553001733146284032,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Qf6",
+        "move": "Rg1",
         "correct": true,
-        "timestamp": "2026-09-25T11:14:19.426124+00:00"
+        "timestamp": "2026-09-25T11:14:25.994331+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
@@ -213,12 +213,12 @@
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1553001710899830844,
-      "1546557493038284840": 1553001716926910504
+      "1468320170891022417": 1553001733146284032,
+      "1546557493038284840": 1553001740163350608
     },
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-09-25T11:14:19.425648+00:00",
+    "last_card_activity_at": "2026-09-25T11:14:25.993962+00:00",
     "recent_accepted_moves": [
       {
         "accepted_at": 1790334859.4261322,
@@ -229,6 +229,16 @@
           "color": "white"
         },
         "accepted_uci": "c6f6"
+      },
+      {
+        "accepted_at": 1790334865.99434,
+        "fen_before": "r4rk1/p2q1p1p/1n3p2/5P2/Np6/1P2p3/PB3b1P/K1R2R2 w - - 0 2",
+        "expected": {
+          "uci": "f1g1",
+          "san": "Rg1+",
+          "color": "white"
+        },
+        "accepted_uci": "f1g1"
       }
     ],
     "accepted_solution_moves": [
@@ -236,9 +246,14 @@
         "san": "Qf6",
         "uci": "c6f6",
         "principal": true
+      },
+      {
+        "san": "Rg1+",
+        "uci": "f1g1",
+        "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 3 moves remaining.**\n↩️ **Opponent replies:** gxf6"
+    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Bxg1"
   },
   "lichess_rating_used": {
     "2000": [
