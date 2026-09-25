@@ -550,6 +550,14 @@
             "daily:2026-09-25:minigame:minigame-1": 6
           },
           "updated_at": 1790330966
+        },
+        "442597396195704832": {
+          "name": "Thice",
+          "paid": [],
+          "progress": {
+            "daily:2026-09-25:puzzle:solve-10": 1
+          },
+          "updated_at": 1790334880
         }
       }
     },
@@ -654,9 +662,9 @@
           "progress": {
             "weekly:2026-09-21:challenge:rush-full-2": 1,
             "weekly:2026-09-21:minigame:minigame-8": 2,
-            "weekly:2026-09-21:puzzle:solve-25": 18
+            "weekly:2026-09-21:puzzle:solve-25": 19
           },
-          "updated_at": 1790279532
+          "updated_at": 1790334880
         },
         "601406103712170014": {
           "name": "TheMakina",
