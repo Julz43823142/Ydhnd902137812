@@ -367,6 +367,11 @@
           }
         },
         "chess": {
+          "Adelson": {
+            "correct": 0,
+            "total": 1,
+            "wrong": 1
+          },
           "Shark": {
             "correct": 0,
             "total": 1,
@@ -379,14 +384,14 @@
           }
         }
       },
-      "total": 5,
-      "updated_at": 1790457914,
-      "wrong": 2
+      "total": 6,
+      "updated_at": 1790458005,
+      "wrong": 3
     },
     "442597396195704832": {
       "best_streak": 21,
-      "correct": 201,
-      "current_streak": 0,
+      "correct": 202,
+      "current_streak": 1,
       "name": "thice",
       "targets": {
         "chatter": {
@@ -488,8 +493,8 @@
         },
         "chess": {
           "Adelson": {
-            "correct": 5,
-            "total": 9,
+            "correct": 6,
+            "total": 10,
             "wrong": 4
           },
           "Jesse": {
@@ -544,8 +549,8 @@
           }
         }
       },
-      "total": 309,
-      "updated_at": 1790457914,
+      "total": 310,
+      "updated_at": 1790458005,
       "wrong": 108
     },
     "550338389535227926": {
