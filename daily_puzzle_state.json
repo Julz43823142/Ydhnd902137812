@@ -58,7 +58,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_ZNv9a_1790458102266",
-    "last_activity_at": "2026-09-26T21:29:02.148023+00:00",
+    "last_activity_at": "2026-09-26T21:29:54.178652+00:00",
     "rating": 2793,
     "rp_band": 5,
     "boss": false,
@@ -77,9 +77,9 @@
     "attempted_users": {
       "1310661840707129370": {
         "name": "Chessmass",
-        "move": "Bxa6",
-        "correct": true,
-        "timestamp": "2026-09-26T21:29:02.148890+00:00"
+        "move": "Bc2",
+        "correct": false,
+        "timestamp": "2026-09-26T21:29:54.179224+00:00"
       }
     },
     "first_move_user_id": "1310661840707129370",
@@ -87,19 +87,8 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-26T21:29:02.148023+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1790458142.1488988,
-        "fen_before": "3r2k1/1pp2ppp/B7/P3Q3/4PP2/Pb6/1P1r3P/1KR5 b - - 0 33",
-        "expected": {
-          "uci": "b7a6",
-          "san": "bxa6",
-          "color": "black"
-        },
-        "accepted_uci": "b7a6"
-      }
-    ],
+    "last_card_activity_at": "2026-09-26T21:29:54.178652+00:00",
+    "recent_accepted_moves": [],
     "accepted_solution_moves": [
       {
         "san": "Rxd2",
@@ -112,7 +101,10 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Qc3"
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Qc3",
+    "wrong_attempt_counts": {
+      "1310661840707129370": 1
+    }
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-09-26",
