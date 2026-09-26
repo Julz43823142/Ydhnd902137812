@@ -404,8 +404,8 @@
           },
           "Lars": {
             "correct": 0,
-            "total": 1,
-            "wrong": 1
+            "total": 2,
+            "wrong": 2
           },
           "Mohammad": {
             "correct": 0,
@@ -434,9 +434,9 @@
           }
         }
       },
-      "total": 19,
-      "updated_at": 1790459122,
-      "wrong": 10
+      "total": 20,
+      "updated_at": 1790459247,
+      "wrong": 11
     },
     "442597396195704832": {
       "best_streak": 21,
@@ -554,8 +554,8 @@
           },
           "Lars": {
             "correct": 17,
-            "total": 21,
-            "wrong": 4
+            "total": 22,
+            "wrong": 5
           },
           "Mohammad": {
             "correct": 5,
@@ -599,9 +599,9 @@
           }
         }
       },
-      "total": 323,
-      "updated_at": 1790459122,
-      "wrong": 115
+      "total": 324,
+      "updated_at": 1790459247,
+      "wrong": 116
     },
     "550338389535227926": {
       "best_streak": 0,
