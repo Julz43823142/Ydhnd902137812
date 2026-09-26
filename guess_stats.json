@@ -350,8 +350,8 @@
     },
     "442597396195704832": {
       "best_streak": 21,
-      "correct": 189,
-      "current_streak": 1,
+      "correct": 190,
+      "current_streak": 2,
       "name": "thice",
       "targets": {
         "chatter": {
@@ -446,8 +446,8 @@
             "wrong": 9
           },
           "Thejazzdude": {
-            "correct": 0,
-            "total": 1,
+            "correct": 1,
+            "total": 2,
             "wrong": 1
           }
         },
@@ -509,8 +509,8 @@
           }
         }
       },
-      "total": 290,
-      "updated_at": 1790439479,
+      "total": 291,
+      "updated_at": 1790439505,
       "wrong": 101
     },
     "550338389535227926": {
