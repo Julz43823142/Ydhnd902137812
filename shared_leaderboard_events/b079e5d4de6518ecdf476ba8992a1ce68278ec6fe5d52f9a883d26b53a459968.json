@@ -1,0 +1,18 @@
+{
+  "after_coins": 11.0,
+  "before_coins": 1.0,
+  "created_at": 1790457494,
+  "created_at_ns": 1790457494197671290,
+  "details": {
+    "activity_day": "2026-09-26",
+    "credited": 10.0,
+    "reset_hour": 5,
+    "source": "daily-activity-bonus",
+    "timezone": "Europe/Amsterdam"
+  },
+  "display_name": "Flash",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "daily-activity-bonus",
+  "transaction_id": "activity-bonus:2026-09-26:386134006170910721",
+  "user_id": "386134006170910721"
+}
