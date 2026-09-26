@@ -69,9 +69,9 @@
     "next_player_index": 2,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1553519009406779545
+      "1468320170891022417": 1553519132115472425
     },
-    "message_id": 1553519009406779545,
+    "message_id": 1553519132115472425,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
@@ -101,10 +101,11 @@
         "principal": true
       }
     ],
-    "last_feedback": "❌ **The engine disagrees, Chessmass — the final detail escaped this time.**\n↪️ **Move played:** `Bc2`",
+    "last_feedback": "❌ **Nope, Chessmass — that was a very human move.**\n↪️ **Move played:** `Rd3`",
     "wrong_attempt_counts": {
       "1310661840707129370": 2
-    }
+    },
+    "last_manual_bump": 1790458223.894727
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-09-26",
