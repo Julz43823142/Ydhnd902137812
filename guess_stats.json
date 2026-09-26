@@ -372,8 +372,8 @@
           },
           "Mr_thice": {
             "correct": 6,
-            "total": 6,
-            "wrong": 0
+            "total": 7,
+            "wrong": 1
           },
           "Pabu": {
             "correct": 1,
@@ -454,14 +454,14 @@
           }
         }
       },
-      "total": 31,
-      "updated_at": 1790460248,
-      "wrong": 14
+      "total": 32,
+      "updated_at": 1790460484,
+      "wrong": 15
     },
     "442597396195704832": {
       "best_streak": 21,
-      "correct": 217,
-      "current_streak": 1,
+      "correct": 218,
+      "current_streak": 2,
       "name": "thice",
       "targets": {
         "chatter": {
@@ -506,8 +506,8 @@
             "wrong": 3
           },
           "Mr_thice": {
-            "correct": 40,
-            "total": 42,
+            "correct": 41,
+            "total": 43,
             "wrong": 2
           },
           "Nairyaaa": {
@@ -619,8 +619,8 @@
           }
         }
       },
-      "total": 336,
-      "updated_at": 1790460426,
+      "total": 337,
+      "updated_at": 1790460484,
       "wrong": 119
     },
     "550338389535227926": {
