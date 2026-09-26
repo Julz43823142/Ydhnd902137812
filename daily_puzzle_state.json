@@ -58,7 +58,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_ZNv9a_1790458102266",
-    "last_activity_at": "2026-09-26T21:29:54.178652+00:00",
+    "last_activity_at": "2026-09-26T21:30:11.979986+00:00",
     "rating": 2793,
     "rp_band": 5,
     "boss": false,
@@ -69,17 +69,17 @@
     "next_player_index": 2,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1553518789939826865
+      "1468320170891022417": 1553519009406779545
     },
-    "message_id": 1553518789939826865,
+    "message_id": 1553519009406779545,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "1310661840707129370": {
         "name": "Chessmass",
-        "move": "Bc2",
+        "move": "Rd3",
         "correct": false,
-        "timestamp": "2026-09-26T21:29:54.179224+00:00"
+        "timestamp": "2026-09-26T21:30:11.980955+00:00"
       }
     },
     "first_move_user_id": "1310661840707129370",
@@ -87,7 +87,7 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-26T21:29:54.178652+00:00",
+    "last_card_activity_at": "2026-09-26T21:30:11.979986+00:00",
     "recent_accepted_moves": [],
     "accepted_solution_moves": [
       {
@@ -101,9 +101,9 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Qc3",
+    "last_feedback": "❌ **The engine disagrees, Chessmass — the final detail escaped this time.**\n↪️ **Move played:** `Bc2`",
     "wrong_attempt_counts": {
-      "1310661840707129370": 1
+      "1310661840707129370": 2
     }
   },
   "latest_puzzle_type": "random",
