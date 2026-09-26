@@ -181,7 +181,7 @@
     "362606514764251137": {
       "best_streak": 29,
       "correct": 101,
-      "current_streak": 1,
+      "current_streak": 0,
       "name": "Sharkmeister",
       "targets": {
         "chatter": {
@@ -237,8 +237,8 @@
           },
           "Pabu": {
             "correct": 1,
-            "total": 4,
-            "wrong": 3
+            "total": 5,
+            "wrong": 4
           },
           "Pandarou": {
             "correct": 1,
@@ -344,9 +344,9 @@
           }
         }
       },
-      "total": 154,
-      "updated_at": 1790457816,
-      "wrong": 53
+      "total": 155,
+      "updated_at": 1790457914,
+      "wrong": 54
     },
     "386134006170910721": {
       "best_streak": 3,
@@ -362,8 +362,8 @@
           },
           "Pabu": {
             "correct": 1,
-            "total": 1,
-            "wrong": 0
+            "total": 2,
+            "wrong": 1
           }
         },
         "chess": {
@@ -379,9 +379,9 @@
           }
         }
       },
-      "total": 4,
-      "updated_at": 1790457816,
-      "wrong": 1
+      "total": 5,
+      "updated_at": 1790457914,
+      "wrong": 2
     },
     "442597396195704832": {
       "best_streak": 21,
@@ -442,8 +442,8 @@
           },
           "Pabu": {
             "correct": 1,
-            "total": 4,
-            "wrong": 3
+            "total": 5,
+            "wrong": 4
           },
           "Pandarou": {
             "correct": 2,
@@ -544,9 +544,9 @@
           }
         }
       },
-      "total": 308,
-      "updated_at": 1790457816,
-      "wrong": 107
+      "total": 309,
+      "updated_at": 1790457914,
+      "wrong": 108
     },
     "550338389535227926": {
       "best_streak": 0,
