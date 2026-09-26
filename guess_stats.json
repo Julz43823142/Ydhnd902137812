@@ -409,8 +409,8 @@
           },
           "Jesse": {
             "correct": 2,
-            "total": 2,
-            "wrong": 0
+            "total": 3,
+            "wrong": 1
           },
           "Lars": {
             "correct": 1,
@@ -454,14 +454,14 @@
           }
         }
       },
-      "total": 32,
-      "updated_at": 1790460484,
-      "wrong": 15
+      "total": 33,
+      "updated_at": 1790460602,
+      "wrong": 16
     },
     "442597396195704832": {
       "best_streak": 21,
-      "correct": 218,
-      "current_streak": 2,
+      "correct": 219,
+      "current_streak": 3,
       "name": "thice",
       "targets": {
         "chatter": {
@@ -568,8 +568,8 @@
             "wrong": 5
           },
           "Jesse": {
-            "correct": 6,
-            "total": 11,
+            "correct": 7,
+            "total": 12,
             "wrong": 5
           },
           "Lars": {
@@ -619,8 +619,8 @@
           }
         }
       },
-      "total": 337,
-      "updated_at": 1790460484,
+      "total": 338,
+      "updated_at": 1790460602,
       "wrong": 119
     },
     "550338389535227926": {
