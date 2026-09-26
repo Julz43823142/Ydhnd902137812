@@ -350,8 +350,8 @@
     },
     "386134006170910721": {
       "best_streak": 5,
-      "correct": 14,
-      "current_streak": 2,
+      "correct": 15,
+      "current_streak": 3,
       "name": "Flash",
       "targets": {
         "chatter": {
@@ -366,8 +366,8 @@
             "wrong": 1
           },
           "Mr_thice": {
-            "correct": 5,
-            "total": 5,
+            "correct": 6,
+            "total": 6,
             "wrong": 0
           },
           "Pabu": {
@@ -439,14 +439,14 @@
           }
         }
       },
-      "total": 26,
-      "updated_at": 1790459773,
+      "total": 27,
+      "updated_at": 1790459842,
       "wrong": 12
     },
     "442597396195704832": {
       "best_streak": 21,
-      "correct": 213,
-      "current_streak": 2,
+      "correct": 214,
+      "current_streak": 3,
       "name": "thice",
       "targets": {
         "chatter": {
@@ -491,8 +491,8 @@
             "wrong": 3
           },
           "Mr_thice": {
-            "correct": 39,
-            "total": 41,
+            "correct": 40,
+            "total": 42,
             "wrong": 2
           },
           "Nairyaaa": {
@@ -604,8 +604,8 @@
           }
         }
       },
-      "total": 330,
-      "updated_at": 1790459773,
+      "total": 331,
+      "updated_at": 1790459842,
       "wrong": 117
     },
     "550338389535227926": {
