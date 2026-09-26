@@ -439,8 +439,8 @@
           },
           "Pospos": {
             "correct": 1,
-            "total": 1,
-            "wrong": 0
+            "total": 2,
+            "wrong": 1
           },
           "Shark": {
             "correct": 0,
@@ -459,14 +459,14 @@
           }
         }
       },
-      "total": 39,
-      "updated_at": 1790461549,
-      "wrong": 18
+      "total": 40,
+      "updated_at": 1790461764,
+      "wrong": 19
     },
     "442597396195704832": {
       "best_streak": 21,
-      "correct": 225,
-      "current_streak": 9,
+      "correct": 226,
+      "current_streak": 10,
       "name": "thice",
       "targets": {
         "chatter": {
@@ -598,8 +598,8 @@
             "wrong": 5
           },
           "Pospos": {
-            "correct": 10,
-            "total": 14,
+            "correct": 11,
+            "total": 15,
             "wrong": 4
           },
           "Shark": {
@@ -624,8 +624,8 @@
           }
         }
       },
-      "total": 344,
-      "updated_at": 1790461549,
+      "total": 345,
+      "updated_at": 1790461764,
       "wrong": 119
     },
     "550338389535227926": {
