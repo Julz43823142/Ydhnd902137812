@@ -389,8 +389,8 @@
         "chess": {
           "Adelson": {
             "correct": 0,
-            "total": 1,
-            "wrong": 1
+            "total": 2,
+            "wrong": 2
           },
           "Jesse": {
             "correct": 1,
@@ -429,9 +429,9 @@
           }
         }
       },
-      "total": 17,
-      "updated_at": 1790458869,
-      "wrong": 8
+      "total": 18,
+      "updated_at": 1790459098,
+      "wrong": 9
     },
     "442597396195704832": {
       "best_streak": 21,
@@ -539,8 +539,8 @@
         "chess": {
           "Adelson": {
             "correct": 6,
-            "total": 10,
-            "wrong": 4
+            "total": 11,
+            "wrong": 5
           },
           "Jesse": {
             "correct": 5,
@@ -594,9 +594,9 @@
           }
         }
       },
-      "total": 321,
-      "updated_at": 1790458869,
-      "wrong": 113
+      "total": 322,
+      "updated_at": 1790459098,
+      "wrong": 114
     },
     "550338389535227926": {
       "best_streak": 0,
