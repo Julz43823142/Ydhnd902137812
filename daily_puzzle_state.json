@@ -135,8 +135,8 @@
     "url": "https://www.chess.com/daily/2026-09-26",
     "title": "Choppy Waters",
     "fen": "r1b1k2r/p3ppb1/n1pp1np1/q3P2p/1p1P1B2/2N2N2/PPPQ1PPP/2KR1B1R w kq - 0 1",
-    "current_fen": "r1b1k1r1/p3ppP1/n1pp2p1/7p/3P1B2/2q2N2/PPP2PPP/2KR1B1R w q - 1 4",
-    "last_move_uci": "h8g8",
+    "current_fen": "r1b1k1r1/p3ppP1/n1pp2p1/7p/3P1B2/2P2N2/P1P2PPP/2KR1B1R b q - 0 4",
+    "last_move_uci": "b2c3",
     "pgn": "[White \"Jeremy Kane\"]\n[Black \"Daily Puzzle Inspiration\"]\n[Result \"*\"]\n[FEN \"r1b1k2r/p3ppb1/n1pp1np1/q3P2p/1p1P1B2/2N2N2/PPPQ1PPP/2KR1B1R w kq - 0 1\"]\n\n1. exf6 bxc3 2. Qxc3 Qxc3 3. fxg7 Rg8 4. bxc3 *",
     "all_moves": [
       {
@@ -205,21 +205,21 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1790407852083",
-    "next_solution_index": 6,
-    "next_player_index": 3,
-    "solved": false,
+    "next_solution_index": 7,
+    "next_player_index": 4,
+    "solved": true,
     "message_id": 1553345662760910948,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Fxg7",
+        "move": "Bxc3",
         "correct": true,
-        "timestamp": "2026-09-26T10:01:04.422913+00:00"
+        "timestamp": "2026-09-26T10:01:16.299226+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
     "first_move_user_name": "Thice",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
@@ -228,17 +228,17 @@
     },
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-09-26T10:01:04.422422+00:00",
+    "last_card_activity_at": "2026-09-26T10:01:16.298785+00:00",
     "recent_accepted_moves": [
       {
-        "accepted_at": 1790416864.422921,
-        "fen_before": "r1b1k2r/p3ppb1/n1pp1Pp1/7p/3P1B2/2q2N2/PPP2PPP/2KR1B1R w kq - 0 3",
+        "accepted_at": 1790416876.2992325,
+        "fen_before": "r1b1k1r1/p3ppP1/n1pp2p1/7p/3P1B2/2q2N2/PPP2PPP/2KR1B1R w q - 1 4",
         "expected": {
-          "uci": "f6g7",
-          "san": "fxg7",
+          "uci": "b2c3",
+          "san": "bxc3",
           "color": "white"
         },
-        "accepted_uci": "f6g7"
+        "accepted_uci": "b2c3"
       }
     ],
     "accepted_solution_moves": [
@@ -256,12 +256,20 @@
         "san": "fxg7",
         "uci": "f6g7",
         "principal": true
+      },
+      {
+        "san": "bxc3",
+        "uci": "b2c3",
+        "principal": true
       }
     ],
     "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Rg8",
     "wrong_attempt_counts": {
       "442597396195704832": 1
-    }
+    },
+    "activity_bonus_users": [
+      "442597396195704832"
+    ]
   },
   "lichess_rating_used": {
     "2000": [
