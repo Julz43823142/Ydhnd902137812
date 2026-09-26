@@ -351,7 +351,7 @@
     "386134006170910721": {
       "best_streak": 5,
       "correct": 18,
-      "current_streak": 1,
+      "current_streak": 0,
       "name": "Flash",
       "targets": {
         "chatter": {
@@ -449,19 +449,19 @@
           },
           "Thice": {
             "correct": 1,
-            "total": 1,
-            "wrong": 0
+            "total": 2,
+            "wrong": 1
           }
         }
       },
-      "total": 34,
-      "updated_at": 1790460688,
-      "wrong": 16
+      "total": 35,
+      "updated_at": 1790460829,
+      "wrong": 17
     },
     "442597396195704832": {
       "best_streak": 21,
-      "correct": 220,
-      "current_streak": 4,
+      "correct": 221,
+      "current_streak": 5,
       "name": "thice",
       "targets": {
         "chatter": {
@@ -613,14 +613,14 @@
             "wrong": 3
           },
           "Thice": {
-            "correct": 14,
-            "total": 18,
+            "correct": 15,
+            "total": 19,
             "wrong": 4
           }
         }
       },
-      "total": 339,
-      "updated_at": 1790460688,
+      "total": 340,
+      "updated_at": 1790460829,
       "wrong": 119
     },
     "550338389535227926": {
