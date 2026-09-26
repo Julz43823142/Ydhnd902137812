@@ -180,8 +180,8 @@
     },
     "362606514764251137": {
       "best_streak": 29,
-      "correct": 99,
-      "current_streak": 1,
+      "correct": 100,
+      "current_streak": 2,
       "name": "Sharkmeister",
       "targets": {
         "chatter": {
@@ -196,8 +196,8 @@
             "wrong": 0
           },
           "George": {
-            "correct": 6,
-            "total": 10,
+            "correct": 7,
+            "total": 11,
             "wrong": 4
           },
           "Jessebrawlstars": {
@@ -344,14 +344,33 @@
           }
         }
       },
-      "total": 151,
-      "updated_at": 1788884859,
+      "total": 152,
+      "updated_at": 1790457484,
       "wrong": 52
+    },
+    "386134006170910721": {
+      "best_streak": 1,
+      "correct": 1,
+      "current_streak": 1,
+      "name": "Flash",
+      "targets": {
+        "chatter": {
+          "George": {
+            "correct": 1,
+            "total": 1,
+            "wrong": 0
+          }
+        },
+        "chess": {}
+      },
+      "total": 1,
+      "updated_at": 1790457484,
+      "wrong": 0
     },
     "442597396195704832": {
       "best_streak": 21,
-      "correct": 198,
-      "current_streak": 2,
+      "correct": 199,
+      "current_streak": 3,
       "name": "thice",
       "targets": {
         "chatter": {
@@ -366,8 +385,8 @@
             "wrong": 0
           },
           "George": {
-            "correct": 7,
-            "total": 15,
+            "correct": 8,
+            "total": 16,
             "wrong": 8
           },
           "Jessebrawlstars": {
@@ -509,8 +528,8 @@
           }
         }
       },
-      "total": 304,
-      "updated_at": 1790457424,
+      "total": 305,
+      "updated_at": 1790457484,
       "wrong": 106
     },
     "550338389535227926": {
