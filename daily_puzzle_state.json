@@ -135,8 +135,8 @@
     "url": "https://www.chess.com/daily/2026-09-26",
     "title": "Choppy Waters",
     "fen": "r1b1k2r/p3ppb1/n1pp1np1/q3P2p/1p1P1B2/2N2N2/PPPQ1PPP/2KR1B1R w kq - 0 1",
-    "current_fen": "r1b1k2r/p3ppb1/n1pp1Pp1/q6p/3P1B2/2p2N2/PPPQ1PPP/2KR1B1R w kq - 0 2",
-    "last_move_uci": "b4c3",
+    "current_fen": "r1b1k2r/p3ppb1/n1pp1Pp1/7p/3P1B2/2q2N2/PPP2PPP/2KR1B1R w kq - 0 3",
+    "last_move_uci": "a5c3",
     "pgn": "[White \"Jeremy Kane\"]\n[Black \"Daily Puzzle Inspiration\"]\n[Result \"*\"]\n[FEN \"r1b1k2r/p3ppb1/n1pp1np1/q3P2p/1p1P1B2/2N2N2/PPPQ1PPP/2KR1B1R w kq - 0 1\"]\n\n1. exf6 bxc3 2. Qxc3 Qxc3 3. fxg7 Rg8 4. bxc3 *",
     "all_moves": [
       {
@@ -205,16 +205,16 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1790407852083",
-    "next_solution_index": 2,
-    "next_player_index": 1,
+    "next_solution_index": 4,
+    "next_player_index": 2,
     "solved": false,
-    "message_id": 1553345476500398121,
+    "message_id": 1553345592644735007,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Fxg7",
-        "correct": false,
-        "timestamp": "2026-09-26T10:00:31.725636+00:00"
+        "move": "Qxc3",
+        "correct": true,
+        "timestamp": "2026-09-26T10:00:48.582763+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
@@ -223,21 +223,37 @@
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1553345476500398121,
-      "1546557493038284840": 1553345482313437205
+      "1468320170891022417": 1553345592644735007,
+      "1546557493038284840": 1553345598156185660
     },
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-09-26T10:00:31.725164+00:00",
-    "recent_accepted_moves": [],
+    "last_card_activity_at": "2026-09-26T10:00:48.582418+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1790416848.582774,
+        "fen_before": "r1b1k2r/p3ppb1/n1pp1Pp1/q6p/3P1B2/2p2N2/PPPQ1PPP/2KR1B1R w kq - 0 2",
+        "expected": {
+          "uci": "d2c3",
+          "san": "Qxc3",
+          "color": "white"
+        },
+        "accepted_uci": "d2c3"
+      }
+    ],
     "accepted_solution_moves": [
       {
         "san": "exf6",
         "uci": "e5f6",
         "principal": true
+      },
+      {
+        "san": "Qxc3",
+        "uci": "d2c3",
+        "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 3 moves remaining.**\n↩️ **Opponent replies:** bxc3",
+    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Qxc3",
     "wrong_attempt_counts": {
       "442597396195704832": 1
     }
