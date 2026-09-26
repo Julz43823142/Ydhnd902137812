@@ -517,8 +517,8 @@
           },
           "Mr_thice": {
             "correct": 43,
-            "total": 46,
-            "wrong": 3
+            "total": 47,
+            "wrong": 4
           },
           "Nairyaaa": {
             "correct": 3,
@@ -629,9 +629,9 @@
           }
         }
       },
-      "total": 353,
-      "updated_at": 1790463194,
-      "wrong": 121
+      "total": 354,
+      "updated_at": 1790463682,
+      "wrong": 122
     },
     "550338389535227926": {
       "best_streak": 0,
