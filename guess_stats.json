@@ -180,8 +180,8 @@
     },
     "362606514764251137": {
       "best_streak": 29,
-      "correct": 100,
-      "current_streak": 0,
+      "correct": 101,
+      "current_streak": 1,
       "name": "Sharkmeister",
       "targets": {
         "chatter": {
@@ -323,8 +323,8 @@
             "wrong": 1
           },
           "Shark": {
-            "correct": 3,
-            "total": 3,
+            "correct": 4,
+            "total": 4,
             "wrong": 0
           },
           "Stepu": {
@@ -344,14 +344,14 @@
           }
         }
       },
-      "total": 153,
-      "updated_at": 1790457673,
+      "total": 154,
+      "updated_at": 1790457816,
       "wrong": 53
     },
     "386134006170910721": {
       "best_streak": 3,
       "correct": 3,
-      "current_streak": 3,
+      "current_streak": 0,
       "name": "Flash",
       "targets": {
         "chatter": {
@@ -367,6 +367,11 @@
           }
         },
         "chess": {
+          "Shark": {
+            "correct": 0,
+            "total": 1,
+            "wrong": 1
+          },
           "Stepu": {
             "correct": 1,
             "total": 1,
@@ -374,14 +379,14 @@
           }
         }
       },
-      "total": 3,
-      "updated_at": 1790457673,
-      "wrong": 0
+      "total": 4,
+      "updated_at": 1790457816,
+      "wrong": 1
     },
     "442597396195704832": {
       "best_streak": 21,
       "correct": 201,
-      "current_streak": 5,
+      "current_streak": 0,
       "name": "thice",
       "targets": {
         "chatter": {
@@ -519,8 +524,8 @@
           },
           "Shark": {
             "correct": 16,
-            "total": 18,
-            "wrong": 2
+            "total": 19,
+            "wrong": 3
           },
           "Stepu": {
             "correct": 8,
@@ -539,9 +544,9 @@
           }
         }
       },
-      "total": 307,
-      "updated_at": 1790457673,
-      "wrong": 106
+      "total": 308,
+      "updated_at": 1790457816,
+      "wrong": 107
     },
     "550338389535227926": {
       "best_streak": 0,
