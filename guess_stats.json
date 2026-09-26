@@ -351,13 +351,18 @@
     "386134006170910721": {
       "best_streak": 5,
       "correct": 22,
-      "current_streak": 1,
+      "current_streak": 0,
       "name": "Flash",
       "targets": {
         "chatter": {
           "George": {
             "correct": 1,
             "total": 2,
+            "wrong": 1
+          },
+          "Jessebrawlstars": {
+            "correct": 0,
+            "total": 1,
             "wrong": 1
           },
           "Martin": {
@@ -459,14 +464,14 @@
           }
         }
       },
-      "total": 42,
-      "updated_at": 1790461965,
-      "wrong": 20
+      "total": 43,
+      "updated_at": 1790462020,
+      "wrong": 21
     },
     "442597396195704832": {
       "best_streak": 21,
-      "correct": 227,
-      "current_streak": 11,
+      "correct": 228,
+      "current_streak": 12,
       "name": "thice",
       "targets": {
         "chatter": {
@@ -486,8 +491,8 @@
             "wrong": 9
           },
           "Jessebrawlstars": {
-            "correct": 3,
-            "total": 4,
+            "correct": 4,
+            "total": 5,
             "wrong": 1
           },
           "Kurupt": {
@@ -624,8 +629,8 @@
           }
         }
       },
-      "total": 346,
-      "updated_at": 1790461965,
+      "total": 347,
+      "updated_at": 1790462020,
       "wrong": 119
     },
     "550338389535227926": {
