@@ -350,8 +350,8 @@
     },
     "386134006170910721": {
       "best_streak": 3,
-      "correct": 4,
-      "current_streak": 1,
+      "correct": 5,
+      "current_streak": 2,
       "name": "Flash",
       "targets": {
         "chatter": {
@@ -377,6 +377,11 @@
             "total": 1,
             "wrong": 1
           },
+          "Pospos": {
+            "correct": 1,
+            "total": 1,
+            "wrong": 0
+          },
           "Shark": {
             "correct": 0,
             "total": 1,
@@ -389,14 +394,14 @@
           }
         }
       },
-      "total": 7,
-      "updated_at": 1790458104,
+      "total": 8,
+      "updated_at": 1790458216,
       "wrong": 3
     },
     "442597396195704832": {
       "best_streak": 21,
-      "correct": 203,
-      "current_streak": 2,
+      "correct": 204,
+      "current_streak": 3,
       "name": "thice",
       "targets": {
         "chatter": {
@@ -528,8 +533,8 @@
             "wrong": 4
           },
           "Pospos": {
-            "correct": 9,
-            "total": 13,
+            "correct": 10,
+            "total": 14,
             "wrong": 4
           },
           "Shark": {
@@ -554,8 +559,8 @@
           }
         }
       },
-      "total": 311,
-      "updated_at": 1790458104,
+      "total": 312,
+      "updated_at": 1790458216,
       "wrong": 108
     },
     "550338389535227926": {

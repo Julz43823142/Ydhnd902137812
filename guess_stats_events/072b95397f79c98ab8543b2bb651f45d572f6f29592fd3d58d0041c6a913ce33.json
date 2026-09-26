@@ -1,0 +1,13 @@
+{
+  "correct": true,
+  "created_at": 1790458216,
+  "display_name": "Flash",
+  "poll_message_id": "1553518687829491834",
+  "source": "guess-chess-chatter",
+  "source_key": "chess",
+  "stats_build": "guess-stats-v2-streaks-nemesis-2026-09-04",
+  "streak_after": 2,
+  "target_name": "Pospos",
+  "transaction_id": "guess-stats:1553518687829491834:386134006170910721",
+  "user_id": "386134006170910721"
+}
