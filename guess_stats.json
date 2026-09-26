@@ -384,6 +384,11 @@
             "correct": 1,
             "total": 1,
             "wrong": 0
+          },
+          "Thejazzdude": {
+            "correct": 0,
+            "total": 1,
+            "wrong": 1
           }
         },
         "chess": {
@@ -429,9 +434,9 @@
           }
         }
       },
-      "total": 18,
-      "updated_at": 1790459098,
-      "wrong": 9
+      "total": 19,
+      "updated_at": 1790459122,
+      "wrong": 10
     },
     "442597396195704832": {
       "best_streak": 21,
@@ -532,8 +537,8 @@
           },
           "Thejazzdude": {
             "correct": 1,
-            "total": 2,
-            "wrong": 1
+            "total": 3,
+            "wrong": 2
           }
         },
         "chess": {
@@ -594,9 +599,9 @@
           }
         }
       },
-      "total": 322,
-      "updated_at": 1790459098,
-      "wrong": 114
+      "total": 323,
+      "updated_at": 1790459122,
+      "wrong": 115
     },
     "550338389535227926": {
       "best_streak": 0,
