@@ -53,7 +53,7 @@
     "player_color": "black",
     "player_move_count": 3,
     "posted_at": "2026-09-26T21:28:22.266340+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -69,9 +69,9 @@
     "next_player_index": 2,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1553519132115472425
+      "1468320170891022417": 1553519197475053629
     },
-    "message_id": 1553519132115472425,
+    "message_id": 1553519197475053629,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
@@ -101,13 +101,13 @@
         "principal": true
       }
     ],
-    "last_feedback": "❌ **Nope, Chessmass — that was a very human move.**\n↪️ **Move played:** `Rd3`",
+    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Rxd2 bxa6 R2d3",
     "wrong_attempt_counts": {
       "1310661840707129370": 3
     },
     "last_manual_bump": 1790458223.894727
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-26",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-26",
