@@ -227,8 +227,8 @@
           },
           "Mr_thice": {
             "correct": 12,
-            "total": 16,
-            "wrong": 4
+            "total": 17,
+            "wrong": 5
           },
           "Nairyaaa": {
             "correct": 3,
@@ -344,18 +344,23 @@
           }
         }
       },
-      "total": 155,
-      "updated_at": 1790457914,
-      "wrong": 54
+      "total": 156,
+      "updated_at": 1790458265,
+      "wrong": 55
     },
     "386134006170910721": {
       "best_streak": 3,
-      "correct": 5,
-      "current_streak": 2,
+      "correct": 6,
+      "current_streak": 3,
       "name": "Flash",
       "targets": {
         "chatter": {
           "George": {
+            "correct": 1,
+            "total": 1,
+            "wrong": 0
+          },
+          "Mr_thice": {
             "correct": 1,
             "total": 1,
             "wrong": 0
@@ -394,14 +399,14 @@
           }
         }
       },
-      "total": 8,
-      "updated_at": 1790458216,
+      "total": 9,
+      "updated_at": 1790458265,
       "wrong": 3
     },
     "442597396195704832": {
       "best_streak": 21,
-      "correct": 204,
-      "current_streak": 3,
+      "correct": 205,
+      "current_streak": 4,
       "name": "thice",
       "targets": {
         "chatter": {
@@ -446,8 +451,8 @@
             "wrong": 2
           },
           "Mr_thice": {
-            "correct": 34,
-            "total": 36,
+            "correct": 35,
+            "total": 37,
             "wrong": 2
           },
           "Nairyaaa": {
@@ -559,8 +564,8 @@
           }
         }
       },
-      "total": 312,
-      "updated_at": 1790458216,
+      "total": 313,
+      "updated_at": 1790458265,
       "wrong": 108
     },
     "550338389535227926": {
