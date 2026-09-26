@@ -349,9 +349,9 @@
       "wrong": 52
     },
     "386134006170910721": {
-      "best_streak": 1,
-      "correct": 1,
-      "current_streak": 1,
+      "best_streak": 2,
+      "correct": 2,
+      "current_streak": 2,
       "name": "Flash",
       "targets": {
         "chatter": {
@@ -361,16 +361,22 @@
             "wrong": 0
           }
         },
-        "chess": {}
+        "chess": {
+          "Stepu": {
+            "correct": 1,
+            "total": 1,
+            "wrong": 0
+          }
+        }
       },
-      "total": 1,
-      "updated_at": 1790457484,
+      "total": 2,
+      "updated_at": 1790457580,
       "wrong": 0
     },
     "442597396195704832": {
       "best_streak": 21,
-      "correct": 199,
-      "current_streak": 3,
+      "correct": 200,
+      "current_streak": 4,
       "name": "thice",
       "targets": {
         "chatter": {
@@ -512,8 +518,8 @@
             "wrong": 2
           },
           "Stepu": {
-            "correct": 7,
-            "total": 11,
+            "correct": 8,
+            "total": 12,
             "wrong": 4
           },
           "Sushi": {
@@ -528,8 +534,8 @@
           }
         }
       },
-      "total": 305,
-      "updated_at": 1790457484,
+      "total": 306,
+      "updated_at": 1790457580,
       "wrong": 106
     },
     "550338389535227926": {
