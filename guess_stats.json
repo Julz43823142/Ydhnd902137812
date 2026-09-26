@@ -180,8 +180,8 @@
     },
     "362606514764251137": {
       "best_streak": 29,
-      "correct": 101,
-      "current_streak": 0,
+      "correct": 102,
+      "current_streak": 1,
       "name": "Sharkmeister",
       "targets": {
         "chatter": {
@@ -293,8 +293,8 @@
             "wrong": 0
           },
           "Jesse": {
-            "correct": 0,
-            "total": 1,
+            "correct": 1,
+            "total": 2,
             "wrong": 1
           },
           "Lars": {
@@ -344,14 +344,14 @@
           }
         }
       },
-      "total": 156,
-      "updated_at": 1790458265,
+      "total": 157,
+      "updated_at": 1790458365,
       "wrong": 55
     },
     "386134006170910721": {
-      "best_streak": 3,
-      "correct": 6,
-      "current_streak": 3,
+      "best_streak": 4,
+      "correct": 7,
+      "current_streak": 4,
       "name": "Flash",
       "targets": {
         "chatter": {
@@ -382,6 +382,11 @@
             "total": 1,
             "wrong": 1
           },
+          "Jesse": {
+            "correct": 1,
+            "total": 1,
+            "wrong": 0
+          },
           "Pospos": {
             "correct": 1,
             "total": 1,
@@ -399,14 +404,14 @@
           }
         }
       },
-      "total": 9,
-      "updated_at": 1790458265,
+      "total": 10,
+      "updated_at": 1790458365,
       "wrong": 3
     },
     "442597396195704832": {
       "best_streak": 21,
-      "correct": 205,
-      "current_streak": 4,
+      "correct": 206,
+      "current_streak": 5,
       "name": "thice",
       "targets": {
         "chatter": {
@@ -513,8 +518,8 @@
             "wrong": 4
           },
           "Jesse": {
-            "correct": 4,
-            "total": 9,
+            "correct": 5,
+            "total": 10,
             "wrong": 5
           },
           "Lars": {
@@ -564,8 +569,8 @@
           }
         }
       },
-      "total": 313,
-      "updated_at": 1790458265,
+      "total": 314,
+      "updated_at": 1790458365,
       "wrong": 108
     },
     "550338389535227926": {
