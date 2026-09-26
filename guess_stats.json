@@ -360,6 +360,11 @@
             "total": 2,
             "wrong": 1
           },
+          "Mohammad": {
+            "correct": 0,
+            "total": 1,
+            "wrong": 1
+          },
           "Mr_thice": {
             "correct": 2,
             "total": 2,
@@ -424,9 +429,9 @@
           }
         }
       },
-      "total": 16,
-      "updated_at": 1790458822,
-      "wrong": 7
+      "total": 17,
+      "updated_at": 1790458869,
+      "wrong": 8
     },
     "442597396195704832": {
       "best_streak": 21,
@@ -472,8 +477,8 @@
           },
           "Mohammad": {
             "correct": 1,
-            "total": 3,
-            "wrong": 2
+            "total": 4,
+            "wrong": 3
           },
           "Mr_thice": {
             "correct": 36,
@@ -589,9 +594,9 @@
           }
         }
       },
-      "total": 320,
-      "updated_at": 1790458822,
-      "wrong": 112
+      "total": 321,
+      "updated_at": 1790458869,
+      "wrong": 113
     },
     "550338389535227926": {
       "best_streak": 0,
