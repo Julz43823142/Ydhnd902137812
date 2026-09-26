@@ -350,8 +350,8 @@
     },
     "386134006170910721": {
       "best_streak": 5,
-      "correct": 19,
-      "current_streak": 1,
+      "correct": 20,
+      "current_streak": 2,
       "name": "Flash",
       "targets": {
         "chatter": {
@@ -403,8 +403,8 @@
         },
         "chess": {
           "Adelson": {
-            "correct": 0,
-            "total": 2,
+            "correct": 1,
+            "total": 3,
             "wrong": 2
           },
           "Jesse": {
@@ -454,14 +454,14 @@
           }
         }
       },
-      "total": 36,
-      "updated_at": 1790460912,
+      "total": 37,
+      "updated_at": 1790461017,
       "wrong": 17
     },
     "442597396195704832": {
       "best_streak": 21,
-      "correct": 222,
-      "current_streak": 6,
+      "correct": 223,
+      "current_streak": 7,
       "name": "thice",
       "targets": {
         "chatter": {
@@ -563,8 +563,8 @@
         },
         "chess": {
           "Adelson": {
-            "correct": 6,
-            "total": 11,
+            "correct": 7,
+            "total": 12,
             "wrong": 5
           },
           "Jesse": {
@@ -619,8 +619,8 @@
           }
         }
       },
-      "total": 341,
-      "updated_at": 1790460912,
+      "total": 342,
+      "updated_at": 1790461017,
       "wrong": 119
     },
     "550338389535227926": {
