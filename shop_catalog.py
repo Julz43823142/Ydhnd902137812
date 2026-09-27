@@ -37,7 +37,7 @@ def is_twitch_channel_point_cosmetic(kind, name):
 PROFILE_THEMES = {
     # Free/default profile.
     "classic": {"label": "Classic", "embed_color": 0x4DD6B6, "command": "classic"},
-    "purple": {"label": "Purple", "embed_color": 0x8E44AD, "command": "purple"},
+    "purple": {"label": "Twitch", "embed_color": 0x9146FF, "command": "twitch"},
 
     # Original Shark Bot themes.
     "galaxy": {"label": "Galaxy", "embed_color": 0x8E5BFF, "command": "galaxy"},
@@ -272,6 +272,7 @@ BOARD_THEMES = {'classic': ('#f0d9b5', '#b58863'),
 BOARD_DISPLAY_NAMES = {
     "chesscom": "Chess.com",
     **{name: name.title() for name in BOARD_THEMES if name != "chesscom"},
+    "purple": "Twitch",
 }
 
 
@@ -283,17 +284,12 @@ BADGE_RARITY_BY_VALUE = {
 }
 
 PIECE_SETS = {'classic': {'label': 'Classic', 'shape': 'classic'},
- 'purple': {'label': 'Purple',
-            'shape': 'glyph',
-            'glyph_variant': 'native',
-            'white_fill': '#F0D9FF',
-            'black_fill': '#6D28D9',
-            'white_stroke': '#5B21B6',
-            'black_stroke': '#F3E8FF',
-            'font_family': 'DejaVu Sans',
-            'font_size': 40,
-            'font_weight': 700,
-            'stroke_width': 1.1},
+ 'purple': {'label': 'Twitch',
+            'shape': 'figurine',
+            'white_fill': '#FBF7FF',
+            'black_fill': '#7C3AED',
+            'white_stroke': '#6D28D9',
+            'black_stroke': '#F5EFFF'},
  'chessnut': {'label': 'Chessnut', 'shape': 'svg'},
  'rhosgfx': {'label': 'RhosGFX', 'shape': 'svg'},
  'fantasy': {'label': 'Fantasy', 'shape': 'svg'},
@@ -319,7 +315,7 @@ def canonical_piece_set(name):
     key = str(name or "classic").casefold().strip()
     if key in PIECE_SETS:
         return key
-    aliases = {"freak":"gambit", "merida":"kaneo", "meridian":"wood3d", "staunton":"chessnut", "shapes":"rhosgfx", "modern":"chessnut", "royal":"rhosgfx", "mono":"rhosgfx",
+    aliases = {"twitch":"purple", "freak":"gambit", "merida":"kaneo", "meridian":"wood3d", "staunton":"chessnut", "shapes":"rhosgfx", "modern":"chessnut", "royal":"rhosgfx", "mono":"rhosgfx",
                "slim":"rhosgfx", "bold":"rhosgfx", "outline":"rhosgfx",
                "figurine":"chessnut", "monogram":"rhosgfx"}
     if key in aliases:
@@ -342,7 +338,7 @@ ARROW_COLORS = {
     "blue": {"label": "Blue", "hex": "#2980B9"},
     "yellow": {"label": "Yellow", "hex": "#F1C40F"},
     "orange": {"label": "Orange", "hex": "#E67E22"},
-    "purple": {"label": "Purple", "hex": "#8E44AD"},
+    "purple": {"label": "Twitch", "hex": "#9146FF"},
     "cyan": {"label": "Cyan", "hex": "#00A8C6"},
     "pink": {"label": "Pink", "hex": "#E84393"},
     "gold": {"label": "Gold", "hex": "#D4AC0D"},
@@ -365,7 +361,7 @@ NAME_COLORS = {
     "yellow": {"label": "Yellow", "discord_color": 0xD4AC0D},
     "orange": {"label": "Orange", "discord_color": 0xD35400},
     "green": {"label": "Green", "discord_color": 0x239B56},
-    "purple": {"label": "Purple", "discord_color": 0x8E44AD},
+    "purple": {"label": "Twitch", "discord_color": 0x9146FF},
     "cyan": {"label": "Cyan", "discord_color": 0x17A2B8},
     "gold": {"label": "Gold", "discord_color": 0xB7950B},
     "gray": {"label": "Gray", "discord_color": 0x7F8C8D},
