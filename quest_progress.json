@@ -602,9 +602,10 @@
           "name": "Thice",
           "paid": [],
           "progress": {
+            "daily:2026-09-27:challenge:rush-full-1": 1,
             "daily:2026-09-27:puzzle:solve-8": 1
           },
-          "updated_at": 1790508417
+          "updated_at": 1790509711
         }
       }
     },
@@ -707,11 +708,11 @@
           "name": "Thice",
           "paid": [],
           "progress": {
-            "weekly:2026-09-21:challenge:rush-full-2": 1,
+            "weekly:2026-09-21:challenge:rush-full-2": 2,
             "weekly:2026-09-21:minigame:minigame-8": 3,
             "weekly:2026-09-21:puzzle:solve-25": 23
           },
-          "updated_at": 1790508417
+          "updated_at": 1790509711
         },
         "601406103712170014": {
           "name": "TheMakina",
