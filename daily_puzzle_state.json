@@ -2637,64 +2637,112 @@
       "run_id": "rush:442597396195704832:1790509070524",
       "end_at": 1790509370.5240996,
       "score": 13,
-      "wrong": 0,
-      "mistakes": [],
+      "wrong": 1,
+      "mistakes": [
+        {
+          "puzzle_number": 14,
+          "submitted": "re4",
+          "correct": "Ke4",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_5zhC6_1790509235742",
+            "fen": "8/8/8/4k3/8/2K2R2/1P2rp2/8 b - - 5 63",
+            "current_fen": "8/8/8/4k3/8/2K2R2/1P2rp2/8 b - - 5 63",
+            "last_move_uci": "f4f3",
+            "player_color": "black",
+            "rating": 1706,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1790509240.4317553
+        }
+      ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/5zhC6",
-        "title": "Lichess • 1706",
-        "fen": "8/8/8/4k3/8/2K2R2/1P2rp2/8 b - - 5 63",
-        "current_fen": "8/8/8/4k3/8/2K2R2/1P2rp2/8 b - - 5 63",
-        "last_move_uci": "f4f3",
-        "pgn": "Ke4 Rxf2 Rxf2",
+        "url": "https://lichess.org/training/sCWif",
+        "title": "Lichess • 1761",
+        "fen": "rn1r4/1p2b1Q1/4k3/p3p3/P1q5/2Pb1P2/1P4PP/R3R1K1 w - - 0 25",
+        "current_fen": "rn1r4/1p2b1Q1/4k3/p3p3/P1q5/2Pb1P2/1P4PP/R3R1K1 w - - 0 25",
+        "last_move_uci": "f6e5",
+        "pgn": "Rxe5+ Kd7 Qxe7+ Kc8 Rc5+ Nc6 Rxc4",
         "all_moves": [
           {
-            "uci": "e5e4",
-            "san": "Ke4",
-            "color": "black"
-          },
-          {
-            "uci": "f3f2",
-            "san": "Rxf2",
+            "uci": "e1e5",
+            "san": "Rxe5+",
             "color": "white"
           },
           {
-            "uci": "e2f2",
-            "san": "Rxf2",
+            "uci": "e6d7",
+            "san": "Kd7",
             "color": "black"
+          },
+          {
+            "uci": "g7e7",
+            "san": "Qxe7+",
+            "color": "white"
+          },
+          {
+            "uci": "d7c8",
+            "san": "Kc8",
+            "color": "black"
+          },
+          {
+            "uci": "e5c5",
+            "san": "Rc5+",
+            "color": "white"
+          },
+          {
+            "uci": "b8c6",
+            "san": "Nc6",
+            "color": "black"
+          },
+          {
+            "uci": "c5c4",
+            "san": "Rxc4",
+            "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "e5e4",
-            "san": "Ke4",
-            "color": "black"
+            "uci": "e1e5",
+            "san": "Rxe5+",
+            "color": "white"
           },
           {
-            "uci": "e2f2",
-            "san": "Rxf2",
-            "color": "black"
+            "uci": "g7e7",
+            "san": "Qxe7+",
+            "color": "white"
+          },
+          {
+            "uci": "e5c5",
+            "san": "Rc5+",
+            "color": "white"
+          },
+          {
+            "uci": "c5c4",
+            "san": "Rxc4",
+            "color": "white"
           }
         ],
-        "player_color": "black",
-        "player_move_count": 2,
-        "posted_at": "2026-09-27T11:40:35.742543+00:00",
+        "player_color": "white",
+        "player_move_count": 4,
+        "posted_at": "2026-09-27T11:40:40.437442+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_5zhC6_1790509235742",
-        "rating": 1706,
+        "puzzle_id": "practice_rush_442597396195704832_sCWif_1790509240437",
+        "rating": 1761,
         "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1553733079216947313,
+      "message_id": 1553733092412235933,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790509235.736852,
-      "last_feedback": "✅ **Rxd7** — solved! Score: **13**."
+      "last_card_activity_at": 1790509240.4314754,
+      "last_feedback": "❌ **re4** was wrong. Correct move: **Ke4**."
     },
     "362606514764251137": {
       "active": false,
