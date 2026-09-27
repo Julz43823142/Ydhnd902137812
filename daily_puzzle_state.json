@@ -168,7 +168,7 @@
     "player_color": "black",
     "player_move_count": 4,
     "posted_at": "2026-09-27T07:37:28.783788+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -176,7 +176,7 @@
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_id": 1553671909823217684,
+    "message_id": 1553853131262001254,
     "attempted_users": {
       "362606514764251137": {
         "name": "Sharkmeister",
@@ -191,8 +191,8 @@
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1553671909823217684,
-      "1546557493038284840": 1553671920476626976
+      "1468320170891022417": 1553853131262001254,
+      "1546557493038284840": 1553853136085717206
     },
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
@@ -200,7 +200,8 @@
     "recent_accepted_moves": [],
     "wrong_attempt_counts": {
       "362606514764251137": 1
-    }
+    },
+    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Rg2 Qh4+ Qh1+ Qxf1#"
   },
   "lichess_rating_used": {
     "2000": [
