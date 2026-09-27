@@ -1,0 +1,14 @@
+{
+  "after_coins": 0.0,
+  "before_coins": 0.0,
+  "created_at": 1790540452,
+  "created_at_ns": 1790540452658270193,
+  "details": {
+    "board": "classic"
+  },
+  "display_name": "Punjisticker",
+  "ledger_build": "shared-ledger-v15-twitch-privacy-2026-09-27",
+  "operation": "equip-board",
+  "transaction_id": "profile-button-boards:1553864021856231444:1045034833639919707:classic",
+  "user_id": "1045034833639919707"
+}
