@@ -3649,7 +3649,7 @@
   },
   "channel_puzzle_state": {
     "1546557493038284840": {
-      "latest_puzzle_type": "random",
+      "latest_puzzle_type": "daily",
       "latest_random_puzzle": {
         "url": "https://lichess.org/training/HTOnC",
         "title": "Lichess • 1703",
@@ -3704,7 +3704,7 @@
         "player_color": "black",
         "player_move_count": 3,
         "posted_at": "2026-09-27T14:10:17.698069+00:00",
-        "answer_posted": false,
+        "answer_posted": true,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
@@ -3731,7 +3731,11 @@
         "first_move_awarded": false,
         "helper_awarded_users": [],
         "helper_candidate_users": [],
-        "channel_id": 1546557493038284840
+        "channel_id": 1546557493038284840,
+        "message_ids": {
+          "1546557493038284840": 1553770772248526848
+        },
+        "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Kg5 f5 Kxf5"
       }
     }
   },
