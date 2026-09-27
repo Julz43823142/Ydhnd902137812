@@ -29,6 +29,10 @@ from shared_leaderboard import (
     equip_color,
     buy_profile_theme,
     equip_profile_theme,
+    equip_survival_heart_style,
+    link_twitch_account,
+    discord_user_for_twitch,
+    grant_twitch_cosmetic,
     transfer_coins,
     transfer_badge,
     reserve_chess_wager as shared_reserve_chess_wager,
@@ -54,11 +58,14 @@ from shop_catalog import (
     ARROW_COST, ARROW_COLORS, DEFAULT_ARROW_COLOR,
     COLOR_COST, NAME_COLORS, SHOP_COLOR_ROLE_PREFIX, SURVIVAL_HEART_COST,
     PROFILE_THEME_COST, PROFILE_THEMES, profile_theme_cost,
+    SURVIVAL_HEART_STYLES, canonical_survival_heart_style,
     twitch_channel_point_cost, is_twitch_channel_point_cosmetic,
 )
 import os
 import re
 import requests
+import aiohttp
+from cryptography.fernet import Fernet, InvalidToken
 import chess
 import chess.svg
 import chess.pgn
@@ -351,6 +358,50 @@ RP_BANDS = (
 BOSS_PUZZLE_CHANCE = 0.05
 BOSS_RP_BAND_INDEX = len(RP_BANDS) - 1
 SHARKMEISTER_DEFAULT_USER_ID = "362606514764251137"
+
+# Twitch Channel Points -> Discord cosmetic bridge. Secrets are injected by
+# GitHub Actions and are never stored in source control. The current rotating
+# Device Code refresh token is encrypted into Daily state after each refresh so
+# GitHub-hosted worker restarts remain unattended.
+TWITCH_EVENTSUB_ENABLED = os.getenv("TWITCH_EVENTSUB_ENABLED", "0").strip() == "1"
+TWITCH_CLIENT_ID = os.getenv("TWITCH_CLIENT_ID", "").strip()
+TWITCH_CLIENT_SECRET = os.getenv("TWITCH_CLIENT_SECRET", "").strip()
+TWITCH_BROADCASTER_ID = os.getenv("TWITCH_BROADCASTER_ID", "").strip()
+TWITCH_ACCESS_TOKEN_BOOTSTRAP = os.getenv("TWITCH_ACCESS_TOKEN", "").strip()
+TWITCH_REFRESH_TOKEN_BOOTSTRAP = os.getenv("TWITCH_REFRESH_TOKEN", "").strip()
+TWITCH_EVENTSUB_URL = "wss://eventsub.wss.twitch.tv/ws?keepalive_timeout_seconds=30"
+TWITCH_OAUTH_STATE_KEY = "twitch_oauth_v1"
+TWITCH_PENDING_STATE_KEY = "twitch_pending_redemptions_v1"
+TWITCH_REWARD_CONFIG = {
+    # Current Twitch reward titles.
+    "unlock discord arrow": {"key": "arrow", "label": "Twitch Arrow", "points": 5000},
+    "unlock discord board": {"key": "board", "label": "Twitch Board", "points": 5000},
+    "unlock discord survival hearts": {"key": "survival_hearts", "label": "Twitch Survival Hearts", "points": 5000},
+    "unlock discord profile theme": {"key": "profile_theme", "label": "Twitch Profile Theme", "points": 10000},
+    "unlock discord pieces": {"key": "pieces", "label": "Twitch Pieces", "points": 10000},
+    "unlock discord name color": {"key": "name", "label": "Twitch Name Color", "points": 20000},
+
+    # Backwards-compatible aliases. Keeping these means an older reward title
+    # still works if Twitch has not been renamed yet.
+    "unlock discord twitch arrow": {"key": "arrow", "label": "Twitch Arrow", "points": 5000},
+    "unlock discord twitch board": {"key": "board", "label": "Twitch Board", "points": 5000},
+    "unlock discord twitch survival hearts": {"key": "survival_hearts", "label": "Twitch Survival Hearts", "points": 5000},
+    "unlock discord twitch profile theme": {"key": "profile_theme", "label": "Twitch Profile Theme", "points": 10000},
+    "unlock discord twitch pieces": {"key": "pieces", "label": "Twitch Pieces", "points": 10000},
+    "unlock discord twitch name": {"key": "name", "label": "Twitch Name Color", "points": 20000},
+    "unlock twitch arrow": {"key": "arrow", "label": "Twitch Arrow", "points": 5000},
+    "unlock twitch board": {"key": "board", "label": "Twitch Board", "points": 5000},
+    "unlock twitch survival hearts": {"key": "survival_hearts", "label": "Twitch Survival Hearts", "points": 5000},
+    "unlock twitch profile theme": {"key": "profile_theme", "label": "Twitch Profile Theme", "points": 10000},
+    "unlock twitch pieces": {"key": "pieces", "label": "Twitch Pieces", "points": 10000},
+    "unlock twitch name": {"key": "name", "label": "Twitch Name Color", "points": 20000},
+}
+_twitch_access_token = TWITCH_ACCESS_TOKEN_BOOTSTRAP
+_twitch_refresh_token = TWITCH_REFRESH_TOKEN_BOOTSTRAP
+_twitch_refresh_lock = None
+_twitch_eventsub_task = None
+_twitch_seen_message_ids = set()
+_twitch_seen_message_order = []
 
 STATE_FILE = "daily_puzzle_state.json"
 LEADERBOARD_FILE = "daily_puzzle_leaderboard.json"
@@ -1240,6 +1291,655 @@ async def save_all_critical(attempts=3):
             await asyncio.sleep(0.75 * attempt)
     return False
 
+
+# =========================================================
+# TWITCH CHANNEL POINTS -> DISCORD COSMETICS
+# =========================================================
+
+def _twitch_normalize_reward_title(value):
+    return " ".join(str(value or "").casefold().split())
+
+
+def _twitch_pending_state():
+    bucket = state.setdefault(TWITCH_PENDING_STATE_KEY, {})
+    if not isinstance(bucket, dict):
+        bucket = {}
+        state[TWITCH_PENDING_STATE_KEY] = bucket
+    return bucket
+
+
+def _twitch_oauth_state():
+    bucket = state.setdefault(TWITCH_OAUTH_STATE_KEY, {})
+    if not isinstance(bucket, dict):
+        bucket = {}
+        state[TWITCH_OAUTH_STATE_KEY] = bucket
+    return bucket
+
+
+def _twitch_fernet():
+    if not TWITCH_CLIENT_SECRET:
+        raise RuntimeError("TWITCH_CLIENT_SECRET is missing.")
+    key = base64.urlsafe_b64encode(
+        hashlib.sha256(TWITCH_CLIENT_SECRET.encode("utf-8")).digest()
+    )
+    return Fernet(key)
+
+
+def _twitch_encrypt(value):
+    value = str(value or "")
+    if not value:
+        return ""
+    return _twitch_fernet().encrypt(value.encode("utf-8")).decode("ascii")
+
+
+def _twitch_decrypt(value):
+    value = str(value or "")
+    if not value:
+        return ""
+    try:
+        return _twitch_fernet().decrypt(value.encode("ascii")).decode("utf-8")
+    except (InvalidToken, ValueError, TypeError):
+        return ""
+
+
+def _twitch_current_refresh_token():
+    persisted = _twitch_decrypt(_twitch_oauth_state().get("refresh_token_enc", ""))
+    return persisted or _twitch_refresh_token or TWITCH_REFRESH_TOKEN_BOOTSTRAP
+
+
+def _twitch_trim_pending():
+    pending = _twitch_pending_state()
+    if len(pending) <= 250:
+        return
+    terminal = {"processed", "rejected", "already_owned"}
+    rows = sorted(
+        pending.items(),
+        key=lambda row: int((row[1] or {}).get("updated_at", (row[1] or {}).get("created_at", 0)) or 0),
+    )
+    for redemption_id, item in rows:
+        if len(pending) <= 180:
+            break
+        if isinstance(item, dict) and item.get("status") in terminal:
+            pending.pop(redemption_id, None)
+
+
+def _twitch_validate_access_token_sync(token):
+    if not token:
+        return None
+    response = requests.get(
+        "https://id.twitch.tv/oauth2/validate",
+        headers={"Authorization": f"OAuth {token}"},
+        timeout=15,
+    )
+    if response.status_code != 200:
+        return None
+    data = response.json()
+    scopes = {str(item) for item in data.get("scopes", [])}
+    if "channel:read:redemptions" not in scopes:
+        return None
+    if TWITCH_BROADCASTER_ID and str(data.get("user_id", "")) != TWITCH_BROADCASTER_ID:
+        return None
+    return data
+
+
+def _twitch_refresh_sync(refresh_token):
+    payload = {
+        "grant_type": "refresh_token",
+        "refresh_token": str(refresh_token),
+        "client_id": TWITCH_CLIENT_ID,
+    }
+    if TWITCH_CLIENT_SECRET:
+        payload["client_secret"] = TWITCH_CLIENT_SECRET
+    response = requests.post(
+        "https://id.twitch.tv/oauth2/token",
+        data=payload,
+        timeout=20,
+    )
+    if response.status_code != 200:
+        raise RuntimeError(
+            f"Twitch token refresh failed (HTTP {response.status_code}): "
+            f"{str(response.text)[:300]}"
+        )
+    data = response.json()
+    access = str(data.get("access_token", "") or "")
+    refresh = str(data.get("refresh_token", "") or "")
+    if not access or not refresh:
+        raise RuntimeError("Twitch refresh response did not contain both tokens.")
+    return access, refresh
+
+
+async def _twitch_owner_notice(text):
+    try:
+        owner = client.get_user(int(SHARKMEISTER_DEFAULT_USER_ID))
+        if owner is None:
+            owner = await client.fetch_user(int(SHARKMEISTER_DEFAULT_USER_ID))
+        await owner.send(str(text)[:1900])
+    except Exception as error:
+        print(f"Twitch owner notice failed: {error}", flush=True)
+
+
+async def _twitch_refresh_access_token(reason="startup"):
+    global _twitch_access_token, _twitch_refresh_token, _twitch_refresh_lock
+    if _twitch_refresh_lock is None:
+        _twitch_refresh_lock = asyncio.Lock()
+
+    async with _twitch_refresh_lock:
+        refresh = _twitch_current_refresh_token()
+        if not refresh:
+            raise RuntimeError("TWITCH_REFRESH_TOKEN is missing and no persisted Twitch refresh token exists.")
+
+        try:
+            access, next_refresh = await asyncio.to_thread(_twitch_refresh_sync, refresh)
+        except Exception:
+            # Bootstrap access token can keep the very first worker alive if a
+            # transient refresh attempt fails. It is never persisted.
+            fallback = _twitch_access_token or TWITCH_ACCESS_TOKEN_BOOTSTRAP
+            valid = await asyncio.to_thread(_twitch_validate_access_token_sync, fallback)
+            if valid:
+                _twitch_access_token = fallback
+                return fallback
+            raise
+
+        _twitch_access_token = access
+        _twitch_refresh_token = next_refresh
+        oauth = _twitch_oauth_state()
+        oauth["refresh_token_enc"] = _twitch_encrypt(next_refresh)
+        oauth["updated_at"] = int(time.time())
+        oauth["reason"] = str(reason)
+
+        # Device Code refresh tokens are one-use. Persist the replacement
+        # immediately before relying on it for the next GitHub worker.
+        saved = await save_all_critical(attempts=5)
+        if not saved:
+            await _twitch_owner_notice(
+                "⚠️ Twitch OAuth refreshed, but the replacement refresh token could not be synced to GitHub state. "
+                "Do not restart the Daily Puzzle worker until this is checked."
+            )
+        return access
+
+
+async def _twitch_prepare_access_token():
+    if not TWITCH_EVENTSUB_ENABLED:
+        return ""
+    missing = []
+    if not TWITCH_CLIENT_ID:
+        missing.append("TWITCH_CLIENT_ID")
+    if not TWITCH_BROADCASTER_ID:
+        missing.append("TWITCH_BROADCASTER_ID")
+    if not TWITCH_CLIENT_SECRET:
+        missing.append("TWITCH_CLIENT_SECRET")
+    if missing:
+        raise RuntimeError("Missing Twitch configuration: " + ", ".join(missing))
+
+    # Always exchange the latest persisted/bootstrapped refresh token at worker
+    # startup. This makes the 4-hour Twitch access-token lifetime irrelevant to
+    # GitHub Actions rotations and immediately moves the one-use DCF refresh
+    # token into encrypted repository state.
+    return await _twitch_refresh_access_token("worker-start")
+
+
+async def _twitch_create_subscription(session_id):
+    token = _twitch_access_token or await _twitch_prepare_access_token()
+    payload = {
+        "type": "channel.channel_points_custom_reward_redemption.add",
+        "version": "1",
+        "condition": {"broadcaster_user_id": TWITCH_BROADCASTER_ID},
+        "transport": {"method": "websocket", "session_id": str(session_id)},
+    }
+    for attempt in range(2):
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                "https://api.twitch.tv/helix/eventsub/subscriptions",
+                headers={
+                    "Authorization": f"Bearer {token}",
+                    "Client-Id": TWITCH_CLIENT_ID,
+                    "Content-Type": "application/json",
+                },
+                json=payload,
+                timeout=aiohttp.ClientTimeout(total=20),
+            ) as response:
+                body = await response.text()
+                if response.status in {200, 202}:
+                    print("Twitch EventSub Channel Points subscription enabled.", flush=True)
+                    return True
+                if response.status == 401 and attempt == 0:
+                    token = await _twitch_refresh_access_token("eventsub-401")
+                    continue
+                raise RuntimeError(
+                    f"Twitch EventSub subscription failed (HTTP {response.status}): {body[:500]}"
+                )
+    return False
+
+
+async def _twitch_find_discord_member(guild, user_input):
+    raw = str(user_input or "").strip()
+    if not raw:
+        return None
+
+    mention = re.fullmatch(r"<@!?(\d{15,22})>", raw)
+    if mention or raw.isdigit():
+        user_id = int(mention.group(1) if mention else raw)
+        member = guild.get_member(user_id)
+        if member is None:
+            try:
+                member = await guild.fetch_member(user_id)
+            except Exception:
+                member = None
+        return member
+
+    wanted = raw.casefold().lstrip("@").strip()
+    candidates = list(guild.members)
+    try:
+        queried = await guild.query_members(query=raw.lstrip("@")[:32], limit=100, cache=True)
+        known = {member.id for member in candidates}
+        candidates.extend(member for member in queried if member.id not in known)
+    except Exception:
+        pass
+
+    exact_username = [member for member in candidates if str(member.name).casefold() == wanted]
+    if len(exact_username) == 1:
+        return exact_username[0]
+
+    # Legacy name#1234 input.
+    exact_legacy = [member for member in candidates if str(member).casefold() == wanted]
+    if len(exact_legacy) == 1:
+        return exact_legacy[0]
+
+    # A unique exact display/global name is accepted because the Discord-side
+    # confirmation prevents this fallback from creating an unsafe link.
+    exact_display = []
+    for member in candidates:
+        values = {str(member.display_name).casefold()}
+        global_name = getattr(member, "global_name", None)
+        if global_name:
+            values.add(str(global_name).casefold())
+        if wanted in values:
+            exact_display.append(member)
+    unique = {member.id: member for member in exact_display}
+    return next(iter(unique.values())) if len(unique) == 1 else None
+
+
+async def _twitch_grant_to_discord(discord_member, pending):
+    result = await asyncio.to_thread(
+        grant_twitch_cosmetic,
+        discord_member.id,
+        discord_member.display_name,
+        pending["reward_key"],
+        pending["redemption_id"],
+        pending.get("twitch_user_id", ""),
+    )
+    already_owned = bool(result.get("already_owned"))
+    pending["status"] = "already_owned" if already_owned else "processed"
+    pending["updated_at"] = int(time.time())
+    pending["discord_user_id"] = str(discord_member.id)
+    return already_owned
+
+
+async def _twitch_process_all_for_link(twitch_user_id, discord_member):
+    pending_state = _twitch_pending_state()
+    processed_labels = []
+    duplicate_labels = []
+    for redemption_id, item in list(pending_state.items()):
+        if not isinstance(item, dict):
+            continue
+        if str(item.get("twitch_user_id", "")) != str(twitch_user_id):
+            continue
+        if item.get("status") in {"processed", "already_owned", "rejected"}:
+            continue
+        try:
+            already = await _twitch_grant_to_discord(discord_member, item)
+            (duplicate_labels if already else processed_labels).append(str(item.get("reward_label", "Twitch cosmetic")))
+        except Exception as error:
+            item["status"] = "grant_error"
+            item["error"] = str(error)[:500]
+            item["updated_at"] = int(time.time())
+            print(f"Twitch cosmetic grant failed for {redemption_id}: {error}", flush=True)
+    _twitch_trim_pending()
+    await save_all_critical(attempts=4)
+    return processed_labels, duplicate_labels
+
+
+class TwitchLinkConfirmView(discord.ui.View):
+    def __init__(self, redemption_id, expected_user_id):
+        super().__init__(timeout=None)
+        self.redemption_id = str(redemption_id)
+        self.expected_user_id = int(expected_user_id)
+
+        confirm = discord.ui.Button(
+            label="Confirm Twitch Link",
+            emoji="✅",
+            style=discord.ButtonStyle.success,
+            custom_id=f"twitchlink:confirm:{self.redemption_id}",
+        )
+        reject = discord.ui.Button(
+            label="Not My Twitch Account",
+            emoji="✖️",
+            style=discord.ButtonStyle.danger,
+            custom_id=f"twitchlink:reject:{self.redemption_id}",
+        )
+        confirm.callback = self._confirm
+        reject.callback = self._reject
+        self.add_item(confirm)
+        self.add_item(reject)
+
+    async def interaction_check(self, interaction):
+        if interaction.user.id != self.expected_user_id:
+            await interaction.response.send_message("This Twitch link request belongs to another Discord account.", ephemeral=True)
+            return False
+        return True
+
+    async def _confirm(self, interaction):
+        pending = _twitch_pending_state().get(self.redemption_id)
+        if not isinstance(pending, dict):
+            await interaction.response.send_message("This Twitch link request is no longer available.", ephemeral=True)
+            return
+        if pending.get("status") in {"processed", "already_owned"}:
+            await interaction.response.send_message("This redemption has already been processed.", ephemeral=True)
+            return
+        if pending.get("status") == "rejected":
+            await interaction.response.send_message("This link request was already rejected.", ephemeral=True)
+            return
+
+        await interaction.response.defer(ephemeral=True)
+        twitch_user_id = str(pending.get("twitch_user_id", ""))
+        twitch_login = str(pending.get("twitch_login", ""))
+        try:
+            await asyncio.to_thread(
+                link_twitch_account,
+                interaction.user.id,
+                interaction.user.display_name,
+                twitch_user_id,
+                twitch_login,
+                f"twitch-link:{twitch_user_id}:{interaction.user.id}",
+            )
+            granted, duplicates = await _twitch_process_all_for_link(twitch_user_id, interaction.user)
+        except Exception as error:
+            await interaction.followup.send(f"❌ Could not link the accounts: `{str(error)[:700]}`", ephemeral=True)
+            return
+
+        pending["status"] = "processed" if pending.get("status") != "already_owned" else pending["status"]
+        pending["confirmed_at"] = int(time.time())
+        pending["updated_at"] = int(time.time())
+        await save_all_critical(attempts=3)
+
+        for child in self.children:
+            child.disabled = True
+        try:
+            await interaction.message.edit(
+                content=(
+                    f"✅ **Twitch linked to your Discord account.**\n"
+                    f"Twitch: **{pending.get('twitch_user_name') or twitch_login}**\n"
+                    "Use `!shop` to equip your Twitch cosmetics."
+                ),
+                view=self,
+            )
+        except Exception:
+            pass
+
+        lines = []
+        if granted:
+            lines.append("Unlocked: **" + "**, **".join(dict.fromkeys(granted)) + "**.")
+        if duplicates:
+            lines.append("Already owned: **" + "**, **".join(dict.fromkeys(duplicates)) + "**.")
+        if not lines:
+            lines.append("Your Twitch and Discord accounts are now linked.")
+        await interaction.followup.send("\n".join(lines), ephemeral=True)
+
+    async def _reject(self, interaction):
+        pending = _twitch_pending_state().get(self.redemption_id)
+        if not isinstance(pending, dict):
+            await interaction.response.send_message("This Twitch link request is no longer available.", ephemeral=True)
+            return
+        pending["status"] = "rejected"
+        pending["rejected_at"] = int(time.time())
+        pending["updated_at"] = int(time.time())
+        await save_all_critical(attempts=3)
+        for child in self.children:
+            child.disabled = True
+        await interaction.response.edit_message(
+            content="✖️ Twitch link rejected. No Twitch account was linked and no cosmetic was granted.",
+            view=self,
+        )
+        await _twitch_owner_notice(
+            f"⚠️ Twitch redemption link rejected by Discord user {interaction.user} ({interaction.user.id}). "
+            f"Twitch user: {pending.get('twitch_user_name') or pending.get('twitch_login', '?')}; "
+            f"reward: {pending.get('reward_label', '?')}. The Twitch redemption can be refunded manually."
+        )
+
+
+async def _twitch_send_link_confirmation(member, pending, fallback_channel=None):
+    view = TwitchLinkConfirmView(pending["redemption_id"], member.id)
+    content = (
+        "🟣 **Confirm your Twitch ↔ Discord link**\n\n"
+        f"Twitch user **{pending.get('twitch_user_name') or pending.get('twitch_login', 'Unknown')}** "
+        f"redeemed **{pending.get('reward_label', 'a Twitch cosmetic')}** and entered your Discord username.\n\n"
+        "Press **Confirm Twitch Link** only if that is your Twitch account. "
+        "After confirmation, future SharkBot Channel Point rewards will use your Discord ID automatically."
+    )
+    try:
+        message = await member.send(content, view=view)
+        pending["confirmation_location"] = "dm"
+    except Exception:
+        if fallback_channel is None:
+            raise
+        message = await fallback_channel.send(
+            f"{member.mention}\n{content}",
+            view=view,
+            allowed_mentions=discord.AllowedMentions(users=True),
+        )
+        pending["confirmation_location"] = "channel"
+        pending["confirmation_channel_id"] = str(fallback_channel.id)
+    pending["dm_message_id"] = str(message.id)
+    pending["status"] = "awaiting_confirmation"
+    pending["updated_at"] = int(time.time())
+    client.add_view(view, message_id=message.id)
+    await save_all_critical(attempts=3)
+
+
+async def _twitch_handle_redemption(event, guild, fallback_channel):
+    redemption_id = str(event.get("id", "") or "").strip()
+    if not redemption_id:
+        return
+
+    reward = event.get("reward") if isinstance(event.get("reward"), dict) else {}
+    title = str(reward.get("title", "") or "")
+    config = TWITCH_REWARD_CONFIG.get(_twitch_normalize_reward_title(title))
+    if config is None:
+        return
+
+    pending_state = _twitch_pending_state()
+    existing_pending = pending_state.get(redemption_id)
+    if isinstance(existing_pending, dict) and existing_pending.get("status") not in {"grant_error", "discord_user_not_found"}:
+        return
+
+    twitch_user_id = str(event.get("user_id", "") or "")
+    twitch_login = str(event.get("user_login", "") or "")
+    twitch_user_name = str(event.get("user_name", "") or twitch_login)
+    user_input = str(event.get("user_input", "") or "").strip()
+    now = int(time.time())
+    pending = existing_pending if isinstance(existing_pending, dict) else {}
+    pending.update({
+        "redemption_id": redemption_id,
+        "twitch_user_id": twitch_user_id,
+        "twitch_login": twitch_login,
+        "twitch_user_name": twitch_user_name,
+        "reward_key": config["key"],
+        "reward_label": config["label"],
+        "reward_title": title,
+        "reward_cost": int(reward.get("cost", config["points"]) or config["points"]),
+        "user_input": user_input,
+        "created_at": int(pending.get("created_at", now) or now),
+        "updated_at": now,
+    })
+    pending_state[redemption_id] = pending
+
+    try:
+        linked = await asyncio.to_thread(discord_user_for_twitch, twitch_user_id)
+    except Exception as error:
+        linked = None
+        print(f"Twitch link lookup failed: {error}", flush=True)
+
+    if linked is not None:
+        discord_id = int(linked["user_id"])
+        member = guild.get_member(discord_id)
+        if member is None:
+            try:
+                member = await guild.fetch_member(discord_id)
+            except Exception:
+                member = None
+        if member is None:
+            pending["status"] = "linked_discord_member_missing"
+            await save_all_critical(attempts=3)
+            await _twitch_owner_notice(
+                f"⚠️ Twitch user {twitch_user_name} is linked to Discord ID {discord_id}, but that member is not in the server. "
+                f"Reward: {config['label']}. Handle the redemption manually."
+            )
+            return
+        try:
+            already = await _twitch_grant_to_discord(member, pending)
+            await save_all_critical(attempts=3)
+            try:
+                await member.send(
+                    ("ℹ️ You already owned **" if already else "✅ Unlocked **")
+                    + config["label"]
+                    + "** from Twitch Channel Points. Use `!shop` to equip it."
+                )
+            except Exception:
+                pass
+            if already:
+                await _twitch_owner_notice(
+                    f"ℹ️ {twitch_user_name} redeemed {config['label']} but the linked Discord account already owns it. "
+                    "You can refund that redemption manually in Twitch if desired."
+                )
+        except Exception as error:
+            pending["status"] = "grant_error"
+            pending["error"] = str(error)[:500]
+            await save_all_critical(attempts=3)
+            await _twitch_owner_notice(
+                f"❌ Twitch cosmetic grant failed for {twitch_user_name}: {config['label']} — {str(error)[:500]}"
+            )
+        return
+
+    member = await _twitch_find_discord_member(guild, user_input)
+    if member is None:
+        pending["status"] = "discord_user_not_found"
+        await save_all_critical(attempts=3)
+        await _twitch_owner_notice(
+            f"⚠️ Twitch redemption could not find the Discord user. Twitch: {twitch_user_name}; "
+            f"reward: {config['label']}; entered Discord username: {user_input or '[blank]'}. "
+            "The redemption can be refunded manually or the viewer can redeem again with the exact username."
+        )
+        return
+
+    pending["discord_user_id"] = str(member.id)
+    pending["discord_username"] = str(member.name)
+    await save_all_critical(attempts=3)
+    try:
+        await _twitch_send_link_confirmation(member, pending, fallback_channel=fallback_channel)
+    except Exception as error:
+        pending["status"] = "confirmation_delivery_failed"
+        pending["error"] = str(error)[:500]
+        await save_all_critical(attempts=3)
+        await _twitch_owner_notice(
+            f"❌ Could not deliver Twitch link confirmation to Discord user {member} ({member.id}). "
+            f"Reward: {config['label']}. Error: {str(error)[:500]}"
+        )
+
+
+def _twitch_note_message_id(message_id):
+    message_id = str(message_id or "")
+    if not message_id or message_id in _twitch_seen_message_ids:
+        return False
+    _twitch_seen_message_ids.add(message_id)
+    _twitch_seen_message_order.append(message_id)
+    while len(_twitch_seen_message_order) > 500:
+        old = _twitch_seen_message_order.pop(0)
+        _twitch_seen_message_ids.discard(old)
+    return True
+
+
+async def twitch_eventsub_loop(guild, fallback_channel):
+    if not TWITCH_EVENTSUB_ENABLED:
+        print("Twitch EventSub disabled.", flush=True)
+        return
+    try:
+        await _twitch_prepare_access_token()
+    except Exception as error:
+        print(f"Twitch EventSub startup failed: {error}", flush=True)
+        await _twitch_owner_notice(f"❌ Twitch EventSub startup failed: {str(error)[:900]}")
+        return
+
+    next_url = TWITCH_EVENTSUB_URL
+    is_resume = False
+    while not client.is_closed():
+        reconnect_url = None
+        try:
+            timeout = aiohttp.ClientTimeout(total=None, sock_connect=30, sock_read=90)
+            async with aiohttp.ClientSession(timeout=timeout) as session:
+                async with session.ws_connect(next_url, heartbeat=None) as websocket:
+                    async for message in websocket:
+                        if message.type != aiohttp.WSMsgType.TEXT:
+                            if message.type in {aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.ERROR}:
+                                break
+                            continue
+                        try:
+                            packet = json.loads(message.data)
+                        except Exception:
+                            continue
+                        metadata = packet.get("metadata") if isinstance(packet.get("metadata"), dict) else {}
+                        payload = packet.get("payload") if isinstance(packet.get("payload"), dict) else {}
+                        message_type = str(metadata.get("message_type", ""))
+
+                        if message_type == "session_welcome":
+                            session_info = payload.get("session") if isinstance(payload.get("session"), dict) else {}
+                            session_id = str(session_info.get("id", ""))
+                            if session_id and not is_resume:
+                                await _twitch_create_subscription(session_id)
+                            is_resume = False
+                            next_url = TWITCH_EVENTSUB_URL
+                            continue
+
+                        if message_type == "session_keepalive":
+                            continue
+
+                        if message_type == "session_reconnect":
+                            session_info = payload.get("session") if isinstance(payload.get("session"), dict) else {}
+                            reconnect_url = str(session_info.get("reconnect_url", "") or "")
+                            if reconnect_url:
+                                break
+                            continue
+
+                        if message_type == "revocation":
+                            subscription = payload.get("subscription") if isinstance(payload.get("subscription"), dict) else {}
+                            reason = str(subscription.get("status", "revoked"))
+                            print(f"Twitch EventSub subscription revoked: {reason}", flush=True)
+                            await _twitch_owner_notice(f"⚠️ Twitch EventSub subscription revoked: {reason}")
+                            continue
+
+                        if message_type != "notification":
+                            continue
+                        if not _twitch_note_message_id(metadata.get("message_id")):
+                            continue
+                        subscription = payload.get("subscription") if isinstance(payload.get("subscription"), dict) else {}
+                        if subscription.get("type") != "channel.channel_points_custom_reward_redemption.add":
+                            continue
+                        event = payload.get("event") if isinstance(payload.get("event"), dict) else {}
+                        await _twitch_handle_redemption(event, guild, fallback_channel)
+
+            if reconnect_url:
+                next_url = reconnect_url
+                is_resume = True
+                continue
+        except asyncio.CancelledError:
+            raise
+        except Exception as error:
+            print(f"Twitch EventSub connection warning: {error}", flush=True)
+            await asyncio.sleep(5)
+
+        next_url = TWITCH_EVENTSUB_URL
+        is_resume = False
+        if not client.is_closed():
+            await asyncio.sleep(3)
 
 
 # =========================================================
@@ -16481,6 +17181,130 @@ class ColorCatalogView(discord.ui.View):
         self.add_item(default)
 
 
+class SurvivalHeartStyleView(discord.ui.View):
+    def __init__(self, user_id, profile=None):
+        super().__init__(timeout=600)
+        self.user_id = int(user_id)
+        self.selected_name = "purple"
+        self._build(profile or {})
+
+    async def interaction_check(self, interaction):
+        if interaction.user.id != self.user_id:
+            await interaction.response.send_message("Open your own shop with `!shop`.", ephemeral=True)
+            return False
+        return True
+
+    async def _profile(self, interaction):
+        return await asyncio.to_thread(
+            get_cosmetic_profile, interaction.user.id, interaction.user.display_name
+        )
+
+    def embed(self, profile):
+        owned = set(profile.get("survival_heart_styles", []))
+        active = str(profile.get("active_survival_heart_style", "classic") or "classic")
+        style = SURVIVAL_HEART_STYLES.get(self.selected_name, SURVIVAL_HEART_STYLES["classic"])
+        status = "Owned" if self.selected_name in owned else "Not owned"
+        if active == self.selected_name:
+            status += " • Equipped"
+        preview = str(style.get("full", "💜")) * 3
+        points = twitch_channel_point_cost("survival_heart", self.selected_name) or 5000
+        return discord.Embed(
+            title="💜 Survival Heart Styles",
+            description=(
+                f"**Preview:** {preview}\n"
+                f"**Selected:** {style.get('label', 'Twitch')}\n"
+                f"**Status:** {status}\n\n"
+                f"**Unlock:** Twitch Channel Points only • **{points:,} points**\n"
+                "Redeem **Unlock Discord Survival Hearts** on Twitch. "
+                "Once unlocked, equip it here. New Survival runs you captain will use the purple hearts."
+            ),
+            color=0x9146FF,
+        )
+
+    def _build(self, profile):
+        self.clear_items()
+        owned = set(profile.get("survival_heart_styles", []))
+        active = str(profile.get("active_survival_heart_style", "classic") or "classic")
+
+        twitch = discord.ui.Button(
+            label="Twitch",
+            style=(
+                discord.ButtonStyle.success if active == "purple"
+                else discord.ButtonStyle.primary
+            ),
+            row=0,
+        )
+        classic = discord.ui.Button(
+            label="Classic",
+            style=(
+                discord.ButtonStyle.success if active == "classic"
+                else discord.ButtonStyle.secondary
+            ),
+            row=0,
+        )
+        points = twitch_channel_point_cost("survival_heart", "purple") or 5000
+        locked = discord.ui.Button(
+            label=f"Twitch • {points:,} pts",
+            style=discord.ButtonStyle.secondary,
+            disabled=True,
+            row=1,
+        )
+        equip = discord.ui.Button(
+            label="Equip Twitch Hearts",
+            style=discord.ButtonStyle.primary,
+            disabled="purple" not in owned or active == "purple",
+            row=1,
+        )
+
+        async def twitch_callback(interaction):
+            self.selected_name = "purple"
+            current = await self._profile(interaction)
+            self._build(current)
+            await interaction.response.edit_message(embed=self.embed(current), view=self)
+
+        async def classic_callback(interaction):
+            await interaction.response.defer(ephemeral=True)
+            try:
+                current = await asyncio.to_thread(
+                    equip_survival_heart_style,
+                    interaction.user.id,
+                    interaction.user.display_name,
+                    "classic",
+                    f"equip-survival-heart:{interaction.id}:{interaction.user.id}:classic",
+                )
+            except Exception as error:
+                await interaction.followup.send(f"❌ Could not equip Classic hearts: `{str(error)[:700]}`", ephemeral=True)
+                return
+            self._build(current)
+            await interaction.edit_original_response(embed=self.embed(current), view=self)
+            await interaction.followup.send("✅ Equipped **Classic Survival Hearts**.", ephemeral=True)
+
+        async def equip_callback(interaction):
+            await interaction.response.defer(ephemeral=True)
+            try:
+                current = await asyncio.to_thread(
+                    equip_survival_heart_style,
+                    interaction.user.id,
+                    interaction.user.display_name,
+                    "purple",
+                    f"equip-survival-heart:{interaction.id}:{interaction.user.id}:purple",
+                )
+            except Exception as error:
+                await interaction.followup.send(f"❌ Could not equip Twitch hearts: `{str(error)[:700]}`", ephemeral=True)
+                return
+            self._build(current)
+            await interaction.edit_original_response(embed=self.embed(current), view=self)
+            await interaction.followup.send("✅ Equipped **Twitch Survival Hearts**.", ephemeral=True)
+
+        twitch.callback = twitch_callback
+        classic.callback = classic_callback
+        equip.callback = equip_callback
+        self.add_item(twitch)
+        self.add_item(classic)
+        self.add_item(locked)
+        self.add_item(equip)
+
+
 class ShopHomeView(discord.ui.View):
     def __init__(self, user_id):
         super().__init__(timeout=600)
@@ -16524,6 +17348,14 @@ class ShopHomeView(discord.ui.View):
         view = ColorCatalogView(interaction.user.id, profile=profile)
         await interaction.response.send_message(embed=view.embed(profile), view=view, ephemeral=True)
 
+    @discord.ui.button(label="Survival Hearts", emoji="💜", style=discord.ButtonStyle.secondary, row=1)
+    async def survival_hearts(self, interaction, button):
+        profile = await asyncio.to_thread(
+            get_cosmetic_profile, interaction.user.id, interaction.user.display_name
+        )
+        view = SurvivalHeartStyleView(interaction.user.id, profile=profile)
+        await interaction.response.send_message(embed=view.embed(profile), view=view, ephemeral=True)
+
     @discord.ui.button(label="My Profile", emoji="👤", style=discord.ButtonStyle.secondary, row=1)
     async def profile(self, interaction, button):
         await interaction.response.defer(ephemeral=True)
@@ -16552,7 +17384,7 @@ def shop_home_embed(profile):
             "🖼️ Profile Themes — standard themes **50**, game themes **100** coins\n"
             f"🖌️ Name Colors — standard colors **{shared_format_points(COLOR_COST)} coins** each\n"
             "🟣 **Twitch Collection** — Twitch Channel Points only (**5k–20k**)\n\n"
-            "Twitch Board, Pieces, Arrow, Profile Theme and Name can already be previewed here. "
+            "Twitch Board, Pieces, Arrow, Profile Theme, Name and Survival Hearts can be previewed here. "
             "They cannot be bought with SharkBot coins.\n\n"
             "This menu is cosmetics only. Player trading and donations are under **Trade** in `!menu`."
         ),
@@ -18809,7 +19641,7 @@ async def on_ready():
     client.add_view(PuzzleRacerOpenLobbyView())
     client.add_view(PuzzleRacerGameView())
 
-    global state
+    global state, _twitch_eventsub_task
 
     state = load_json(
         STATE_FILE,
@@ -18837,6 +19669,26 @@ async def on_ready():
     state.setdefault(PUZZLE_RUSH_WEEKLY_PAID_KEY, {})
     state.setdefault(RUSH_MISTAKE_REVIEW_STATE_KEY, {})
     state.setdefault(PUZZLE_RACER_STATE_KEY, {})
+    state.setdefault(TWITCH_OAUTH_STATE_KEY, {})
+    state.setdefault(TWITCH_PENDING_STATE_KEY, {})
+
+    # Restore persistent Twitch confirmation buttons after a GitHub Actions
+    # worker rotation. Only the intended Discord user can use each view.
+    for _redemption_id, _pending in list(_twitch_pending_state().items()):
+        try:
+            if not isinstance(_pending, dict):
+                continue
+            if _pending.get("status") != "awaiting_confirmation":
+                continue
+            _message_id = int(_pending.get("dm_message_id", 0) or 0)
+            _discord_user_id = int(_pending.get("discord_user_id", 0) or 0)
+            if _message_id and _discord_user_id:
+                client.add_view(
+                    TwitchLinkConfirmView(_redemption_id, _discord_user_id),
+                    message_id=_message_id,
+                )
+        except Exception as error:
+            print(f"Could not restore Twitch link view {_redemption_id}: {error}", flush=True)
 
     if recover_puzzle_racers_after_restart():
         await save_all()
@@ -18897,6 +19749,14 @@ async def on_ready():
         (item for item in channels if int(item.id) == PRIMARY_CHESS_CHANNEL_ID),
         channels[0],
     )
+
+    if TWITCH_EVENTSUB_ENABLED and (
+        _twitch_eventsub_task is None or _twitch_eventsub_task.done()
+    ):
+        _twitch_eventsub_task = asyncio.create_task(
+            twitch_eventsub_loop(primary_channel.guild, primary_channel)
+        )
+        print("Twitch Channel Points bridge task started.", flush=True)
 
     try:
         await restore_open_challenges()
