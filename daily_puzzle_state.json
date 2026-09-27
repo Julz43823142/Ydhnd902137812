@@ -7993,14 +7993,10 @@
   "twitch_pending_redemptions_v1": {
     "2e64827e-b674-48cd-8da5-fdeff053a10a": {
       "redemption_id": "2e64827e-b674-48cd-8da5-fdeff053a10a",
-      "twitch_user_id": "1063411811",
-      "twitch_login": "sh4rkmate",
-      "twitch_user_name": "Sh4rkmate",
       "reward_key": "arrow",
       "reward_label": "Twitch Arrow",
       "reward_title": "Unlock Discord Twitch Arrow",
       "reward_cost": 5000,
-      "user_input": "Sharkmeister",
       "created_at": 1790524627,
       "updated_at": 1790524649,
       "discord_user_id": "362606514764251137",
@@ -8009,7 +8005,14 @@
       "confirmation_channel_id": "1468320170891022417",
       "dm_message_id": "1553797660035518646",
       "status": "processed",
-      "confirmed_at": 1790524649
+      "confirmed_at": 1790524649,
+      "identity_enc": "gAAAAABquUqY5j7fjDoo_0KOqnIdRMX423U4GaLHx43RPbbLCiEqCnsOLU6eUrVdnjBvKGfmGiiaXrxKosyGEbJv8RwbS0aDUaN2LWv2pkfmSmGiNyN2mqopWXi_hEXA2EovimL5VodaTlX-1ejjC6fOa2ABTDe9idRynPmuodtFY9T7XBC3UZcpgN5FRf5Qx0lKwMd4SwlQ14suo6SmKEvbHz-oRvSdAsiZvKy5IU4J4rnqmecM8GA="
+    }
+  },
+  "twitch_links_v1": {
+    "362606514764251137": {
+      "link_enc": "gAAAAABquUqYYfujjZxy2lCbZ1mYrNkUr6dLuECYNyfxPS0fX19e3ECybX_-R7UQnvlQhDC0PnQbFT1AOtT3xB7G1yr46BNl07nOmY5iEQVCGxIcP_smsoJd_Ftx90T7fdJ-9FbQADH9LX9Iobh7jqgTCtJWXaSNzg==",
+      "linked_at": 1790524649
     }
   }
 }
