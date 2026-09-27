@@ -8016,14 +8016,15 @@
       "reward_title": "Unlock Discord Profile Theme",
       "reward_cost": 5000,
       "created_at": 1790539211,
-      "updated_at": 1790539259,
+      "updated_at": 1790539260,
       "identity_enc": "gAAAAABquXXLpoxq-blmuolhIzV5clO8e2l3vKa0rnBGnMtYHD3PVRwswZFjd2Rdc1pSjNFYLb6Ano-OD-rQsshZn4k8URZDbOSChZK9D50ctY4joukDCgylLaFukJKL73VZy0W-qUf212-tZWNyIusDEHcJ0BnV-K6DYOuPe1Qi0zcUY-K4gcZLzDohPM8IwyvnVNssDpHy2XkyQucKMbpmdOZUBwHqzjRPUZp8Hqy3vSHXa9X5k2k=",
       "discord_user_id": "386134006170910721",
       "discord_username": "flash050131",
       "confirmation_location": "channel",
       "confirmation_channel_id": "1468320170891022417",
       "dm_message_id": "1553858828477403267",
-      "status": "processed"
+      "status": "processed",
+      "confirmed_at": 1790539260
     }
   },
   "twitch_links_v1": {
