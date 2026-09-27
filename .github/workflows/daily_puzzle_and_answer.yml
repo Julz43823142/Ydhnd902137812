@@ -88,7 +88,7 @@ jobs:
           pool_file = constant("bot.py", "RP_POOL_FILE")
 
           assert bot_build == "daily-rp-v12-offline-pool-2026-09-03", bot_build
-          assert ledger_build == "shared-ledger-v13-daily-activity-2026-09-07", ledger_build
+          assert ledger_build == "shared-ledger-v14-twitch-link-2026-09-27", ledger_build
           assert os.path.exists(pool_file), (
               f"{pool_file} is missing. Run the 'Build RP Puzzle Pool' workflow first."
           )
@@ -123,6 +123,12 @@ jobs:
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
           SHARKMEISTER_USER_ID: "362606514764251137"
+          TWITCH_EVENTSUB_ENABLED: "1"
+          TWITCH_CLIENT_ID: ${{ vars.TWITCH_CLIENT_ID }}
+          TWITCH_BROADCASTER_ID: ${{ vars.TWITCH_BROADCASTER_ID }}
+          TWITCH_CLIENT_SECRET: ${{ secrets.TWITCH_CLIENT_SECRET }}
+          TWITCH_ACCESS_TOKEN: ${{ secrets.TWITCH_ACCESS_TOKEN }}
+          TWITCH_REFRESH_TOKEN: ${{ secrets.TWITCH_REFRESH_TOKEN }}
           # 4h20: safely below the 5h50 workflow ceiling while allowing normal
           # cron replacement to happen first when GitHub scheduling is healthy.
           DAILY_WORKFLOW_ROTATION_SECONDS: "15600"
