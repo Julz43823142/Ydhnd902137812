@@ -3649,69 +3649,54 @@
   },
   "channel_puzzle_state": {
     "1546557493038284840": {
-      "latest_puzzle_type": "daily",
+      "latest_puzzle_type": "random",
       "latest_random_puzzle": {
-        "url": "https://lichess.org/training/rOzPK",
-        "title": "Lichess • 2778",
-        "fen": "6k1/2p2ppp/1q6/2p5/p1PpP2P/3r1bP1/1P3P1R/1RQ1K1N1 b - - 1 28",
-        "current_fen": "6k1/2p2ppp/1q6/2p5/p1PpP2P/3r1bP1/1P3P1R/1RQ1K1N1 b - - 1 28",
-        "last_move_uci": "h3g1",
-        "pgn": "Rd1+ Qxd1 Bxd1 Rxd1 Qxb2",
+        "url": "https://lichess.org/training/b1ons",
+        "title": "Lichess • 1835",
+        "fen": "r5k1/1p2bpp1/p1n2q1p/3B4/Q1pP3N/P2bP1PP/1P3P2/3R1RK1 b - - 0 18",
+        "current_fen": "r5k1/1p2bpp1/p1n2q1p/3B4/Q1pP3N/P2bP1PP/1P3P2/3R1RK1 b - - 0 18",
+        "last_move_uci": "g2d5",
+        "pgn": "b5 Rxd3 bxa4",
         "all_moves": [
           {
-            "uci": "d3d1",
-            "san": "Rd1+",
+            "uci": "b7b5",
+            "san": "b5",
             "color": "black"
           },
           {
-            "uci": "c1d1",
-            "san": "Qxd1",
+            "uci": "d1d3",
+            "san": "Rxd3",
             "color": "white"
           },
           {
-            "uci": "f3d1",
-            "san": "Bxd1",
-            "color": "black"
-          },
-          {
-            "uci": "b1d1",
-            "san": "Rxd1",
-            "color": "white"
-          },
-          {
-            "uci": "b6b2",
-            "san": "Qxb2",
+            "uci": "b5a4",
+            "san": "bxa4",
             "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "d3d1",
-            "san": "Rd1+",
+            "uci": "b7b5",
+            "san": "b5",
             "color": "black"
           },
           {
-            "uci": "f3d1",
-            "san": "Bxd1",
-            "color": "black"
-          },
-          {
-            "uci": "b6b2",
-            "san": "Qxb2",
+            "uci": "b5a4",
+            "san": "bxa4",
             "color": "black"
           }
         ],
         "player_color": "black",
-        "player_move_count": 3,
-        "posted_at": "2026-09-27T14:10:37.823231+00:00",
-        "answer_posted": true,
+        "player_move_count": 2,
+        "posted_at": "2026-09-27T14:31:39.796494+00:00",
+        "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "random_rOzPK_1790518237823",
-        "last_activity_at": "2026-09-27T14:10:37.823231+00:00",
-        "rating": 2778,
-        "rp_band": 5,
+        "puzzle_id": "random_b1ons_1790519499796",
+        "last_activity_at": "2026-09-27T14:31:39.796494+00:00",
+        "rating": 1835,
+        "rp_band": 2,
         "boss": false,
         "board_theme": "classic",
         "piece_theme": "purple",
@@ -3719,9 +3704,7 @@
         "next_solution_index": 0,
         "next_player_index": 0,
         "solved": false,
-        "message_ids": {
-          "1546557493038284840": 1553770855329435668
-        },
+        "message_ids": {},
         "chat_since_refresh": 0,
         "attempted_users": {},
         "first_move_user_id": null,
@@ -3729,8 +3712,7 @@
         "first_move_awarded": false,
         "helper_awarded_users": [],
         "helper_candidate_users": [],
-        "channel_id": 1546557493038284840,
-        "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Rd1+ Bxd1 Qxb2"
+        "channel_id": 1546557493038284840
       }
     }
   },
