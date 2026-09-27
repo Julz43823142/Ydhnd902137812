@@ -8008,6 +8008,18 @@
       "status": "processed",
       "confirmed_at": 1790524649,
       "identity_enc": "gAAAAABquUqY5j7fjDoo_0KOqnIdRMX423U4GaLHx43RPbbLCiEqCnsOLU6eUrVdnjBvKGfmGiiaXrxKosyGEbJv8RwbS0aDUaN2LWv2pkfmSmGiNyN2mqopWXi_hEXA2EovimL5VodaTlX-1ejjC6fOa2ABTDe9idRynPmuodtFY9T7XBC3UZcpgN5FRf5Qx0lKwMd4SwlQ14suo6SmKEvbHz-oRvSdAsiZvKy5IU4J4rnqmecM8GA="
+    },
+    "aff85e20-b5ea-4658-9f18-b8b85185f266": {
+      "redemption_id": "aff85e20-b5ea-4658-9f18-b8b85185f266",
+      "reward_key": "profile_theme",
+      "reward_label": "Twitch Profile Theme",
+      "reward_title": "Unlock Discord Profile Theme",
+      "reward_cost": 5000,
+      "created_at": 1790539211,
+      "updated_at": 1790539211,
+      "identity_enc": "gAAAAABquXXLpoxq-blmuolhIzV5clO8e2l3vKa0rnBGnMtYHD3PVRwswZFjd2Rdc1pSjNFYLb6Ano-OD-rQsshZn4k8URZDbOSChZK9D50ctY4joukDCgylLaFukJKL73VZy0W-qUf212-tZWNyIusDEHcJ0BnV-K6DYOuPe1Qi0zcUY-K4gcZLzDohPM8IwyvnVNssDpHy2XkyQucKMbpmdOZUBwHqzjRPUZp8Hqy3vSHXa9X5k2k=",
+      "discord_user_id": "386134006170910721",
+      "discord_username": "flash050131"
     }
   },
   "twitch_links_v1": {
