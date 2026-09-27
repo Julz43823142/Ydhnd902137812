@@ -48,12 +48,15 @@
       "purple"
     ],
     "points": 0.0,
-    "profile_themes": [],
+    "profile_themes": [
+      "purple"
+    ],
     "sent_trades": [],
     "survival_heart_styles": [],
     "twitch_unlocks": [
       "name",
-      "pieces"
+      "pieces",
+      "profile_theme"
     ]
   },
   "1310661840707129370": {
