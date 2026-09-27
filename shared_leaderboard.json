@@ -300,7 +300,8 @@
     "active_profile_theme": "killer_frequency",
     "active_survival_heart_style": "classic",
     "arrows": [
-      "pink"
+      "pink",
+      "purple"
     ],
     "badges": [
       "🐙",
@@ -411,7 +412,9 @@
       }
     ],
     "survival_heart_styles": [],
-    "twitch_unlocks": []
+    "twitch_unlocks": [
+      "arrow"
+    ]
   },
   "550338389535227926": {
     "active_arrow": "green",
