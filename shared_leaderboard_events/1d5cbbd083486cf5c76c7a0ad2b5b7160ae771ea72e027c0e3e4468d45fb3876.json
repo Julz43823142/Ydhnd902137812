@@ -1,0 +1,14 @@
+{
+  "after_coins": 90.28,
+  "before_coins": 90.28,
+  "created_at": 1790541405,
+  "created_at_ns": 1790541405032050748,
+  "details": {
+    "piece": "classic"
+  },
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v15-twitch-privacy-2026-09-27",
+  "operation": "equip-piece",
+  "transaction_id": "equip-piece:1553868016582795355:442597396195704832:classic",
+  "user_id": "442597396195704832"
+}
