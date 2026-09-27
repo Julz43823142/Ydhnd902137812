@@ -16,11 +16,11 @@ GAME_PROFILE_THEME_COST = 100.0
 # these entries so their previews can be reviewed before EventSub is enabled.
 TWITCH_CHANNEL_POINT_COSMETICS = {
     "board": {"purple": 5000},
-    "piece": {"purple": 10000},
+    "piece": {"purple": 5000},
     "arrow": {"purple": 5000},
-    "theme": {"purple": 10000},
+    "theme": {"purple": 5000},
     "color": {"purple": 20000},
-    "survival_heart": {"purple": 5000},
+    "survival_heart": {"purple": 1000},
 }
 
 
