@@ -415,7 +415,8 @@
     ],
     "points": 1680.0,
     "profile_themes": [
-      "killer_frequency"
+      "killer_frequency",
+      "purple"
     ],
     "sent_trades": [
       {
@@ -456,7 +457,8 @@
     "survival_heart_styles": [],
     "twitch_unlocks": [
       "arrow",
-      "pieces"
+      "pieces",
+      "profile_theme"
     ]
   },
   "550338389535227926": {
