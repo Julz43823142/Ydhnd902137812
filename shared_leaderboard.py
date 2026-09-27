@@ -20,10 +20,11 @@ from shop_catalog import (
     ARROW_COST, ARROW_COLORS, DEFAULT_ARROW_COLOR,
     COLOR_COST, NAME_COLORS, RARITY_LABELS,
     PROFILE_THEME_COST, PROFILE_THEMES, profile_theme_cost,
-    twitch_channel_point_cost,
+    SURVIVAL_HEART_STYLES, canonical_survival_heart_style,
+    is_twitch_channel_point_cosmetic,
 )
 
-LEDGER_BUILD = "shared-ledger-v13-daily-activity-2026-09-07"
+LEDGER_BUILD = "shared-ledger-v14-twitch-link-2026-09-27"
 
 ACTIVITY_BONUS_COINS = 10.0
 ACTIVITY_RESET_HOUR = 5
@@ -463,6 +464,31 @@ def _normalize_entry(entry):
     if active_profile_theme != "classic" and active_profile_theme not in profile_themes:
         active_profile_theme = "classic"
 
+    survival_heart_styles = entry.get("survival_heart_styles", [])
+    if not isinstance(survival_heart_styles, list):
+        survival_heart_styles = []
+    survival_heart_styles = [
+        str(item).casefold() for item in survival_heart_styles
+        if canonical_survival_heart_style(item) not in {None, "classic"}
+    ]
+    survival_heart_styles = list(dict.fromkeys(survival_heart_styles))
+    active_survival_heart_style = canonical_survival_heart_style(
+        entry.get("active_survival_heart_style", "classic")
+    ) or "classic"
+    if active_survival_heart_style != "classic" and active_survival_heart_style not in survival_heart_styles:
+        active_survival_heart_style = "classic"
+
+    twitch_user_id = str(entry.get("twitch_user_id", "") or "").strip()
+    twitch_login = str(entry.get("twitch_login", "") or "").strip()
+    try:
+        twitch_linked_at = int(entry.get("twitch_linked_at", 0) or 0)
+    except Exception:
+        twitch_linked_at = 0
+    twitch_unlocks = entry.get("twitch_unlocks", [])
+    if not isinstance(twitch_unlocks, list):
+        twitch_unlocks = []
+    twitch_unlocks = list(dict.fromkeys(str(item) for item in twitch_unlocks if str(item)))
+
     return {
         "name": str(entry.get("name", "Unknown")),
         "points": points,
@@ -480,6 +506,12 @@ def _normalize_entry(entry):
         "active_color": active_color,
         "profile_themes": profile_themes,
         "active_profile_theme": active_profile_theme,
+        "survival_heart_styles": survival_heart_styles,
+        "active_survival_heart_style": active_survival_heart_style,
+        "twitch_user_id": twitch_user_id,
+        "twitch_login": twitch_login,
+        "twitch_linked_at": twitch_linked_at,
+        "twitch_unlocks": twitch_unlocks,
         "pending_trades": _normalize_pending_trades(entry.get("pending_trades"), entry.get("pending_trade")),
         # Backwards-compatible alias used by older Guess/UI code. It always
         # points at the oldest inbox item, while pending_trades is canonical.
@@ -2706,21 +2738,12 @@ def equip_badge(user_id, display_name, badge, transaction_id):
     return {"user_id": str(user_id), **entry}
 
 
-def _reject_twitch_channel_point_purchase(kind, name):
-    points = twitch_channel_point_cost(kind, name)
-    if points is not None:
-        label = str(name or "").replace("_", " ").title()
-        raise ValueError(
-            f"{label} is unlocked with {points:,} Twitch Channel Points, "
-            "not SharkBot coins."
-        )
-
-
 def buy_board(user_id, display_name, board_name, transaction_id):
     board_name = str(board_name).casefold()
+    if is_twitch_channel_point_cosmetic("board", board_name):
+        raise ValueError("That board is unlocked with Twitch Channel Points, not SharkBot coins.")
     if board_name not in BOARD_THEMES or board_name == "classic":
         raise ValueError("Unknown or free default board theme.")
-    _reject_twitch_channel_point_purchase("board", board_name)
     def mutate(entry):
         if board_name in entry.get("boards", []):
             raise ValueError("You already own that board theme.")
@@ -2751,9 +2774,10 @@ def equip_board(user_id, display_name, board_name, transaction_id):
 
 def buy_piece(user_id, display_name, piece_name, transaction_id):
     piece_name = canonical_piece_set(piece_name)
+    if is_twitch_channel_point_cosmetic("piece", piece_name):
+        raise ValueError("That piece set is unlocked with Twitch Channel Points, not SharkBot coins.")
     if piece_name not in PIECE_SETS or piece_name == "classic":
         raise ValueError("Unknown or free default piece set.")
-    _reject_twitch_channel_point_purchase("piece", piece_name)
 
     def mutate(entry):
         if piece_name in entry.get("pieces", []):
@@ -2788,9 +2812,10 @@ def equip_piece(user_id, display_name, piece_name, transaction_id):
 
 def buy_arrow(user_id, display_name, arrow_name, transaction_id):
     arrow_name = str(arrow_name or "").casefold().strip()
+    if is_twitch_channel_point_cosmetic("arrow", arrow_name):
+        raise ValueError("That arrow is unlocked with Twitch Channel Points, not SharkBot coins.")
     if arrow_name not in ARROW_COLORS or arrow_name == DEFAULT_ARROW_COLOR:
         raise ValueError("Unknown or free default arrow color.")
-    _reject_twitch_channel_point_purchase("arrow", arrow_name)
 
     def mutate(entry):
         if arrow_name in entry.get("arrows", []):
@@ -2827,9 +2852,10 @@ def equip_arrow(user_id, display_name, arrow_name, transaction_id):
 
 def buy_color(user_id, display_name, color_name, transaction_id):
     color_name = str(color_name).casefold()
+    if is_twitch_channel_point_cosmetic("color", color_name):
+        raise ValueError("That name color is unlocked with Twitch Channel Points, not SharkBot coins.")
     if color_name not in NAME_COLORS:
         raise ValueError("Unknown shop color.")
-    _reject_twitch_channel_point_purchase("color", color_name)
     def mutate(entry):
         if color_name in entry.get("colors", []):
             raise ValueError("You already own that color.")
@@ -2860,9 +2886,10 @@ def equip_color(user_id, display_name, color_name, transaction_id):
 
 def buy_profile_theme(user_id, display_name, theme_name, transaction_id):
     theme_name = str(theme_name or "").casefold().strip()
+    if is_twitch_channel_point_cosmetic("theme", theme_name):
+        raise ValueError("That profile theme is unlocked with Twitch Channel Points, not SharkBot coins.")
     if theme_name not in PROFILE_THEMES or theme_name == "classic":
         raise ValueError("Unknown or free default profile theme.")
-    _reject_twitch_channel_point_purchase("theme", theme_name)
     cost = float(profile_theme_cost(theme_name))
 
     def mutate(entry):
@@ -2901,6 +2928,148 @@ def equip_profile_theme(user_id, display_name, theme_name, transaction_id):
     )
     return {"user_id": str(user_id), **entry}
 
+
+
+def twitch_link_for_user(user_id):
+    profile = get_cosmetic_profile(user_id)
+    return {
+        "discord_user_id": str(user_id),
+        "twitch_user_id": str(profile.get("twitch_user_id", "") or ""),
+        "twitch_login": str(profile.get("twitch_login", "") or ""),
+        "linked_at": int(profile.get("twitch_linked_at", 0) or 0),
+    }
+
+
+def discord_user_for_twitch(twitch_user_id):
+    wanted = str(twitch_user_id or "").strip()
+    if not wanted:
+        return None
+    snapshot = _current_snapshot()
+    matches = []
+    for uid, raw in snapshot.items():
+        entry = _normalize_entry(raw)
+        if str(entry.get("twitch_user_id", "") or "") == wanted:
+            matches.append((str(uid), entry))
+    if not matches:
+        return None
+    if len(matches) > 1:
+        raise RuntimeError("The same Twitch account is linked to more than one Discord profile.")
+    uid, entry = matches[0]
+    return {"user_id": uid, **entry}
+
+
+def link_twitch_account(user_id, display_name, twitch_user_id, twitch_login, transaction_id):
+    uid = str(user_id)
+    twitch_user_id = str(twitch_user_id or "").strip()
+    twitch_login = str(twitch_login or "").strip()
+    if not twitch_user_id:
+        raise ValueError("Missing Twitch user id.")
+
+    existing = discord_user_for_twitch(twitch_user_id)
+    if existing is not None and str(existing.get("user_id")) != uid:
+        raise ValueError("That Twitch account is already linked to another Discord account.")
+
+    current = get_cosmetic_profile(uid, display_name)
+    previous_twitch = str(current.get("twitch_user_id", "") or "")
+    if previous_twitch and previous_twitch != twitch_user_id:
+        raise ValueError("This Discord account is already linked to a different Twitch account.")
+
+    def mutate(entry):
+        before = str(entry.get("twitch_user_id", "") or "")
+        entry["twitch_user_id"] = twitch_user_id
+        entry["twitch_login"] = twitch_login
+        if not int(entry.get("twitch_linked_at", 0) or 0):
+            entry["twitch_linked_at"] = int(time.time())
+        return {
+            "before_twitch_user_id": before,
+            "twitch_user_id": twitch_user_id,
+            "twitch_login": twitch_login,
+        }
+
+    entry, _ = _shop_mutation(
+        uid, display_name, transaction_id, "twitch-discord-link", mutate
+    )
+    return {"user_id": uid, **entry}
+
+
+def grant_twitch_cosmetic(user_id, display_name, reward_key, redemption_id, twitch_user_id=""):
+    """Grant one permanent Twitch cosmetic without spending SharkBot coins.
+
+    The Twitch redemption id is used as the immutable transaction id, making
+    duplicate EventSub deliveries safe.
+    """
+    uid = str(user_id)
+    reward_key = str(reward_key or "").casefold().strip()
+    redemption_id = str(redemption_id or "").strip()
+    if not redemption_id:
+        raise ValueError("Missing Twitch redemption id.")
+
+    supported = {
+        "arrow": ("arrows", "purple"),
+        "board": ("boards", "purple"),
+        "pieces": ("pieces", "purple"),
+        "profile_theme": ("profile_themes", "purple"),
+        "name": ("colors", "purple"),
+        "survival_hearts": ("survival_heart_styles", "purple"),
+    }
+    if reward_key not in supported:
+        raise ValueError("Unknown Twitch cosmetic reward.")
+
+    field, value = supported[reward_key]
+    transaction_id = f"twitch-redemption:{redemption_id}"
+
+    def mutate(entry):
+        owned = entry.setdefault(field, [])
+        already_owned = value in owned
+        if not already_owned:
+            owned.append(value)
+        unlocks = entry.setdefault("twitch_unlocks", [])
+        if reward_key not in unlocks:
+            unlocks.append(reward_key)
+        if twitch_user_id and not str(entry.get("twitch_user_id", "") or ""):
+            entry["twitch_user_id"] = str(twitch_user_id)
+        return {
+            "reward_key": reward_key,
+            "field": field,
+            "value": value,
+            "already_owned": already_owned,
+            "twitch_user_id": str(twitch_user_id or ""),
+            "redemption_id": redemption_id,
+        }
+
+    entry, event, created = _shop_mutation(
+        uid,
+        display_name,
+        transaction_id,
+        "twitch-cosmetic-grant",
+        mutate,
+        return_created=True,
+    )
+    details = event.get("details", {}) if isinstance(event, dict) else {}
+    return {
+        "user_id": uid,
+        "reward_key": reward_key,
+        "already_owned": bool(details.get("already_owned", False)),
+        "created": bool(created),
+        "profile": {"user_id": uid, **entry},
+    }
+
+
+def equip_survival_heart_style(user_id, display_name, style_name, transaction_id):
+    style_name = canonical_survival_heart_style(style_name)
+    if style_name is None:
+        raise ValueError("Unknown Survival heart style.")
+
+    def mutate(entry):
+        if style_name != "classic" and style_name not in entry.get("survival_heart_styles", []):
+            raise ValueError("You do not own that Survival heart style.")
+        entry["active_survival_heart_style"] = style_name
+        return {"survival_heart_style": style_name}
+
+    entry, _ = _shop_mutation(
+        user_id, display_name, transaction_id, "equip-survival-heart-style", mutate
+    )
+    return {"user_id": str(user_id), **entry}
 
 def format_points(value):
     value = float(value)
