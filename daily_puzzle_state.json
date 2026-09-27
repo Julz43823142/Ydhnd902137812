@@ -2662,8 +2662,8 @@
         "url": "https://lichess.org/training/5ajcw",
         "title": "Lichess • 1598",
         "fen": "r1bq1rk1/ppp1ppb1/6p1/4P2P/3PQ3/5N1P/PP3P2/2KR1B1R b - - 0 15",
-        "current_fen": "r1bq1rk1/ppp1ppb1/6p1/4P2P/3PQ3/5N1P/PP3P2/2KR1B1R b - - 0 15",
-        "last_move_uci": "g4h5",
+        "current_fen": "r1bq1rk1/ppp1pp2/6pb/4P2P/3PQ3/5N1P/PP3P2/1K1R1B1R b - - 2 16",
+        "last_move_uci": "c1b1",
         "pgn": "Bh6+ Kb1 Bf5 Bd3 Bxe4",
         "all_moves": [
           {
@@ -2718,16 +2718,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_5ajcw_1790509512138",
         "rating": 1598,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1553734238929559582,
+      "message_id": 1553734252464443472,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790509512.132277,
-      "last_feedback": "✅ **Rxh4** — solved! Score: **11**."
+      "last_card_activity_at": 1790509524.6232405,
+      "last_feedback": "✅ **Bh6+** • Opponent: **Kb1**"
     },
     "362606514764251137": {
       "active": false,
