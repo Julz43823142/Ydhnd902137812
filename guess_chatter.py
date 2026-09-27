@@ -82,7 +82,7 @@ TOKEN = os.getenv(
 
 CHANNEL_ID = 1536769340970373241
 
-GUESS_CHATTER_BUILD = "guess-chatter-v7-private-chatdata-2026-09-12"
+GUESS_CHATTER_BUILD = "guess-chatter-v8-safety-twitch-2026-09-27"
 GUESS_CONTROLLER_BUILD = "guess-games-v7-buttons-trades-2026-09-08"
 PLAYER_INFO_BUILD = "guess-player-info-status-v2-2026-09-03"
 PERSISTENT_GUESS_V5 = True
@@ -699,7 +699,7 @@ class GuessCatalogPager(discord.ui.View):
         if twitch_points is not None:
             price_line = f"**Unlock:** Twitch Channel Points only • **{twitch_points:,} points**"
             action_line = (
-                f"This Purple {item_word} is a **Twitch Channel Points unlock**. "
+                f"This Twitch {item_word} is a **Twitch Channel Points unlock**. "
                 "It cannot be bought with SharkBot coins. You can still preview it here."
             )
         else:
@@ -1907,6 +1907,7 @@ def chatter_active_on_date(
 
 intents = discord.Intents.default()
 intents.message_content = True
+intents.members = True
 
 client = discord.Client(
     intents=intents
@@ -2187,6 +2188,17 @@ def format_reveal_date(date_text):
     return raw
 
 
+
+def _discord_safe_text(value, limit=1950):
+    """Keep generated Discord messages below the 2,000-character hard cap."""
+    text = str(value or "")
+    limit = max(100, min(int(limit), 1990))
+    if len(text) <= limit:
+        return text
+    return text[:limit - 3].rstrip() + "..."
+
+
+
 def context_for_quote(
     all_entries,
     quote_index,
@@ -2313,8 +2325,8 @@ def answer_details(
     else:
         lines.append("_No surrounding chat context was available._")
 
-    return "\n".join(
-        lines
+    return _discord_safe_text(
+        "\n".join(lines)
     )
 
 
@@ -2876,10 +2888,14 @@ async def post_quote_hunt(channel, chatters, all_entries):
         ]
     )
 
-    await channel.send(
-        "\n".join(reveal_lines),
-        view=QuoteHuntContextView(options, all_entries, correct_index),
-    )
+    try:
+        await channel.send(
+            _discord_safe_text("\n".join(reveal_lines)),
+            view=QuoteHuntContextView(options, all_entries, correct_index),
+        )
+    except Exception as error:
+        # A display failure must never prevent stats or rewards from settling.
+        print(f"Quote Hunt reveal error for poll {poll_message.id}: {error}", flush=True)
 
     vote_records = []
     seen_vote_ids = set()
@@ -3197,15 +3213,19 @@ async def post_guess(
         )
         voters_by_answer = []
 
-    await channel.send(
-        answer_details(
-            all_entries,
-            correct_index,
-            voters_by_answer,
-            date,
-            quote_index,
+    try:
+        await channel.send(
+            answer_details(
+                all_entries,
+                correct_index,
+                voters_by_answer,
+                date,
+                quote_index,
+            )
         )
-    )
+    except Exception as error:
+        # A reveal failure must never block vote stats or point rewards.
+        print(f"Guess Chatter reveal error for poll {poll_message.id}: {error}", flush=True)
 
     # Record EVERY vote for !stats, including wrong answers. One poll/user
     # combination is stored only once, so retries can never duplicate stats.
@@ -3854,8 +3874,8 @@ def guess_shop_home_embed(profile):
             f"➡️ Arrows — standard colors **{shared_format_points(ARROW_COST)} coins** each\n"
             "🖼️ Profile Themes — standard themes **50**, game themes **100** coins\n"
             f"🖌️ Name Colors — standard colors **{shared_format_points(COLOR_COST)} coins** each\n"
-            "🟣 **Purple Collection** — Twitch Channel Points only (**5k–20k**)\n\n"
-            "Purple Board, Pieces, Arrow, Profile Theme and Name can already be previewed here. "
+            "🟣 **Twitch Collection** — Twitch Channel Points only (**1k–20k**)\n\n"
+            "Twitch Board, Pieces, Arrow, Profile Theme and Name Color can already be previewed here. "
             "They cannot be bought with SharkBot coins.\n\n"
             "Trading and donations have their own **Trade** button in `!menu`."
         ),
@@ -3955,7 +3975,7 @@ class GuessColorCatalogView(discord.ui.View):
         if twitch_points is not None:
             price_line = f"**Unlock:** Twitch Channel Points only • **{twitch_points:,} points**"
             instruction = (
-                "Purple Name is a **Twitch Channel Points unlock** and cannot be bought with SharkBot coins. "
+                "Twitch Name Color is a **Twitch Channel Points unlock** and cannot be bought with SharkBot coins. "
                 "The embed color is the preview. Default removes the shop color role."
             )
         else:
