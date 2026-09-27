@@ -1,0 +1,14 @@
+{
+  "after_coins": 90.28,
+  "before_coins": 90.28,
+  "created_at": 1790541172,
+  "created_at_ns": 1790541172947599443,
+  "details": {
+    "board": "ruby"
+  },
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v15-twitch-privacy-2026-09-27",
+  "operation": "equip-board",
+  "transaction_id": "profile-button-boards:1553867042950484018:442597396195704832:ruby",
+  "user_id": "442597396195704832"
+}
