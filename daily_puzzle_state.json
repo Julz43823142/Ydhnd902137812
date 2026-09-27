@@ -3986,9 +3986,9 @@
   },
   "bot_ideas_ticket_counter_v1": 14,
   "bot_ideas_idle_v1": {
-    "last_activity_at": 1788998113.2606084,
+    "last_activity_at": 1790528303.2224095,
     "reminder_sent": true,
-    "reminder_message_id": "1547402591720443978",
+    "reminder_message_id": "1553820661393264701",
     "tickets_since_prompt": 0
   },
   "bot_ideas_panel_message_id_v1": "1546854821351395401",
