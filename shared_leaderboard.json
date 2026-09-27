@@ -209,7 +209,9 @@
     "name": "Sharkmeister",
     "pending_trade": null,
     "pending_trades": [],
-    "pieces": [],
+    "pieces": [
+      "purple"
+    ],
     "points": 76.5,
     "profile_themes": [
       "shark",

@@ -1,0 +1,14 @@
+{
+  "transaction_id": "admin-command:1553770692380729356",
+  "actor_id": "362606514764251137",
+  "operation": "give-pieces",
+  "result": {
+    "name": "Sharkmeister",
+    "action": "give",
+    "kind": "pieces",
+    "item": "purple",
+    "amount": 1,
+    "active_reset": false
+  },
+  "created_at": 1790518203.0304735
+}
