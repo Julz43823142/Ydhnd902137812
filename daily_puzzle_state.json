@@ -8033,9 +8033,10 @@
       "reward_title": "Unlock Discord Twitch Arrow",
       "reward_cost": 5000,
       "created_at": 1790540084,
-      "updated_at": 1790540084,
+      "updated_at": 1790540298,
       "identity_enc": "gAAAAABquXk0VZ_hRRtNDzVxpisaNS6Oi4sYr2imY865KR1kdMpY-BDNzv-wOViM04FnKIEo71xybg5pzS82AmeyPm7x4KCgCAEBiKdTNjQRdCGWk4-zl838ILevLnf2NXQfEvkI7GBerIm-22U3FT5-7-d1ePYy3vaMn4vmobG3H1oihN7Glwu2umVBy7A38gYkwhQSpU0KV3O8xgNBBjULKD1uSJYQ9dJVDRmPsrzpBdRsU1E--Gs=",
-      "status": "discord_user_not_found"
+      "status": "processed",
+      "discord_user_id": "442597396195704832"
     },
     "caeac4b2-a65d-42ad-ba68-15bb9c486015": {
       "redemption_id": "caeac4b2-a65d-42ad-ba68-15bb9c486015",
@@ -8055,14 +8056,14 @@
       "reward_title": "Unlock Discord Pieces",
       "reward_cost": 5000,
       "created_at": 1790540284,
-      "updated_at": 1790540287,
+      "updated_at": 1790540300,
       "identity_enc": "gAAAAABquXn8ZyL-Kykw05OQk1C5DlV7pwkkNDQLTVjGkv5oiUpxn9rt3_aSuLr21xFh0Q5aVx9BtGNxshO4iYqzhgcGhHq0iDYUcIUMVrNS_DCn7AhjW7HF6h0BVH15ajHz1wCfgE-iU0w3U6HeVexNSp8q_YrSVjd9HPHncHJD4rocuHpFe6yhf0ipZgX5tEgu_FPiMCVkQ5YpWvE4htWRyPjaMmMacQ==",
       "discord_user_id": "442597396195704832",
       "discord_username": "thice0872",
       "confirmation_location": "channel",
       "confirmation_channel_id": "1468320170891022417",
       "dm_message_id": "1553863327359443025",
-      "status": "awaiting_confirmation"
+      "status": "processed"
     },
     "c3ac51f0-76de-481b-a703-1232dbc502e2": {
       "redemption_id": "c3ac51f0-76de-481b-a703-1232dbc502e2",
@@ -8101,6 +8102,10 @@
     "386134006170910721": {
       "link_enc": "gAAAAABquXX5REnrT56Xkl5P1fAQgqHyj08E9h2CLznWflLEibG12DInFtwE4Z7F1_5zoSP5AsWtLFIvXCcOrpzTAC8gNogKvQ0V61pndWZkNt-R-fGMRz1yjyX-sQKgX1Ovyzi6OP4jNUT_hGzcvTEWB1u4ZaF14g==",
       "linked_at": 1790539257
+    },
+    "442597396195704832": {
+      "link_enc": "gAAAAABquXoIYTNkjdrFu1peT7kEb_OmP9Ioc4R-ZbwcEjw11-iurH925sUOOTkqCnh1fJ-SbW1fRJnnOtmrS2Rx2yRFPnvgamXRmGobdRkRYcRDeUAsMAMN_TFZ55tXIcOmVosxxdU-nIg5IjC5u-CHlTzvAuSfBQ==",
+      "linked_at": 1790540296
     }
   },
   "twitch_privacy_migration_v1": {
