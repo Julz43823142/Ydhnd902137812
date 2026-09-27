@@ -1,0 +1,14 @@
+{
+  "after_coins": 34.0,
+  "before_coins": 34.0,
+  "created_at": 1790540179,
+  "created_at_ns": 1790540179826641762,
+  "details": {
+    "profile_theme": "purple"
+  },
+  "display_name": "mh",
+  "ledger_build": "shared-ledger-v15-twitch-privacy-2026-09-27",
+  "operation": "equip-profile-theme",
+  "transaction_id": "profile-button-themes:1553862877675520072:386134006170910721:purple",
+  "user_id": "386134006170910721"
+}
