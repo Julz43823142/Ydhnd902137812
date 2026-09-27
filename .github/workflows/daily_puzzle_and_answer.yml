@@ -1,6 +1,16 @@
 name: Daily Puzzle
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'bot.py'
+      - 'shared_leaderboard.py'
+      - 'shop_catalog.py'
+      - 'piece_art.py'
+      - 'quests.py'
+      - 'puzzle_move_validation.py'
+      - 'requirements.txt'
   schedule:
     # Backup rotation. GitHub notes that scheduled runs can be delayed or even
     # dropped under load, so bot.py also performs its own clean handoff.
@@ -88,7 +98,7 @@ jobs:
           pool_file = constant("bot.py", "RP_POOL_FILE")
 
           assert bot_build == "daily-rp-v12-offline-pool-2026-09-03", bot_build
-          assert ledger_build == "shared-ledger-v14-twitch-link-2026-09-27", ledger_build
+          assert ledger_build == "shared-ledger-v15-twitch-privacy-2026-09-27", ledger_build
           assert os.path.exists(pool_file), (
               f"{pool_file} is missing. Run the 'Build RP Puzzle Pool' workflow first."
           )
