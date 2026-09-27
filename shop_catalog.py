@@ -1,6 +1,6 @@
 """Shared cosmetic shop catalogue for the Puzzle + Guess bots."""
 
-SHOP_BUILD = "cosmetics-shop-v1-2026-09-05"
+SHOP_BUILD = "cosmetics-shop-v2-twitch-2026-09-27"
 
 BADGE_BOX_COST = 50.0
 BOARD_COST = 100.0
@@ -20,6 +20,7 @@ TWITCH_CHANNEL_POINT_COSMETICS = {
     "arrow": {"purple": 5000},
     "theme": {"purple": 10000},
     "color": {"purple": 20000},
+    "survival_heart": {"purple": 5000},
 }
 
 
@@ -32,6 +33,21 @@ def twitch_channel_point_cost(kind, name):
 def is_twitch_channel_point_cosmetic(kind, name):
     return twitch_channel_point_cost(kind, name) is not None
 
+
+
+SURVIVAL_HEART_STYLES = {
+    "classic": {"label": "Classic", "full": "❤️", "lost": "🖤"},
+    "purple": {"label": "Twitch", "full": "💜", "lost": "🖤"},
+}
+
+
+def canonical_survival_heart_style(name):
+    key = str(name or "classic").casefold().strip()
+    if key in {"default", "none"}:
+        key = "classic"
+    if key == "twitch":
+        key = "purple"
+    return key if key in SURVIVAL_HEART_STYLES else None
 
 # Profile-card backgrounds. Classic is free; themed cards are permanent cosmetics.
 PROFILE_THEMES = {
