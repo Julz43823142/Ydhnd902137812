@@ -8037,9 +8037,13 @@
       "reward_cost": 5000,
       "user_input": "Sharkmeister",
       "created_at": 1790524627,
-      "updated_at": 1790524627,
+      "updated_at": 1790524630,
       "discord_user_id": "362606514764251137",
-      "discord_username": "sharkmeister"
+      "discord_username": "sharkmeister",
+      "confirmation_location": "channel",
+      "confirmation_channel_id": "1468320170891022417",
+      "dm_message_id": "1553797660035518646",
+      "status": "awaiting_confirmation"
     }
   }
 }
