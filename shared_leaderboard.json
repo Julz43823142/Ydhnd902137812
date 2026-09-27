@@ -271,7 +271,9 @@
     "badges": [],
     "boards": [],
     "coins": 34.0,
-    "colors": [],
+    "colors": [
+      "purple"
+    ],
     "donation_inbox": [],
     "guess_points_coined": 24.0,
     "name": "mh",
@@ -285,7 +287,8 @@
     "sent_trades": [],
     "survival_heart_styles": [],
     "twitch_unlocks": [
-      "profile_theme"
+      "profile_theme",
+      "name"
     ]
   },
   "442597396195704832": {

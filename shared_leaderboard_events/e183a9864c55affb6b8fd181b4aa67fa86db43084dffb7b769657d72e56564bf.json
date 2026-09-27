@@ -1,0 +1,18 @@
+{
+  "after_coins": 34.0,
+  "before_coins": 34.0,
+  "created_at": 1790540293,
+  "created_at_ns": 1790540293597593948,
+  "details": {
+    "already_owned": false,
+    "field": "colors",
+    "redemption_id": "c616c268-c308-429e-8a59-60809f6bf695",
+    "reward_key": "name",
+    "value": "purple"
+  },
+  "display_name": "mh",
+  "ledger_build": "shared-ledger-v15-twitch-privacy-2026-09-27",
+  "operation": "twitch-cosmetic-grant",
+  "transaction_id": "twitch-redemption:c616c268-c308-429e-8a59-60809f6bf695",
+  "user_id": "386134006170910721"
+}
