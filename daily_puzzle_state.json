@@ -2662,8 +2662,8 @@
         "url": "https://lichess.org/training/33W6Q",
         "title": "Lichess • 1664",
         "fen": "6rk/1b3p2/p2qpPrp/1ppp2PQ/4PN1R/1PPP3P/8/b6K w - - 2 28",
-        "current_fen": "6rk/1b3p2/p2qpPrp/1ppp2PQ/4PN1R/1PPP3P/8/b6K w - - 2 28",
-        "last_move_uci": "e8g8",
+        "current_fen": "6rk/1b3p2/p2qpP1r/1ppp2P1/4PN1R/1PPP3P/8/b6K w - - 0 29",
+        "last_move_uci": "g6h6",
         "pgn": "Qxh6+ Rxh6 Rxh6#",
         "all_moves": [
           {
@@ -2703,16 +2703,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_33W6Q_1790509532888",
         "rating": 1664,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1553734315899097109,
+      "message_id": 1553734341593399358,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790509532.8827128,
-      "last_feedback": "✅ **Bxe4** — solved! Score: **12**."
+      "last_card_activity_at": 1790509538.6977158,
+      "last_feedback": "✅ **Qxh6+** • Opponent: **Rxh6**"
     },
     "362606514764251137": {
       "active": false,
