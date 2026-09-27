@@ -1708,27 +1708,29 @@ class TwitchLinkConfirmView(discord.ui.View):
 
 
 async def _twitch_send_link_confirmation(member, pending, fallback_channel=None):
+    """Post first-time Twitch ↔ Discord confirmation in the primary ChessBot channel."""
+    if fallback_channel is None:
+        raise RuntimeError("Primary ChessBot channel is unavailable for Twitch link confirmation.")
+
     view = TwitchLinkConfirmView(pending["redemption_id"], member.id)
     content = (
+        f"{member.mention}\n"
         "🟣 **Confirm your Twitch ↔ Discord link**\n\n"
-        f"Twitch user **{pending.get('twitch_user_name') or pending.get('twitch_login', 'Unknown')}** "
-        f"redeemed **{pending.get('reward_label', 'a Twitch cosmetic')}** and entered your Discord username.\n\n"
-        "Press **Confirm Twitch Link** only if that is your Twitch account. "
+        f"A Twitch account redeemed **{pending.get('reward_label', 'a Twitch cosmetic')}** "
+        "and entered your Discord username.\n\n"
+        "Press **Confirm Twitch Link** only if you made this redemption. "
+        "If this was not you, press **Not My Twitch Account**.\n\n"
         "After confirmation, future SharkBot Channel Point rewards will use your Discord ID automatically."
     )
-    try:
-        message = await member.send(content, view=view)
-        pending["confirmation_location"] = "dm"
-    except Exception:
-        if fallback_channel is None:
-            raise
-        message = await fallback_channel.send(
-            f"{member.mention}\n{content}",
-            view=view,
-            allowed_mentions=discord.AllowedMentions(users=True),
-        )
-        pending["confirmation_location"] = "channel"
-        pending["confirmation_channel_id"] = str(fallback_channel.id)
+
+    message = await fallback_channel.send(
+        content,
+        view=view,
+        allowed_mentions=discord.AllowedMentions(users=True),
+    )
+    pending["confirmation_location"] = "channel"
+    pending["confirmation_channel_id"] = str(fallback_channel.id)
+    # Keep the existing state key for backwards compatibility with restart recovery.
     pending["dm_message_id"] = str(message.id)
     pending["status"] = "awaiting_confirmation"
     pending["updated_at"] = int(time.time())
