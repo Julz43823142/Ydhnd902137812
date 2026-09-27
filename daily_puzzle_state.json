@@ -8025,5 +8025,21 @@
     "updated_at": 1790524512,
     "reason": "worker-start"
   },
-  "twitch_pending_redemptions_v1": {}
+  "twitch_pending_redemptions_v1": {
+    "2e64827e-b674-48cd-8da5-fdeff053a10a": {
+      "redemption_id": "2e64827e-b674-48cd-8da5-fdeff053a10a",
+      "twitch_user_id": "1063411811",
+      "twitch_login": "sh4rkmate",
+      "twitch_user_name": "Sh4rkmate",
+      "reward_key": "arrow",
+      "reward_label": "Twitch Arrow",
+      "reward_title": "Unlock Discord Twitch Arrow",
+      "reward_cost": 5000,
+      "user_input": "Sharkmeister",
+      "created_at": 1790524627,
+      "updated_at": 1790524627,
+      "discord_user_id": "362606514764251137",
+      "discord_username": "sharkmeister"
+    }
+  }
 }
