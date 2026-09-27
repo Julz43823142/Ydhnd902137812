@@ -8063,6 +8063,18 @@
       "confirmation_channel_id": "1468320170891022417",
       "dm_message_id": "1553863327359443025",
       "status": "awaiting_confirmation"
+    },
+    "c3ac51f0-76de-481b-a703-1232dbc502e2": {
+      "redemption_id": "c3ac51f0-76de-481b-a703-1232dbc502e2",
+      "reward_key": "name",
+      "reward_label": "Twitch Name Color",
+      "reward_title": "Unlock Discord Name Color",
+      "reward_cost": 20000,
+      "created_at": 1790540288,
+      "updated_at": 1790540288,
+      "identity_enc": "gAAAAABquXoALvuV-rOpphr-n_iCVGd4F0_dHpIZTrIx2qzUSmKQG6nojR9RFWJGzaFpbQ3fKo-ig87qy1sMx49x2fFf9b1csBkprN3-VW2ZwmwrYmqdqfmJjcO3s-3_w8KlvYY1KIIFk6UJZ3jllen5MYaQYxmdh2-U_NLK0Uo4bqSi4q1e0i6LKQ-oRE2MCD5UCFGZhRrlfFmAq9O7RoXxDe7O03etOJzfoUUlldXnx0MW-T2VMDM=",
+      "discord_user_id": "1045034833639919707",
+      "discord_username": "rylaaaand"
     }
   },
   "twitch_links_v1": {
