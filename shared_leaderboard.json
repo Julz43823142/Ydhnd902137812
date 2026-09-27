@@ -32,7 +32,9 @@
     "active_piece": "classic",
     "active_profile_theme": "classic",
     "active_survival_heart_style": "classic",
-    "arrows": [],
+    "arrows": [
+      "purple"
+    ],
     "badges": [],
     "boards": [
       "purple"
@@ -59,7 +61,8 @@
       "name",
       "pieces",
       "profile_theme",
-      "board"
+      "board",
+      "arrow"
     ]
   },
   "1310661840707129370": {
