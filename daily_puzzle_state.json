@@ -2662,8 +2662,8 @@
         "url": "https://lichess.org/training/7niUM",
         "title": "Lichess • 1539",
         "fen": "5rk1/6pp/p2p4/1p1Pnp2/4pq2/P1P1QPR1/1P4PP/4R1K1 b - - 2 29",
-        "current_fen": "5rk1/6pp/p2p4/1p1Pnp2/4pq2/P1P1QPR1/1P4PP/4R1K1 b - - 2 29",
-        "last_move_uci": "d4e3",
+        "current_fen": "5rk1/6pp/p2p4/1p1Pnp2/4p3/P1P1RPR1/1P4PP/6K1 b - - 0 30",
+        "last_move_uci": "e1e3",
         "pgn": "Qxe3+ Rxe3 f4",
         "all_moves": [
           {
@@ -2703,16 +2703,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_7niUM_1790509495429",
         "rating": 1539,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1553734122059337798,
+      "message_id": 1553734181912322141,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790509495.424008,
-      "last_feedback": "❌ **bc6** was wrong. Correct move: **Qc6+**."
+      "last_card_activity_at": 1790509501.0547843,
+      "last_feedback": "✅ **Qxe3+** • Opponent: **Rxe3**"
     },
     "362606514764251137": {
       "active": false,
