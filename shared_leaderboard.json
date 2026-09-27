@@ -231,7 +231,9 @@
     "active_piece": "purple",
     "active_profile_theme": "minecraft",
     "active_survival_heart_style": "classic",
-    "arrows": [],
+    "arrows": [
+      "purple"
+    ],
     "badges": [
       "🌕",
       "🙏",
@@ -279,7 +281,9 @@
     "survival_heart_styles": [],
     "twitch_linked_at": 1790524643,
     "twitch_login": "sh4rkmate",
-    "twitch_unlocks": [],
+    "twitch_unlocks": [
+      "arrow"
+    ],
     "twitch_user_id": "1063411811"
   },
   "386134006170910721": {

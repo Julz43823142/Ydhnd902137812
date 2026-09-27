@@ -1,0 +1,19 @@
+{
+  "after_coins": 41.67,
+  "before_coins": 41.67,
+  "created_at": 1790524645,
+  "created_at_ns": 1790524645824147833,
+  "details": {
+    "already_owned": false,
+    "field": "arrows",
+    "redemption_id": "2e64827e-b674-48cd-8da5-fdeff053a10a",
+    "reward_key": "arrow",
+    "twitch_user_id": "1063411811",
+    "value": "purple"
+  },
+  "display_name": "Sharkmeister",
+  "ledger_build": "shared-ledger-v14-twitch-link-2026-09-27",
+  "operation": "twitch-cosmetic-grant",
+  "transaction_id": "twitch-redemption:2e64827e-b674-48cd-8da5-fdeff053a10a",
+  "user_id": "362606514764251137"
+}
