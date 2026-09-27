@@ -30,8 +30,6 @@ from shared_leaderboard import (
     buy_profile_theme,
     equip_profile_theme,
     equip_survival_heart_style,
-    link_twitch_account,
-    discord_user_for_twitch,
     grant_twitch_cosmetic,
     transfer_coins,
     transfer_badge,
@@ -372,6 +370,8 @@ TWITCH_REFRESH_TOKEN_BOOTSTRAP = os.getenv("TWITCH_REFRESH_TOKEN", "").strip()
 TWITCH_EVENTSUB_URL = "wss://eventsub.wss.twitch.tv/ws?keepalive_timeout_seconds=30"
 TWITCH_OAUTH_STATE_KEY = "twitch_oauth_v1"
 TWITCH_PENDING_STATE_KEY = "twitch_pending_redemptions_v1"
+TWITCH_LINKS_STATE_KEY = "twitch_links_v1"
+TWITCH_PRIVACY_MIGRATION_KEY = "twitch_privacy_migration_v1"
 TWITCH_REWARD_CONFIG = {
     # Current Twitch reward titles.
     "unlock discord arrow": {"key": "arrow", "label": "Twitch Arrow", "points": 5000},
@@ -1316,6 +1316,14 @@ def _twitch_oauth_state():
     return bucket
 
 
+def _twitch_links_state():
+    bucket = state.setdefault(TWITCH_LINKS_STATE_KEY, {})
+    if not isinstance(bucket, dict):
+        bucket = {}
+        state[TWITCH_LINKS_STATE_KEY] = bucket
+    return bucket
+
+
 def _twitch_fernet():
     if not TWITCH_CLIENT_SECRET:
         raise RuntimeError("TWITCH_CLIENT_SECRET is missing.")
@@ -1340,6 +1348,195 @@ def _twitch_decrypt(value):
         return _twitch_fernet().decrypt(value.encode("ascii")).decode("utf-8")
     except (InvalidToken, ValueError, TypeError):
         return ""
+
+
+def _twitch_encrypt_json(payload):
+    return _twitch_encrypt(json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
+
+
+def _twitch_decrypt_json(value):
+    raw = _twitch_decrypt(value)
+    if not raw:
+        return {}
+    try:
+        data = json.loads(raw)
+    except Exception:
+        return {}
+    return data if isinstance(data, dict) else {}
+
+
+def _twitch_pending_identity(pending):
+    if not isinstance(pending, dict):
+        return {}
+    encrypted = _twitch_decrypt_json(pending.get("identity_enc", ""))
+    if encrypted:
+        return encrypted
+    # Migration fallback for state created by the first Twitch implementation.
+    return {
+        "twitch_user_id": str(pending.get("twitch_user_id", "") or ""),
+        "twitch_login": str(pending.get("twitch_login", "") or ""),
+        "twitch_user_name": str(pending.get("twitch_user_name", "") or ""),
+        "user_input": str(pending.get("user_input", "") or ""),
+    }
+
+
+def _twitch_set_pending_identity(pending, *, twitch_user_id, twitch_login, twitch_user_name, user_input):
+    pending["identity_enc"] = _twitch_encrypt_json({
+        "twitch_user_id": str(twitch_user_id or ""),
+        "twitch_login": str(twitch_login or ""),
+        "twitch_user_name": str(twitch_user_name or ""),
+        "user_input": str(user_input or ""),
+    })
+    # Never persist the first-redemption text or Twitch identity in plaintext.
+    for key in ("twitch_user_id", "twitch_login", "twitch_user_name", "user_input"):
+        pending.pop(key, None)
+
+
+def _twitch_link_for_discord(discord_user_id):
+    row = _twitch_links_state().get(str(discord_user_id))
+    if isinstance(row, str):
+        payload = _twitch_decrypt_json(row)
+        linked_at = 0
+    elif isinstance(row, dict):
+        payload = _twitch_decrypt_json(row.get("link_enc", ""))
+        linked_at = int(row.get("linked_at", 0) or 0)
+    else:
+        return None
+    twitch_user_id = str(payload.get("twitch_user_id", "") or "")
+    if not twitch_user_id:
+        return None
+    return {
+        "user_id": str(discord_user_id),
+        "twitch_user_id": twitch_user_id,
+        "twitch_login": str(payload.get("twitch_login", "") or ""),
+        "linked_at": linked_at,
+    }
+
+
+def _twitch_discord_user_for_twitch(twitch_user_id):
+    wanted = str(twitch_user_id or "").strip()
+    if not wanted:
+        return None
+    matches = []
+    for discord_user_id in list(_twitch_links_state()):
+        link = _twitch_link_for_discord(discord_user_id)
+        if link and link["twitch_user_id"] == wanted:
+            matches.append(link)
+    if len(matches) > 1:
+        raise RuntimeError("The same Twitch account is linked to more than one Discord account.")
+    return matches[0] if matches else None
+
+
+def _twitch_store_link(discord_user_id, twitch_user_id, twitch_login, linked_at=None):
+    discord_user_id = str(discord_user_id)
+    twitch_user_id = str(twitch_user_id or "").strip()
+    twitch_login = str(twitch_login or "").strip()
+    if not twitch_user_id:
+        raise ValueError("Missing Twitch user id.")
+
+    existing_twitch = _twitch_discord_user_for_twitch(twitch_user_id)
+    if existing_twitch is not None and existing_twitch["user_id"] != discord_user_id:
+        raise ValueError("That Twitch account is already linked to another Discord account.")
+
+    existing_discord = _twitch_link_for_discord(discord_user_id)
+    if existing_discord and existing_discord["twitch_user_id"] != twitch_user_id:
+        raise ValueError("This Discord account is already linked to a different Twitch account.")
+
+    timestamp = int(linked_at or (existing_discord or {}).get("linked_at", 0) or time.time())
+    _twitch_links_state()[discord_user_id] = {
+        "link_enc": _twitch_encrypt_json({
+            "twitch_user_id": twitch_user_id,
+            "twitch_login": twitch_login,
+        }),
+        "linked_at": timestamp,
+    }
+    return _twitch_link_for_discord(discord_user_id)
+
+
+def _twitch_legacy_shared_links():
+    """Read old plaintext links only for one-time migration into encrypted state."""
+    candidates = []
+    try:
+        if shared_ledger._fetch_retry():
+            raw = shared_ledger._origin_file(shared_ledger.LEGACY_FILE)
+            if raw:
+                candidates.append(json.loads(raw))
+    except Exception:
+        pass
+    try:
+        with open(shared_ledger.LEGACY_FILE, "r", encoding="utf-8") as handle:
+            candidates.append(json.load(handle))
+    except Exception:
+        pass
+
+    merged = {}
+    for snapshot in candidates:
+        if not isinstance(snapshot, dict):
+            continue
+        for discord_user_id, entry in snapshot.items():
+            if not isinstance(entry, dict):
+                continue
+            twitch_user_id = str(entry.get("twitch_user_id", "") or "").strip()
+            if not twitch_user_id:
+                continue
+            merged[str(discord_user_id)] = {
+                "twitch_user_id": twitch_user_id,
+                "twitch_login": str(entry.get("twitch_login", "") or ""),
+                "linked_at": int(entry.get("twitch_linked_at", 0) or 0),
+            }
+    return merged
+
+
+def _twitch_migrate_private_state():
+    """Encrypt old Twitch identity fields before public-ledger cleanup."""
+    changed = False
+
+    # Existing processed pending records are another migration source, so a
+    # confirmed link survives even if the public profile was already normalized.
+    for pending in list(_twitch_pending_state().values()):
+        if not isinstance(pending, dict):
+            continue
+        identity = _twitch_pending_identity(pending)
+        twitch_user_id = str(identity.get("twitch_user_id", "") or "").strip()
+        discord_user_id = str(pending.get("discord_user_id", "") or "").strip()
+        if twitch_user_id and discord_user_id and pending.get("status") in {"processed", "already_owned"}:
+            try:
+                before = _twitch_link_for_discord(discord_user_id)
+                _twitch_store_link(
+                    discord_user_id,
+                    twitch_user_id,
+                    identity.get("twitch_login", ""),
+                    pending.get("confirmed_at") or pending.get("updated_at"),
+                )
+                changed = changed or before is None
+            except Exception as error:
+                print(f"Could not migrate Twitch link from pending state: {error}", flush=True)
+
+        if any(key in pending for key in ("twitch_user_id", "twitch_login", "twitch_user_name", "user_input")):
+            _twitch_set_pending_identity(
+                pending,
+                twitch_user_id=identity.get("twitch_user_id", ""),
+                twitch_login=identity.get("twitch_login", ""),
+                twitch_user_name=identity.get("twitch_user_name", ""),
+                user_input=identity.get("user_input", ""),
+            )
+            changed = True
+
+    for discord_user_id, legacy in _twitch_legacy_shared_links().items():
+        if _twitch_link_for_discord(discord_user_id) is not None:
+            continue
+        try:
+            _twitch_store_link(
+                discord_user_id,
+                legacy["twitch_user_id"],
+                legacy.get("twitch_login", ""),
+                legacy.get("linked_at"),
+            )
+            changed = True
+        except Exception as error:
+            print(f"Could not migrate legacy Twitch link for Discord {discord_user_id}: {error}", flush=True)
+
+    return changed
 
 
 def _twitch_current_refresh_token():
@@ -1566,7 +1763,6 @@ async def _twitch_grant_to_discord(discord_member, pending):
         discord_member.display_name,
         pending["reward_key"],
         pending["redemption_id"],
-        pending.get("twitch_user_id", ""),
     )
     already_owned = bool(result.get("already_owned"))
     pending["status"] = "already_owned" if already_owned else "processed"
@@ -1582,7 +1778,8 @@ async def _twitch_process_all_for_link(twitch_user_id, discord_member):
     for redemption_id, item in list(pending_state.items()):
         if not isinstance(item, dict):
             continue
-        if str(item.get("twitch_user_id", "")) != str(twitch_user_id):
+        identity = _twitch_pending_identity(item)
+        if str(identity.get("twitch_user_id", "")) != str(twitch_user_id):
             continue
         if item.get("status") in {"processed", "already_owned", "rejected"}:
             continue
@@ -1641,16 +1838,18 @@ class TwitchLinkConfirmView(discord.ui.View):
             return
 
         await interaction.response.defer(ephemeral=True)
-        twitch_user_id = str(pending.get("twitch_user_id", ""))
-        twitch_login = str(pending.get("twitch_login", ""))
+        identity = _twitch_pending_identity(pending)
+        twitch_user_id = str(identity.get("twitch_user_id", "") or "")
+        twitch_login = str(identity.get("twitch_login", "") or "")
+        if not twitch_user_id:
+            await interaction.followup.send("❌ This Twitch link request is missing its encrypted account identity.", ephemeral=True)
+            return
         try:
-            await asyncio.to_thread(
-                link_twitch_account,
+            _twitch_store_link(
                 interaction.user.id,
-                interaction.user.display_name,
                 twitch_user_id,
                 twitch_login,
-                f"twitch-link:{twitch_user_id}:{interaction.user.id}",
+                pending.get("confirmed_at") or int(time.time()),
             )
             granted, duplicates = await _twitch_process_all_for_link(twitch_user_id, interaction.user)
         except Exception as error:
@@ -1668,7 +1867,7 @@ class TwitchLinkConfirmView(discord.ui.View):
             await interaction.message.edit(
                 content=(
                     f"✅ **Twitch linked to your Discord account.**\n"
-                    f"Twitch: **{pending.get('twitch_user_name') or twitch_login}**\n"
+                    f"Twitch: **{identity.get('twitch_user_name') or twitch_login}**\n"
                     "Use `!shop` to equip your Twitch cosmetics."
                 ),
                 view=self,
@@ -1702,7 +1901,7 @@ class TwitchLinkConfirmView(discord.ui.View):
         )
         await _twitch_owner_notice(
             f"⚠️ Twitch redemption link rejected by Discord user {interaction.user} ({interaction.user.id}). "
-            f"Twitch user: {pending.get('twitch_user_name') or pending.get('twitch_login', '?')}; "
+            f"Twitch user: {_twitch_pending_identity(pending).get('twitch_user_name') or _twitch_pending_identity(pending).get('twitch_login', '?')}; "
             f"reward: {pending.get('reward_label', '?')}. The Twitch redemption can be refunded manually."
         )
 
@@ -1762,21 +1961,24 @@ async def _twitch_handle_redemption(event, guild, fallback_channel):
     pending = existing_pending if isinstance(existing_pending, dict) else {}
     pending.update({
         "redemption_id": redemption_id,
-        "twitch_user_id": twitch_user_id,
-        "twitch_login": twitch_login,
-        "twitch_user_name": twitch_user_name,
         "reward_key": config["key"],
         "reward_label": config["label"],
         "reward_title": title,
         "reward_cost": int(reward.get("cost", config["points"]) or config["points"]),
-        "user_input": user_input,
         "created_at": int(pending.get("created_at", now) or now),
         "updated_at": now,
     })
+    _twitch_set_pending_identity(
+        pending,
+        twitch_user_id=twitch_user_id,
+        twitch_login=twitch_login,
+        twitch_user_name=twitch_user_name,
+        user_input=user_input,
+    )
     pending_state[redemption_id] = pending
 
     try:
-        linked = await asyncio.to_thread(discord_user_for_twitch, twitch_user_id)
+        linked = _twitch_discord_user_for_twitch(twitch_user_id)
     except Exception as error:
         linked = None
         print(f"Twitch link lookup failed: {error}", flush=True)
@@ -19673,6 +19875,31 @@ async def on_ready():
     state.setdefault(PUZZLE_RACER_STATE_KEY, {})
     state.setdefault(TWITCH_OAUTH_STATE_KEY, {})
     state.setdefault(TWITCH_PENDING_STATE_KEY, {})
+    state.setdefault(TWITCH_LINKS_STATE_KEY, {})
+
+    # One-time privacy migration: move any legacy plaintext Twitch identity
+    # into encrypted Daily-owned state before scrubbing the public ledger.
+    if TWITCH_EVENTSUB_ENABLED and TWITCH_CLIENT_SECRET and not state.get(TWITCH_PRIVACY_MIGRATION_KEY):
+        try:
+            migrated = _twitch_migrate_private_state()
+            if migrated:
+                saved = await save_all_critical(attempts=5)
+            else:
+                saved = True
+            if saved:
+                scrubbed = await asyncio.to_thread(shared_ledger.purge_legacy_twitch_identity_fields)
+                if scrubbed:
+                    state[TWITCH_PRIVACY_MIGRATION_KEY] = {
+                        "completed_at": int(time.time()),
+                        "schema": 1,
+                    }
+                    await save_all_critical(attempts=5)
+                else:
+                    print("Legacy Twitch privacy scrub could not be completed yet.", flush=True)
+            else:
+                print("Encrypted Twitch migration could not be synced; public scrub skipped safely.", flush=True)
+        except Exception as error:
+            print(f"Twitch privacy migration failed safely: {error}", flush=True)
 
     # Restore persistent Twitch confirmation buttons after a GitHub Actions
     # worker rotation. Only the intended Discord user can use each view.
