@@ -369,7 +369,8 @@
     "pending_trades": [],
     "pieces": [
       "eyes",
-      "kiwen-suwi"
+      "kiwen-suwi",
+      "purple"
     ],
     "points": 1680.0,
     "profile_themes": [
@@ -413,7 +414,8 @@
     ],
     "survival_heart_styles": [],
     "twitch_unlocks": [
-      "arrow"
+      "arrow",
+      "pieces"
     ]
   },
   "550338389535227926": {
