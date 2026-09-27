@@ -284,12 +284,7 @@ BADGE_RARITY_BY_VALUE = {
 }
 
 PIECE_SETS = {'classic': {'label': 'Classic', 'shape': 'classic'},
- 'purple': {'label': 'Twitch',
-            'shape': 'figurine',
-            'white_fill': '#FBF7FF',
-            'black_fill': '#7C3AED',
-            'white_stroke': '#6D28D9',
-            'black_stroke': '#F5EFFF'},
+ 'purple': {'label': 'Twitch', 'shape': 'twitch_asset'},
  'chessnut': {'label': 'Chessnut', 'shape': 'svg'},
  'rhosgfx': {'label': 'RhosGFX', 'shape': 'svg'},
  'fantasy': {'label': 'Fantasy', 'shape': 'svg'},
