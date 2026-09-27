@@ -2644,8 +2644,8 @@
         "url": "https://lichess.org/training/X3RVe",
         "title": "Lichess • 1305",
         "fen": "8/p2n3p/3b2p1/2p2p2/2Pk4/BP1N2P1/P3K2P/8 w - - 8 47",
-        "current_fen": "8/p2n3p/3b2p1/2p2p2/2Pk4/BP1N2P1/P3K2P/8 w - - 8 47",
-        "last_move_uci": "e5d4",
+        "current_fen": "8/p2n3p/3b2p1/2p2p2/2P1k3/1P1N2P1/PB2K2P/8 w - - 10 48",
+        "last_move_uci": "d4e4",
         "pgn": "Bb2+ Ke4 Nf2#",
         "all_moves": [
           {
@@ -2685,16 +2685,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_X3RVe_1790509413445",
         "rating": 1305,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1553733822133182508,
+      "message_id": 1553733838226858138,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790509413.439428,
-      "last_feedback": "✅ **Nxe6** — solved! Score: **3**."
+      "last_card_activity_at": 1790509418.2395794,
+      "last_feedback": "✅ **Bb2+** • Opponent: **Ke4**"
     },
     "362606514764251137": {
       "active": false,
