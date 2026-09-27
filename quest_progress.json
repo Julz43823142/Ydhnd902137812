@@ -708,13 +708,15 @@
         },
         "442597396195704832": {
           "name": "Thice",
-          "paid": [],
+          "paid": [
+            "weekly:2026-09-21:challenge:rush-full-2"
+          ],
           "progress": {
             "weekly:2026-09-21:challenge:rush-full-2": 2,
             "weekly:2026-09-21:minigame:minigame-8": 3,
             "weekly:2026-09-21:puzzle:solve-25": 23
           },
-          "updated_at": 1790509711
+          "updated_at": 1790509719
         },
         "601406103712170014": {
           "name": "TheMakina",
