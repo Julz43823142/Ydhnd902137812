@@ -1,0 +1,18 @@
+{
+  "after_coins": 0.0,
+  "before_coins": 0.0,
+  "created_at": 1790540332,
+  "created_at_ns": 1790540332375493646,
+  "details": {
+    "already_owned": false,
+    "field": "pieces",
+    "redemption_id": "fb2b041c-e5d5-41f7-8b70-49bcf3c4f1d4",
+    "reward_key": "pieces",
+    "value": "purple"
+  },
+  "display_name": "Punjisticker",
+  "ledger_build": "shared-ledger-v15-twitch-privacy-2026-09-27",
+  "operation": "twitch-cosmetic-grant",
+  "transaction_id": "twitch-redemption:fb2b041c-e5d5-41f7-8b70-49bcf3c4f1d4",
+  "user_id": "1045034833639919707"
+}

@@ -44,13 +44,16 @@
     "name": "Punjisticker",
     "pending_trade": null,
     "pending_trades": [],
-    "pieces": [],
+    "pieces": [
+      "purple"
+    ],
     "points": 0.0,
     "profile_themes": [],
     "sent_trades": [],
     "survival_heart_styles": [],
     "twitch_unlocks": [
-      "name"
+      "name",
+      "pieces"
     ]
   },
   "1310661840707129370": {
