@@ -11,10 +11,33 @@ COLOR_COST = 500.0
 PROFILE_THEME_COST = 50.0
 GAME_PROFILE_THEME_COST = 100.0
 
+# Cosmetics unlocked through Twitch Channel Points instead of SharkBot coins.
+# The Twitch integration will grant ownership later; the shop already exposes
+# these entries so their previews can be reviewed before EventSub is enabled.
+TWITCH_CHANNEL_POINT_COSMETICS = {
+    "board": {"purple": 5000},
+    "piece": {"purple": 10000},
+    "arrow": {"purple": 5000},
+    "theme": {"purple": 10000},
+    "color": {"purple": 20000},
+}
+
+
+def twitch_channel_point_cost(kind, name):
+    return TWITCH_CHANNEL_POINT_COSMETICS.get(
+        str(kind or "").casefold().strip(), {}
+    ).get(str(name or "").casefold().strip())
+
+
+def is_twitch_channel_point_cosmetic(kind, name):
+    return twitch_channel_point_cost(kind, name) is not None
+
+
 # Profile-card backgrounds. Classic is free; themed cards are permanent cosmetics.
 PROFILE_THEMES = {
     # Free/default profile.
     "classic": {"label": "Classic", "embed_color": 0x4DD6B6, "command": "classic"},
+    "purple": {"label": "Purple", "embed_color": 0x8E44AD, "command": "purple"},
 
     # Original Shark Bot themes.
     "galaxy": {"label": "Galaxy", "embed_color": 0x8E5BFF, "command": "galaxy"},
@@ -260,6 +283,17 @@ BADGE_RARITY_BY_VALUE = {
 }
 
 PIECE_SETS = {'classic': {'label': 'Classic', 'shape': 'classic'},
+ 'purple': {'label': 'Purple',
+            'shape': 'glyph',
+            'glyph_variant': 'native',
+            'white_fill': '#F0D9FF',
+            'black_fill': '#6D28D9',
+            'white_stroke': '#5B21B6',
+            'black_stroke': '#F3E8FF',
+            'font_family': 'DejaVu Sans',
+            'font_size': 40,
+            'font_weight': 700,
+            'stroke_width': 1.1},
  'chessnut': {'label': 'Chessnut', 'shape': 'svg'},
  'rhosgfx': {'label': 'RhosGFX', 'shape': 'svg'},
  'fantasy': {'label': 'Fantasy', 'shape': 'svg'},
