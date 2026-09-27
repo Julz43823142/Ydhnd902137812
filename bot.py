@@ -54,6 +54,7 @@ from shop_catalog import (
     ARROW_COST, ARROW_COLORS, DEFAULT_ARROW_COLOR,
     COLOR_COST, NAME_COLORS, SHOP_COLOR_ROLE_PREFIX, SURVIVAL_HEART_COST,
     PROFILE_THEME_COST, PROFILE_THEMES, profile_theme_cost,
+    twitch_channel_point_cost, is_twitch_channel_point_cosmetic,
 )
 import os
 import re
@@ -11165,6 +11166,9 @@ class CosmeticCatalogPager(discord.ui.View):
             return profile_theme_cost(self.selected_name)
         return PIECE_COST
 
+    def _twitch_points(self):
+        return twitch_channel_point_cost(self.kind, self.selected_name)
+
     def _is_free_default(self, name):
         if self.kind == "arrow":
             return name == DEFAULT_ARROW_COLOR
@@ -11196,13 +11200,25 @@ class CosmeticCatalogPager(discord.ui.View):
         status = "Free default" if self._is_free_default(self.selected_name) else ("Owned" if owned else "Not owned")
         if active:
             status += " • Equipped"
+        twitch_points = self._twitch_points()
+        if twitch_points is not None:
+            price_line = f"**Unlock:** Twitch Channel Points only • **{twitch_points:,} points**"
+            action_line = (
+                f"This Purple {item_word} is a **Twitch Channel Points unlock**. "
+                "It cannot be bought with SharkBot coins. You can still preview it here."
+            )
+        else:
+            price_line = f"**Selected price:** {shared_format_points(self._price())} coins • Classic is free."
+            action_line = (
+                f"Click a name to instantly preview that {item_word}. Then use **Buy selected** or **Equip selected**."
+            )
         return (
             f"{icon} **{title}**\n"
-            f"**Selected price:** {shared_format_points(self._price())} coins • Classic is free.\n"
+            f"{price_line}\n"
             f"Page **{self.page}/{self.total_pages}** • choose one of the buttons below.\n\n"
             f"**Preview:** {display}\n"
             f"**Status:** {status}\n\n"
-            f"Click a name to instantly preview that {item_word}. Then use **Buy selected** or **Equip selected**."
+            f"{action_line}"
         )
 
     @staticmethod
@@ -11290,7 +11306,21 @@ class CosmeticCatalogPager(discord.ui.View):
         self.add_item(next_button)
 
         owned, _active = self._owned_active(profile)
-        buy = discord.ui.Button(label=f"Buy selected • {shared_format_points(self._price())} coins", style=discord.ButtonStyle.success, disabled=self._is_free_default(self.selected_name) or owned, row=2)
+        twitch_points = self._twitch_points()
+        if twitch_points is not None:
+            buy = discord.ui.Button(
+                label=f"Twitch • {twitch_points:,} pts",
+                style=discord.ButtonStyle.secondary,
+                disabled=True,
+                row=2,
+            )
+        else:
+            buy = discord.ui.Button(
+                label=f"Buy selected • {shared_format_points(self._price())} coins",
+                style=discord.ButtonStyle.success,
+                disabled=self._is_free_default(self.selected_name) or owned,
+                row=2,
+            )
         equip = discord.ui.Button(label="Equip selected", style=discord.ButtonStyle.primary, disabled=not owned, row=2)
 
         async def buy_callback(interaction):
@@ -11446,6 +11476,20 @@ def _profile_card_theme_svg(theme_key):
     (rain, radio, lookout tower, voxel hills, etc.) rather than copied artwork.
     """
     theme_key = str(theme_key or "classic").casefold()
+
+    if theme_key == "purple":
+        return (
+            "#12051f", "#a855f7", "#f0ddff",
+            '<defs><linearGradient id="profileBg" x1="0" y1="0" x2="1" y2="1">'
+            '<stop offset="0" stop-color="#160624"/><stop offset="0.48" stop-color="#4b1671"/>'
+            '<stop offset="1" stop-color="#160a2d"/></linearGradient>'
+            '<radialGradient id="purpleGlow"><stop offset="0" stop-color="#c084fc" stop-opacity="0.38"/>'
+            '<stop offset="1" stop-color="#7e22ce" stop-opacity="0"/></radialGradient></defs>'
+            '<rect width="960" height="540" rx="28" fill="url(#profileBg)"/>'
+            '<ellipse cx="810" cy="154" rx="280" ry="210" fill="url(#purpleGlow)"/>'
+            '<path d="M654 438 L724 292 L782 438 L846 250 L930 438 Z" fill="#8b5cf6" opacity="0.12"/>'
+            '<path d="M620 478 C710 426 812 424 960 474 L960 540 L620 540 Z" fill="#090311" opacity="0.44"/>'
+        )
 
     if theme_key == "galaxy":
         stars = ''.join(
@@ -11785,6 +11829,17 @@ def _profile_stat_card(x, y, w, h, label, value, accent, soft, *, big=False, ico
 
 def _profile_card_overlay_svg(theme_key, accent, soft):
     theme_key = str(theme_key or 'classic').casefold()
+
+    if theme_key == 'purple':
+        return (
+            '<circle cx="842" cy="126" r="102" fill="#c084fc" opacity="0.10"/>'
+            '<path d="M676 124 L714 72 L750 124 L714 184 Z" fill="none" stroke="#e9d5ff" stroke-width="4" opacity="0.34"/>'
+            '<path d="M814 184 L858 118 L904 184 L858 252 Z" fill="#a855f7" opacity="0.13" stroke="#e9d5ff" stroke-width="3" stroke-opacity="0.34"/>'
+            '<path d="M700 360 L756 280 L812 360 L756 438 Z" fill="#7c3aed" opacity="0.13" stroke="#c4b5fd" stroke-width="3" stroke-opacity="0.30"/>'
+            '<circle cx="916" cy="94" r="5" fill="#f5e9ff" opacity="0.72"/>'
+            '<circle cx="790" cy="82" r="3" fill="#f5e9ff" opacity="0.62"/>'
+            '<path d="M640 450 C728 412 824 414 936 456" fill="none" stroke="#a855f7" stroke-width="8" opacity="0.18"/>'
+        )
 
     if theme_key == 'galaxy':
         stars = ''.join(
@@ -16276,16 +16331,28 @@ class ColorCatalogView(discord.ui.View):
         if active == self.selected_name:
             status += " • Equipped"
         active_label = NAME_COLORS.get(active, {}).get("label", "Default") if active else "Default"
+        twitch_points = twitch_channel_point_cost("color", self.selected_name)
+        if twitch_points is not None:
+            price_line = f"**Unlock:** Twitch Channel Points only • **{twitch_points:,} points**"
+            instruction = (
+                "Purple Name is a **Twitch Channel Points unlock** and cannot be bought with SharkBot coins. "
+                "The embed color is the preview. **Default** removes the shop color role."
+            )
+        else:
+            price_line = f"**Price:** {shared_format_points(COLOR_COST)} coins each"
+            instruction = (
+                "Choose a color, then use **Buy selected** or **Equip selected**. "
+                "**Default** removes the shop color role."
+            )
         return discord.Embed(
             title="🖌️ Name Colors",
             description=(
                 f"🪙 **Coins:** {shared_format_points(profile.get('coins', 0))}\n"
-                f"**Price:** {shared_format_points(COLOR_COST)} coins each\n\n"
+                f"{price_line}\n\n"
                 f"**Selected:** {label}\n"
                 f"**Status:** {status}\n"
                 f"**Currently equipped:** {active_label}\n\n"
-                "Choose a color, then use **Buy selected** or **Equip selected**. "
-                "**Default** removes the shop color role."
+                f"{instruction}"
             ),
             color=NAME_COLORS[self.selected_name]["discord_color"],
         )
@@ -16313,12 +16380,21 @@ class ColorCatalogView(discord.ui.View):
             self.add_item(button)
 
         selected_owned = self.selected_name in owned
-        buy = discord.ui.Button(
-            label=f"Buy selected • {shared_format_points(COLOR_COST)} coins",
-            style=discord.ButtonStyle.success,
-            disabled=selected_owned,
-            row=2,
-        )
+        twitch_points = twitch_channel_point_cost("color", self.selected_name)
+        if twitch_points is not None:
+            buy = discord.ui.Button(
+                label=f"Twitch • {twitch_points:,} pts",
+                style=discord.ButtonStyle.secondary,
+                disabled=True,
+                row=2,
+            )
+        else:
+            buy = discord.ui.Button(
+                label=f"Buy selected • {shared_format_points(COLOR_COST)} coins",
+                style=discord.ButtonStyle.success,
+                disabled=selected_owned,
+                row=2,
+            )
         equip = discord.ui.Button(
             label="Equip selected",
             style=discord.ButtonStyle.primary,
@@ -16460,11 +16536,14 @@ def shop_home_embed(profile):
         description=(
             f"🪙 **Coins:** {shared_format_points(profile.get('coins', 0))}\n\n"
             f"🎁 Badge Box — **{shared_format_points(BADGE_BOX_COST)} coins**\n"
-            f"🎨 Boards — **{shared_format_points(BOARD_COST)} coins** each\n"
-            f"♟️ Pieces — **{shared_format_points(PIECE_COST)} coins** each\n"
-            f"➡️ Arrows — **{shared_format_points(ARROW_COST)} coins** each\n"
-            "🖼️ Profile Themes — normal themes **50**, game themes **100** coins\n"
-            f"🖌️ Name Colors — **{shared_format_points(COLOR_COST)} coins** each\n\n"
+            f"🎨 Boards — standard themes **{shared_format_points(BOARD_COST)} coins** each\n"
+            f"♟️ Pieces — standard sets **{shared_format_points(PIECE_COST)} coins** each\n"
+            f"➡️ Arrows — standard colors **{shared_format_points(ARROW_COST)} coins** each\n"
+            "🖼️ Profile Themes — standard themes **50**, game themes **100** coins\n"
+            f"🖌️ Name Colors — standard colors **{shared_format_points(COLOR_COST)} coins** each\n"
+            "🟣 **Purple Collection** — Twitch Channel Points only (**5k–20k**)\n\n"
+            "Purple Board, Pieces, Arrow, Profile Theme and Name can already be previewed here. "
+            "They cannot be bought with SharkBot coins.\n\n"
             "This menu is cosmetics only. Player trading and donations are under **Trade** in `!menu`."
         ),
         color=0x4DD6B6,
