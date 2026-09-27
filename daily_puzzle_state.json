@@ -8036,6 +8036,17 @@
       "updated_at": 1790540084,
       "identity_enc": "gAAAAABquXk0VZ_hRRtNDzVxpisaNS6Oi4sYr2imY865KR1kdMpY-BDNzv-wOViM04FnKIEo71xybg5pzS82AmeyPm7x4KCgCAEBiKdTNjQRdCGWk4-zl838ILevLnf2NXQfEvkI7GBerIm-22U3FT5-7-d1ePYy3vaMn4vmobG3H1oihN7Glwu2umVBy7A38gYkwhQSpU0KV3O8xgNBBjULKD1uSJYQ9dJVDRmPsrzpBdRsU1E--Gs=",
       "status": "discord_user_not_found"
+    },
+    "caeac4b2-a65d-42ad-ba68-15bb9c486015": {
+      "redemption_id": "caeac4b2-a65d-42ad-ba68-15bb9c486015",
+      "reward_key": "name",
+      "reward_label": "Twitch Name Color",
+      "reward_title": "Unlock Discord Name Color",
+      "reward_cost": 20000,
+      "created_at": 1790540140,
+      "updated_at": 1790540140,
+      "identity_enc": "gAAAAABquXlsxlymixkCl6UkFoi8GQqqvhHg0pqsq8TyZlvC6RAVaGt5fMjM3f0xH-08LkqM3n6V1gCnF5rcg6DT-QQDgtbP8DbV1s-KxK9GjO36uS9irW9MRrUhsdQIZ0kuwYULz5Ac5dc2fvI5n4C_CDqnr86P_nAlzR7NNzgTpy5Md7irt12pGIM2hoG2rE32rBg4yjxNUOP9IBYSk0OhXgvoJL4-9IydgYCID6AFa3GfBc0p0mY=",
+      "status": "discord_user_not_found"
     }
   },
   "twitch_links_v1": {
