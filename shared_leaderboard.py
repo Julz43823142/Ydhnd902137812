@@ -20,6 +20,7 @@ from shop_catalog import (
     ARROW_COST, ARROW_COLORS, DEFAULT_ARROW_COLOR,
     COLOR_COST, NAME_COLORS, RARITY_LABELS,
     PROFILE_THEME_COST, PROFILE_THEMES, profile_theme_cost,
+    twitch_channel_point_cost,
 )
 
 LEDGER_BUILD = "shared-ledger-v13-daily-activity-2026-09-07"
@@ -2705,10 +2706,21 @@ def equip_badge(user_id, display_name, badge, transaction_id):
     return {"user_id": str(user_id), **entry}
 
 
+def _reject_twitch_channel_point_purchase(kind, name):
+    points = twitch_channel_point_cost(kind, name)
+    if points is not None:
+        label = str(name or "").replace("_", " ").title()
+        raise ValueError(
+            f"{label} is unlocked with {points:,} Twitch Channel Points, "
+            "not SharkBot coins."
+        )
+
+
 def buy_board(user_id, display_name, board_name, transaction_id):
     board_name = str(board_name).casefold()
     if board_name not in BOARD_THEMES or board_name == "classic":
         raise ValueError("Unknown or free default board theme.")
+    _reject_twitch_channel_point_purchase("board", board_name)
     def mutate(entry):
         if board_name in entry.get("boards", []):
             raise ValueError("You already own that board theme.")
@@ -2741,6 +2753,7 @@ def buy_piece(user_id, display_name, piece_name, transaction_id):
     piece_name = canonical_piece_set(piece_name)
     if piece_name not in PIECE_SETS or piece_name == "classic":
         raise ValueError("Unknown or free default piece set.")
+    _reject_twitch_channel_point_purchase("piece", piece_name)
 
     def mutate(entry):
         if piece_name in entry.get("pieces", []):
@@ -2777,6 +2790,7 @@ def buy_arrow(user_id, display_name, arrow_name, transaction_id):
     arrow_name = str(arrow_name or "").casefold().strip()
     if arrow_name not in ARROW_COLORS or arrow_name == DEFAULT_ARROW_COLOR:
         raise ValueError("Unknown or free default arrow color.")
+    _reject_twitch_channel_point_purchase("arrow", arrow_name)
 
     def mutate(entry):
         if arrow_name in entry.get("arrows", []):
@@ -2815,6 +2829,7 @@ def buy_color(user_id, display_name, color_name, transaction_id):
     color_name = str(color_name).casefold()
     if color_name not in NAME_COLORS:
         raise ValueError("Unknown shop color.")
+    _reject_twitch_channel_point_purchase("color", color_name)
     def mutate(entry):
         if color_name in entry.get("colors", []):
             raise ValueError("You already own that color.")
@@ -2847,6 +2862,7 @@ def buy_profile_theme(user_id, display_name, theme_name, transaction_id):
     theme_name = str(theme_name or "").casefold().strip()
     if theme_name not in PROFILE_THEMES or theme_name == "classic":
         raise ValueError("Unknown or free default profile theme.")
+    _reject_twitch_channel_point_purchase("theme", theme_name)
     cost = float(profile_theme_cost(theme_name))
 
     def mutate(entry):
