@@ -2636,65 +2636,65 @@
       "started_at": 1790509070.5240996,
       "run_id": "rush:442597396195704832:1790509070524",
       "end_at": 1790509370.5240996,
-      "score": 10,
+      "score": 11,
       "wrong": 0,
       "mistakes": [],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/Tevqx",
-        "title": "Lichess • 1571",
-        "fen": "5k2/R4p2/2KP4/7p/8/8/8/3r4 w - - 0 47",
-        "current_fen": "R7/5pk1/2KP4/7p/8/8/8/3r4 w - - 2 48",
-        "last_move_uci": "f8g7",
-        "pgn": "Ra8+ Kg7 d7",
+        "url": "https://lichess.org/training/ZdMAf",
+        "title": "Lichess • 1683",
+        "fen": "r1b3k1/3n1rpp/1qp2n2/4p1N1/1p2P3/2N5/1PPRQPPP/5RK1 w - - 0 20",
+        "current_fen": "r1b3k1/3n1rpp/1qp2n2/4p1N1/1p2P3/2N5/1PPRQPPP/5RK1 w - - 0 20",
+        "last_move_uci": "e7f7",
+        "pgn": "Qc4 Ba6 Qxf7+",
         "all_moves": [
           {
-            "uci": "a7a8",
-            "san": "Ra8+",
+            "uci": "e2c4",
+            "san": "Qc4",
             "color": "white"
           },
           {
-            "uci": "f8g7",
-            "san": "Kg7",
+            "uci": "c8a6",
+            "san": "Ba6",
             "color": "black"
           },
           {
-            "uci": "d6d7",
-            "san": "d7",
+            "uci": "c4f7",
+            "san": "Qxf7+",
             "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "a7a8",
-            "san": "Ra8+",
+            "uci": "e2c4",
+            "san": "Qc4",
             "color": "white"
           },
           {
-            "uci": "d6d7",
-            "san": "d7",
+            "uci": "c4f7",
+            "san": "Qxf7+",
             "color": "white"
           }
         ],
         "player_color": "white",
         "player_move_count": 2,
-        "posted_at": "2026-09-27T11:40:03.631298+00:00",
+        "posted_at": "2026-09-27T11:40:13.468987+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_Tevqx_1790509203631",
-        "rating": 1571,
-        "next_solution_index": 2,
+        "puzzle_id": "practice_rush_442597396195704832_ZdMAf_1790509213469",
+        "rating": 1683,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1553732957888323735,
+      "message_id": 1553732988511059999,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790509211.2748055,
-      "last_feedback": "✅ **Ra8+** • Opponent: **Kg7**"
+      "last_card_activity_at": 1790509213.4628987,
+      "last_feedback": "✅ **d7** — solved! Score: **11**."
     },
     "362606514764251137": {
       "active": false,
