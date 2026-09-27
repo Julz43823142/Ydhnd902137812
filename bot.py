@@ -1,4 +1,5 @@
 from piece_art import render_piece_overlay
+from twitch_piece_art import render_twitch_piece_overlay
 from shop_catalog import canonical_piece_set
 import discord
 import shark_admin
@@ -2609,6 +2610,8 @@ _BLACK_CHESS_GLYPHS_BY_TYPE = {
 
 def _piece_overlay_svg(board, orientation, piece_theme):
     piece_theme = canonical_piece_set(piece_theme) or "classic"
+    if piece_theme == "purple":
+        return render_twitch_piece_overlay(board, orientation)
     if PIECE_SETS.get(piece_theme, {}).get("shape") == "svg":
         return render_piece_overlay(board, orientation, piece_theme)
     style = PIECE_SETS.get(piece_theme, PIECE_SETS["classic"])
