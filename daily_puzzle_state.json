@@ -2644,8 +2644,8 @@
         "url": "https://lichess.org/training/sDcRi",
         "title": "Lichess • 1217",
         "fen": "k7/B4R2/1PK5/5p1p/6n1/1P6/5r2/8 b - - 1 50",
-        "current_fen": "k7/B4R2/1PK5/5p1p/6n1/1P6/5r2/8 b - - 1 50",
-        "last_move_uci": "b5c6",
+        "current_fen": "k7/B4R2/1P1K4/4np1p/8/1P6/5r2/8 b - - 3 51",
+        "last_move_uci": "c6d6",
         "pgn": "Ne5+ Kd6 Nxf7+ Kc7 Rc2+",
         "all_moves": [
           {
@@ -2700,7 +2700,7 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_sDcRi_1790509070528",
         "rating": 1217,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
@@ -2708,8 +2708,8 @@
       "message_id": 1553732400922755095,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790509070.524108,
-      "last_feedback": "🎯 **Type your move in chat.** Your answer message will be removed. You have **3 lives**."
+      "last_card_activity_at": 1790509077.1660345,
+      "last_feedback": "✅ **Ne5+** • Opponent: **Kd6**"
     },
     "362606514764251137": {
       "active": false,
