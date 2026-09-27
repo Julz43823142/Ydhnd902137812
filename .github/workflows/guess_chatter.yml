@@ -1,6 +1,14 @@
 name: Guess Chatter
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'guess_chatter.py'
+      - 'guess_chess_chatter.py'
+      - 'guess_leaderboard.py'
+      - 'shared_leaderboard.py'
+      - 'shop_catalog.py'
   schedule:
     # Backup rotation only. The running controller also performs its own clean
     # handoff, because GitHub scheduled runs can be delayed or occasionally dropped.
@@ -59,7 +67,7 @@ jobs:
           chess = constant("guess_chess_chatter.py", "GUESS_CHESS_BUILD")
 
           assert controller == "guess-games-v7-buttons-trades-2026-09-08", controller
-          assert chatter == "guess-chatter-v7-private-chatdata-2026-09-12", chatter
+          assert chatter == "guess-chatter-v8-safety-twitch-2026-09-27", chatter
           assert chess == "guess-chess-v5-persistent-helper-2026-09-03", chess
           assert constant("guess_chatter.py", "POLL_DURATION_MINUTES") == 8
           assert constant("guess_chess_chatter.py", "POLL_DURATION_MINUTES") == 8
