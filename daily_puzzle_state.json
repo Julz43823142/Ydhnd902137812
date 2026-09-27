@@ -88,14 +88,17 @@
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_id": null,
+    "message_id": 1553866577865220107,
     "attempted_users": {},
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "channel_id": 1468320170891022417
+    "channel_id": 1468320170891022417,
+    "message_ids": {
+      "1468320170891022417": 1553866577865220107
+    }
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-09-27",
@@ -2581,6 +2584,35 @@
       "brilliant_coin_rewards_v1": {
         "601406103712170014": 1
       }
+    },
+    "bot-1553866483895902348-1045034833639919707": {
+      "game_id": "bot-1553866483895902348-1045034833639919707",
+      "status": "active",
+      "mode": "bot",
+      "variant": "standard",
+      "chess960_pos": null,
+      "white_id": "1045034833639919707",
+      "white_name": "Punjisticker",
+      "black_id": "BOT",
+      "black_name": "Chess Bot 1320",
+      "white_rating": 1500.0,
+      "black_rating": 1320,
+      "human_id": "1045034833639919707",
+      "human_name": "Punjisticker",
+      "bot_rating": 1320,
+      "bot_engine": "Stockfish 19",
+      "bot_full_strength": false,
+      "initial_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "moves": [],
+      "last_move": null,
+      "started_at": 1790541078.3183641,
+      "draw_offer": null,
+      "message_id": null,
+      "channel_id": 1468320170891022417,
+      "chat_since_refresh": 0,
+      "theme_owner_id": "1045034833639919707",
+      "theme_owner_name": "Punjisticker"
     }
   },
   "chess_challenges": {
