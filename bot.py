@@ -11204,7 +11204,7 @@ class CosmeticCatalogPager(discord.ui.View):
         if twitch_points is not None:
             price_line = f"**Unlock:** Twitch Channel Points only • **{twitch_points:,} points**"
             action_line = (
-                f"This Purple {item_word} is a **Twitch Channel Points unlock**. "
+                f"This {display} {item_word} is a **Twitch Channel Points unlock**. "
                 "It cannot be bought with SharkBot coins. You can still preview it here."
             )
         else:
@@ -11479,16 +11479,21 @@ def _profile_card_theme_svg(theme_key):
 
     if theme_key == "purple":
         return (
-            "#12051f", "#a855f7", "#f0ddff",
+            "#12051f", "#9146FF", "#f6efff",
             '<defs><linearGradient id="profileBg" x1="0" y1="0" x2="1" y2="1">'
-            '<stop offset="0" stop-color="#160624"/><stop offset="0.48" stop-color="#4b1671"/>'
-            '<stop offset="1" stop-color="#160a2d"/></linearGradient>'
-            '<radialGradient id="purpleGlow"><stop offset="0" stop-color="#c084fc" stop-opacity="0.38"/>'
+            '<stop offset="0" stop-color="#0f041a"/><stop offset="0.44" stop-color="#3a0f61"/>'
+            '<stop offset="1" stop-color="#1a0933"/></linearGradient>'
+            '<linearGradient id="twitchBeam" x1="0" y1="0" x2="1" y2="1">'
+            '<stop offset="0" stop-color="#c084fc" stop-opacity="0.30"/><stop offset="1" stop-color="#9146FF" stop-opacity="0.05"/></linearGradient>'
+            '<radialGradient id="twitchGlow"><stop offset="0" stop-color="#d8b4fe" stop-opacity="0.44"/>'
             '<stop offset="1" stop-color="#7e22ce" stop-opacity="0"/></radialGradient></defs>'
             '<rect width="960" height="540" rx="28" fill="url(#profileBg)"/>'
-            '<ellipse cx="810" cy="154" rx="280" ry="210" fill="url(#purpleGlow)"/>'
-            '<path d="M654 438 L724 292 L782 438 L846 250 L930 438 Z" fill="#8b5cf6" opacity="0.12"/>'
-            '<path d="M620 478 C710 426 812 424 960 474 L960 540 L620 540 Z" fill="#090311" opacity="0.44"/>'
+            '<rect x="0" y="0" width="960" height="540" rx="28" fill="url(#twitchBeam)"/>'
+            '<ellipse cx="804" cy="146" rx="292" ry="208" fill="url(#twitchGlow)"/>'
+            '<path d="M632 470 C722 408 816 404 960 454 L960 540 L632 540 Z" fill="#0a0211" opacity="0.46"/>'
+            '<path d="M660 410 L732 292 L782 364 L844 254 L928 410" fill="none" stroke="#b57bff" stroke-width="10" opacity="0.16" stroke-linecap="round" stroke-linejoin="round"/>'
+            '<path d="M104 84 L392 84" stroke="#ffffff" stroke-opacity="0.05" stroke-width="8" stroke-linecap="round"/>'
+            '<path d="M104 118 L328 118" stroke="#ffffff" stroke-opacity="0.04" stroke-width="8" stroke-linecap="round"/>'
         )
 
     if theme_key == "galaxy":
@@ -11832,13 +11837,15 @@ def _profile_card_overlay_svg(theme_key, accent, soft):
 
     if theme_key == 'purple':
         return (
-            '<circle cx="842" cy="126" r="102" fill="#c084fc" opacity="0.10"/>'
-            '<path d="M676 124 L714 72 L750 124 L714 184 Z" fill="none" stroke="#e9d5ff" stroke-width="4" opacity="0.34"/>'
-            '<path d="M814 184 L858 118 L904 184 L858 252 Z" fill="#a855f7" opacity="0.13" stroke="#e9d5ff" stroke-width="3" stroke-opacity="0.34"/>'
-            '<path d="M700 360 L756 280 L812 360 L756 438 Z" fill="#7c3aed" opacity="0.13" stroke="#c4b5fd" stroke-width="3" stroke-opacity="0.30"/>'
-            '<circle cx="916" cy="94" r="5" fill="#f5e9ff" opacity="0.72"/>'
-            '<circle cx="790" cy="82" r="3" fill="#f5e9ff" opacity="0.62"/>'
-            '<path d="M640 450 C728 412 824 414 936 456" fill="none" stroke="#a855f7" stroke-width="8" opacity="0.18"/>'
+            '<circle cx="842" cy="126" r="108" fill="#d8b4fe" opacity="0.12"/>'
+            '<path d="M684 94 h108 l24 24 v64 h-64 l-28 28 v-28 h-40 z" fill="#9146FF" opacity="0.18" stroke="#efe4ff" stroke-width="3" stroke-opacity="0.30"/>'
+            '<path d="M822 170 h92 l20 20 v56 h-56 l-24 24 v-24 h-32 z" fill="#5b21b6" opacity="0.24" stroke="#efe4ff" stroke-width="3" stroke-opacity="0.28"/>'
+            '<path d="M692 346 L752 282 L812 346 L752 410 Z" fill="#7c3aed" opacity="0.16" stroke="#d8b4fe" stroke-width="3" stroke-opacity="0.34"/>'
+            '<path d="M640 448 C726 406 824 408 934 452" fill="none" stroke="#9146FF" stroke-width="8" opacity="0.20"/>'
+            '<circle cx="912" cy="88" r="5" fill="#ffffff" opacity="0.74"/>'
+            '<circle cx="786" cy="78" r="3" fill="#ffffff" opacity="0.60"/>'
+            '<path d="M670 224 L744 224" stroke="#f3e8ff" stroke-opacity="0.18" stroke-width="6" stroke-linecap="round"/>'
+            '<path d="M834 284 L896 284" stroke="#f3e8ff" stroke-opacity="0.18" stroke-width="6" stroke-linecap="round"/>'
         )
 
     if theme_key == 'galaxy':
@@ -16335,7 +16342,7 @@ class ColorCatalogView(discord.ui.View):
         if twitch_points is not None:
             price_line = f"**Unlock:** Twitch Channel Points only • **{twitch_points:,} points**"
             instruction = (
-                "Purple Name is a **Twitch Channel Points unlock** and cannot be bought with SharkBot coins. "
+                f"{label} Name is a **Twitch Channel Points unlock** and cannot be bought with SharkBot coins. "
                 "The embed color is the preview. **Default** removes the shop color role."
             )
         else:
@@ -16541,8 +16548,8 @@ def shop_home_embed(profile):
             f"➡️ Arrows — standard colors **{shared_format_points(ARROW_COST)} coins** each\n"
             "🖼️ Profile Themes — standard themes **50**, game themes **100** coins\n"
             f"🖌️ Name Colors — standard colors **{shared_format_points(COLOR_COST)} coins** each\n"
-            "🟣 **Purple Collection** — Twitch Channel Points only (**5k–20k**)\n\n"
-            "Purple Board, Pieces, Arrow, Profile Theme and Name can already be previewed here. "
+            "🟣 **Twitch Collection** — Twitch Channel Points only (**5k–20k**)\n\n"
+            "Twitch Board, Pieces, Arrow, Profile Theme and Name can already be previewed here. "
             "They cannot be bought with SharkBot coins.\n\n"
             "This menu is cosmetics only. Player trading and donations are under **Trade** in `!menu`."
         ),
@@ -17705,13 +17712,15 @@ async def on_message(
             parts = content.split()
             if len(parts) < 3:
                 await message.channel.send(
-                    "❌ Usage: `!editcolor <name> <default|red|yellow|orange|green|purple|cyan|gold|gray>`"
+                    "❌ Usage: `!editcolor <name> <default|red|yellow|orange|green|twitch|cyan|gold|gray>`"
                 )
                 return
 
             requested_color = parts[-1].casefold()
             if requested_color == "default":
                 color_name = ""
+            elif requested_color == "twitch":
+                color_name = "purple"
             elif requested_color in NAME_COLORS:
                 color_name = requested_color
             else:
