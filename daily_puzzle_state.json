@@ -2636,65 +2636,65 @@
       "started_at": 1790509070.5240996,
       "run_id": "rush:442597396195704832:1790509070524",
       "end_at": 1790509370.5240996,
-      "score": 11,
+      "score": 12,
       "wrong": 0,
       "mistakes": [],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/ZdMAf",
-        "title": "Lichess • 1683",
-        "fen": "r1b3k1/3n1rpp/1qp2n2/4p1N1/1p2P3/2N5/1PPRQPPP/5RK1 w - - 0 20",
-        "current_fen": "r5k1/3n1rpp/bqp2n2/4p1N1/1pQ1P3/2N5/1PPR1PPP/5RK1 w - - 2 21",
-        "last_move_uci": "c8a6",
-        "pgn": "Qc4 Ba6 Qxf7+",
+        "url": "https://lichess.org/training/TlPEZ",
+        "title": "Lichess • 1667",
+        "fen": "8/p2R1pbk/1p4pp/1Q6/P2q2n1/1P4P1/3r1PBP/5RK1 b - - 2 31",
+        "current_fen": "8/p2R1pbk/1p4pp/1Q6/P2q2n1/1P4P1/3r1PBP/5RK1 b - - 2 31",
+        "last_move_uci": "c7d7",
+        "pgn": "Qxd7 Qxd7 Rxd7",
         "all_moves": [
           {
-            "uci": "e2c4",
-            "san": "Qc4",
-            "color": "white"
-          },
-          {
-            "uci": "c8a6",
-            "san": "Ba6",
+            "uci": "d4d7",
+            "san": "Qxd7",
             "color": "black"
           },
           {
-            "uci": "c4f7",
-            "san": "Qxf7+",
+            "uci": "b5d7",
+            "san": "Qxd7",
             "color": "white"
+          },
+          {
+            "uci": "d2d7",
+            "san": "Rxd7",
+            "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "e2c4",
-            "san": "Qc4",
-            "color": "white"
+            "uci": "d4d7",
+            "san": "Qxd7",
+            "color": "black"
           },
           {
-            "uci": "c4f7",
-            "san": "Qxf7+",
-            "color": "white"
+            "uci": "d2d7",
+            "san": "Rxd7",
+            "color": "black"
           }
         ],
-        "player_color": "white",
+        "player_color": "black",
         "player_move_count": 2,
-        "posted_at": "2026-09-27T11:40:13.468987+00:00",
+        "posted_at": "2026-09-27T11:40:22.678269+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_ZdMAf_1790509213469",
-        "rating": 1683,
-        "next_solution_index": 2,
+        "puzzle_id": "practice_rush_442597396195704832_TlPEZ_1790509222678",
+        "rating": 1667,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1553733001438044163,
+      "message_id": 1553733021503463545,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790509218.890957,
-      "last_feedback": "✅ **Qc4** • Opponent: **Ba6**"
+      "last_card_activity_at": 1790509222.6724713,
+      "last_feedback": "✅ **Qxf7+** — solved! Score: **12**."
     },
     "362606514764251137": {
       "active": false,
