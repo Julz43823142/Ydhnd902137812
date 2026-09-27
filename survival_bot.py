@@ -24,7 +24,7 @@ import discord
 from discord.ext import commands
 
 from shop_catalog import (
-    SURVIVAL_HEART_COST, BOARD_THEMES, PIECE_SETS,
+    SURVIVAL_HEART_COST, SURVIVAL_HEART_STYLES, BOARD_THEMES, PIECE_SETS,
     ARROW_COLORS, DEFAULT_ARROW_COLOR,
 )
 from puzzle_stats import record_puzzle_attempt
@@ -114,6 +114,18 @@ RUN_TIME = 5 * 60 * 60 + 50 * 60
 
 THREE_STRIKES = 3
 SHARKMEISTER_DEFAULT_USER_ID = "362606514764251137"
+
+
+def survival_heart_symbols(run):
+    style = str((run or {}).get("heart_style", "classic") or "classic").casefold()
+    config = SURVIVAL_HEART_STYLES.get(style, SURVIVAL_HEART_STYLES["classic"])
+    return str(config.get("full", "❤️")), str(config.get("lost", "🖤"))
+
+
+def survival_heart_text(run):
+    strikes = max(0, min(THREE_STRIKES, int((run or {}).get("strikes", 0) or 0)))
+    full, lost = survival_heart_symbols(run)
+    return full * (THREE_STRIKES - strikes) + lost * strikes
 
 
 # Puzzle difficulty progression.
@@ -1578,7 +1590,7 @@ async def send_puzzle_embed(
     number = int(run.get("puzzle_number", 0) or 0)
     strikes = int(run.get("strikes", 0) or 0)
     lives = max(0, THREE_STRIKES - strikes)
-    heart_text = "❤️" * lives + "🖤" * min(strikes, THREE_STRIKES)
+    heart_text = survival_heart_text(run)
 
     minimum, maximum = difficulty_target(number)
     difficulty_text = f"{minimum}+" if maximum >= 9999 else f"{minimum}–{maximum}"
@@ -2553,6 +2565,19 @@ class SurvivalBot(
                 team
             )
 
+        heart_style = "classic"
+        try:
+            captain_cosmetics = await asyncio.to_thread(
+                get_cosmetic_profile, requester_user.id, requester_user.display_name
+            )
+            heart_style = str(
+                captain_cosmetics.get("active_survival_heart_style", "classic") or "classic"
+            ).casefold()
+            if heart_style not in SURVIVAL_HEART_STYLES:
+                heart_style = "classic"
+        except Exception as error:
+            print(f"Survival heart cosmetic lookup failed: {error}", flush=True)
+
         run = {
             "run_id":
                 f"{team_key}:{int(time.time())}",
@@ -2594,6 +2619,8 @@ class SurvivalBot(
                 [],
             "shop_heart_purchased":
                 False,
+            "heart_style":
+                heart_style,
             "message_id":
                 None,
             "channel_id":
@@ -4645,9 +4672,7 @@ class SurvivalBot(
         await message.channel.send(
             f"❤️ **Added 1 heart to "
             f"{team.get('name', team_key)}.**\n"
-            f"Hearts now: "
-            f"{'❤️' * (THREE_STRIKES - run['strikes'])}"
-            f"{'🖤' * run['strikes']}"
+            f"Hearts now: {survival_heart_text(run)}"
             + ("\nThe run has been revived and is paused. Use `!survival` to resume it." if revived else "")
         )
 
@@ -4763,8 +4788,7 @@ class SurvivalBot(
 
             await message.channel.send(
                 f"❤️ **{team.get('name', team_key)} bought its one shop heart!**\n"
-                f"Hearts now: {'❤️' * (THREE_STRIKES - run['strikes'])}"
-                f"{'🖤' * run['strikes']}\n"
+                f"Hearts now: {survival_heart_text(run)}\n"
                 f"🪙 **{format_points(coins_left)} coins** left for {message.author.display_name}."
             )
 
