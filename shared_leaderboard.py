@@ -24,7 +24,7 @@ from shop_catalog import (
     is_twitch_channel_point_cosmetic,
 )
 
-LEDGER_BUILD = "shared-ledger-v14-twitch-link-2026-09-27"
+LEDGER_BUILD = "shared-ledger-v15-twitch-privacy-2026-09-27"
 
 ACTIVITY_BONUS_COINS = 10.0
 ACTIVITY_RESET_HOUR = 5
@@ -468,7 +468,8 @@ def _normalize_entry(entry):
     if not isinstance(survival_heart_styles, list):
         survival_heart_styles = []
     survival_heart_styles = [
-        str(item).casefold() for item in survival_heart_styles
+        canonical_survival_heart_style(item)
+        for item in survival_heart_styles
         if canonical_survival_heart_style(item) not in {None, "classic"}
     ]
     survival_heart_styles = list(dict.fromkeys(survival_heart_styles))
@@ -478,12 +479,8 @@ def _normalize_entry(entry):
     if active_survival_heart_style != "classic" and active_survival_heart_style not in survival_heart_styles:
         active_survival_heart_style = "classic"
 
-    twitch_user_id = str(entry.get("twitch_user_id", "") or "").strip()
-    twitch_login = str(entry.get("twitch_login", "") or "").strip()
-    try:
-        twitch_linked_at = int(entry.get("twitch_linked_at", 0) or 0)
-    except Exception:
-        twitch_linked_at = 0
+    # Twitch account identity is deliberately NOT stored in the shared public
+    # profile snapshot. Only non-identifying unlock metadata remains here.
     twitch_unlocks = entry.get("twitch_unlocks", [])
     if not isinstance(twitch_unlocks, list):
         twitch_unlocks = []
@@ -508,9 +505,6 @@ def _normalize_entry(entry):
         "active_profile_theme": active_profile_theme,
         "survival_heart_styles": survival_heart_styles,
         "active_survival_heart_style": active_survival_heart_style,
-        "twitch_user_id": twitch_user_id,
-        "twitch_login": twitch_login,
-        "twitch_linked_at": twitch_linked_at,
         "twitch_unlocks": twitch_unlocks,
         "pending_trades": _normalize_pending_trades(entry.get("pending_trades"), entry.get("pending_trade")),
         # Backwards-compatible alias used by older Guess/UI code. It always
@@ -2930,66 +2924,84 @@ def equip_profile_theme(user_id, display_name, theme_name, transaction_id):
 
 
 
-def twitch_link_for_user(user_id):
-    profile = get_cosmetic_profile(user_id)
-    return {
-        "discord_user_id": str(user_id),
-        "twitch_user_id": str(profile.get("twitch_user_id", "") or ""),
-        "twitch_login": str(profile.get("twitch_login", "") or ""),
-        "linked_at": int(profile.get("twitch_linked_at", 0) or 0),
-    }
 
 
-def discord_user_for_twitch(twitch_user_id):
-    wanted = str(twitch_user_id or "").strip()
-    if not wanted:
-        return None
-    snapshot = _current_snapshot()
-    matches = []
-    for uid, raw in snapshot.items():
-        entry = _normalize_entry(raw)
-        if str(entry.get("twitch_user_id", "") or "") == wanted:
-            matches.append((str(uid), entry))
-    if not matches:
-        return None
-    if len(matches) > 1:
-        raise RuntimeError("The same Twitch account is linked to more than one Discord profile.")
-    uid, entry = matches[0]
-    return {"user_id": uid, **entry}
+def purge_legacy_twitch_identity_fields():
+    """Remove legacy plaintext Twitch identifiers from the current branch.
 
+    This is intentionally a current-state cleanup, not a history rewrite. The
+    Daily bot first migrates the mapping into encrypted Daily state and only
+    then calls this helper.
+    """
+    global _CACHE_SNAPSHOT
 
-def link_twitch_account(user_id, display_name, twitch_user_id, twitch_login, transaction_id):
-    uid = str(user_id)
-    twitch_user_id = str(twitch_user_id or "").strip()
-    twitch_login = str(twitch_login or "").strip()
-    if not twitch_user_id:
-        raise ValueError("Missing Twitch user id.")
+    sensitive_profile_keys = {"twitch_user_id", "twitch_login", "twitch_linked_at"}
+    sensitive_detail_keys = {"twitch_user_id", "twitch_login", "before_twitch_user_id"}
 
-    existing = discord_user_for_twitch(twitch_user_id)
-    if existing is not None and str(existing.get("user_id")) != uid:
-        raise ValueError("That Twitch account is already linked to another Discord account.")
+    with _LOCK:
+        for attempt in range(1, MAX_RETRIES + 1):
+            if not _fetch_retry():
+                time.sleep(min(1.5, 0.2 * attempt))
+                continue
 
-    current = get_cosmetic_profile(uid, display_name)
-    previous_twitch = str(current.get("twitch_user_id", "") or "")
-    if previous_twitch and previous_twitch != twitch_user_id:
-        raise ValueError("This Discord account is already linked to a different Twitch account.")
+            files = {}
 
-    def mutate(entry):
-        before = str(entry.get("twitch_user_id", "") or "")
-        entry["twitch_user_id"] = twitch_user_id
-        entry["twitch_login"] = twitch_login
-        if not int(entry.get("twitch_linked_at", 0) or 0):
-            entry["twitch_linked_at"] = int(time.time())
-        return {
-            "before_twitch_user_id": before,
-            "twitch_user_id": twitch_user_id,
-            "twitch_login": twitch_login,
-        }
+            raw_snapshot_text = _origin_file(LEGACY_FILE)
+            if raw_snapshot_text:
+                try:
+                    raw_snapshot = json.loads(raw_snapshot_text)
+                except Exception:
+                    raw_snapshot = None
+                if isinstance(raw_snapshot, dict):
+                    snapshot_changed = False
+                    for entry in raw_snapshot.values():
+                        if not isinstance(entry, dict):
+                            continue
+                        for key in sensitive_profile_keys:
+                            if key in entry:
+                                entry.pop(key, None)
+                                snapshot_changed = True
+                    if snapshot_changed:
+                        normalized = {
+                            str(uid): _normalize_entry(entry)
+                            for uid, entry in raw_snapshot.items()
+                            if isinstance(entry, dict)
+                        }
+                        files[LEGACY_FILE] = _snapshot_json(normalized)
 
-    entry, _ = _shop_mutation(
-        uid, display_name, transaction_id, "twitch-discord-link", mutate
-    )
-    return {"user_id": uid, **entry}
+            events = _origin_events_all()
+            for transaction_id, event in events.items():
+                if not isinstance(event, dict):
+                    continue
+                details = event.get("details")
+                if not isinstance(details, dict):
+                    continue
+                changed = False
+                cleaned = dict(details)
+                for key in sensitive_detail_keys:
+                    if key in cleaned:
+                        cleaned.pop(key, None)
+                        changed = True
+                if not changed:
+                    continue
+                event = dict(event)
+                event["details"] = cleaned
+                files[_event_filename(transaction_id)] = _event_json(event)
+
+            if not files:
+                return True
+
+            if _push_files(files, "Scrub legacy Twitch identity data"):
+                # Refresh cache from the newly written normalized snapshot.
+                _fetch_retry()
+                snapshot = _origin_snapshot_file()
+                if snapshot is not None:
+                    _CACHE_SNAPSHOT = {uid: dict(entry) for uid, entry in snapshot.items()}
+                return True
+
+            time.sleep(min(2.0, 0.25 * attempt))
+
+    return False
 
 
 def grant_twitch_cosmetic(user_id, display_name, reward_key, redemption_id, twitch_user_id=""):
@@ -3026,14 +3038,13 @@ def grant_twitch_cosmetic(user_id, display_name, reward_key, redemption_id, twit
         unlocks = entry.setdefault("twitch_unlocks", [])
         if reward_key not in unlocks:
             unlocks.append(reward_key)
-        if twitch_user_id and not str(entry.get("twitch_user_id", "") or ""):
-            entry["twitch_user_id"] = str(twitch_user_id)
+        # ``twitch_user_id`` is accepted only for backwards API compatibility.
+        # It is intentionally not persisted in the public shared ledger.
         return {
             "reward_key": reward_key,
             "field": field,
             "value": value,
             "already_owned": already_owned,
-            "twitch_user_id": str(twitch_user_id or ""),
             "redemption_id": redemption_id,
         }
 
