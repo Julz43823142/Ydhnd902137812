@@ -376,24 +376,24 @@ TWITCH_REWARD_CONFIG = {
     # Current Twitch reward titles.
     "unlock discord arrow": {"key": "arrow", "label": "Twitch Arrow", "points": 5000},
     "unlock discord board": {"key": "board", "label": "Twitch Board", "points": 5000},
-    "unlock discord survival hearts": {"key": "survival_hearts", "label": "Twitch Survival Hearts", "points": 5000},
-    "unlock discord profile theme": {"key": "profile_theme", "label": "Twitch Profile Theme", "points": 10000},
-    "unlock discord pieces": {"key": "pieces", "label": "Twitch Pieces", "points": 10000},
+    "unlock discord survival hearts": {"key": "survival_hearts", "label": "Twitch Survival Hearts", "points": 1000},
+    "unlock discord profile theme": {"key": "profile_theme", "label": "Twitch Profile Theme", "points": 5000},
+    "unlock discord pieces": {"key": "pieces", "label": "Twitch Pieces", "points": 5000},
     "unlock discord name color": {"key": "name", "label": "Twitch Name Color", "points": 20000},
 
     # Backwards-compatible aliases. Keeping these means an older reward title
     # still works if Twitch has not been renamed yet.
     "unlock discord twitch arrow": {"key": "arrow", "label": "Twitch Arrow", "points": 5000},
     "unlock discord twitch board": {"key": "board", "label": "Twitch Board", "points": 5000},
-    "unlock discord twitch survival hearts": {"key": "survival_hearts", "label": "Twitch Survival Hearts", "points": 5000},
-    "unlock discord twitch profile theme": {"key": "profile_theme", "label": "Twitch Profile Theme", "points": 10000},
-    "unlock discord twitch pieces": {"key": "pieces", "label": "Twitch Pieces", "points": 10000},
+    "unlock discord twitch survival hearts": {"key": "survival_hearts", "label": "Twitch Survival Hearts", "points": 1000},
+    "unlock discord twitch profile theme": {"key": "profile_theme", "label": "Twitch Profile Theme", "points": 5000},
+    "unlock discord twitch pieces": {"key": "pieces", "label": "Twitch Pieces", "points": 5000},
     "unlock discord twitch name": {"key": "name", "label": "Twitch Name Color", "points": 20000},
     "unlock twitch arrow": {"key": "arrow", "label": "Twitch Arrow", "points": 5000},
     "unlock twitch board": {"key": "board", "label": "Twitch Board", "points": 5000},
-    "unlock twitch survival hearts": {"key": "survival_hearts", "label": "Twitch Survival Hearts", "points": 5000},
-    "unlock twitch profile theme": {"key": "profile_theme", "label": "Twitch Profile Theme", "points": 10000},
-    "unlock twitch pieces": {"key": "pieces", "label": "Twitch Pieces", "points": 10000},
+    "unlock twitch survival hearts": {"key": "survival_hearts", "label": "Twitch Survival Hearts", "points": 1000},
+    "unlock twitch profile theme": {"key": "profile_theme", "label": "Twitch Profile Theme", "points": 5000},
+    "unlock twitch pieces": {"key": "pieces", "label": "Twitch Pieces", "points": 5000},
     "unlock twitch name": {"key": "name", "label": "Twitch Name Color", "points": 20000},
 }
 _twitch_access_token = TWITCH_ACCESS_TOKEN_BOOTSTRAP
@@ -17383,7 +17383,7 @@ def shop_home_embed(profile):
             f"➡️ Arrows — standard colors **{shared_format_points(ARROW_COST)} coins** each\n"
             "🖼️ Profile Themes — standard themes **50**, game themes **100** coins\n"
             f"🖌️ Name Colors — standard colors **{shared_format_points(COLOR_COST)} coins** each\n"
-            "🟣 **Twitch Collection** — Twitch Channel Points only (**5k–20k**)\n\n"
+            "🟣 **Twitch Collection** — Twitch Channel Points only (**1k–20k**)\n\n"
             "Twitch Board, Pieces, Arrow, Profile Theme, Name and Survival Hearts can be previewed here. "
             "They cannot be bought with SharkBot coins.\n\n"
             "This menu is cosmetics only. Player trading and donations are under **Trade** in `!menu`."
