@@ -2662,8 +2662,8 @@
         "url": "https://lichess.org/training/DrmGQ",
         "title": "Lichess • 1695",
         "fen": "2b2Q2/1p1q3k/p1p4p/P2p1ppN/1P1P2n1/2P2N2/6P1/7K w - - 2 34",
-        "current_fen": "2b2Q2/1p1q3k/p1p4p/P2pnppN/1P1P4/2P5/6P1/7K w - - 0 35",
-        "last_move_uci": "g4e5",
+        "current_fen": "2b2Q2/1p1q4/p1p2Nkp/P2pnpp1/1P1P4/2P5/6P1/7K w - - 2 36",
+        "last_move_uci": "h7g6",
         "pgn": "Ne5 Nxe5 Nf6+ Kg6 Nxd7",
         "all_moves": [
           {
@@ -2718,16 +2718,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_DrmGQ_1790509541307",
         "rating": 1695,
-        "next_solution_index": 2,
+        "next_solution_index": 4,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1553734374720151552,
+      "message_id": 1553734450054176811,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790509559.632919,
-      "last_feedback": "✅ **Ne5** • Opponent: **Nxe5**"
+      "last_card_activity_at": 1790509562.6829462,
+      "last_feedback": "✅ **Nf6+** • Opponent: **Kg6**"
     },
     "362606514764251137": {
       "active": false,
