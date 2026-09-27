@@ -1,0 +1,14 @@
+{
+  "after_coins": 0.0,
+  "before_coins": 0.0,
+  "created_at": 1790540568,
+  "created_at_ns": 1790540568335912524,
+  "details": {
+    "profile_theme": "purple"
+  },
+  "display_name": "Punjisticker",
+  "ledger_build": "shared-ledger-v15-twitch-privacy-2026-09-27",
+  "operation": "equip-profile-theme",
+  "transaction_id": "profile-button-themes:1553864506919227444:1045034833639919707:purple",
+  "user_id": "1045034833639919707"
+}
