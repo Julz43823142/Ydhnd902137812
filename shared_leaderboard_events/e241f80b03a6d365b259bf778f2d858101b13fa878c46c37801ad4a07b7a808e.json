@@ -3,11 +3,7 @@
   "before_coins": 41.67,
   "created_at": 1790524643,
   "created_at_ns": 1790524643565686070,
-  "details": {
-    "before_twitch_user_id": "",
-    "twitch_login": "sh4rkmate",
-    "twitch_user_id": "1063411811"
-  },
+  "details": {},
   "display_name": "Sharkmeister",
   "ledger_build": "shared-ledger-v14-twitch-link-2026-09-27",
   "operation": "twitch-discord-link",

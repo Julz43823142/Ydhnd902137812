@@ -22,10 +22,7 @@
     "profile_themes": [],
     "sent_trades": [],
     "survival_heart_styles": [],
-    "twitch_linked_at": 0,
-    "twitch_login": "",
-    "twitch_unlocks": [],
-    "twitch_user_id": ""
+    "twitch_unlocks": []
   },
   "1310661840707129370": {
     "active_arrow": "green",
@@ -50,10 +47,7 @@
     "profile_themes": [],
     "sent_trades": [],
     "survival_heart_styles": [],
-    "twitch_linked_at": 0,
-    "twitch_login": "",
-    "twitch_unlocks": [],
-    "twitch_user_id": ""
+    "twitch_unlocks": []
   },
   "1370434994945916940": {
     "active_arrow": "green",
@@ -78,10 +72,7 @@
     "profile_themes": [],
     "sent_trades": [],
     "survival_heart_styles": [],
-    "twitch_linked_at": 0,
-    "twitch_login": "",
-    "twitch_unlocks": [],
-    "twitch_user_id": ""
+    "twitch_unlocks": []
   },
   "1403636751695740971": {
     "active_arrow": "green",
@@ -106,10 +97,7 @@
     "profile_themes": [],
     "sent_trades": [],
     "survival_heart_styles": [],
-    "twitch_linked_at": 0,
-    "twitch_login": "",
-    "twitch_unlocks": [],
-    "twitch_user_id": ""
+    "twitch_unlocks": []
   },
   "1455217865249652799": {
     "active_arrow": "green",
@@ -134,10 +122,7 @@
     "profile_themes": [],
     "sent_trades": [],
     "survival_heart_styles": [],
-    "twitch_linked_at": 0,
-    "twitch_login": "",
-    "twitch_unlocks": [],
-    "twitch_user_id": ""
+    "twitch_unlocks": []
   },
   "1468255221607043145": {
     "active_arrow": "green",
@@ -162,10 +147,7 @@
     "profile_themes": [],
     "sent_trades": [],
     "survival_heart_styles": [],
-    "twitch_linked_at": 0,
-    "twitch_login": "",
-    "twitch_unlocks": [],
-    "twitch_user_id": ""
+    "twitch_unlocks": []
   },
   "1526339090545381548": {
     "active_arrow": "green",
@@ -190,10 +172,7 @@
     "profile_themes": [],
     "sent_trades": [],
     "survival_heart_styles": [],
-    "twitch_linked_at": 0,
-    "twitch_login": "",
-    "twitch_unlocks": [],
-    "twitch_user_id": ""
+    "twitch_unlocks": []
   },
   "1541007763931668502": {
     "active_arrow": "green",
@@ -218,10 +197,7 @@
     "profile_themes": [],
     "sent_trades": [],
     "survival_heart_styles": [],
-    "twitch_linked_at": 0,
-    "twitch_login": "",
-    "twitch_unlocks": [],
-    "twitch_user_id": ""
+    "twitch_unlocks": []
   },
   "362606514764251137": {
     "active_arrow": "purple",
@@ -279,12 +255,9 @@
     ],
     "sent_trades": [],
     "survival_heart_styles": [],
-    "twitch_linked_at": 1790524643,
-    "twitch_login": "sh4rkmate",
     "twitch_unlocks": [
       "arrow"
-    ],
-    "twitch_user_id": "1063411811"
+    ]
   },
   "386134006170910721": {
     "active_arrow": "green",
@@ -309,10 +282,7 @@
     "profile_themes": [],
     "sent_trades": [],
     "survival_heart_styles": [],
-    "twitch_linked_at": 0,
-    "twitch_login": "",
-    "twitch_unlocks": [],
-    "twitch_user_id": ""
+    "twitch_unlocks": []
   },
   "442597396195704832": {
     "active_arrow": "pink",
@@ -434,10 +404,7 @@
       }
     ],
     "survival_heart_styles": [],
-    "twitch_linked_at": 0,
-    "twitch_login": "",
-    "twitch_unlocks": [],
-    "twitch_user_id": ""
+    "twitch_unlocks": []
   },
   "550338389535227926": {
     "active_arrow": "green",
@@ -462,10 +429,7 @@
     "profile_themes": [],
     "sent_trades": [],
     "survival_heart_styles": [],
-    "twitch_linked_at": 0,
-    "twitch_login": "",
-    "twitch_unlocks": [],
-    "twitch_user_id": ""
+    "twitch_unlocks": []
   },
   "601406103712170014": {
     "active_arrow": "green",
@@ -523,9 +487,6 @@
     "profile_themes": [],
     "sent_trades": [],
     "survival_heart_styles": [],
-    "twitch_linked_at": 0,
-    "twitch_login": "",
-    "twitch_unlocks": [],
-    "twitch_user_id": ""
+    "twitch_unlocks": []
   }
 }
