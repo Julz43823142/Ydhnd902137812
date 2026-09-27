@@ -8025,6 +8025,17 @@
       "dm_message_id": "1553858828477403267",
       "status": "processed",
       "confirmed_at": 1790539260
+    },
+    "4ca10f71-8cb5-47d0-98bc-6ef5198cc4a9": {
+      "redemption_id": "4ca10f71-8cb5-47d0-98bc-6ef5198cc4a9",
+      "reward_key": "arrow",
+      "reward_label": "Twitch Arrow",
+      "reward_title": "Unlock Discord Twitch Arrow",
+      "reward_cost": 5000,
+      "created_at": 1790540084,
+      "updated_at": 1790540084,
+      "identity_enc": "gAAAAABquXk0VZ_hRRtNDzVxpisaNS6Oi4sYr2imY865KR1kdMpY-BDNzv-wOViM04FnKIEo71xybg5pzS82AmeyPm7x4KCgCAEBiKdTNjQRdCGWk4-zl838ILevLnf2NXQfEvkI7GBerIm-22U3FT5-7-d1ePYy3vaMn4vmobG3H1oihN7Glwu2umVBy7A38gYkwhQSpU0KV3O8xgNBBjULKD1uSJYQ9dJVDRmPsrzpBdRsU1E--Gs=",
+      "status": "discord_user_not_found"
     }
   },
   "twitch_links_v1": {
