@@ -2662,8 +2662,8 @@
         "url": "https://lichess.org/training/dl4Lh",
         "title": "Lichess • 1752",
         "fen": "8/R3Rpk1/1p3r1p/7p/8/1P4PK/Pr3P1P/8 b - - 9 32",
-        "current_fen": "8/R3Rpk1/1p3r1p/7p/8/1P4PK/Pr3P1P/8 b - - 9 32",
-        "last_move_uci": "g2h3",
+        "current_fen": "8/R4Rk1/1p5p/7p/8/1P4PK/Pr3r1P/8 b - - 0 33",
+        "last_move_uci": "e7f7",
         "pgn": "Rfxf2 Rxf7+ Rxf7 Rxf7+ Kxf7",
         "all_moves": [
           {
@@ -2718,16 +2718,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_dl4Lh_1790509268208",
         "rating": 1752,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1553733206308814892,
+      "message_id": 1553733228764860507,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790509268.202297,
-      "last_feedback": "✅ **Rxc4** — solved! Score: **14**."
+      "last_card_activity_at": 1790509274.1245744,
+      "last_feedback": "✅ **Rfxf2** • Opponent: **Rxf7+**"
     },
     "362606514764251137": {
       "active": false,
