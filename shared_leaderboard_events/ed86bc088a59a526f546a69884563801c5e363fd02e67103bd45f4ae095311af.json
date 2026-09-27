@@ -1,0 +1,14 @@
+{
+  "after_coins": 41.67,
+  "before_coins": 41.67,
+  "created_at": 1790524664,
+  "created_at_ns": 1790524664328614917,
+  "details": {
+    "arrow": "purple"
+  },
+  "display_name": "Sharkmeister",
+  "ledger_build": "shared-ledger-v14-twitch-link-2026-09-27",
+  "operation": "equip-arrow",
+  "transaction_id": "profile-button-arrows:1553797800674983946:362606514764251137:purple",
+  "user_id": "362606514764251137"
+}
