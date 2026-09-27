@@ -2630,7 +2630,7 @@
   },
   "puzzle_rush": {
     "442597396195704832": {
-      "active": true,
+      "active": false,
       "user_id": "442597396195704832",
       "name": "Thice",
       "started_at": 1790509383.183198,
@@ -2725,11 +2725,16 @@
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1553734650961076234,
+      "message_id": 1553734736524869716,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
       "last_card_activity_at": 1790509627.5890994,
-      "last_feedback": "❌ **nc5** was wrong. Correct move: **Bd1+**."
+      "last_feedback": "❌ **nc5** was wrong. Correct move: **Bd1+**.",
+      "ended_at": 1790509705.2959986,
+      "solve_reward_coins": 11.0,
+      "solve_reward_paid": true,
+      "completion_reward_coins": 10.0,
+      "completion_reward_paid": true
     },
     "362606514764251137": {
       "active": false,
@@ -3569,6 +3574,14 @@
       "score": 18,
       "achieved_at": "2026-09-27T11:42:39.970124+00:00",
       "started_at": 1790509070.5240996,
+      "week": "2026-W39"
+    },
+    "rush:442597396195704832:1790509383183": {
+      "user_id": "442597396195704832",
+      "name": "Thice",
+      "score": 16,
+      "achieved_at": "2026-09-27T11:48:25.296032+00:00",
+      "started_at": 1790509383.183198,
       "week": "2026-W39"
     }
   },
@@ -5587,6 +5600,48 @@
             "arrow_theme": "pink"
           },
           "recorded_at": 1790509358.5409207
+        }
+      ]
+    },
+    "rush:442597396195704832:1790509383183": {
+      "run_id": "rush:442597396195704832:1790509383183",
+      "user_id": "442597396195704832",
+      "name": "Thice",
+      "ended_at": 1790509705.2959986,
+      "mistakes": [
+        {
+          "puzzle_number": 10,
+          "submitted": "bc6",
+          "correct": "Qc6+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_sTSDu_1790509472436",
+            "fen": "2kr3r/pp3p1p/2B3p1/2b5/4Q3/6P1/P2q1PP1/1R3K1R w - - 2 21",
+            "current_fen": "3r3r/pB1k1p1p/6p1/2b5/4Q3/6P1/P2q1PP1/1R3K1R w - - 1 22",
+            "last_move_uci": "c8d7",
+            "player_color": "white",
+            "rating": 1535,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1790509495.424293
+        },
+        {
+          "puzzle_number": 18,
+          "submitted": "nc5",
+          "correct": "Bd1+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_QlK1M_1790509596108",
+            "fen": "4r3/6k1/p2p1pp1/3N4/b1PQn1P1/q4P1R/P6R/4K3 b - - 1 32",
+            "current_fen": "4r3/6k1/p2p1pp1/3N4/b1PQn1P1/5P1R/P3K2R/2q5 b - - 3 33",
+            "last_move_uci": "e1e2",
+            "player_color": "black",
+            "rating": 1867,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1790509627.5896325
         }
       ]
     }
