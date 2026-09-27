@@ -2644,8 +2644,8 @@
         "url": "https://lichess.org/training/hfofd",
         "title": "Lichess • 1535",
         "fen": "4rn1k/pp2q2p/2n2Rp1/3pP3/3P4/4Q3/PP4PP/RN4K1 b - - 0 25",
-        "current_fen": "4rn1k/pp2q2p/2n2Rp1/3pP3/3P4/4Q3/PP4PP/RN4K1 b - - 0 25",
-        "last_move_uci": "c3d4",
+        "current_fen": "4rn1k/pp5p/2n2Pp1/3p4/3P4/4Q3/PP4PP/RN4K1 b - - 0 26",
+        "last_move_uci": "e5f6",
         "pgn": "Qxf6 exf6 Rxe3",
         "all_moves": [
           {
@@ -2685,16 +2685,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_hfofd_1790509464098",
         "rating": 1535,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1553734035770187828,
+      "message_id": 1553734050743714013,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790509464.0929568,
-      "last_feedback": "✅ **Kh2** — solved! Score: **8**."
+      "last_card_activity_at": 1790509469.144655,
+      "last_feedback": "✅ **Qxf6** • Opponent: **exf6**"
     },
     "362606514764251137": {
       "active": false,
