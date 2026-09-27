@@ -8056,14 +8056,15 @@
       "reward_title": "Unlock Discord Pieces",
       "reward_cost": 5000,
       "created_at": 1790540284,
-      "updated_at": 1790540300,
+      "updated_at": 1790540302,
       "identity_enc": "gAAAAABquXn8ZyL-Kykw05OQk1C5DlV7pwkkNDQLTVjGkv5oiUpxn9rt3_aSuLr21xFh0Q5aVx9BtGNxshO4iYqzhgcGhHq0iDYUcIUMVrNS_DCn7AhjW7HF6h0BVH15ajHz1wCfgE-iU0w3U6HeVexNSp8q_YrSVjd9HPHncHJD4rocuHpFe6yhf0ipZgX5tEgu_FPiMCVkQ5YpWvE4htWRyPjaMmMacQ==",
       "discord_user_id": "442597396195704832",
       "discord_username": "thice0872",
       "confirmation_location": "channel",
       "confirmation_channel_id": "1468320170891022417",
       "dm_message_id": "1553863327359443025",
-      "status": "processed"
+      "status": "processed",
+      "confirmed_at": 1790540302
     },
     "c3ac51f0-76de-481b-a703-1232dbc502e2": {
       "redemption_id": "c3ac51f0-76de-481b-a703-1232dbc502e2",
