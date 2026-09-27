@@ -1,6 +1,14 @@
 name: Survival Mode
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'survival_bot.py'
+      - 'shared_leaderboard.py'
+      - 'shop_catalog.py'
+      - 'puzzle_move_validation.py'
+      - 'puzzle_mode_lock.py'
   schedule:
     # Refresh the long-running worker roughly every 5 hours, before GitHub's
     # 6-hour hosted-runner limit. The new run cancels/replaces the old one.
