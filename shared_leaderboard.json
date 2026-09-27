@@ -274,15 +274,19 @@
     "colors": [],
     "donation_inbox": [],
     "guess_points_coined": 24.0,
-    "name": "Flash",
+    "name": "mh",
     "pending_trade": null,
     "pending_trades": [],
     "pieces": [],
     "points": 0.0,
-    "profile_themes": [],
+    "profile_themes": [
+      "purple"
+    ],
     "sent_trades": [],
     "survival_heart_styles": [],
-    "twitch_unlocks": []
+    "twitch_unlocks": [
+      "profile_theme"
+    ]
   },
   "442597396195704832": {
     "active_arrow": "pink",
