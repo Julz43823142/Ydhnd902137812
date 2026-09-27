@@ -1,0 +1,14 @@
+{
+  "after_coins": 41.67,
+  "before_coins": 41.67,
+  "created_at": 1790518231,
+  "created_at_ns": 1790518231121776171,
+  "details": {
+    "piece": "purple"
+  },
+  "display_name": "Sharkmeister",
+  "ledger_build": "shared-ledger-v13-daily-activity-2026-09-07",
+  "operation": "equip-piece",
+  "transaction_id": "profile-button-pieces:1553770818666889318:362606514764251137:purple",
+  "user_id": "362606514764251137"
+}
