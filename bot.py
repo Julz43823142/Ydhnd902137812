@@ -1,5 +1,4 @@
-from piece_art import render_piece_overlay
-from twitch_piece_art import render_twitch_piece_overlay
+from piece_art import render_piece_overlay, render_twitch_piece_overlay
 from shop_catalog import canonical_piece_set
 import discord
 import shark_admin
