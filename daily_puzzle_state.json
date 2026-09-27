@@ -2637,7 +2637,7 @@
       "run_id": "rush:442597396195704832:1790509070524",
       "end_at": 1790509370.5240996,
       "score": 16,
-      "wrong": 1,
+      "wrong": 2,
       "mistakes": [
         {
           "puzzle_number": 14,
@@ -2655,79 +2655,96 @@
             "arrow_theme": "pink"
           },
           "recorded_at": 1790509240.4317553
+        },
+        {
+          "puzzle_number": 18,
+          "submitted": "rxd2",
+          "correct": "Qh7+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_7Qx2J_1790509291021",
+            "fen": "5rk1/6p1/b5n1/q2pPpPQ/2pP1P2/2N5/P2r3R/5BK1 w - - 0 38",
+            "current_fen": "5rk1/6p1/b5n1/q2pPpPQ/2pP1P2/2N5/P2r3R/5BK1 w - - 0 38",
+            "last_move_uci": "b2d2",
+            "player_color": "white",
+            "rating": 1804,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1790509311.704261
         }
       ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/7Qx2J",
-        "title": "Lichess • 1804",
-        "fen": "5rk1/6p1/b5n1/q2pPpPQ/2pP1P2/2N5/P2r3R/5BK1 w - - 0 38",
-        "current_fen": "5rk1/6p1/b5n1/q2pPpPQ/2pP1P2/2N5/P2r3R/5BK1 w - - 0 38",
-        "last_move_uci": "b2d2",
-        "pgn": "Qh7+ Kf7 e6+ Kxe6 Qxg6+",
+        "url": "https://lichess.org/training/9409q",
+        "title": "Lichess • 1875",
+        "fen": "8/pB1n3p/P3k1p1/8/5K2/7P/6P1/8 w - - 13 44",
+        "current_fen": "8/pB1n3p/P3k1p1/8/5K2/7P/6P1/8 w - - 13 44",
+        "last_move_uci": "c5d7",
+        "pgn": "Bc8 Ke7 Bxd7 Kxd7 Kg5",
         "all_moves": [
           {
-            "uci": "h5h7",
-            "san": "Qh7+",
+            "uci": "b7c8",
+            "san": "Bc8",
             "color": "white"
           },
           {
-            "uci": "g8f7",
-            "san": "Kf7",
+            "uci": "e6e7",
+            "san": "Ke7",
             "color": "black"
           },
           {
-            "uci": "e5e6",
-            "san": "e6+",
+            "uci": "c8d7",
+            "san": "Bxd7",
             "color": "white"
           },
           {
-            "uci": "f7e6",
-            "san": "Kxe6",
+            "uci": "e7d7",
+            "san": "Kxd7",
             "color": "black"
           },
           {
-            "uci": "h7g6",
-            "san": "Qxg6+",
+            "uci": "f4g5",
+            "san": "Kg5",
             "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "h5h7",
-            "san": "Qh7+",
+            "uci": "b7c8",
+            "san": "Bc8",
             "color": "white"
           },
           {
-            "uci": "e5e6",
-            "san": "e6+",
+            "uci": "c8d7",
+            "san": "Bxd7",
             "color": "white"
           },
           {
-            "uci": "h7g6",
-            "san": "Qxg6+",
+            "uci": "f4g5",
+            "san": "Kg5",
             "color": "white"
           }
         ],
         "player_color": "white",
         "player_move_count": 3,
-        "posted_at": "2026-09-27T11:41:31.021373+00:00",
+        "posted_at": "2026-09-27T11:41:51.709775+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_7Qx2J_1790509291021",
-        "rating": 1804,
+        "puzzle_id": "practice_rush_442597396195704832_9409q_1790509311709",
+        "rating": 1875,
         "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1553733307752128622,
+      "message_id": 1553733324650844324,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790509291.0152934,
-      "last_feedback": "✅ **Rxc8** — solved! Score: **16**."
+      "last_card_activity_at": 1790509311.7037063,
+      "last_feedback": "❌ **rxd2** was wrong. Correct move: **Qh7+**."
     },
     "362606514764251137": {
       "active": false,
