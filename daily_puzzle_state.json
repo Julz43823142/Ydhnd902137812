@@ -8014,5 +8014,9 @@
       "link_enc": "gAAAAABquUqYYfujjZxy2lCbZ1mYrNkUr6dLuECYNyfxPS0fX19e3ECybX_-R7UQnvlQhDC0PnQbFT1AOtT3xB7G1yr46BNl07nOmY5iEQVCGxIcP_smsoJd_Ftx90T7fdJ-9FbQADH9LX9Iobh7jqgTCtJWXaSNzg==",
       "linked_at": 1790524649
     }
+  },
+  "twitch_privacy_migration_v1": {
+    "completed_at": 1790528156,
+    "schema": 1
   }
 }
