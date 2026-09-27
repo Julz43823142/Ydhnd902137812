@@ -34,7 +34,9 @@
     "active_survival_heart_style": "classic",
     "arrows": [],
     "badges": [],
-    "boards": [],
+    "boards": [
+      "purple"
+    ],
     "coins": 0.0,
     "colors": [
       "purple"
@@ -56,7 +58,8 @@
     "twitch_unlocks": [
       "name",
       "pieces",
-      "profile_theme"
+      "profile_theme",
+      "board"
     ]
   },
   "1310661840707129370": {
