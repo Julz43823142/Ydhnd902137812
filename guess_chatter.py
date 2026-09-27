@@ -73,6 +73,7 @@ from shop_catalog import (
     ARROW_COST, ARROW_COLORS, DEFAULT_ARROW_COLOR,
     PROFILE_THEMES, profile_theme_cost,
     COLOR_COST, NAME_COLORS, SHOP_COLOR_ROLE_PREFIX,
+    twitch_channel_point_cost, is_twitch_channel_point_cosmetic,
 )
 
 TOKEN = os.getenv(
@@ -658,6 +659,9 @@ class GuessCatalogPager(discord.ui.View):
             return profile_theme_cost(self.selected_name)
         return PIECE_COST
 
+    def _twitch_points(self):
+        return twitch_channel_point_cost(self.kind, self.selected_name)
+
     def _is_free_default(self, name):
         if self.kind == "arrow":
             return name == DEFAULT_ARROW_COLOR
@@ -691,19 +695,38 @@ class GuessCatalogPager(discord.ui.View):
         status = "Free default" if self._is_free_default(selected) else ("Owned" if owned else "Not owned")
         if active:
             status += " • Equipped"
+        twitch_points = self._twitch_points()
+        if twitch_points is not None:
+            price_line = f"**Unlock:** Twitch Channel Points only • **{twitch_points:,} points**"
+            action_line = (
+                f"This Purple {item_word} is a **Twitch Channel Points unlock**. "
+                "It cannot be bought with SharkBot coins. You can still preview it here."
+            )
+        else:
+            price_line = f"**Price:** {shared_format_points(price)} coins each • default is free."
+            action_line = (
+                f"Click an option to select that {item_word}. Use the physical buy/equip buttons when ready."
+            )
         return (
             f"{icon} **{title}**\n"
-            f"**Price:** {shared_format_points(price)} coins each • default is free.\n"
-            f"Page **{self.page}/{self.total_pages}** • choose one of the 5 buttons below.\n\n"
+            f"{price_line}\n"
+            f"Page **{self.page}/{self.total_pages}** • choose one of the buttons below.\n\n"
             f"**Preview:** {display}\n"
             f"**Status:** {status}\n\n"
-            f"Click an option to select that {item_word}. Use the physical buy/equip buttons when ready."
+            f"{action_line}"
             + ("\n\nTheme graphics are shared with your Puzzle/Chess profile card." if self.kind == "theme" else "")
         )
 
     async def preview_file(self, display_name):
         profile = await asyncio.to_thread(get_cosmetic_profile, self.viewer_id, display_name)
         if self.kind == "theme":
+            if self.selected_name == "purple":
+                file = await asyncio.to_thread(
+                    guess_profile_theme_preview_file,
+                    display_name,
+                    "guess_purple_profile_preview.png",
+                )
+                return profile, file
             return profile, None
         arrow_theme = profile.get("active_arrow", DEFAULT_ARROW_COLOR)
         show_arrow = False
@@ -779,12 +802,21 @@ class GuessCatalogPager(discord.ui.View):
         self.add_item(next_button)
 
         owned, _active = self._owned_active(profile)
-        buy = discord.ui.Button(
-            label=f"Buy selected • {shared_format_points(self._price())} coins",
-            style=discord.ButtonStyle.success,
-            disabled=self._is_free_default(self.selected_name) or owned,
-            row=2,
-        )
+        twitch_points = self._twitch_points()
+        if twitch_points is not None:
+            buy = discord.ui.Button(
+                label=f"Twitch • {twitch_points:,} pts",
+                style=discord.ButtonStyle.secondary,
+                disabled=True,
+                row=2,
+            )
+        else:
+            buy = discord.ui.Button(
+                label=f"Buy selected • {shared_format_points(self._price())} coins",
+                style=discord.ButtonStyle.success,
+                disabled=self._is_free_default(self.selected_name) or owned,
+                row=2,
+            )
         equip = discord.ui.Button(label="Equip selected", style=discord.ButtonStyle.primary, disabled=not owned, row=2)
 
         async def buy_callback(interaction):
@@ -1434,6 +1466,38 @@ def guess_render_custom_board_svg(
         colors={"square light": light, "square dark": dark},
     )
     return svg.replace("</svg>", _guess_piece_overlay_svg(board, True, piece_theme) + "</svg>")
+
+
+def guess_profile_theme_preview_file(display_name="Player", filename="guess_purple_profile_preview.png"):
+    safe_name = re.sub(r"[<>&]", "", str(display_name or "Player"))[:28]
+    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#160624"/><stop offset="0.48" stop-color="#4b1671"/><stop offset="1" stop-color="#160a2d"/>
+      </linearGradient>
+      <radialGradient id="glow"><stop offset="0" stop-color="#c084fc" stop-opacity="0.40"/><stop offset="1" stop-color="#7e22ce" stop-opacity="0"/></radialGradient>
+    </defs>
+    <rect width="960" height="540" rx="28" fill="url(#bg)"/>
+    <ellipse cx="800" cy="150" rx="290" ry="210" fill="url(#glow)"/>
+    <path d="M670 128 L714 70 L756 128 L714 190 Z" fill="none" stroke="#eadcff" stroke-width="5" opacity="0.48"/>
+    <path d="M814 190 L862 116 L912 190 L862 266 Z" fill="#a855f7" opacity="0.16" stroke="#eadcff" stroke-width="3"/>
+    <circle cx="126" cy="142" r="76" fill="#251033" stroke="#a855f7" stroke-width="6" opacity="0.98"/>
+    <text x="126" y="161" text-anchor="middle" font-family="Arial,sans-serif" font-size="56" font-weight="900" fill="#f3e8ff">P</text>
+    <text x="232" y="126" font-family="Arial,sans-serif" font-size="42" font-weight="900" fill="#ffffff">{safe_name}</text>
+    <text x="232" y="164" font-family="Arial,sans-serif" font-size="22" font-weight="700" fill="#d8b4fe">PURPLE PROFILE THEME</text>
+    <rect x="64" y="252" width="246" height="150" rx="22" fill="#0c0714" opacity="0.72" stroke="#a855f7" stroke-opacity="0.45"/>
+    <rect x="334" y="252" width="246" height="150" rx="22" fill="#0c0714" opacity="0.72" stroke="#a855f7" stroke-opacity="0.45"/>
+    <rect x="604" y="252" width="292" height="150" rx="22" fill="#0c0714" opacity="0.72" stroke="#a855f7" stroke-opacity="0.45"/>
+    <text x="90" y="292" font-family="Arial,sans-serif" font-size="19" font-weight="700" fill="#d8b4fe">SHARED COINS</text>
+    <text x="90" y="360" font-family="Arial,sans-serif" font-size="48" font-weight="900" fill="#ffffff">1,234</text>
+    <text x="360" y="292" font-family="Arial,sans-serif" font-size="19" font-weight="700" fill="#d8b4fe">CHESS ELO</text>
+    <text x="360" y="360" font-family="Arial,sans-serif" font-size="48" font-weight="900" fill="#ffffff">1542</text>
+    <text x="630" y="292" font-family="Arial,sans-serif" font-size="19" font-weight="700" fill="#d8b4fe">BEST STREAK</text>
+    <text x="630" y="360" font-family="Arial,sans-serif" font-size="48" font-weight="900" fill="#ffffff">27</text>
+    <path d="M620 478 C710 426 812 424 960 474 L960 540 L620 540 Z" fill="#090311" opacity="0.50"/>
+    </svg>"""
+    png = cairosvg.svg2png(bytestring=svg.encode("utf-8"))
+    return discord.File(BytesIO(png), filename=filename)
 
 
 def guess_cosmetic_preview_file(
@@ -3785,11 +3849,14 @@ def guess_shop_home_embed(profile):
         description=(
             f"🪙 **Coins:** {shared_format_points(profile.get('coins', 0))}\n\n"
             f"🎁 Badge Box — **{shared_format_points(BADGE_BOX_COST)} coins**\n"
-            f"🎨 Boards — **{shared_format_points(BOARD_COST)} coins** each\n"
-            f"♟️ Pieces — **{shared_format_points(PIECE_COST)} coins** each\n"
-            f"➡️ Arrows — **{shared_format_points(ARROW_COST)} coins** each\n"
-            "🖼️ Profile Themes — normal themes **50**, game themes **100** coins\n"
-            f"🖌️ Name Colors — **{shared_format_points(COLOR_COST)} coins** each\n\n"
+            f"🎨 Boards — standard themes **{shared_format_points(BOARD_COST)} coins** each\n"
+            f"♟️ Pieces — standard sets **{shared_format_points(PIECE_COST)} coins** each\n"
+            f"➡️ Arrows — standard colors **{shared_format_points(ARROW_COST)} coins** each\n"
+            "🖼️ Profile Themes — standard themes **50**, game themes **100** coins\n"
+            f"🖌️ Name Colors — standard colors **{shared_format_points(COLOR_COST)} coins** each\n"
+            "🟣 **Purple Collection** — Twitch Channel Points only (**5k–20k**)\n\n"
+            "Purple Board, Pieces, Arrow, Profile Theme and Name can already be previewed here. "
+            "They cannot be bought with SharkBot coins.\n\n"
             "Trading and donations have their own **Trade** button in `!menu`."
         ),
         color=0x4DD6B6,
@@ -3884,14 +3951,24 @@ class GuessColorCatalogView(discord.ui.View):
         if active == self.selected_name:
             status += " • Equipped"
         active_label = NAME_COLORS.get(active, {}).get("label", "Default") if active else "Default"
+        twitch_points = twitch_channel_point_cost("color", self.selected_name)
+        if twitch_points is not None:
+            price_line = f"**Unlock:** Twitch Channel Points only • **{twitch_points:,} points**"
+            instruction = (
+                "Purple Name is a **Twitch Channel Points unlock** and cannot be bought with SharkBot coins. "
+                "The embed color is the preview. Default removes the shop color role."
+            )
+        else:
+            price_line = f"**Price:** {shared_format_points(COLOR_COST)} coins each"
+            instruction = "Choose a color, then use **Buy selected** or **Equip selected**. Default removes the shop color role."
         return discord.Embed(
             title="🖌️ Name Colors",
             description=(
                 f"🪙 **Coins:** {shared_format_points(profile.get('coins', 0))}\n"
-                f"**Price:** {shared_format_points(COLOR_COST)} coins each\n\n"
+                f"{price_line}\n\n"
                 f"**Selected:** {label}\n**Status:** {status}\n"
                 f"**Currently equipped:** {active_label}\n\n"
-                "Choose a color, then use **Buy selected** or **Equip selected**. Default removes the shop color role."
+                f"{instruction}"
             ),
             color=NAME_COLORS[self.selected_name]["discord_color"],
         )
@@ -3919,12 +3996,21 @@ class GuessColorCatalogView(discord.ui.View):
             self.add_item(button)
 
         selected_owned = self.selected_name in owned
-        buy = discord.ui.Button(
-            label=f"Buy selected • {shared_format_points(COLOR_COST)} coins",
-            style=discord.ButtonStyle.success,
-            disabled=selected_owned,
-            row=2,
-        )
+        twitch_points = twitch_channel_point_cost("color", self.selected_name)
+        if twitch_points is not None:
+            buy = discord.ui.Button(
+                label=f"Twitch • {twitch_points:,} pts",
+                style=discord.ButtonStyle.secondary,
+                disabled=True,
+                row=2,
+            )
+        else:
+            buy = discord.ui.Button(
+                label=f"Buy selected • {shared_format_points(COLOR_COST)} coins",
+                style=discord.ButtonStyle.success,
+                disabled=selected_owned,
+                row=2,
+            )
         equip = discord.ui.Button(
             label="Equip selected",
             style=discord.ButtonStyle.primary,
