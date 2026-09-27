@@ -2644,8 +2644,8 @@
         "url": "https://lichess.org/training/zZJl2",
         "title": "Lichess • 1240",
         "fen": "3r1rk1/1p3p1p/5p2/2P5/pP4q1/P5P1/1B1R2QP/3R3K b - - 0 33",
-        "current_fen": "3r1rk1/1p3p1p/5p2/2P5/pP4q1/P5P1/1B1R2QP/3R3K b - - 0 33",
-        "last_move_uci": "f2d2",
+        "current_fen": "3r1rk1/1p3p1p/5p2/2P5/pP6/P5P1/1B4QP/3R3K b - - 0 34",
+        "last_move_uci": "d2d1",
         "pgn": "Qxd1+ Rxd1 Rxd1+",
         "all_moves": [
           {
@@ -2685,16 +2685,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_zZJl2_1790509393171",
         "rating": 1240,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1553733738330853411,
+      "message_id": 1553733755284492400,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790509393.1659446,
-      "last_feedback": "✅ **Rxd7** — solved! Score: **1**."
+      "last_card_activity_at": 1790509397.8010905,
+      "last_feedback": "✅ **Qxd1+** • Opponent: **Rxd1**"
     },
     "362606514764251137": {
       "active": false,
