@@ -1,0 +1,13 @@
+{
+  "after_points": 1681.0,
+  "amount": 1.0,
+  "before_points": 1680.0,
+  "created_at": 1790608061,
+  "created_at_ns": 1790608061458754777,
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v15-twitch-privacy-2026-09-27",
+  "operation": "add",
+  "source": "puzzle-first",
+  "transaction_id": "puzzle:daily_1790581471272:first:442597396195704832",
+  "user_id": "442597396195704832"
+}
