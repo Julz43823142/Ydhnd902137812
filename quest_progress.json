@@ -622,6 +622,14 @@
             "daily:2026-09-28:minigame:minigame-1": 3
           },
           "updated_at": 1790572589
+        },
+        "442597396195704832": {
+          "name": "Thice",
+          "paid": [],
+          "progress": {
+            "daily:2026-09-28:puzzle:solve-5": 1
+          },
+          "updated_at": 1790608067
         }
       }
     },
@@ -753,6 +761,14 @@
             "weekly:2026-09-28:minigame:minigame-5": 3
           },
           "updated_at": 1790572589
+        },
+        "442597396195704832": {
+          "name": "Thice",
+          "paid": [],
+          "progress": {
+            "weekly:2026-09-28:puzzle:solve-60": 1
+          },
+          "updated_at": 1790608067
         }
       }
     }
