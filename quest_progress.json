@@ -611,6 +611,18 @@
         }
       }
     },
+    "daily:2026-09-28": {
+      "users": {
+        "1": {
+          "name": "Player 1",
+          "paid": [],
+          "progress": {
+            "daily:2026-09-28:minigame:minigame-1": 1
+          },
+          "updated_at": 1790572578
+        }
+      }
+    },
     "weekly:2026-09-07": {
       "users": {
         "1": {
@@ -727,6 +739,18 @@
             "weekly:2026-09-21:puzzle:solve-25": 39
           },
           "updated_at": 1790235310
+        }
+      }
+    },
+    "weekly:2026-09-28": {
+      "users": {
+        "1": {
+          "name": "Player 1",
+          "paid": [],
+          "progress": {
+            "weekly:2026-09-28:minigame:minigame-5": 1
+          },
+          "updated_at": 1790572578
         }
       }
     }
