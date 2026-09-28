@@ -73,8 +73,8 @@
     "url": "https://www.chess.com/daily/2026-09-28",
     "title": "Look Both Ways",
     "fen": "r5k1/p6p/1p3p2/3p4/1N1P1P1P/R7/1P1K2bP/8 w - - 0 1",
-    "current_fen": "r5k1/p6p/1p3p2/3p4/1N1P1P1P/R7/1P1K2bP/8 w - - 0 1",
-    "last_move_uci": null,
+    "current_fen": "r7/p4k1p/1p3p2/3p4/1N1P1P1P/6R1/1P1K2bP/8 w - - 2 2",
+    "last_move_uci": "g8f7",
     "pgn": "[Result \"*\"]\n[FEN \"r5k1/p6p/1p3p2/3p4/1N1P1P1P/R7/1P1K2bP/8 w - - 0 1\"]\n\n1. Rg3+ Kf7 2. Rxg2 *",
     "all_moves": [
       {
@@ -113,22 +113,50 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1790581471272",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
-    "message_id": 1554036069727477760,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "message_id": 1554147575282532354,
+    "attempted_users": {
+      "442597396195704832": {
+        "name": "Thice",
+        "move": "Rg3",
+        "correct": true,
+        "timestamp": "2026-09-28T15:07:34.625161+00:00"
+      }
+    },
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1554036069727477760,
-      "1546557493038284840": 1554036080913944629
+      "1468320170891022417": 1554147575282532354,
+      "1546557493038284840": 1554147582178103360
     },
     "channel_id": 1468320170891022417,
-    "chat_since_refresh": 0
+    "chat_since_refresh": 0,
+    "last_card_activity_at": "2026-09-28T15:07:34.624602+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1790608054.62517,
+        "fen_before": "r5k1/p6p/1p3p2/3p4/1N1P1P1P/R7/1P1K2bP/8 w - - 0 1",
+        "expected": {
+          "uci": "a3g3",
+          "san": "Rg3+",
+          "color": "white"
+        },
+        "accepted_uci": "a3g3"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "Rg3+",
+        "uci": "a3g3",
+        "principal": true
+      }
+    ],
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kf7"
   },
   "lichess_rating_used": {
     "2000": [
