@@ -70,108 +70,59 @@
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-28",
   "current_puzzle": {
-    "url": "https://www.chess.com/daily/2026-09-27",
-    "title": "Major Piece Trampoline",
-    "fen": "6rk/1p2n2p/P1N1pp2/3p1p1P/3P4/BQRBP3/1P5q/2R1K3 b - - 0 27",
-    "current_fen": "6rk/1p2n2p/P1N1pp2/3p1p1P/3P4/BQRBP3/1P5q/2R1K3 b - - 0 27",
+    "url": "https://www.chess.com/daily/2026-09-28",
+    "title": "Look Both Ways",
+    "fen": "r5k1/p6p/1p3p2/3p4/1N1P1P1P/R7/1P1K2bP/8 w - - 0 1",
+    "current_fen": "r5k1/p6p/1p3p2/3p4/1N1P1P1P/R7/1P1K2bP/8 w - - 0 1",
     "last_move_uci": null,
-    "pgn": "[White \"Daily Puzzle Inspiration\"]\n[Black \"Checkmatemaster7\"]\n[Result \"*\"]\n[FEN \"6rk/1p2n2p/P1N1pp2/3p1p1P/3P4/BQRBP3/1P5q/2R1K3 b - - 0 27\"]\n\n27... Rg2 28. R3c2 Qh4+ 29. Kd1 Qh1+ 30. Bf1 Qxf1# *",
+    "pgn": "[Result \"*\"]\n[FEN \"r5k1/p6p/1p3p2/3p4/1N1P1P1P/R7/1P1K2bP/8 w - - 0 1\"]\n\n1. Rg3+ Kf7 2. Rxg2 *",
     "all_moves": [
       {
-        "uci": "g8g2",
-        "san": "Rg2",
-        "color": "black"
-      },
-      {
-        "uci": "c3c2",
-        "san": "R3c2",
+        "uci": "a3g3",
+        "san": "Rg3+",
         "color": "white"
       },
       {
-        "uci": "h2h4",
-        "san": "Qh4+",
+        "uci": "g8f7",
+        "san": "Kf7",
         "color": "black"
       },
       {
-        "uci": "e1d1",
-        "san": "Kd1",
+        "uci": "g3g2",
+        "san": "Rxg2",
         "color": "white"
-      },
-      {
-        "uci": "h4h1",
-        "san": "Qh1+",
-        "color": "black"
-      },
-      {
-        "uci": "d3f1",
-        "san": "Bf1",
-        "color": "white"
-      },
-      {
-        "uci": "h1f1",
-        "san": "Qxf1#",
-        "color": "black"
       }
     ],
     "player_moves": [
       {
-        "uci": "g8g2",
-        "san": "Rg2",
-        "color": "black"
+        "uci": "a3g3",
+        "san": "Rg3+",
+        "color": "white"
       },
       {
-        "uci": "h2h4",
-        "san": "Qh4+",
-        "color": "black"
-      },
-      {
-        "uci": "h4h1",
-        "san": "Qh1+",
-        "color": "black"
-      },
-      {
-        "uci": "h1f1",
-        "san": "Qxf1#",
-        "color": "black"
+        "uci": "g3g2",
+        "san": "Rxg2",
+        "color": "white"
       }
     ],
-    "player_color": "black",
-    "player_move_count": 4,
-    "posted_at": "2026-09-27T07:37:28.783788+00:00",
-    "answer_posted": true,
+    "player_color": "white",
+    "player_move_count": 2,
+    "posted_at": "2026-09-28T07:44:31.272978+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "daily_1790494648783",
+    "puzzle_id": "daily_1790581471272",
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_id": 1553853131262001254,
-    "attempted_users": {
-      "362606514764251137": {
-        "name": "Sharkmeister",
-        "move": "b5",
-        "correct": false,
-        "timestamp": "2026-09-27T15:20:26.691012+00:00"
-      }
-    },
+    "message_id": null,
+    "attempted_users": {},
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "message_ids": {
-      "1468320170891022417": 1553853131262001254,
-      "1546557493038284840": 1553853136085717206
-    },
-    "channel_id": 1468320170891022417,
-    "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-09-27T15:20:26.689711+00:00",
-    "recent_accepted_moves": [],
-    "wrong_attempt_counts": {
-      "362606514764251137": 1
-    },
-    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Rg2 Qh4+ Qh1+ Qxf1#"
+    "helper_candidate_users": []
   },
   "lichess_rating_used": {
     "2000": [
