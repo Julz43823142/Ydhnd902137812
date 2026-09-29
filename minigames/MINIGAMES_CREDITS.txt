@@ -16,7 +16,7 @@ Twemoji — Twitter and other contributors; maintained by the jdecked/twemoji pr
 https://github.com/jdecked/twemoji/tree/v15.1.0
 Graphics license: Creative Commons Attribution 4.0 International
 https://creativecommons.org/licenses/by/4.0/
-Selected PNG graphics are embedded in minigames_badges.py for offline rendering.
+Selected PNG graphics are embedded in minigames_render.py for offline rendering.
 Changes: selected assets, lossless packaging; resized when displayed.
 
 Custom community emoji

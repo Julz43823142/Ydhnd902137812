@@ -746,7 +746,7 @@ class ContentPack(unittest.TestCase):
     def test_badges_are_valid_images(self):
         import base64
         from PIL import Image
-        from minigames_badges import DATA
+        from minigames_render import BADGE_DATA as DATA
         self.assertGreater(len(DATA),560)
         for key,value in DATA.items():
             im=Image.open(io.BytesIO(base64.b64decode(value)));im.verify()
