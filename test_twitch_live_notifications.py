@@ -13,8 +13,8 @@ class _Channel:
     def __init__(self):
         self.sent = []
 
-    async def send(self, content, *, embed, allowed_mentions):
-        self.sent.append((content, embed, allowed_mentions))
+    async def send(self, content, *, embed, view, allowed_mentions):
+        self.sent.append((content, embed, view, allowed_mentions))
         return _SentMessage()
 
 
@@ -77,12 +77,16 @@ class TwitchLiveNotificationTests(unittest.IsolatedAsyncioTestCase):
         await bot._twitch_handle_stream_online(event)
 
         self.assertEqual(len(channel.sent), 1)
-        content, embed, allowed_mentions = channel.sent[0]
+        content, embed, view, allowed_mentions = channel.sent[0]
         self.assertEqual(content, bot.twitch_live_notification_content())
         self.assertEqual(embed.url, "https://www.twitch.tv/sh4rkmate")
         self.assertEqual(embed.description, "Starting Soon")
         self.assertEqual(embed.fields[0].value, "Chess")
         self.assertIn("live-1280x720.jpg?sharkbot=", embed.image.url)
+        self.assertEqual(len(view.children), 1)
+        self.assertEqual(view.children[0].label, "Twitch.tv/Sh4rkmate")
+        self.assertEqual(view.children[0].url, "https://www.twitch.tv/sh4rkmate")
+        self.assertEqual(view.children[0].style, bot.discord.ButtonStyle.link)
         self.assertTrue(allowed_mentions.everyone)
         self.assertEqual(
             bot.state[bot.TWITCH_LIVE_STATE_KEY]["message_ids"],
