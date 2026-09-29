@@ -25,7 +25,8 @@ permissions:
   actions: write
 
 concurrency:
-  group: daily-puzzle
+  # Keep this branch's one-off preview away from the production bot worker.
+  group: ${{ github.ref_name == 'feature/twitch-live-notifications' && 'twitch-live-preview' || 'daily-puzzle' }}
   cancel-in-progress: true
 
 jobs:
