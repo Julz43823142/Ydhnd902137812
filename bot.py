@@ -377,6 +377,7 @@ TWITCH_LIVE_STATE_KEY = "twitch_live_notifications_v1"
 TWITCH_LIVE_DISCORD_CHANNEL_ID = 1320033128676589669
 TWITCH_CHANNEL_LOGIN = os.getenv("TWITCH_CHANNEL_LOGIN", "sh4rkmate").strip().lstrip("@").casefold()
 TWITCH_LIVE_TIMEZONE = ZoneInfo("Europe/Amsterdam")
+TWITCH_LIVE_PREVIEW_DELAY_SECONDS = 10
 TWITCH_REWARD_CONFIG = {
     # Current Twitch reward titles.
     "unlock discord arrow": {"key": "arrow", "label": "Twitch Arrow", "points": 5000},
@@ -2093,6 +2094,56 @@ def twitch_live_notification_content():
     )
 
 
+async def _twitch_get_live_stream_info():
+    """Fetch Twitch's current stream metadata and preview-thumbnail template."""
+    token = _twitch_access_token or await _twitch_prepare_access_token()
+    for attempt in range(2):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                "https://api.twitch.tv/helix/streams",
+                headers={
+                    "Authorization": f"Bearer {token}",
+                    "Client-Id": TWITCH_CLIENT_ID,
+                },
+                params={"user_id": TWITCH_BROADCASTER_ID},
+                timeout=aiohttp.ClientTimeout(total=20),
+            ) as response:
+                if response.status == 401 and attempt == 0:
+                    token = await _twitch_refresh_access_token("live-preview-401")
+                    continue
+                if response.status != 200:
+                    body = await response.text()
+                    raise RuntimeError(
+                        f"Twitch stream lookup failed (HTTP {response.status}): {body[:500]}"
+                    )
+                payload = await response.json()
+                streams = payload.get("data") if isinstance(payload, dict) else None
+                return streams[0] if isinstance(streams, list) and streams else None
+    return None
+
+
+def _twitch_live_embed(stream_info=None):
+    stream_info = stream_info if isinstance(stream_info, dict) else {}
+    title = str(stream_info.get("title", "") or "Shark is live now!").strip()
+    game_name = str(stream_info.get("game_name", "") or "").strip()
+    embed = discord.Embed(
+        title="🔴 Shark is live on Twitch!",
+        url=twitch_live_url(),
+        description=title[:4096],
+        color=0x9146FF,
+    )
+    if game_name:
+        embed.add_field(name="Streaming", value=game_name[:1024], inline=True)
+
+    thumbnail = str(stream_info.get("thumbnail_url", "") or "").strip()
+    if thumbnail:
+        thumbnail = thumbnail.replace("{width}", "1280").replace("{height}", "720")
+        separator = "&" if "?" in thumbnail else "?"
+        embed.set_image(url=f"{thumbnail}{separator}sharkbot={int(time.time())}")
+    embed.set_footer(text="Watch live on Twitch")
+    return embed
+
+
 async def _twitch_live_channel():
     channel = client.get_channel(TWITCH_LIVE_DISCORD_CHANNEL_ID)
     if channel is None:
@@ -2110,9 +2161,19 @@ async def _twitch_handle_stream_online(event):
         print(f"Twitch live notification already sent for {started_at}.", flush=True)
         return
 
+    # Give Twitch time to publish a fresh frame so the Discord embed normally
+    # shows the broadcaster's Starting Soon screen instead of a stale image.
+    await asyncio.sleep(TWITCH_LIVE_PREVIEW_DELAY_SECONDS)
+    try:
+        stream_info = await _twitch_get_live_stream_info()
+    except Exception as error:
+        stream_info = None
+        print(f"Twitch live preview lookup warning: {error}", flush=True)
+
     channel = await _twitch_live_channel()
     message = await channel.send(
         twitch_live_notification_content(),
+        embed=_twitch_live_embed(stream_info),
         allowed_mentions=discord.AllowedMentions(
             everyone=True,
             users=False,
