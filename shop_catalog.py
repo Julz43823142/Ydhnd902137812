@@ -373,9 +373,69 @@ NAME_COLORS = {
     "orange": {"label": "Orange", "discord_color": 0xD35400},
     "green": {"label": "Green", "discord_color": 0x239B56},
     "purple": {"label": "Twitch", "discord_color": 0x9146FF},
+    # Pink follows the member's live Discord subscription entitlement.  It is
+    # deliberately part of the normal color catalogue so a subscriber can
+    # switch away from it and explicitly equip it again later.
+    "pink": {"label": "Pink", "discord_color": 0xE84393, "entitlement": "subscriber"},
     "cyan": {"label": "Cyan", "discord_color": 0x17A2B8},
     "gold": {"label": "Gold", "discord_color": 0xB7950B},
     "gray": {"label": "Gray", "discord_color": 0x7F8C8D},
 }
 
 SHOP_COLOR_ROLE_PREFIX = "Shop Color • "
+SUBSCRIBER_NAME_COLOR = "pink"
+
+
+def is_subscriber_name_color(color_name):
+    return str(color_name or "").casefold().strip() == SUBSCRIBER_NAME_COLOR
+
+
+def _is_discord_subscription_role(role, guild=None):
+    """Recognise Discord boost and paid-subscription roles without fixed IDs."""
+    if role is None:
+        return False
+
+    premium_role = getattr(guild, "premium_subscriber_role", None) if guild is not None else None
+    if premium_role is not None and getattr(role, "id", None) == getattr(premium_role, "id", None):
+        return True
+
+    checker = getattr(role, "is_premium_subscriber", None)
+    if callable(checker):
+        try:
+            if checker():
+                return True
+        except Exception:
+            pass
+
+    tags = getattr(role, "tags", None)
+    if tags is not None:
+        if getattr(tags, "subscription_listing_id", None) is not None:
+            return True
+        purchasable = getattr(tags, "is_available_for_purchase", None)
+        if callable(purchasable):
+            try:
+                if purchasable():
+                    return True
+            except Exception:
+                pass
+
+    # Some subscription integrations expose a normal auto-assigned role
+    # instead of Discord role tags. Keep this fallback intentionally narrow.
+    role_name = " ".join(str(getattr(role, "name", "")).casefold().split())
+    return role_name in {
+        "subscriber", "subscribers", "server subscriber", "server subscribers",
+        "subscription", "subscriptions",
+    }
+
+
+def subscriber_entitlement_role(member):
+    guild = getattr(member, "guild", None)
+    matches = [
+        role for role in getattr(member, "roles", [])
+        if _is_discord_subscription_role(role, guild)
+    ]
+    return max(matches, key=lambda role: getattr(role, "position", 0), default=None)
+
+
+def member_has_subscriber_color(member):
+    return subscriber_entitlement_role(member) is not None
