@@ -373,6 +373,11 @@ TWITCH_OAUTH_STATE_KEY = "twitch_oauth_v1"
 TWITCH_PENDING_STATE_KEY = "twitch_pending_redemptions_v1"
 TWITCH_LINKS_STATE_KEY = "twitch_links_v1"
 TWITCH_PRIVACY_MIGRATION_KEY = "twitch_privacy_migration_v1"
+TWITCH_LIVE_STATE_KEY = "twitch_live_notifications_v1"
+TWITCH_LIVE_DISCORD_CHANNEL_ID = 1320033128676589669
+TWITCH_CHANNEL_LOGIN = os.getenv("TWITCH_CHANNEL_LOGIN", "sh4rkmate").strip().lstrip("@").casefold()
+TWITCH_LIVE_TIMEZONE = ZoneInfo("Europe/Amsterdam")
+TWITCH_LIVE_PREVIEW_DELAY_SECONDS = 10
 TWITCH_REWARD_CONFIG = {
     # Current Twitch reward titles.
     "unlock discord arrow": {"key": "arrow", "label": "Twitch Arrow", "points": 5000},
@@ -401,6 +406,7 @@ _twitch_access_token = TWITCH_ACCESS_TOKEN_BOOTSTRAP
 _twitch_refresh_token = TWITCH_REFRESH_TOKEN_BOOTSTRAP
 _twitch_refresh_lock = None
 _twitch_eventsub_task = None
+_twitch_live_cleanup_task = None
 _twitch_seen_message_ids = set()
 _twitch_seen_message_order = []
 
@@ -1294,7 +1300,7 @@ async def save_all_critical(attempts=3):
 
 
 # =========================================================
-# TWITCH CHANNEL POINTS -> DISCORD COSMETICS
+# TWITCH EVENTSUB: LIVE NOTIFICATIONS + CHANNEL POINT COSMETICS
 # =========================================================
 
 def _twitch_normalize_reward_title(value):
@@ -1314,6 +1320,17 @@ def _twitch_oauth_state():
     if not isinstance(bucket, dict):
         bucket = {}
         state[TWITCH_OAUTH_STATE_KEY] = bucket
+    return bucket
+
+
+def _twitch_live_state():
+    bucket = state.setdefault(TWITCH_LIVE_STATE_KEY, {})
+    if not isinstance(bucket, dict):
+        bucket = {}
+        state[TWITCH_LIVE_STATE_KEY] = bucket
+    message_ids = bucket.setdefault("message_ids", [])
+    if not isinstance(message_ids, list):
+        bucket["message_ids"] = []
     return bucket
 
 
@@ -1676,37 +1693,49 @@ async def _twitch_prepare_access_token():
     return await _twitch_refresh_access_token("worker-start")
 
 
-async def _twitch_create_subscription(session_id):
+async def _twitch_create_subscriptions(session_id):
     token = _twitch_access_token or await _twitch_prepare_access_token()
-    payload = {
-        "type": "channel.channel_points_custom_reward_redemption.add",
-        "version": "1",
-        "condition": {"broadcaster_user_id": TWITCH_BROADCASTER_ID},
-        "transport": {"method": "websocket", "session_id": str(session_id)},
-    }
-    for attempt in range(2):
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                "https://api.twitch.tv/helix/eventsub/subscriptions",
-                headers={
-                    "Authorization": f"Bearer {token}",
-                    "Client-Id": TWITCH_CLIENT_ID,
-                    "Content-Type": "application/json",
-                },
-                json=payload,
-                timeout=aiohttp.ClientTimeout(total=20),
-            ) as response:
-                body = await response.text()
-                if response.status in {200, 202}:
-                    print("Twitch EventSub Channel Points subscription enabled.", flush=True)
-                    return True
-                if response.status == 401 and attempt == 0:
-                    token = await _twitch_refresh_access_token("eventsub-401")
-                    continue
-                raise RuntimeError(
-                    f"Twitch EventSub subscription failed (HTTP {response.status}): {body[:500]}"
-                )
-    return False
+    subscriptions = (
+        ("Channel Points", "channel.channel_points_custom_reward_redemption.add"),
+        ("stream-online", "stream.online"),
+    )
+    for label, subscription_type in subscriptions:
+        payload = {
+            "type": subscription_type,
+            "version": "1",
+            "condition": {"broadcaster_user_id": TWITCH_BROADCASTER_ID},
+            "transport": {"method": "websocket", "session_id": str(session_id)},
+        }
+        created = False
+        for attempt in range(2):
+            async with aiohttp.ClientSession() as session:
+                async with session.post(
+                    "https://api.twitch.tv/helix/eventsub/subscriptions",
+                    headers={
+                        "Authorization": f"Bearer {token}",
+                        "Client-Id": TWITCH_CLIENT_ID,
+                        "Content-Type": "application/json",
+                    },
+                    json=payload,
+                    timeout=aiohttp.ClientTimeout(total=20),
+                ) as response:
+                    body = await response.text()
+                    if response.status in {200, 202}:
+                        print(f"Twitch EventSub {label} subscription enabled.", flush=True)
+                        created = True
+                    elif response.status == 401 and attempt == 0:
+                        token = await _twitch_refresh_access_token("eventsub-401")
+                        continue
+                    else:
+                        raise RuntimeError(
+                            f"Twitch EventSub {label} subscription failed "
+                            f"(HTTP {response.status}): {body[:500]}"
+                        )
+            if created:
+                break
+        if not created:
+            raise RuntimeError(f"Twitch EventSub {label} subscription could not be enabled.")
+    return True
 
 
 async def _twitch_find_discord_member(guild, user_input):
@@ -2051,6 +2080,205 @@ async def _twitch_handle_redemption(event, guild, fallback_channel):
         )
 
 
+def twitch_live_url():
+    if not re.fullmatch(r"[a-z0-9_]{1,25}", TWITCH_CHANNEL_LOGIN):
+        raise RuntimeError("TWITCH_CHANNEL_LOGIN is invalid.")
+    return f"https://www.twitch.tv/{TWITCH_CHANNEL_LOGIN}"
+
+
+def twitch_live_notification_content():
+    return (
+        "@everyone\n"
+        "🔴 **Shark is live on Twitch!**\n"
+        f"Watch now: {twitch_live_url()}"
+    )
+
+
+async def _twitch_get_live_stream_info():
+    """Fetch Twitch's current stream metadata and preview-thumbnail template."""
+    token = _twitch_access_token or await _twitch_prepare_access_token()
+    for attempt in range(2):
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                "https://api.twitch.tv/helix/streams",
+                headers={
+                    "Authorization": f"Bearer {token}",
+                    "Client-Id": TWITCH_CLIENT_ID,
+                },
+                params={"user_id": TWITCH_BROADCASTER_ID},
+                timeout=aiohttp.ClientTimeout(total=20),
+            ) as response:
+                if response.status == 401 and attempt == 0:
+                    token = await _twitch_refresh_access_token("live-preview-401")
+                    continue
+                if response.status != 200:
+                    body = await response.text()
+                    raise RuntimeError(
+                        f"Twitch stream lookup failed (HTTP {response.status}): {body[:500]}"
+                    )
+                payload = await response.json()
+                streams = payload.get("data") if isinstance(payload, dict) else None
+                return streams[0] if isinstance(streams, list) and streams else None
+    return None
+
+
+def _twitch_live_embed(stream_info=None):
+    stream_info = stream_info if isinstance(stream_info, dict) else {}
+    title = str(stream_info.get("title", "") or "Shark is live now!").strip()
+    game_name = str(stream_info.get("game_name", "") or "").strip()
+    embed = discord.Embed(
+        title="🔴 Shark is live on Twitch!",
+        url=twitch_live_url(),
+        description=title[:4096],
+        color=0x9146FF,
+    )
+    if game_name:
+        embed.add_field(name="Streaming", value=game_name[:1024], inline=True)
+
+    thumbnail = str(stream_info.get("thumbnail_url", "") or "").strip()
+    if thumbnail:
+        thumbnail = thumbnail.replace("{width}", "1280").replace("{height}", "720")
+        separator = "&" if "?" in thumbnail else "?"
+        embed.set_image(url=f"{thumbnail}{separator}sharkbot={int(time.time())}")
+    embed.set_footer(text="Watch live on Twitch")
+    return embed
+
+
+async def _twitch_live_channel():
+    channel = client.get_channel(TWITCH_LIVE_DISCORD_CHANNEL_ID)
+    if channel is None:
+        channel = await client.fetch_channel(TWITCH_LIVE_DISCORD_CHANNEL_ID)
+    return channel
+
+
+async def _twitch_handle_stream_online(event):
+    if str(event.get("broadcaster_user_id", "")) != TWITCH_BROADCASTER_ID:
+        return
+
+    started_at = str(event.get("started_at", "") or "").strip()
+    live_state = _twitch_live_state()
+    if started_at and live_state.get("last_started_at") == started_at:
+        print(f"Twitch live notification already sent for {started_at}.", flush=True)
+        return
+
+    # Give Twitch time to publish a fresh frame so the Discord embed normally
+    # shows the broadcaster's Starting Soon screen instead of a stale image.
+    await asyncio.sleep(TWITCH_LIVE_PREVIEW_DELAY_SECONDS)
+    try:
+        stream_info = await _twitch_get_live_stream_info()
+    except Exception as error:
+        stream_info = None
+        print(f"Twitch live preview lookup warning: {error}", flush=True)
+
+    channel = await _twitch_live_channel()
+    message = await channel.send(
+        twitch_live_notification_content(),
+        embed=_twitch_live_embed(stream_info),
+        allowed_mentions=discord.AllowedMentions(
+            everyone=True,
+            users=False,
+            roles=False,
+            replied_user=False,
+        ),
+    )
+    message_ids = live_state.setdefault("message_ids", [])
+    message_ids.append(str(message.id))
+    live_state["message_ids"] = list(dict.fromkeys(message_ids))[-20:]
+    live_state["last_started_at"] = started_at
+    live_state["last_sent_at"] = datetime.now(timezone.utc).isoformat()
+    live_state["channel_id"] = str(channel.id)
+
+    saved = await save_all_critical(attempts=5)
+    if not saved:
+        await _twitch_owner_notice(
+            "⚠️ The Twitch live Discord notification was sent, but its cleanup state "
+            "could not be synced to GitHub. The 06:00 history scan will still find it."
+        )
+    print(f"Twitch live notification sent: message={message.id}", flush=True)
+
+
+def _is_twitch_live_notification(message):
+    if client.user is None or getattr(message.author, "id", None) != client.user.id:
+        return False
+    content = str(getattr(message, "content", "") or "")
+    return "Shark is live on Twitch!" in content and twitch_live_url() in content
+
+
+async def _twitch_delete_live_notifications():
+    live_state = _twitch_live_state()
+    channel = await _twitch_live_channel()
+    candidates = {}
+
+    # History recovery also catches a notification sent just before a worker
+    # restart/state-sync failure, plus the harmless preview used during setup.
+    try:
+        async for message in channel.history(limit=200):
+            if _is_twitch_live_notification(message):
+                candidates[str(message.id)] = message
+    except discord.Forbidden:
+        print("Twitch cleanup cannot read channel history; using tracked message IDs.", flush=True)
+
+    for message_id in list(live_state.get("message_ids", [])):
+        key = str(message_id)
+        if key in candidates:
+            continue
+        try:
+            message = await channel.fetch_message(int(key))
+        except discord.NotFound:
+            continue
+        if _is_twitch_live_notification(message):
+            candidates[key] = message
+
+    failed_ids = []
+    for message_id, message in candidates.items():
+        try:
+            await message.delete()
+        except discord.NotFound:
+            continue
+        except (discord.Forbidden, discord.HTTPException) as error:
+            failed_ids.append(message_id)
+            print(f"Could not delete Twitch live notification {message_id}: {error}", flush=True)
+
+    live_state["message_ids"] = failed_ids
+    live_state["last_cleanup_at"] = datetime.now(timezone.utc).isoformat()
+    await save_all_critical(attempts=3)
+    if candidates:
+        print(
+            f"Twitch 06:00 cleanup removed {len(candidates) - len(failed_ids)} "
+            f"notification(s); {len(failed_ids)} failed.",
+            flush=True,
+        )
+    return not failed_ids
+
+
+async def twitch_live_cleanup_loop():
+    """Delete SharkBot's Twitch live posts daily at 06:00 Europe/Amsterdam."""
+    await client.wait_until_ready()
+    while not client.is_closed():
+        now = datetime.now(TWITCH_LIVE_TIMEZONE)
+        today = now.date().isoformat()
+        live_state = _twitch_live_state()
+        if now.hour >= 6 and live_state.get("last_cleanup_date") != today:
+            try:
+                cleaned = await _twitch_delete_live_notifications()
+            except asyncio.CancelledError:
+                raise
+            except Exception as error:
+                cleaned = False
+                print(f"Twitch live cleanup warning: {error}", flush=True)
+            if cleaned:
+                live_state["last_cleanup_date"] = today
+                await save_all_critical(attempts=3)
+            await asyncio.sleep(3600 if cleaned else 300)
+            continue
+
+        next_cleanup = now.replace(hour=6, minute=0, second=0, microsecond=0)
+        if next_cleanup <= now:
+            next_cleanup += timedelta(days=1)
+        delay = max(30, min(3600, int((next_cleanup - now).total_seconds())))
+        await asyncio.sleep(delay)
+
+
 def _twitch_note_message_id(message_id):
     message_id = str(message_id or "")
     if not message_id or message_id in _twitch_seen_message_ids:
@@ -2099,7 +2327,7 @@ async def twitch_eventsub_loop(guild, fallback_channel):
                             session_info = payload.get("session") if isinstance(payload.get("session"), dict) else {}
                             session_id = str(session_info.get("id", ""))
                             if session_id and not is_resume:
-                                await _twitch_create_subscription(session_id)
+                                await _twitch_create_subscriptions(session_id)
                             is_resume = False
                             next_url = TWITCH_EVENTSUB_URL
                             continue
@@ -2126,10 +2354,12 @@ async def twitch_eventsub_loop(guild, fallback_channel):
                         if not _twitch_note_message_id(metadata.get("message_id")):
                             continue
                         subscription = payload.get("subscription") if isinstance(payload.get("subscription"), dict) else {}
-                        if subscription.get("type") != "channel.channel_points_custom_reward_redemption.add":
-                            continue
+                        subscription_type = str(subscription.get("type", ""))
                         event = payload.get("event") if isinstance(payload.get("event"), dict) else {}
-                        await _twitch_handle_redemption(event, guild, fallback_channel)
+                        if subscription_type == "channel.channel_points_custom_reward_redemption.add":
+                            await _twitch_handle_redemption(event, guild, fallback_channel)
+                        elif subscription_type == "stream.online":
+                            await _twitch_handle_stream_online(event)
 
             if reconnect_url:
                 next_url = reconnect_url
@@ -19904,7 +20134,7 @@ async def on_ready():
     client.add_view(PuzzleRacerOpenLobbyView())
     client.add_view(PuzzleRacerGameView())
 
-    global state, _twitch_eventsub_task
+    global state, _twitch_eventsub_task, _twitch_live_cleanup_task
 
     state = load_json(
         STATE_FILE,
@@ -19935,6 +20165,7 @@ async def on_ready():
     state.setdefault(TWITCH_OAUTH_STATE_KEY, {})
     state.setdefault(TWITCH_PENDING_STATE_KEY, {})
     state.setdefault(TWITCH_LINKS_STATE_KEY, {})
+    state.setdefault(TWITCH_LIVE_STATE_KEY, {})
 
     # One-time privacy migration: move any legacy plaintext Twitch identity
     # into encrypted Daily-owned state before scrubbing the public ledger.
@@ -20044,7 +20275,15 @@ async def on_ready():
         _twitch_eventsub_task = asyncio.create_task(
             twitch_eventsub_loop(primary_channel.guild, primary_channel)
         )
-        print("Twitch Channel Points bridge task started.", flush=True)
+        print("Twitch EventSub bridge task started.", flush=True)
+
+    if TWITCH_EVENTSUB_ENABLED and (
+        _twitch_live_cleanup_task is None or _twitch_live_cleanup_task.done()
+    ):
+        _twitch_live_cleanup_task = asyncio.create_task(
+            twitch_live_cleanup_loop()
+        )
+        print("Twitch live-notification 06:00 cleanup task started.", flush=True)
 
     try:
         await restore_open_challenges()
@@ -20153,11 +20392,11 @@ async def on_resumed():
 # START
 # =========================================================
 
-print(
-    "Starting Daily Chess Puzzle Bot...",
-    flush=True
-)
-print(f"Daily Puzzle build: {RP_BUILD}", flush=True)
-print(f"Shared leaderboard build: {SHARED_LEDGER_BUILD}", flush=True)
-
-client.run(TOKEN)
+if __name__ == "__main__":
+    print(
+        "Starting Daily Chess Puzzle Bot...",
+        flush=True
+    )
+    print(f"Daily Puzzle build: {RP_BUILD}", flush=True)
+    print(f"Shared leaderboard build: {SHARED_LEDGER_BUILD}", flush=True)
+    client.run(TOKEN)
