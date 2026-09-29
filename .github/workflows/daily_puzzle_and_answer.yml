@@ -29,7 +29,47 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  twitch-live-preview:
+    # Temporary branch-only preview. This is removed before the feature PR.
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send safe Twitch live preview
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import urllib.request
+
+          channel_id = "1320033128676589669"
+          content = (
+              "🧪 **TEST PREVIEW — nobody was pinged**\n\n"
+              "@\u200beveryone\n"
+              "🔴 **Shark is live on Twitch!**\n"
+              "Watch now: https://www.twitch.tv/sh4rkmate"
+          )
+          request = urllib.request.Request(
+              f"https://discord.com/api/v10/channels/{channel_id}/messages",
+              data=json.dumps({
+                  "content": content,
+                  "allowed_mentions": {"parse": []},
+              }).encode("utf-8"),
+              headers={
+                  "Authorization": f"Bot {os.environ['DISCORD_TOKEN']}",
+                  "Content-Type": "application/json",
+                  "User-Agent": "SharkBot-TwitchPreview/1.0",
+              },
+              method="POST",
+          )
+          with urllib.request.urlopen(request, timeout=30) as response:
+              result = json.load(response)
+          print(f"Preview sent: message_id={result['id']}")
+          PY
+
   run:
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
     # Emergency ceiling only. Normal workers hand off after ~4h20.
     timeout-minutes: 350
