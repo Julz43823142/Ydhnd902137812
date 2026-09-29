@@ -53,8 +53,10 @@
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_ids": {},
-    "message_id": null,
+    "message_ids": {
+      "1468320170891022417": 1554564317762822217
+    },
+    "message_id": 1554564317762822217,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {},
@@ -8155,8 +8157,13 @@
     "schema": 1
   },
   "twitch_live_notifications_v1": {
-    "message_ids": [],
+    "message_ids": [
+      "1554565130866401323"
+    ],
     "last_cleanup_at": "2026-09-29T18:42:38.480364+00:00",
-    "last_cleanup_date": "2026-09-29"
+    "last_cleanup_date": "2026-09-29",
+    "last_started_at": "2026-09-29T18:46:20Z",
+    "last_sent_at": "2026-09-29T18:46:50.075102+00:00",
+    "channel_id": "1320033128676589669"
   }
 }
