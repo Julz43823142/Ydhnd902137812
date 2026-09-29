@@ -487,8 +487,8 @@
           },
           "George": {
             "correct": 9,
-            "total": 18,
-            "wrong": 9
+            "total": 19,
+            "wrong": 10
           },
           "Jessebrawlstars": {
             "correct": 4,
@@ -629,9 +629,9 @@
           }
         }
       },
-      "total": 358,
-      "updated_at": 1790712162,
-      "wrong": 123
+      "total": 359,
+      "updated_at": 1790712266,
+      "wrong": 124
     },
     "550338389535227926": {
       "best_streak": 0,
