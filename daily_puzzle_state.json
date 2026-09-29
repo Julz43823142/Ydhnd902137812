@@ -38,7 +38,7 @@
     "player_color": "white",
     "player_move_count": 2,
     "posted_at": "2026-09-29T18:43:33.199078+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -64,9 +64,10 @@
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Rh5 h7"
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-29",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-29",
