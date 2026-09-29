@@ -8,7 +8,7 @@ New sets:
 * Wood 3D: James Clarke / clarkerubber, MIT. https://github.com/clarkerubber/Staunton-Pieces
 
 SVG sources remain in piece_art.py (losslessly compressed, exportable with --export-svg).
-The 12 original Wood 3D PNGs are losslessly bundled as base64 in piece_art.py / PIECE_PNGS.
+The 12 original Wood 3D PNGs are losslessly bundled as base64 in piece_3d.py / PIECE_PNGS.
 Rendering change: each SVG is rasterized independently at 180x180 with CairoSVG before board composition,
 to prevent repeated pieces losing their gradient fills. Original SVG paths and colors are preserved.
 Derived renders retain their source asset license.
