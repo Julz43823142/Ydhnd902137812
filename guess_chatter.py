@@ -55,6 +55,7 @@ from shared_leaderboard import (
     equip_profile_theme,
     buy_color,
     equip_color,
+    set_subscriber_color_entitlement,
     transfer_coins,
     transfer_badge,
     resolve_badge as shared_resolve_badge,
@@ -73,6 +74,8 @@ from shop_catalog import (
     ARROW_COST, ARROW_COLORS, DEFAULT_ARROW_COLOR,
     PROFILE_THEMES, profile_theme_cost,
     COLOR_COST, NAME_COLORS, SHOP_COLOR_ROLE_PREFIX,
+    SUBSCRIBER_NAME_COLOR, is_subscriber_name_color,
+    member_has_subscriber_color, subscriber_entitlement_role,
     twitch_channel_point_cost, is_twitch_channel_point_cosmetic,
 )
 
@@ -978,6 +981,29 @@ def _guess_highest_nonshop_colored_role(member):
     return max(roles, key=lambda role: role.position, default=None)
 
 
+async def guess_sync_subscriber_color_profile(member, transaction_id):
+    profile = await asyncio.to_thread(
+        get_cosmetic_profile,
+        member.id,
+        member.display_name,
+    )
+    entitled = member_has_subscriber_color(member)
+    has_pink = SUBSCRIBER_NAME_COLOR in profile.get("colors", [])
+    if entitled == has_pink:
+        return profile
+
+    if not entitled and profile.get("active_color") == SUBSCRIBER_NAME_COLOR:
+        await guess_apply_shop_color_role(member, "")
+
+    return await asyncio.to_thread(
+        set_subscriber_color_entitlement,
+        member.id,
+        member.display_name,
+        entitled,
+        transaction_id,
+    )
+
+
 async def _guess_shop_color_ceiling(guild, bot_member):
     ceiling = bot_member.top_role.position - 1
     shark_id = os.getenv("SHARKMEISTER_USER_ID", SHARKMEISTER_DEFAULT_USER_ID).strip() or SHARKMEISTER_DEFAULT_USER_ID
@@ -1024,6 +1050,16 @@ async def guess_apply_shop_color_role(member, color_name):
     if bot_member is None or not bot_member.guild_permissions.manage_roles:
         raise RuntimeError("The bot needs Manage Roles to equip shop colors.")
 
+    color_name = str(color_name or "").casefold().strip()
+    if color_name and color_name not in NAME_COLORS:
+        raise ValueError("Unknown name color.")
+
+    subscriber_role = None
+    if is_subscriber_name_color(color_name):
+        subscriber_role = subscriber_entitlement_role(member)
+        if subscriber_role is None:
+            raise ValueError("Pink requires an active Discord subscription.")
+
     shop_roles = [role for role in member.roles if role.name.startswith(SHOP_COLOR_ROLE_PREFIX)]
     if shop_roles:
         blocked = [role for role in shop_roles if not role < bot_member.top_role]
@@ -1031,11 +1067,10 @@ async def guess_apply_shop_color_role(member, color_name):
             raise RuntimeError("A shop-color role is at or above the bot role. Move the bot role above all Shop Color roles first.")
         await member.remove_roles(*shop_roles, reason="Guess Shop color change")
 
-    color_name = str(color_name or "").casefold().strip()
     if not color_name:
         return None
-    if color_name not in NAME_COLORS:
-        raise ValueError("Unknown name color.")
+    if subscriber_role is not None:
+        return subscriber_role
 
     config = NAME_COLORS[color_name]
     role_name = SHOP_COLOR_ROLE_PREFIX + config["label"]
@@ -1056,7 +1091,10 @@ async def guess_apply_shop_color_role(member, color_name):
 async def guess_equip_color_from_interaction(interaction, target_user_id, target_name, color_name):
     if str(interaction.user.id) != str(target_user_id):
         raise ValueError("You can only equip colors on your own profile.")
-    profile = await asyncio.to_thread(get_cosmetic_profile, target_user_id, target_name)
+    profile = await guess_sync_subscriber_color_profile(
+        interaction.user,
+        f"guess-subscriber-pink-sync:{interaction.id}:{target_user_id}",
+    )
     color_name = str(color_name or "").casefold().strip()
     if color_name and color_name not in profile.get("colors", []):
         raise ValueError("You do not own that color.")
@@ -1233,7 +1271,13 @@ class GuessCosmeticProfileView(discord.ui.View):
         for label, mode, emoji in (("Boards", "boards", "🎨"), ("Pieces", "pieces", "♟️"), ("Arrows", "arrows", "➡️"), ("Themes", "themes", "🖼️"), ("Colors", "colors", "🖌️")):
             button = discord.ui.Button(label=label, emoji=emoji, style=discord.ButtonStyle.secondary, row=2 if mode in {"boards", "pieces", "arrows"} else 3)
             async def open_mode(interaction, mode=mode):
-                profile = await self._profile()
+                if mode == "colors" and self.editable:
+                    profile = await guess_sync_subscriber_color_profile(
+                        interaction.user,
+                        f"guess-subscriber-pink-sync:{interaction.id}:{interaction.user.id}",
+                    )
+                else:
+                    profile = await self._profile()
                 self.mode = mode
                 self.page = 1
                 self._build_assets(profile)
@@ -3961,7 +4005,10 @@ class GuessColorCatalogView(discord.ui.View):
         return True
 
     async def _profile(self, interaction):
-        return await asyncio.to_thread(get_cosmetic_profile, interaction.user.id, interaction.user.display_name)
+        return await guess_sync_subscriber_color_profile(
+            interaction.user,
+            f"guess-subscriber-pink-sync:{interaction.id}:{interaction.user.id}",
+        )
 
     def embed(self, profile):
         owned = set(profile.get("colors", []))
@@ -3971,8 +4018,15 @@ class GuessColorCatalogView(discord.ui.View):
         if active == self.selected_name:
             status += " • Equipped"
         active_label = NAME_COLORS.get(active, {}).get("label", "Default") if active else "Default"
+        subscriber_only = is_subscriber_name_color(self.selected_name)
         twitch_points = twitch_channel_point_cost("color", self.selected_name)
-        if twitch_points is not None:
+        if subscriber_only:
+            price_line = "**Unlock:** active Discord subscription"
+            instruction = (
+                "Pink is available while your Discord subscription is active. "
+                "Equip another owned color at any time, or equip Pink again here later."
+            )
+        elif twitch_points is not None:
             price_line = f"**Unlock:** Twitch Channel Points only • **{twitch_points:,} points**"
             instruction = (
                 "Twitch Name Color is a **Twitch Channel Points unlock** and cannot be bought with SharkBot coins. "
@@ -4017,7 +4071,14 @@ class GuessColorCatalogView(discord.ui.View):
 
         selected_owned = self.selected_name in owned
         twitch_points = twitch_channel_point_cost("color", self.selected_name)
-        if twitch_points is not None:
+        if is_subscriber_name_color(self.selected_name):
+            buy = discord.ui.Button(
+                label="Discord subscriber unlock",
+                style=discord.ButtonStyle.secondary,
+                disabled=True,
+                row=2,
+            )
+        elif twitch_points is not None:
             buy = discord.ui.Button(
                 label=f"Twitch • {twitch_points:,} pts",
                 style=discord.ButtonStyle.secondary,
@@ -4598,7 +4659,10 @@ class GuessShopHomeView(discord.ui.View):
 
     @discord.ui.button(label="Colors", emoji="🖌️", style=discord.ButtonStyle.secondary, row=1)
     async def colors(self, interaction, button):
-        profile = await asyncio.to_thread(get_cosmetic_profile, interaction.user.id, interaction.user.display_name)
+        profile = await guess_sync_subscriber_color_profile(
+            interaction.user,
+            f"guess-subscriber-pink-sync:{interaction.id}:{interaction.user.id}",
+        )
         view = GuessColorCatalogView(interaction.user.id, profile=profile)
         await interaction.response.send_message(embed=view.embed(profile), view=view, ephemeral=True)
 

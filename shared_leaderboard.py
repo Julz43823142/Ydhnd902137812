@@ -18,13 +18,14 @@ from shop_catalog import (
     BADGE_BOX_COST, BADGE_POOLS, BADGE_RARITY_WEIGHTS, BOARD_COST,
     BOARD_THEMES, PIECE_COST, PIECE_SETS, canonical_piece_set,
     ARROW_COST, ARROW_COLORS, DEFAULT_ARROW_COLOR,
-    COLOR_COST, NAME_COLORS, RARITY_LABELS,
+    COLOR_COST, NAME_COLORS, RARITY_LABELS, SUBSCRIBER_NAME_COLOR,
+    is_subscriber_name_color,
     PROFILE_THEME_COST, PROFILE_THEMES, profile_theme_cost,
     SURVIVAL_HEART_STYLES, canonical_survival_heart_style,
     is_twitch_channel_point_cosmetic,
 )
 
-LEDGER_BUILD = "shared-ledger-v15-twitch-privacy-2026-09-27"
+LEDGER_BUILD = "shared-ledger-v16-subscriber-pink-2026-09-29"
 
 ACTIVITY_BONUS_COINS = 10.0
 ACTIVITY_RESET_HOUR = 5
@@ -2846,6 +2847,8 @@ def equip_arrow(user_id, display_name, arrow_name, transaction_id):
 
 def buy_color(user_id, display_name, color_name, transaction_id):
     color_name = str(color_name).casefold()
+    if is_subscriber_name_color(color_name):
+        raise ValueError("Pink is unlocked by an active Discord subscription, not SharkBot coins.")
     if is_twitch_channel_point_cosmetic("color", color_name):
         raise ValueError("That name color is unlocked with Twitch Channel Points, not SharkBot coins.")
     if color_name not in NAME_COLORS:
@@ -2875,6 +2878,46 @@ def equip_color(user_id, display_name, color_name, transaction_id):
         entry["active_color"] = color_name
         return {"color": color_name}
     entry, _ = _shop_mutation(user_id, display_name, transaction_id, "equip-color", mutate)
+    return {"user_id": str(user_id), **entry}
+
+
+def set_subscriber_color_entitlement(
+    user_id,
+    display_name,
+    entitled,
+    transaction_id,
+):
+    """Mirror the live Discord subscription into the persisted color inventory."""
+    entitled = bool(entitled)
+
+    def mutate(entry):
+        colors = list(entry.get("colors", []))
+        had_entitlement = SUBSCRIBER_NAME_COLOR in colors
+        active_before = str(entry.get("active_color", "") or "")
+
+        if entitled and not had_entitlement:
+            colors.append(SUBSCRIBER_NAME_COLOR)
+        elif not entitled and had_entitlement:
+            colors = [name for name in colors if name != SUBSCRIBER_NAME_COLOR]
+
+        entry["colors"] = colors
+        if not entitled and active_before == SUBSCRIBER_NAME_COLOR:
+            entry["active_color"] = ""
+
+        return {
+            "color": SUBSCRIBER_NAME_COLOR,
+            "entitled": entitled,
+            "changed": entitled != had_entitlement,
+            "active_reset": not entitled and active_before == SUBSCRIBER_NAME_COLOR,
+        }
+
+    entry, _ = _shop_mutation(
+        user_id,
+        display_name,
+        transaction_id,
+        "subscriber-color-entitlement",
+        mutate,
+    )
     return {"user_id": str(user_id), **entry}
 
 

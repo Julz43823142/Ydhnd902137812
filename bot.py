@@ -27,6 +27,7 @@ from shared_leaderboard import (
     equip_arrow,
     buy_color,
     equip_color,
+    set_subscriber_color_entitlement,
     buy_profile_theme,
     equip_profile_theme,
     equip_survival_heart_style,
@@ -55,6 +56,8 @@ from shop_catalog import (
     PIECE_COST, PIECE_SETS, PIECE_DISPLAY_NAMES,
     ARROW_COST, ARROW_COLORS, DEFAULT_ARROW_COLOR,
     COLOR_COST, NAME_COLORS, SHOP_COLOR_ROLE_PREFIX, SURVIVAL_HEART_COST,
+    SUBSCRIBER_NAME_COLOR, is_subscriber_name_color,
+    member_has_subscriber_color, subscriber_entitlement_role,
     PROFILE_THEME_COST, PROFILE_THEMES, profile_theme_cost,
     SURVIVAL_HEART_STYLES, canonical_survival_heart_style,
     twitch_channel_point_cost, is_twitch_channel_point_cosmetic,
@@ -11785,7 +11788,7 @@ def shop_message(user_id, display_name):
         f"➡️ **Arrow Colors — {shared_format_points(ARROW_COST)} coins each**\n"
         "`!arrow` — choose the last-move arrow color. Green is the free default.\n\n"
         f"🖌️ **Name Colors — {shared_format_points(COLOR_COST)} coins each**\n"
-        f"`!color` — {color_names}. Higher protected server roles still win (owner blue / subscriber pink).\n\n"
+        f"`!color` — {color_names}. Subscribers can switch away from Pink and equip it again later.\n\n"
         "🖼️ **Profile Themes**\n"
         "`!theme` — Classic is free • Shark Bot themes: **50 coins** • game themes: **100 coins**. Buy once, equip anytime.\n\n"
         f"❤️ **Survival Heart — {shared_format_points(SURVIVAL_HEART_COST)} coins**\n"
@@ -12001,7 +12004,7 @@ def color_catalog_message():
         "`!color red buy` — buy a color\n"
         "`!color red` — equip a color you own\n"
         "`!color default` — remove your shop color and return to your normal server color\n\n"
-        "Higher existing server color roles still win, so Sharkmeister can stay blue and subscribers can stay pink."
+        "Subscriber Pink is an entitlement color: subscribers may equip another unlocked color and return to Pink later."
     )
 
 
@@ -13309,7 +13312,13 @@ class CosmeticProfileView(discord.ui.View):
             button = discord.ui.Button(label=label, emoji=emoji, style=style, row=index // 5)
 
             async def open_mode(interaction, mode=mode):
-                current = await self._profile()
+                if mode == "colors" and self.editable:
+                    current = await sync_subscriber_color_profile(
+                        interaction.user,
+                        f"subscriber-pink-sync:{interaction.id}:{interaction.user.id}",
+                    )
+                else:
+                    current = await self._profile()
                 self.page = 1
                 if mode == "badges_home":
                     self.mode = "badge_rarities"
@@ -13670,6 +13679,32 @@ def _highest_nonshop_colored_role(member):
     return max(roles, key=lambda role: role.position, default=None)
 
 
+async def sync_subscriber_color_profile(member, transaction_id):
+    """Keep Pink ownership aligned with the member's live Discord entitlement."""
+    profile = await asyncio.to_thread(
+        get_cosmetic_profile,
+        member.id,
+        member.display_name,
+    )
+    entitled = member_has_subscriber_color(member)
+    has_pink = SUBSCRIBER_NAME_COLOR in profile.get("colors", [])
+    if entitled == has_pink:
+        return profile
+
+    # Pink never needs a bot-created shop role. If the entitlement disappeared
+    # while Pink was active, clean up any legacy shop role before resetting it.
+    if not entitled and profile.get("active_color") == SUBSCRIBER_NAME_COLOR:
+        await apply_shop_color_role(member, "")
+
+    return await asyncio.to_thread(
+        set_subscriber_color_entitlement,
+        member.id,
+        member.display_name,
+        entitled,
+        transaction_id,
+    )
+
+
 async def _shop_color_ceiling(guild, bot_member):
     """Highest allowed shop-role position; keep owner/Sharkmeister blue above it."""
     ceiling = bot_member.top_role.position - 1
@@ -13731,6 +13766,16 @@ async def apply_shop_color_role(member, color_name):
     if bot_member is None or not bot_member.guild_permissions.manage_roles:
         raise RuntimeError("The bot needs Manage Roles to equip shop colors.")
 
+    color_name = str(color_name or "").casefold().strip()
+    if color_name and color_name not in NAME_COLORS:
+        raise ValueError("Unknown name color.")
+
+    subscriber_role = None
+    if is_subscriber_name_color(color_name):
+        subscriber_role = subscriber_entitlement_role(member)
+        if subscriber_role is None:
+            raise ValueError("Pink requires an active Discord subscription.")
+
     shop_roles = [role for role in member.roles if role.name.startswith(SHOP_COLOR_ROLE_PREFIX)]
     if shop_roles:
         blocked = [role for role in shop_roles if not role < bot_member.top_role]
@@ -13740,9 +13785,13 @@ async def apply_shop_color_role(member, color_name):
             )
         await member.remove_roles(*shop_roles, reason="Puzzle Shop color change")
 
-    color_name = str(color_name or "").casefold()
     if not color_name:
         return None
+
+    # Equipping Pink means revealing the existing managed subscription role.
+    # Do not create a second Pink role that would outlive the entitlement.
+    if subscriber_role is not None:
+        return subscriber_role
 
     config = NAME_COLORS[color_name]
     role_name = SHOP_COLOR_ROLE_PREFIX + config["label"]
@@ -13768,10 +13817,9 @@ async def equip_profile_color_from_interaction(interaction, target_user_id, targ
     """Equip a profile color and keep the visible Discord role in sync."""
     if str(interaction.user.id) != str(target_user_id):
         raise ValueError("You can only equip colors on your own profile.")
-    profile = await asyncio.to_thread(
-        get_cosmetic_profile,
-        target_user_id,
-        target_name,
+    profile = await sync_subscriber_color_profile(
+        interaction.user,
+        f"subscriber-pink-sync:{interaction.id}:{target_user_id}",
     )
     color_name = str(color_name or "").casefold().strip()
     if color_name and color_name not in profile.get("colors", []):
@@ -13796,10 +13844,9 @@ async def equip_profile_color_from_interaction(interaction, target_user_id, targ
 
 async def equip_user_color(message, color_name):
     color_name = str(color_name or "").casefold()
-    profile = await asyncio.to_thread(
-        get_cosmetic_profile,
-        message.author.id,
-        message.author.display_name,
+    profile = await sync_subscriber_color_profile(
+        message.author,
+        f"subscriber-pink-sync:message:{message.id}:{message.author.id}",
     )
     if color_name and color_name not in profile.get("colors", []):
         raise ValueError("You do not own that color.")
@@ -17229,10 +17276,9 @@ class ColorCatalogView(discord.ui.View):
         return True
 
     async def _profile(self, interaction):
-        return await asyncio.to_thread(
-            get_cosmetic_profile,
-            interaction.user.id,
-            interaction.user.display_name,
+        return await sync_subscriber_color_profile(
+            interaction.user,
+            f"subscriber-pink-sync:{interaction.id}:{interaction.user.id}",
         )
 
     def embed(self, profile):
@@ -17243,8 +17289,15 @@ class ColorCatalogView(discord.ui.View):
         if active == self.selected_name:
             status += " • Equipped"
         active_label = NAME_COLORS.get(active, {}).get("label", "Default") if active else "Default"
+        subscriber_only = is_subscriber_name_color(self.selected_name)
         twitch_points = twitch_channel_point_cost("color", self.selected_name)
-        if twitch_points is not None:
+        if subscriber_only:
+            price_line = "**Unlock:** active Discord subscription"
+            instruction = (
+                "Pink is available while your Discord subscription is active. "
+                "Equip another owned color at any time, or equip Pink again here later."
+            )
+        elif twitch_points is not None:
             price_line = f"**Unlock:** Twitch Channel Points only • **{twitch_points:,} points**"
             instruction = (
                 f"{label} Name is a **Twitch Channel Points unlock** and cannot be bought with SharkBot coins. "
@@ -17293,7 +17346,14 @@ class ColorCatalogView(discord.ui.View):
 
         selected_owned = self.selected_name in owned
         twitch_points = twitch_channel_point_cost("color", self.selected_name)
-        if twitch_points is not None:
+        if is_subscriber_name_color(self.selected_name):
+            buy = discord.ui.Button(
+                label="Discord subscriber unlock",
+                style=discord.ButtonStyle.secondary,
+                disabled=True,
+                row=2,
+            )
+        elif twitch_points is not None:
             buy = discord.ui.Button(
                 label=f"Twitch • {twitch_points:,} pts",
                 style=discord.ButtonStyle.secondary,
@@ -17544,8 +17604,9 @@ class ShopHomeView(discord.ui.View):
 
     @discord.ui.button(label="Colors", emoji="🖌️", style=discord.ButtonStyle.secondary, row=1)
     async def colors(self, interaction, button):
-        profile = await asyncio.to_thread(
-            get_cosmetic_profile, interaction.user.id, interaction.user.display_name
+        profile = await sync_subscriber_color_profile(
+            interaction.user,
+            f"subscriber-pink-sync:{interaction.id}:{interaction.user.id}",
         )
         view = ColorCatalogView(interaction.user.id, profile=profile)
         await interaction.response.send_message(embed=view.embed(profile), view=view, ephemeral=True)
