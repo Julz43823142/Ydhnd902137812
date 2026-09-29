@@ -128,8 +128,6 @@ from chess_play import (
     StockfishUnavailableError,
     move_like_text as chess_game_move_like,
     parse_move as parse_chess_game_move,
-)
-from chess_reactions import (
     CHESS_REACTIONS_BUILD,
     bot_result_reaction,
 )
