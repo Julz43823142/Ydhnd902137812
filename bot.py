@@ -2144,6 +2144,19 @@ def _twitch_live_embed(stream_info=None):
     return embed
 
 
+def _twitch_live_view():
+    view = discord.ui.View(timeout=None)
+    view.add_item(
+        discord.ui.Button(
+            style=discord.ButtonStyle.link,
+            label="Twitch.tv/Sh4rkmate",
+            emoji="🔗",
+            url=twitch_live_url(),
+        )
+    )
+    return view
+
+
 async def _twitch_live_channel():
     channel = client.get_channel(TWITCH_LIVE_DISCORD_CHANNEL_ID)
     if channel is None:
@@ -2174,6 +2187,7 @@ async def _twitch_handle_stream_online(event):
     message = await channel.send(
         twitch_live_notification_content(),
         embed=_twitch_live_embed(stream_info),
+        view=_twitch_live_view(),
         allowed_mentions=discord.AllowedMentions(
             everyone=True,
             users=False,
