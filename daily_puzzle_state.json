@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/YXsWG",
     "title": "Lichess • 2639",
     "fen": "5r1k/2p4p/p5p1/1p1q4/6P1/P2B3P/1P2rB2/1Q3RK1 b - - 1 39",
-    "current_fen": "5r1k/2p4p/p5p1/1p1q4/6P1/P2B3P/1P2rB2/1Q3RK1 b - - 1 39",
-    "last_move_uci": "f5d3",
+    "current_fen": "5r1k/2p4p/p1B3p1/1p6/6P1/Pq5P/1P1r1B2/1Q3RK1 b - - 5 41",
+    "last_move_uci": "e4c6",
     "pgn": "Rd2 Be4 Qb3 Bc6 Rfxf2 Rxf2 Rd1+ Qxd1 Qxd1+",
     "all_moves": [
       {
@@ -88,26 +88,71 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_YXsWG_1790770847087",
-    "last_activity_at": "2026-09-30T12:20:47.087696+00:00",
+    "last_activity_at": "2026-09-30T12:24:26.081272+00:00",
     "rating": 2639,
     "rp_band": 4,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 4,
+    "next_player_index": 2,
     "solved": false,
-    "message_ids": {},
-    "message_id": null,
+    "message_ids": {
+      "1468320170891022417": 1554831263758819359
+    },
+    "message_id": 1554831263758819359,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "attempted_users": {
+      "386134006170910721": {
+        "name": "mh",
+        "move": "Qb3",
+        "correct": true,
+        "timestamp": "2026-09-30T12:24:26.081465+00:00"
+      }
+    },
+    "first_move_user_id": "386134006170910721",
+    "first_move_user_name": "mh",
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "last_card_activity_at": "2026-09-30T12:24:26.081272+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1790771060.5199003,
+        "fen_before": "5r1k/2p4p/p5p1/1p1q4/6P1/P2B3P/1P2rB2/1Q3RK1 b - - 1 39",
+        "expected": {
+          "uci": "e2d2",
+          "san": "Rd2",
+          "color": "black"
+        },
+        "accepted_uci": "e2d2"
+      },
+      {
+        "accepted_at": 1790771066.0814729,
+        "fen_before": "5r1k/2p4p/p5p1/1p1q4/4B1P1/P6P/1P1r1B2/1Q3RK1 b - - 3 40",
+        "expected": {
+          "uci": "d5b3",
+          "san": "Qb3",
+          "color": "black"
+        },
+        "accepted_uci": "d5b3"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "Rd2",
+        "uci": "e2d2",
+        "principal": true
+      },
+      {
+        "san": "Qb3",
+        "uci": "d5b3",
+        "principal": true
+      }
+    ],
+    "last_feedback": "**✅ Correct! 3 moves remaining.**\n↩️ **Opponent replies:** Bc6"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-09-30",
@@ -4129,8 +4174,8 @@
   },
   "bot_ideas_ticket_counter_v1": 14,
   "bot_ideas_idle_v1": {
-    "last_activity_at": 1790528303.2224095,
-    "reminder_sent": true,
+    "last_activity_at": 1790770930.6391163,
+    "reminder_sent": false,
     "reminder_message_id": "1553820661393264701",
     "tickets_since_prompt": 0
   },
