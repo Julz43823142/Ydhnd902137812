@@ -1,0 +1,14 @@
+{
+  "after_coins": 41.67,
+  "before_coins": 41.67,
+  "created_at": 1790768033,
+  "created_at_ns": 1790768033042557441,
+  "details": {
+    "survival_heart_style": "classic"
+  },
+  "display_name": "Sharkmeister",
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "equip-survival-heart-style",
+  "transaction_id": "equip-survival-heart:1554818562248544326:362606514764251137:classic",
+  "user_id": "362606514764251137"
+}
