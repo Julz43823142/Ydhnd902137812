@@ -1,0 +1,13 @@
+{
+  "after_points": 1.0,
+  "amount": 1.0,
+  "before_points": 0.0,
+  "created_at": 1790770392,
+  "created_at_ns": 1790770392442607492,
+  "display_name": "mh",
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "add",
+  "source": "puzzle-first",
+  "transaction_id": "puzzle:random_sRkgA_1790770363031:first:386134006170910721",
+  "user_id": "386134006170910721"
+}
