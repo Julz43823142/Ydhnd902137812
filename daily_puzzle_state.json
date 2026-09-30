@@ -1,90 +1,70 @@
 {
   "latest_random_puzzle": {
-    "url": "https://lichess.org/training/gx1dJ",
-    "title": "Lichess • 2742",
-    "fen": "2kr4/pp3p2/1q2bQ1p/1Np3r1/P7/3B4/1PP2PP1/R4RK1 b - - 2 25",
-    "current_fen": "2kr4/pp3p2/1q2bQ1p/1Np5/P7/3B4/1PP2Pr1/R4R1K b - - 1 26",
-    "last_move_uci": "g1h1",
-    "pgn": "Rxg2+ Kh1 Rg5",
+    "url": "https://lichess.org/training/hjoDc",
+    "title": "Lichess • 1959",
+    "fen": "2r1k2r/2q1bpp1/p3p2p/3Q4/1p6/1N4B1/PPPRNPPP/2K5 b k - 0 20",
+    "current_fen": "2r1k2r/2q1bpp1/p3p2p/3Q4/1p6/1N4B1/PPPRNPPP/2K5 b k - 0 20",
+    "last_move_uci": "e4d5",
+    "pgn": "exd5 Bxc7 Rxc7",
     "all_moves": [
       {
-        "uci": "g5g2",
-        "san": "Rxg2+",
+        "uci": "e6d5",
+        "san": "exd5",
         "color": "black"
       },
       {
-        "uci": "g1h1",
-        "san": "Kh1",
+        "uci": "g3c7",
+        "san": "Bxc7",
         "color": "white"
       },
       {
-        "uci": "g2g5",
-        "san": "Rg5",
+        "uci": "c8c7",
+        "san": "Rxc7",
         "color": "black"
       }
     ],
     "player_moves": [
       {
-        "uci": "g5g2",
-        "san": "Rxg2+",
+        "uci": "e6d5",
+        "san": "exd5",
         "color": "black"
       },
       {
-        "uci": "g2g5",
-        "san": "Rg5",
+        "uci": "c8c7",
+        "san": "Rxc7",
         "color": "black"
       }
     ],
     "player_color": "black",
     "player_move_count": 2,
-    "posted_at": "2026-09-30T15:47:58.285490+00:00",
+    "posted_at": "2026-09-30T15:50:22.574326+00:00",
     "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "random_gx1dJ_1790783278285",
-    "last_activity_at": "2026-09-30T15:49:56.125274+00:00",
-    "rating": 2742,
-    "rp_band": 5,
-    "boss": true,
+    "puzzle_id": "random_hjoDc_1790783422574",
+    "last_activity_at": "2026-09-30T15:50:22.574326+00:00",
+    "rating": 1959,
+    "rp_band": 2,
+    "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 2,
-    "next_player_index": 1,
+    "next_solution_index": 0,
+    "next_player_index": 0,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1554883003883331604
+      "1468320170891022417": 1554883116131422348
     },
-    "message_id": 1554883003883331604,
+    "message_id": 1554883116131422348,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {
-      "442597396195704832": {
-        "name": "Thice",
-        "move": "Qd6",
-        "correct": false,
-        "timestamp": "2026-09-30T15:49:56.125506+00:00"
-      }
-    },
-    "first_move_user_id": "442597396195704832",
-    "first_move_user_name": "Thice",
+    "attempted_users": {},
+    "first_move_user_id": null,
+    "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-30T15:49:56.125274+00:00",
-    "recent_accepted_moves": [],
-    "accepted_solution_moves": [
-      {
-        "san": "Rxg2+",
-        "uci": "g5g2",
-        "principal": true
-      }
-    ],
-    "last_feedback": "❌ **Wrong, Thice. you played the position like being certain automatically makes you correct.**\n↪️ **Move played:** `Qd6`",
-    "wrong_attempt_counts": {
-      "442597396195704832": 4
-    }
+    "helper_candidate_users": []
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-09-30",
