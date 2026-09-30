@@ -750,7 +750,7 @@
         "mode": "coop",
         "status": "active",
         "started_at": "2026-09-30T12:53:28.625945+00:00",
-        "last_activity": 1790772899.798657,
+        "last_activity": 1790772934.887874,
         "paused_reason": null,
         "puzzle_number": 2,
         "strikes": 0,
@@ -762,7 +762,7 @@
         "members": {
           "442597396195704832": {
             "name": "Thice",
-            "correct": 2,
+            "correct": 3,
             "wrong": 0
           }
         },
@@ -772,7 +772,7 @@
           "themes": "",
           "url": "https://lichess.org/training/JqMJA",
           "start_fen": "r1bq1rk1/ppp2ppp/8/3p4/1n1P4/1B3Nn1/PP2QPPP/RN2K2R w KQ - 2 11",
-          "current_fen": "r1bq1rk1/ppp2ppp/8/3p4/1n1P4/1B3Nn1/PP2QPPP/RN2K2R w KQ - 2 11",
+          "current_fen": "r1bqr1k1/ppp2ppp/8/3p4/1n1P4/1B3NP1/PP2QPP1/RN2K2R w KQ - 1 12",
           "solution": [
             {
               "uci": "h2g3",
@@ -791,20 +791,34 @@
             }
           ],
           "player_color": "white",
-          "next_solution_index": 0,
+          "next_solution_index": 2,
           "first_solver_id": null,
           "first_solver_name": null,
           "helper_candidates": {},
           "helper_awarded": [],
           "wrong_users": [],
-          "rated_users": [],
+          "rated_users": [
+            "442597396195704832"
+          ],
           "setup_move_uci": "e4g3",
-          "last_move_uci": "e4g3",
-          "last_move_san": null,
-          "accepted_moves": []
+          "last_move_uci": "f8e8",
+          "last_move_san": "Re8",
+          "accepted_moves": [
+            {
+              "san": "hxg3",
+              "uci": "h2g3",
+              "accepted_at": 1790772934.8876796,
+              "solver_id": "442597396195704832"
+            }
+          ],
+          "last_accepted_move_uci": "h2g3",
+          "last_accepted_move_san": "hxg3",
+          "last_accepted_move_index": 0,
+          "last_accepted_at": 1790772934.8876781,
+          "position_before_last_move": "r1bq1rk1/ppp2ppp/8/3p4/1n1P4/1B3Nn1/PP2QPPP/RN2K2R w KQ - 2 11"
         },
-        "first_solver_id": null,
-        "first_solver_name": null,
+        "first_solver_id": "442597396195704832",
+        "first_solver_name": "Thice",
         "helper_candidates": {},
         "helper_awarded": [],
         "shop_heart_purchased": false,
