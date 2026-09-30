@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/5br4P",
     "title": "Lichess • 1988",
     "fen": "6k1/5p1p/p5p1/3Pq3/PQP5/6Pb/5P1P/3rR1K1 w - - 3 31",
-    "current_fen": "6k1/5p1p/p5p1/3P4/PQP1q3/6Pb/5P1P/3R2K1 w - - 1 32",
-    "last_move_uci": "e5e4",
+    "current_fen": "1Q6/5pkp/p5p1/3P4/P1P1q3/6Pb/5P1P/3R2K1 w - - 3 33",
+    "last_move_uci": "g8g7",
     "pgn": "Rxd1 Qe4 Qb8+ Kg7 Qb2+",
     "all_moves": [
       {
@@ -58,28 +58,28 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_5br4P_1790761561766",
-    "last_activity_at": "2026-09-30T09:46:29.577333+00:00",
+    "last_activity_at": "2026-09-30T09:46:46.497191+00:00",
     "rating": 1988,
     "rp_band": 2,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 2,
-    "next_player_index": 1,
+    "next_solution_index": 4,
+    "next_player_index": 2,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1554791507494703168
+      "1468320170891022417": 1554791612159234069
     },
-    "message_id": 1554791507494703168,
+    "message_id": 1554791612159234069,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "f3",
-        "correct": false,
-        "timestamp": "2026-09-30T09:46:29.577817+00:00"
+        "move": "qb8",
+        "correct": true,
+        "timestamp": "2026-09-30T09:46:46.497433+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
@@ -87,16 +87,32 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-30T09:46:29.577333+00:00",
-    "recent_accepted_moves": [],
+    "last_card_activity_at": "2026-09-30T09:46:46.497191+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1790761606.4974394,
+        "fen_before": "6k1/5p1p/p5p1/3P4/PQP1q3/6Pb/5P1P/3R2K1 w - - 1 32",
+        "expected": {
+          "uci": "b4b8",
+          "san": "Qb8+",
+          "color": "white"
+        },
+        "accepted_uci": "b4b8"
+      }
+    ],
     "accepted_solution_moves": [
       {
         "san": "Rxd1",
         "uci": "e1d1",
         "principal": true
+      },
+      {
+        "san": "Qb8+",
+        "uci": "b4b8",
+        "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Qe4",
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kg7",
     "wrong_attempt_counts": {
       "442597396195704832": 1
     }
