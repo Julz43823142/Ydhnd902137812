@@ -1,105 +1,85 @@
 {
   "latest_random_puzzle": {
-    "url": "https://lichess.org/training/kW68Z",
-    "title": "Lichess • 1744",
-    "fen": "r1bq1rk1/pp3ppp/4p3/2pp2bQ/2BnNP2/8/PPPP2PP/R1B2RK1 w - - 0 12",
-    "current_fen": "r1bq1rk1/pp3pp1/4p2p/2pp2NQ/3n1P2/3B4/PPPP2PP/R1B2RK1 b - - 1 13",
-    "last_move_uci": "c4d3",
-    "pgn": "Nxg5 h6 Bd3",
+    "url": "https://lichess.org/training/0w1va",
+    "title": "Lichess • 2701",
+    "fen": "8/1k6/p5p1/K4pPp/5P1P/P7/8/8 w - - 4 42",
+    "current_fen": "8/1k6/p5p1/K4pPp/5P1P/P7/8/8 w - - 4 42",
+    "last_move_uci": "c6b7",
+    "pgn": "a4 Ka7 Kb4 Kb6 Kc4",
     "all_moves": [
       {
-        "uci": "e4g5",
-        "san": "Nxg5",
+        "uci": "a3a4",
+        "san": "a4",
         "color": "white"
       },
       {
-        "uci": "h7h6",
-        "san": "h6",
+        "uci": "b7a7",
+        "san": "Ka7",
         "color": "black"
       },
       {
-        "uci": "c4d3",
-        "san": "Bd3",
+        "uci": "a5b4",
+        "san": "Kb4",
+        "color": "white"
+      },
+      {
+        "uci": "a7b6",
+        "san": "Kb6",
+        "color": "black"
+      },
+      {
+        "uci": "b4c4",
+        "san": "Kc4",
         "color": "white"
       }
     ],
     "player_moves": [
       {
-        "uci": "e4g5",
-        "san": "Nxg5",
+        "uci": "a3a4",
+        "san": "a4",
         "color": "white"
       },
       {
-        "uci": "c4d3",
-        "san": "Bd3",
+        "uci": "a5b4",
+        "san": "Kb4",
+        "color": "white"
+      },
+      {
+        "uci": "b4c4",
+        "san": "Kc4",
         "color": "white"
       }
     ],
     "player_color": "white",
-    "player_move_count": 2,
-    "posted_at": "2026-09-30T12:26:08.123472+00:00",
-    "answer_posted": true,
+    "player_move_count": 3,
+    "posted_at": "2026-09-30T12:27:26.515488+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "random_kW68Z_1790771168123",
-    "last_activity_at": "2026-09-30T12:27:08.962004+00:00",
-    "rating": 1744,
-    "rp_band": 1,
+    "puzzle_id": "random_0w1va_1790771246515",
+    "last_activity_at": "2026-09-30T12:27:26.515488+00:00",
+    "rating": 2701,
+    "rp_band": 5,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 3,
-    "next_player_index": 2,
-    "solved": true,
-    "message_ids": {
-      "1468320170891022417": 1554831971924967504
-    },
-    "message_id": 1554831971924967504,
+    "next_solution_index": 0,
+    "next_player_index": 0,
+    "solved": false,
+    "message_ids": {},
+    "message_id": null,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {
-      "386134006170910721": {
-        "name": "mh",
-        "move": "Bd3",
-        "correct": true,
-        "timestamp": "2026-09-30T12:27:08.962257+00:00"
-      }
-    },
-    "first_move_user_id": "386134006170910721",
-    "first_move_user_name": "mh",
-    "first_move_awarded": true,
+    "attempted_users": {},
+    "first_move_user_id": null,
+    "first_move_user_name": null,
+    "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-30T12:27:08.962004+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1790771228.9622653,
-        "fen_before": "r1bq1rk1/pp3pp1/4p2p/2pp2NQ/2Bn1P2/8/PPPP2PP/R1B2RK1 w - - 0 13",
-        "expected": {
-          "uci": "c4d3",
-          "san": "Bd3",
-          "color": "white"
-        },
-        "accepted_uci": "c4d3"
-      }
-    ],
-    "accepted_solution_moves": [
-      {
-        "san": "Nxg5",
-        "uci": "e4g5",
-        "principal": true
-      },
-      {
-        "san": "Bd3",
-        "uci": "c4d3",
-        "principal": true
-      }
-    ],
-    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, mh!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **3 points.**\n\n💡 **Solution:** Nxg5 Bd3\n\n🏆 **Your ranking**\n**#8 Martin — 3 points**\n**#9 mh — 3 points ← you**\n**#10 ejsplash12 — 1 point**"
+    "helper_candidate_users": []
   },
-  "latest_puzzle_type": "daily",
+  "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-09-30",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-30",
