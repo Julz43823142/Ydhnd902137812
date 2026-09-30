@@ -2687,65 +2687,65 @@
       "started_at": 1790763451.7189546,
       "run_id": "rush:442597396195704832:1790763451718",
       "end_at": 1790763751.7189546,
-      "score": 5,
+      "score": 6,
       "wrong": 0,
       "mistakes": [],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/Dzozo",
-        "title": "Lichess • 1438",
-        "fen": "1qkr1b1r/5p1p/4p1p1/1Q1p4/R7/2P5/KP3P2/8 w - - 2 26",
-        "current_fen": "2kr1b1r/2q2p1p/2Q1p1p1/3p4/R7/2P5/KP3P2/8 w - - 4 27",
-        "last_move_uci": "b8c7",
-        "pgn": "Qc6+ Qc7 Ra8#",
+        "url": "https://lichess.org/training/qGPE0",
+        "title": "Lichess • 1447",
+        "fen": "7r/1KP2kp1/p7/4ppP1/1P6/7P/P2p4/R7 b - - 0 40",
+        "current_fen": "7r/1KP2kp1/p7/4ppP1/1P6/7P/P2p4/R7 b - - 0 40",
+        "last_move_uci": "c6c7",
+        "pgn": "e4 Rd1 e3",
         "all_moves": [
           {
-            "uci": "b5c6",
-            "san": "Qc6+",
-            "color": "white"
-          },
-          {
-            "uci": "b8c7",
-            "san": "Qc7",
+            "uci": "e5e4",
+            "san": "e4",
             "color": "black"
           },
           {
-            "uci": "a4a8",
-            "san": "Ra8#",
+            "uci": "a1d1",
+            "san": "Rd1",
             "color": "white"
+          },
+          {
+            "uci": "e4e3",
+            "san": "e3",
+            "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "b5c6",
-            "san": "Qc6+",
-            "color": "white"
+            "uci": "e5e4",
+            "san": "e4",
+            "color": "black"
           },
           {
-            "uci": "a4a8",
-            "san": "Ra8#",
-            "color": "white"
+            "uci": "e4e3",
+            "san": "e3",
+            "color": "black"
           }
         ],
-        "player_color": "white",
+        "player_color": "black",
         "player_move_count": 2,
-        "posted_at": "2026-09-30T10:18:14.132581+00:00",
+        "posted_at": "2026-09-30T10:18:22.016895+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_Dzozo_1790763494132",
-        "rating": 1438,
-        "next_solution_index": 2,
+        "puzzle_id": "practice_rush_442597396195704832_qGPE0_1790763502016",
+        "rating": 1447,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1554799531256840303,
+      "message_id": 1554799552987529238,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790763499.9035513,
-      "last_feedback": "✅ **Qc6+** • Opponent: **Qc7**"
+      "last_card_activity_at": 1790763502.012138,
+      "last_feedback": "✅ **Ra8#** — solved! Score: **6**."
     },
     "362606514764251137": {
       "active": false,
