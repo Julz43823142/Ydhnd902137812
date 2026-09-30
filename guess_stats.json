@@ -475,8 +475,8 @@
     },
     "442597396195704832": {
       "best_streak": 21,
-      "correct": 242,
-      "current_streak": 7,
+      "correct": 243,
+      "current_streak": 8,
       "name": "Thice",
       "targets": {
         "chatter": {
@@ -491,8 +491,8 @@
             "wrong": 0
           },
           "George": {
-            "correct": 9,
-            "total": 19,
+            "correct": 10,
+            "total": 20,
             "wrong": 10
           },
           "Jessebrawlstars": {
@@ -634,8 +634,8 @@
           }
         }
       },
-      "total": 366,
-      "updated_at": 1790791731,
+      "total": 367,
+      "updated_at": 1790791833,
       "wrong": 124
     },
     "550338389535227926": {
