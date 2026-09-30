@@ -39,6 +39,12 @@ class FakeMember:
 
 
 class SubscriberRoleDetectionTests(unittest.TestCase):
+    def test_twitch_integration_role_names_from_thice_profile_are_entitlements(self):
+        for name in ("Twitch Subscriber", "Twitch Subscriber: Tier 1"):
+            with self.subTest(name=name):
+                role = FakeRole(30, name)
+                self.assertIs(subscriber_entitlement_role(FakeMember([role])), role)
+
     def test_paid_subscription_role_is_detected_from_discord_tags(self):
         subscription = FakeRole(10, "Paid tier", position=8, subscription_id=1234)
         member = FakeMember([FakeRole(1, "Member"), subscription])

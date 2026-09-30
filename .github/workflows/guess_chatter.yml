@@ -9,6 +9,9 @@ on:
       - 'guess_leaderboard.py'
       - 'shared_leaderboard.py'
       - 'shop_catalog.py'
+      - 'holiday_events.py'
+      - 'badge_box_ui.py'
+      - 'shop_color_roles.py'
   schedule:
     # Backup rotation only. The running controller also performs its own clean
     # handoff, because GitHub scheduled runs can be delayed or occasionally dropped.
@@ -49,6 +52,8 @@ jobs:
 
       - name: Verify new persistent Guess build
         run: |
+          python -m py_compile guess_chatter.py holiday_events.py badge_box_ui.py shop_color_roles.py
+          python -m unittest test_name_colors.py test_holidays.py
           python - <<'PY'
           import ast
           from pathlib import Path

@@ -4,6 +4,9 @@ import discord
 import shark_admin
 import shared_leaderboard as shared_ledger
 import quests as quest_tracker
+from holiday_events import holiday_collection_lines, HOLIDAY_BOX_COST, active_holidays, HOLIDAYS
+from badge_box_ui import BadgeBoxPicker
+from shop_color_roles import apply_color_role
 
 from shared_leaderboard import (
     admin_set_points as shared_admin_set_points,
@@ -294,7 +297,7 @@ def remote_survival_status(channel_id=None):
                 break
 
         active = active_team_name is not None
-        cache.update({"time": now, "active": active, "team": active_team_name})
+        cache.update({"time": time.time(), "active": active, "team": active_team_name})
         return active, active_team_name
 
     except Exception as error:
@@ -308,10 +311,37 @@ def remote_survival_status(channel_id=None):
         return True, "Survival"
 
 
-def verified_survival_status(channel_id=None):
+_survival_refresh_locks = {}
+
+
+async def async_remote_survival_status(channel_id=None):
+    """Fresh cached status on the hot path; never run git on Discord's loop."""
+    cid = _channel_id_or_primary(channel_id)
+    cache = _survival_check_cache.get(cid, {})
+    if time.time() - float(cache.get("time", 0)) < 3.0:
+        return bool(cache.get("active", True)), cache.get("team")
+    lock = _survival_refresh_locks.setdefault(cid, asyncio.Lock())
+    async with lock:
+        cache = _survival_check_cache.get(cid, {})
+        if time.time() - float(cache.get("time", 0)) < 3.0:
+            return bool(cache.get("active", True)), cache.get("team")
+        return await asyncio.to_thread(remote_survival_status, cid)
+
+
+async def survival_status_refresh_loop():
+    """Prewarm both channels; stale/error state still fails closed."""
+    while not client.is_closed():
+        for cid in CHESS_CHANNEL_IDS:
+            lock = _survival_refresh_locks.setdefault(cid, asyncio.Lock())
+            async with lock:
+                await asyncio.to_thread(remote_survival_status, cid)
+        await asyncio.sleep(2)
+
+
+async def verified_survival_status(channel_id=None):
     """Use persisted Survival state as source of truth for one chess channel."""
     cid = _channel_id_or_primary(channel_id)
-    active, team = remote_survival_status(cid)
+    active, team = await async_remote_survival_status(cid)
     if active:
         return True, team
 
@@ -3930,7 +3960,7 @@ async def make_board_file(
             last_move = None
             arrows = []
 
-    svg_board = render_custom_board_svg(
+    svg_board = await asyncio.to_thread(render_custom_board_svg,
         board,
         orientation=orientation,
         board_theme=theme_name,
@@ -7560,7 +7590,7 @@ class OpenChessChallengeView(discord.ui.View):
                 return
 
             await settle_recent_survival_stop(interaction.channel.id)
-            survival_active, _team = remote_survival_status(interaction.channel.id)
+            survival_active, _team = await async_remote_survival_status(interaction.channel.id)
             if survival_guard_active(interaction.channel.id) or survival_active:
                 await interaction.response.send_message("⚠️ Pause Survival before accepting a chess challenge.", ephemeral=True)
                 return
@@ -11040,7 +11070,7 @@ async def prepare_interactive_puzzle_start(channel, owner, label="Puzzle"):
         await channel.send(f"⏳ **Survival is starting.** {label} is unavailable right now.")
         return False
 
-    survival_active, survival_team = verified_survival_status(channel.id)
+    survival_active, survival_team = await verified_survival_status(channel.id)
     if survival_active:
         team = survival_team or "another team"
         await channel.send(
@@ -11068,7 +11098,7 @@ async def post_random_puzzle(
 ):
     if not await prepare_interactive_puzzle_start(channel, owner, "Random Puzzle"):
         return False
-    survival_active, survival_team = remote_survival_status(channel.id)
+    survival_active, survival_team = await async_remote_survival_status(channel.id)
 
     if survival_active:
         team = survival_team or active_team(channel.id) or "another team"
@@ -11245,7 +11275,7 @@ async def post_practice_puzzle(channel, owner):
     """Post one personal rated Practice puzzle close to the owner's Puzzle Elo."""
     if not await prepare_interactive_puzzle_start(channel, owner, "Practice"):
         return False
-    survival_active, survival_team = remote_survival_status(channel.id)
+    survival_active, survival_team = await async_remote_survival_status(channel.id)
     if survival_active:
         team = survival_team or active_team(channel.id) or "another team"
         await channel.send(
@@ -12025,6 +12055,8 @@ def shop_message(user_id, display_name):
         "🤝 Trading has its own **Trade** button in `!menu`; old `!donate` / `!trade` commands still work.\n\n"
         f"🎁 **Badge Box — {shared_format_points(BADGE_BOX_COST)} coins**\n"
         "`!box` or `!shop box` — open one random badge. Duplicates are possible.\n\n"
+        f"📅 **Holiday Boxes — {shared_format_points(HOLIDAY_BOX_COST)} coins**\n"
+        "Use the **Badge Box** button to choose and confirm an active holiday box. Guaranteed Holiday badge.\n\n"
         f"🎨 **Boards — {shared_format_points(BOARD_COST)} coins each**\n"
         "`!customboard` — catalogue • `!customboard blue test` — preview • `!customboard blue buy` — buy • `!customboard blue` — equip.\n\n"
         f"♟️ **Piece Sets — {shared_format_points(PIECE_COST)} coins each**\n"
@@ -12062,7 +12094,7 @@ def cosmetic_profile_dashboard(user_id, display_name):
     }
     rarity_lines = " • ".join(
         f"{RARITY_LABELS[rarity]} {rarity_counts[rarity]}/{len(set(BADGE_POOLS[rarity]))}"
-        for rarity in ("legendary", "epic", "rare", "uncommon", "common", "basic")
+        for rarity in PROFILE_RARITY_ORDER
     )
     return (
         f"👤 **Profile — {active_badge + ' ' if active_badge != '—' else ''}{profile.get('name', display_name)}**\n"
@@ -12095,7 +12127,7 @@ def cosmetic_badge_overview(user_id, display_name):
         f"**{len(unique)} unique / {len(badges)} total**",
         "",
     ]
-    for rarity in ("legendary", "epic", "rare", "uncommon", "common", "basic"):
+    for rarity in PROFILE_RARITY_ORDER:
         owned = len({badge for badge in unique if BADGE_RARITY_BY_VALUE.get(badge) == rarity})
         total = len(set(BADGE_POOLS[rarity]))
         lines.append(
@@ -12108,7 +12140,7 @@ def cosmetic_badge_overview(user_id, display_name):
 def cosmetic_badge_page(user_id, display_name, rarity, page=1):
     rarity = str(rarity).casefold()
     if rarity not in BADGE_POOLS:
-        raise ValueError("Unknown rarity. Use Legendary, Epic, Rare, Uncommon, Common or Basic.")
+        raise ValueError("Unknown category. Use Legendary, Epic, Rare, Uncommon, Common, Basic or Holiday.")
     profile = get_cosmetic_profile(user_id, display_name)
     rows = _badge_rows(list(profile.get("badges", [])), rarity)
     page_rows, page, total_pages = _page_slice(rows, page, 20)
@@ -12117,6 +12149,8 @@ def cosmetic_badge_page(user_id, display_name, rarity, page=1):
         f"Page **{page}/{total_pages}** • {len(rows)}/{len(set(BADGE_POOLS[rarity]))} unique badges unlocked",
         "",
     ]
+    if rarity == "holiday":
+        lines.extend([holiday_collection_lines(profile.get("badges", [])), ""])
     if not page_rows:
         lines.append("None owned in this rarity yet.")
     else:
@@ -12253,7 +12287,7 @@ def color_catalog_message():
 
 
 
-PROFILE_RARITY_ORDER = ("legendary", "epic", "rare", "uncommon", "common", "basic")
+PROFILE_RARITY_ORDER = ("legendary", "epic", "rare", "uncommon", "common", "basic", "holiday")
 
 
 def _button_emoji(value):
@@ -13459,6 +13493,8 @@ class CosmeticProfileView(discord.ui.View):
                 f"Page **{self.page}/{total_pages}** • {len(rows)}/{len(set(BADGE_POOLS[self.rarity]))} unique badges unlocked",
                 "",
             ]
+            if self.rarity == "holiday":
+                lines.extend([holiday_collection_lines(profile.get("badges", [])), ""])
             if not page_rows:
                 lines.append("None owned in this rarity yet.")
             else:
@@ -13910,19 +13946,6 @@ def make_board_preview_file(theme_name):
     """Backward-compatible board preview using Classic pieces."""
     return make_cosmetic_preview_file(theme_name, "classic", "board_theme_preview.png")
 
-def _highest_nonshop_colored_role(member):
-    roles = []
-    for role in getattr(member, "roles", []):
-        if getattr(role, "is_default", lambda: False)():
-            continue
-        if str(getattr(role, "name", "")).startswith(SHOP_COLOR_ROLE_PREFIX):
-            continue
-        colour = getattr(role, "colour", getattr(role, "color", None))
-        if getattr(colour, "value", 0):
-            roles.append(role)
-    return max(roles, key=lambda role: role.position, default=None)
-
-
 async def sync_subscriber_color_profile(member, transaction_id):
     """Keep Pink ownership aligned with the member's live Discord entitlement."""
     profile = await asyncio.to_thread(
@@ -13949,118 +13972,8 @@ async def sync_subscriber_color_profile(member, transaction_id):
     )
 
 
-async def _shop_color_ceiling(guild, bot_member, member):
-    """Protect the target's owner/bot color without blocking other subscribers."""
-    ceiling = bot_member.top_role.position - 1
-    shark_id = os.getenv(
-        "SHARKMEISTER_USER_ID", SHARKMEISTER_DEFAULT_USER_ID
-    ).strip() or SHARKMEISTER_DEFAULT_USER_ID
-
-    protected = (
-        str(member.id) in {shark_id, str(getattr(guild, "owner_id", ""))}
-        or bool(getattr(member, "bot", False))
-    )
-    if protected:
-        protected_color = _highest_nonshop_colored_role(member)
-        if protected_color is not None:
-            ceiling = min(ceiling, protected_color.position - 1)
-
-    return max(1, ceiling)
-
-
-async def _position_shop_color_role(guild, bot_member, role, member):
-    """Move the shop color above this member's color within Discord's hierarchy."""
-    base_role = _highest_nonshop_colored_role(member)
-    ceiling = await _shop_color_ceiling(guild, bot_member, member)
-
-    desired = role.position
-    if base_role is not None:
-        desired = max(desired, base_role.position + 1)
-
-    if desired > ceiling:
-        if base_role is not None and base_role.position >= ceiling:
-            if ceiling == bot_member.top_role.position - 1:
-                raise RuntimeError(
-                    "Move SharkBot's highest role above your colored role in "
-                    "Server Settings > Roles, then try equipping this color again."
-                )
-            raise RuntimeError(
-                "The bot cannot place this shop color above the member's current colored role "
-                "without overriding a protected owner/bot role."
-            )
-        desired = ceiling
-
-    # Also repair a shop role that somehow ended up above the protected ceiling.
-    if role.position != desired:
-        roles = await guild.edit_role_positions(
-            positions={role: desired},
-            reason="Puzzle Shop color display priority",
-        )
-        role = next((item for item in roles if item.id == role.id), role)
-
-    return role
-
-
 async def apply_shop_color_role(member, color_name):
-    guild = getattr(member, "guild", None)
-    if guild is None:
-        raise RuntimeError("Name colors can only be equipped inside the Discord server.")
-
-    bot_member = guild.me
-    if bot_member is None or not bot_member.guild_permissions.manage_roles:
-        raise RuntimeError("The bot needs Manage Roles to equip shop colors.")
-
-    color_name = str(color_name or "").casefold().strip()
-    if color_name and color_name not in NAME_COLORS:
-        raise ValueError("Unknown name color.")
-
-    subscriber_role = None
-    if is_subscriber_name_color(color_name):
-        subscriber_role = subscriber_entitlement_role(member)
-        if subscriber_role is None:
-            raise ValueError("Pink requires an active Discord subscription.")
-
-    shop_roles = [role for role in member.roles if role.name.startswith(SHOP_COLOR_ROLE_PREFIX)]
-    if shop_roles:
-        blocked = [role for role in shop_roles if not role < bot_member.top_role]
-        if blocked:
-            raise RuntimeError(
-                "A shop-color role is at or above the bot role. Move the bot role above all Shop Color roles first."
-            )
-
-    if not color_name:
-        if shop_roles:
-            await member.remove_roles(*shop_roles, reason="Puzzle Shop color change")
-        return None
-
-    # Equipping Pink means revealing the existing managed subscription role.
-    # Do not create a second Pink role that would outlive the entitlement.
-    if subscriber_role is not None:
-        if shop_roles:
-            await member.remove_roles(*shop_roles, reason="Puzzle Shop color change")
-        return subscriber_role
-
-    config = NAME_COLORS[color_name]
-    role_name = SHOP_COLOR_ROLE_PREFIX + config["label"]
-    role = discord.utils.get(guild.roles, name=role_name)
-
-    if role is None:
-        role = await guild.create_role(
-            name=role_name,
-            color=discord.Color(config["discord_color"]),
-            reason="Puzzle Shop cosmetic color",
-        )
-
-    if role >= bot_member.top_role:
-        raise RuntimeError("The shop color role is above the bot role in the role hierarchy.")
-
-    role = await _position_shop_color_role(guild, bot_member, role, member)
-    await member.add_roles(role, reason="Puzzle Shop color equipped")
-    old_roles = [item for item in shop_roles if item.id != role.id]
-    if old_roles:
-        await member.remove_roles(*old_roles, reason="Puzzle Shop color change")
-    return role
-
+    return await apply_color_role(member, color_name)
 
 
 async def equip_profile_color_from_interaction(interaction, target_user_id, target_name, color_name):
@@ -15222,7 +15135,7 @@ async def check_expired_puzzles(
 async def check_for_new_puzzle(
     channel
 ):
-    survival_active, survival_team = remote_survival_status(channel.id)
+    survival_active, survival_team = await async_remote_survival_status(channel.id)
 
     if survival_active:
         print(
@@ -15853,13 +15766,13 @@ async def update_random_puzzle_message(
     *,
     move_to_bottom=False,
     mirror_daily=True,
+    render_board=True,
 ):
     message_id = _puzzle_message_id_for_channel(puzzle, channel.id)
 
-    file, board = await make_board_file(
-        puzzle,
-        "random_puzzle.png"
-    )
+    file = None
+    if render_board:
+        file, board = await make_board_file(puzzle, "random_puzzle.png")
 
     remaining = (
         puzzle["player_move_count"]
@@ -15921,7 +15834,12 @@ async def update_random_puzzle_message(
 
         if old_message is not None:
             try:
-                await old_message.edit(embed=embed, attachments=[file], view=card_view)
+                if file is None:
+                    if old_message.embeds and old_message.embeds[0].image.url:
+                        embed.set_image(url=old_message.embeds[0].image.url)
+                    await old_message.edit(embed=embed, view=card_view)
+                else:
+                    await old_message.edit(embed=embed, attachments=[file], view=card_view)
                 if mirror_daily:
                     await _mirror_daily_puzzle_card(channel, puzzle, move_to_bottom=False)
                 return old_message
@@ -15931,6 +15849,8 @@ async def update_random_puzzle_message(
                 print(f"Could not edit RP/Practice card in place; no duplicate posted: {error}", flush=True)
                 return old_message
 
+    if file is None:
+        file, _board = await make_board_file(puzzle, "random_puzzle.png")
     sent = await channel.send(
         embed=embed,
         file=file,
@@ -16668,6 +16588,7 @@ async def handle_random_answer(
             puzzle,
             embed_progress + "\n\n" + "\n\n".join(completion_lines),
             move_to_bottom=not feedback_sent,
+            render_board=not feedback_sent,
         )
         await save_all()
 
@@ -16698,7 +16619,7 @@ async def handle_answer(
     answer_window,
     move_text
 ):
-    survival_active, _survival_team = remote_survival_status(message.channel.id)
+    survival_active, _survival_team = await async_remote_survival_status(message.channel.id)
 
     if survival_active:
         return
@@ -16860,7 +16781,7 @@ class BotChessModal(discord.ui.Modal):
                 return
         await interaction.response.defer(ephemeral=True)
         await settle_recent_survival_stop(interaction.channel.id)
-        survival_active, survival_team = remote_survival_status(interaction.channel.id)
+        survival_active, survival_team = await async_remote_survival_status(interaction.channel.id)
         if survival_guard_active(interaction.channel.id) or survival_active:
             await interaction.followup.send(
                 f"⚠️ Pause Survival before starting Bot Chess{f' ({survival_team})' if survival_team else ''}.",
@@ -16936,7 +16857,7 @@ class PvPChallengeModal(discord.ui.Modal):
             return
         await interaction.response.defer(ephemeral=True)
         await settle_recent_survival_stop(interaction.channel.id)
-        survival_active, _team = remote_survival_status(interaction.channel.id)
+        survival_active, _team = await async_remote_survival_status(interaction.channel.id)
         if survival_guard_active(interaction.channel.id) or survival_active:
             await interaction.followup.send("⚠️ Pause Survival before starting a PvP chess game.", ephemeral=True)
             return
@@ -16993,7 +16914,7 @@ class OpenChallengeModal(discord.ui.Modal):
 
         await interaction.response.defer(ephemeral=True)
         await settle_recent_survival_stop(interaction.channel.id)
-        survival_active, _team = remote_survival_status(interaction.channel.id)
+        survival_active, _team = await async_remote_survival_status(interaction.channel.id)
         if survival_guard_active(interaction.channel.id) or survival_active:
             await interaction.followup.send("⚠️ Pause Survival before opening a chess challenge.", ephemeral=True)
             return
@@ -17277,46 +17198,6 @@ async def _send_catalog_from_interaction(interaction, kind):
         ephemeral=True,
         allowed_mentions=discord.AllowedMentions.none(),
     )
-
-
-class BadgeBoxConfirmView(discord.ui.View):
-    def __init__(self, user_id):
-        super().__init__(timeout=120)
-        self.user_id = int(user_id)
-
-    async def interaction_check(self, interaction):
-        if interaction.user.id != self.user_id:
-            await interaction.response.send_message("This box belongs to another player.", ephemeral=True)
-            return False
-        return True
-
-    @discord.ui.button(label="Open Badge Box", emoji="🎁", style=discord.ButtonStyle.success)
-    async def open_box(self, interaction, button):
-        try:
-            result = await asyncio.to_thread(
-                buy_badge_box,
-                interaction.user.id,
-                interaction.user.display_name,
-                f"badge-box-button:{interaction.id}:{interaction.user.id}",
-            )
-        except Exception as error:
-            await interaction.response.send_message(f"❌ Could not open box: `{str(error)[:700]}`", ephemeral=True)
-            return
-        self.stop()
-        await interaction.response.edit_message(
-            content=(
-                f"🎁 **Badge Box opened!** You got {result['badge']} — **{result['rarity_label']}**.\n"
-                f"🪙 Coins left: **{shared_format_points(result['coins'])}**"
-            ),
-            embed=None,
-            view=None,
-        )
-
-    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.secondary)
-    async def cancel(self, interaction, button):
-        self.stop()
-        await interaction.response.edit_message(content="Cancelled.", embed=None, view=None)
-
 
 
 class DonateAssetModal(discord.ui.Modal, title="Donate Coins / Badge"):
@@ -17804,8 +17685,8 @@ class ShopHomeView(discord.ui.View):
     @discord.ui.button(label="Badge Box", emoji="🎁", style=discord.ButtonStyle.primary, row=0)
     async def box(self, interaction, button):
         await interaction.response.send_message(
-            f"🎁 Open one random badge box for **{shared_format_points(BADGE_BOX_COST)} coins**?",
-            view=BadgeBoxConfirmView(interaction.user.id),
+            "🎁 **Choose a Badge Box.** Holiday boxes appear only during their event. Select a box, then confirm before spending coins.",
+            view=BadgeBoxPicker(interaction.user.id),
             ephemeral=True,
         )
 
@@ -18664,7 +18545,7 @@ async def on_message(
             or command_lower.startswith("!play bot ")
         ):
             await settle_recent_survival_stop(message.channel.id)
-            survival_active, survival_team = remote_survival_status(message.channel.id)
+            survival_active, survival_team = await async_remote_survival_status(message.channel.id)
             if survival_guard_active(message.channel.id) or survival_active:
                 await message.channel.send(
                     f"⚠️ **Survival Mode is active{f' for {survival_team}' if survival_team else ''}.** "
@@ -18749,7 +18630,7 @@ async def on_message(
                 )
                 return
             await settle_recent_survival_stop(message.channel.id)
-            survival_active, survival_team = remote_survival_status(message.channel.id)
+            survival_active, survival_team = await async_remote_survival_status(message.channel.id)
             if survival_guard_active(message.channel.id) or survival_active:
                 await message.channel.send(
                     "⚠️ Pause Survival before starting a rated player-vs-player game."
@@ -18775,7 +18656,7 @@ async def on_message(
 
         if command_lower == "!accept":
             await settle_recent_survival_stop(message.channel.id)
-            survival_active, _survival_team = remote_survival_status(message.channel.id)
+            survival_active, _survival_team = await async_remote_survival_status(message.channel.id)
             if survival_guard_active(message.channel.id) or survival_active:
                 await message.channel.send("⚠️ Pause Survival before accepting a chess challenge.")
                 return
@@ -18859,7 +18740,7 @@ async def on_message(
         # -----------------------------------------------------
         if command_lower in {"!rush", "!puzzlerush", "!puzzle rush"}:
             await settle_recent_survival_stop(message.channel.id)
-            survival_active, _survival_team = remote_survival_status(message.channel.id)
+            survival_active, _survival_team = await async_remote_survival_status(message.channel.id)
             if survival_guard_active(message.channel.id) or survival_active:
                 await message.channel.send("⚠️ Pause Survival before starting Puzzle Rush.")
                 return
@@ -19772,7 +19653,7 @@ async def on_message(
                 )
                 return
 
-            survival_active, survival_team = verified_survival_status(message.channel.id)
+            survival_active, survival_team = await verified_survival_status(message.channel.id)
             if survival_active:
                 team = survival_team or "another team"
                 await message.channel.send(
@@ -19864,7 +19745,7 @@ async def on_message(
                 )
                 return
 
-            survival_active, survival_team = verified_survival_status(message.channel.id)
+            survival_active, survival_team = await verified_survival_status(message.channel.id)
             if survival_active:
                 team = survival_team or "another team"
                 await message.channel.send(
@@ -19910,7 +19791,7 @@ async def on_message(
                 )
                 return
 
-            survival_active, survival_team = verified_survival_status(message.channel.id)
+            survival_active, survival_team = await verified_survival_status(message.channel.id)
             if survival_active:
                 team = survival_team or "another team"
                 await message.channel.send(
@@ -19951,7 +19832,7 @@ async def on_message(
         if survival_guard_active(message.channel.id):
             return
 
-        survival_active, survival_team = remote_survival_status(message.channel.id)
+        survival_active, survival_team = await async_remote_survival_status(message.channel.id)
 
         if survival_active:
             return
@@ -20256,6 +20137,8 @@ async def on_ready():
     if not channels:
         print("No ChessBot channels are available; stopping startup.", flush=True)
         return
+
+    asyncio.create_task(survival_status_refresh_loop())
 
     primary_channel = next(
         (item for item in channels if int(item.id) == PRIMARY_CHESS_CHANNEL_ID),

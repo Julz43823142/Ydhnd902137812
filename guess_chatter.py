@@ -17,6 +17,9 @@ from pathlib import Path
 import discord
 import shark_admin
 import shared_leaderboard as shared_ledger
+from holiday_events import holiday_collection_lines, HOLIDAY_BOX_COST
+from badge_box_ui import BadgeBoxPicker
+from shop_color_roles import apply_color_role
 import chess
 import chess.svg
 import cairosvg
@@ -429,8 +432,8 @@ def guess_cosmetic_profile_dashboard(user_id, display_name):
         for rarity in BADGE_POOLS
     }
     rarity_line = " • ".join(
-        f"{RARITY_LABELS[r]} {counts[r]}"
-        for r in ("legendary", "epic", "rare", "uncommon", "common", "basic")
+        f"{RARITY_LABELS[r]} {counts[r]}/{len(set(BADGE_POOLS[r]))}"
+        for r in GUESS_PROFILE_RARITY_ORDER
     )
     return (
         f"👤 **Guess Profile — {(active + ' ') if active != '—' else ''}{profile.get('name', display_name)}**\n"
@@ -462,7 +465,7 @@ def guess_badge_overview(user_id, display_name):
         f"**{len(unique)} unique / {len(badges)} total**",
         "",
     ]
-    for rarity in ("legendary", "epic", "rare", "uncommon", "common", "basic"):
+    for rarity in GUESS_PROFILE_RARITY_ORDER:
         owned = len({badge for badge in unique if badge in BADGE_POOLS[rarity]})
         lines.append(
             f"**{RARITY_LABELS[rarity]}:** {owned}/{len(BADGE_POOLS[rarity])}"
@@ -477,14 +480,17 @@ def guess_badge_page(user_id, display_name, rarity, page=1):
         raise ValueError("Unknown rarity.")
     profile = get_cosmetic_profile(user_id, display_name)
     rows = _guess_badge_rows(list(profile.get("badges", [])), rarity)
+    owned_count = len(rows)
     total_pages = max(1, math.ceil(len(rows) / 20))
     page = max(1, min(int(page), total_pages))
     rows = rows[(page - 1) * 20:page * 20]
     lines = [
         f"🏅 **{profile.get('name', display_name)} — {RARITY_LABELS[rarity]} Badges**",
-        f"Page **{page}/{total_pages}**",
+        f"Page **{page}/{total_pages}** • {owned_count}/{len(set(BADGE_POOLS[rarity]))} unique badges unlocked",
         "",
     ]
+    if rarity == "holiday":
+        lines.extend([holiday_collection_lines(profile.get("badges", [])), ""])
     if not rows:
         lines.append("None owned in this rarity yet.")
     for index, badge, _r, count in rows:
@@ -597,7 +603,7 @@ def guess_piece_catalog_message(page=1):
 
 
 
-GUESS_PROFILE_RARITY_ORDER = ("legendary", "epic", "rare", "uncommon", "common", "basic")
+GUESS_PROFILE_RARITY_ORDER = ("legendary", "epic", "rare", "uncommon", "common", "basic", "holiday")
 
 
 def _guess_button_emoji(value):
@@ -968,19 +974,6 @@ def community_embed(text, title=None):
     return embed
 
 
-def _guess_highest_nonshop_colored_role(member):
-    roles = []
-    for role in getattr(member, "roles", []):
-        if getattr(role, "is_default", lambda: False)():
-            continue
-        if str(getattr(role, "name", "")).startswith(SHOP_COLOR_ROLE_PREFIX):
-            continue
-        colour = getattr(role, "colour", getattr(role, "color", None))
-        if getattr(colour, "value", 0):
-            roles.append(role)
-    return max(roles, key=lambda role: role.position, default=None)
-
-
 async def guess_sync_subscriber_color_profile(member, transaction_id):
     profile = await asyncio.to_thread(
         get_cosmetic_profile,
@@ -1004,88 +997,8 @@ async def guess_sync_subscriber_color_profile(member, transaction_id):
     )
 
 
-async def _guess_shop_color_ceiling(guild, bot_member):
-    ceiling = bot_member.top_role.position - 1
-    shark_id = os.getenv("SHARKMEISTER_USER_ID", SHARKMEISTER_DEFAULT_USER_ID).strip() or SHARKMEISTER_DEFAULT_USER_ID
-    shark_member = None
-    try:
-        shark_member = guild.get_member(int(shark_id))
-    except Exception:
-        shark_member = None
-    if shark_member is None and str(getattr(guild, "owner_id", "")) == str(shark_id):
-        shark_member = getattr(guild, "owner", None)
-    if shark_member is not None:
-        shark_color_role = _guess_highest_nonshop_colored_role(shark_member)
-        if shark_color_role is not None and shark_color_role < bot_member.top_role:
-            ceiling = min(ceiling, shark_color_role.position - 1)
-    return max(1, ceiling)
-
-
-async def _guess_position_shop_color_role(guild, bot_member, role, member):
-    base_role = _guess_highest_nonshop_colored_role(member)
-    ceiling = await _guess_shop_color_ceiling(guild, bot_member)
-    desired = role.position
-    if base_role is not None:
-        desired = max(desired, base_role.position + 1)
-    if desired > ceiling:
-        if base_role is not None and base_role.position >= ceiling:
-            raise RuntimeError(
-                "The bot cannot place this shop color above the member's current colored role without overriding a protected owner/bot role."
-            )
-        desired = ceiling
-    if role.position != desired:
-        roles = await guild.edit_role_positions(
-            positions={role: desired},
-            reason="Guess Shop color display priority",
-        )
-        role = next((item for item in roles if item.id == role.id), role)
-    return role
-
-
 async def guess_apply_shop_color_role(member, color_name):
-    guild = getattr(member, "guild", None)
-    if guild is None:
-        raise RuntimeError("Name colors can only be equipped inside the Discord server.")
-    bot_member = guild.me
-    if bot_member is None or not bot_member.guild_permissions.manage_roles:
-        raise RuntimeError("The bot needs Manage Roles to equip shop colors.")
-
-    color_name = str(color_name or "").casefold().strip()
-    if color_name and color_name not in NAME_COLORS:
-        raise ValueError("Unknown name color.")
-
-    subscriber_role = None
-    if is_subscriber_name_color(color_name):
-        subscriber_role = subscriber_entitlement_role(member)
-        if subscriber_role is None:
-            raise ValueError("Pink requires an active Discord subscription.")
-
-    shop_roles = [role for role in member.roles if role.name.startswith(SHOP_COLOR_ROLE_PREFIX)]
-    if shop_roles:
-        blocked = [role for role in shop_roles if not role < bot_member.top_role]
-        if blocked:
-            raise RuntimeError("A shop-color role is at or above the bot role. Move the bot role above all Shop Color roles first.")
-        await member.remove_roles(*shop_roles, reason="Guess Shop color change")
-
-    if not color_name:
-        return None
-    if subscriber_role is not None:
-        return subscriber_role
-
-    config = NAME_COLORS[color_name]
-    role_name = SHOP_COLOR_ROLE_PREFIX + config["label"]
-    role = discord.utils.get(guild.roles, name=role_name)
-    if role is None:
-        role = await guild.create_role(
-            name=role_name,
-            color=discord.Color(config["discord_color"]),
-            reason="Guess Shop cosmetic color",
-        )
-    if role >= bot_member.top_role:
-        raise RuntimeError("The shop color role is above the bot role in the role hierarchy.")
-    role = await _guess_position_shop_color_role(guild, bot_member, role, member)
-    await member.add_roles(role, reason="Guess Shop color equipped")
-    return role
+    return await apply_color_role(member, color_name)
 
 
 async def guess_equip_color_from_interaction(interaction, target_user_id, target_name, color_name):
@@ -1151,7 +1064,7 @@ class GuessCosmeticProfileView(discord.ui.View):
             badges = list(profile.get("badges", []))
             unique = set(badges)
             rarity_line = " • ".join(
-                f"{RARITY_LABELS[rarity]} {len({badge for badge in unique if BADGE_RARITY_BY_VALUE.get(badge) == rarity})}"
+                f"{RARITY_LABELS[rarity]} {len({badge for badge in unique if BADGE_RARITY_BY_VALUE.get(badge) == rarity})}/{len(set(BADGE_POOLS[rarity]))}"
                 for rarity in GUESS_PROFILE_RARITY_ORDER
             )
             return (
@@ -1178,9 +1091,11 @@ class GuessCosmeticProfileView(discord.ui.View):
             page_rows, self.page, total_pages = _guess_page_slice(rows, self.page, 20)
             lines = [
                 f"🏅 **{profile.get('name', self.target_name)} — {RARITY_LABELS[self.rarity]} Badges**",
-                f"Page **{self.page}/{total_pages}** • {len(rows)} unique owned",
+                f"Page **{self.page}/{total_pages}** • {len(rows)}/{len(set(BADGE_POOLS[self.rarity]))} unique badges unlocked",
                 "",
             ]
+            if self.rarity == "holiday":
+                lines.extend([holiday_collection_lines(profile.get("badges", [])), ""])
             if not page_rows:
                 lines.append("None owned in this rarity yet.")
             else:
@@ -1255,7 +1170,7 @@ class GuessCosmeticProfileView(discord.ui.View):
         self.page = 1
         for idx, rarity in enumerate(GUESS_PROFILE_RARITY_ORDER):
             button = discord.ui.Button(
-                label=RARITY_LABELS[rarity],
+                label=f"{RARITY_LABELS[rarity]} ({len(set(BADGE_POOLS[rarity]))} available)",
                 style=discord.ButtonStyle.primary if rarity in {"legendary", "epic", "rare"} else discord.ButtonStyle.secondary,
                 row=idx // 3,
             )
@@ -3913,6 +3828,7 @@ def guess_shop_home_embed(profile):
         description=(
             f"🪙 **Coins:** {shared_format_points(profile.get('coins', 0))}\n\n"
             f"🎁 Badge Box — **{shared_format_points(BADGE_BOX_COST)} coins**\n"
+            f"📅 Active Holiday Boxes — **{shared_format_points(HOLIDAY_BOX_COST)} coins**, choose via Badge Box\n"
             f"🎨 Boards — standard themes **{shared_format_points(BOARD_COST)} coins** each\n"
             f"♟️ Pieces — standard sets **{shared_format_points(PIECE_COST)} coins** each\n"
             f"➡️ Arrows — standard colors **{shared_format_points(ARROW_COST)} coins** each\n"
@@ -3954,40 +3870,6 @@ async def _send_guess_catalog_from_interaction(interaction, kind):
     if file is not None:
         kwargs["file"] = file
     await interaction.response.send_message(**kwargs)
-
-
-class GuessBadgeBoxConfirmView(discord.ui.View):
-    def __init__(self, user_id):
-        super().__init__(timeout=300)
-        self.user_id = int(user_id)
-
-    async def interaction_check(self, interaction):
-        if int(interaction.user.id) != self.user_id:
-            await interaction.response.send_message("Open your own shop first.", ephemeral=True)
-            return False
-        return True
-
-    @discord.ui.button(label="Open Badge Box", emoji="🎁", style=discord.ButtonStyle.success)
-    async def open_box(self, interaction, button):
-        await interaction.response.defer(ephemeral=True)
-        try:
-            result = await asyncio.to_thread(
-                buy_badge_box,
-                interaction.user.id,
-                interaction.user.display_name,
-                f"guess-badge-box-button:{interaction.id}:{interaction.user.id}",
-            )
-        except Exception as error:
-            await interaction.followup.send(f"❌ Could not open the badge box: `{str(error)[:700]}`", ephemeral=True)
-            return
-        await interaction.edit_original_response(
-            content=(
-                f"🎁 You got {result['badge']} **{result['rarity_label']}**\n"
-                f"🪙 Coins left: **{shared_format_points(result['coins'])}**"
-            ),
-            view=None,
-        )
-        self.stop()
 
 
 class GuessColorCatalogView(discord.ui.View):
@@ -4636,8 +4518,8 @@ class GuessShopHomeView(discord.ui.View):
     @discord.ui.button(label="Badge Box", emoji="🎁", style=discord.ButtonStyle.primary, row=0)
     async def box(self, interaction, button):
         await interaction.response.send_message(
-            f"Open one badge box for **{shared_format_points(BADGE_BOX_COST)} coins**?",
-            view=GuessBadgeBoxConfirmView(interaction.user.id),
+            "🎁 **Choose a Badge Box.** Select a box, then confirm before spending coins.",
+            view=BadgeBoxPicker(interaction.user.id),
             ephemeral=True,
         )
 
@@ -5502,5 +5384,6 @@ async def on_resumed():
     )
 
 
-print("Starting persistent Guess Games controller...", flush=True)
-client.run(TOKEN, reconnect=True)
+if __name__ == "__main__":
+    print("Starting persistent Guess Games controller...", flush=True)
+    client.run(TOKEN, reconnect=True)

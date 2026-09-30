@@ -1,5 +1,7 @@
 """Offline regressions for badge counts, subscriber colors and fast feedback."""
 import asyncio
+import threading
+import time
 from contextlib import ExitStack
 from types import SimpleNamespace
 import unittest
@@ -7,6 +9,7 @@ from unittest.mock import AsyncMock, patch
 
 import chess
 import bot
+import guess_chatter
 
 
 class Role:
@@ -20,6 +23,9 @@ class Role:
     def __ge__(self, other):
         return self.position >= other.position
 
+    def __le__(self, other):
+        return self.position <= other.position
+
 
 class ShopHierarchyTests(unittest.IsolatedAsyncioTestCase):
     def make_member(self, *, owner=False, bot_user=False, subscriber_position=8):
@@ -27,12 +33,16 @@ class ShopHierarchyTests(unittest.IsolatedAsyncioTestCase):
         purple = Role(11, bot.SHOP_COLOR_ROLE_PREFIX + bot.NAME_COLORS["purple"]["label"], 2)
         top = Role(12, "SharkBot", 12)
         guild = SimpleNamespace(
-            owner_id=1, roles=[pink, purple, top],
+            id=99, owner_id=1, roles=[pink, purple, top],
             me=SimpleNamespace(top_role=top, guild_permissions=SimpleNamespace(manage_roles=True)),
         )
 
         async def reposition(*, positions, reason):
             for role, position in positions.items():
+                previous = role.position
+                for other in guild.roles:
+                    if other is not role and previous < other.position <= position:
+                        other.position -= 1
                 role.position = position
             return guild.roles
 
@@ -47,14 +57,14 @@ class ShopHierarchyTests(unittest.IsolatedAsyncioTestCase):
         member, purple = self.make_member()
         role = await bot.apply_shop_color_role(member, "purple")
         self.assertIs(role, purple)
-        self.assertEqual(role.position, 9)
+        self.assertGreater(role.position, member.roles[0].position)
         member.add_roles.assert_awaited_once()
 
     async def test_owner_and_bot_colors_remain_protected(self):
         for options in ({"owner": True}, {"bot_user": True}):
             with self.subTest(options=options):
                 member, _ = self.make_member(**options)
-                with self.assertRaisesRegex(RuntimeError, "protected owner/bot"):
+                with self.assertRaisesRegex(RuntimeError, "owner/bot color is protected"):
                     await bot.apply_shop_color_role(member, "purple")
                 member.add_roles.assert_not_awaited()
 
@@ -62,6 +72,27 @@ class ShopHierarchyTests(unittest.IsolatedAsyncioTestCase):
         member, _ = self.make_member(subscriber_position=12)
         with self.assertRaisesRegex(RuntimeError, "Move SharkBot"):
             await bot.apply_shop_color_role(member, "purple")
+
+    async def test_subscriber_directly_below_bot_does_not_need_empty_role_slot(self):
+        member, purple = self.make_member(subscriber_position=11)
+        await bot.apply_shop_color_role(member, "purple")
+        self.assertEqual(purple.position, 11)
+        self.assertEqual(member.roles[0].position, 10)
+        self.assertLess(purple, member.guild.me.top_role)
+
+    async def test_guess_shop_uses_same_subscriber_role_placement(self):
+        member, purple = self.make_member()
+        await guess_chatter.guess_apply_shop_color_role(member, "purple")
+        self.assertGreater(purple.position, member.roles[0].position)
+
+    async def test_switching_back_to_pink_removes_shop_role_not_subscription(self):
+        member, purple = self.make_member()
+        member.roles[0].name = "Twitch Subscriber"
+        member.roles.append(purple)
+        role = await bot.apply_shop_color_role(member, "pink")
+        self.assertIs(role, member.roles[0])
+        member.remove_roles.assert_awaited_once_with(purple, reason="Reveal default/subscriber color")
+        member.add_roles.assert_not_awaited()
 
     async def test_failed_equip_preserves_previous_shop_color(self):
         member, _ = self.make_member()
@@ -160,6 +191,52 @@ class BadgeCountTests(unittest.IsolatedAsyncioTestCase):
         view.mode, view.rarity = "badges", "rare"
         self.assertIn(f"1/{len(set(bot.BADGE_POOLS['rare']))} unique badges unlocked", view.render(profile))
         view.stop()
+
+    async def test_guess_profile_shows_holiday_totals_and_collection_progress(self):
+        profile = {"name": "Thice", "badges": ["🎅", "🎅"]}
+        view = guess_chatter.GuessCosmeticProfileView(42, 42, "Thice")
+        self.assertIn("Holiday 1/80", view.render(profile))
+        self.assertTrue(any(item.label == "Holiday (80 available)" for item in view.children))
+        view.mode, view.rarity = "badges", "holiday"
+        text = view.render(profile)
+        self.assertIn("1/80 unique badges unlocked", text)
+        self.assertIn("Christmas:** 1/10", text)
+        view.stop()
+
+
+class PuzzleSpeedTests(unittest.IsolatedAsyncioTestCase):
+    async def test_fresh_cache_never_fetches_git_on_answer_path(self):
+        with patch.dict(bot._survival_check_cache, {123: {"time": time.time(), "active": False, "team": None}}, clear=True):
+            with patch.object(bot, "remote_survival_status") as fetch:
+                self.assertEqual(await bot.async_remote_survival_status(123), (False, None))
+                fetch.assert_not_called()
+
+    async def test_slow_refresh_runs_off_loop_and_is_shared_between_answers(self):
+        released = threading.Event()
+        main_thread = threading.get_ident()
+        def fetch(cid):
+            self.assertNotEqual(threading.get_ident(), main_thread)
+            released.wait(1)
+            bot._survival_check_cache[cid] = {"time": time.time(), "active": True, "team": "Team"}
+            return True, "Team"
+        with patch.dict(bot._survival_check_cache, {}, clear=True), patch.dict(bot._survival_refresh_locks, {}, clear=True):
+            with patch.object(bot, "remote_survival_status", side_effect=fetch) as mocked:
+                pending = asyncio.gather(bot.async_remote_survival_status(123), bot.async_remote_survival_status(123))
+                await asyncio.sleep(0.01)
+                self.assertFalse(pending.done())  # Discord loop remained responsive.
+                released.set()
+                self.assertEqual(await pending, [(True, "Team"), (True, "Team")])
+                self.assertEqual(mocked.call_count, 1)
+
+    async def test_final_reward_update_keeps_board_attachment_without_rerender(self):
+        old = SimpleNamespace(embeds=[SimpleNamespace(image=SimpleNamespace(url="https://cdn.discordapp.com/attachments/test.png"))], edit=AsyncMock())
+        channel = SimpleNamespace(id=123, fetch_message=AsyncMock(return_value=old))
+        puzzle = {"player_move_count": 1, "next_player_index": 1, "player_color": "white", "puzzle_id": "random_test", "solved": True}
+        with patch.object(bot, "_puzzle_message_id_for_channel", return_value=99), patch.object(bot, "make_board_file", new_callable=AsyncMock) as render:
+            await bot.update_random_puzzle_message(channel, puzzle, "Rewards saved", render_board=False, mirror_daily=False)
+            render.assert_not_awaited()
+        self.assertNotIn("attachments", old.edit.call_args.kwargs)
+        self.assertEqual(old.edit.call_args.kwargs["embed"].image.url, old.embeds[0].image.url)
 
 
 if __name__ == "__main__":
