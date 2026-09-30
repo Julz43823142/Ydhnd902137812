@@ -569,9 +569,9 @@
           "name": "Thice",
           "paid": [],
           "progress": {
-            "daily:2026-09-30:puzzle:solve-10": 2
+            "daily:2026-09-30:puzzle:solve-10": 3
           },
-          "updated_at": 1790761276
+          "updated_at": 1790761614
         }
       }
     },
@@ -710,9 +710,9 @@
           "name": "Thice",
           "paid": [],
           "progress": {
-            "weekly:2026-09-28:puzzle:solve-60": 3
+            "weekly:2026-09-28:puzzle:solve-60": 4
           },
-          "updated_at": 1790761276
+          "updated_at": 1790761614
         }
       }
     }
