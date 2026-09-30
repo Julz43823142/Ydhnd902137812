@@ -2691,111 +2691,71 @@
   },
   "puzzle_rush": {
     "442597396195704832": {
-      "active": false,
+      "active": true,
       "user_id": "442597396195704832",
       "name": "Thice",
-      "started_at": 1790776129.0390701,
-      "run_id": "rush:442597396195704832:1790776129039",
-      "end_at": 1790776429.0390701,
-      "score": 6,
-      "wrong": 2,
-      "mistakes": [
-        {
-          "puzzle_number": 4,
-          "submitted": "nfg4",
-          "correct": "N6g4+",
-          "puzzle": {
-            "puzzle_id": "practice_rush_442597396195704832_XfJFJ_1790776147831",
-            "fen": "5r1k/ppp3bp/1q1p1n2/3Pp3/2P1P1n1/1P6/P1B3Q1/2B1R1RK b - - 9 29",
-            "current_fen": "5r1k/ppp3bp/1q1p1n2/3Pp3/2P1P3/1P6/P1B2nQK/2B1R1R1 b - - 11 30",
-            "last_move_uci": "h1h2",
-            "player_color": "black",
-            "rating": 1290,
-            "board_theme": "blue",
-            "piece_theme": "classic",
-            "arrow_theme": "pink"
-          },
-          "recorded_at": 1790776159.9760468
-        },
-        {
-          "puzzle_number": 8,
-          "submitted": "bxc7",
-          "correct": "Bxd7",
-          "puzzle": {
-            "puzzle_id": "practice_rush_442597396195704832_XRFYT_1790776196605",
-            "fen": "q4rk1/3Rppb1/6p1/p3p1Bp/Q1p1b2P/6P1/P2N1P2/5BK1 b - - 2 24",
-            "current_fen": "q4rk1/3Rppb1/2b3p1/p3p1Bp/2Q4P/6P1/P2N1P2/5BK1 b - - 0 25",
-            "last_move_uci": "a4c4",
-            "player_color": "black",
-            "rating": 1442,
-            "board_theme": "blue",
-            "piece_theme": "classic",
-            "arrow_theme": "pink"
-          },
-          "recorded_at": 1790776206.3026316
-        }
-      ],
+      "started_at": 1790788406.1228375,
+      "run_id": "rush:442597396195704832:1790788406122",
+      "end_at": 1790788706.1228375,
+      "score": 0,
+      "wrong": 0,
+      "mistakes": [],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/Hmz5i",
-        "title": "Lichess • 1485",
-        "fen": "r1br2k1/pp2ppbp/6p1/qB1QP3/8/8/P2B2PP/R4R1K w - - 4 19",
-        "current_fen": "r1br2k1/pp2ppbp/6p1/qB1QP3/8/8/P2B2PP/R4R1K w - - 4 19",
-        "last_move_uci": "f8d8",
-        "pgn": "Qxf7+ Kh8 Bxa5",
+        "url": "https://lichess.org/training/tgHQE",
+        "title": "Lichess • 1211",
+        "fen": "rnb1k2r/pppp3p/4pp2/2q1N3/P7/8/2P2PPP/R2QR1K1 w kq - 0 14",
+        "current_fen": "rnb1k2r/pppp3p/4pp2/2q1N3/P7/8/2P2PPP/R2QR1K1 w kq - 0 14",
+        "last_move_uci": "g7f6",
+        "pgn": "Qh5+ Kd8 Nf7+",
         "all_moves": [
           {
-            "uci": "d5f7",
-            "san": "Qxf7+",
+            "uci": "d1h5",
+            "san": "Qh5+",
             "color": "white"
           },
           {
-            "uci": "g8h8",
-            "san": "Kh8",
+            "uci": "e8d8",
+            "san": "Kd8",
             "color": "black"
           },
           {
-            "uci": "d2a5",
-            "san": "Bxa5",
+            "uci": "e5f7",
+            "san": "Nf7+",
             "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "d5f7",
-            "san": "Qxf7+",
+            "uci": "d1h5",
+            "san": "Qh5+",
             "color": "white"
           },
           {
-            "uci": "d2a5",
-            "san": "Bxa5",
+            "uci": "e5f7",
+            "san": "Nf7+",
             "color": "white"
           }
         ],
         "player_color": "white",
         "player_move_count": 2,
-        "posted_at": "2026-09-30T13:50:06.307512+00:00",
+        "posted_at": "2026-09-30T17:13:26.126843+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_Hmz5i_1790776206307",
-        "rating": 1485,
+        "puzzle_id": "practice_rush_442597396195704832_tgHQE_1790788406126",
+        "rating": 1211,
         "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1554852848401907712,
+      "message_id": 1554904018877157456,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790776206.3018467,
-      "last_feedback": "❌ **bxc7** was wrong. Correct move: **Bxd7**.",
-      "ended_at": 1790776433.5616362,
-      "solve_reward_coins": 3.0,
-      "solve_reward_paid": true,
-      "completion_reward_coins": 10.0,
-      "completion_reward_paid": true
+      "last_card_activity_at": 1790788406.1228456,
+      "last_feedback": "🎯 **Type your move in chat.** Your answer message will be removed. You have **3 lives**."
     },
     "362606514764251137": {
       "active": false,
