@@ -1,0 +1,14 @@
+{
+  "after_coins": 12.0,
+  "before_coins": 12.0,
+  "created_at": 1790773918,
+  "created_at_ns": 1790773918173100905,
+  "details": {
+    "color": "pink"
+  },
+  "display_name": "Sharkmeister",
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "equip-color",
+  "transaction_id": "profile-button-color:1554843246797135942:362606514764251137:pink",
+  "user_id": "362606514764251137"
+}
