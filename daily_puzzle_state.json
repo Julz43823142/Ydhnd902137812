@@ -2705,8 +2705,8 @@
         "url": "https://lichess.org/training/1rZT3",
         "title": "Lichess • 1744",
         "fen": "6k1/2bQ1pp1/p6p/8/2pN4/P2P2PP/2P2qBK/8 b - - 0 34",
-        "current_fen": "6k1/3Q1pp1/p6p/8/2pN4/P2P2bP/2P2qB1/7K b - - 1 35",
-        "last_move_uci": "h2h1",
+        "current_fen": "6k1/3Q1pp1/p6p/8/2pN4/P2P2bP/2P5/4qB1K b - - 3 36",
+        "last_move_uci": "g2f1",
         "pgn": "Bxg3+ Kh1 Qe1+ Bf1 Qxf1#",
         "all_moves": [
           {
@@ -2761,16 +2761,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_1rZT3_1790788568110",
         "rating": 1744,
-        "next_solution_index": 2,
+        "next_solution_index": 4,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1554904697989767259,
+      "message_id": 1554904725806252176,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790788574.2979734,
-      "last_feedback": "✅ **Bxg3+** • Opponent: **Kh1**"
+      "last_card_activity_at": 1790788577.4274197,
+      "last_feedback": "✅ **Qe1+** • Opponent: **Bf1**"
     },
     "362606514764251137": {
       "active": false,
