@@ -83,7 +83,7 @@
     "player_color": "black",
     "player_move_count": 5,
     "posted_at": "2026-09-30T12:20:47.087696+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -167,7 +167,7 @@
         "principal": true
       }
     ],
-    "last_feedback": "✅ **Correct, mh!**\n🎉 **Puzzle solved!**\nUpdating stats and rewards…"
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, mh!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **2 points.**\n\n💡 **Solution:** Rd2 Qb3 Rfxf2 Rd1+ Qxd1+\n\n🏆 **Your ranking**\n**#8 Martin — 3 points**\n**#9 mh — 2 points ← you**\n**#10 ejsplash12 — 1 point**"
   },
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-30",
