@@ -38,7 +38,7 @@
     "player_color": "white",
     "player_move_count": 2,
     "posted_at": "2026-09-30T12:37:47.895159+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -102,7 +102,7 @@
     "wrong_attempt_counts": {
       "442597396195704832": 2
     },
-    "last_feedback": "✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\nUpdating stats and rewards…",
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, Thice!**\n🎉 **Practice solved!**\nPuzzle Elo: **2518**\n**+1 point** • **+1 coin** — you now have **1690 points** and **39.28 coins**.\n\n💡 **Solution:** Qe3 fxe3\n\n🏆 **Your ranking**\n**#1 🙂 Thice — 1690 points ← you**\n**#2 🍅 TheMakina — 1545 points**",
     "accepted_solution_moves": [
       {
         "san": "Qe3",
