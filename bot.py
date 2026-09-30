@@ -5,6 +5,7 @@ import shark_admin
 import shared_leaderboard as shared_ledger
 import quests as quest_tracker
 from holiday_events import holiday_collection_lines, HOLIDAY_BOX_COST, active_holidays, HOLIDAYS
+from seasonal_bot_profile import SeasonalBotProfile
 from badge_box_ui import BadgeBoxPicker
 from shop_color_roles import apply_color_role
 
@@ -12110,7 +12111,7 @@ def cosmetic_profile_dashboard(user_id, display_name):
         f"🎨 **Boards owned:** {len(profile.get('boards', [])) + 1}/{len(BOARD_THEMES)}\n"
         f"♟️ **Piece sets owned:** {len(profile.get('pieces', [])) + 1}/{len(PIECE_SETS)}\n"
         f"➡️ **Arrow colors owned:** {len(profile.get('arrows', [])) + 1}/{len(ARROW_COLORS)}\n"
-        f"🖌️ **Colors owned:** {len(profile.get('colors', []))}/{len(NAME_COLORS)}\n"
+        f"🖌️ **Name Colors owned:** {len(profile.get('colors', []))}/{len(NAME_COLORS)}\n"
         f"🖼️ **Profile themes owned:** {len(profile.get('profile_themes', [])) + 1}/{len(PROFILE_THEMES)}\n\n"
         "**Collection**\n"
         "Use the buttons below to browse badges, boards, pieces, colors and profile themes. `!arrow` opens arrow colors.\n"
@@ -12196,7 +12197,7 @@ def cosmetic_piece_page(user_id, display_name, page=1):
 def cosmetic_color_page(user_id, display_name):
     profile = get_cosmetic_profile(user_id, display_name)
     active = profile.get("active_color", "")
-    lines = [f"🖌️ **{profile.get('name', display_name)} — Owned Colors**", ""]
+    lines = [f"🖌️ **{profile.get('name', display_name)} — Owned Name Colors**", ""]
     if not profile.get("colors", []):
         lines.append("None yet. Default/server role color is active.")
     for name in profile.get("colors", []):
@@ -13463,7 +13464,7 @@ class CosmeticProfileView(discord.ui.View):
                 f"🎨 **Boards owned:** {len(profile.get('boards', [])) + 1}/{len(BOARD_THEMES)}\n"
                 f"♟️ **Piece sets owned:** {len(profile.get('pieces', [])) + 1}/{len(PIECE_SETS)}\n"
                 f"➡️ **Arrow colors owned:** {len(profile.get('arrows', [])) + 1}/{len(ARROW_COLORS)}\n"
-                f"🖌️ **Colors owned:** {len(profile.get('colors', []))}/{len(NAME_COLORS)}\n"
+                f"🖌️ **Name Colors owned:** {len(profile.get('colors', []))}/{len(NAME_COLORS)}\n"
                 f"🖼️ **Profile themes owned:** {len(profile.get('profile_themes', [])) + 1}/{len(PROFILE_THEMES)}\n\n"
                 "Use the buttons below to browse the collection. `!arrow` opens arrow colors."
             )
@@ -13563,7 +13564,7 @@ class CosmeticProfileView(discord.ui.View):
             if profile is None:
                 return cosmetic_color_page(self.target_user_id, self.target_name)
             active = profile.get("active_color", "")
-            lines = [f"🖌️ **{profile.get('name', self.target_name)} — Owned Colors**", ""]
+            lines = [f"🖌️ **{profile.get('name', self.target_name)} — Owned Name Colors**", ""]
             if not profile.get("colors", []):
                 lines.append("None yet. Default/server role color is active.")
             for name in profile.get("colors", []):
@@ -13585,7 +13586,7 @@ class CosmeticProfileView(discord.ui.View):
             ("Boards", "boards", "🎨", discord.ButtonStyle.secondary),
             ("Pieces", "pieces", "♟️", discord.ButtonStyle.secondary),
             ("Arrows", "arrows", "➡️", discord.ButtonStyle.secondary),
-            ("Colors", "colors", "🖌️", discord.ButtonStyle.secondary),
+            ("Name Colors", "colors", "🖌️", discord.ButtonStyle.secondary),
             ("Themes", "themes", "🖼️", discord.ButtonStyle.secondary),
         )
         for index, (label, mode, emoji, style) in enumerate(entries):
@@ -17706,7 +17707,7 @@ class ShopHomeView(discord.ui.View):
     async def themes(self, interaction, button):
         await _send_catalog_from_interaction(interaction, "theme")
 
-    @discord.ui.button(label="Colors", emoji="🖌️", style=discord.ButtonStyle.secondary, row=1)
+    @discord.ui.button(label="Name Colors", emoji="🖌️", style=discord.ButtonStyle.secondary, row=1)
     async def colors(self, interaction, button):
         profile = await sync_subscriber_color_profile(
             interaction.user,
@@ -20144,6 +20145,13 @@ async def on_ready():
         (item for item in channels if int(item.id) == PRIMARY_CHESS_CHANNEL_ID),
         channels[0],
     )
+
+    # Only Daily controls the shared bot avatar; Guess/Survival must not race it.
+    seasonal_profile = SeasonalBotProfile(
+        client, primary_channel.guild,
+        state.setdefault("seasonal_bot_profile_v1", {}), save_all_critical,
+    )
+    asyncio.create_task(seasonal_profile.run())
 
     if TWITCH_EVENTSUB_ENABLED and (
         _twitch_eventsub_task is None or _twitch_eventsub_task.done()

@@ -1183,7 +1183,7 @@ class GuessCosmeticProfileView(discord.ui.View):
                 await interaction.response.edit_message(content=None, embed=community_embed(self.render(profile)), view=self)
             button.callback = open_rarity
             self.add_item(button)
-        for label, mode, emoji in (("Boards", "boards", "🎨"), ("Pieces", "pieces", "♟️"), ("Arrows", "arrows", "➡️"), ("Themes", "themes", "🖼️"), ("Colors", "colors", "🖌️")):
+        for label, mode, emoji in (("Boards", "boards", "🎨"), ("Pieces", "pieces", "♟️"), ("Arrows", "arrows", "➡️"), ("Themes", "themes", "🖼️"), ("Name Colors", "colors", "🖌️")):
             button = discord.ui.Button(label=label, emoji=emoji, style=discord.ButtonStyle.secondary, row=2 if mode in {"boards", "pieces", "arrows"} else 3)
             async def open_mode(interaction, mode=mode):
                 if mode == "colors" and self.editable:
@@ -4539,7 +4539,7 @@ class GuessShopHomeView(discord.ui.View):
     async def themes(self, interaction, button):
         await _send_guess_catalog_from_interaction(interaction, "theme")
 
-    @discord.ui.button(label="Colors", emoji="🖌️", style=discord.ButtonStyle.secondary, row=1)
+    @discord.ui.button(label="Name Colors", emoji="🖌️", style=discord.ButtonStyle.secondary, row=1)
     async def colors(self, interaction, button):
         profile = await guess_sync_subscriber_color_profile(
             interaction.user,
