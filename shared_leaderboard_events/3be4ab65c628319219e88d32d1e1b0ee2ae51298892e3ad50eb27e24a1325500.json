@@ -1,0 +1,17 @@
+{
+  "after_coins": 39.28,
+  "before_coins": 39.28,
+  "created_at": 1790772266,
+  "created_at_ns": 1790772266529220932,
+  "details": {
+    "active_reset": false,
+    "changed": true,
+    "color": "pink",
+    "entitled": true
+  },
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "subscriber-color-entitlement",
+  "transaction_id": "subscriber-pink-sync:1554836319643902012:442597396195704832",
+  "user_id": "442597396195704832"
+}
