@@ -2723,8 +2723,8 @@
         "url": "https://lichess.org/training/sOzwa",
         "title": "Lichess • 1923",
         "fen": "6k1/8/p2Q2p1/1p4b1/2q1P3/5KP1/3p4/3R4 b - - 5 35",
-        "current_fen": "6k1/8/p2Q2p1/1p4b1/2q1P3/5KP1/3p4/3R4 b - - 5 35",
-        "last_move_uci": "d3d6",
+        "current_fen": "6k1/8/p2Q2p1/1p4b1/4P3/1q4P1/3p2K1/3R4 b - - 7 36",
+        "last_move_uci": "f3g2",
         "pgn": "Qb3+ Kg2 Qxd1",
         "all_moves": [
           {
@@ -2764,16 +2764,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_sOzwa_1790788630399",
         "rating": 1923,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1554904942433538220,
+      "message_id": 1554904958544122049,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790788630.3934455,
-      "last_feedback": "❌ **ke4** was wrong. Correct move: **b4**."
+      "last_card_activity_at": 1790788647.123497,
+      "last_feedback": "✅ **Qb3+** • Opponent: **Kg2**"
     },
     "362606514764251137": {
       "active": false,
