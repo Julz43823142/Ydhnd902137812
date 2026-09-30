@@ -2697,7 +2697,7 @@
       "started_at": 1790776129.0390701,
       "run_id": "rush:442597396195704832:1790776129039",
       "end_at": 1790776429.0390701,
-      "score": 3,
+      "score": 4,
       "wrong": 1,
       "mistakes": [
         {
@@ -2720,45 +2720,60 @@
       ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/RiRQY",
-        "title": "Lichess • 1355",
-        "fen": "5b1r/1p3ppp/p3kn2/1NB1p3/4P3/8/PPP3PP/2KR4 w - - 4 18",
-        "current_fen": "5b1r/1p3ppp/p3kn2/1NB1p3/4P3/8/PPP3PP/2KR4 w - - 4 18",
-        "last_move_uci": "e7e6",
-        "pgn": "Nc7#",
+        "url": "https://lichess.org/training/7Yu6J",
+        "title": "Lichess • 1401",
+        "fen": "2R5/7p/8/p5PP/3n4/P2k4/2p5/4K3 b - - 0 49",
+        "current_fen": "2R5/7p/8/p5PP/3n4/P2k4/2p5/4K3 b - - 0 49",
+        "last_move_uci": "g4g5",
+        "pgn": "Nf3+ Kf2 Nxg5",
         "all_moves": [
           {
-            "uci": "b5c7",
-            "san": "Nc7#",
+            "uci": "d4f3",
+            "san": "Nf3+",
+            "color": "black"
+          },
+          {
+            "uci": "e1f2",
+            "san": "Kf2",
             "color": "white"
+          },
+          {
+            "uci": "f3g5",
+            "san": "Nxg5",
+            "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "b5c7",
-            "san": "Nc7#",
-            "color": "white"
+            "uci": "d4f3",
+            "san": "Nf3+",
+            "color": "black"
+          },
+          {
+            "uci": "f3g5",
+            "san": "Nxg5",
+            "color": "black"
           }
         ],
-        "player_color": "white",
-        "player_move_count": 1,
-        "posted_at": "2026-09-30T13:49:19.981248+00:00",
+        "player_color": "black",
+        "player_move_count": 2,
+        "posted_at": "2026-09-30T13:49:27.591908+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_RiRQY_1790776159981",
-        "rating": 1355,
+        "puzzle_id": "practice_rush_442597396195704832_7Yu6J_1790776167591",
+        "rating": 1401,
         "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1554852634853376009,
+      "message_id": 1554852653467570257,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790776159.9751132,
-      "last_feedback": "❌ **nfg4** was wrong. Correct move: **N6g4+**."
+      "last_card_activity_at": 1790776167.5864315,
+      "last_feedback": "✅ **Nc7#** — solved! Score: **4**."
     },
     "362606514764251137": {
       "active": false,
