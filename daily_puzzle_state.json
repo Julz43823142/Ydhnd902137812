@@ -2698,64 +2698,82 @@
       "run_id": "rush:442597396195704832:1790788406122",
       "end_at": 1790788706.1228375,
       "score": 19,
-      "wrong": 0,
-      "mistakes": [],
+      "wrong": 1,
+      "mistakes": [
+        {
+          "puzzle_number": 20,
+          "submitted": "ke4",
+          "correct": "b4",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_BoJVx_1790788621975",
+            "fen": "8/8/3k3p/1p3p2/3b4/1P1K1P2/6P1/8 w - - 0 53",
+            "current_fen": "8/8/3k3p/1p6/3K1p2/1P3P2/6P1/8 w - - 0 54",
+            "last_move_uci": "f5f4",
+            "player_color": "white",
+            "rating": 1948,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1790788630.3936968
+        }
+      ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/BoJVx",
-        "title": "Lichess • 1948",
-        "fen": "8/8/3k3p/1p3p2/3b4/1P1K1P2/6P1/8 w - - 0 53",
-        "current_fen": "8/8/3k3p/1p6/3K1p2/1P3P2/6P1/8 w - - 0 54",
-        "last_move_uci": "f5f4",
-        "pgn": "Kxd4 f4 b4",
+        "url": "https://lichess.org/training/sOzwa",
+        "title": "Lichess • 1923",
+        "fen": "6k1/8/p2Q2p1/1p4b1/2q1P3/5KP1/3p4/3R4 b - - 5 35",
+        "current_fen": "6k1/8/p2Q2p1/1p4b1/2q1P3/5KP1/3p4/3R4 b - - 5 35",
+        "last_move_uci": "d3d6",
+        "pgn": "Qb3+ Kg2 Qxd1",
         "all_moves": [
           {
-            "uci": "d3d4",
-            "san": "Kxd4",
-            "color": "white"
-          },
-          {
-            "uci": "f5f4",
-            "san": "f4",
+            "uci": "c4b3",
+            "san": "Qb3+",
             "color": "black"
           },
           {
-            "uci": "b3b4",
-            "san": "b4",
+            "uci": "f3g2",
+            "san": "Kg2",
             "color": "white"
+          },
+          {
+            "uci": "b3d1",
+            "san": "Qxd1",
+            "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "d3d4",
-            "san": "Kxd4",
-            "color": "white"
+            "uci": "c4b3",
+            "san": "Qb3+",
+            "color": "black"
           },
           {
-            "uci": "b3b4",
-            "san": "b4",
-            "color": "white"
+            "uci": "b3d1",
+            "san": "Qxd1",
+            "color": "black"
           }
         ],
-        "player_color": "white",
+        "player_color": "black",
         "player_move_count": 2,
-        "posted_at": "2026-09-30T17:17:01.975476+00:00",
+        "posted_at": "2026-09-30T17:17:10.399217+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_BoJVx_1790788621975",
-        "rating": 1948,
-        "next_solution_index": 2,
+        "puzzle_id": "practice_rush_442597396195704832_sOzwa_1790788630399",
+        "rating": 1923,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1554904923357974569,
+      "message_id": 1554904942433538220,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790788626.7117767,
-      "last_feedback": "✅ **Kxd4** • Opponent: **f4**"
+      "last_card_activity_at": 1790788630.3934455,
+      "last_feedback": "❌ **ke4** was wrong. Correct move: **b4**."
     },
     "362606514764251137": {
       "active": false,
