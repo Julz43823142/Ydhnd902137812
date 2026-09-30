@@ -2681,24 +2681,36 @@ def admin_set_color(
     return {"user_id": uid, **entry}
 
 
-def buy_badge_box(user_id, display_name, transaction_id):
+def buy_badge_box(user_id, display_name, transaction_id, holiday=None):
+    from holiday_events import HOLIDAYS, HOLIDAY_BOX_COST, active_holidays
+    if holiday is not None and holiday not in HOLIDAYS:
+        raise ValueError("Unknown holiday box.")
     rarity_names = list(BADGE_RARITY_WEIGHTS)
     weights = [BADGE_RARITY_WEIGHTS[name] for name in rarity_names]
     rarity = random.choices(rarity_names, weights=weights, k=1)[0]
     badge = random.choice(BADGE_POOLS[rarity])
+    cost = BADGE_BOX_COST
+    if holiday is not None:
+        if holiday not in active_holidays():
+            raise ValueError("This holiday box is not available today. Reopen the shop.")
+        rarity, cost = "holiday", HOLIDAY_BOX_COST
+        badge = random.choice(HOLIDAYS[holiday]["badges"])
 
     def mutate(entry):
+        if holiday is not None and holiday not in active_holidays():
+            raise ValueError("This holiday box has ended. No coins were spent.")
         before = float(entry.get("coins", 0))
-        if before + 1e-9 < BADGE_BOX_COST:
+        if before + 1e-9 < cost:
             raise ValueError(
-                f"Not enough coins. Need {format_points(BADGE_BOX_COST)}, have {format_points(before)}."
+                f"Not enough coins. Need {format_points(cost)}, have {format_points(before)}."
             )
-        entry["coins"] = round(before - BADGE_BOX_COST, 3)
+        entry["coins"] = round(before - cost, 3)
         entry.setdefault("badges", []).append(badge)
         if not entry.get("active_badge"):
             entry["active_badge"] = badge
         return {
-            "spent": BADGE_BOX_COST,
+            "spent": cost,
+            "holiday": holiday,
             "rarity": rarity,
             "rarity_label": RARITY_LABELS[rarity],
             "badge": badge,

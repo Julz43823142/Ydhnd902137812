@@ -1,4 +1,5 @@
 """Shared cosmetic shop catalogue for the Puzzle + Guess bots."""
+from holiday_events import HOLIDAY_BADGES
 
 SHOP_BUILD = "cosmetics-shop-v2-twitch-2026-09-27"
 
@@ -173,7 +174,14 @@ BADGE_POOLS = {
 """.split(),
 }
 
+# Reclassify existing seasonal emoji, without changing their stored identity.
+# Previous owners keep their copies; only future normal-box drops change.
+for _rarity, _badges in BADGE_POOLS.items():
+    BADGE_POOLS[_rarity] = [badge for badge in _badges if badge not in HOLIDAY_BADGES]
+BADGE_POOLS["holiday"] = list(HOLIDAY_BADGES)
+
 RARITY_LABELS = {
+    "holiday": "Holiday",
     "legendary": "Legendary",
     "epic": "Epic",
     "rare": "Rare",
@@ -425,6 +433,8 @@ def _is_discord_subscription_role(role, guild=None):
     return role_name in {
         "subscriber", "subscribers", "server subscriber", "server subscribers",
         "subscription", "subscriptions",
+        "twitch subscriber", "twitch subscribers",
+        "twitch subscriber: tier 1", "twitch subscriber: tier 2", "twitch subscriber: tier 3",
     }
 
 
