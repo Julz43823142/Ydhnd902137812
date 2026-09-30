@@ -82,7 +82,8 @@ class BadgeBoxPicker(discord.ui.View):
                     await interaction.response.edit_message(content="Cancelled. No coins spent.", embed=None, view=None)
                 cancel.callback = cancel_purchase
                 self.add_item(cancel)
-                extra = " Guaranteed one badge from this holiday; each has a 10% chance. Duplicates are possible." if holiday else " One random badge; duplicates are possible."
+                chance = 100 / len(HOLIDAYS[holiday]["badges"]) if holiday else None
+                extra = f" Guaranteed one badge from this holiday; each has a {chance:.2f}% chance. Duplicates are possible." if holiday else " One random badge; duplicates are possible."
                 await interaction.response.edit_message(content=f"Open one **{label} Box** for **{format_points(cost)} coins**?{extra}", embed=None, view=self)
 
             button.callback = select

@@ -195,11 +195,12 @@ class BadgeCountTests(unittest.IsolatedAsyncioTestCase):
     async def test_guess_profile_shows_holiday_totals_and_collection_progress(self):
         profile = {"name": "Thice", "badges": ["🎅", "🎅"]}
         view = guess_chatter.GuessCosmeticProfileView(42, 42, "Thice")
-        self.assertIn("Holiday 1/80", view.render(profile))
-        self.assertTrue(any(item.label == "Holiday (80 available)" for item in view.children))
+        total = len(set(guess_chatter.BADGE_POOLS["holiday"]))
+        self.assertIn(f"Holiday 1/{total}", view.render(profile))
+        self.assertTrue(any(item.label == f"Holiday ({total} available)" for item in view.children))
         view.mode, view.rarity = "badges", "holiday"
         text = view.render(profile)
-        self.assertIn("1/80 unique badges unlocked", text)
+        self.assertIn(f"1/{total} unique badges unlocked", text)
         self.assertIn("Christmas:** 1/10", text)
         view.stop()
 

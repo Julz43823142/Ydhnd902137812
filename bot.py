@@ -6,6 +6,7 @@ import shared_leaderboard as shared_ledger
 import quests as quest_tracker
 from holiday_events import holiday_collection_lines, HOLIDAY_BOX_COST, active_holidays, HOLIDAYS
 from seasonal_bot_profile import SeasonalBotProfile
+from holiday_announcements import holiday_launch_loop
 from badge_box_ui import BadgeBoxPicker, badge_box_picker_message
 from shop_color_roles import apply_color_role
 
@@ -12055,7 +12056,7 @@ def shop_message(user_id, display_name):
         f"🪙 **Coins:** {coins}  •  `!coins` / `!bank` / `!balance`\n"
         "🤝 Trading has its own **Trade** button in `!menu`; old `!donate` / `!trade` commands still work.\n\n"
         f"🎁 **Badge Box — {shared_format_points(BADGE_BOX_COST)} coins**\n"
-        "`!box` or `!shop box` — open one random badge. Duplicates are possible.\n\n"
+        "`!box` or `!shop box` — choose a box, then confirm. Duplicates are possible.\n\n"
         f"📅 **Holiday Boxes — {shared_format_points(HOLIDAY_BOX_COST)} coins**\n"
         "Use the **Badge Box** button to choose and confirm an active holiday box. Guaranteed Holiday badge.\n\n"
         f"🎨 **Boards — {shared_format_points(BOARD_COST)} coins each**\n"
@@ -19012,21 +19013,9 @@ async def on_message(
         # -----------------------------------------------------
         if command_lower in {"!shop", "!shop box", "!box"}:
             if command_lower in {"!shop box", "!box"}:
-                try:
-                    result = await asyncio.to_thread(
-                        buy_badge_box,
-                        message.author.id,
-                        message.author.display_name,
-                        f"badge-box:{message.id}:{message.author.id}",
-                    )
-                    await message.channel.send(
-                        f"🎁 **Mystery Badge Box opened!**\n"
-                        f"You got {result['badge']} — **{result['rarity_label']}**.\n"
-                        f"🪙 Coins left: **{shared_format_points(result['coins'])}**\n"
-                        "Use `!profile` to see/equip your badges."
-                    )
-                except Exception as error:
-                    await message.channel.send(f"❌ **Could not open box:** {str(error)[:800]}")
+                await message.channel.send(
+                    badge_box_picker_message(), view=BadgeBoxPicker(message.author.id),
+                )
                 return
 
             try:
@@ -20152,6 +20141,10 @@ async def on_ready():
         state.setdefault("seasonal_bot_profile_v1", {}), save_all_critical,
     )
     asyncio.create_task(seasonal_profile.run())
+    asyncio.create_task(holiday_launch_loop(
+        client, channels, state.setdefault("holiday_announcements_v1", {}),
+        save_all_critical,
+    ))
 
     if TWITCH_EVENTSUB_ENABLED and (
         _twitch_eventsub_task is None or _twitch_eventsub_task.done()

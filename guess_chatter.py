@@ -4850,25 +4850,8 @@ async def command_handler(message):
         return
 
     if command in {"!shop box", "!box"}:
-        try:
-            result = await asyncio.to_thread(
-                buy_badge_box,
-                message.author.id,
-                message.author.display_name,
-                f"guess-badge-box:{message.id}",
-            )
-        except ValueError as error:
-            await message.channel.send(f"❌ **{error}**")
-            return
-        except Exception as error:
-            print(f"Guess badge box error: {error}", flush=True)
-            await message.channel.send("❌ **Could not safely open the badge box. Try again later.**")
-            return
-
         await message.channel.send(
-            "🎁 **Mystery Badge Box opened!**\n"
-            f"You got {result['badge']} **{result['rarity_label']}**\n"
-            f"🪙 Coins left: **{shared_format_points(result['coins'])}**"
+            badge_box_picker_message(), view=BadgeBoxPicker(message.author.id),
         )
         return
 
