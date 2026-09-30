@@ -18,7 +18,7 @@ import discord
 import shark_admin
 import shared_leaderboard as shared_ledger
 from holiday_events import holiday_collection_lines, HOLIDAY_BOX_COST
-from badge_box_ui import BadgeBoxPicker
+from badge_box_ui import BadgeBoxPicker, badge_box_picker_message
 from shop_color_roles import apply_color_role
 import chess
 import chess.svg
@@ -4518,7 +4518,7 @@ class GuessShopHomeView(discord.ui.View):
     @discord.ui.button(label="Badge Box", emoji="🎁", style=discord.ButtonStyle.primary, row=0)
     async def box(self, interaction, button):
         await interaction.response.send_message(
-            "🎁 **Choose a Badge Box.** Select a box, then confirm before spending coins.",
+            badge_box_picker_message(),
             view=BadgeBoxPicker(interaction.user.id),
             ephemeral=True,
         )

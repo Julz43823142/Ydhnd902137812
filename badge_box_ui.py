@@ -1,9 +1,24 @@
 """One box picker/confirmation flow for every SharkBot shop."""
 import asyncio
 import discord
-from holiday_events import HOLIDAYS, HOLIDAY_BOX_COST, active_holidays
+from holiday_events import HOLIDAYS, HOLIDAY_BOX_COST, active_holidays, next_holiday
 from shop_catalog import BADGE_BOX_COST
 from shared_leaderboard import buy_badge_box, format_points
+
+
+def badge_box_picker_message(moment=None):
+    holiday, _, days = next_holiday(moment)
+    unit = "day" if days == 1 else "days"
+    active = active_holidays(moment)
+    availability = "Holiday boxes are available only during their events."
+    if active:
+        availability += " Available now: **" + ", ".join(HOLIDAYS[key]["label"] for key in active) + "**."
+    return (
+        "🎁 **Choose a Badge Box.**\n"
+        f"{availability}\n"
+        f"📅 The next Holiday Box opens in **{days} {unit}**: **{HOLIDAYS[holiday]['label']}**.\n"
+        "Select a box, then confirm before spending coins."
+    )
 
 
 class BadgeBoxPicker(discord.ui.View):
@@ -21,17 +36,19 @@ class BadgeBoxPicker(discord.ui.View):
 
     def build_picker(self):
         self.clear_items()
-        for holiday in [None, *active_holidays()]:
+        active = active_holidays()
+        for holiday in [None, *active]:
             label = HOLIDAYS[holiday]["label"] if holiday else "Random Badge"
             cost = HOLIDAY_BOX_COST if holiday else BADGE_BOX_COST
-            button = discord.ui.Button(label=f"{label} Box • {format_points(cost)} coins", style=discord.ButtonStyle.primary)
+            emoji = "🎊" if holiday else "🎁"
+            button = discord.ui.Button(label=f"{label} Box • {format_points(cost)} coins", style=discord.ButtonStyle.primary, emoji=emoji, row=1 if holiday else 0)
 
-            async def select(interaction, holiday=holiday, label=label, cost=cost):
+            async def select(interaction, holiday=holiday, label=label, cost=cost, emoji=emoji):
                 if self.busy:
                     await interaction.response.send_message("Your box is already opening.", ephemeral=True)
                     return
                 self.clear_items()
-                confirm = discord.ui.Button(label=f"Open {label} Box", style=discord.ButtonStyle.success, emoji="🎁")
+                confirm = discord.ui.Button(label=f"Open {label} Box", style=discord.ButtonStyle.success, emoji=emoji)
 
                 async def purchase(interaction):
                     if self.busy:
@@ -50,7 +67,7 @@ class BadgeBoxPicker(discord.ui.View):
                         return
                     self.stop()
                     await interaction.edit_original_response(
-                        content=f"🎁 **{label} Box opened!** You got {result['badge']} — **{result['rarity_label']}**.\n🪙 Coins left: **{format_points(result['coins'])}**",
+                        content=f"{emoji} **{label} Box opened!** You got {result['badge']} — **{result['rarity_label']}**.\n🪙 Coins left: **{format_points(result['coins'])}**",
                         embed=None, view=None,
                     )
 
@@ -70,3 +87,8 @@ class BadgeBoxPicker(discord.ui.View):
 
             button.callback = select
             self.add_item(button)
+        if not active:
+            self.add_item(discord.ui.Button(
+                label=f"Holiday Box • {format_points(HOLIDAY_BOX_COST)} coins",
+                emoji="🎊", style=discord.ButtonStyle.secondary, disabled=True, row=1,
+            ))

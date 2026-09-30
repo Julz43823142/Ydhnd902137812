@@ -6,7 +6,7 @@ import shared_leaderboard as shared_ledger
 import quests as quest_tracker
 from holiday_events import holiday_collection_lines, HOLIDAY_BOX_COST, active_holidays, HOLIDAYS
 from seasonal_bot_profile import SeasonalBotProfile
-from badge_box_ui import BadgeBoxPicker
+from badge_box_ui import BadgeBoxPicker, badge_box_picker_message
 from shop_color_roles import apply_color_role
 
 from shared_leaderboard import (
@@ -17686,7 +17686,7 @@ class ShopHomeView(discord.ui.View):
     @discord.ui.button(label="Badge Box", emoji="🎁", style=discord.ButtonStyle.primary, row=0)
     async def box(self, interaction, button):
         await interaction.response.send_message(
-            "🎁 **Choose a Badge Box.** Holiday boxes appear only during their event. Select a box, then confirm before spending coins.",
+            badge_box_picker_message(),
             view=BadgeBoxPicker(interaction.user.id),
             ephemeral=True,
         )
