@@ -1,0 +1,14 @@
+{
+  "after_coins": 56.28,
+  "before_coins": 56.28,
+  "created_at": 1790773768,
+  "created_at_ns": 1790773768594081799,
+  "details": {
+    "color": "purple"
+  },
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "equip-color",
+  "transaction_id": "equip-color:1554842618918076471:442597396195704832:purple",
+  "user_id": "442597396195704832"
+}
