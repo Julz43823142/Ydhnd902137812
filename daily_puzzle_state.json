@@ -73,8 +73,8 @@
     "url": "https://www.chess.com/daily/2026-09-30",
     "title": "Breaking and Entering",
     "fen": "r4rk1/6p1/2p4p/1q1p3Q/p1nP4/P7/KP2B1R1/2b3R1 w - - 0 33",
-    "current_fen": "r4r2/7k/2p4p/1q1p3Q/p1nP4/P7/KP2B3/2b3R1 w - - 0 35",
-    "last_move_uci": "h8h7",
+    "current_fen": "r4r1k/8/2p3Qp/1q1p4/p1nP4/P7/KP2B3/2b3R1 w - - 2 36",
+    "last_move_uci": "h7h8",
     "pgn": "[White \"Vishy71\"]\n[Black \"Daily Puzzle Inspiration\"]\n[Result \"1-0\"]\n[FEN \"r4rk1/6p1/2p4p/1q1p3Q/p1nP4/P7/KP2B1R1/2b3R1 w - - 0 33\"]\n\n33. Rxg7+ Kh8 34. Rh7+ Kxh7 35. Qg6+ Kh8 36. Qg7# 1-0",
     "all_moves": [
       {
@@ -143,16 +143,16 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1790755027497",
-    "next_solution_index": 4,
-    "next_player_index": 2,
+    "next_solution_index": 6,
+    "next_player_index": 3,
     "solved": false,
-    "message_id": 1554771077421473822,
+    "message_id": 1554771102117404703,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Rh7",
+        "move": "Qg6",
         "correct": true,
-        "timestamp": "2026-09-30T08:25:10.461596+00:00"
+        "timestamp": "2026-09-30T08:25:16.374990+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
@@ -161,23 +161,13 @@
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1554771077421473822,
-      "1546557493038284840": 1554771082718748723
+      "1468320170891022417": 1554771102117404703,
+      "1546557493038284840": 1554771110405476352
     },
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-09-30T08:25:10.461374+00:00",
+    "last_card_activity_at": "2026-09-30T08:25:16.374737+00:00",
     "recent_accepted_moves": [
-      {
-        "accepted_at": 1790756703.6508715,
-        "fen_before": "r4rk1/6p1/2p4p/1q1p3Q/p1nP4/P7/KP2B1R1/2b3R1 w - - 0 33",
-        "expected": {
-          "uci": "g2g7",
-          "san": "Rxg7+",
-          "color": "white"
-        },
-        "accepted_uci": "g2g7"
-      },
       {
         "accepted_at": 1790756710.461602,
         "fen_before": "r4r1k/6R1/2p4p/1q1p3Q/p1nP4/P7/KP2B3/2b3R1 w - - 1 34",
@@ -187,6 +177,16 @@
           "color": "white"
         },
         "accepted_uci": "g7h7"
+      },
+      {
+        "accepted_at": 1790756716.3749952,
+        "fen_before": "r4r2/7k/2p4p/1q1p3Q/p1nP4/P7/KP2B3/2b3R1 w - - 0 35",
+        "expected": {
+          "uci": "h5g6",
+          "san": "Qg6+",
+          "color": "white"
+        },
+        "accepted_uci": "h5g6"
       }
     ],
     "accepted_solution_moves": [
@@ -199,9 +199,14 @@
         "san": "Rh7+",
         "uci": "g7h7",
         "principal": true
+      },
+      {
+        "san": "Qg6+",
+        "uci": "h5g6",
+        "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Kxh7"
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kh8"
   },
   "lichess_rating_used": {
     "2000": [
