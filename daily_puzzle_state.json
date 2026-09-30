@@ -38,7 +38,7 @@
     "player_color": "black",
     "player_move_count": 2,
     "posted_at": "2026-09-30T09:45:08.392661+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -54,9 +54,9 @@
     "next_player_index": 0,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1554791201641603072
+      "1468320170891022417": 1554791232234852392
     },
-    "message_id": 1554791201641603072,
+    "message_id": 1554791232234852392,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
@@ -76,9 +76,10 @@
     "recent_accepted_moves": [],
     "wrong_attempt_counts": {
       "442597396195704832": 1
-    }
+    },
+    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Ng4 Nxe3"
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-30",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-30",
