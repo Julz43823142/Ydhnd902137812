@@ -739,9 +739,9 @@
     },
     "mh": {
       "name": "mh",
-      "best_puzzle": 1,
-      "best_difficulty": 0,
-      "best_completed_at": "2026-09-30T12:53:28.625963+00:00",
+      "best_puzzle": 2,
+      "best_difficulty": 1365,
+      "best_completed_at": "2026-09-30T12:55:09.803357+00:00",
       "current": {
         "run_id": "mh:1790772808",
         "started_by_id": "442597396195704832",
@@ -756,7 +756,8 @@
         "strikes": 0,
         "best_difficulty": 1365,
         "used_puzzle_ids": [
-          "80vk0"
+          "80vk0",
+          "JqMJA"
         ],
         "members": {
           "442597396195704832": {
@@ -765,7 +766,43 @@
             "wrong": 0
           }
         },
-        "puzzle": null,
+        "puzzle": {
+          "id": "JqMJA",
+          "rating": 1342,
+          "themes": "",
+          "url": "https://lichess.org/training/JqMJA",
+          "start_fen": "r1bq1rk1/ppp2ppp/8/3p4/1n1P4/1B3Nn1/PP2QPPP/RN2K2R w KQ - 2 11",
+          "current_fen": "r1bq1rk1/ppp2ppp/8/3p4/1n1P4/1B3Nn1/PP2QPPP/RN2K2R w KQ - 2 11",
+          "solution": [
+            {
+              "uci": "h2g3",
+              "san": "hxg3",
+              "color": "white"
+            },
+            {
+              "uci": "f8e8",
+              "san": "Re8",
+              "color": "black"
+            },
+            {
+              "uci": "f3e5",
+              "san": "Ne5",
+              "color": "white"
+            }
+          ],
+          "player_color": "white",
+          "next_solution_index": 0,
+          "first_solver_id": null,
+          "first_solver_name": null,
+          "helper_candidates": {},
+          "helper_awarded": [],
+          "wrong_users": [],
+          "rated_users": [],
+          "setup_move_uci": "e4g3",
+          "last_move_uci": "e4g3",
+          "last_move_san": null,
+          "accepted_moves": []
+        },
         "first_solver_id": null,
         "first_solver_name": null,
         "helper_candidates": {},
