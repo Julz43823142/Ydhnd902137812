@@ -1,60 +1,6 @@
 {
   "build": "quests-v1-2026-09-08",
   "periods": {
-    "daily:2026-09-09": {
-      "users": {
-        "1": {
-          "name": "Player 1",
-          "paid": [
-            "daily:2026-09-09:minigame:minigame-1"
-          ],
-          "progress": {
-            "daily:2026-09-09:minigame:minigame-1": 119
-          },
-          "updated_at": 1788997998
-        },
-        "362606514764251137": {
-          "name": "Sharkmeister",
-          "paid": [
-            "daily:2026-09-09:minigame:minigame-1",
-            "daily:2026-09-09:challenge:rush-full-1"
-          ],
-          "progress": {
-            "daily:2026-09-09:challenge:rush-full-1": 1,
-            "daily:2026-09-09:minigame:minigame-1": 5
-          },
-          "updated_at": 1788995055
-        },
-        "442597396195704832": {
-          "name": "Thice",
-          "paid": [
-            "daily:2026-09-09:minigame:minigame-1",
-            "daily:2026-09-09:challenge:rush-full-1",
-            "daily:2026-09-09:puzzle:solve-5"
-          ],
-          "progress": {
-            "daily:2026-09-09:challenge:rush-full-1": 2,
-            "daily:2026-09-09:minigame:minigame-1": 26,
-            "daily:2026-09-09:puzzle:solve-5": 14
-          },
-          "updated_at": 1788996454
-        },
-        "601406103712170014": {
-          "name": "TheMakina",
-          "paid": [
-            "daily:2026-09-09:minigame:minigame-1",
-            "daily:2026-09-09:challenge:rush-full-1",
-            "daily:2026-09-09:puzzle:solve-5"
-          ],
-          "progress": {
-            "daily:2026-09-09:challenge:rush-full-1": 1,
-            "daily:2026-09-09:minigame:minigame-1": 6,
-            "daily:2026-09-09:puzzle:solve-5": 27
-          },
-          "updated_at": 1788994821
-        }
-      }
-    },
     "daily:2026-09-10": {
       "users": {
         "1": {
@@ -607,6 +553,18 @@
         }
       }
     },
+    "daily:2026-09-30": {
+      "users": {
+        "1": {
+          "name": "Player 1",
+          "paid": [],
+          "progress": {
+            "daily:2026-09-30:minigame:minigame-2": 1
+          },
+          "updated_at": 1790745975
+        }
+      }
+    },
     "weekly:2026-09-07": {
       "users": {
         "1": {
@@ -734,9 +692,9 @@
             "weekly:2026-09-28:minigame:minigame-5"
           ],
           "progress": {
-            "weekly:2026-09-28:minigame:minigame-5": 24
+            "weekly:2026-09-28:minigame:minigame-5": 25
           },
-          "updated_at": 1790725218
+          "updated_at": 1790745975
         },
         "442597396195704832": {
           "name": "Thice",
