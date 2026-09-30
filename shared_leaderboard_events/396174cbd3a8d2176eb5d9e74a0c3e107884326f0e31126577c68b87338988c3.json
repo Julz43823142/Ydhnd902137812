@@ -1,0 +1,13 @@
+{
+  "after_points": 1690.0,
+  "amount": 1.0,
+  "before_points": 1689.0,
+  "created_at": 1790771941,
+  "created_at_ns": 1790771941500820721,
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "add",
+  "source": "rated-practice-solve",
+  "transaction_id": "practice:practice_aAYx2_442597396195704832_1790771867895:solve:442597396195704832",
+  "user_id": "442597396195704832"
+}
