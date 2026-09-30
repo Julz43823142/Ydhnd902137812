@@ -1,0 +1,18 @@
+{
+  "after_coins": 112.28,
+  "before_coins": 112.28,
+  "created_at": 1790798232,
+  "created_at_ns": 1790798232764600276,
+  "details": {
+    "already_owned": false,
+    "field": "survival_heart_styles",
+    "redemption_id": "77a56d94-aa0e-456e-83fa-910cbf3c1feb",
+    "reward_key": "survival_hearts",
+    "value": "purple"
+  },
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "twitch-cosmetic-grant",
+  "transaction_id": "twitch-redemption:77a56d94-aa0e-456e-83fa-910cbf3c1feb",
+  "user_id": "442597396195704832"
+}

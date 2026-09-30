@@ -458,12 +458,15 @@
         "updated_at": 1789072607
       }
     ],
-    "survival_heart_styles": [],
+    "survival_heart_styles": [
+      "purple"
+    ],
     "twitch_unlocks": [
       "arrow",
       "pieces",
       "profile_theme",
-      "name"
+      "name",
+      "survival_hearts"
     ]
   },
   "550338389535227926": {
