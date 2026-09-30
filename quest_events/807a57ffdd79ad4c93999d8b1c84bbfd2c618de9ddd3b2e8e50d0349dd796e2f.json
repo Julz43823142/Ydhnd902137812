@@ -1,0 +1,17 @@
+{
+  "action": "puzzle_solve",
+  "amount": 1,
+  "created_at": 1790771421,
+  "created_at_ns": 1790771421326691732,
+  "daily_key": "daily:2026-09-30",
+  "display_name": "Sharkmeister",
+  "metadata": {
+    "boss": false,
+    "source": "puzzle"
+  },
+  "operation": "quest-progress",
+  "quest_build": "quests-v1-2026-09-08",
+  "transaction_id": "quest:puzzle-solve:random_0w1va_1790771246515:362606514764251137",
+  "user_id": "362606514764251137",
+  "weekly_key": "weekly:2026-09-28"
+}
