@@ -2705,8 +2705,8 @@
         "url": "https://lichess.org/training/mCLTN",
         "title": "Lichess • 1280",
         "fen": "r5rk/p1Q5/1p2pqpP/8/1P6/P2BP3/3P1P2/R3K1R1 b Q - 2 22",
-        "current_fen": "r5rk/p1Q5/1p2p1pP/8/1P6/P2BP3/3PKP2/q5R1 b - - 1 23",
-        "last_move_uci": "e1e2",
+        "current_fen": "r5rk/p7/1p2p1pP/4Q3/1P6/P2BP3/3PKP2/6q1 b - - 1 24",
+        "last_move_uci": "c7e5",
         "pgn": "Qxa1+ Ke2 Qxg1 Qe5+ Kh7",
         "all_moves": [
           {
@@ -2761,16 +2761,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_mCLTN_1790788422070",
         "rating": 1280,
-        "next_solution_index": 2,
+        "next_solution_index": 4,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1554904085881421965,
+      "message_id": 1554904102314446888,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790788426.3321524,
-      "last_feedback": "✅ **Qxa1+** • Opponent: **Ke2**"
+      "last_card_activity_at": 1790788429.9596334,
+      "last_feedback": "✅ **Qxg1** • Opponent: **Qe5+**"
     },
     "362606514764251137": {
       "active": false,
