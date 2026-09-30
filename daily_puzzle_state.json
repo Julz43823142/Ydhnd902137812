@@ -2705,8 +2705,8 @@
         "url": "https://lichess.org/training/TyDi5",
         "title": "Lichess • 1457",
         "fen": "8/p4qk1/1p5p/6p1/Q2PP3/4K1P1/nP4PP/8 w - - 0 32",
-        "current_fen": "8/p4qk1/1p5p/6p1/Q2PP3/4K1P1/nP4PP/8 w - - 0 32",
-        "last_move_uci": "b4a2",
+        "current_fen": "8/5qk1/1p5p/p2P2p1/Q3P3/4K1P1/nP4PP/8 w - - 0 33",
+        "last_move_uci": "a7a5",
         "pgn": "d5 a5 Qxa2",
         "all_moves": [
           {
@@ -2746,16 +2746,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_TyDi5_1790788465215",
         "rating": 1457,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1554904250310463682,
+      "message_id": 1554904267243131002,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790788465.209506,
-      "last_feedback": "✅ **Qh5** — solved! Score: **6**."
+      "last_card_activity_at": 1790788474.1065087,
+      "last_feedback": "✅ **d5** • Opponent: **a5**"
     },
     "362606514764251137": {
       "active": false,
