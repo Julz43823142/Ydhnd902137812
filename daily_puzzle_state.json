@@ -70,66 +70,89 @@
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-30",
   "current_puzzle": {
-    "url": "https://www.chess.com/daily/2026-09-29",
-    "title": "X-Ray Dreams",
-    "fen": "4r2k/2R3pp/Q3N3/5p2/p4P2/Pn3KP1/3q4/1R6 b - - 0 1",
-    "current_fen": "4r2k/2R3pp/Q3N3/5p2/p4P2/Pn3KP1/3q4/1R6 b - - 0 1",
+    "url": "https://www.chess.com/daily/2026-09-30",
+    "title": "Breaking and Entering",
+    "fen": "r4rk1/6p1/2p4p/1q1p3Q/p1nP4/P7/KP2B1R1/2b3R1 w - - 0 33",
+    "current_fen": "r4rk1/6p1/2p4p/1q1p3Q/p1nP4/P7/KP2B1R1/2b3R1 w - - 0 33",
     "last_move_uci": null,
-    "pgn": "[White \"Daily Puzzle Inspiration\"]\n[Black \"GuyLemieux\"]\n[Result \"0-1\"]\n[FEN \"4r2k/2R3pp/Q3N3/5p2/p4P2/Pn3KP1/3q4/1R6 b - - 0 1\"]\n\n1... Nd4+ 2. Nxd4 Re3# 0-1",
+    "pgn": "[White \"Vishy71\"]\n[Black \"Daily Puzzle Inspiration\"]\n[Result \"1-0\"]\n[FEN \"r4rk1/6p1/2p4p/1q1p3Q/p1nP4/P7/KP2B1R1/2b3R1 w - - 0 33\"]\n\n33. Rxg7+ Kh8 34. Rh7+ Kxh7 35. Qg6+ Kh8 36. Qg7# 1-0",
     "all_moves": [
       {
-        "uci": "b3d4",
-        "san": "Nd4+",
-        "color": "black"
-      },
-      {
-        "uci": "e6d4",
-        "san": "Nxd4",
+        "uci": "g2g7",
+        "san": "Rxg7+",
         "color": "white"
       },
       {
-        "uci": "e8e3",
-        "san": "Re3#",
+        "uci": "g8h8",
+        "san": "Kh8",
         "color": "black"
+      },
+      {
+        "uci": "g7h7",
+        "san": "Rh7+",
+        "color": "white"
+      },
+      {
+        "uci": "h8h7",
+        "san": "Kxh7",
+        "color": "black"
+      },
+      {
+        "uci": "h5g6",
+        "san": "Qg6+",
+        "color": "white"
+      },
+      {
+        "uci": "h7h8",
+        "san": "Kh8",
+        "color": "black"
+      },
+      {
+        "uci": "g6g7",
+        "san": "Qg7#",
+        "color": "white"
       }
     ],
     "player_moves": [
       {
-        "uci": "b3d4",
-        "san": "Nd4+",
-        "color": "black"
+        "uci": "g2g7",
+        "san": "Rxg7+",
+        "color": "white"
       },
       {
-        "uci": "e8e3",
-        "san": "Re3#",
-        "color": "black"
+        "uci": "g7h7",
+        "san": "Rh7+",
+        "color": "white"
+      },
+      {
+        "uci": "h5g6",
+        "san": "Qg6+",
+        "color": "white"
+      },
+      {
+        "uci": "g6g7",
+        "san": "Qg7#",
+        "color": "white"
       }
     ],
-    "player_color": "black",
-    "player_move_count": 2,
-    "posted_at": "2026-09-29T07:50:29.095472+00:00",
-    "answer_posted": true,
+    "player_color": "white",
+    "player_move_count": 4,
+    "posted_at": "2026-09-30T07:57:07.497738+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "daily_1790668229095",
+    "puzzle_id": "daily_1790755027497",
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_id": 1554399959506227261,
+    "message_id": null,
     "attempted_users": {},
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "message_ids": {
-      "1468320170891022417": 1554399959506227261,
-      "1546557493038284840": 1554399967848828944
-    },
-    "channel_id": 1468320170891022417,
-    "chat_since_refresh": 0,
-    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Nd4+ Re3#"
+    "helper_candidate_users": []
   },
   "lichess_rating_used": {
     "2000": [
