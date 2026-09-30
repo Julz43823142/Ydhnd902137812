@@ -2723,8 +2723,8 @@
         "url": "https://lichess.org/training/7Yu6J",
         "title": "Lichess • 1401",
         "fen": "2R5/7p/8/p5PP/3n4/P2k4/2p5/4K3 b - - 0 49",
-        "current_fen": "2R5/7p/8/p5PP/3n4/P2k4/2p5/4K3 b - - 0 49",
-        "last_move_uci": "g4g5",
+        "current_fen": "2R5/7p/8/p5PP/8/P2k1n2/2p2K2/8 b - - 2 50",
+        "last_move_uci": "e1f2",
         "pgn": "Nf3+ Kf2 Nxg5",
         "all_moves": [
           {
@@ -2764,16 +2764,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_7Yu6J_1790776167591",
         "rating": 1401,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1554852653467570257,
+      "message_id": 1554852685789003907,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790776167.5864315,
-      "last_feedback": "✅ **Nc7#** — solved! Score: **4**."
+      "last_card_activity_at": 1790776178.4947035,
+      "last_feedback": "✅ **Nf3+** • Opponent: **Kf2**"
     },
     "362606514764251137": {
       "active": false,
