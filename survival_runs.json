@@ -752,7 +752,7 @@
         "started_at": "2026-09-30T12:53:28.625945+00:00",
         "last_activity": 1790772974.861937,
         "paused_reason": null,
-        "puzzle_number": 3,
+        "puzzle_number": 4,
         "strikes": 0,
         "best_difficulty": 1365,
         "used_puzzle_ids": [
@@ -767,65 +767,9 @@
             "wrong": 0
           }
         },
-        "puzzle": {
-          "id": "llsIl",
-          "rating": 1262,
-          "themes": "",
-          "url": "https://lichess.org/training/llsIl",
-          "start_fen": "5bk1/Q1pbqppp/2p1r3/2BpP3/1r6/2N2P2/P1P3PP/1R3RK1 b - - 1 19",
-          "current_fen": "6k1/2pb1ppp/2p1r3/2bpP3/1r6/2N2P2/P1P3PP/1R3RK1 w - - 0 21",
-          "solution": [
-            {
-              "uci": "e7c5",
-              "san": "Qxc5+",
-              "color": "black"
-            },
-            {
-              "uci": "a7c5",
-              "san": "Qxc5",
-              "color": "white"
-            },
-            {
-              "uci": "f8c5",
-              "san": "Bxc5+",
-              "color": "black"
-            }
-          ],
-          "player_color": "black",
-          "next_solution_index": 3,
-          "first_solver_id": null,
-          "first_solver_name": null,
-          "helper_candidates": {},
-          "helper_awarded": [],
-          "wrong_users": [],
-          "rated_users": [
-            "442597396195704832"
-          ],
-          "setup_move_uci": "e3c5",
-          "last_move_uci": "f8c5",
-          "last_move_san": "Bxc5+",
-          "accepted_moves": [
-            {
-              "san": "Qxc5+",
-              "uci": "e7c5",
-              "accepted_at": 1790772966.9348364,
-              "solver_id": "442597396195704832"
-            },
-            {
-              "san": "Bxc5+",
-              "uci": "f8c5",
-              "accepted_at": 1790772974.8618186,
-              "solver_id": "442597396195704832"
-            }
-          ],
-          "last_accepted_move_uci": "f8c5",
-          "last_accepted_move_san": "Bxc5+",
-          "last_accepted_move_index": 2,
-          "last_accepted_at": 1790772974.8618178,
-          "position_before_last_move": "5bk1/2pb1ppp/2p1r3/2QpP3/1r6/2N2P2/P1P3PP/1R3RK1 b - - 0 20"
-        },
-        "first_solver_id": "442597396195704832",
-        "first_solver_name": "Thice",
+        "puzzle": null,
+        "first_solver_id": null,
+        "first_solver_name": null,
         "helper_candidates": {},
         "helper_awarded": [],
         "shop_heart_purchased": false,
