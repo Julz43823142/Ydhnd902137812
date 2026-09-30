@@ -2697,65 +2697,65 @@
       "started_at": 1790788406.1228375,
       "run_id": "rush:442597396195704832:1790788406122",
       "end_at": 1790788706.1228375,
-      "score": 16,
+      "score": 17,
       "wrong": 0,
       "mistakes": [],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/Yj7ed",
-        "title": "Lichess • 1803",
-        "fen": "2kr1b1r/pp3pp1/2p1pqp1/8/2PP1nP1/1B2B2Q/PP3P1P/R4RK1 w - - 1 21",
-        "current_fen": "2kr1b1Q/pp3pp1/2p1pqp1/8/2PP2P1/1B2B3/PP2nP1P/R4RK1 w - - 1 22",
-        "last_move_uci": "f4e2",
-        "pgn": "Qxh8 Ne2+ Kg2",
+        "url": "https://lichess.org/training/nwSGz",
+        "title": "Lichess • 1846",
+        "fen": "r7/ppp5/2nb3R/5pk1/5p2/P1B1r3/KPP3P1/7R w - - 0 28",
+        "current_fen": "r7/ppp5/2nb3R/5pk1/5p2/P1B1r3/KPP3P1/7R w - - 0 28",
+        "last_move_uci": "g6g5",
+        "pgn": "Bf6+ Kg4 Rg6#",
         "all_moves": [
           {
-            "uci": "h3h8",
-            "san": "Qxh8",
+            "uci": "c3f6",
+            "san": "Bf6+",
             "color": "white"
           },
           {
-            "uci": "f4e2",
-            "san": "Ne2+",
+            "uci": "g5g4",
+            "san": "Kg4",
             "color": "black"
           },
           {
-            "uci": "g1g2",
-            "san": "Kg2",
+            "uci": "h6g6",
+            "san": "Rg6#",
             "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "h3h8",
-            "san": "Qxh8",
+            "uci": "c3f6",
+            "san": "Bf6+",
             "color": "white"
           },
           {
-            "uci": "g1g2",
-            "san": "Kg2",
+            "uci": "h6g6",
+            "san": "Rg6#",
             "color": "white"
           }
         ],
         "player_color": "white",
         "player_move_count": 2,
-        "posted_at": "2026-09-30T17:16:29.322008+00:00",
+        "posted_at": "2026-09-30T17:16:42.367696+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_Yj7ed_1790788589322",
-        "rating": 1803,
-        "next_solution_index": 2,
+        "puzzle_id": "practice_rush_442597396195704832_nwSGz_1790788602367",
+        "rating": 1846,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1554904787286360155,
+      "message_id": 1554904824917528678,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790788598.39551,
-      "last_feedback": "✅ **Qxh8** • Opponent: **Ne2+**"
+      "last_card_activity_at": 1790788602.3621252,
+      "last_feedback": "✅ **Kg2** — solved! Score: **17**."
     },
     "362606514764251137": {
       "active": false,
