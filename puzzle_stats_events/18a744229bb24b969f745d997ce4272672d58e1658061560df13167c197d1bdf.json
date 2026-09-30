@@ -1,0 +1,19 @@
+{
+  "boss": false,
+  "correct": true,
+  "created_at": 1790770653,
+  "display_name": "mh",
+  "elo_after": 1548.889,
+  "elo_change": 31.969,
+  "new_achievements": [
+    "giant_killer"
+  ],
+  "puzzle_id": "random_pepmN_1790770397080",
+  "puzzle_rating": 2723,
+  "source": "random",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 2,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:random_pepmN_1790770397080:386134006170910721",
+  "user_id": "386134006170910721"
+}
