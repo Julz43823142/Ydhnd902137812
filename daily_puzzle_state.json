@@ -2705,8 +2705,8 @@
         "url": "https://lichess.org/training/VrCYw",
         "title": "Lichess • 1259",
         "fen": "3r1rk1/1pq2pp1/7p/3p4/1P1Qpn2/1Bn4N/2P2PPP/2R1R2K w - - 1 28",
-        "current_fen": "3r1rk1/1pq2pp1/7p/3p4/1P1Qpn2/1Bn4N/2P2PPP/2R1R2K w - - 1 28",
-        "last_move_uci": "g6f4",
+        "current_fen": "3r1rk1/1p3pp1/7p/3p4/1P1Qpq2/1Bn5/2P2PPP/2R1R2K w - - 0 29",
+        "last_move_uci": "c7f4",
         "pgn": "Nxf4 Qxf4 Qxc3",
         "all_moves": [
           {
@@ -2746,16 +2746,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_VrCYw_1790788413432",
         "rating": 1259,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1554904035096657940,
+      "message_id": 1554904049587986453,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790788413.42686,
-      "last_feedback": "✅ **Nf7+** — solved! Score: **1**."
+      "last_card_activity_at": 1790788419.946544,
+      "last_feedback": "✅ **Nxf4** • Opponent: **Qxf4**"
     },
     "362606514764251137": {
       "active": false,
