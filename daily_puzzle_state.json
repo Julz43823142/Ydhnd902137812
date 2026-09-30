@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/5br4P",
     "title": "Lichess • 1988",
     "fen": "6k1/5p1p/p5p1/3Pq3/PQP5/6Pb/5P1P/3rR1K1 w - - 3 31",
-    "current_fen": "1Q6/5pkp/p5p1/3P4/P1P1q3/6Pb/5P1P/3R2K1 w - - 3 33",
-    "last_move_uci": "g8g7",
+    "current_fen": "8/5pkp/p5p1/3P4/P1P1q3/6Pb/1Q3P1P/3R2K1 b - - 4 33",
+    "last_move_uci": "b8b2",
     "pgn": "Rxd1 Qe4 Qb8+ Kg7 Qb2+",
     "all_moves": [
       {
@@ -58,16 +58,16 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_5br4P_1790761561766",
-    "last_activity_at": "2026-09-30T09:46:46.497191+00:00",
+    "last_activity_at": "2026-09-30T09:46:49.591972+00:00",
     "rating": 1988,
     "rp_band": 2,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 4,
-    "next_player_index": 2,
-    "solved": false,
+    "next_solution_index": 5,
+    "next_player_index": 3,
+    "solved": true,
     "message_ids": {
       "1468320170891022417": 1554791612159234069
     },
@@ -77,17 +77,17 @@
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "qb8",
+        "move": "qb2",
         "correct": true,
-        "timestamp": "2026-09-30T09:46:46.497433+00:00"
+        "timestamp": "2026-09-30T09:46:49.592406+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
     "first_move_user_name": "Thice",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-30T09:46:46.497191+00:00",
+    "last_card_activity_at": "2026-09-30T09:46:49.591972+00:00",
     "recent_accepted_moves": [
       {
         "accepted_at": 1790761606.4974394,
@@ -98,6 +98,16 @@
           "color": "white"
         },
         "accepted_uci": "b4b8"
+      },
+      {
+        "accepted_at": 1790761609.5924127,
+        "fen_before": "1Q6/5pkp/p5p1/3P4/P1P1q3/6Pb/5P1P/3R2K1 w - - 3 33",
+        "expected": {
+          "uci": "b8b2",
+          "san": "Qb2+",
+          "color": "white"
+        },
+        "accepted_uci": "b8b2"
       }
     ],
     "accepted_solution_moves": [
@@ -110,6 +120,11 @@
         "san": "Qb8+",
         "uci": "b4b8",
         "principal": true
+      },
+      {
+        "san": "Qb2+",
+        "uci": "b8b2",
+        "principal": true
       }
     ],
     "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kg7",
@@ -117,7 +132,7 @@
       "442597396195704832": 1
     }
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-09-30",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-30",
