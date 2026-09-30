@@ -300,16 +300,18 @@
   },
   "386134006170910721": {
     "active_arrow": "green",
-    "active_badge": "",
+    "active_badge": "👑",
     "active_board": "classic",
     "active_color": "purple",
     "active_piece": "classic",
     "active_profile_theme": "purple",
     "active_survival_heart_style": "classic",
     "arrows": [],
-    "badges": [],
+    "badges": [
+      "👑"
+    ],
     "boards": [],
-    "coins": 54.5,
+    "coins": 4.5,
     "colors": [
       "purple"
     ],
