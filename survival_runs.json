@@ -739,9 +739,9 @@
     },
     "mh": {
       "name": "mh",
-      "best_puzzle": 3,
+      "best_puzzle": 4,
       "best_difficulty": 1365,
-      "best_completed_at": "2026-09-30T12:55:52.707035+00:00",
+      "best_completed_at": "2026-09-30T12:56:24.295883+00:00",
       "current": {
         "run_id": "mh:1790772808",
         "started_by_id": "442597396195704832",
@@ -758,7 +758,8 @@
         "used_puzzle_ids": [
           "80vk0",
           "JqMJA",
-          "llsIl"
+          "llsIl",
+          "6nBPi"
         ],
         "members": {
           "442597396195704832": {
@@ -767,7 +768,43 @@
             "wrong": 0
           }
         },
-        "puzzle": null,
+        "puzzle": {
+          "id": "6nBPi",
+          "rating": 1281,
+          "themes": "",
+          "url": "https://lichess.org/training/6nBPi",
+          "start_fen": "4Q3/6pk/p5rp/1p6/4p3/1B1q2P1/P4P1P/5K2 w - - 1 37",
+          "current_fen": "4Q3/6pk/p5rp/1p6/4p3/1B1q2P1/P4P1P/5K2 w - - 1 37",
+          "solution": [
+            {
+              "uci": "f1g2",
+              "san": "Kg2",
+              "color": "white"
+            },
+            {
+              "uci": "d3b3",
+              "san": "Qxb3",
+              "color": "black"
+            },
+            {
+              "uci": "a2b3",
+              "san": "axb3",
+              "color": "white"
+            }
+          ],
+          "player_color": "white",
+          "next_solution_index": 0,
+          "first_solver_id": null,
+          "first_solver_name": null,
+          "helper_candidates": {},
+          "helper_awarded": [],
+          "wrong_users": [],
+          "rated_users": [],
+          "setup_move_uci": "d2d3",
+          "last_move_uci": "d2d3",
+          "last_move_san": null,
+          "accepted_moves": []
+        },
         "first_solver_id": null,
         "first_solver_name": null,
         "helper_candidates": {},
