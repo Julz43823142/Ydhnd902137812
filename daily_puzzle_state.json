@@ -2698,7 +2698,7 @@
       "run_id": "rush:442597396195704832:1790776129039",
       "end_at": 1790776429.0390701,
       "score": 6,
-      "wrong": 1,
+      "wrong": 2,
       "mistakes": [
         {
           "puzzle_number": 4,
@@ -2716,64 +2716,81 @@
             "arrow_theme": "pink"
           },
           "recorded_at": 1790776159.9760468
+        },
+        {
+          "puzzle_number": 8,
+          "submitted": "bxc7",
+          "correct": "Bxd7",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_XRFYT_1790776196605",
+            "fen": "q4rk1/3Rppb1/6p1/p3p1Bp/Q1p1b2P/6P1/P2N1P2/5BK1 b - - 2 24",
+            "current_fen": "q4rk1/3Rppb1/2b3p1/p3p1Bp/2Q4P/6P1/P2N1P2/5BK1 b - - 0 25",
+            "last_move_uci": "a4c4",
+            "player_color": "black",
+            "rating": 1442,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1790776206.3026316
         }
       ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/XRFYT",
-        "title": "Lichess • 1442",
-        "fen": "q4rk1/3Rppb1/6p1/p3p1Bp/Q1p1b2P/6P1/P2N1P2/5BK1 b - - 2 24",
-        "current_fen": "q4rk1/3Rppb1/2b3p1/p3p1Bp/2Q4P/6P1/P2N1P2/5BK1 b - - 0 25",
-        "last_move_uci": "a4c4",
-        "pgn": "Bc6 Qxc4 Bxd7",
+        "url": "https://lichess.org/training/Hmz5i",
+        "title": "Lichess • 1485",
+        "fen": "r1br2k1/pp2ppbp/6p1/qB1QP3/8/8/P2B2PP/R4R1K w - - 4 19",
+        "current_fen": "r1br2k1/pp2ppbp/6p1/qB1QP3/8/8/P2B2PP/R4R1K w - - 4 19",
+        "last_move_uci": "f8d8",
+        "pgn": "Qxf7+ Kh8 Bxa5",
         "all_moves": [
           {
-            "uci": "e4c6",
-            "san": "Bc6",
-            "color": "black"
-          },
-          {
-            "uci": "a4c4",
-            "san": "Qxc4",
+            "uci": "d5f7",
+            "san": "Qxf7+",
             "color": "white"
           },
           {
-            "uci": "c6d7",
-            "san": "Bxd7",
+            "uci": "g8h8",
+            "san": "Kh8",
             "color": "black"
+          },
+          {
+            "uci": "d2a5",
+            "san": "Bxa5",
+            "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "e4c6",
-            "san": "Bc6",
-            "color": "black"
+            "uci": "d5f7",
+            "san": "Qxf7+",
+            "color": "white"
           },
           {
-            "uci": "c6d7",
-            "san": "Bxd7",
-            "color": "black"
+            "uci": "d2a5",
+            "san": "Bxa5",
+            "color": "white"
           }
         ],
-        "player_color": "black",
+        "player_color": "white",
         "player_move_count": 2,
-        "posted_at": "2026-09-30T13:49:56.605236+00:00",
+        "posted_at": "2026-09-30T13:50:06.307512+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_XRFYT_1790776196605",
-        "rating": 1442,
-        "next_solution_index": 2,
+        "puzzle_id": "practice_rush_442597396195704832_Hmz5i_1790776206307",
+        "rating": 1485,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1554852807625019482,
+      "message_id": 1554852833319198761,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790776202.7850428,
-      "last_feedback": "✅ **Bc6** • Opponent: **Qxc4**"
+      "last_card_activity_at": 1790776206.3018467,
+      "last_feedback": "❌ **bxc7** was wrong. Correct move: **Bxd7**."
     },
     "362606514764251137": {
       "active": false,
