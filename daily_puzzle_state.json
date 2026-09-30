@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/6T41r",
     "title": "Lichess • 2235",
     "fen": "2k1rb1r/1bp3q1/pp3n2/4QpB1/2P5/2N5/PP4PP/3R1RK1 w - - 0 21",
-    "current_fen": "2k1rb1r/1bp3q1/pp3n2/4QpB1/2P5/2N5/PP4PP/3R1RK1 w - - 0 21",
-    "last_move_uci": "e6f5",
+    "current_fen": "2kRnb1r/1bp3q1/pp6/5pB1/2P5/2N5/PP4PP/5RK1 b - - 1 22",
+    "last_move_uci": "d1d8",
     "pgn": "Qxe8+ Nxe8 Rd8#",
     "all_moves": [
       {
@@ -43,26 +43,71 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_6T41r_1790796181442",
-    "last_activity_at": "2026-09-30T19:23:01.442790+00:00",
+    "last_activity_at": "2026-09-30T19:23:11.008040+00:00",
     "rating": 2235,
     "rp_band": 3,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 0,
-    "next_player_index": 0,
-    "solved": false,
-    "message_ids": {},
-    "message_id": null,
+    "next_solution_index": 3,
+    "next_player_index": 2,
+    "solved": true,
+    "message_ids": {
+      "1468320170891022417": 1554936668723879937
+    },
+    "message_id": 1554936668723879937,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "attempted_users": {
+      "442597396195704832": {
+        "name": "Thice",
+        "move": "rd8",
+        "correct": true,
+        "timestamp": "2026-09-30T19:23:11.008694+00:00"
+      }
+    },
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "last_card_activity_at": "2026-09-30T19:23:11.008040+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1790796189.4428582,
+        "fen_before": "2k1rb1r/1bp3q1/pp3n2/4QpB1/2P5/2N5/PP4PP/3R1RK1 w - - 0 21",
+        "expected": {
+          "uci": "e5e8",
+          "san": "Qxe8+",
+          "color": "white"
+        },
+        "accepted_uci": "e5e8"
+      },
+      {
+        "accepted_at": 1790796191.008702,
+        "fen_before": "2k1nb1r/1bp3q1/pp6/5pB1/2P5/2N5/PP4PP/3R1RK1 w - - 0 22",
+        "expected": {
+          "uci": "d1d8",
+          "san": "Rd8#",
+          "color": "white"
+        },
+        "accepted_uci": "d1d8"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "Qxe8+",
+        "uci": "e5e8",
+        "principal": true
+      },
+      {
+        "san": "Rd8#",
+        "uci": "d1d8",
+        "principal": true
+      }
+    ],
+    "last_feedback": "✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\nUpdating stats and rewards…"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-09-30",
