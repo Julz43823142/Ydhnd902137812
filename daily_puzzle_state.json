@@ -1,88 +1,73 @@
 {
   "latest_random_puzzle": {
-    "url": "https://lichess.org/training/aCCwA",
-    "title": "Lichess • 2240",
-    "fen": "1r3r1k/6pp/3b3q/2pB1p2/P5n1/2B1PP2/1P4RP/R2Q3K b - - 0 26",
-    "current_fen": "1r3r1k/6pp/3b3q/2pB1p2/P5n1/2B1PP2/1P4RP/R2Q3K b - - 0 26",
-    "last_move_uci": "f2f3",
-    "pgn": "Bxh2 fxg4 Bf4+ Kg1 Bxe3+",
+    "url": "https://lichess.org/training/aAYx2",
+    "title": "Lichess • 2440",
+    "fen": "2R5/4r2p/1PB2npk/2p3q1/4p1P1/2Q2p1P/5P2/6K1 w - - 1 42",
+    "current_fen": "2R5/4r2p/1PB2npk/2p3q1/4p1P1/2Q2p1P/5P2/6K1 w - - 1 42",
+    "last_move_uci": "h5f6",
+    "pgn": "Qe3 Qxe3 fxe3",
     "all_moves": [
       {
-        "uci": "d6h2",
-        "san": "Bxh2",
-        "color": "black"
-      },
-      {
-        "uci": "f3g4",
-        "san": "fxg4",
+        "uci": "c3e3",
+        "san": "Qe3",
         "color": "white"
       },
       {
-        "uci": "h2f4",
-        "san": "Bf4+",
+        "uci": "g5e3",
+        "san": "Qxe3",
         "color": "black"
       },
       {
-        "uci": "h1g1",
-        "san": "Kg1",
+        "uci": "f2e3",
+        "san": "fxe3",
         "color": "white"
-      },
-      {
-        "uci": "f4e3",
-        "san": "Bxe3+",
-        "color": "black"
       }
     ],
     "player_moves": [
       {
-        "uci": "d6h2",
-        "san": "Bxh2",
-        "color": "black"
+        "uci": "c3e3",
+        "san": "Qe3",
+        "color": "white"
       },
       {
-        "uci": "h2f4",
-        "san": "Bf4+",
-        "color": "black"
-      },
-      {
-        "uci": "f4e3",
-        "san": "Bxe3+",
-        "color": "black"
+        "uci": "f2e3",
+        "san": "fxe3",
+        "color": "white"
       }
     ],
-    "player_color": "black",
-    "player_move_count": 3,
-    "posted_at": "2026-09-30T12:31:35.150430+00:00",
-    "answer_posted": true,
+    "player_color": "white",
+    "player_move_count": 2,
+    "posted_at": "2026-09-30T12:37:47.895159+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "random_aCCwA_1790771495150",
-    "last_activity_at": "2026-09-30T12:31:35.150430+00:00",
-    "rating": 2240,
-    "rp_band": 3,
+    "puzzle_id": "practice_aAYx2_442597396195704832_1790771867895",
+    "last_activity_at": "2026-09-30T12:37:47.895159+00:00",
+    "rating": 2440,
+    "rp_band": 4,
     "boss": false,
-    "board_theme": "classic",
+    "practice_only": true,
+    "rated_practice": true,
+    "practice_owner_id": "442597396195704832",
+    "practice_owner_name": "Thice",
+    "chat_since_refresh": 0,
+    "board_theme": "blue",
     "piece_theme": "classic",
-    "arrow_theme": "green",
+    "arrow_theme": "pink",
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_ids": {
-      "1468320170891022417": 1554833088385646592
-    },
-    "message_id": 1554833088385646592,
-    "channel_id": 1468320170891022417,
-    "chat_since_refresh": 0,
+    "message_id": null,
     "attempted_users": {},
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Bxh2 Bf4+ Bxe3+"
+    "channel_id": 1468320170891022417
   },
-  "latest_puzzle_type": "daily",
+  "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-09-30",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-09-30",
