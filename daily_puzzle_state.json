@@ -2730,8 +2730,8 @@
         "url": "https://lichess.org/training/uBHHg",
         "title": "Lichess • 1483",
         "fen": "3r1kr1/5pp1/2QP3p/4p3/2P1P1Bq/pP5P/P7/1K1R2R1 b - - 0 32",
-        "current_fen": "3r1kr1/5pp1/2QP3p/4p3/2P1P1Bq/pP5P/P7/1K1R2R1 b - - 0 32",
-        "last_move_uci": "d5d6",
+        "current_fen": "3r1kr1/5pp1/2QP3p/4p3/2P1P1B1/pP5P/P2R1q2/1K4R1 b - - 2 33",
+        "last_move_uci": "d1d2",
         "pgn": "Qf2 Rd2 Qxd2",
         "all_moves": [
           {
@@ -2771,16 +2771,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_uBHHg_1790763545375",
         "rating": 1483,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1554799733665439837,
+      "message_id": 1554799745090981889,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790763545.3705587,
-      "last_feedback": "✅ **Qxf1#** — solved! Score: **8**."
+      "last_card_activity_at": 1790763558.8581696,
+      "last_feedback": "✅ **Qf2** • Opponent: **Rd2**"
     },
     "362606514764251137": {
       "active": false,
