@@ -476,7 +476,7 @@
     "442597396195704832": {
       "best_streak": 21,
       "correct": 243,
-      "current_streak": 8,
+      "current_streak": 0,
       "name": "Thice",
       "targets": {
         "chatter": {
@@ -579,8 +579,8 @@
         "chess": {
           "Adelson": {
             "correct": 9,
-            "total": 15,
-            "wrong": 6
+            "total": 16,
+            "wrong": 7
           },
           "Jesse": {
             "correct": 7,
@@ -634,9 +634,9 @@
           }
         }
       },
-      "total": 367,
-      "updated_at": 1790791833,
-      "wrong": 124
+      "total": 368,
+      "updated_at": 1790791861,
+      "wrong": 125
     },
     "550338389535227926": {
       "best_streak": 0,
