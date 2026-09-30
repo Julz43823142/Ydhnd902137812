@@ -739,9 +739,9 @@
     },
     "mh": {
       "name": "mh",
-      "best_puzzle": 2,
+      "best_puzzle": 3,
       "best_difficulty": 1365,
-      "best_completed_at": "2026-09-30T12:55:09.803357+00:00",
+      "best_completed_at": "2026-09-30T12:55:52.707035+00:00",
       "current": {
         "run_id": "mh:1790772808",
         "started_by_id": "442597396195704832",
@@ -757,7 +757,8 @@
         "best_difficulty": 1365,
         "used_puzzle_ids": [
           "80vk0",
-          "JqMJA"
+          "JqMJA",
+          "llsIl"
         ],
         "members": {
           "442597396195704832": {
@@ -766,7 +767,43 @@
             "wrong": 0
           }
         },
-        "puzzle": null,
+        "puzzle": {
+          "id": "llsIl",
+          "rating": 1262,
+          "themes": "",
+          "url": "https://lichess.org/training/llsIl",
+          "start_fen": "5bk1/Q1pbqppp/2p1r3/2BpP3/1r6/2N2P2/P1P3PP/1R3RK1 b - - 1 19",
+          "current_fen": "5bk1/Q1pbqppp/2p1r3/2BpP3/1r6/2N2P2/P1P3PP/1R3RK1 b - - 1 19",
+          "solution": [
+            {
+              "uci": "e7c5",
+              "san": "Qxc5+",
+              "color": "black"
+            },
+            {
+              "uci": "a7c5",
+              "san": "Qxc5",
+              "color": "white"
+            },
+            {
+              "uci": "f8c5",
+              "san": "Bxc5+",
+              "color": "black"
+            }
+          ],
+          "player_color": "black",
+          "next_solution_index": 0,
+          "first_solver_id": null,
+          "first_solver_name": null,
+          "helper_candidates": {},
+          "helper_awarded": [],
+          "wrong_users": [],
+          "rated_users": [],
+          "setup_move_uci": "e3c5",
+          "last_move_uci": "e3c5",
+          "last_move_san": null,
+          "accepted_moves": []
+        },
         "first_solver_id": null,
         "first_solver_name": null,
         "helper_candidates": {},
