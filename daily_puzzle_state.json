@@ -2705,8 +2705,8 @@
         "url": "https://lichess.org/training/g7KC8",
         "title": "Lichess • 1362",
         "fen": "3r4/ppp2kpp/4bn2/2b1p3/4P3/1PP5/1PBB1PPP/R3K2R b KQ - 2 20",
-        "current_fen": "3r4/ppp2kpp/4bn2/2b1p3/4P3/1PP5/1PBB1PPP/R3K2R b KQ - 2 20",
-        "last_move_uci": "d3c2",
+        "current_fen": "3r4/ppp2kpp/4bn2/4p3/4P3/1PP5/1PBB1KPP/R6R b - - 0 21",
+        "last_move_uci": "e1f2",
         "pgn": "Bxf2+ Kxf2 Rxd2+",
         "all_moves": [
           {
@@ -2746,16 +2746,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_g7KC8_1790788434780",
         "rating": 1362,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1554904117829173319,
+      "message_id": 1554904138867941579,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790788434.7742307,
-      "last_feedback": "✅ **Kh7** — solved! Score: **3**."
+      "last_card_activity_at": 1790788442.7654967,
+      "last_feedback": "✅ **Bxf2+** • Opponent: **Kxf2**"
     },
     "362606514764251137": {
       "active": false,
