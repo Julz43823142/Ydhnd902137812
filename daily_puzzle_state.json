@@ -2698,64 +2698,67 @@
       "run_id": "rush:442597396195704832:1790776129039",
       "end_at": 1790776429.0390701,
       "score": 3,
-      "wrong": 0,
-      "mistakes": [],
+      "wrong": 1,
+      "mistakes": [
+        {
+          "puzzle_number": 4,
+          "submitted": "nfg4",
+          "correct": "N6g4+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_XfJFJ_1790776147831",
+            "fen": "5r1k/ppp3bp/1q1p1n2/3Pp3/2P1P1n1/1P6/P1B3Q1/2B1R1RK b - - 9 29",
+            "current_fen": "5r1k/ppp3bp/1q1p1n2/3Pp3/2P1P3/1P6/P1B2nQK/2B1R1R1 b - - 11 30",
+            "last_move_uci": "h1h2",
+            "player_color": "black",
+            "rating": 1290,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1790776159.9760468
+        }
+      ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/XfJFJ",
-        "title": "Lichess • 1290",
-        "fen": "5r1k/ppp3bp/1q1p1n2/3Pp3/2P1P1n1/1P6/P1B3Q1/2B1R1RK b - - 9 29",
-        "current_fen": "5r1k/ppp3bp/1q1p1n2/3Pp3/2P1P3/1P6/P1B2nQK/2B1R1R1 b - - 11 30",
-        "last_move_uci": "h1h2",
-        "pgn": "Nf2+ Kh2 N6g4+",
+        "url": "https://lichess.org/training/RiRQY",
+        "title": "Lichess • 1355",
+        "fen": "5b1r/1p3ppp/p3kn2/1NB1p3/4P3/8/PPP3PP/2KR4 w - - 4 18",
+        "current_fen": "5b1r/1p3ppp/p3kn2/1NB1p3/4P3/8/PPP3PP/2KR4 w - - 4 18",
+        "last_move_uci": "e7e6",
+        "pgn": "Nc7#",
         "all_moves": [
           {
-            "uci": "g4f2",
-            "san": "Nf2+",
-            "color": "black"
-          },
-          {
-            "uci": "h1h2",
-            "san": "Kh2",
+            "uci": "b5c7",
+            "san": "Nc7#",
             "color": "white"
-          },
-          {
-            "uci": "f6g4",
-            "san": "N6g4+",
-            "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "g4f2",
-            "san": "Nf2+",
-            "color": "black"
-          },
-          {
-            "uci": "f6g4",
-            "san": "N6g4+",
-            "color": "black"
+            "uci": "b5c7",
+            "san": "Nc7#",
+            "color": "white"
           }
         ],
-        "player_color": "black",
-        "player_move_count": 2,
-        "posted_at": "2026-09-30T13:49:07.831042+00:00",
+        "player_color": "white",
+        "player_move_count": 1,
+        "posted_at": "2026-09-30T13:49:19.981248+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_XfJFJ_1790776147831",
-        "rating": 1290,
-        "next_solution_index": 2,
+        "puzzle_id": "practice_rush_442597396195704832_RiRQY_1790776159981",
+        "rating": 1355,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1554852603966259253,
+      "message_id": 1554852634853376009,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790776155.604323,
-      "last_feedback": "✅ **Nf2+** • Opponent: **Kh2**"
+      "last_card_activity_at": 1790776159.9751132,
+      "last_feedback": "❌ **nfg4** was wrong. Correct move: **N6g4+**."
     },
     "362606514764251137": {
       "active": false,
