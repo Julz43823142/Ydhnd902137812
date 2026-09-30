@@ -2705,8 +2705,8 @@
         "url": "https://lichess.org/training/Yj7ed",
         "title": "Lichess • 1803",
         "fen": "2kr1b1r/pp3pp1/2p1pqp1/8/2PP1nP1/1B2B2Q/PP3P1P/R4RK1 w - - 1 21",
-        "current_fen": "2kr1b1r/pp3pp1/2p1pqp1/8/2PP1nP1/1B2B2Q/PP3P1P/R4RK1 w - - 1 21",
-        "last_move_uci": "h5f4",
+        "current_fen": "2kr1b1Q/pp3pp1/2p1pqp1/8/2PP2P1/1B2B3/PP2nP1P/R4RK1 w - - 1 22",
+        "last_move_uci": "f4e2",
         "pgn": "Qxh8 Ne2+ Kg2",
         "all_moves": [
           {
@@ -2746,16 +2746,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_Yj7ed_1790788589322",
         "rating": 1803,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1554904776917909605,
+      "message_id": 1554904787286360155,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790788589.3162372,
-      "last_feedback": "✅ **Rxf8#** — solved! Score: **16**."
+      "last_card_activity_at": 1790788598.39551,
+      "last_feedback": "✅ **Qxh8** • Opponent: **Ne2+**"
     },
     "362606514764251137": {
       "active": false,
