@@ -584,8 +584,8 @@
           },
           "Jesse": {
             "correct": 7,
-            "total": 12,
-            "wrong": 5
+            "total": 13,
+            "wrong": 6
           },
           "Lars": {
             "correct": 20,
@@ -634,9 +634,9 @@
           }
         }
       },
-      "total": 368,
-      "updated_at": 1790791861,
-      "wrong": 125
+      "total": 369,
+      "updated_at": 1790791974,
+      "wrong": 126
     },
     "550338389535227926": {
       "best_streak": 0,
