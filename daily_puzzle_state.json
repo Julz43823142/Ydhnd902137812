@@ -2730,8 +2730,8 @@
         "url": "https://lichess.org/training/1d5x9",
         "title": "Lichess • 1590",
         "fen": "rn1qkb1r/1p1b1ppp/p4n2/3N4/2BN1P2/4B3/PPP3PP/R2QK2R b KQkq - 0 10",
-        "current_fen": "rn1qkb1r/1p1b1ppp/p7/3B4/3N1P2/4B3/PPP3PP/R2QK2R b KQkq - 0 11",
-        "last_move_uci": "c4d5",
+        "current_fen": "rn2kb1r/1p1b1ppp/p7/q2B4/3N1P2/8/PPPB2PP/R2QK2R b KQkq - 2 12",
+        "last_move_uci": "e3d2",
         "pgn": "Nxd5 Bxd5 Qa5+ Bd2 Qxd5",
         "all_moves": [
           {
@@ -2786,16 +2786,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_1d5x9_1790763571197",
         "rating": 1590,
-        "next_solution_index": 2,
+        "next_solution_index": 4,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1554799853651886101,
+      "message_id": 1554799881032437840,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790763578.1408863,
-      "last_feedback": "✅ **Nxd5** • Opponent: **Bxd5**"
+      "last_card_activity_at": 1790763580.3970013,
+      "last_feedback": "✅ **Qa5+** • Opponent: **Bd2**"
     },
     "362606514764251137": {
       "active": false,
