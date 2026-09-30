@@ -1,0 +1,15 @@
+{
+  "after_coins": 35.0,
+  "before_coins": 34.0,
+  "created_at": 1790770384,
+  "created_at_ns": 1790770384346232732,
+  "details": {
+    "credited": 1.0,
+    "source": "puzzle-achievement"
+  },
+  "display_name": "mh",
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "coin-credit",
+  "transaction_id": "puzzle-achievement:386134006170910721:first_steps",
+  "user_id": "386134006170910721"
+}
