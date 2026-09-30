@@ -2698,7 +2698,7 @@
       "run_id": "rush:442597396195704832:1790788406122",
       "end_at": 1790788706.1228375,
       "score": 20,
-      "wrong": 1,
+      "wrong": 2,
       "mistakes": [
         {
           "puzzle_number": 20,
@@ -2716,79 +2716,96 @@
             "arrow_theme": "pink"
           },
           "recorded_at": 1790788630.3936968
+        },
+        {
+          "puzzle_number": 22,
+          "submitted": "ng5",
+          "correct": "Qxf7+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_ALnqC_1790788652138",
+            "fen": "4Q3/p4p1k/4r1p1/5n1p/2q5/4p2N/1P4PP/4R2K w - - 2 37",
+            "current_fen": "4Q3/p4p1k/4r1p1/5n1p/2q5/4p2N/1P4PP/4R2K w - - 2 37",
+            "last_move_uci": "c6e6",
+            "player_color": "white",
+            "rating": 1955,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1790788656.3057425
         }
       ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/ALnqC",
-        "title": "Lichess • 1955",
-        "fen": "4Q3/p4p1k/4r1p1/5n1p/2q5/4p2N/1P4PP/4R2K w - - 2 37",
-        "current_fen": "4Q3/p4p1k/4r1p1/5n1p/2q5/4p2N/1P4PP/4R2K w - - 2 37",
-        "last_move_uci": "c6e6",
-        "pgn": "Qxf7+ Ng7 Ng5+ Kh6 Nxe6",
+        "url": "https://lichess.org/training/huEel",
+        "title": "Lichess • 1986",
+        "fen": "r3k1r1/4n1qp/p1p1Q3/3p3b/8/2N5/PPP2PPP/R3R1K1 w q - 3 19",
+        "current_fen": "r3k1r1/4n1qp/p1p1Q3/3p3b/8/2N5/PPP2PPP/R3R1K1 w q - 3 19",
+        "last_move_uci": "h8g8",
+        "pgn": "Qxc6+ Kf8 Qxa8+ Be8 g3",
         "all_moves": [
           {
-            "uci": "e8f7",
-            "san": "Qxf7+",
+            "uci": "e6c6",
+            "san": "Qxc6+",
             "color": "white"
           },
           {
-            "uci": "f5g7",
-            "san": "Ng7",
+            "uci": "e8f8",
+            "san": "Kf8",
             "color": "black"
           },
           {
-            "uci": "h3g5",
-            "san": "Ng5+",
+            "uci": "c6a8",
+            "san": "Qxa8+",
             "color": "white"
           },
           {
-            "uci": "h7h6",
-            "san": "Kh6",
+            "uci": "h5e8",
+            "san": "Be8",
             "color": "black"
           },
           {
-            "uci": "g5e6",
-            "san": "Nxe6",
+            "uci": "g2g3",
+            "san": "g3",
             "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "e8f7",
-            "san": "Qxf7+",
+            "uci": "e6c6",
+            "san": "Qxc6+",
             "color": "white"
           },
           {
-            "uci": "h3g5",
-            "san": "Ng5+",
+            "uci": "c6a8",
+            "san": "Qxa8+",
             "color": "white"
           },
           {
-            "uci": "g5e6",
-            "san": "Nxe6",
+            "uci": "g2g3",
+            "san": "g3",
             "color": "white"
           }
         ],
         "player_color": "white",
         "player_move_count": 3,
-        "posted_at": "2026-09-30T17:17:32.138377+00:00",
+        "posted_at": "2026-09-30T17:17:36.311200+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_ALnqC_1790788652138",
-        "rating": 1955,
+        "puzzle_id": "practice_rush_442597396195704832_huEel_1790788656311",
+        "rating": 1986,
         "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1554905027628245036,
+      "message_id": 1554905050466484274,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790788652.1323361,
-      "last_feedback": "✅ **Qxd1** — solved! Score: **20**."
+      "last_card_activity_at": 1790788656.305174,
+      "last_feedback": "❌ **ng5** was wrong. Correct move: **Qxf7+**."
     },
     "362606514764251137": {
       "active": false,
