@@ -2705,8 +2705,8 @@
         "url": "https://lichess.org/training/91AP4",
         "title": "Lichess • 1434",
         "fen": "r2q1rk1/pb1nbppp/1pn1p3/2ppN3/3P1P2/2PBPR2/PP1N2PP/R1BQ2K1 w - - 8 11",
-        "current_fen": "r2q1r2/pb1nbppk/1pn1p3/2ppN3/3P1P2/2P1PR2/PP1N2PP/R1BQ2K1 w - - 0 12",
-        "last_move_uci": "g8h7",
+        "current_fen": "r2q1rk1/pb1nbpp1/1pn1p3/2ppN3/3P1P2/2P1P2R/PP1N2PP/R1BQ2K1 w - - 2 13",
+        "last_move_uci": "h7g8",
         "pgn": "Bxh7+ Kxh7 Rh3+ Kg8 Qh5",
         "all_moves": [
           {
@@ -2761,16 +2761,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_91AP4_1790788453832",
         "rating": 1434,
-        "next_solution_index": 2,
+        "next_solution_index": 4,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1554904218123509902,
+      "message_id": 1554904242161193091,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790788459.898764,
-      "last_feedback": "✅ **Bxh7+** • Opponent: **Kxh7**"
+      "last_card_activity_at": 1790788461.653835,
+      "last_feedback": "✅ **Rh3+** • Opponent: **Kg8**"
     },
     "362606514764251137": {
       "active": false,
