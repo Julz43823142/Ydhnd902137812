@@ -1,0 +1,21 @@
+{
+  "boss": false,
+  "correct": true,
+  "created_at": 1790771403,
+  "display_name": "mh",
+  "elo_after": 1635.778,
+  "elo_change": 31.942,
+  "new_achievements": [
+    "getting_warm",
+    "on_fire",
+    "giant_hunter"
+  ],
+  "puzzle_id": "random_0w1va_1790771246515",
+  "puzzle_rating": 2701,
+  "source": "random",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 5,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:random_0w1va_1790771246515:386134006170910721",
+  "user_id": "386134006170910721"
+}
