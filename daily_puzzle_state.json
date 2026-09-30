@@ -53,8 +53,10 @@
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_ids": {},
-    "message_id": null,
+    "message_ids": {
+      "1468320170891022417": 1554838292002906182
+    },
+    "message_id": 1554838292002906182,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {},
@@ -4085,8 +4087,8 @@
   "bot_ideas_ticket_counter_v1": 14,
   "bot_ideas_idle_v1": {
     "last_activity_at": 1790770930.6391163,
-    "reminder_sent": false,
-    "reminder_message_id": "1553820661393264701",
+    "reminder_sent": true,
+    "reminder_message_id": "1554838311636435066",
     "tickets_since_prompt": 0
   },
   "bot_ideas_panel_message_id_v1": "1546854821351395401",
