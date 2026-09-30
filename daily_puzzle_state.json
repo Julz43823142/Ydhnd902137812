@@ -2697,65 +2697,65 @@
       "started_at": 1790788406.1228375,
       "run_id": "rush:442597396195704832:1790788406122",
       "end_at": 1790788706.1228375,
-      "score": 10,
+      "score": 11,
       "wrong": 0,
       "mistakes": [],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/oBjf0",
-        "title": "Lichess • 1616",
-        "fen": "8/5kp1/p1PQ3p/4n3/P4q2/8/2P1B1PP/6K1 b - - 0 32",
-        "current_fen": "8/5kp1/p1PQ3p/8/P4q2/5B2/2P3PP/6K1 b - - 0 33",
-        "last_move_uci": "e2f3",
-        "pgn": "Nf3+ Bxf3 Qxd6",
+        "url": "https://lichess.org/training/ZinLU",
+        "title": "Lichess • 1685",
+        "fen": "rn1q1rk1/pbpp2pp/1p2p3/8/1bPPn1p1/2N1PN2/PPQBBP1P/R3K2R w KQ - 0 10",
+        "current_fen": "rn1q1rk1/pbpp2pp/1p2p3/8/1bPPn1p1/2N1PN2/PPQBBP1P/R3K2R w KQ - 0 10",
+        "last_move_uci": "f5g4",
+        "pgn": "Nxe4 gxf3 Bxb4",
         "all_moves": [
           {
-            "uci": "e5f3",
-            "san": "Nf3+",
-            "color": "black"
-          },
-          {
-            "uci": "e2f3",
-            "san": "Bxf3",
+            "uci": "c3e4",
+            "san": "Nxe4",
             "color": "white"
           },
           {
-            "uci": "f4d6",
-            "san": "Qxd6",
+            "uci": "g4f3",
+            "san": "gxf3",
             "color": "black"
+          },
+          {
+            "uci": "d2b4",
+            "san": "Bxb4",
+            "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "e5f3",
-            "san": "Nf3+",
-            "color": "black"
+            "uci": "c3e4",
+            "san": "Nxe4",
+            "color": "white"
           },
           {
-            "uci": "f4d6",
-            "san": "Qxd6",
-            "color": "black"
+            "uci": "d2b4",
+            "san": "Bxb4",
+            "color": "white"
           }
         ],
-        "player_color": "black",
+        "player_color": "white",
         "player_move_count": 2,
-        "posted_at": "2026-09-30T17:15:10.811167+00:00",
+        "posted_at": "2026-09-30T17:15:19.084087+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_oBjf0_1790788510811",
-        "rating": 1616,
-        "next_solution_index": 2,
+        "puzzle_id": "practice_rush_442597396195704832_ZinLU_1790788519084",
+        "rating": 1685,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1554904457928515605,
+      "message_id": 1554904480909230172,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790788516.120335,
-      "last_feedback": "✅ **Nf3+** • Opponent: **Bxf3**"
+      "last_card_activity_at": 1790788519.0782633,
+      "last_feedback": "✅ **Qxd6** — solved! Score: **11**."
     },
     "362606514764251137": {
       "active": false,
