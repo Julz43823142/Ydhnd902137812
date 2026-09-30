@@ -475,8 +475,8 @@
     },
     "442597396195704832": {
       "best_streak": 21,
-      "correct": 237,
-      "current_streak": 2,
+      "correct": 238,
+      "current_streak": 3,
       "name": "Thice",
       "targets": {
         "chatter": {
@@ -566,8 +566,8 @@
             "wrong": 8
           },
           "Sushi": {
-            "correct": 11,
-            "total": 21,
+            "correct": 12,
+            "total": 22,
             "wrong": 10
           },
           "Thejazzdude": {
@@ -634,8 +634,8 @@
           }
         }
       },
-      "total": 361,
-      "updated_at": 1790791569,
+      "total": 362,
+      "updated_at": 1790791602,
       "wrong": 124
     },
     "550338389535227926": {
