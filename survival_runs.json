@@ -754,10 +754,48 @@
         "paused_reason": null,
         "puzzle_number": 1,
         "strikes": 0,
-        "best_difficulty": 0,
-        "used_puzzle_ids": [],
+        "best_difficulty": 1365,
+        "used_puzzle_ids": [
+          "80vk0"
+        ],
         "members": {},
-        "puzzle": null,
+        "puzzle": {
+          "id": "80vk0",
+          "rating": 1365,
+          "themes": "",
+          "url": "https://lichess.org/training/80vk0",
+          "start_fen": "2k2br1/pp1r1p1p/2qp1B2/6p1/5p2/1P3R2/P1P3PP/R2Q3K w - - 5 19",
+          "current_fen": "2k2br1/pp1r1p1p/2qp1B2/6p1/5p2/1P3R2/P1P3PP/R2Q3K w - - 5 19",
+          "solution": [
+            {
+              "uci": "f3c3",
+              "san": "Rc3",
+              "color": "white"
+            },
+            {
+              "uci": "c6c3",
+              "san": "Qxc3",
+              "color": "black"
+            },
+            {
+              "uci": "f6c3",
+              "san": "Bxc3",
+              "color": "white"
+            }
+          ],
+          "player_color": "white",
+          "next_solution_index": 0,
+          "first_solver_id": null,
+          "first_solver_name": null,
+          "helper_candidates": {},
+          "helper_awarded": [],
+          "wrong_users": [],
+          "rated_users": [],
+          "setup_move_uci": "d8d7",
+          "last_move_uci": "d8d7",
+          "last_move_san": null,
+          "accepted_moves": []
+        },
         "first_solver_id": null,
         "first_solver_name": null,
         "helper_candidates": {},
