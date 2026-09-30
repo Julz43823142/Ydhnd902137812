@@ -2730,8 +2730,8 @@
         "url": "https://lichess.org/training/5IgNb",
         "title": "Lichess • 1444",
         "fen": "1k6/pp1Q4/1q2p3/PB1p4/1P2n3/2P5/5PPP/6K1 b - - 0 33",
-        "current_fen": "1k6/pp1Q4/1q2p3/PB1p4/1P2n3/2P5/5PPP/6K1 b - - 0 33",
-        "last_move_uci": "a4a5",
+        "current_fen": "1k6/pp1Q4/4p3/PB1p4/1P2n3/2P5/5qPP/7K b - - 1 34",
+        "last_move_uci": "g1h1",
         "pgn": "Qxf2+ Kh1 Qe1+ Bf1 Qxf1#",
         "all_moves": [
           {
@@ -2786,16 +2786,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_5IgNb_1790763534315",
         "rating": 1444,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1554799650672873532,
+      "message_id": 1554799698877882388,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790763534.3106825,
-      "last_feedback": "✅ **h5** — solved! Score: **7**."
+      "last_card_activity_at": 1790763540.8965373,
+      "last_feedback": "✅ **Qxf2+** • Opponent: **Kh1**"
     },
     "362606514764251137": {
       "active": false,
