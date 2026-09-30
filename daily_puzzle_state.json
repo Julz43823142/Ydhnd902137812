@@ -8161,7 +8161,7 @@
   "twitch_live_notifications_v1": {
     "message_ids": [],
     "last_cleanup_at": "2026-09-30T04:00:29.925559+00:00",
-    "last_cleanup_date": "2026-09-29",
+    "last_cleanup_date": "2026-09-30",
     "last_started_at": "2026-09-29T18:46:20Z",
     "last_sent_at": "2026-09-29T18:46:50.075102+00:00",
     "channel_id": "1320033128676589669"
