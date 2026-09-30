@@ -2705,8 +2705,8 @@
         "url": "https://lichess.org/training/BoJVx",
         "title": "Lichess • 1948",
         "fen": "8/8/3k3p/1p3p2/3b4/1P1K1P2/6P1/8 w - - 0 53",
-        "current_fen": "8/8/3k3p/1p3p2/3b4/1P1K1P2/6P1/8 w - - 0 53",
-        "last_move_uci": "e5d4",
+        "current_fen": "8/8/3k3p/1p6/3K1p2/1P3P2/6P1/8 w - - 0 54",
+        "last_move_uci": "f5f4",
         "pgn": "Kxd4 f4 b4",
         "all_moves": [
           {
@@ -2746,16 +2746,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_BoJVx_1790788621975",
         "rating": 1948,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1554904909114245161,
+      "message_id": 1554904923357974569,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790788621.9697254,
-      "last_feedback": "✅ **f4#** — solved! Score: **19**."
+      "last_card_activity_at": 1790788626.7117767,
+      "last_feedback": "✅ **Kxd4** • Opponent: **f4**"
     },
     "362606514764251137": {
       "active": false,
