@@ -1,0 +1,15 @@
+{
+  "after_coins": 1.0,
+  "before_coins": 0.0,
+  "created_at": 1790771290,
+  "created_at_ns": 1790771290746048306,
+  "details": {
+    "credited": 1.0,
+    "source": "puzzle-achievement"
+  },
+  "display_name": "Sharkmeister",
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "coin-credit",
+  "transaction_id": "puzzle-achievement:362606514764251137:giant_hunter",
+  "user_id": "362606514764251137"
+}
