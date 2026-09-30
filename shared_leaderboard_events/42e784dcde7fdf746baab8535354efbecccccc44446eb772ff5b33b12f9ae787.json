@@ -1,0 +1,14 @@
+{
+  "after_coins": 178.28,
+  "before_coins": 178.28,
+  "created_at": 1790761967,
+  "created_at_ns": 1790761967803394221,
+  "details": {
+    "marked_read": 0
+  },
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "trade-inbox-read",
+  "transaction_id": "trade-inbox-read-profile:1554793121903149076:442597396195704832",
+  "user_id": "442597396195704832"
+}
