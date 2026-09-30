@@ -2723,8 +2723,8 @@
         "url": "https://lichess.org/training/PFzXn",
         "title": "Lichess • 1361",
         "fen": "r2qk2r/pppbbppp/2B1p3/4P3/3P4/P1n2N2/1P3PPP/R1BQK2R w KQkq - 1 11",
-        "current_fen": "r2qk2r/pppbbppp/2B1p3/4P3/3P4/P1n2N2/1P3PPP/R1BQK2R w KQkq - 1 11",
-        "last_move_uci": "c8d7",
+        "current_fen": "r3k2r/pppqbppp/4p3/4P3/3P4/P1n2N2/1P3PPP/R1BQK2R w KQkq - 0 12",
+        "last_move_uci": "d8d7",
         "pgn": "Bxd7+ Qxd7 bxc3",
         "all_moves": [
           {
@@ -2764,16 +2764,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_PFzXn_1790776186214",
         "rating": 1361,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1554852731259322398,
+      "message_id": 1554852763987476531,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790776186.209303,
-      "last_feedback": "✅ **Nxg5** — solved! Score: **5**."
+      "last_card_activity_at": 1790776192.8292599,
+      "last_feedback": "✅ **Bxd7+** • Opponent: **Qxd7**"
     },
     "362606514764251137": {
       "active": false,
