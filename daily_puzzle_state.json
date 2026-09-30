@@ -146,7 +146,7 @@
     "next_solution_index": 4,
     "next_player_index": 2,
     "solved": false,
-    "message_id": 1554771054998720512,
+    "message_id": 1554771077421473822,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
@@ -161,8 +161,8 @@
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1554771054998720512,
-      "1546557493038284840": 1554771068663627937
+      "1468320170891022417": 1554771077421473822,
+      "1546557493038284840": 1554771082718748723
     },
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
@@ -201,7 +201,7 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 3 moves remaining.**\n↩️ **Opponent replies:** Kh8"
+    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Kxh7"
   },
   "lichess_rating_used": {
     "2000": [
