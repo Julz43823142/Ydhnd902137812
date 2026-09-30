@@ -2,7 +2,7 @@
 from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo
 
-HOLIDAY_BOX_COST = 75.0
+HOLIDAY_BOX_COST = 50.0
 HOLIDAY_ZONE = ZoneInfo("Europe/Amsterdam")
 HOLIDAYS = {
     "new_year": {"label": "New Year", "name": "Party SharkBot", "start": (12, 29), "end": (1, 7), "badges": "🎆 🎇 🥂 🍾 🎉 🎊 🪩 🕛 📅 ✨".split()},
@@ -55,6 +55,19 @@ def active_holidays(moment=None):
         if matches:
             active.append(key)
     return active
+
+
+def next_holiday(moment=None):
+    """Next event start after today, including Easter and New Year's wrap."""
+    today = holiday_date(moment)
+    upcoming = []
+    for year in (today.year, today.year + 1):
+        for key, event in HOLIDAYS.items():
+            start = easter_sunday(year) - timedelta(days=7) if key == "easter" else date(year, *event["start"])
+            if start > today:
+                upcoming.append((start, key))
+    start, key = min(upcoming)
+    return key, start, (start - today).days
 
 
 def holiday_collection_lines(badges):
