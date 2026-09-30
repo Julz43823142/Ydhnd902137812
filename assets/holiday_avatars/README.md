@@ -1,6 +1,31 @@
-# Holiday avatars (preview assets only)
+# Holiday avatars
 
-Generated with the built-in image-generation tool, using default-reference.png as the identity reference. No automatic avatar/nickname changes are enabled.
+Generated with the built-in image-generation tool, using default-reference.png as the identity reference. The Daily worker automatically applies the active avatar and server nickname. Other workers do not manage this shared profile. The global account username stays unchanged; the avatar changes globally, while the nickname changes only in the primary Discord server.
+
+Before changing anything, the worker backs up the original live avatar (static PNG at Discord's 512px avatar size) and original server nickname in persistent Daily state and confirms remote storage. These are restored outside event periods. The reference screenshot is not used to restore the live avatar. A missing permission, missing image, failed backup or API error is logged and retried without stopping puzzles. Calendar checks occur every five minutes; failures retry after thirty minutes. Repeated worker rotations do not repeatedly upload the same avatar.
+
+## Recurring calendar (Europe/Amsterdam, endpoints included)
+
+| Event | Dates | Server nickname |
+| --- | --- | --- |
+| New Year | December 29–January 7 | Party SharkBot |
+| Valentine | February 7–14 | Cupid SharkBot |
+| Easter | Seven days before Easter Sunday through Easter Monday | Bunny SharkBot |
+| April Fools | April 1–7 | Jester SharkBot |
+| Earth Day | April 20–26 | Eco SharkBot |
+| Animal Day | October 1–7 | Wild SharkBot |
+| Halloween | October 15–November 1 | Spooky SharkBot |
+| Christmas | December 15–28 | Santa SharkBot |
+
+The same dates control Holiday boxes. Easter dates are calculated each year. When Easter overlaps April Fools or Earth Day, Easter's avatar wins; all active boxes remain available. No Carnival event has been added.
+
+## Requested avatar revisions
+
+The original generated versions are retained; the scheduler uses `animal_day-v2.png` and `christmas-v2.png`.
+
+Animal Day edit target: animal_day.png. Prompt: Add a cute small dog, cat, squirrel, and owl around SharkBot in the same polished illustrated mascot style; a tiny bird can sit on a branch. Keep SharkBot the central primary recognizable character, same shark face, silver armor, cyan lights, scarf and chat screen. Widen composition slightly so animals are clearly visible while all important details fit a circular Discord avatar crop. Woodland green background. No text, no grid, one square avatar.
+
+Christmas edit target: christmas.png. Prompt: Add a large beautiful Christmas tree in the background behind Santa SharkBot with glowing multicolored fairy lights, ornaments and a gold star. Keep the same central recognizable shark robot face, Santa hat, silver armor, cyan lights and chat screen, polished illustrated mascot style. Tree should be visible beside/behind robot, not obscure face, generous circular avatar crop margins. No text, no grid, one square avatar.
 
 ## Party SharkBot
 

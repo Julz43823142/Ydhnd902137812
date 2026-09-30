@@ -8,6 +8,8 @@ on:
       - 'shared_leaderboard.py'
       - 'shop_catalog.py'
       - 'holiday_events.py'
+      - 'seasonal_bot_profile.py'
+      - 'assets/holiday_avatars/**'
       - 'badge_box_ui.py'
       - 'shop_color_roles.py'
       - 'piece_art.py'
@@ -52,7 +54,7 @@ jobs:
       - name: Verify Daily Puzzle build and offline RP pool
         run: |
           python -m py_compile bot.py puzzle_move_validation.py quests.py shared_leaderboard.py
-          python -m unittest test_quests.py test_twitch_live_notifications.py test_name_colors.py test_bot_improvements.py test_holidays.py
+          python -m unittest test_quests.py test_twitch_live_notifications.py test_name_colors.py test_bot_improvements.py test_holidays.py test_seasonal_bot_profile.py
           if [ -f test_puzzle_move_validation.py ]; then
             python -m unittest test_puzzle_move_validation.py
           else
