@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/aAYx2",
     "title": "Lichess • 2440",
     "fen": "2R5/4r2p/1PB2npk/2p3q1/4p1P1/2Q2p1P/5P2/6K1 w - - 1 42",
-    "current_fen": "2R5/4r2p/1PB2npk/2p3q1/4p1P1/2Q2p1P/5P2/6K1 w - - 1 42",
-    "last_move_uci": "h5f6",
+    "current_fen": "2R5/4r2p/1PB2npk/2p5/4p1P1/4qp1P/5P2/6K1 w - - 0 43",
+    "last_move_uci": "g5e3",
     "pgn": "Qe3 Qxe3 fxe3",
     "all_moves": [
       {
@@ -43,7 +43,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "practice_aAYx2_442597396195704832_1790771867895",
-    "last_activity_at": "2026-09-30T12:38:50.778735+00:00",
+    "last_activity_at": "2026-09-30T12:38:54.824253+00:00",
     "rating": 2440,
     "rp_band": 4,
     "boss": false,
@@ -55,33 +55,51 @@
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
-    "message_id": 1554834914384551976,
+    "message_id": 1554834931966939178,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "b7",
-        "correct": false,
-        "timestamp": "2026-09-30T12:38:50.779045+00:00"
+        "move": "qe3",
+        "correct": true,
+        "timestamp": "2026-09-30T12:38:54.825044+00:00"
       }
     },
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "channel_id": 1468320170891022417,
     "message_ids": {
-      "1468320170891022417": 1554834914384551976
+      "1468320170891022417": 1554834931966939178
     },
-    "last_card_activity_at": "2026-09-30T12:38:50.778735+00:00",
-    "recent_accepted_moves": [],
+    "last_card_activity_at": "2026-09-30T12:38:54.824253+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1790771934.8250523,
+        "fen_before": "2R5/4r2p/1PB2npk/2p3q1/4p1P1/2Q2p1P/5P2/6K1 w - - 1 42",
+        "expected": {
+          "uci": "c3e3",
+          "san": "Qe3",
+          "color": "white"
+        },
+        "accepted_uci": "c3e3"
+      }
+    ],
     "wrong_attempt_counts": {
       "442597396195704832": 2
     },
-    "last_feedback": "❌ **Puzzle verdict on Thice: your pieces followed your plan and now they want compensation.**\n↪️ **Move played:** `b7`"
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Qxe3",
+    "accepted_solution_moves": [
+      {
+        "san": "Qe3",
+        "uci": "c3e3",
+        "principal": true
+      }
+    ]
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-09-30",
