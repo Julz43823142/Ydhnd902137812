@@ -1,0 +1,10 @@
+{
+  "created_at": 1790770725,
+  "details": {
+    "badges_removed": 6,
+    "users": 2
+  },
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "holiday-clean-start",
+  "transaction_id": "__holiday-clean-start-2026-09-30-v1__"
+}
