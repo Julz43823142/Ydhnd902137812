@@ -588,9 +588,9 @@
           ],
           "progress": {
             "daily:2026-09-30:minigame:minigame-2": 1,
-            "daily:2026-09-30:puzzle:solve-10": 13
+            "daily:2026-09-30:puzzle:solve-10": 14
           },
-          "updated_at": 1790783470
+          "updated_at": 1790783509
         }
       }
     },
@@ -746,9 +746,9 @@
           "paid": [],
           "progress": {
             "weekly:2026-09-28:minigame:minigame-5": 1,
-            "weekly:2026-09-28:puzzle:solve-60": 14
+            "weekly:2026-09-28:puzzle:solve-60": 15
           },
-          "updated_at": 1790783470
+          "updated_at": 1790783509
         }
       }
     }
