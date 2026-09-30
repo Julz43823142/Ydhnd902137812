@@ -2705,8 +2705,8 @@
         "url": "https://lichess.org/training/dWAcK",
         "title": "Lichess • 1223",
         "fen": "rn2kb1r/pp3ppp/1qp1pn2/8/3P4/2Q5/PPP2PPP/R1B1KBNR b KQkq - 3 9",
-        "current_fen": "rn2kb1r/pp3ppp/1qp1pn2/8/3P4/2Q5/PPP2PPP/R1B1KBNR b KQkq - 3 9",
-        "last_move_uci": "b3c3",
+        "current_fen": "rn2k2r/pp3ppp/1qp1pn2/8/1Q1P4/8/PPP2PPP/R1B1KBNR b KQkq - 0 10",
+        "last_move_uci": "c3b4",
         "pgn": "Bb4 Qxb4 Qxb4+",
         "all_moves": [
           {
@@ -2746,16 +2746,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_dWAcK_1790776134611",
         "rating": 1223,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1554852538082402495,
+      "message_id": 1554852547469250700,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790776134.6061635,
-      "last_feedback": "✅ **Rxf8#** — solved! Score: **1**."
+      "last_card_activity_at": 1790776138.375175,
+      "last_feedback": "✅ **Bb4** • Opponent: **Qxb4**"
     },
     "362606514764251137": {
       "active": false,
