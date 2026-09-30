@@ -402,7 +402,9 @@
       "blue"
     ],
     "coins": 175.28,
-    "colors": [],
+    "colors": [
+      "purple"
+    ],
     "donation_inbox": [],
     "guess_points_coined": 323.0,
     "name": "Thice",
@@ -458,7 +460,8 @@
     "twitch_unlocks": [
       "arrow",
       "pieces",
-      "profile_theme"
+      "profile_theme",
+      "name"
     ]
   },
   "550338389535227926": {

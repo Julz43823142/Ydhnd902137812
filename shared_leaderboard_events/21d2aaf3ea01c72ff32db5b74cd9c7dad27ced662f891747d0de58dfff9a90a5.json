@@ -1,0 +1,18 @@
+{
+  "after_coins": 175.28,
+  "before_coins": 175.28,
+  "created_at": 1790761435,
+  "created_at_ns": 1790761435740104881,
+  "details": {
+    "already_owned": false,
+    "field": "colors",
+    "redemption_id": "bcff05be-d6d4-4dac-968d-2a3978578215",
+    "reward_key": "name",
+    "value": "purple"
+  },
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "twitch-cosmetic-grant",
+  "transaction_id": "twitch-redemption:bcff05be-d6d4-4dac-968d-2a3978578215",
+  "user_id": "442597396195704832"
+}
