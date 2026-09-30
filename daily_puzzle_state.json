@@ -43,7 +43,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "practice_aAYx2_442597396195704832_1790771867895",
-    "last_activity_at": "2026-09-30T12:38:40.024234+00:00",
+    "last_activity_at": "2026-09-30T12:38:50.778735+00:00",
     "rating": 2440,
     "rp_band": 4,
     "boss": false,
@@ -58,13 +58,13 @@
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_id": 1554834869492781096,
+    "message_id": 1554834914384551976,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "rf8",
+        "move": "b7",
         "correct": false,
-        "timestamp": "2026-09-30T12:38:40.024492+00:00"
+        "timestamp": "2026-09-30T12:38:50.779045+00:00"
       }
     },
     "first_move_user_id": null,
@@ -74,14 +74,14 @@
     "helper_candidate_users": [],
     "channel_id": 1468320170891022417,
     "message_ids": {
-      "1468320170891022417": 1554834869492781096
+      "1468320170891022417": 1554834914384551976
     },
-    "last_card_activity_at": "2026-09-30T12:38:40.024234+00:00",
+    "last_card_activity_at": "2026-09-30T12:38:50.778735+00:00",
     "recent_accepted_moves": [],
     "wrong_attempt_counts": {
-      "442597396195704832": 1
+      "442597396195704832": 2
     },
-    "last_feedback": "❌ **Thice, congratulations: you managed to calculate everything except the correct move.**\n↪️ **Move played:** `rf8`"
+    "last_feedback": "❌ **Puzzle verdict on Thice: your pieces followed your plan and now they want compensation.**\n↪️ **Move played:** `b7`"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-09-30",
