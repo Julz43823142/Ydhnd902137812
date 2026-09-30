@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/hjoDc",
     "title": "Lichess • 1959",
     "fen": "2r1k2r/2q1bpp1/p3p2p/3Q4/1p6/1N4B1/PPPRNPPP/2K5 b k - 0 20",
-    "current_fen": "2r1k2r/2q1bpp1/p3p2p/3Q4/1p6/1N4B1/PPPRNPPP/2K5 b k - 0 20",
-    "last_move_uci": "e4d5",
+    "current_fen": "2r1k2r/2B1bpp1/p6p/3p4/1p6/1N6/PPPRNPPP/2K5 b k - 0 21",
+    "last_move_uci": "g3c7",
     "pgn": "exd5 Bxc7 Rxc7",
     "all_moves": [
       {
@@ -43,28 +43,56 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_hjoDc_1790783422574",
-    "last_activity_at": "2026-09-30T15:50:22.574326+00:00",
+    "last_activity_at": "2026-09-30T15:50:58.874818+00:00",
     "rating": 1959,
     "rp_band": 2,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1554883116131422348
+      "1468320170891022417": 1554883266786627594
     },
-    "message_id": 1554883116131422348,
+    "message_id": 1554883266786627594,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "attempted_users": {
+      "442597396195704832": {
+        "name": "Thice",
+        "move": "Exd5",
+        "correct": true,
+        "timestamp": "2026-09-30T15:50:58.875559+00:00"
+      }
+    },
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "last_card_activity_at": "2026-09-30T15:50:58.874818+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1790783458.8755658,
+        "fen_before": "2r1k2r/2q1bpp1/p3p2p/3Q4/1p6/1N4B1/PPPRNPPP/2K5 b k - 0 20",
+        "expected": {
+          "uci": "e6d5",
+          "san": "exd5",
+          "color": "black"
+        },
+        "accepted_uci": "e6d5"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "exd5",
+        "uci": "e6d5",
+        "principal": true
+      }
+    ],
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Bxc7"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-09-30",
