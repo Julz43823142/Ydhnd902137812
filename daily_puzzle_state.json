@@ -2705,8 +2705,8 @@
         "url": "https://lichess.org/training/ZinLU",
         "title": "Lichess • 1685",
         "fen": "rn1q1rk1/pbpp2pp/1p2p3/8/1bPPn1p1/2N1PN2/PPQBBP1P/R3K2R w KQ - 0 10",
-        "current_fen": "rn1q1rk1/pbpp2pp/1p2p3/8/1bPPn1p1/2N1PN2/PPQBBP1P/R3K2R w KQ - 0 10",
-        "last_move_uci": "f5g4",
+        "current_fen": "rn1q1rk1/pbpp2pp/1p2p3/8/1bPPN3/4Pp2/PPQBBP1P/R3K2R w KQ - 0 11",
+        "last_move_uci": "g4f3",
         "pgn": "Nxe4 gxf3 Bxb4",
         "all_moves": [
           {
@@ -2746,16 +2746,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_ZinLU_1790788519084",
         "rating": 1685,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1554904480909230172,
+      "message_id": 1554904493412589699,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790788519.0782633,
-      "last_feedback": "✅ **Qxd6** — solved! Score: **11**."
+      "last_card_activity_at": 1790788525.5648386,
+      "last_feedback": "✅ **Nxe4** • Opponent: **gxf3**"
     },
     "362606514764251137": {
       "active": false,
