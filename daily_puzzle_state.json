@@ -2697,80 +2697,65 @@
       "started_at": 1790788406.1228375,
       "run_id": "rush:442597396195704832:1790788406122",
       "end_at": 1790788706.1228375,
-      "score": 5,
+      "score": 6,
       "wrong": 0,
       "mistakes": [],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/91AP4",
-        "title": "Lichess • 1434",
-        "fen": "r2q1rk1/pb1nbppp/1pn1p3/2ppN3/3P1P2/2PBPR2/PP1N2PP/R1BQ2K1 w - - 8 11",
-        "current_fen": "r2q1rk1/pb1nbpp1/1pn1p3/2ppN3/3P1P2/2P1P2R/PP1N2PP/R1BQ2K1 w - - 2 13",
-        "last_move_uci": "h7g8",
-        "pgn": "Bxh7+ Kxh7 Rh3+ Kg8 Qh5",
+        "url": "https://lichess.org/training/TyDi5",
+        "title": "Lichess • 1457",
+        "fen": "8/p4qk1/1p5p/6p1/Q2PP3/4K1P1/nP4PP/8 w - - 0 32",
+        "current_fen": "8/p4qk1/1p5p/6p1/Q2PP3/4K1P1/nP4PP/8 w - - 0 32",
+        "last_move_uci": "b4a2",
+        "pgn": "d5 a5 Qxa2",
         "all_moves": [
           {
-            "uci": "d3h7",
-            "san": "Bxh7+",
+            "uci": "d4d5",
+            "san": "d5",
             "color": "white"
           },
           {
-            "uci": "g8h7",
-            "san": "Kxh7",
+            "uci": "a7a5",
+            "san": "a5",
             "color": "black"
           },
           {
-            "uci": "f3h3",
-            "san": "Rh3+",
-            "color": "white"
-          },
-          {
-            "uci": "h7g8",
-            "san": "Kg8",
-            "color": "black"
-          },
-          {
-            "uci": "d1h5",
-            "san": "Qh5",
+            "uci": "a4a2",
+            "san": "Qxa2",
             "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "d3h7",
-            "san": "Bxh7+",
+            "uci": "d4d5",
+            "san": "d5",
             "color": "white"
           },
           {
-            "uci": "f3h3",
-            "san": "Rh3+",
-            "color": "white"
-          },
-          {
-            "uci": "d1h5",
-            "san": "Qh5",
+            "uci": "a4a2",
+            "san": "Qxa2",
             "color": "white"
           }
         ],
         "player_color": "white",
-        "player_move_count": 3,
-        "posted_at": "2026-09-30T17:14:13.832343+00:00",
+        "player_move_count": 2,
+        "posted_at": "2026-09-30T17:14:25.215615+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_91AP4_1790788453832",
-        "rating": 1434,
-        "next_solution_index": 4,
+        "puzzle_id": "practice_rush_442597396195704832_TyDi5_1790788465215",
+        "rating": 1457,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1554904242161193091,
+      "message_id": 1554904250310463682,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790788461.653835,
-      "last_feedback": "✅ **Rh3+** • Opponent: **Kg8**"
+      "last_card_activity_at": 1790788465.209506,
+      "last_feedback": "✅ **Qh5** — solved! Score: **6**."
     },
     "362606514764251137": {
       "active": false,
