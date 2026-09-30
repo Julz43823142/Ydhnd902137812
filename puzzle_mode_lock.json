@@ -1,4 +1,13 @@
 {
   "version": 2,
-  "locks": {}
+  "locks": {
+    "1468320170891022417": {
+      "mode": "survival",
+      "team": "mh",
+      "survival_id": "mh:1790772808",
+      "channel_id": 1468320170891022417,
+      "last_activity_epoch": 1790772808.625956,
+      "updated_at_epoch": 1790772810.6475353
+    }
+  }
 }
