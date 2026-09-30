@@ -6,12 +6,12 @@ HOLIDAY_BOX_COST = 50.0
 HOLIDAY_ZONE = ZoneInfo("Europe/Amsterdam")
 HOLIDAYS = {
     "new_year": {"label": "New Year", "name": "Party SharkBot", "start": (12, 29), "end": (1, 7), "badges": "🎆 🎇 🥂 🍾 🎉 🎊 🪩 🕛 📅 ✨".split()},
-    "valentine": {"label": "Valentine", "name": "Cupid SharkBot", "start": (2, 7), "end": (2, 14), "badges": "💘 💝 💌 🌹 💐 🍫 💍 🧸 💞 💋".split()},
-    "easter": {"label": "Easter", "name": "Bunny SharkBot", "badges": "🐰 🐇 🐣 🐤 🐥 🥚 🧺 🌷 🌼 🦋".split()},
-    "april_fools": {"label": "April Fools", "name": "Jester SharkBot", "start": (4, 1), "end": (4, 7), "badges": "🤡 🃏 🥸 🤪 🙃 😜 😂 🤣 🎭 🎈".split()},
+    "valentine": {"label": "Valentine", "name": "Cupid SharkBot", "start": (2, 7), "end": (2, 14), "badges": "💘 💝 💌 🌹 💐 🍫 💍 🧸 💞 💋 ❤️ 🩷 💕 💓 💗 💔 🥰 😍 😘 🫶 ♥️".split()},
+    "easter": {"label": "Easter", "name": "Bunny SharkBot", "badges": "🐰 🐇 🐣 🐤 🐥 🥚 🧺 🌷 🌼 🦋 🥕".split()},
+    "april_fools": {"label": "April Fools", "name": "Jester SharkBot", "start": (4, 1), "end": (4, 1), "badges": "🤡 🥸".split()},
     "earth_day": {"label": "Earth Day", "name": "Eco SharkBot", "start": (4, 20), "end": (4, 26), "badges": "🌍 🌎 🌏 🌱 🌳 🌲 🍀 ♻️ 🌻 🌿".split()},
     "animal_day": {"label": "Animal Day", "name": "Wild SharkBot", "start": (10, 1), "end": (10, 7), "badges": "🐶 🐱 🦊 🐼 🐨 🦁 🐯 🐸 🐢 🐧".split()},
-    "halloween": {"label": "Halloween", "name": "Spooky SharkBot", "start": (10, 15), "end": (11, 1), "badges": "🎃 👻 🦇 🕸️ 🧙 🧛 🧟 💀 🍬 🕯️".split()},
+    "halloween": {"label": "Halloween", "name": "Spooky SharkBot", "start": (10, 15), "end": (11, 1), "badges": "🎃 👻 🦇 🕸️ 🧙 🧛 🧟 💀 ☠️ 🍬 🕯️".split()},
     "christmas": {"label": "Christmas", "name": "Santa SharkBot", "start": (12, 15), "end": (12, 28), "badges": "🎅 🤶 🧑‍🎄 🎄 🎁 🦌 ⛄ ❄️ 🔔 🌟".split()},
 }
 HOLIDAY_BADGES = tuple(badge for event in HOLIDAYS.values() for badge in event["badges"])
@@ -73,6 +73,13 @@ def next_holiday(moment=None):
 def holiday_collection_lines(badges):
     owned = set(badges)
     return "\n".join(
-        f"• **{event['label']}:** {len(owned.intersection(event['badges']))}/10 unlocked"
+        f"• **{event['label']}:** {len(owned.intersection(event['badges']))}/{len(event['badges'])} unlocked"
         for event in HOLIDAYS.values()
     )
+
+
+def starting_holidays(moment=None):
+    today = holiday_date(moment)
+    return [key for key, event in HOLIDAYS.items()
+            if today == (easter_sunday(today.year) - timedelta(days=7)
+                         if key == "easter" else date(today.year, *event["start"]))]

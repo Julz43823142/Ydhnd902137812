@@ -12,11 +12,13 @@ import badge_box_ui
 
 
 class CalendarTests(unittest.TestCase):
-    def test_eight_collections_ten_unique_badges_each(self):
+    def test_eight_unique_collections_with_requested_sizes(self):
         self.assertEqual(len(holidays.HOLIDAYS), 8)
-        self.assertEqual(len(set(holidays.HOLIDAY_BADGES)), 80)
+        self.assertEqual(len(set(holidays.HOLIDAY_BADGES)), 85)
         for event in holidays.HOLIDAYS.values():
-            self.assertEqual(len(set(event["badges"])), 10)
+            self.assertEqual(len(set(event["badges"])), len(event["badges"]))
+        self.assertEqual(holidays.HOLIDAYS["april_fools"]["badges"], ["🤡", "🥸"])
+        self.assertEqual(len(holidays.HOLIDAYS["animal_day"]["badges"]), 10)
 
     def test_all_fixed_windows_include_boundaries_and_exclude_neighbors(self):
         for key, event in holidays.HOLIDAYS.items():

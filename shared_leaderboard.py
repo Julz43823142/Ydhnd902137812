@@ -2681,6 +2681,61 @@ def admin_set_color(
     return {"user_id": uid, **entry}
 
 
+HOLIDAY_RESET_TRANSACTION_ID = "__holiday-clean-start-2026-09-30-v1__"
+
+
+def _reset_holiday_snapshot(snapshot):
+    """Remove only Holiday ownership; leave coins and other cosmetics intact."""
+    from holiday_events import HOLIDAY_BADGES
+    seasonal = set(HOLIDAY_BADGES)
+    users = removed = 0
+    for entry in snapshot.values():
+        before = entry.get("badges", [])
+        kept = [badge for badge in before if badge not in seasonal]
+        count = len(before) - len(kept)
+        if count:
+            users += 1
+            removed += count
+            entry["badges"] = kept
+        if entry.get("active_badge") in seasonal:
+            entry["active_badge"] = ""
+    return {"users": users, "badges_removed": removed}
+
+
+def reset_holiday_badges_once():
+    """Atomic, audited and restart-safe clean start requested by server owner."""
+    global _CACHE_SNAPSHOT
+    transaction_id = HOLIDAY_RESET_TRANSACTION_ID
+    with _LOCK:
+        for attempt in range(1, MAX_RETRIES + 1):
+            if not _fetch_retry():
+                time.sleep(min(2.0, 0.2 * attempt))
+                continue
+            existing = _origin_event(transaction_id)
+            snapshot, migrated = _origin_state()
+            if existing is not None:
+                _CACHE_SNAPSHOT = {k: dict(v) for k, v in snapshot.items()}
+                return existing["details"]
+            details = _reset_holiday_snapshot(snapshot)
+            payload = {
+                "transaction_id": transaction_id,
+                "operation": "holiday-clean-start",
+                "details": details,
+                "created_at": int(time.time()),
+                "ledger_build": LEDGER_BUILD,
+            }
+            files = {LEGACY_FILE: _snapshot_json(snapshot),
+                     _event_filename(transaction_id): _event_json(payload)}
+            if not migrated:
+                files[_event_filename(MIGRATION_TRANSACTION_ID)] = _event_json(_migration_event())
+            if _push_files(files, "Reset existing Holiday badges once (preserve other cosmetics)"):
+                verified_snapshot, verified = _verified_origin_snapshot(transaction_id)
+                if verified and verified_snapshot is not None:
+                    return details
+            time.sleep(min(2.0, 0.2 * attempt))
+    raise RuntimeError("Could not safely verify the one-time Holiday badge reset")
+
+
 def buy_badge_box(user_id, display_name, transaction_id, holiday=None):
     from holiday_events import HOLIDAYS, HOLIDAY_BOX_COST, active_holidays
     if holiday is not None and holiday not in HOLIDAYS:

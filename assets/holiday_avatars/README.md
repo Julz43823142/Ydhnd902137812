@@ -11,13 +11,19 @@ Before changing anything, the worker backs up the original live avatar (static P
 | New Year | December 29–January 7 | Party SharkBot |
 | Valentine | February 7–14 | Cupid SharkBot |
 | Easter | Seven days before Easter Sunday through Easter Monday | Bunny SharkBot |
-| April Fools | April 1–7 | Jester SharkBot |
+| April Fools | April 1 only | Jester SharkBot |
 | Earth Day | April 20–26 | Eco SharkBot |
 | Animal Day | October 1–7 | Wild SharkBot |
 | Halloween | October 15–November 1 | Spooky SharkBot |
 | Christmas | December 15–28 | Santa SharkBot |
 
 The same dates control Holiday boxes. Easter dates are calculated each year. When Easter overlaps April Fools or Earth Day, Easter's avatar wins; all active boxes remain available. No Carnival event has been added.
+
+On an event's first day the Daily worker announces its box publicly in both Chessbot channels, without mentions. Persistent per-channel/year markers plus message-history recovery prevent duplicate announcements after rotations. `!box` and `!shop box` now show a public chooser and require explicit confirmation before charging.
+
+The owner-requested one-time Holiday clean start is audited under `__holiday-clean-start-2026-09-30-v1__`. It removes existing copies of all currently Holiday-classified badges and clears a removed active badge, but preserves coins, points, ordinary badges and other cosmetics. Subsequent startups only verify the marker, never wipe newly earned badges. Previous ownership can be recovered from the Git snapshot history.
+
+April Fools now lasts April 1 only and contains just 🤡 and 🥸. Valentine also contains the 11 former ordinary heart/love candidates; Easter includes 🥕 and Halloween includes both 💀 and ☠️. Normal drop pools exclude every Holiday badge. Other animals remain unchanged. Collection totals and confirmation chances use actual pool sizes (85 Holiday badges total), rather than assuming 10 per event.
 
 ## Requested avatar revisions
 
