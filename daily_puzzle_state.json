@@ -8431,6 +8431,18 @@
       "identity_enc": "gAAAAABqvNnbweRsGK1lihojeOgBO6Hdyr1xbiQamZZ0kcGFCqWK4GWQ_0sTWloV13EeZTiAzFpoPyDgK8NxQsBnTkZPWND7vdCt2p0tx3YOD9jOhC0HS_GQDYv-caPsS84oUySnKZJwClueLvZqDzXG7JIsCUyG1FCUGckdS7yxKoUqlbqFrXGKIqC1mpGa2mIhtbDClCrFPpnT2RXCrnHWaz_pLaLfsg==",
       "status": "processed",
       "discord_user_id": "442597396195704832"
+    },
+    "77a56d94-aa0e-456e-83fa-910cbf3c1feb": {
+      "redemption_id": "77a56d94-aa0e-456e-83fa-910cbf3c1feb",
+      "reward_key": "survival_hearts",
+      "reward_label": "Twitch Survival Hearts",
+      "reward_title": "Unlock Discord Survival Hearts",
+      "reward_cost": 1000,
+      "created_at": 1790798232,
+      "updated_at": 1790798234,
+      "identity_enc": "gAAAAABqvWmYH21u-XCuk0ox38XtA_X_qIn_oEFhLOc7gUt6qTm55k9n23JuOaQcHIQ9xBAtzjY1iPKQM5DaTjoQhmTyQ2Sk_LR5Ar0zVUx6OVkvFYAkfCAEMUdjlqeRU0qx3cB9h1ORaItcnKMYAh1AnrtfSsmrI5S3OLSdfv5MMvITCveFHSUTaiwR6iL8BtGcJlrIUYKwwyR36cuTAAoNuJtIw0zq_w==",
+      "status": "processed",
+      "discord_user_id": "442597396195704832"
     }
   },
   "twitch_links_v1": {
