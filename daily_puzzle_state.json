@@ -2695,8 +2695,8 @@
         "url": "https://lichess.org/training/t1Pfp",
         "title": "Lichess • 1227",
         "fen": "r1b2rk1/pp3p1p/4pnpQ/4q1N1/4N3/8/PP2nPPP/R3K2R w KQ - 0 18",
-        "current_fen": "r1b2rk1/pp3p1p/4pnpQ/4q1N1/4N3/8/PP2nPPP/R3K2R w KQ - 0 18",
-        "last_move_uci": "d4e2",
+        "current_fen": "r1b2rk1/pp3p1p/4pqpQ/6N1/8/8/PP2nPPP/R3K2R w KQ - 0 19",
+        "last_move_uci": "e5f6",
         "pgn": "Nxf6+ Qxf6 Qxh7#",
         "all_moves": [
           {
@@ -2736,16 +2736,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_t1Pfp_1790763461191",
         "rating": 1227,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1554799375614480437,
+      "message_id": 1554799392597348442,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1790763461.1869178,
-      "last_feedback": "✅ **Bf3+** — solved! Score: **1**."
+      "last_card_activity_at": 1790763466.3250084,
+      "last_feedback": "✅ **Nxf6+** • Opponent: **Qxf6**"
     },
     "362606514764251137": {
       "active": false,
