@@ -10,6 +10,13 @@ from puzzle_move_validation import (
 
 
 class PuzzleMoveValidationTests(unittest.TestCase):
+    def test_fast_parser_rejects_null_and_illegal_moves_without_mutating_board(self):
+        board = chess.Board()
+        original = board.fen()
+        for text in ('--', '0000', 'e2e5', 'Qh5', 'e7e5'):
+            self.assertIsNone(parse_legal_move(board, text), text)
+            self.assertEqual(board.fen(), original)
+
     def test_all_legal_mate_in_one_moves_are_accepted(self):
         # Black's own g7/h7 pawns box in Kh8. From Qe7 White has multiple
         # different legal mates on the eighth rank. Lichess may store only one.

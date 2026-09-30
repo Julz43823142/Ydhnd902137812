@@ -55,6 +55,18 @@ def parse_legal_move(board, submitted):
     if not normalized:
         return None
 
+    # Standard SAN/UCI needs no scan of every legal move. Keep the normalized
+    # comparison so python-chess's permissive SAN parser cannot broaden input.
+    raw = clean_move_text(submitted)
+    try:
+        if re.fullmatch(r"[a-h][1-8][a-h][1-8][qrbn]?", raw.casefold()):
+            return board.parse_uci(raw.casefold())
+        candidate = board.parse_san(raw)
+        if candidate in board.legal_moves and normalize_move_text(board.san(candidate)) == normalized:
+            return candidate
+    except ValueError:
+        pass
+
     # Compare to SAN generated for every legal move.  This gives us robust,
     # case-insensitive SAN without trusting parse_san on non-standard casing.
     for legal_move in board.legal_moves:
