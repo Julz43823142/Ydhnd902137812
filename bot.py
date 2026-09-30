@@ -12061,7 +12061,7 @@ def cosmetic_profile_dashboard(user_id, display_name):
         for rarity in RARITY_LABELS
     }
     rarity_lines = " • ".join(
-        f"{RARITY_LABELS[rarity]} {rarity_counts[rarity]}"
+        f"{RARITY_LABELS[rarity]} {rarity_counts[rarity]}/{len(set(BADGE_POOLS[rarity]))}"
         for rarity in ("legendary", "epic", "rare", "uncommon", "common", "basic")
     )
     return (
@@ -12097,7 +12097,7 @@ def cosmetic_badge_overview(user_id, display_name):
     ]
     for rarity in ("legendary", "epic", "rare", "uncommon", "common", "basic"):
         owned = len({badge for badge in unique if BADGE_RARITY_BY_VALUE.get(badge) == rarity})
-        total = len(BADGE_POOLS[rarity])
+        total = len(set(BADGE_POOLS[rarity]))
         lines.append(
             f"**{RARITY_LABELS[rarity]}:** {owned}/{total}"
         )
@@ -12114,7 +12114,7 @@ def cosmetic_badge_page(user_id, display_name, rarity, page=1):
     page_rows, page, total_pages = _page_slice(rows, page, 20)
     lines = [
         f"🏅 **{profile.get('name', display_name)} — {RARITY_LABELS[rarity]} Badges**",
-        f"Page **{page}/{total_pages}** • {len(rows)} unique owned",
+        f"Page **{page}/{total_pages}** • {len(rows)}/{len(set(BADGE_POOLS[rarity]))} unique badges unlocked",
         "",
     ]
     if not page_rows:
@@ -13413,7 +13413,7 @@ class CosmeticProfileView(discord.ui.View):
             badges = list(profile.get("badges", []))
             unique_badges = set(badges)
             rarity_lines = " • ".join(
-                f"{RARITY_LABELS[rarity]} {len({badge for badge in unique_badges if BADGE_RARITY_BY_VALUE.get(badge) == rarity})}"
+                f"{RARITY_LABELS[rarity]} {len({badge for badge in unique_badges if BADGE_RARITY_BY_VALUE.get(badge) == rarity})}/{len(set(BADGE_POOLS[rarity]))}"
                 for rarity in PROFILE_RARITY_ORDER
             )
             return (
@@ -13446,7 +13446,7 @@ class CosmeticProfileView(discord.ui.View):
             ]
             for rarity in PROFILE_RARITY_ORDER:
                 count = len({badge for badge in unique_badges if BADGE_RARITY_BY_VALUE.get(badge) == rarity})
-                lines.append(f"• **{RARITY_LABELS[rarity]}:** {count}")
+                lines.append(f"• **{RARITY_LABELS[rarity]}:** {count}/{len(set(BADGE_POOLS[rarity]))} unlocked")
             return "\n".join(lines)
         if self.mode == "badges":
             if profile is None:
@@ -13456,7 +13456,7 @@ class CosmeticProfileView(discord.ui.View):
             self.page = current_page
             lines = [
                 f"🏅 **{profile.get('name', self.target_name)} — {RARITY_LABELS[self.rarity]} Badges**",
-                f"Page **{self.page}/{total_pages}** • {len(rows)} unique owned",
+                f"Page **{self.page}/{total_pages}** • {len(rows)}/{len(set(BADGE_POOLS[self.rarity]))} unique badges unlocked",
                 "",
             ]
             if not page_rows:
@@ -13626,7 +13626,7 @@ class CosmeticProfileView(discord.ui.View):
         for idx, rarity in enumerate(PROFILE_RARITY_ORDER):
             count = len({badge for badge in unique_badges if BADGE_RARITY_BY_VALUE.get(badge) == rarity})
             button = discord.ui.Button(
-                label=f"{RARITY_LABELS[rarity]} ({count})",
+                label=f"{RARITY_LABELS[rarity]} ({count}/{len(set(BADGE_POOLS[rarity]))})",
                 style=discord.ButtonStyle.primary if rarity in {"legendary", "epic", "rare"} else discord.ButtonStyle.secondary,
                 row=idx // 3,
             )
@@ -13949,34 +13949,29 @@ async def sync_subscriber_color_profile(member, transaction_id):
     )
 
 
-async def _shop_color_ceiling(guild, bot_member):
-    """Highest allowed shop-role position; keep owner/Sharkmeister blue above it."""
+async def _shop_color_ceiling(guild, bot_member, member):
+    """Protect the target's owner/bot color without blocking other subscribers."""
     ceiling = bot_member.top_role.position - 1
     shark_id = os.getenv(
         "SHARKMEISTER_USER_ID", SHARKMEISTER_DEFAULT_USER_ID
     ).strip() or SHARKMEISTER_DEFAULT_USER_ID
 
-    shark_member = None
-    try:
-        shark_member = guild.get_member(int(shark_id))
-    except Exception:
-        shark_member = None
-
-    if shark_member is None and str(getattr(guild, "owner_id", "")) == str(shark_id):
-        shark_member = getattr(guild, "owner", None)
-
-    if shark_member is not None:
-        shark_color_role = _highest_nonshop_colored_role(shark_member)
-        if shark_color_role is not None and shark_color_role < bot_member.top_role:
-            ceiling = min(ceiling, shark_color_role.position - 1)
+    protected = (
+        str(member.id) in {shark_id, str(getattr(guild, "owner_id", ""))}
+        or bool(getattr(member, "bot", False))
+    )
+    if protected:
+        protected_color = _highest_nonshop_colored_role(member)
+        if protected_color is not None:
+            ceiling = min(ceiling, protected_color.position - 1)
 
     return max(1, ceiling)
 
 
 async def _position_shop_color_role(guild, bot_member, role, member):
-    """Move the chosen shop color above the member's normal color, below owner blue."""
+    """Move the shop color above this member's color within Discord's hierarchy."""
     base_role = _highest_nonshop_colored_role(member)
-    ceiling = await _shop_color_ceiling(guild, bot_member)
+    ceiling = await _shop_color_ceiling(guild, bot_member, member)
 
     desired = role.position
     if base_role is not None:
@@ -13984,6 +13979,11 @@ async def _position_shop_color_role(guild, bot_member, role, member):
 
     if desired > ceiling:
         if base_role is not None and base_role.position >= ceiling:
+            if ceiling == bot_member.top_role.position - 1:
+                raise RuntimeError(
+                    "Move SharkBot's highest role above your colored role in "
+                    "Server Settings > Roles, then try equipping this color again."
+                )
             raise RuntimeError(
                 "The bot cannot place this shop color above the member's current colored role "
                 "without overriding a protected owner/bot role."
@@ -14027,14 +14027,17 @@ async def apply_shop_color_role(member, color_name):
             raise RuntimeError(
                 "A shop-color role is at or above the bot role. Move the bot role above all Shop Color roles first."
             )
-        await member.remove_roles(*shop_roles, reason="Puzzle Shop color change")
 
     if not color_name:
+        if shop_roles:
+            await member.remove_roles(*shop_roles, reason="Puzzle Shop color change")
         return None
 
     # Equipping Pink means revealing the existing managed subscription role.
     # Do not create a second Pink role that would outlive the entitlement.
     if subscriber_role is not None:
+        if shop_roles:
+            await member.remove_roles(*shop_roles, reason="Puzzle Shop color change")
         return subscriber_role
 
     config = NAME_COLORS[color_name]
@@ -14053,6 +14056,9 @@ async def apply_shop_color_role(member, color_name):
 
     role = await _position_shop_color_role(guild, bot_member, role, member)
     await member.add_roles(role, reason="Puzzle Shop color equipped")
+    old_roles = [item for item in shop_roles if item.id != role.id]
+    if old_roles:
+        await member.remove_roles(*old_roles, reason="Puzzle Shop color change")
     return role
 
 
@@ -16266,6 +16272,19 @@ async def handle_random_answer(
                     puzzle["current_fen"] = board.fen()
                     puzzle["next_solution_index"] = next_index
                     puzzle["next_player_index"] = next_player_index
+                    # Register contributors before any Discord/network await,
+                    # so a quick final move cannot miss the first solver.
+                    if move_was_first and puzzle.get("first_move_user_id") is None:
+                        puzzle["first_move_user_id"] = user_id
+                        puzzle["first_move_user_name"] = message.author.display_name
+                    if not move_was_first and user_id != str(puzzle.get("first_move_user_id")):
+                        helpers = puzzle.setdefault("helper_candidate_users", [])
+                        if user_id not in helpers:
+                            helpers.append(user_id)
+                    if next_player_index >= len(player_moves):
+                        # Close the puzzle while holding the state lock, before
+                        # Discord feedback or remote reward persistence yields.
+                        puzzle["solved"] = True
 
     if late_correct_duplicate:
         await save_all()
@@ -16276,6 +16295,34 @@ async def handle_random_answer(
             move_to_bottom=True,
         )
         return
+
+    # Acknowledge the move BEFORE Git-backed stats/coins/quests. These writes
+    # stay awaited (never fire-and-forget), but no longer hide the chess result.
+    feedback_sent = False
+    if not correct:
+        immediate_feedback = wrong_message_with_move(message.author, submitted)
+    elif next_player_index >= len(player_moves):
+        immediate_feedback = (
+            f"✅ **Correct, {message.author.display_name}!**\n"
+            "🎉 **Puzzle solved!**\nUpdating stats and rewards…"
+        )
+    else:
+        remaining = len(player_moves) - next_player_index
+        immediate_feedback = (
+            "**✅ Correct! Now make your final move.**"
+            if remaining == 1
+            else f"**✅ Correct! {remaining} {move_word(remaining)} remaining.**"
+        )
+        if opponent_replies:
+            immediate_feedback += f"\n↩️ **Opponent replies:** {' '.join(opponent_replies)}"
+    try:
+        await update_random_puzzle_message(
+            message.channel, puzzle, immediate_feedback, move_to_bottom=True,
+        )
+        feedback_sent = True
+    except Exception as error:
+        # A Discord/render failure must not cancel earned rewards.
+        print(f"Could not show immediate puzzle feedback: {error}", flush=True)
 
     personal_result = await record_official_puzzle_result(
         puzzle,
@@ -16304,12 +16351,10 @@ async def handle_random_answer(
 
     if not correct:
         await save_all()
-        await update_random_puzzle_message(
-            message.channel,
-            puzzle,
-            wrong_message_with_move(message.author, submitted),
-            move_to_bottom=True,
-        )
+        if not feedback_sent:
+            await update_random_puzzle_message(
+                message.channel, puzzle, immediate_feedback, move_to_bottom=True,
+            )
         return
 
     # -----------------------------------------------------
@@ -16320,41 +16365,6 @@ async def handle_random_answer(
     # move solver and helpers while the puzzle is in progress.
     # Points are awarded ONLY when the full puzzle is solved.
     # -----------------------------------------------------
-
-    if move_was_first and puzzle.get(
-        "first_move_user_id"
-    ) is None:
-        puzzle["first_move_user_id"] = str(
-            message.author.id
-        )
-        puzzle["first_move_user_name"] = (
-            message.author.display_name
-        )
-
-    # Record a helper candidate after a later correct move.
-    # We only award +0.5 after the puzzle is completely solved.
-    if (
-        not move_was_first
-        and str(message.author.id)
-        != str(
-            puzzle.get(
-                "first_move_user_id"
-            )
-        )
-    ):
-        helpers = puzzle.setdefault(
-            "helper_candidate_users",
-            []
-        )
-
-        user_id = str(
-            message.author.id
-        )
-
-        if user_id not in helpers:
-            helpers.append(
-                user_id
-            )
 
     # -----------------------------------------------------
     # PUZZLE COMPLETE
@@ -16527,11 +16537,11 @@ async def handle_random_answer(
             "random_lichess_"
         )
 
-        points = get_player_score(
+        points = await asyncio.to_thread(get_player_score,
             message.author.id
         )
 
-        ranking = get_personal_ranking(
+        ranking = await asyncio.to_thread(get_personal_ranking,
             message.author.id
         )
 
@@ -16569,7 +16579,7 @@ async def handle_random_answer(
             awarded_for_solver = helper_reward
 
         if practice_only:
-            coins = get_player_coins(
+            coins = await asyncio.to_thread(get_player_coins,
                 message.author.id
             )
             if rated_practice:
@@ -16657,7 +16667,7 @@ async def handle_random_answer(
             message.channel,
             puzzle,
             embed_progress + "\n\n" + "\n\n".join(completion_lines),
-            move_to_bottom=True,
+            move_to_bottom=not feedback_sent,
         )
         await save_all()
 
@@ -16667,41 +16677,10 @@ async def handle_random_answer(
     # MORE PLAYER MOVES TO GO
     # -----------------------------------------------------
 
-    remaining = (
-        len(player_moves)
-        - next_player_index
-    )
-
-    if opponent_replies:
-        reply_text = (
-            f"↩️ **Opponent replies:** "
-            f"{' '.join(opponent_replies)}"
+    if not feedback_sent:
+        await update_random_puzzle_message(
+            message.channel, puzzle, immediate_feedback, move_to_bottom=True,
         )
-    else:
-        reply_text = ""
-
-    if remaining == 1:
-        progress = (
-            "**✅ Correct! Now make your final move.**"
-        )
-    else:
-        progress = (
-            f"**✅ Correct! {remaining} "
-            f"{move_word(remaining)} remaining.**"
-        )
-
-    if reply_text:
-        progress += (
-            f"\n{reply_text}"
-        )
-
-    # Keep one RP/Practice card alive and edit it for each solved step.
-    await update_random_puzzle_message(
-        message.channel,
-        puzzle,
-        progress,
-        move_to_bottom=True,
-    )
 
     await save_all()
 
