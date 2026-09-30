@@ -268,7 +268,8 @@
     "boards": [],
     "coins": 12.0,
     "colors": [
-      "red"
+      "red",
+      "pink"
     ],
     "donation_inbox": [],
     "guess_points_coined": 138.0,
