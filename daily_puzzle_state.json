@@ -73,7 +73,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_GvSr2_1790878372229",
-    "last_activity_at": "2026-10-01T18:12:52.229260+00:00",
+    "last_activity_at": "2026-10-01T18:13:01.212881+00:00",
     "rating": 2174,
     "rp_band": 3,
     "boss": false,
@@ -84,17 +84,30 @@
     "next_player_index": 0,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1555281365614731374
+      "1468320170891022417": 1555281399727132818
     },
-    "message_id": 1555281365614731374,
+    "message_id": 1555281399727132818,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {},
+    "attempted_users": {
+      "442597396195704832": {
+        "name": "Thice",
+        "move": "Gxf5",
+        "correct": false,
+        "timestamp": "2026-10-01T18:13:01.213886+00:00"
+      }
+    },
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "last_card_activity_at": "2026-10-01T18:13:01.212881+00:00",
+    "recent_accepted_moves": [],
+    "wrong_attempt_counts": {
+      "442597396195704832": 1
+    },
+    "last_feedback": "❌ **Puzzle verdict on Thice: you found a move so creative the position wants it deleted.**\n↪️ **Move played:** `Gxf5`"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
