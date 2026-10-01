@@ -8470,7 +8470,7 @@
   "twitch_live_notifications_v1": {
     "message_ids": [],
     "last_cleanup_at": "2026-10-01T04:00:30.292868+00:00",
-    "last_cleanup_date": "2026-09-30",
+    "last_cleanup_date": "2026-10-01",
     "last_started_at": "2026-09-30T19:29:50Z",
     "last_sent_at": "2026-09-30T19:30:21.122821+00:00",
     "channel_id": "1320033128676589669"
