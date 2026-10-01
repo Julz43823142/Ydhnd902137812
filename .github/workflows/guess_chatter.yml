@@ -8,6 +8,7 @@ on:
       - 'guess_chess_chatter.py'
       - 'guess_leaderboard.py'
       - 'shared_leaderboard.py'
+      - 'pets.py'
       - 'shop_catalog.py'
       - 'holiday_events.py'
       - 'badge_box_ui.py'

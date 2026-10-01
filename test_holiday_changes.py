@@ -17,7 +17,8 @@ from shop_catalog import BADGE_POOLS
 class CollectionTests(unittest.TestCase):
     def test_april_one_day_and_two_badges(self):
         self.assertIn("april_fools", holidays.active_holidays(date(2027, 4, 1)))
-        self.assertNotIn("april_fools", holidays.active_holidays(date(2027, 4, 2)))
+        self.assertIn("april_fools", holidays.active_holidays(date(2027, 4, 7)))
+        self.assertNotIn("april_fools", holidays.active_holidays(date(2027, 4, 8)))
         self.assertEqual(holidays.HOLIDAYS["april_fools"]["badges"], ["🤡", "🥸"])
         self.assertIn("**April Fools:** 1/2", holidays.holiday_collection_lines(["🤡"]))
 
@@ -140,7 +141,7 @@ class AnnouncementTests(unittest.IsolatedAsyncioTestCase):
         for channel in self.channels:
             channel.send.assert_awaited_once()
             kwargs = channel.send.call_args.kwargs
-            self.assertEqual(kwargs["embed"].title, "🎊 Animal Day starts today!")
+            self.assertEqual(kwargs["embed"].title, "🎊 Animal Day Event has started!")
             self.assertFalse(kwargs["allowed_mentions"].everyone)
 
     async def test_off_day_no_notice_and_next_year_posts_again(self):

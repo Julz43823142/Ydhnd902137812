@@ -6,6 +6,7 @@ on:
     paths:
       - 'survival_bot.py'
       - 'shared_leaderboard.py'
+      - 'pets.py'
       - 'shop_catalog.py'
       - 'puzzle_move_validation.py'
       - 'puzzle_mode_lock.py'

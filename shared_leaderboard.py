@@ -902,7 +902,9 @@ def add_points(user_id, display_name, amount, transaction_id, source="chatter"):
             entry = _normalize_entry(snapshot.get(uid, {"name": display_name, "points": before}))
             entry["name"] = str(display_name)
             entry["points"] = after
-            entry["coins"] = round(max(0.0, float(entry.get("coins", before)) + amount), 3)
+            from pets import reward_extra
+            pet_extra = reward_extra(user_id, amount, source)
+            entry["coins"] = round(max(0.0, float(entry.get("coins", before)) + amount + pet_extra), 3)
             snapshot[uid] = entry
 
             payload = _audit_event(
@@ -915,6 +917,7 @@ def add_points(user_id, display_name, amount, transaction_id, source="chatter"):
                 after_points=after,
                 amount=amount,
             )
+            payload["pet_coin_bonus"] = pet_extra
 
             files = {
                 LEGACY_FILE: _snapshot_json(snapshot),
@@ -1382,6 +1385,9 @@ def _activity_credit_source(source):
 
 
 def _maybe_activity_bonus_for_event(user_id, display_name, event, *, source="gameplay"):
+    if isinstance(event, dict):
+        from pets import reward_activity
+        reward_activity(user_id, display_name, event, source)
     if not isinstance(event, dict) or not _activity_credit_source(source):
         return None
     try:
@@ -1406,8 +1412,10 @@ def credit_coins(user_id, display_name, amount, transaction_id, source="coin-cre
         raise ValueError("Coin credit must be positive.")
 
     def mutate(entry):
-        entry["coins"] = round(float(entry.get("coins", 0)) + amount, 3)
-        return {"source": str(source), "credited": amount}
+        from pets import reward_extra
+        extra = reward_extra(user_id, amount, source)
+        entry["coins"] = round(float(entry.get("coins", 0)) + amount + extra, 3)
+        return {"source": str(source), "credited": amount, "pet_bonus": extra}
 
     entry, event = _shop_mutation(
         user_id, display_name, transaction_id, "coin-credit", mutate
@@ -2807,16 +2815,18 @@ def buy_board(user_id, display_name, board_name, transaction_id):
     if board_name not in BOARD_THEMES or board_name == "classic":
         raise ValueError("Unknown or free default board theme.")
     def mutate(entry):
+        from pets import shop_price
+        cost = shop_price(user_id, BOARD_COST)
         if board_name in entry.get("boards", []):
             raise ValueError("You already own that board theme.")
         before = float(entry.get("coins", 0))
-        if before + 1e-9 < BOARD_COST:
+        if before + 1e-9 < cost:
             raise ValueError(
-                f"Not enough coins. Need {format_points(BOARD_COST)}, have {format_points(before)}."
+                f"Not enough coins. Need {format_points(cost)}, have {format_points(before)}."
             )
-        entry["coins"] = round(before - BOARD_COST, 3)
+        entry["coins"] = round(before - cost, 3)
         entry.setdefault("boards", []).append(board_name)
-        return {"spent": BOARD_COST, "board": board_name}
+        return {"spent": cost, "board": board_name}
     entry, _ = _shop_mutation(user_id, display_name, transaction_id, "buy-board", mutate)
     return {"user_id": str(user_id), **entry}
 
@@ -2842,16 +2852,18 @@ def buy_piece(user_id, display_name, piece_name, transaction_id):
         raise ValueError("Unknown or free default piece set.")
 
     def mutate(entry):
+        from pets import shop_price
+        cost = shop_price(user_id, PIECE_COST)
         if piece_name in entry.get("pieces", []):
             raise ValueError("You already own that piece set.")
         before = float(entry.get("coins", 0))
-        if before + 1e-9 < PIECE_COST:
+        if before + 1e-9 < cost:
             raise ValueError(
-                f"Not enough coins. Need {format_points(PIECE_COST)}, have {format_points(before)}."
+                f"Not enough coins. Need {format_points(cost)}, have {format_points(before)}."
             )
-        entry["coins"] = round(before - PIECE_COST, 3)
+        entry["coins"] = round(before - cost, 3)
         entry.setdefault("pieces", []).append(piece_name)
-        return {"spent": PIECE_COST, "piece": piece_name}
+        return {"spent": cost, "piece": piece_name}
 
     entry, _ = _shop_mutation(user_id, display_name, transaction_id, "buy-piece", mutate)
     return {"user_id": str(user_id), **entry}
@@ -2880,16 +2892,18 @@ def buy_arrow(user_id, display_name, arrow_name, transaction_id):
         raise ValueError("Unknown or free default arrow color.")
 
     def mutate(entry):
+        from pets import shop_price
+        cost = shop_price(user_id, ARROW_COST)
         if arrow_name in entry.get("arrows", []):
             raise ValueError("You already own that arrow color.")
         before = float(entry.get("coins", 0))
-        if before + 1e-9 < ARROW_COST:
+        if before + 1e-9 < cost:
             raise ValueError(
-                f"Not enough coins. Need {format_points(ARROW_COST)}, have {format_points(before)}."
+                f"Not enough coins. Need {format_points(cost)}, have {format_points(before)}."
             )
-        entry["coins"] = round(before - ARROW_COST, 3)
+        entry["coins"] = round(before - cost, 3)
         entry.setdefault("arrows", []).append(arrow_name)
-        return {"spent": ARROW_COST, "arrow": arrow_name}
+        return {"spent": cost, "arrow": arrow_name}
 
     entry, _ = _shop_mutation(user_id, display_name, transaction_id, "buy-arrow", mutate)
     return {"user_id": str(user_id), **entry}
@@ -2921,16 +2935,18 @@ def buy_color(user_id, display_name, color_name, transaction_id):
     if color_name not in NAME_COLORS:
         raise ValueError("Unknown shop color.")
     def mutate(entry):
+        from pets import shop_price
+        cost = shop_price(user_id, COLOR_COST)
         if color_name in entry.get("colors", []):
             raise ValueError("You already own that color.")
         before = float(entry.get("coins", 0))
-        if before + 1e-9 < COLOR_COST:
+        if before + 1e-9 < cost:
             raise ValueError(
-                f"Not enough coins. Need {format_points(COLOR_COST)}, have {format_points(before)}."
+                f"Not enough coins. Need {format_points(cost)}, have {format_points(before)}."
             )
-        entry["coins"] = round(before - COLOR_COST, 3)
+        entry["coins"] = round(before - cost, 3)
         entry.setdefault("colors", []).append(color_name)
-        return {"spent": COLOR_COST, "color": color_name}
+        return {"spent": cost, "color": color_name}
     entry, _ = _shop_mutation(user_id, display_name, transaction_id, "buy-color", mutate)
     return {"user_id": str(user_id), **entry}
 
@@ -2997,16 +3013,18 @@ def buy_profile_theme(user_id, display_name, theme_name, transaction_id):
     cost = float(profile_theme_cost(theme_name))
 
     def mutate(entry):
+        from pets import shop_price
+        price = shop_price(user_id, cost)
         if theme_name in entry.get("profile_themes", []):
             raise ValueError("You already own that profile theme.")
         before = float(entry.get("coins", 0))
-        if before + 1e-9 < cost:
+        if before + 1e-9 < price:
             raise ValueError(
-                f"Not enough coins. Need {format_points(cost)}, have {format_points(before)}."
+                f"Not enough coins. Need {format_points(price)}, have {format_points(before)}."
             )
-        entry["coins"] = round(before - cost, 3)
+        entry["coins"] = round(before - price, 3)
         entry.setdefault("profile_themes", []).append(theme_name)
-        return {"spent": cost, "profile_theme": theme_name}
+        return {"spent": price, "profile_theme": theme_name}
 
     entry, _ = _shop_mutation(
         user_id, display_name, transaction_id, "buy-profile-theme", mutate

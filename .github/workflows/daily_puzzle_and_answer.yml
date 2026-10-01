@@ -5,7 +5,9 @@ on:
     branches: [main]
     paths:
       - 'bot.py'
+      - 'pet_ui.py'
       - 'shared_leaderboard.py'
+      - 'pets.py'
       - 'shop_catalog.py'
       - 'holiday_events.py'
       - 'seasonal_bot_profile.py'
