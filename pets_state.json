@@ -41,9 +41,9 @@
         "name": "",
         "puzzle": {
           "day": "2026-10-01",
-          "fen": "8/8/4p1p1/1pK2p1p/kP3P2/6PP/8/8 w - - 0 50",
+          "fen": "8/8/4p1p1/1pK2p1p/1P3P1P/1k4P1/8/8 w - - 1 51",
           "id": "GROnc",
-          "index": 0,
+          "index": 2,
           "moves": [
             "h3h4",
             "a4b3",
