@@ -39,6 +39,17 @@
         "happy_at": 1790888210.1498027,
         "id": "ec762f8f4d884118a7a8429b28da7bd9",
         "name": "",
+        "puzzle": {
+          "day": "2026-10-01",
+          "fen": "8/8/4p1p1/1pK2p1p/kP3P2/6PP/8/8 w - - 0 50",
+          "id": "GROnc",
+          "index": 0,
+          "moves": [
+            "h3h4",
+            "a4b3",
+            "c5b5"
+          ]
+        },
         "rarity": "common",
         "species": "Cat",
         "xp": 5
