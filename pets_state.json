@@ -52,9 +52,9 @@
         "name": "",
         "puzzle": {
           "day": "2026-10-01",
-          "fen": "8/5kp1/1p6/p4KP1/P7/1P6/8/8 w - - 2 44",
+          "fen": "8/4k1p1/1p4P1/p4K2/P7/1P6/8/8 w - - 1 45",
           "id": "Og7Ac",
-          "index": 0,
+          "index": 2,
           "moves": [
             "g5g6",
             "f7e7",
