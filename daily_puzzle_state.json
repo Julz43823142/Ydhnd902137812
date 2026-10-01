@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/xS1Ky",
     "title": "Lichess • 2443",
     "fen": "8/8/8/p7/1k2KPp1/6P1/8/8 w - - 0 50",
-    "current_fen": "8/8/8/p1k2P2/4K1p1/6P1/8/8 w - - 1 51",
-    "last_move_uci": "b4c5",
+    "current_fen": "8/8/3k1P2/p7/4K1p1/6P1/8/8 w - - 1 52",
+    "last_move_uci": "c5d6",
     "pgn": "f5 Kc5 f6 Kd6 Kf5 a4 Kg6",
     "all_moves": [
       {
@@ -73,28 +73,28 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_xS1Ky_1790878292860",
-    "last_activity_at": "2026-10-01T18:11:57.341021+00:00",
+    "last_activity_at": "2026-10-01T18:12:05.030679+00:00",
     "rating": 2443,
     "rp_band": 4,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 2,
-    "next_player_index": 1,
+    "next_solution_index": 4,
+    "next_player_index": 2,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1555281131983609898
+      "1468320170891022417": 1555281164346990612
     },
-    "message_id": 1555281131983609898,
+    "message_id": 1555281164346990612,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Ke5",
-        "correct": false,
-        "timestamp": "2026-10-01T18:11:57.341230+00:00"
+        "move": "F6",
+        "correct": true,
+        "timestamp": "2026-10-01T18:12:05.030973+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
@@ -102,16 +102,32 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-10-01T18:11:57.341021+00:00",
-    "recent_accepted_moves": [],
+    "last_card_activity_at": "2026-10-01T18:12:05.030679+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1790878325.0309803,
+        "fen_before": "8/8/8/p1k2P2/4K1p1/6P1/8/8 w - - 1 51",
+        "expected": {
+          "uci": "f5f6",
+          "san": "f6",
+          "color": "white"
+        },
+        "accepted_uci": "f5f6"
+      }
+    ],
     "accepted_solution_moves": [
       {
         "san": "f5",
         "uci": "f4f5",
         "principal": true
+      },
+      {
+        "san": "f6",
+        "uci": "f5f6",
+        "principal": true
       }
     ],
-    "last_feedback": "❌ **Another one for the collection, Thice: even your XD cannot make that move look intentional.**\n↪️ **Move played:** `Ke5`",
+    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Kd6",
     "wrong_attempt_counts": {
       "442597396195704832": 2
     }
