@@ -555,9 +555,9 @@
             "daily:2026-10-01:minigame:minigame-2"
           ],
           "progress": {
-            "daily:2026-10-01:minigame:minigame-2": 15
+            "daily:2026-10-01:minigame:minigame-2": 16
           },
-          "updated_at": 1790889619
+          "updated_at": 1790891171
         },
         "1310661840707129370": {
           "name": "Chessmass",
@@ -706,9 +706,9 @@
             "weekly:2026-09-28:minigame:minigame-5"
           ],
           "progress": {
-            "weekly:2026-09-28:minigame:minigame-5": 57
+            "weekly:2026-09-28:minigame:minigame-5": 58
           },
-          "updated_at": 1790889619
+          "updated_at": 1790891171
         },
         "1310661840707129370": {
           "name": "Chessmass",
