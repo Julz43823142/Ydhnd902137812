@@ -85,14 +85,15 @@
       },
       {
         "born_at": 1790890932.9152176,
-        "fed_at": 1790890932.9152176,
+        "fed_at": 1790890940.8493562,
+        "feed_day": "2026-10-01",
         "happiness": 80,
         "happy_at": 1790890932.9152176,
         "id": "7ec4926c43f84137ae96f0da5cd9da72",
         "name": "",
         "rarity": "common",
         "species": "Dog",
-        "xp": 0
+        "xp": 5
       }
     ]
   }
