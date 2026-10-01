@@ -29,7 +29,7 @@
     ]
   },
   "442597396195704832": {
-    "active": "83101ee6f3104150ac91ea63c62fc35b",
+    "active": "7ec4926c43f84137ae96f0da5cd9da72",
     "pets": [
       {
         "born_at": 1790888210.1498027,
@@ -82,6 +82,17 @@
         "species": "Fox",
         "xp": 50.25,
         "xp_day": "2026-10-01"
+      },
+      {
+        "born_at": 1790890932.9152176,
+        "fed_at": 1790890932.9152176,
+        "happiness": 80,
+        "happy_at": 1790890932.9152176,
+        "id": "7ec4926c43f84137ae96f0da5cd9da72",
+        "name": "",
+        "rarity": "common",
+        "species": "Dog",
+        "xp": 0
       }
     ]
   }
