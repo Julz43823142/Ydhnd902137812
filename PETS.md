@@ -4,6 +4,10 @@ Open `!pet` or `!pets` in a chess channel or the Minigames channel. All controls
 are owner-only. Choose a pet from the Collection dropdown to feed, rename,
 solve its daily puzzle, or make it active. Only one pet grants a bonus at once.
 The profile shows care availability and the next reset with Discord timestamps.
+The **Pets** button in `!shop`, `!profile` and `!menu` opens the same collection
+and confirmed egg purchase. Guess channels offer the same buttons and commands.
+Profiles show the living collection and active pet, hiding unhatched identities;
+viewing somebody else's collection never exposes care or purchase controls.
 
 ## Adoption and care
 

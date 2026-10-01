@@ -106,3 +106,33 @@ def holiday_event_details(key, moment=None):
             "christmas": "Christmas itself is on December 25 and 26.",
         }[key]
     return f"{celebration}\n🎁 {HOLIDAYS[key]['label']} Box available through {end.strftime('%B')} {end.day} (inclusive)."
+
+
+def holiday_daily_reminder(key, moment=None):
+    """Countdown to the real celebration and the inclusive event end date."""
+    today = holiday_date(moment)
+    if key == "easter":
+        actual = (easter_sunday(today.year), easter_sunday(today.year) + timedelta(days=1))
+        end = actual[-1]
+    else:
+        year = today.year + (key == "new_year" and today.month == 12)
+        actual_days = {
+            "new_year": ((1, 1),), "valentine": ((2, 14),),
+            "april_fools": ((4, 1),), "earth_day": ((4, 22),),
+            "animal_day": ((10, 4),), "halloween": ((10, 31),),
+            "christmas": ((12, 25), (12, 26)),
+        }
+        actual = tuple(date(year, *day) for day in actual_days[key])
+        end = date(year, *HOLIDAYS[key]["end"])
+    label = HOLIDAYS[key]["label"]
+    future = [day for day in actual if day > today]
+    if today in actual:
+        countdown = f"🎉 Today is {label}!"
+    elif future:
+        days = (min(future) - today).days
+        countdown = f"📅 {label} itself is in {days} {'day' if days == 1 else 'days'}."
+    else:
+        countdown = f"📅 {label} itself has passed; its box event is still active."
+    remaining = (end - today).days + 1
+    availability = "🎁 Last day to open this event's box!" if remaining == 1 else f"🎁 {remaining} event days left, including today."
+    return f"{countdown}\n{holiday_event_details(key, today)}\n{availability}"

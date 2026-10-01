@@ -145,7 +145,7 @@ class AnnouncementTests(unittest.IsolatedAsyncioTestCase):
             self.assertFalse(kwargs["allowed_mentions"].everyone)
 
     async def test_off_day_no_notice_and_next_year_posts_again(self):
-        await self.sync(date(2026, 10, 2))
+        await self.sync(date(2026, 10, 8))
         self.channels[0].send.assert_not_awaited()
         await self.sync(date(2026, 10, 1))
         await self.sync(date(2027, 10, 1))

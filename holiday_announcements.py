@@ -1,19 +1,22 @@
-"""Public first-day notices in both chess channels, owned by Daily only."""
+"""Daily midnight event notices in both chess channels, owned by Daily only."""
 import asyncio
 import logging
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 import discord
-from holiday_events import HOLIDAYS, HOLIDAY_BOX_COST, HOLIDAY_ZONE, holiday_date, starting_holidays, holiday_event_details
+from holiday_events import HOLIDAYS, HOLIDAY_BOX_COST, HOLIDAY_ZONE, holiday_date, starting_holidays, active_holidays, holiday_daily_reminder
 from shared_leaderboard import format_points, reset_holiday_badges_once
 
 log = logging.getLogger(__name__)
 
 
 async def announce_holiday_starts(client, channels, storage, persist, moment=None):
+    """One notice per active event/channel/day, recovering unsaved sends."""
     today = holiday_date(moment)
-    for event in starting_holidays(today):
+    starts = set(starting_holidays(today))
+    for event in active_holidays(today):
         label = HOLIDAYS[event]["label"]
-        marker = f"Holiday launch • {event} • {today.isoformat()}"
+        kind = "launch" if event in starts else "reminder"
+        marker = f"Holiday {kind} • {event} • {today.isoformat()}"
         for channel in channels:
             key = f"{channel.id}:{event}:{today.isoformat()}"
             if storage.get(key):
@@ -27,8 +30,8 @@ async def announce_holiday_starts(client, channels, storage, persist, moment=Non
                     break
             if existing is None:
                 embed = discord.Embed(
-                    title=f"🎊 {label} Event has started!",
-                    description=(holiday_event_details(event, today) + "\n\n" + f"The **{label} Holiday Box** is now available for **{format_points(HOLIDAY_BOX_COST)} coins**!\n"
+                    title=f"🎊 {label} Event has started!" if event in starts else f"🎊 {label} Event is still active!",
+                    description=(holiday_daily_reminder(event, today) + "\n\n" + f"The **{label} Holiday Box** is available for **{format_points(HOLIDAY_BOX_COST)} coins**!\n"
                                  "Use `!box` or `!shop` to choose your box and collect exclusive holiday badges.\n"
                                  "Every Holiday Box guarantees one badge from this event. Duplicates are possible."),
                     color=0xF1C40F,
@@ -41,6 +44,16 @@ async def announce_holiday_starts(client, channels, storage, persist, moment=Non
                 # state write, rather than silently skipping an unsaved key.
                 storage.pop(key, None)
                 raise RuntimeError("Holiday notice sent; persistent state needs retry")
+
+
+def holiday_check_delay(moment=None):
+    """Wake at Amsterdam midnight, or earlier for recovery; handle DST via UTC."""
+    now = datetime.now(HOLIDAY_ZONE) if moment is None else moment
+    if now.tzinfo is None:
+        now = now.replace(tzinfo=HOLIDAY_ZONE)
+    now = now.astimezone(HOLIDAY_ZONE)
+    midnight = datetime.combine(now.date() + timedelta(days=1), time.min, HOLIDAY_ZONE)
+    return max(.1, min(300, midnight.timestamp() - now.timestamp()))
 
 
 async def holiday_launch_loop(client, channels, storage, persist):
@@ -56,4 +69,4 @@ async def holiday_launch_loop(client, channels, storage, persist):
             raise
         except Exception:
             log.exception("Holiday launch housekeeping failed; retrying safely")
-        await asyncio.sleep(300)
+        await asyncio.sleep(holiday_check_delay())
