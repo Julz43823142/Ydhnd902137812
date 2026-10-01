@@ -1,112 +1,100 @@
 {
   "latest_random_puzzle": {
-    "url": "https://lichess.org/training/Q7VAL",
-    "title": "Lichess • 2800",
-    "fen": "rn1qr1k1/pp3pp1/3b1n1p/3N2Nb/2Bp4/3Q3P/PP3PP1/R1B2RK1 w - - 0 16",
-    "current_fen": "rn2rk2/pp3ppQ/3b1q1p/6Nb/2Bp4/7P/PP3PP1/R1B2RK1 w - - 2 18",
-    "last_move_uci": "g8f8",
-    "pgn": "Nxf6+ Qxf6 Qh7+ Kf8 Bd2",
+    "url": "https://lichess.org/training/xS1Ky",
+    "title": "Lichess • 2443",
+    "fen": "8/8/8/p7/1k2KPp1/6P1/8/8 w - - 0 50",
+    "current_fen": "8/8/8/p7/1k2KPp1/6P1/8/8 w - - 0 50",
+    "last_move_uci": "a6a5",
+    "pgn": "f5 Kc5 f6 Kd6 Kf5 a4 Kg6",
     "all_moves": [
       {
-        "uci": "d5f6",
-        "san": "Nxf6+",
+        "uci": "f4f5",
+        "san": "f5",
         "color": "white"
       },
       {
-        "uci": "d8f6",
-        "san": "Qxf6",
+        "uci": "b4c5",
+        "san": "Kc5",
         "color": "black"
       },
       {
-        "uci": "d3h7",
-        "san": "Qh7+",
+        "uci": "f5f6",
+        "san": "f6",
         "color": "white"
       },
       {
-        "uci": "g8f8",
-        "san": "Kf8",
+        "uci": "c5d6",
+        "san": "Kd6",
         "color": "black"
       },
       {
-        "uci": "c1d2",
-        "san": "Bd2",
+        "uci": "e4f5",
+        "san": "Kf5",
+        "color": "white"
+      },
+      {
+        "uci": "a5a4",
+        "san": "a4",
+        "color": "black"
+      },
+      {
+        "uci": "f5g6",
+        "san": "Kg6",
         "color": "white"
       }
     ],
     "player_moves": [
       {
-        "uci": "d5f6",
-        "san": "Nxf6+",
+        "uci": "f4f5",
+        "san": "f5",
         "color": "white"
       },
       {
-        "uci": "d3h7",
-        "san": "Qh7+",
+        "uci": "f5f6",
+        "san": "f6",
         "color": "white"
       },
       {
-        "uci": "c1d2",
-        "san": "Bd2",
+        "uci": "e4f5",
+        "san": "Kf5",
+        "color": "white"
+      },
+      {
+        "uci": "f5g6",
+        "san": "Kg6",
         "color": "white"
       }
     ],
     "player_color": "white",
-    "player_move_count": 3,
-    "posted_at": "2026-10-01T16:56:05.665402+00:00",
-    "answer_posted": true,
+    "player_move_count": 4,
+    "posted_at": "2026-10-01T18:11:32.860365+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "random_Q7VAL_1790873765665",
-    "last_activity_at": "2026-10-01T16:57:09.240575+00:00",
-    "rating": 2800,
-    "rp_band": 5,
-    "boss": true,
+    "puzzle_id": "random_xS1Ky_1790878292860",
+    "last_activity_at": "2026-10-01T18:11:32.860365+00:00",
+    "rating": 2443,
+    "rp_band": 4,
+    "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 4,
-    "next_player_index": 2,
+    "next_solution_index": 0,
+    "next_player_index": 0,
     "solved": false,
-    "message_ids": {
-      "1468320170891022417": 1555262307913826344
-    },
-    "message_id": 1555262307913826344,
+    "message_ids": {},
+    "message_id": null,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {
-      "442597396195704832": {
-        "name": "Thice",
-        "move": "nxf7",
-        "correct": false,
-        "timestamp": "2026-10-01T16:57:09.241080+00:00"
-      }
-    },
-    "first_move_user_id": "442597396195704832",
-    "first_move_user_name": "Thice",
+    "attempted_users": {},
+    "first_move_user_id": null,
+    "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "last_card_activity_at": "2026-10-01T16:57:09.240575+00:00",
-    "recent_accepted_moves": [],
-    "accepted_solution_moves": [
-      {
-        "san": "Nxf6+",
-        "uci": "d5f6",
-        "principal": true
-      },
-      {
-        "san": "Qh7+",
-        "uci": "d3h7",
-        "principal": true
-      }
-    ],
-    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Nxf6+ Qh7+ Bd2",
-    "wrong_attempt_counts": {
-      "442597396195704832": 2
-    }
+    "helper_candidate_users": []
   },
-  "latest_puzzle_type": "daily",
+  "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-01",
