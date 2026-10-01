@@ -93,9 +93,9 @@
         "name": "",
         "puzzle": {
           "day": "2026-10-01",
-          "fen": "8/5Np1/2n1k2p/6P1/5P1P/3K4/8/8 b - - 0 47",
+          "fen": "8/5kp1/2n4P/8/5P1P/3K4/8/8 b - - 0 48",
           "id": "KcX2q",
-          "index": 0,
+          "index": 2,
           "moves": [
             "e6f7",
             "g5h6",
