@@ -569,11 +569,13 @@
         },
         "442597396195704832": {
           "name": "Thice",
-          "paid": [],
+          "paid": [
+            "daily:2026-10-01:puzzle:solve-5"
+          ],
           "progress": {
             "daily:2026-10-01:puzzle:solve-5": 5
           },
-          "updated_at": 1790890907
+          "updated_at": 1790890914
         }
       }
     },
