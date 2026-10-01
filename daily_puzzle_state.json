@@ -1,151 +1,68 @@
 {
   "latest_random_puzzle": {
-    "url": "https://lichess.org/training/xS1Ky",
-    "title": "Lichess • 2443",
-    "fen": "8/8/8/p7/1k2KPp1/6P1/8/8 w - - 0 50",
-    "current_fen": "8/8/3k1P2/5K2/p5p1/6P1/8/8 w - - 0 53",
-    "last_move_uci": "a5a4",
-    "pgn": "f5 Kc5 f6 Kd6 Kf5 a4 Kg6",
+    "url": "https://lichess.org/training/M10v6",
+    "title": "Lichess • 1800",
+    "fen": "5rk1/p1p2p2/3p4/2bBn3/4PB1q/8/P1Q3K1/1R6 w - - 3 30",
+    "current_fen": "5rk1/p1p2p2/3p4/2bBn3/4PB1q/8/P1Q3K1/1R6 w - - 3 30",
+    "last_move_uci": "e1h4",
+    "pgn": "Bxe5 dxe5 Qxc5",
     "all_moves": [
       {
-        "uci": "f4f5",
-        "san": "f5",
+        "uci": "f4e5",
+        "san": "Bxe5",
         "color": "white"
       },
       {
-        "uci": "b4c5",
-        "san": "Kc5",
+        "uci": "d6e5",
+        "san": "dxe5",
         "color": "black"
       },
       {
-        "uci": "f5f6",
-        "san": "f6",
-        "color": "white"
-      },
-      {
-        "uci": "c5d6",
-        "san": "Kd6",
-        "color": "black"
-      },
-      {
-        "uci": "e4f5",
-        "san": "Kf5",
-        "color": "white"
-      },
-      {
-        "uci": "a5a4",
-        "san": "a4",
-        "color": "black"
-      },
-      {
-        "uci": "f5g6",
-        "san": "Kg6",
+        "uci": "c2c5",
+        "san": "Qxc5",
         "color": "white"
       }
     ],
     "player_moves": [
       {
-        "uci": "f4f5",
-        "san": "f5",
+        "uci": "f4e5",
+        "san": "Bxe5",
         "color": "white"
       },
       {
-        "uci": "f5f6",
-        "san": "f6",
-        "color": "white"
-      },
-      {
-        "uci": "e4f5",
-        "san": "Kf5",
-        "color": "white"
-      },
-      {
-        "uci": "f5g6",
-        "san": "Kg6",
+        "uci": "c2c5",
+        "san": "Qxc5",
         "color": "white"
       }
     ],
     "player_color": "white",
-    "player_move_count": 4,
-    "posted_at": "2026-10-01T18:11:32.860365+00:00",
+    "player_move_count": 2,
+    "posted_at": "2026-10-01T18:12:24.510472+00:00",
     "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "random_xS1Ky_1790878292860",
-    "last_activity_at": "2026-10-01T18:12:09.744662+00:00",
-    "rating": 2443,
-    "rp_band": 4,
+    "puzzle_id": "random_M10v6_1790878344510",
+    "last_activity_at": "2026-10-01T18:12:24.510472+00:00",
+    "rating": 1800,
+    "rp_band": 2,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 6,
-    "next_player_index": 3,
+    "next_solution_index": 0,
+    "next_player_index": 0,
     "solved": false,
-    "message_ids": {
-      "1468320170891022417": 1555281184915726487
-    },
-    "message_id": 1555281184915726487,
+    "message_ids": {},
+    "message_id": null,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {
-      "442597396195704832": {
-        "name": "Thice",
-        "move": "Kf5",
-        "correct": true,
-        "timestamp": "2026-10-01T18:12:09.744841+00:00"
-      }
-    },
-    "first_move_user_id": "442597396195704832",
-    "first_move_user_name": "Thice",
+    "attempted_users": {},
+    "first_move_user_id": null,
+    "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "last_card_activity_at": "2026-10-01T18:12:09.744662+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1790878325.0309803,
-        "fen_before": "8/8/8/p1k2P2/4K1p1/6P1/8/8 w - - 1 51",
-        "expected": {
-          "uci": "f5f6",
-          "san": "f6",
-          "color": "white"
-        },
-        "accepted_uci": "f5f6"
-      },
-      {
-        "accepted_at": 1790878329.7448492,
-        "fen_before": "8/8/3k1P2/p7/4K1p1/6P1/8/8 w - - 1 52",
-        "expected": {
-          "uci": "e4f5",
-          "san": "Kf5",
-          "color": "white"
-        },
-        "accepted_uci": "e4f5"
-      }
-    ],
-    "accepted_solution_moves": [
-      {
-        "san": "f5",
-        "uci": "f4f5",
-        "principal": true
-      },
-      {
-        "san": "f6",
-        "uci": "f5f6",
-        "principal": true
-      },
-      {
-        "san": "Kf5",
-        "uci": "e4f5",
-        "principal": true
-      }
-    ],
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** a4",
-    "wrong_attempt_counts": {
-      "442597396195704832": 2
-    }
+    "helper_candidate_users": []
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
