@@ -4,14 +4,15 @@
     "pets": [
       {
         "born_at": 1790887920.6410599,
-        "fed_at": 1790887920.6410599,
+        "fed_at": 1790888010.2671776,
+        "feed_day": "2026-10-01",
         "happiness": 80,
         "happy_at": 1790887920.6410599,
         "id": "f52af29b941c419c9186a22d702d1f1f",
         "name": "",
         "rarity": "common",
         "species": "Cat",
-        "xp": 0
+        "xp": 5
       }
     ]
   }
