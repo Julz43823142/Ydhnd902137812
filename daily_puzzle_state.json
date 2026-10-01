@@ -1,118 +1,70 @@
 {
   "latest_random_puzzle": {
-    "url": "https://lichess.org/training/bJETx",
-    "title": "Lichess • 2008",
-    "fen": "4r1k1/5pP1/4p2P/p2pPnR1/8/P3b3/2rBK3/R7 w - - 1 31",
-    "current_fen": "4r3/5pPk/4p2n/p2pP1R1/8/P3b3/2rBK3/7R w - - 2 33",
-    "last_move_uci": "f5h6",
-    "pgn": "h7+ Kxh7 Rh1+ Nh6 Kxe3",
+    "url": "https://lichess.org/training/MarXl",
+    "title": "Lichess • 1662",
+    "fen": "3r2k1/5ppp/p1qNp1n1/1pPr4/3PQ3/7P/P4PP1/2RR2K1 b - - 3 25",
+    "current_fen": "3r2k1/5ppp/p1qNp1n1/1pPr4/3PQ3/7P/P4PP1/2RR2K1 b - - 3 25",
+    "last_move_uci": "c2e4",
+    "pgn": "R5xd6 Qxc6 Rxc6",
     "all_moves": [
       {
-        "uci": "h6h7",
-        "san": "h7+",
-        "color": "white"
-      },
-      {
-        "uci": "g8h7",
-        "san": "Kxh7",
+        "uci": "d5d6",
+        "san": "R5xd6",
         "color": "black"
       },
       {
-        "uci": "a1h1",
-        "san": "Rh1+",
+        "uci": "e4c6",
+        "san": "Qxc6",
         "color": "white"
       },
       {
-        "uci": "f5h6",
-        "san": "Nh6",
+        "uci": "d6c6",
+        "san": "Rxc6",
         "color": "black"
-      },
-      {
-        "uci": "e2e3",
-        "san": "Kxe3",
-        "color": "white"
       }
     ],
     "player_moves": [
       {
-        "uci": "h6h7",
-        "san": "h7+",
-        "color": "white"
+        "uci": "d5d6",
+        "san": "R5xd6",
+        "color": "black"
       },
       {
-        "uci": "a1h1",
-        "san": "Rh1+",
-        "color": "white"
-      },
-      {
-        "uci": "e2e3",
-        "san": "Kxe3",
-        "color": "white"
+        "uci": "d6c6",
+        "san": "Rxc6",
+        "color": "black"
       }
     ],
-    "player_color": "white",
-    "player_move_count": 3,
-    "posted_at": "2026-10-01T21:40:26.971408+00:00",
+    "player_color": "black",
+    "player_move_count": 2,
+    "posted_at": "2026-10-01T21:41:23.556075+00:00",
     "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "random_bJETx_1790890826971",
-    "last_activity_at": "2026-10-01T21:40:46.216312+00:00",
-    "rating": 2008,
-    "rp_band": 2,
+    "puzzle_id": "random_MarXl_1790890883556",
+    "last_activity_at": "2026-10-01T21:41:23.556075+00:00",
+    "rating": 1662,
+    "rp_band": 1,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 4,
-    "next_player_index": 2,
+    "next_solution_index": 0,
+    "next_player_index": 0,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1555333682057707580
+      "1468320170891022417": 1555333841567219743
     },
-    "message_id": 1555333682057707580,
+    "message_id": 1555333841567219743,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {
-      "442597396195704832": {
-        "name": "Thice",
-        "move": "Rh1",
-        "correct": true,
-        "timestamp": "2026-10-01T21:40:46.216580+00:00"
-      }
-    },
-    "first_move_user_id": "442597396195704832",
-    "first_move_user_name": "Thice",
+    "attempted_users": {},
+    "first_move_user_id": null,
+    "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "last_card_activity_at": "2026-10-01T21:40:46.216312+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1790890846.2165885,
-        "fen_before": "4r3/5pPk/4p3/p2pPnR1/8/P3b3/2rBK3/R7 w - - 0 32",
-        "expected": {
-          "uci": "a1h1",
-          "san": "Rh1+",
-          "color": "white"
-        },
-        "accepted_uci": "a1h1"
-      }
-    ],
-    "accepted_solution_moves": [
-      {
-        "san": "h7+",
-        "uci": "h6h7",
-        "principal": true
-      },
-      {
-        "san": "Rh1+",
-        "uci": "a1h1",
-        "principal": true
-      }
-    ],
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Nh6"
+    "helper_candidate_users": []
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
