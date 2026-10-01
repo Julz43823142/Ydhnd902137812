@@ -1,108 +1,85 @@
 {
   "latest_random_puzzle": {
-    "url": "https://lichess.org/training/bFTId",
-    "title": "Lichess • 1751",
-    "fen": "5rk1/p4q2/4Q1p1/2p5/2Pr3p/1P5N/P5KP/3RR3 b - - 2 32",
-    "current_fen": "5rk1/p7/4R1p1/2p5/2P4p/1P5N/P5KP/3r4 w - - 0 34",
-    "last_move_uci": "d4d1",
-    "pgn": "Qxe6 Rxe6 Rxd1",
+    "url": "https://lichess.org/training/FG8Kf",
+    "title": "Lichess • 1931",
+    "fen": "r3q2k/1pp3pp/2N3r1/1p6/4n3/1QN5/PP3PPP/R3R1K1 b - - 0 20",
+    "current_fen": "r3q2k/1pp3pp/2N3r1/1p6/4n3/1QN5/PP3PPP/R3R1K1 b - - 0 20",
+    "last_move_uci": "d4c6",
+    "pgn": "Rxg2+ Kxg2 Qg6+ Kf3 Nd2+",
     "all_moves": [
       {
-        "uci": "f7e6",
-        "san": "Qxe6",
+        "uci": "g6g2",
+        "san": "Rxg2+",
         "color": "black"
       },
       {
-        "uci": "e1e6",
-        "san": "Rxe6",
+        "uci": "g1g2",
+        "san": "Kxg2",
         "color": "white"
       },
       {
-        "uci": "d4d1",
-        "san": "Rxd1",
+        "uci": "e8g6",
+        "san": "Qg6+",
+        "color": "black"
+      },
+      {
+        "uci": "g2f3",
+        "san": "Kf3",
+        "color": "white"
+      },
+      {
+        "uci": "e4d2",
+        "san": "Nd2+",
         "color": "black"
       }
     ],
     "player_moves": [
       {
-        "uci": "f7e6",
-        "san": "Qxe6",
+        "uci": "g6g2",
+        "san": "Rxg2+",
         "color": "black"
       },
       {
-        "uci": "d4d1",
-        "san": "Rxd1",
+        "uci": "e8g6",
+        "san": "Qg6+",
+        "color": "black"
+      },
+      {
+        "uci": "e4d2",
+        "san": "Nd2+",
         "color": "black"
       }
     ],
     "player_color": "black",
-    "player_move_count": 2,
-    "posted_at": "2026-09-30T19:23:19.003405+00:00",
-    "answer_posted": true,
+    "player_move_count": 3,
+    "posted_at": "2026-10-01T11:16:38.864589+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "random_bFTId_1790796199003",
-    "last_activity_at": "2026-09-30T19:23:45.429049+00:00",
-    "rating": 1751,
-    "rp_band": 1,
+    "puzzle_id": "random_FG8Kf_1790853398864",
+    "last_activity_at": "2026-10-01T11:16:38.864589+00:00",
+    "rating": 1931,
+    "rp_band": 2,
     "boss": false,
-    "board_theme": "blue",
+    "board_theme": "classic",
     "piece_theme": "classic",
-    "arrow_theme": "pink",
-    "next_solution_index": 3,
-    "next_player_index": 2,
-    "solved": true,
-    "message_ids": {
-      "1468320170891022417": 1554936813934612644
-    },
-    "message_id": 1554936813934612644,
+    "arrow_theme": "green",
+    "next_solution_index": 0,
+    "next_player_index": 0,
+    "solved": false,
+    "message_ids": {},
+    "message_id": null,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {
-      "442597396195704832": {
-        "name": "Thice",
-        "move": "rxd1",
-        "correct": true,
-        "timestamp": "2026-09-30T19:23:45.429762+00:00"
-      }
-    },
-    "first_move_user_id": "442597396195704832",
-    "first_move_user_name": "Thice",
-    "first_move_awarded": true,
+    "attempted_users": {},
+    "first_move_user_id": null,
+    "first_move_user_name": null,
+    "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "last_card_activity_at": "2026-09-30T19:23:45.429049+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1790796225.4297693,
-        "fen_before": "5rk1/p7/4R1p1/2p5/2Pr3p/1P5N/P5KP/3R4 b - - 0 33",
-        "expected": {
-          "uci": "d4d1",
-          "san": "Rxd1",
-          "color": "black"
-        },
-        "accepted_uci": "d4d1"
-      }
-    ],
-    "wrong_attempt_counts": {
-      "442597396195704832": 1
-    },
-    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1698 points.**\n\n💡 **Solution:** Qxe6 Rxd1\n\n🏆 **Your ranking**\n**#1 🙂 Thice — 1698 points ← you**\n**#2 🍅 TheMakina — 1545 points**",
-    "accepted_solution_moves": [
-      {
-        "san": "Qxe6",
-        "uci": "f7e6",
-        "principal": true
-      },
-      {
-        "san": "Rxd1",
-        "uci": "d4d1",
-        "principal": true
-      }
-    ]
+    "helper_candidate_users": []
   },
-  "latest_puzzle_type": "daily",
+  "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-01",
