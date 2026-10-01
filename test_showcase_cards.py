@@ -49,8 +49,11 @@ class CardRendering(unittest.TestCase):
                     self.assertIn(value, labels)
                 self.assertEqual(labels.count(theme['label']), 1)
                 self.assertNotIn('profileAvatarClip', svg)
+                for slogan in ['S H A R K B O T', 'Community profile', 'PLAY  /  GROW  /  COLLECT', 'YOUR STORY, ONE GAME AT A TIME']:
+                    self.assertNotIn(slogan, svg)
+                self.assertIn('<image', svg)
                 png = cairosvg.svg2png(bytestring=svg.encode())
-                self.assertEqual(Image.open(io.BytesIO(png)).size, (1200,680))
+                self.assertEqual(Image.open(io.BytesIO(png)).size, (1200,820))
 
     def test_all_species_have_distinct_four_stage_artwork_and_render(self):
         portraits = set()

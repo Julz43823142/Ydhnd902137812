@@ -1,0 +1,86 @@
+{
+  "classic": {
+    "file": "classic.jpg",
+    "label": "Classic"
+  },
+  "purple": {
+    "file": "purple.jpg",
+    "label": "Twitch"
+  },
+  "galaxy": {
+    "file": "galaxy.jpg",
+    "label": "Galaxy"
+  },
+  "lava": {
+    "file": "lava.jpg",
+    "label": "Lava"
+  },
+  "ocean": {
+    "file": "ocean.jpg",
+    "label": "Ocean"
+  },
+  "shark": {
+    "file": "shark.jpg",
+    "label": "Shark"
+  },
+  "neon": {
+    "file": "neon.jpg",
+    "label": "Neon"
+  },
+  "forest": {
+    "file": "forest.jpg",
+    "label": "Forest"
+  },
+  "ice": {
+    "file": "ice.jpg",
+    "label": "Ice"
+  },
+  "sunset": {
+    "file": "sunset.jpg",
+    "label": "Sunset"
+  },
+  "cyber": {
+    "file": "cyber.jpg",
+    "label": "Cyber"
+  },
+  "shadows_of_doubt": {
+    "file": "shadows_of_doubt.jpg",
+    "label": "Shadows of Doubt"
+  },
+  "detroit": {
+    "file": "detroit.jpg",
+    "label": "Detroit: Become Human"
+  },
+  "stray": {
+    "file": "stray.jpg",
+    "label": "Stray"
+  },
+  "cs2": {
+    "file": "cs2.jpg",
+    "label": "Counter-Strike 2"
+  },
+  "killer_frequency": {
+    "file": "killer_frequency.jpg",
+    "label": "Killer Frequency"
+  },
+  "fears_to_fathom": {
+    "file": "fears_to_fathom.jpg",
+    "label": "Fears to Fathom"
+  },
+  "firewatch": {
+    "file": "firewatch.jpg",
+    "label": "Firewatch"
+  },
+  "heavy_rain": {
+    "file": "heavy_rain.jpg",
+    "label": "Heavy Rain"
+  },
+  "chess": {
+    "file": "chess.jpg",
+    "label": "Chess"
+  },
+  "minecraft": {
+    "file": "minecraft.jpg",
+    "label": "Minecraft"
+  }
+}
