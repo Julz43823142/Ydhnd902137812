@@ -204,13 +204,13 @@
     "next_solution_index": 2,
     "next_player_index": 1,
     "solved": false,
-    "message_id": 1555213115073892449,
+    "message_id": 1555213189292232714,
     "attempted_users": {
       "1310661840707129370": {
         "name": "Chessmass",
-        "move": "Nf2",
+        "move": "Qg4",
         "correct": false,
-        "timestamp": "2026-10-01T13:41:39.859429+00:00"
+        "timestamp": "2026-10-01T13:41:55.515971+00:00"
       }
     },
     "first_move_user_id": "1310661840707129370",
@@ -219,12 +219,12 @@
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1555213115073892449,
-      "1546557493038284840": 1555213110501974027
+      "1468320170891022417": 1555213189292232714,
+      "1546557493038284840": 1555213176642216016
     },
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-10-01T13:41:39.859172+00:00",
+    "last_card_activity_at": "2026-10-01T13:41:55.514824+00:00",
     "recent_accepted_moves": [],
     "accepted_solution_moves": [
       {
@@ -233,9 +233,9 @@
         "principal": true
       }
     ],
-    "last_feedback": "❌ **Almost, Chessmass. the correct move is still within reach.**\n↪️ **Move played:** `Nf2`",
+    "last_feedback": "❌ **The board says no, Chessmass: that was a reasonable try.**\n↪️ **Move played:** `Qg4`",
     "wrong_attempt_counts": {
-      "1310661840707129370": 1
+      "1310661840707129370": 2
     }
   },
   "lichess_rating_used": {
