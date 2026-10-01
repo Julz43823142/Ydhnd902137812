@@ -10,6 +10,17 @@
         "happy_at": 1790887920.6410599,
         "id": "f52af29b941c419c9186a22d702d1f1f",
         "name": "",
+        "puzzle": {
+          "day": "2026-10-01",
+          "fen": "1k2r3/1n3p2/1Q6/p2pP3/P2P2p1/2P1q1B1/6PP/5K2 w - - 5 39",
+          "id": "ZPYrs",
+          "index": 0,
+          "moves": [
+            "e5e6",
+            "e3g3",
+            "h2g3"
+          ]
+        },
         "rarity": "common",
         "species": "Cat",
         "xp": 5
