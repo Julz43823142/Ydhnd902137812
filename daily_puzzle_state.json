@@ -1,77 +1,85 @@
 {
   "latest_random_puzzle": {
-    "url": "https://lichess.org/training/0F2pk",
-    "title": "Lichess • 2547",
-    "fen": "8/5k1p/p1pqpp2/3p4/2pP3p/2P2Nr1/PP3Q2/6RK w - - 0 33",
-    "current_fen": "8/5k1p/p1pqpp2/3p4/2pP3p/2P2Nr1/PP3Q2/6RK w - - 0 33",
-    "last_move_uci": "h5h4",
-    "pgn": "Ne5+ Ke7 Rf1",
+    "url": "https://lichess.org/training/bJETx",
+    "title": "Lichess • 2008",
+    "fen": "4r1k1/5pP1/4p2P/p2pPnR1/8/P3b3/2rBK3/R7 w - - 1 31",
+    "current_fen": "4r1k1/5pP1/4p2P/p2pPnR1/8/P3b3/2rBK3/R7 w - - 1 31",
+    "last_move_uci": "f2e3",
+    "pgn": "h7+ Kxh7 Rh1+ Nh6 Kxe3",
     "all_moves": [
       {
-        "uci": "f3e5",
-        "san": "Ne5+",
+        "uci": "h6h7",
+        "san": "h7+",
         "color": "white"
       },
       {
-        "uci": "f7e7",
-        "san": "Ke7",
+        "uci": "g8h7",
+        "san": "Kxh7",
         "color": "black"
       },
       {
-        "uci": "g1f1",
-        "san": "Rf1",
+        "uci": "a1h1",
+        "san": "Rh1+",
+        "color": "white"
+      },
+      {
+        "uci": "f5h6",
+        "san": "Nh6",
+        "color": "black"
+      },
+      {
+        "uci": "e2e3",
+        "san": "Kxe3",
         "color": "white"
       }
     ],
     "player_moves": [
       {
-        "uci": "f3e5",
-        "san": "Ne5+",
+        "uci": "h6h7",
+        "san": "h7+",
         "color": "white"
       },
       {
-        "uci": "g1f1",
-        "san": "Rf1",
+        "uci": "a1h1",
+        "san": "Rh1+",
+        "color": "white"
+      },
+      {
+        "uci": "e2e3",
+        "san": "Kxe3",
         "color": "white"
       }
     ],
     "player_color": "white",
-    "player_move_count": 2,
-    "posted_at": "2026-10-01T18:27:08.323820+00:00",
-    "answer_posted": true,
+    "player_move_count": 3,
+    "posted_at": "2026-10-01T21:40:26.971408+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "practice_0F2pk_442597396195704832_1790879228323",
-    "last_activity_at": "2026-10-01T18:27:08.323820+00:00",
-    "rating": 2547,
-    "rp_band": 4,
+    "puzzle_id": "random_bJETx_1790890826971",
+    "last_activity_at": "2026-10-01T21:40:26.971408+00:00",
+    "rating": 2008,
+    "rp_band": 2,
     "boss": false,
-    "practice_only": true,
-    "rated_practice": true,
-    "practice_owner_id": "442597396195704832",
-    "practice_owner_name": "Thice",
-    "chat_since_refresh": 0,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_id": 1555284953758048320,
+    "message_ids": {},
+    "message_id": null,
+    "channel_id": 1468320170891022417,
+    "chat_since_refresh": 0,
     "attempted_users": {},
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "channel_id": 1468320170891022417,
-    "message_ids": {
-      "1468320170891022417": 1555284953758048320
-    },
-    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Ne5+ Rf1"
+    "helper_candidate_users": []
   },
-  "latest_puzzle_type": "daily",
+  "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-01",
