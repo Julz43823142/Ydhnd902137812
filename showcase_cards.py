@@ -25,7 +25,7 @@ def text(x, y, value, size=18, color='#f4f7ff', weight=400, anchor='start'):
             f'font-weight="{weight}" fill="{color}" text-anchor="{anchor}">{escape(str(value))}</text>')
 
 
-def profile_svg(theme_label, background, accent, soft, scene, overlay, stats, icon):
+def profile_svg_v1(theme_label, background, accent, soft, scene, overlay, stats, icon):
     """Keep each original themed scene; shared typography and geometry unify all themes."""
     tiles = []
     for i, (label, value, kind) in enumerate(stats):
@@ -53,6 +53,57 @@ def profile_svg(theme_label, background, accent, soft, scene, overlay, stats, ic
     {''.join(tiles)}{text(56,639,'YOUR STORY, ONE GAME AT A TIME',12,soft,700)}
     <rect x="1" y="1" width="1198" height="678" rx="32" fill="none" stroke="{accent}" stroke-opacity=".3"/>
     </g></svg>'''
+
+
+def profile_svg(theme_label, background, accent, soft, scene, overlay, stats, icon, theme_key=None, style=None):
+    """A large, unobstructed cinematic scene above a legible eight-stat dashboard."""
+    style = style or os.getenv('SHARKBOT_PROFILE_CARD_STYLE', 'cinematic')
+    if style == 'showcase-v1':
+        return profile_svg_v1(theme_label, background, accent, soft, scene, overlay, stats, icon)
+    from profile_theme_art import image_uri
+    if theme_key is None:
+        from shop_catalog import PROFILE_THEMES
+        theme_key = next(key for key, item in PROFILE_THEMES.items() if item['label'] == theme_label)
+    artwork_uri = image_uri(theme_key)
+    tiles = []
+    for i, (label, value, kind) in enumerate(stats):
+        x, y = 32 + (i % 4) * 288, 452 + (i // 4) * 172
+        value = str(value)
+        size = min(44, 232 / max(1, len(value)) * 1.65)
+        tiles.append(
+            f'<rect x="{x}" y="{y}" width="272" height="154" rx="20" fill="url(#cinemaTile)" stroke="{accent}" stroke-opacity=".26"/>'
+            f'<rect x="{x+15}" y="{y+15}" width="62" height="62" rx="16" fill="{accent}" fill-opacity=".10"/>'
+            + icon(kind, x+15, y+15, 62, accent, '#ffffff')
+            + text(x+90, y+51, label, 18, '#e0e8f3', 600)
+            + text(x+22, y+127, value, size, weight=700)
+        )
+    badge_width = max(172, min(330, 65 + len(theme_label) * 10))
+    badge_x = 1168 - badge_width
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="820" viewBox="0 0 1200 820">
+    <defs><clipPath id="cinemaEdge"><rect width="1200" height="820" rx="28"/></clipPath>
+    <linearGradient id="cinemaVeil" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#050b15" stop-opacity="0"/><stop offset=".43" stop-color="#050b15" stop-opacity=".02"/><stop offset=".57" stop-color="#050b15" stop-opacity=".76"/><stop offset=".78" stop-color="#050b15" stop-opacity=".93"/><stop offset="1" stop-color="#050b15"/></linearGradient>
+    <linearGradient id="cinemaTile" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#101b2b" stop-opacity=".93"/><stop offset="1" stop-color="#08101e" stop-opacity=".96"/></linearGradient>
+    </defs><g clip-path="url(#cinemaEdge)"><rect width="1200" height="820" fill="#050b15"/>
+    <image href="{artwork_uri}" x="0" y="0" width="1200" height="820" preserveAspectRatio="xMidYMin slice"/>
+    <rect width="1200" height="820" fill="url(#cinemaVeil)"/>
+    <rect x="{badge_x}" y="28" width="{badge_width}" height="44" rx="22" fill="#07111f" fill-opacity=".83" stroke="{accent}" stroke-opacity=".58"/>
+    <circle cx="{badge_x+23}" cy="50" r="4" fill="{accent}"/>{text(badge_x+40,57,theme_label,18,'#f4f7ff',600)}
+    <path d="M32 429h1136" stroke="{accent}" stroke-opacity=".32"/>
+    {''.join(tiles)}<rect x="1" y="1" width="1198" height="818" rx="28" fill="none" stroke="{accent}" stroke-opacity=".4"/>
+    </g></svg>'''
+
+
+@lru_cache(maxsize=48)
+def render_profile_card(theme_key, theme_label, background, accent, soft, scene, overlay, stats, icon, style='cinematic'):
+    """Cache immutable card bytes, never reusable File streams or live player data."""
+    import io
+    import cairosvg
+    from PIL import Image
+    svg = profile_svg(theme_label, background, accent, soft, scene, overlay, stats, icon, theme_key, style)
+    png = cairosvg.svg2png(bytestring=svg.encode(), background_color='#050b15')
+    output = io.BytesIO()
+    Image.open(io.BytesIO(png)).convert('RGB').save(output, format='JPEG', quality=93, subsampling=0, optimize=True)
+    return output.getvalue()
 
 
 @lru_cache(maxsize=1)

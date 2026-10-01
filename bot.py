@@ -12315,6 +12315,8 @@ class CosmeticCatalogPager(discord.ui.View):
     def __init__(self, viewer_id, kind, page=1, selected_name=None):
         super().__init__(timeout=300)
         self.viewer_id = int(viewer_id)
+        self._preview_revision = 0
+        self._preview_edit_lock = asyncio.Lock()
         requested = str(kind or "piece").casefold()
         self.kind = requested if requested in {"board", "piece", "arrow", "theme"} else "piece"
         if self.kind == "board":
@@ -12426,44 +12428,69 @@ class CosmeticCatalogPager(discord.ui.View):
             except Exception:
                 return None
 
-    async def preview_file(self, user):
+    async def preview_file(self, user, selected_name=None):
+        # Snapshot the selection before any I/O; later clicks must not change this render.
+        selected = self.selected_name if selected_name is None else selected_name
         profile = await asyncio.to_thread(get_cosmetic_profile, user.id, user.display_name)
         if self.kind == "theme":
             _profile, file = await make_profile_card_file(
                 user.id,
                 user.display_name,
                 avatar_url=self._avatar_url(user),
-                theme_override=self.selected_name,
+                theme_override=selected,
+                profile=profile,
             )
             return profile, file
 
         arrow_theme = profile.get("active_arrow", DEFAULT_ARROW_COLOR)
         show_arrow = False
         if self.kind == "board":
-            board_name = self.selected_name
+            board_name = selected
             piece_name = profile.get("active_piece", "classic")
             filename = "board_shop_preview.png"
         elif self.kind == "arrow":
             board_name = profile.get("active_board", "classic")
             piece_name = profile.get("active_piece", "classic")
-            arrow_theme = self.selected_name
+            arrow_theme = selected
             show_arrow = True
             filename = "arrow_shop_preview.png"
         else:
             board_name = profile.get("active_board", "classic")
-            piece_name = self.selected_name
+            piece_name = selected
             filename = "piece_shop_preview.png"
         file = await asyncio.to_thread(make_cosmetic_preview_file, board_name, piece_name, filename, arrow_theme, show_arrow)
         return profile, file
 
+    def preview_embed(self, file):
+        if self.kind != "theme":
+            return None
+        theme = PROFILE_THEMES[self.selected_name]
+        embed = discord.Embed(color=int(theme['embed_color']))
+        embed.set_image(url=f"attachment://{file.filename}")
+        return embed
+
     async def _show_selected(self, interaction):
+        self._preview_revision += 1
+        revision = self._preview_revision
+        selected, page = self.selected_name, self.page
         await interaction.response.defer()
         try:
-            profile, file = await self.preview_file(interaction.user)
-            self._rebuild(profile)
-            await interaction.edit_original_response(content=self.render(profile), attachments=[file], view=self)
-        except Exception as error:
-            await interaction.followup.send(f"❌ Could not render preview: `{str(error)[:800]}`", ephemeral=True)
+            profile, file = await self.preview_file(interaction.user, selected_name=selected)
+            # Serialize Discord edits, not rendering. A slow earlier request cannot
+            # overwrite a newer selection or pair its image with the wrong buttons.
+            async with self._preview_edit_lock:
+                if revision != self._preview_revision or selected != self.selected_name or page != self.page:
+                    file.close()
+                    file.fp.close()
+                    return
+                self._rebuild(profile)
+                kwargs = {"content": self.render(profile), "attachments": [file], "view": self}
+                if self.kind == "theme":
+                    kwargs['embed'] = self.preview_embed(file)
+                await interaction.edit_original_response(**kwargs)
+        except Exception:
+            if revision == self._preview_revision:
+                await interaction.followup.send("The preview could not be loaded. Please try again.", ephemeral=True)
 
     def _rebuild(self, profile=None):
         self.clear_items()
@@ -12576,7 +12603,10 @@ async def send_cosmetic_catalog_preview(message, kind, page=1):
     view = CosmeticCatalogPager(message.author.id, kind, page)
     profile, file = await view.preview_file(message.author)
     view._rebuild(profile)
-    await message.channel.send(view.render(profile), file=file, view=view)
+    kwargs = {"file": file, "view": view}
+    if view.kind == "theme":
+        kwargs['embed'] = view.preview_embed(file)
+    await message.channel.send(view.render(profile), **kwargs)
 
 
 def shared_coin_top10_embed():
@@ -13369,11 +13399,12 @@ async def make_profile_card_file_legacy(user_id, display_name, avatar_url=None, 
     return profile, discord.File(fp=BytesIO(png), filename='profile_card.png')
 
 
-async def make_profile_card_file(user_id, display_name, avatar_url=None, theme_override=None):
-    from showcase_cards import legacy_style, profile_svg
+async def make_profile_card_file(user_id, display_name, avatar_url=None, theme_override=None, profile=None):
+    from showcase_cards import legacy_style, render_profile_card
     if legacy_style():
         return await make_profile_card_file_legacy(user_id, display_name, avatar_url, theme_override)
-    profile = await asyncio.to_thread(get_cosmetic_profile, user_id, display_name)
+    if profile is None:
+        profile = await asyncio.to_thread(get_cosmetic_profile, user_id, display_name)
     puzzle_stats = await asyncio.to_thread(puzzle_stats_for_user, user_id, display_name)
     chess_stats = chess_rating_profile(user_id, display_name)
     theme_key = str(theme_override or profile.get("active_profile_theme") or "classic").casefold()
@@ -13390,10 +13421,15 @@ async def make_profile_card_file(user_id, display_name, avatar_url=None, theme_o
         ("Puzzles Solved", int(puzzle_stats.get("correct", 0) or 0), "puzzle"),
         ("Games Played", int(chess_stats.get("games", 0) or 0), "games"),
     ]
-    svg = profile_svg(PROFILE_THEMES[theme_key]["label"], background, accent, soft, scene,
-                      _profile_card_overlay_svg(theme_key, accent, soft), stats, _profile_stat_icon_svg)
-    png = await asyncio.to_thread(cairosvg.svg2png, bytestring=svg.encode())
-    return profile, discord.File(BytesIO(png), filename="profile_card.png")
+    data = await asyncio.to_thread(
+        render_profile_card, theme_key, PROFILE_THEMES[theme_key]['label'], background, accent, soft,
+        scene, _profile_card_overlay_svg(theme_key, accent, soft), tuple(stats), _profile_stat_icon_svg,
+        os.getenv('SHARKBOT_PROFILE_CARD_STYLE', 'cinematic'),
+    )
+    from hashlib import sha256
+    # A theme/content-specific attachment name prevents stale image references.
+    filename = f"profile-{theme_key}-{sha256(data).hexdigest()[:12]}.jpg"
+    return profile, discord.File(BytesIO(data), filename=filename)
 
 
 async def make_profile_embed(user_id, display_name, member=None):
@@ -13419,7 +13455,7 @@ async def make_profile_embed(user_id, display_name, member=None):
     from pet_ui import user_collection_summary
     pet_summary = await asyncio.to_thread(user_collection_summary, user_id)
     embed.add_field(name="🐾 Pets", value=pet_summary, inline=False)
-    embed.set_image(url="attachment://profile_card.png")
+    embed.set_image(url=f"attachment://{file.filename}" if file is not None else "attachment://profile_card.png")
     if member is not None:
         try:
             embed.set_thumbnail(url=member.display_avatar.url)
@@ -17174,15 +17210,21 @@ class LeaderboardMenuView(discord.ui.View):
 
 
 async def _send_catalog_from_interaction(interaction, kind):
+    # Acknowledge immediately, before wallet refreshes and image rendering.
+    await interaction.response.defer(ephemeral=True)
     view = CosmeticCatalogPager(interaction.user.id, kind, 1)
-    profile, file = await view.preview_file(interaction.user)
-    await interaction.response.send_message(
-        view.render(profile),
-        file=file,
-        view=view,
-        ephemeral=True,
-        allowed_mentions=discord.AllowedMentions.none(),
-    )
+    try:
+        profile, file = await view.preview_file(interaction.user)
+        view._rebuild(profile)
+        kwargs = {"file": file, "view": view}
+        if view.kind == "theme":
+            kwargs['embed'] = view.preview_embed(file)
+        await interaction.followup.send(view.render(profile), ephemeral=True,
+                                        allowed_mentions=discord.AllowedMentions.none(), **kwargs)
+    except Exception:
+        view.stop()
+        await interaction.followup.send("The catalogue could not be loaded. Please try again.", ephemeral=True)
+
 
 
 class DonateAssetModal(discord.ui.Modal, title="Donate Coins / Badge"):

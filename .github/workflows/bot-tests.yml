@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - '*.py'
+      - 'assets/profile_themes/**'
       - 'minigames/**'
       - '.github/workflows/**'
   workflow_dispatch:

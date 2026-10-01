@@ -11,6 +11,8 @@ on:
       - 'pets.py'
       - 'pet_ui.py'
       - 'showcase_cards.py'
+      - 'profile_theme_art.py'
+      - 'assets/profile_themes/**'
       - 'public_profiles.py'
       - 'assets/pets/**'
       - 'shop_catalog.py'
