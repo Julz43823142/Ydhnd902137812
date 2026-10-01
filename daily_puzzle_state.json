@@ -204,13 +204,13 @@
     "next_solution_index": 4,
     "next_player_index": 2,
     "solved": false,
-    "message_id": 1555213204282548319,
+    "message_id": 1555213288424472707,
     "attempted_users": {
       "1310661840707129370": {
         "name": "Chessmass",
-        "move": "Qh4",
-        "correct": true,
-        "timestamp": "2026-10-01T13:42:00.705947+00:00"
+        "move": "Nf2",
+        "correct": false,
+        "timestamp": "2026-10-01T13:42:20.337208+00:00"
       }
     },
     "first_move_user_id": "1310661840707129370",
@@ -219,24 +219,13 @@
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1555213204282548319,
-      "1546557493038284840": 1555213198360322058
+      "1468320170891022417": 1555213288424472707,
+      "1546557493038284840": 1555213281407410278
     },
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-10-01T13:42:00.705742+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1790862120.7059615,
-        "fen_before": "3q1rk1/pp3p1p/6p1/8/2Qb1Pn1/1B6/PPP3PP/R1B2R1K b - - 2 2",
-        "expected": {
-          "uci": "d8h4",
-          "san": "Qh4",
-          "color": "black"
-        },
-        "accepted_uci": "d8h4"
-      }
-    ],
+    "last_card_activity_at": "2026-10-01T13:42:20.336844+00:00",
+    "recent_accepted_moves": [],
     "accepted_solution_moves": [
       {
         "san": "Bd4+",
@@ -249,9 +238,9 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** h3",
+    "last_feedback": "❌ **Not quite, Chessmass — your move makes sense, but the puzzle wants something sharper.**\n↪️ **Move played:** `Nf2`",
     "wrong_attempt_counts": {
-      "1310661840707129370": 2
+      "1310661840707129370": 3
     }
   },
   "lichess_rating_used": {
