@@ -35,24 +35,25 @@
         "born_at": 1790888210.1498027,
         "fed_at": 1790888432.1474652,
         "feed_day": "2026-10-01",
-        "happiness": 80,
-        "happy_at": 1790888210.1498027,
+        "happiness": 100,
+        "happy_at": 1790888465.900299,
         "id": "ec762f8f4d884118a7a8429b28da7bd9",
         "name": "",
         "puzzle": {
           "day": "2026-10-01",
-          "fen": "8/8/4p1p1/1pK2p1p/1P3P1P/1k4P1/8/8 w - - 1 51",
+          "fen": "8/8/4p1p1/1K3p1p/1P3P1P/1k4P1/8/8 b - - 0 51",
           "id": "GROnc",
-          "index": 2,
+          "index": 3,
           "moves": [
             "h3h4",
             "a4b3",
             "c5b5"
           ]
         },
+        "puzzle_day": "2026-10-01",
         "rarity": "common",
         "species": "Cat",
-        "xp": 5
+        "xp": 25
       },
       {
         "born_at": 1790888246.8657486,
