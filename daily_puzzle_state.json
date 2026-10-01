@@ -73,7 +73,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_xS1Ky_1790878292860",
-    "last_activity_at": "2026-10-01T18:11:41.532693+00:00",
+    "last_activity_at": "2026-10-01T18:11:53.922732+00:00",
     "rating": 2443,
     "rp_band": 4,
     "boss": false,
@@ -84,17 +84,17 @@
     "next_player_index": 1,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1555281065512411156
+      "1468320170891022417": 1555281117693612105
     },
-    "message_id": 1555281065512411156,
+    "message_id": 1555281117693612105,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "F5",
-        "correct": true,
-        "timestamp": "2026-10-01T18:11:41.533067+00:00"
+        "move": "Ke6",
+        "correct": false,
+        "timestamp": "2026-10-01T18:11:53.923118+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
@@ -102,19 +102,8 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-10-01T18:11:41.532693+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1790878301.533075,
-        "fen_before": "8/8/8/p7/1k2KPp1/6P1/8/8 w - - 0 50",
-        "expected": {
-          "uci": "f4f5",
-          "san": "f5",
-          "color": "white"
-        },
-        "accepted_uci": "f4f5"
-      }
-    ],
+    "last_card_activity_at": "2026-10-01T18:11:53.922732+00:00",
+    "recent_accepted_moves": [],
     "accepted_solution_moves": [
       {
         "san": "f5",
@@ -122,7 +111,10 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 3 moves remaining.**\n↩️ **Opponent replies:** Kc5"
+    "last_feedback": "❌ **Live from the blunder department, Thice: you managed to lose the argument against a position that cannot speak.**\n↪️ **Move played:** `Ke6`",
+    "wrong_attempt_counts": {
+      "442597396195704832": 1
+    }
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
