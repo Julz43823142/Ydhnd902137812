@@ -20,6 +20,50 @@ def title(pet):
     return f"{pets.EMOJI[pet['species']]} {name}"
 
 
+def collection_summary(owner):
+    """Compact public summary: unhatched identities remain hidden."""
+    living = [pet for pet in owner["pets"] if not pet.get("died_at")]
+    active = pets.current_pet(owner)
+    lines = [f"{len(living)} living pets · {len(owner['pets']) - len(living)} in the memorial"]
+    if active:
+        lines.append(f"Active: **{title(active)}** · Level {pets.level(active)}")
+    if not living:
+        lines.append("Adopt a Pet Egg for **10 coins** in the shop.")
+    else:
+        lines.extend(f"• {title(pet)} · Level {pets.level(pet)}" for pet in living if pet != active)
+    return "\n".join(lines)[:1024]
+
+
+def user_collection_summary(uid):
+    try:
+        return collection_summary(pets.get_owner(uid))
+    except Exception:
+        return "Pet collection temporarily unavailable. Use the **Pets** button to retry."
+
+
+async def send_interaction_profile(interaction, target_uid=None):
+    """Open from Shop, Profile or Menu; other players' collections are read-only."""
+    await interaction.response.defer(ephemeral=True)
+    uid = interaction.user.id if target_uid is None else int(target_uid)
+    try:
+        owner = await asyncio.to_thread(pets.get_owner, uid)
+        pet = pets.current_pet(owner)
+        embed = profile_embed(owner)
+        embed.add_field(name="Collection", value=collection_summary(owner), inline=False)
+        kwargs = {}
+        if pet:
+            embed.set_image(url="attachment://pet.png")
+            kwargs["file"] = await asyncio.to_thread(pet_image, pet)
+        if uid == interaction.user.id:
+            kwargs["view"] = PetView(uid, owner)
+        else:
+            embed.title = "🐾 Pet Collection"
+            embed.set_footer(text="Viewing another player's collection · open !pet for your own pets")
+        await interaction.followup.send(embed=embed, ephemeral=True, allowed_mentions=discord.AllowedMentions.none(), **kwargs)
+    except Exception:
+        await interaction.followup.send("Pet data is temporarily unavailable. Please try again.", ephemeral=True)
+
+
 def profile_embed(owner, pet_id=None):
     now = time.time()
     pet = pets.current_pet(owner, pet_id)

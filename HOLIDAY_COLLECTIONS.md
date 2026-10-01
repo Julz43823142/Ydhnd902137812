@@ -30,6 +30,13 @@ The Daily worker uses seasonal avatars and guild nicknames throughout the
 event period, restoring the original profile afterward. Event notices state
 the actual holiday date separately from the box availability period. Files and generation prompts are in `assets/holiday_avatars/`.
 
+The Daily worker posts one notice per active event in each chess channel every
+day at 00:00 Europe/Amsterdam. It gives the countdown to the actual holiday and
+the remaining box-event days, including reminders after the holiday itself has
+passed. The launch notice counts as the first day's reminder. Saved day keys and
+message-history recovery prevent duplicates after a restart or failed state
+save; a worker returning after midnight catches up on the current day's notice.
+
 ## Deployment verification
 
 Merge the PR to main; Puzzle and Guess push triggers restart their respective

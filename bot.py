@@ -13393,6 +13393,9 @@ async def make_profile_embed(user_id, display_name, member=None):
         ),
         color=int(theme["embed_color"]),
     )
+    from pet_ui import user_collection_summary
+    pet_summary = await asyncio.to_thread(user_collection_summary, user_id)
+    embed.add_field(name="🐾 Pets", value=pet_summary, inline=False)
     embed.set_image(url="attachment://profile_card.png")
     if member is not None:
         try:
@@ -13596,11 +13599,16 @@ class CosmeticProfileView(discord.ui.View):
             ("Arrows", "arrows", "➡️", discord.ButtonStyle.secondary),
             ("Name Colors", "colors", "🖌️", discord.ButtonStyle.secondary),
             ("Themes", "themes", "🖼️", discord.ButtonStyle.secondary),
+            ("Pets", "pets", "🐾", discord.ButtonStyle.success),
         )
         for index, (label, mode, emoji, style) in enumerate(entries):
             button = discord.ui.Button(label=label, emoji=emoji, style=style, row=index // 5)
 
             async def open_mode(interaction, mode=mode):
+                if mode == "pets":
+                    from pet_ui import send_interaction_profile
+                    await send_interaction_profile(interaction, self.target_user_id)
+                    return
                 if mode == "colors" and self.editable:
                     current = await sync_subscriber_color_profile(
                         interaction.user,
@@ -17619,6 +17627,11 @@ class ShopHomeView(discord.ui.View):
             return False
         return True
 
+    @discord.ui.button(label="Pets", emoji="🐾", style=discord.ButtonStyle.success, row=1)
+    async def pets(self, interaction, button):
+        from pet_ui import send_interaction_profile
+        await send_interaction_profile(interaction)
+
     @discord.ui.button(label="Badge Box", emoji="🎁", style=discord.ButtonStyle.primary, row=0)
     async def box(self, interaction, button):
         await interaction.response.send_message(
@@ -17681,6 +17694,7 @@ def shop_home_embed(profile):
         title="🛒 Shark Shop",
         description=(
             f"🪙 **Coins:** {shared_format_points(profile.get('coins', 0))}\n\n"
+            "🐾 Pet Egg — **10 coins** · buy and care via **Pets**\n"
             f"🎁 Badge Box — **{shared_format_points(BADGE_BOX_COST)} coins**\n"
             f"🎨 Boards — standard themes **{shared_format_points(BOARD_COST)} coins** each\n"
             f"♟️ Pieces — standard sets **{shared_format_points(PIECE_COST)} coins** each\n"
@@ -17690,7 +17704,7 @@ def shop_home_embed(profile):
             "🟣 **Twitch Collection** — Twitch Channel Points only (**1k–20k**)\n\n"
             "Twitch Board, Pieces, Arrow, Profile Theme, Name and Survival Hearts can be previewed here. "
             "They cannot be bought with SharkBot coins.\n\n"
-            "This menu is cosmetics only. Player trading and donations are under **Trade** in `!menu`."
+            "This menu includes cosmetics and pets. Player trading and donations are under **Trade** in `!menu`."
         ),
         color=0x4DD6B6,
     )
@@ -17721,7 +17735,7 @@ def _quest_panel_embed(snapshot, display_name):
         return "\n\n".join(rendered) or "No quests available right now."
 
     embed = discord.Embed(
-        title="📜 Daily & Weekly Quests",
+        title="📜 Daily & Weekly Quests • 🐾 Pets",
         description=(
             f"👤 **{discord.utils.escape_mentions(discord.utils.escape_markdown(str(display_name)))}**\n"
             "Quest rewards are **bonus coins on top of your normal rewards**. "
@@ -17843,6 +17857,11 @@ class ChessNewHereView(discord.ui.View):
 class MainMenuView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=600)
+
+    @discord.ui.button(label="Pets", emoji="🐾", style=discord.ButtonStyle.success, row=2)
+    async def pets(self, interaction, button):
+        from pet_ui import send_interaction_profile
+        await send_interaction_profile(interaction)
 
     @discord.ui.button(label="Random Puzzle", emoji="🎲", style=discord.ButtonStyle.primary, row=0)
     async def rp(self, interaction, button):

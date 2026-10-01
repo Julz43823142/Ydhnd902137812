@@ -435,6 +435,8 @@ def guess_cosmetic_profile_dashboard(user_id, display_name):
         f"{RARITY_LABELS[r]} {counts[r]}/{len(set(BADGE_POOLS[r]))}"
         for r in GUESS_PROFILE_RARITY_ORDER
     )
+    from pet_ui import user_collection_summary
+    pet_summary = user_collection_summary(user_id)
     return (
         f"👤 **Guess Profile — {(active + ' ') if active != '—' else ''}{profile.get('name', display_name)}**\n"
         f"🪙 **Coins:** {shared_format_points(profile.get('coins', 0))}\n"
@@ -451,6 +453,7 @@ def guess_cosmetic_profile_dashboard(user_id, display_name):
         f"➡️ **Arrow colors owned:** {len(profile.get('arrows', [])) + 1}/{len(ARROW_COLORS)}\n"
         f"🖼️ **Profile themes owned:** {len(profile.get('profile_themes', [])) + 1}/{len(PROFILE_THEMES)}\n"
         f"🖌️ **Name colors owned:** {len(profile.get('colors', []))}/{len(NAME_COLORS)}\n\n"
+        f"🐾 **Pets**\n{pet_summary}\n\n"
         "Use the buttons below to browse and equip your shared cosmetics.\n"
         "On your own profile, click an owned cosmetic to equip it. `!profile badge 0` still unequips your badge."
     )
@@ -1199,6 +1202,13 @@ class GuessCosmeticProfileView(discord.ui.View):
                 await interaction.response.edit_message(content=None, embed=community_embed(self.render(profile)), view=self)
             button.callback = open_mode
             self.add_item(button)
+
+        pet_button = discord.ui.Button(label="Pets", emoji="🐾", style=discord.ButtonStyle.success, row=3)
+        async def open_pets(interaction):
+            from pet_ui import send_interaction_profile
+            await send_interaction_profile(interaction, self.target_user_id)
+        pet_button.callback = open_pets
+        self.add_item(pet_button)
 
     def _build_badges(self, profile):
         self.clear_items()
@@ -3827,6 +3837,7 @@ def guess_shop_home_embed(profile):
         title="🛒 Guess Shop",
         description=(
             f"🪙 **Coins:** {shared_format_points(profile.get('coins', 0))}\n\n"
+            "🐾 Pet Egg — **10 coins** · buy and care via **Pets**\n"
             f"🎁 Badge Box — **{shared_format_points(BADGE_BOX_COST)} coins**\n"
             f"📅 Active Holiday Boxes — **{shared_format_points(HOLIDAY_BOX_COST)} coins**, choose via Badge Box\n"
             f"🎨 Boards — standard themes **{shared_format_points(BOARD_COST)} coins** each\n"
@@ -4515,6 +4526,11 @@ class GuessShopHomeView(discord.ui.View):
             return False
         return True
 
+    @discord.ui.button(label="Pets", emoji="🐾", style=discord.ButtonStyle.success, row=1)
+    async def pets(self, interaction, button):
+        from pet_ui import send_interaction_profile
+        await send_interaction_profile(interaction)
+
     @discord.ui.button(label="Badge Box", emoji="🎁", style=discord.ButtonStyle.primary, row=0)
     async def box(self, interaction, button):
         await interaction.response.send_message(
@@ -4619,6 +4635,11 @@ class GuessMainMenuView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=600)
 
+    @discord.ui.button(label="Pets", emoji="🐾", style=discord.ButtonStyle.success, row=1)
+    async def pets(self, interaction, button):
+        from pet_ui import send_interaction_profile
+        await send_interaction_profile(interaction)
+
     @discord.ui.button(label="Start / Next Round", emoji="⏭️", style=discord.ButtonStyle.primary, row=0)
     async def next_round(self, interaction, button):
         await interaction.response.defer(ephemeral=True)
@@ -4682,6 +4703,11 @@ async def command_handler(message):
 
     raw_command = message.content.strip()
     command = raw_command.casefold()
+
+    if command in {"!pet", "!pets"}:
+        from pet_ui import send_profile
+        await send_profile(message)
+        return
 
     if command in {"!m", "!menu"}:
         await message.channel.send(embed=guess_main_menu_embed(), view=GuessMainMenuView())
