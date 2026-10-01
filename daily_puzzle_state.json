@@ -220,7 +220,7 @@
     "helper_candidate_users": [],
     "message_ids": {
       "1468320170891022417": 1555213288424472707,
-      "1546557493038284840": 1555213281407410278
+      "1546557493038284840": 1555213354031775774
     },
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
@@ -241,7 +241,8 @@
     "last_feedback": "❌ **Not quite, Chessmass — your move makes sense, but the puzzle wants something sharper.**\n↪️ **Move played:** `Nf2`",
     "wrong_attempt_counts": {
       "1310661840707129370": 3
-    }
+    },
+    "last_manual_bump": 1790862157.8066895
   },
   "lichess_rating_used": {
     "2000": [
