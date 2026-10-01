@@ -142,7 +142,7 @@
     "player_color": "black",
     "player_move_count": 4,
     "posted_at": "2026-10-01T07:04:29.664384+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -184,7 +184,7 @@
         "principal": true
       }
     ],
-    "last_feedback": "❌ **Not quite, Chessmass — your move makes sense, but the puzzle wants something sharper.**\n↪️ **Move played:** `Nf2`",
+    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Bd4+ Qh4 Qg3 Qh4#",
     "wrong_attempt_counts": {
       "1310661840707129370": 3
     },
