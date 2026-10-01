@@ -91,6 +91,17 @@
         "happy_at": 1790890932.9152176,
         "id": "7ec4926c43f84137ae96f0da5cd9da72",
         "name": "",
+        "puzzle": {
+          "day": "2026-10-01",
+          "fen": "8/5Np1/2n1k2p/6P1/5P1P/3K4/8/8 b - - 0 47",
+          "id": "KcX2q",
+          "index": 0,
+          "moves": [
+            "e6f7",
+            "g5h6",
+            "g7h6"
+          ]
+        },
         "rarity": "common",
         "species": "Dog",
         "xp": 5
