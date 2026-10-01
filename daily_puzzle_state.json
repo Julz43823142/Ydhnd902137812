@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/GvSr2",
     "title": "Lichess • 2174",
     "fen": "4rk2/pp6/2p1r2p/3q1pp1/3Pn1P1/P2Q4/1PB1R1KP/4R3 w - - 1 30",
-    "current_fen": "4rk2/pp6/2p1r2p/3B1pp1/3P2P1/P2n4/1P2R1KP/4R3 w - - 0 32",
-    "last_move_uci": "c5d3",
+    "current_fen": "4rk2/pp6/2p1B2p/5pp1/3P2P1/P7/1P2R1KP/4n3 w - - 0 33",
+    "last_move_uci": "d3e1",
     "pgn": "Bb3 Nc5+ Bxd5 Nxd3 Bxe6 Nxe1+ Rxe1",
     "all_moves": [
       {
@@ -73,28 +73,28 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_GvSr2_1790878372229",
-    "last_activity_at": "2026-10-01T18:13:37.166441+00:00",
+    "last_activity_at": "2026-10-01T18:13:43.363219+00:00",
     "rating": 2174,
     "rp_band": 3,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 4,
-    "next_player_index": 2,
+    "next_solution_index": 6,
+    "next_player_index": 3,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1555281550894047322
+      "1468320170891022417": 1555281576282165329
     },
-    "message_id": 1555281550894047322,
+    "message_id": 1555281576282165329,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Rxe6",
-        "correct": false,
-        "timestamp": "2026-10-01T18:13:37.166641+00:00"
+        "move": "Bxe6",
+        "correct": true,
+        "timestamp": "2026-10-01T18:13:43.363406+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
@@ -102,12 +102,23 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-10-01T18:13:37.166441+00:00",
-    "recent_accepted_moves": [],
+    "last_card_activity_at": "2026-10-01T18:13:43.363219+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1790878423.3634133,
+        "fen_before": "4rk2/pp6/2p1r2p/3B1pp1/3P2P1/P2n4/1P2R1KP/4R3 w - - 0 32",
+        "expected": {
+          "uci": "d5e6",
+          "san": "Bxe6",
+          "color": "white"
+        },
+        "accepted_uci": "d5e6"
+      }
+    ],
     "wrong_attempt_counts": {
       "442597396195704832": 2
     },
-    "last_feedback": "❌ **Thice, congratulations: the engine checked your move twice because it assumed there had to be a typo.**\n↪️ **Move played:** `Rxe6`",
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Nxe1+",
     "accepted_solution_moves": [
       {
         "san": "Bb3",
@@ -117,6 +128,11 @@
       {
         "san": "Bxd5",
         "uci": "b3d5",
+        "principal": true
+      },
+      {
+        "san": "Bxe6",
+        "uci": "d5e6",
         "principal": true
       }
     ]
