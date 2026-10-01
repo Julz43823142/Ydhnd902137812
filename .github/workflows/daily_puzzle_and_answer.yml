@@ -6,6 +6,9 @@ on:
     paths:
       - 'bot.py'
       - 'pet_ui.py'
+      - 'showcase_cards.py'
+      - 'public_profiles.py'
+      - 'assets/pets/**'
       - 'shared_leaderboard.py'
       - 'pets.py'
       - 'shop_catalog.py'

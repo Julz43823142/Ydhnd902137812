@@ -1203,7 +1203,7 @@ class GuessCosmeticProfileView(discord.ui.View):
             button.callback = open_mode
             self.add_item(button)
 
-        pet_button = discord.ui.Button(label="Pets", emoji="🐾", style=discord.ButtonStyle.success, row=3)
+        pet_button = discord.ui.Button(label="View Pets", emoji="🐾", style=discord.ButtonStyle.success, row=3)
         async def open_pets(interaction):
             from pet_ui import send_interaction_profile
             await send_interaction_profile(interaction, self.target_user_id)
@@ -4704,9 +4704,9 @@ async def command_handler(message):
     raw_command = message.content.strip()
     command = raw_command.casefold()
 
-    if command in {"!pet", "!pets"}:
-        from pet_ui import send_profile
-        await send_profile(message)
+    if (command.split(maxsplit=1) or [""])[0] in {"!pet", "!pets"}:
+        from pet_ui import send_pet_command
+        await send_pet_command(message)
         return
 
     if command in {"!m", "!menu"}:
@@ -5202,7 +5202,8 @@ async def command_handler(message):
                     target = message.mentions[0]
                     target_id, target_name = str(target.id), target.display_name
                 else:
-                    target_id, target_name = await _guess_target_identity(message, requested_name)
+                    from public_profiles import resolve_target
+                    target_id, target_name = await resolve_target(message, requested_name)
                 text = await asyncio.to_thread(guess_cosmetic_profile_dashboard, target_id, target_name)
                 view = GuessCosmeticProfileView(
                     message.author.id, target_id, target_name, editable=(str(target_id) == str(message.author.id))

@@ -13299,7 +13299,7 @@ def _profile_amount_whole(value):
     return format(amount, "f")
 
 
-async def make_profile_card_file(user_id, display_name, avatar_url=None, theme_override=None):
+async def make_profile_card_file_legacy(user_id, display_name, avatar_url=None, theme_override=None):
     profile = await asyncio.to_thread(get_cosmetic_profile, user_id, display_name)
     puzzle_stats = await asyncio.to_thread(puzzle_stats_for_user, user_id, display_name)
     chess_stats = chess_rating_profile(user_id, display_name)
@@ -13369,6 +13369,33 @@ async def make_profile_card_file(user_id, display_name, avatar_url=None, theme_o
     return profile, discord.File(fp=BytesIO(png), filename='profile_card.png')
 
 
+async def make_profile_card_file(user_id, display_name, avatar_url=None, theme_override=None):
+    from showcase_cards import legacy_style, profile_svg
+    if legacy_style():
+        return await make_profile_card_file_legacy(user_id, display_name, avatar_url, theme_override)
+    profile = await asyncio.to_thread(get_cosmetic_profile, user_id, display_name)
+    puzzle_stats = await asyncio.to_thread(puzzle_stats_for_user, user_id, display_name)
+    chess_stats = chess_rating_profile(user_id, display_name)
+    theme_key = str(theme_override or profile.get("active_profile_theme") or "classic").casefold()
+    if theme_key not in PROFILE_THEMES:
+        theme_key = "classic"
+    background, accent, soft, scene = _profile_card_theme_svg(theme_key)
+    stats = [
+        ("Shared Points", _profile_amount_exact(profile.get("points", 0)), "points"),
+        ("Coins", _profile_amount_exact(profile.get("coins", 0)), "coins"),
+        ("Puzzle Elo", round(float(puzzle_stats.get("elo", 1500))), "puzzle"),
+        ("Chess Elo", round(float(chess_stats.get("elo", CHESS_START_ELO))), "chess"),
+        ("Current Streak", int(puzzle_stats.get("current_streak", 0) or 0), "streak"),
+        ("Best Streak", int(puzzle_stats.get("best_streak", 0) or 0), "best"),
+        ("Puzzles Solved", int(puzzle_stats.get("correct", 0) or 0), "puzzle"),
+        ("Games Played", int(chess_stats.get("games", 0) or 0), "games"),
+    ]
+    svg = profile_svg(PROFILE_THEMES[theme_key]["label"], background, accent, soft, scene,
+                      _profile_card_overlay_svg(theme_key, accent, soft), stats, _profile_stat_icon_svg)
+    png = await asyncio.to_thread(cairosvg.svg2png, bytestring=svg.encode())
+    return profile, discord.File(BytesIO(png), filename="profile_card.png")
+
+
 async def make_profile_embed(user_id, display_name, member=None):
     avatar_url = None
     if member is not None:
@@ -13386,11 +13413,7 @@ async def make_profile_embed(user_id, display_name, member=None):
     title_name = profile.get("name", display_name)
     embed = discord.Embed(
         title=f"{badge + ' ' if badge else ''}{title_name}",
-        description=(
-            f"🪙 **{_profile_amount_exact(profile.get('coins', 0))} coins** • "
-            f"⭐ **{_profile_amount_exact(profile.get('points', 0))} points** • "
-            f"🖼️ **{theme['label']}**"
-        ),
+        description="Public stats and collection showcase.",
         color=int(theme["embed_color"]),
     )
     from pet_ui import user_collection_summary
@@ -13404,6 +13427,29 @@ async def make_profile_embed(user_id, display_name, member=None):
             pass
     embed.set_footer(text="Profile themes: 50 coins • game themes: 100 coins • !theme")
     return embed, file
+
+
+@command_tree.command(name="profile", description="View your profile or another player's public showcase")
+async def slash_profile(interaction: discord.Interaction, user: discord.User = None):
+    target = user or interaction.user
+    await interaction.response.defer()
+    embed, file = await make_profile_embed(target.id, target.display_name, member=target)
+    profile = await asyncio.to_thread(get_cosmetic_profile, target.id, target.display_name)
+    view = CosmeticProfileView(interaction.user.id, target.id, target.display_name,
+                               editable=target.id == interaction.user.id, profile=profile)
+    await interaction.followup.send(embed=embed, file=file, view=view, allowed_mentions=discord.AllowedMentions.none())
+
+
+@command_tree.command(name="pet", description="View your active pet or another player's pet")
+async def slash_pet(interaction: discord.Interaction, user: discord.User = None):
+    from pet_ui import send_interaction_profile
+    await send_interaction_profile(interaction, (user or interaction.user).id)
+
+
+@command_tree.command(name="pets", description="Browse your pet collection or another player's collection")
+async def slash_pets(interaction: discord.Interaction, user: discord.User = None):
+    from pet_ui import send_interaction_profile
+    await send_interaction_profile(interaction, (user or interaction.user).id)
 
 
 async def send_profile_card(channel, viewer, target_user_id, target_name, editable=False):
@@ -13599,7 +13645,7 @@ class CosmeticProfileView(discord.ui.View):
             ("Arrows", "arrows", "➡️", discord.ButtonStyle.secondary),
             ("Name Colors", "colors", "🖌️", discord.ButtonStyle.secondary),
             ("Themes", "themes", "🖼️", discord.ButtonStyle.secondary),
-            ("Pets", "pets", "🐾", discord.ButtonStyle.success),
+            ("View Pets", "pets", "🐾", discord.ButtonStyle.success),
         )
         for index, (label, mode, emoji, style) in enumerate(entries):
             button = discord.ui.Button(label=label, emoji=emoji, style=style, row=index // 5)
@@ -13912,14 +13958,8 @@ class ProfileThemePurchaseView(discord.ui.View):
 
 
 async def resolve_cosmetic_profile_target(message, typed_name):
-    query = str(typed_name or "").strip()
-    if message.mentions:
-        target = message.mentions[0]
-        return str(target.id), target.display_name
-    if not query:
-        return str(message.author.id), message.author.display_name
-    target = await asyncio.to_thread(shared_resolve_cosmetic_profile, query)
-    return str(target["user_id"]), target.get("name", query)
+    from public_profiles import resolve_target
+    return await resolve_target(message, typed_name)
 
 
 def make_cosmetic_preview_file(
@@ -19623,9 +19663,9 @@ async def on_message(
             )
             return
 
-        if command_lower in ("!pet", "!pets"):
-            from pet_ui import send_profile
-            await send_profile(message)
+        if (command_lower.split(maxsplit=1) or [""])[0] in ("!pet", "!pets"):
+            from pet_ui import send_pet_command
+            await send_pet_command(message)
             return
 
         # Fast exact aliases. Handle these before any puzzle logic.

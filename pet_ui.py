@@ -57,14 +57,15 @@ async def send_interaction_profile(interaction, target_uid=None):
         if uid == interaction.user.id:
             kwargs["view"] = PetView(uid, owner)
         else:
-            embed.title = "🐾 Pet Collection"
-            embed.set_footer(text="Viewing another player's collection · open !pet for your own pets")
+            kwargs["view"] = PublicPetView(interaction.user.id, uid, owner)
+            embed.title = "🐾 Public Pet Collection"
+            embed.set_footer(text="Read-only collection · all navigation follows the viewed player")
         await interaction.followup.send(embed=embed, ephemeral=True, allowed_mentions=discord.AllowedMentions.none(), **kwargs)
     except Exception:
         await interaction.followup.send("Pet data is temporarily unavailable. Please try again.", ephemeral=True)
 
 
-def profile_embed(owner, pet_id=None):
+def profile_embed(owner, pet_id=None, show_stats=False):
     now = time.time()
     pet = pets.current_pet(owner, pet_id)
     embed = discord.Embed(title="🐾 Pet Profile", color=0x4DD6B6)
@@ -75,27 +76,25 @@ def profile_embed(owner, pet_id=None):
         progress, target = pets.xp_progress(pet)
         kind, rate = pets.bonus(pet, now)
         age_end = pet.get("died_at") or now
-        embed.description = f"**{title(pet)}**\n{pets.evolution(pet)} · {'Active' if owner.get('active') == pet['id'] else 'In collection'}"
-        if value:
-            embed.add_field(name="Species / Rarity", value=f"{pet['species']} · {pet['rarity'].title()}")
-        else:
-            embed.add_field(name="Species / Rarity", value="Mystery — revealed at Level 1")
-        embed.add_field(name="Level / XP", value=f"Level {value} · {progress}/{target} XP" if value < 50 else "Level 50 · Max level")
+        embed.description = f"**{title(pet)}** · {'Active' if owner.get('active') == pet['id'] else 'In collection'}"
+        from showcase_cards import legacy_style
+        if show_stats or legacy_style():
+            embed.add_field(name="Species / Rarity", value=f"{pet['species']} · {pet['rarity'].title()}" if value else "Mystery — revealed at Level 1")
+            embed.add_field(name="Level / XP", value=f"Level {value} · {progress}/{target} XP" if value < 50 else "Level 50 · Max level")
+            embed.add_field(name="Hunger / Happiness", value=f"{pets.hunger(pet, now)}% / {pets.happiness(pet, now)}%")
+            labels = {"shop": "cosmetic shop discount", "quest": "extra quest coins", "puzzle": "extra puzzle coins", "xp": "extra Pet activity XP"}
+            embed.add_field(name="Current bonus", value=f"{rate * 100:g}% {labels[kind]}" if kind else "Hatch your egg to unlock its bonus", inline=False)
         embed.add_field(name="Age", value=f"{int((age_end - pet['born_at']) // pets.DAY)} days")
-        embed.add_field(name="Hunger", value=f"{pets.hunger(pet, now)}% · Feed before <t:{int(pet['fed_at'] + 7 * pets.DAY)}:F>")
-        embed.add_field(name="Happiness", value=f"{pets.happiness(pet, now)}% · maintained by Pet Puzzles")
-        labels = {"shop": "cosmetic shop discount", "quest": "extra quest coins", "puzzle": "extra puzzle coins", "xp": "extra Pet activity XP"}
-        bonus_text = f"{rate * 100:g}% {labels[kind]}" if kind else "Hatch your egg to unlock its bonus"
+        embed.add_field(name="Feeding deadline", value=f"Feed before <t:{int(pet['fed_at'] + 7 * pets.DAY)}:F>")
         if owner.get("active") != pet["id"]:
-            bonus_text += " · activate this pet to use its bonus"
-        embed.add_field(name="Current bonus", value=bonus_text, inline=False)
+            embed.add_field(name="Bonus status", value="Inactive — only the active pet grants its bonus.", inline=False)
         reset = f"<t:{pets.next_daily(now)}:R>"
         embed.add_field(name="Daily care", value=f"🍖 Feed: {'available now' if pet.get('feed_day') != pets.day_key(now) else 'available ' + reset}\n🧩 Pet Puzzle: {'available now' if pet.get('puzzle_day') != pets.day_key(now) else 'available ' + reset}", inline=False)
     embed.set_footer(text="Care resets at midnight Amsterdam · 7 full days without food means permanent death · only active pets grant bonuses")
     return embed
 
 
-def pet_image(pet):
+def pet_image_legacy(pet):
     """Small original vector portrait; growth is visible without external assets."""
     stage = pets.evolution(pet)
     egg = pets.level(pet) == 0
@@ -108,12 +107,23 @@ def pet_image(pet):
     return discord.File(io.BytesIO(cairosvg.svg2png(bytestring=svg.encode())), filename="pet.png")
 
 
-async def send_profile(message):
+def pet_image(pet):
+    from showcase_cards import legacy_style, pet_svg
+    if legacy_style():
+        return pet_image_legacy(pet)
+    return discord.File(io.BytesIO(cairosvg.svg2png(bytestring=pet_svg(pet).encode())), filename="pet.png")
+
+
+async def send_profile(message, target_uid=None, target_name=None):
+    uid = message.author.id if target_uid is None else int(target_uid)
     try:
-        owner = await asyncio.to_thread(pets.get_owner, message.author.id)
-        view = PetView(message.author.id, owner)
+        owner = await asyncio.to_thread(pets.get_owner, uid)
+        view = PetView(uid, owner) if uid == message.author.id else PublicPetView(message.author.id, uid, owner)
         pet = pets.current_pet(owner)
         embed = profile_embed(owner)
+        if target_name:
+            embed.title = f"🐾 {discord.utils.escape_markdown(target_name)}'s Pets"
+        embed.add_field(name="Collection", value=collection_summary(owner), inline=False)
         kwargs = {}
         if pet:
             embed.set_image(url="attachment://pet.png")
@@ -121,6 +131,62 @@ async def send_profile(message):
         await message.channel.send(embed=embed, view=view, allowed_mentions=discord.AllowedMentions.none(), **kwargs)
     except Exception:
         await message.channel.send("Pet data is temporarily unavailable. Please try again.")
+
+
+async def send_pet_command(message):
+    from public_profiles import resolve_target
+    args = message.content.strip().split(maxsplit=1)
+    try:
+        uid, name = await resolve_target(message, args[1] if len(args) > 1 else '')
+    except ValueError as error:
+        await message.channel.send(str(error), allowed_mentions=discord.AllowedMentions.none())
+        return
+    await send_profile(message, uid, name)
+
+
+class PublicPetView(discord.ui.View):
+    """Read-only controls. Viewer and collection owner must never be conflated."""
+    def __init__(self, viewer_id, uid, owner, pet_id=None):
+        super().__init__(timeout=600)
+        self.viewer_id, self.uid, self.owner = int(viewer_id), int(uid), owner
+        self.pet_id = pet_id or owner.get("active")
+        if any(not pet.get('died_at') for pet in owner['pets']):
+            self.add_item(PetPicker(self))
+
+    async def interaction_check(self, interaction):
+        if interaction.user.id != self.viewer_id:
+            await interaction.response.send_message("Open this player's collection with `!pets @user`.", ephemeral=True)
+            return False
+        return True
+
+    async def refresh(self, interaction):
+        self.owner = await asyncio.to_thread(pets.get_owner, self.uid)
+        pet = pets.current_pet(self.owner, self.pet_id)
+        if pet is None or pet.get('died_at'):
+            self.pet_id = self.owner.get('active')
+            pet = pets.current_pet(self.owner, self.pet_id)
+        embed = profile_embed(self.owner, self.pet_id)
+        embed.title = '🐾 Public Pet Collection'
+        embed.add_field(name='Collection', value=collection_summary(self.owner), inline=False)
+        embed.set_footer(text='Read-only collection · all navigation follows the viewed player')
+        attachments = []
+        if pet:
+            attachments = [await asyncio.to_thread(pet_image, pet)]
+            embed.set_image(url='attachment://pet.png')
+        fresh = PublicPetView(self.viewer_id, self.uid, self.owner, self.pet_id)
+        await interaction.edit_original_response(embed=embed, attachments=attachments, view=fresh,
+                                                 allowed_mentions=discord.AllowedMentions.none())
+        self.stop()
+
+    @discord.ui.button(label='Refresh collection', emoji='🐾', style=discord.ButtonStyle.secondary, row=0)
+    async def collection(self, interaction, button):
+        await interaction.response.defer()
+        await self.refresh(interaction)
+
+    @discord.ui.button(label='Memorial', emoji='🕯️', style=discord.ButtonStyle.secondary, row=0)
+    async def memorial(self, interaction, button):
+        # Reuse the existing paginated, read-only memorial, bound to this target uid.
+        await PetView.memorial(self, interaction, button)
 
 
 class PetTextModal(discord.ui.Modal):
@@ -149,6 +215,8 @@ class PetPicker(discord.ui.Select):
         super().__init__(placeholder="Collection — choose a pet", row=3, options=[discord.SelectOption(label=("Mysterious Egg" if pets.level(p) == 0 else (p.get("name") or p["species"]))[:80], description=f"Level {pets.level(p)} · born {time.strftime('%Y-%m-%d', time.gmtime(p['born_at']))}", value=p["id"], default=p["id"] == view.pet_id) for p in living])
 
     async def callback(self, interaction):
+        if not await self.pet_view.interaction_check(interaction):
+            return
         self.pet_view.pet_id = self.values[0]
         await interaction.response.defer()
         await self.pet_view.refresh(interaction)
@@ -176,7 +244,8 @@ class PetView(discord.ui.View):
             self.pet_id = self.owner.get("active")
             pet = pets.current_pet(self.owner, self.pet_id)
         fresh = PetView(self.uid, self.owner, self.pet_id)
-        embed = profile_embed(self.owner, self.pet_id)
+        embed = profile_embed(self.owner, self.pet_id, show_stats=puzzle)
+        embed.add_field(name="Collection", value=collection_summary(self.owner), inline=False)
         attachments = []
         if pet:
             if puzzle and pet.get("puzzle", {}).get("day") == pets.day_key(time.time()) and pet.get("puzzle_day") != pets.day_key(time.time()):
