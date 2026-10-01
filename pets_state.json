@@ -12,9 +12,9 @@
         "name": "",
         "puzzle": {
           "day": "2026-10-01",
-          "fen": "1k2r3/1n3p2/1Q6/p2pP3/P2P2p1/2P1q1B1/6PP/5K2 w - - 5 39",
+          "fen": "1k2r3/1n3p2/1Q2P3/p2p4/P2P2p1/2P3q1/6PP/5K2 w - - 0 40",
           "id": "ZPYrs",
-          "index": 0,
+          "index": 2,
           "moves": [
             "e5e6",
             "e3g3",
