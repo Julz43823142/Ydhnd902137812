@@ -131,8 +131,8 @@
     "url": "https://www.chess.com/daily/2026-10-01",
     "title": "Defensive Breach",
     "fen": "3q1rk1/pp3pbp/6p1/8/2Q2Pn1/1B6/PPP3PP/R1B2RK1 b - - 0 1",
-    "current_fen": "3q1rk1/pp3p1p/6p1/8/2Qb1Pn1/1B6/PPP3PP/R1B2R1K b - - 2 2",
-    "last_move_uci": "g1h1",
+    "current_fen": "5rk1/pp3p1p/6p1/8/2Qb1Pnq/1B5P/PPP3P1/R1B2R1K b - - 0 3",
+    "last_move_uci": "h2h3",
     "pgn": "[White \"Daily Puzzle Inspiration\"]\n[Black \"chesstiger787\"]\n[Result \"0-1\"]\n[FEN \"3q1rk1/pp3pbp/6p1/8/2Q2Pn1/1B6/PPP3PP/R1B2RK1 b - - 0 1\"]\n\n1... Bd4+ 2. Kh1 Qh4 3. h3 Qg3 4. hxg4 Qh4# 0-1",
     "all_moves": [
       {
@@ -201,16 +201,16 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1790838269664",
-    "next_solution_index": 2,
-    "next_player_index": 1,
+    "next_solution_index": 4,
+    "next_player_index": 2,
     "solved": false,
-    "message_id": 1555213189292232714,
+    "message_id": 1555213204282548319,
     "attempted_users": {
       "1310661840707129370": {
         "name": "Chessmass",
-        "move": "Qg4",
-        "correct": false,
-        "timestamp": "2026-10-01T13:41:55.515971+00:00"
+        "move": "Qh4",
+        "correct": true,
+        "timestamp": "2026-10-01T13:42:00.705947+00:00"
       }
     },
     "first_move_user_id": "1310661840707129370",
@@ -219,21 +219,37 @@
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1555213189292232714,
-      "1546557493038284840": 1555213176642216016
+      "1468320170891022417": 1555213204282548319,
+      "1546557493038284840": 1555213198360322058
     },
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-10-01T13:41:55.514824+00:00",
-    "recent_accepted_moves": [],
+    "last_card_activity_at": "2026-10-01T13:42:00.705742+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1790862120.7059615,
+        "fen_before": "3q1rk1/pp3p1p/6p1/8/2Qb1Pn1/1B6/PPP3PP/R1B2R1K b - - 2 2",
+        "expected": {
+          "uci": "d8h4",
+          "san": "Qh4",
+          "color": "black"
+        },
+        "accepted_uci": "d8h4"
+      }
+    ],
     "accepted_solution_moves": [
       {
         "san": "Bd4+",
         "uci": "g7d4",
         "principal": true
+      },
+      {
+        "san": "Qh4",
+        "uci": "d8h4",
+        "principal": true
       }
     ],
-    "last_feedback": "❌ **The board says no, Chessmass: that was a reasonable try.**\n↪️ **Move played:** `Qg4`",
+    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** h3",
     "wrong_attempt_counts": {
       "1310661840707129370": 2
     }
