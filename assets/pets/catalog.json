@@ -1,0 +1,92 @@
+{
+  "Dog": {
+    "color": "#c79561",
+    "light": "#f5dcc1",
+    "habitat": "meadow",
+    "file": "dog.svg"
+  },
+  "Cat": {
+    "color": "#ab9acd",
+    "light": "#efe8ff",
+    "habitat": "moon",
+    "file": "cat.svg"
+  },
+  "Rabbit": {
+    "color": "#ebe3d6",
+    "light": "#fff6ec",
+    "habitat": "meadow",
+    "file": "rabbit.svg"
+  },
+  "Fox": {
+    "color": "#e77940",
+    "light": "#fff1dc",
+    "habitat": "forest",
+    "file": "fox.svg"
+  },
+  "Panda": {
+    "color": "#f2f1ed",
+    "light": "#393f50",
+    "habitat": "bamboo",
+    "file": "panda.svg"
+  },
+  "Penguin": {
+    "color": "#304253",
+    "light": "#f8ecce",
+    "habitat": "ice",
+    "file": "penguin.svg"
+  },
+  "Shark": {
+    "color": "#589ac1",
+    "light": "#d4eef5",
+    "habitat": "ocean",
+    "file": "shark.svg"
+  },
+  "Wolf": {
+    "color": "#8298ad",
+    "light": "#dbe6ef",
+    "habitat": "moon",
+    "file": "wolf.svg"
+  },
+  "Owl": {
+    "color": "#ad8056",
+    "light": "#f3dabb",
+    "habitat": "forest",
+    "file": "owl.svg"
+  },
+  "Lion": {
+    "color": "#dfae54",
+    "light": "#8b503b",
+    "habitat": "savanna",
+    "file": "lion.svg"
+  },
+  "Tiger": {
+    "color": "#ed963e",
+    "light": "#fff0da",
+    "habitat": "bamboo",
+    "file": "tiger.svg"
+  },
+  "Eagle": {
+    "color": "#865d45",
+    "light": "#eee9dc",
+    "habitat": "mountain",
+    "file": "eagle.svg"
+  },
+  "Dragon": {
+    "color": "#65bca4",
+    "light": "#ccf5d8",
+    "habitat": "crystal",
+    "file": "dragon.svg"
+  },
+  "Unicorn": {
+    "color": "#ece7ff",
+    "light": "#b58bed",
+    "habitat": "moon",
+    "file": "unicorn.svg"
+  },
+  "Phoenix": {
+    "color": "#f28c45",
+    "light": "#ffe8a8",
+    "habitat": "sunset",
+    "file": "phoenix.svg"
+  }
+}

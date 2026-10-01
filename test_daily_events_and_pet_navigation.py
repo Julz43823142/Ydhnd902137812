@@ -75,7 +75,7 @@ class PetNavigation(unittest.IsolatedAsyncioTestCase):
                  guess_chatter.GuessShopHomeView(42), guess_chatter.GuessMainMenuView(), guess_chatter.GuessCosmeticProfileView(42, 42, 'Shark', editable=True)]
         interaction = SimpleNamespace(user=SimpleNamespace(id=42))
         for view in views:
-            button = next(item for item in view.children if item.label == 'Pets')
+            button = next(item for item in view.children if item.label in {'Pets', 'View Pets'})
             with patch.object(pet_ui, 'send_interaction_profile', AsyncMock()) as open_pets:
                 await button.callback(interaction)
                 self.assertEqual(open_pets.await_count, 1)
@@ -98,7 +98,10 @@ class PetNavigation(unittest.IsolatedAsyncioTestCase):
         interaction = SimpleNamespace(user=SimpleNamespace(id=42), response=SimpleNamespace(defer=AsyncMock()), followup=SimpleNamespace(send=AsyncMock()))
         with patch.object(pet_ui.pets, 'get_owner', return_value={'pets': [], 'active': None}):
             await pet_ui.send_interaction_profile(interaction, 99)
-        self.assertNotIn('view', interaction.followup.send.call_args.kwargs)
+        view = interaction.followup.send.call_args.kwargs['view']
+        self.assertIsInstance(view, pet_ui.PublicPetView)
+        self.assertTrue(all(getattr(item, 'label', '') in {'Refresh collection', 'Memorial'} for item in view.children))
+        view.stop()
 
     async def test_profile_embed_shows_real_collection_summary(self):
         with patch.object(bot, 'make_profile_card_file', AsyncMock(return_value=({}, None))), patch.object(pet_ui, 'user_collection_summary', return_value='2 living pets · Active: Buddy'):
