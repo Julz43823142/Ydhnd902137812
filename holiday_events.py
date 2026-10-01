@@ -2,13 +2,13 @@
 from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo
 
-HOLIDAY_BOX_COST = 50.0
+HOLIDAY_BOX_COST = 35.0
 HOLIDAY_ZONE = ZoneInfo("Europe/Amsterdam")
 HOLIDAYS = {
     "new_year": {"label": "New Year", "name": "Party SharkBot", "start": (12, 29), "end": (1, 7), "badges": "🎆 🎇 🥂 🍾 🎉 🎊 🪩 🕛 📅 ✨".split()},
     "valentine": {"label": "Valentine", "name": "Cupid SharkBot", "start": (2, 7), "end": (2, 14), "badges": "💘 💝 💌 🌹 💐 🍫 💍 🧸 💞 💋 ❤️ 🩷 💕 💓 💗 💔 🥰 😍 😘 🫶 ♥️".split()},
     "easter": {"label": "Easter", "name": "Bunny SharkBot", "badges": "🐰 🐇 🐣 🐤 🐥 🥚 🧺 🌷 🌼 🦋 🥕".split()},
-    "april_fools": {"label": "April Fools", "name": "Jester SharkBot", "start": (4, 1), "end": (4, 1), "badges": "🤡 🥸".split()},
+    "april_fools": {"label": "April Fools", "name": "Jester SharkBot", "start": (4, 1), "end": (4, 7), "badges": "🤡 🥸".split()},
     "earth_day": {"label": "Earth Day", "name": "Eco SharkBot", "start": (4, 20), "end": (4, 26), "badges": "🌍 🌎 🌏 🌱 🌳 🌲 🍀 ♻️ 🌻 🌿".split()},
     "animal_day": {"label": "Animal Day", "name": "Wild SharkBot", "start": (10, 1), "end": (10, 7), "badges": "🐶 🐱 🦊 🐼 🐨 🦁 🐯 🐸 🐢 🐧".split()},
     "halloween": {"label": "Halloween", "name": "Spooky SharkBot", "start": (10, 15), "end": (11, 1), "badges": "🎃 👻 🦇 🕸️ 🧙 🧛 🧟 💀 ☠️ 🍬 🕯️".split()},
@@ -83,3 +83,26 @@ def starting_holidays(moment=None):
     return [key for key, event in HOLIDAYS.items()
             if today == (easter_sunday(today.year) - timedelta(days=7)
                          if key == "easter" else date(today.year, *event["start"]))]
+
+
+def holiday_event_details(key, moment=None):
+    """Describe the actual celebration separately from the box event window."""
+    today = holiday_date(moment)
+    if key == "easter":
+        sunday = easter_sunday(today.year)
+        end = sunday + timedelta(days=1)
+        celebration = f"Easter Sunday is on {sunday.strftime('%B')} {sunday.day}; Easter Monday is on {end.strftime('%B')} {end.day}."
+    else:
+        event = HOLIDAYS[key]
+        year = today.year + (1 if key == "new_year" and today.month == 12 else 0)
+        end = date(year, *event["end"])
+        celebration = {
+            "new_year": "New Year's Day itself is on January 1.",
+            "valentine": "Valentine's Day itself is on February 14.",
+            "april_fools": "April Fools' Day itself is on April 1.",
+            "earth_day": "Earth Day itself is on April 22.",
+            "animal_day": "Animal Day itself is on October 4.",
+            "halloween": "Halloween itself is on October 31.",
+            "christmas": "Christmas itself is on December 25 and 26.",
+        }[key]
+    return f"{celebration}\n🎁 {HOLIDAYS[key]['label']} Box available through {end.strftime('%B')} {end.day} (inclusive)."

@@ -1,6 +1,6 @@
 # Holiday collections
 
-Eight annual collections, ten distinct emoji badges each (80 total). Both
+Eight annual collections with 85 distinct emoji badges in total. Both
 Puzzle and Guess shops share the box picker, confirmation, wallet and categories.
 
 | Collection | Available dates (inclusive, Europe/Amsterdam) | Preview name |
@@ -15,8 +15,8 @@ Puzzle and Guess shops share the box picker, confirmation, wallet and categories
 | Christmas | December 15–28 | Santa SharkBot |
 
 Shop > Badge Box opens a choice, not a purchase. Normal boxes cost 50 coins.
-Only currently active Holiday boxes appear; they cost 75 coins and guarantee
-one of that event's ten badges, uniformly chosen (10% each). Duplicates are
+Only currently active Holiday boxes appear; they cost 35 coins and guarantee
+one of that event's badges, uniformly chosen within the collection. Duplicates are
 allowed. Every choice has a second confirmation before money is spent.
 Overlapping events appear side by side. Expired confirmations cannot spend coins.
 
@@ -26,8 +26,9 @@ selection and ability to trade/donate; they now count toward Holiday collections
 Normal boxes cannot drop Holiday badges. Ordinary chess badges stay ordinary.
 All unlocks remain usable outside the purchase window.
 
-Avatars and names are previews only: no live Discord profile changes are
-enabled. Files and generation prompts are in `assets/holiday_avatars/`.
+The Daily worker uses seasonal avatars and guild nicknames throughout the
+event period, restoring the original profile afterward. Event notices state
+the actual holiday date separately from the box availability period. Files and generation prompts are in `assets/holiday_avatars/`.
 
 ## Deployment verification
 

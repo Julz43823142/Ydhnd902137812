@@ -1,7 +1,7 @@
 """One box picker/confirmation flow for every SharkBot shop."""
 import asyncio
 import discord
-from holiday_events import HOLIDAYS, HOLIDAY_BOX_COST, active_holidays, next_holiday
+from holiday_events import HOLIDAYS, HOLIDAY_BOX_COST, active_holidays, next_holiday, holiday_event_details
 from shop_catalog import BADGE_BOX_COST
 from shared_leaderboard import buy_badge_box, format_points
 
@@ -13,6 +13,7 @@ def badge_box_picker_message(moment=None):
     availability = "Holiday boxes are available only during their events."
     if active:
         availability += " Available now: **" + ", ".join(HOLIDAYS[key]["label"] for key in active) + "**."
+        availability += "\n" + "\n".join(holiday_event_details(key, moment) for key in active)
     return (
         "🎁 **Choose a Badge Box.**\n"
         f"{availability}\n"

@@ -7,6 +7,7 @@ on:
       - 'minigames/**'
       - 'quests.py'
       - 'shared_leaderboard.py'
+      - 'pets.py'
   schedule:
     - cron: '13 0,5,10,15,20 * * *'
 permissions:

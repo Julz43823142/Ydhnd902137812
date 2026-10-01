@@ -438,6 +438,20 @@ def record_actions(actions, moment=None):
                 completed.append({"user_id": uid, "display_name": name, **quest})
         failed_rewards.extend({"user_id": uid, "display_name": name, **quest} for quest in settlement["failed"])
 
+    # Reuse the activity stream for modes whose normal rewards are not routed
+    # through credit_coins (notably minigames). Pet audits deduplicate retries.
+    from pets import ACTIVITIES, reward_activity
+    for item in normalized:
+        if item["action"] in ACTIVITIES:
+            try:
+                with ledger.REPOSITORY_LOCK:
+                    raw_event = ledger._origin_file(_event_path(item["transaction_id"]))
+                pet_event = json.loads(raw_event) if raw_event else {
+                    "transaction_id": item["transaction_id"], "created_at": now.timestamp()}
+                reward_activity(item["user_id"], item["display_name"], pet_event, "quest-activity")
+            except Exception:
+                print("Pet activity XP needs retry; the quest result remains committed.", flush=True)
+
     return {"recorded": newly_recorded, "completed": completed, "failed_rewards": failed_rewards}
 
 

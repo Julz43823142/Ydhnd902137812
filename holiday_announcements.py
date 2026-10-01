@@ -3,7 +3,7 @@ import asyncio
 import logging
 from datetime import datetime, time
 import discord
-from holiday_events import HOLIDAYS, HOLIDAY_BOX_COST, HOLIDAY_ZONE, holiday_date, starting_holidays
+from holiday_events import HOLIDAYS, HOLIDAY_BOX_COST, HOLIDAY_ZONE, holiday_date, starting_holidays, holiday_event_details
 from shared_leaderboard import format_points, reset_holiday_badges_once
 
 log = logging.getLogger(__name__)
@@ -27,8 +27,8 @@ async def announce_holiday_starts(client, channels, storage, persist, moment=Non
                     break
             if existing is None:
                 embed = discord.Embed(
-                    title=f"🎊 {label} starts today!",
-                    description=(f"The **{label} Holiday Box** is now available for **{format_points(HOLIDAY_BOX_COST)} coins**!\n"
+                    title=f"🎊 {label} Event has started!",
+                    description=(holiday_event_details(event, today) + "\n\n" + f"The **{label} Holiday Box** is now available for **{format_points(HOLIDAY_BOX_COST)} coins**!\n"
                                  "Use `!box` or `!shop` to choose your box and collect exclusive holiday badges.\n"
                                  "Every Holiday Box guarantees one badge from this event. Duplicates are possible."),
                     color=0xF1C40F,

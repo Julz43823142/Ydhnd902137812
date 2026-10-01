@@ -439,6 +439,7 @@ _twitch_refresh_token = TWITCH_REFRESH_TOKEN_BOOTSTRAP
 _twitch_refresh_lock = None
 _twitch_eventsub_task = None
 _twitch_live_cleanup_task = None
+_twitch_live_notification_lock = asyncio.Lock()
 _twitch_seen_message_ids = set()
 _twitch_seen_message_order = []
 
@@ -2150,8 +2151,10 @@ async def _twitch_get_live_stream_info():
                     )
                 payload = await response.json()
                 streams = payload.get("data") if isinstance(payload, dict) else None
-                return streams[0] if isinstance(streams, list) and streams else None
-    return None
+                if not isinstance(streams, list) or any(not isinstance(item, dict) or not item.get("id") for item in streams):
+                    raise RuntimeError("Twitch stream lookup returned an invalid payload; status is unknown.")
+                return streams[0] if streams else None
+    raise RuntimeError("Twitch stream lookup could not establish live status.")
 
 
 def _twitch_live_embed(stream_info=None):
@@ -2197,6 +2200,11 @@ async def _twitch_live_channel():
 
 
 async def _twitch_handle_stream_online(event):
+    async with _twitch_live_notification_lock:
+        await _twitch_send_stream_online(event)
+
+
+async def _twitch_send_stream_online(event):
     if str(event.get("broadcaster_user_id", "")) != TWITCH_BROADCASTER_ID:
         return
 
@@ -2238,7 +2246,7 @@ async def _twitch_handle_stream_online(event):
     if not saved:
         await _twitch_owner_notice(
             "⚠️ The Twitch live Discord notification was sent, but its cleanup state "
-            "could not be synced to GitHub. The 06:00 history scan will still find it."
+            "could not be synced to GitHub. The periodic history scan will still find it."
         )
     print(f"Twitch live notification sent: message={message.id}", flush=True)
 
@@ -2285,44 +2293,40 @@ async def _twitch_delete_live_notifications():
             failed_ids.append(message_id)
             print(f"Could not delete Twitch live notification {message_id}: {error}", flush=True)
 
+    if not candidates and not live_state.get("message_ids"):
+        return True
     live_state["message_ids"] = failed_ids
     live_state["last_cleanup_at"] = datetime.now(timezone.utc).isoformat()
     await save_all_critical(attempts=3)
     if candidates:
         print(
-            f"Twitch 06:00 cleanup removed {len(candidates) - len(failed_ids)} "
+            f"Twitch offline cleanup removed {len(candidates) - len(failed_ids)} "
             f"notification(s); {len(failed_ids)} failed.",
             flush=True,
         )
     return not failed_ids
 
 
+async def _twitch_cleanup_if_offline():
+    """Only an explicit, successful offline response permits deletion."""
+    async with _twitch_live_notification_lock:
+        stream = await _twitch_get_live_stream_info()
+        if stream is not None:
+            return False
+        return await _twitch_delete_live_notifications()
+
+
 async def twitch_live_cleanup_loop():
-    """Delete SharkBot's Twitch live posts daily at 06:00 Europe/Amsterdam."""
+    """Poll current Twitch status; keep notifications on API errors or while live."""
     await client.wait_until_ready()
     while not client.is_closed():
-        now = datetime.now(TWITCH_LIVE_TIMEZONE)
-        today = now.date().isoformat()
-        live_state = _twitch_live_state()
-        if now.hour >= 6 and live_state.get("last_cleanup_date") != today:
-            try:
-                cleaned = await _twitch_delete_live_notifications()
-            except asyncio.CancelledError:
-                raise
-            except Exception as error:
-                cleaned = False
-                print(f"Twitch live cleanup warning: {error}", flush=True)
-            if cleaned:
-                live_state["last_cleanup_date"] = today
-                await save_all_critical(attempts=3)
-            await asyncio.sleep(3600 if cleaned else 300)
-            continue
-
-        next_cleanup = now.replace(hour=6, minute=0, second=0, microsecond=0)
-        if next_cleanup <= now:
-            next_cleanup += timedelta(days=1)
-        delay = max(30, min(3600, int((next_cleanup - now).total_seconds())))
-        await asyncio.sleep(delay)
+        try:
+            await _twitch_cleanup_if_offline()
+        except asyncio.CancelledError:
+            raise
+        except Exception as error:
+            print(f"Twitch status check failed; keeping live notifications: {error}", flush=True)
+        await asyncio.sleep(300)
 
 
 def _twitch_note_message_id(message_id):
@@ -12057,6 +12061,7 @@ def shop_message(user_id, display_name):
         "🤝 Trading has its own **Trade** button in `!menu`; old `!donate` / `!trade` commands still work.\n\n"
         f"🎁 **Badge Box — {shared_format_points(BADGE_BOX_COST)} coins**\n"
         "`!box` or `!shop box` — choose a box, then confirm. Duplicates are possible.\n\n"
+        "🐾 Active pets can discount cosmetic purchases; listed cosmetic prices are base prices.\n\n"
         f"📅 **Holiday Boxes — {shared_format_points(HOLIDAY_BOX_COST)} coins**\n"
         "Use the **Badge Box** button to choose and confirm an active holiday box. Guaranteed Holiday badge.\n\n"
         f"🎨 **Boards — {shared_format_points(BOARD_COST)} coins each**\n"
@@ -12067,6 +12072,8 @@ def shop_message(user_id, display_name):
         "`!arrow` — choose the last-move arrow color. Green is the free default.\n\n"
         f"🖌️ **Name Colors — {shared_format_points(COLOR_COST)} coins each**\n"
         f"`!color` — {color_names}. Subscribers can switch away from Pink and equip it again later.\n\n"
+        "🐾 **Pets**\n"
+        "`!pet` / `!pets` — adopt a Pet Egg for **10 coins**, care for pets and view your collection.\n\n"
         "🖼️ **Profile Themes**\n"
         "`!theme` — Classic is free • Shark Bot themes: **50 coins** • game themes: **100 coins**. Buy once, equip anytime.\n\n"
         f"❤️ **Survival Heart — {shared_format_points(SURVIVAL_HEART_COST)} coins**\n"
@@ -14037,12 +14044,13 @@ BOT_IDEAS_IDLE_STATE_KEY = "bot_ideas_idle_v1"
 BOT_IDEAS_TICKETS_PER_PROMPT = 5
 
 _TICKET_STATUS_META = {
-    "submitted": ("🆕", "Submitted", 0x5865F2),
+    "closed": ("🔒", "Closed", 0x747F8D),
+    "submitted": ("🆕", "Open", 0x5865F2),
     "planned": ("⏳", "Planned", 0xFEE75C),
     "in_progress": ("🔨", "In Progress", 0xFAA61A),
     "testing": ("🧪", "Testing", 0x57F287),
-    "needs_info": ("❓", "Needs More Info", 0xEB459E),
-    "completed": ("✅", "Completed", 0x57F287),
+    "needs_info": ("❓", "Waiting", 0xEB459E),
+    "completed": ("✅", "Resolved", 0x57F287),
     "not_possible": ("❌", "Not Possible", 0xED4245),
 }
 
@@ -14130,6 +14138,8 @@ def _ticket_title_lines(title, width=34, max_lines=3):
 
 def _ticket_status_icon_svg(status, accent, x=592, y=222):
     status = str(status or "submitted")
+    if status == "closed":
+        return f'<g transform="translate({x},{y})" fill="none" stroke="#ffffff" stroke-width="5"><rect x="12" y="26" width="36" height="30" rx="4"/><path d="M20 26 V16 A10 10 0 0 1 40 16 V26"/></g>'
     if status == "planned":
         return f'''      <g transform="translate({x},{y})" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">        <path d="M8 4 H52"/>        <path d="M8 58 H52"/>        <path d="M16 8 C16 20 23 25 30 31 C23 37 16 42 16 54"/>        <path d="M44 8 C44 20 37 25 30 31 C37 37 44 42 44 54"/>        <path d="M24 43 H36" stroke="{accent}"/>      </g>'''
     if status == "in_progress":
@@ -14328,7 +14338,7 @@ class BotIdeasSubmitModal(discord.ui.Modal):
                 description=(
                     f"**{ticket['title']}**\n\n"
                     "Use this thread to explain the idea or bug in more detail, add screenshots or logs, and discuss it with others. "
-                    "Sharkmeister's status updates will also appear here. If the ticket is marked **Needs More Info**, please reply here."
+                    "Sharkmeister's status updates will also appear here. If the ticket is marked **Waiting**, please reply here."
                 )[:4000],
                 color=0x5865F2,
             )
@@ -14365,7 +14375,7 @@ class BotIdeasSubmitView(discord.ui.View):
         tickets.sort(key=lambda item: int(item.get("number", 0) or 0), reverse=True)
         counts = Counter(str(item.get("status") or "submitted") for item in tickets)
         status_lines = []
-        for key in ("submitted", "planned", "in_progress", "testing", "needs_info", "completed", "not_possible"):
+        for key in ("submitted", "in_progress", "needs_info", "completed", "closed", "planned", "testing", "not_possible"):
             icon, label, _color = _ticket_status_meta(key)
             status_lines.append(f"{icon} **{label}:** {counts.get(key, 0)}")
         recent = []
@@ -14388,13 +14398,17 @@ class BotIdeasSubmitView(discord.ui.View):
     async def help_button(self, interaction, button):
         await interaction.response.send_message(
             "Create one ticket per idea or bug. The ticket gets its own discussion thread. "
-            "Only Sharkmeister can change its public status with the button on the ticket card; you can keep adding screenshots or details in the thread.",
+            "Only Sharkmeister or a server administrator can change its public status with the button on the ticket card; you can keep adding screenshots or details in the thread.",
             ephemeral=True,
         )
 
 
+def _can_manage_ticket(user):
+    return str(user.id) == SHARKMEISTER_DEFAULT_USER_ID or bool(getattr(getattr(user, "guild_permissions", None), "administrator", False))
+
+
 class BotIdeasTicketPublicManageView(discord.ui.View):
-    """Persistent public ticket control; only Sharkmeister can use it."""
+    """Persistent public ticket control; only Sharkmeister or a server administrator can use it."""
 
     def __init__(self):
         super().__init__(timeout=None)
@@ -14406,9 +14420,9 @@ class BotIdeasTicketPublicManageView(discord.ui.View):
         custom_id="ideas:ticket:manage:v1",
     )
     async def manage_status(self, interaction, button):
-        if str(interaction.user.id) != SHARKMEISTER_DEFAULT_USER_ID:
+        if not _can_manage_ticket(interaction.user):
             await interaction.response.send_message(
-                "🔒 Only Sharkmeister can change ticket statuses.",
+                "🔒 Only Sharkmeister or a server administrator can change ticket statuses.",
                 ephemeral=True,
                 allowed_mentions=discord.AllowedMentions.none(),
             )
@@ -14418,7 +14432,7 @@ class BotIdeasTicketPublicManageView(discord.ui.View):
         ticket = _ticket_for_message(message_id) if message_id is not None else None
         if not isinstance(ticket, dict):
             await interaction.response.send_message(
-                "This ticket could not be found in the saved ticket state. `/ticket` is still available as a fallback.",
+                "This ticket could not be found in the saved ticket state. Please ask Shark to refresh the ticket card.",
                 ephemeral=True,
                 allowed_mentions=discord.AllowedMentions.none(),
             )
@@ -14437,15 +14451,15 @@ class BotIdeasTicketPublicManageView(discord.ui.View):
 
 
 class BotIdeaTicketOwnerStatusView(discord.ui.View):
-    """Ephemeral six-button status panel shown only to Sharkmeister."""
+    """Ephemeral owner/admin ticket status controls; legacy statuses remain readable."""
 
     def __init__(self, ticket_id):
         super().__init__(timeout=300)
         self.ticket_id = str(ticket_id)
 
     async def _set_status(self, interaction, status):
-        if str(interaction.user.id) != SHARKMEISTER_DEFAULT_USER_ID:
-            await interaction.response.send_message("Only Sharkmeister can manage tickets.", ephemeral=True)
+        if not _can_manage_ticket(interaction.user):
+            await interaction.response.send_message("Only Sharkmeister or a server administrator can manage tickets.", ephemeral=True)
             return
         ticket = _bot_ideas_state().get(self.ticket_id)
         if not isinstance(ticket, dict):
@@ -14502,29 +14516,25 @@ class BotIdeaTicketOwnerStatusView(discord.ui.View):
         except Exception:
             pass
 
-    @discord.ui.button(label="Planned", emoji="⏳", style=discord.ButtonStyle.secondary, row=0)
-    async def planned(self, interaction, button):
-        await self._set_status(interaction, "planned")
+    @discord.ui.button(label="Open", emoji="🆕", style=discord.ButtonStyle.secondary, row=0)
+    async def open(self, interaction, button):
+        await self._set_status(interaction, "submitted")
 
     @discord.ui.button(label="In Progress", emoji="🔨", style=discord.ButtonStyle.primary, row=0)
     async def progress(self, interaction, button):
         await self._set_status(interaction, "in_progress")
 
-    @discord.ui.button(label="Testing", emoji="🧪", style=discord.ButtonStyle.success, row=0)
-    async def testing(self, interaction, button):
-        await self._set_status(interaction, "testing")
-
-    @discord.ui.button(label="Needs Info", emoji="❓", style=discord.ButtonStyle.secondary, row=1)
-    async def needs_info(self, interaction, button):
+    @discord.ui.button(label="Waiting", emoji="❓", style=discord.ButtonStyle.secondary, row=0)
+    async def waiting(self, interaction, button):
         await self._set_status(interaction, "needs_info")
 
-    @discord.ui.button(label="Completed", emoji="✅", style=discord.ButtonStyle.success, row=1)
-    async def completed(self, interaction, button):
+    @discord.ui.button(label="Resolved", emoji="✅", style=discord.ButtonStyle.success, row=1)
+    async def resolved(self, interaction, button):
         await self._set_status(interaction, "completed")
 
-    @discord.ui.button(label="Not Possible", emoji="❌", style=discord.ButtonStyle.danger, row=1)
-    async def not_possible(self, interaction, button):
-        await self._set_status(interaction, "not_possible")
+    @discord.ui.button(label="Closed", emoji="🔒", style=discord.ButtonStyle.danger, row=1)
+    async def closed(self, interaction, button):
+        await self._set_status(interaction, "closed")
 
 
 def _bot_ideas_ticket_by_number(number):
@@ -14539,7 +14549,7 @@ def _bot_ideas_ticket_by_number(number):
 
 
 def _bot_ideas_open_tickets():
-    closed = {"completed", "not_possible"}
+    closed = {"completed", "not_possible", "closed"}
     tickets = [
         item for item in _bot_ideas_state().values()
         if isinstance(item, dict) and str(item.get("status") or "submitted") not in closed
@@ -14594,54 +14604,6 @@ class BotIdeasTicketPickerView(discord.ui.View):
         self.add_item(BotIdeasTicketPicker(tickets))
 
 
-@command_tree.command(name="ticket", description="Manage a Bot Ideas & Bugs ticket.")
-@discord.app_commands.describe(number="Ticket number, for example 6 for ticket #006")
-async def manage_bot_ideas_ticket_command(interaction: discord.Interaction, number: Optional[int] = None):
-    if str(interaction.user.id) != SHARKMEISTER_DEFAULT_USER_ID:
-        await interaction.response.send_message(
-            "🔒 This command is only available to Sharkmeister.",
-            ephemeral=True,
-            allowed_mentions=discord.AllowedMentions.none(),
-        )
-        return
-
-    if number is not None:
-        ticket = _bot_ideas_ticket_by_number(number)
-        if not isinstance(ticket, dict):
-            await interaction.response.send_message(
-                f"Ticket **#{int(number):03d}** was not found.",
-                ephemeral=True,
-            )
-            return
-        icon, label, _color = _ticket_status_meta(ticket.get("status"))
-        await interaction.response.send_message(
-            (
-                f"⚙️ **Ticket #{int(ticket.get('number', 0) or 0):03d} — {str(ticket.get('title') or 'Untitled')}**\n"
-                f"Current status: {icon} **{label}**\n\nChoose the new status:"
-            ),
-            view=BotIdeaTicketOwnerStatusView(str(ticket.get("ticket_id"))),
-            ephemeral=True,
-        )
-        return
-
-    open_tickets = _bot_ideas_open_tickets()
-    if not open_tickets:
-        await interaction.response.send_message(
-            "✅ There are no open tickets right now.",
-            ephemeral=True,
-        )
-        return
-
-    shown = open_tickets[:25]
-    extra = len(open_tickets) - len(shown)
-    suffix = f"\nShowing the 25 newest open tickets. {extra} older open ticket(s) are not shown here; use `/ticket <number>` for those." if extra > 0 else ""
-    await interaction.response.send_message(
-        f"🎫 **Open Bot Ideas & Bugs tickets**\nChoose a ticket to manage.{suffix}",
-        view=BotIdeasTicketPickerView(shown),
-        ephemeral=True,
-    )
-
-
 async def refresh_bot_ideas_create_prompt(channel, *, save=True):
     """Keep at most one movable Create Ticket prompt and place it at the bottom."""
     idle = _bot_ideas_idle_state()
@@ -14666,7 +14628,7 @@ async def refresh_bot_ideas_create_prompt(channel, *, save=True):
 
 
 async def refresh_saved_bot_ideas_ticket_cards(guild):
-    """Migrate existing saved tickets to the graphical no-button public layout."""
+    """Refresh saved ticket cards with their persistent administration button."""
     channel = _find_bot_ideas_channel(guild)
     if channel is None:
         return
@@ -15313,33 +15275,6 @@ async def maintenance_loop(
             )
 
             await process_due_rush_weekly_rewards(channel)
-
-            today = datetime.now(
-                timezone.utc
-            ).date().isoformat()
-
-            leaderboard_dates = state.setdefault("leaderboard_last_posted_dates", {})
-            if not isinstance(leaderboard_dates, dict):
-                leaderboard_dates = {}
-                state["leaderboard_last_posted_dates"] = leaderboard_dates
-            channel_key = str(_channel_id_or_primary(channel.id))
-            legacy_date = state.get("leaderboard_last_posted_date") if int(channel.id) == PRIMARY_CHESS_CHANNEL_ID else None
-            if leaderboard_dates.get(channel_key, legacy_date) != today:
-
-                await channel.send(
-                    make_leaderboard()
-                )
-
-                leaderboard_dates[channel_key] = today
-                if int(channel.id) == PRIMARY_CHESS_CHANNEL_ID:
-                    state["leaderboard_last_posted_date"] = today
-
-                save_json(
-                    STATE_FILE,
-                    state
-                )
-
-                queue_github_sync()
 
         except Exception as error:
 
@@ -18183,7 +18118,7 @@ async def on_message(
             return
         if in_chess_channel:
             note_chess_human_activity(message.channel.id)
-        public_shared_commands = {'!shop','!box','!customboard','!custompiece','!arrow','!arrowcolor',
+        public_shared_commands = {'!pet','!pets','!shop','!box','!customboard','!custompiece','!arrow','!arrowcolor',
                                   '!color','!me','!profile','!donate','!trade','!pendingtrade','!trades','!tradeinbox',
                                   '!accepttrade','!declinetrade','!pending','!accept','!decline',
                                   '!l','!lb','!leaderboard','!chessstats','!puzzlestreak','!quests','!quest','!q'}
@@ -19669,6 +19604,11 @@ async def on_message(
             )
             return
 
+        if command_lower in ("!pet", "!pets"):
+            from pet_ui import send_profile
+            await send_profile(message)
+            return
+
         # Fast exact aliases. Handle these before any puzzle logic.
         if command_lower in (
             "!leaderboard",
@@ -20160,7 +20100,7 @@ async def on_ready():
         _twitch_live_cleanup_task = asyncio.create_task(
             twitch_live_cleanup_loop()
         )
-        print("Twitch live-notification 06:00 cleanup task started.", flush=True)
+        print("Twitch live-notification status polling task started.", flush=True)
 
     try:
         await restore_open_challenges()
