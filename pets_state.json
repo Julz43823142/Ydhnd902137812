@@ -29,7 +29,7 @@
     ]
   },
   "442597396195704832": {
-    "active": "ec762f8f4d884118a7a8429b28da7bd9",
+    "active": "83101ee6f3104150ac91ea63c62fc35b",
     "pets": [
       {
         "born_at": 1790888210.1498027,
@@ -40,6 +40,17 @@
         "name": "",
         "rarity": "common",
         "species": "Cat",
+        "xp": 0
+      },
+      {
+        "born_at": 1790888246.8657486,
+        "fed_at": 1790888246.8657486,
+        "happiness": 80,
+        "happy_at": 1790888246.8657486,
+        "id": "83101ee6f3104150ac91ea63c62fc35b",
+        "name": "",
+        "rarity": "uncommon",
+        "species": "Fox",
         "xp": 0
       }
     ]
