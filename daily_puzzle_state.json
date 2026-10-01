@@ -58,7 +58,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_FG8Kf_1790853398864",
-    "last_activity_at": "2026-10-01T11:16:54.255264+00:00",
+    "last_activity_at": "2026-10-01T11:17:15.142143+00:00",
     "rating": 1931,
     "rp_band": 2,
     "boss": false,
@@ -69,17 +69,17 @@
     "next_player_index": 0,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1555176681113784350
+      "1468320170891022417": 1555176768544051272
     },
-    "message_id": 1555176681113784350,
+    "message_id": 1555176768544051272,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "1310661840707129370": {
         "name": "Chessmass",
-        "move": "Qxb5",
+        "move": "Bxc6",
         "correct": false,
-        "timestamp": "2026-10-01T11:16:54.256690+00:00"
+        "timestamp": "2026-10-01T11:17:15.143247+00:00"
       }
     },
     "first_move_user_id": null,
@@ -87,12 +87,12 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-10-01T11:16:54.255264+00:00",
+    "last_card_activity_at": "2026-10-01T11:17:15.142143+00:00",
     "recent_accepted_moves": [],
     "wrong_attempt_counts": {
-      "1310661840707129370": 1
+      "1310661840707129370": 2
     },
-    "last_feedback": "❌ **Almost, Chessmass. you were on the right track.**\n↪️ **Move played:** `Qxb5`"
+    "last_feedback": "❌ **One more try, Chessmass: you found a candidate move, just not the winner.**\n↪️ **Move played:** `Bxc6`"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
