@@ -1,53 +1,6 @@
 {
   "build": "quests-v1-2026-09-08",
   "periods": {
-    "daily:2026-09-10": {
-      "users": {
-        "1": {
-          "name": "Player 1",
-          "paid": [
-            "daily:2026-09-10:minigame:minigame-3"
-          ],
-          "progress": {
-            "daily:2026-09-10:minigame:minigame-3": 51
-          },
-          "updated_at": 1789079502
-        },
-        "362606514764251137": {
-          "name": "Sharkmeister",
-          "paid": [
-            "daily:2026-09-10:minigame:minigame-3"
-          ],
-          "progress": {
-            "daily:2026-09-10:minigame:minigame-3": 11
-          },
-          "updated_at": 1789071938
-        },
-        "442597396195704832": {
-          "name": "Thice",
-          "paid": [
-            "daily:2026-09-10:minigame:minigame-3",
-            "daily:2026-09-10:puzzle:solve-8"
-          ],
-          "progress": {
-            "daily:2026-09-10:minigame:minigame-3": 9,
-            "daily:2026-09-10:puzzle:solve-8": 21
-          },
-          "updated_at": 1789073113
-        },
-        "601406103712170014": {
-          "name": "TheMakina",
-          "paid": [
-            "daily:2026-09-10:puzzle:solve-8"
-          ],
-          "progress": {
-            "daily:2026-09-10:minigame:minigame-3": 1,
-            "daily:2026-09-10:puzzle:solve-8": 15
-          },
-          "updated_at": 1789052022
-        }
-      }
-    },
     "daily:2026-09-11": {
       "users": {
         "1": {
@@ -594,6 +547,18 @@
         }
       }
     },
+    "daily:2026-10-01": {
+      "users": {
+        "1": {
+          "name": "Player 1",
+          "paid": [],
+          "progress": {
+            "daily:2026-10-01:minigame:minigame-2": 1
+          },
+          "updated_at": 1790833461
+        }
+      }
+    },
     "weekly:2026-09-07": {
       "users": {
         "1": {
@@ -721,9 +686,9 @@
             "weekly:2026-09-28:minigame:minigame-5"
           ],
           "progress": {
-            "weekly:2026-09-28:minigame:minigame-5": 42
+            "weekly:2026-09-28:minigame:minigame-5": 43
           },
-          "updated_at": 1790811833
+          "updated_at": 1790833461
         },
         "362606514764251137": {
           "name": "Sharkmeister",
