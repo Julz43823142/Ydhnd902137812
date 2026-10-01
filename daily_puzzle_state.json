@@ -53,7 +53,7 @@
     "player_color": "black",
     "player_move_count": 3,
     "posted_at": "2026-10-01T11:16:38.864589+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -103,7 +103,7 @@
     "wrong_attempt_counts": {
       "1310661840707129370": 2
     },
-    "last_feedback": "✅ **Correct, Chessmass!**\n🎉 **Puzzle solved!**\nUpdating stats and rewards…",
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, Chessmass!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **26 points.**\n🔥 **Daily Activity Bonus: +10 coins**\n\n💡 **Solution:** Rxg2+ Qg6+ Nd2+\n\n🏆 **Your ranking**\n**#3 👾 Sharkmeister — 77.5 points**\n**#4 Chessmass — 26 points ← you**\n**#5 WetisJas — 20 points**",
     "accepted_solution_moves": [
       {
         "san": "Rxg2+",
