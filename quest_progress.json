@@ -558,6 +558,14 @@
             "daily:2026-10-01:minigame:minigame-2": 3
           },
           "updated_at": 1790833469
+        },
+        "1310661840707129370": {
+          "name": "Chessmass",
+          "paid": [],
+          "progress": {
+            "daily:2026-10-01:puzzle:solve-5": 1
+          },
+          "updated_at": 1790853481
         }
       }
     },
@@ -691,6 +699,14 @@
             "weekly:2026-09-28:minigame:minigame-5": 45
           },
           "updated_at": 1790833469
+        },
+        "1310661840707129370": {
+          "name": "Chessmass",
+          "paid": [],
+          "progress": {
+            "weekly:2026-09-28:puzzle:solve-60": 1
+          },
+          "updated_at": 1790853481
         },
         "362606514764251137": {
           "name": "Sharkmeister",
