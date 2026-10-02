@@ -1,0 +1,17 @@
+{
+  "boss": false,
+  "correct": true,
+  "created_at": 1790974998,
+  "display_name": "mh",
+  "elo_after": 1720.329,
+  "elo_change": 31.921,
+  "new_achievements": [],
+  "puzzle_id": "random_0pHcP_1790974886542",
+  "puzzle_rating": 2730,
+  "source": "random",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 9,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:random_0pHcP_1790974886542:386134006170910721",
+  "user_id": "386134006170910721"
+}
