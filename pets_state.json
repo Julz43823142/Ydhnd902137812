@@ -31,17 +31,17 @@
   "442597396195704832": {
     "active": "83101ee6f3104150ac91ea63c62fc35b",
     "expedition": {
-      "end": 1790961595.7204974,
-      "hours": 2,
-      "id": "pet-tools:1555600224959856660:442597396195704832",
+      "end": 1791016000.5149846,
+      "hours": 12,
+      "id": "pet-tools:1555677419380285470:442597396195704832",
       "pet_id": "83101ee6f3104150ac91ea63c62fc35b",
       "reward": {
         "accessory": null,
-        "coins": 1,
-        "xp": 10
+        "coins": 6,
+        "xp": 50
       },
-      "start": 1790954395.7204974,
-      "status": "claimed"
+      "start": 1790972800.5149846,
+      "status": "running"
     },
     "pets": [
       {
