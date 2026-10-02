@@ -3898,7 +3898,7 @@
         "player_color": "black",
         "player_move_count": 5,
         "posted_at": "2026-10-02T21:09:03.975111+00:00",
-        "answer_posted": false,
+        "answer_posted": true,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
@@ -3957,7 +3957,7 @@
         "wrong_attempt_counts": {
           "442597396195704832": 3
         },
-        "last_feedback": "✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\nUpdating stats and rewards…",
+        "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+2 points** — you now have **1711.5 points.**\n\n💡 **Solution:** Rxc2 Rg2 c2+ Bxe5+ dxe5\n\n🏆 **Your ranking**\n**#1 🙂 Thice — 1711.5 points ← you**\n**#2 🍅 TheMakina — 1547.5 points**",
         "accepted_solution_moves": [
           {
             "san": "Rxc2",
