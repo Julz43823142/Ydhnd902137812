@@ -8973,7 +8973,7 @@
         "id": "racer:racer-open:menu-open:1555682923871477933:442597396195704832",
         "status": "active",
         "channel_id": 1468320170891022417,
-        "message_id": "1555684155910656040",
+        "message_id": "1555684169819103282",
         "challenge_id": "racer-open:menu-open:1555682923871477933:442597396195704832",
         "players": [
           {
@@ -9171,11 +9171,12 @@
           "round": 11,
           "scores": {
             "442597396195704832": 12,
-            "386134006170910721": 10,
+            "386134006170910721": 11,
             "601406103712170014": 11
           },
           "round_answers": {
-            "442597396195704832": true
+            "442597396195704832": true,
+            "386134006170910721": true
           },
           "history": {
             "442597396195704832": [
@@ -9432,6 +9433,17 @@
                 "submitted": "Rxf6",
                 "correct": true,
                 "seconds": 24.01,
+                "timeout": false
+              },
+              {
+                "round": 12,
+                "id": "Dyr5k",
+                "rating": 1918,
+                "fen": "5nk1/5ppp/4p3/Np1p4/3PnP2/2r1P2P/P4bPB/2NQ3K b - - 3 27",
+                "expected": "Bxe3",
+                "submitted": "Bxe3",
+                "correct": true,
+                "seconds": 14.77,
                 "timeout": false
               }
             ],
