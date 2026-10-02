@@ -1,0 +1,14 @@
+{
+  "after_points": 6.5,
+  "amount": 1.0,
+  "before_points": 5.5,
+  "created_at": 1790974055,
+  "created_at_ns": 1790974055589859548,
+  "display_name": "mh",
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "add",
+  "pet_coin_bonus": 0.0,
+  "source": "rated-practice-solve",
+  "transaction_id": "practice:practice_qweyE_386134006170910721_1790974022995:solve:386134006170910721",
+  "user_id": "386134006170910721"
+}
