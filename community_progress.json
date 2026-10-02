@@ -12,6 +12,7 @@
       "paid": [],
       "pool": 1500,
       "progress": {
+        "pet_feed": 1,
         "pet_puzzle": 1,
         "puzzle_solve": 4
       },
@@ -20,6 +21,7 @@
       "title": "Animal Day Community Challenge",
       "users": {
         "442597396195704832": {
+          "pet_feed": 1,
           "pet_puzzle": 1,
           "puzzle_solve": 4
         }
@@ -30,9 +32,10 @@
     "2026-W40": {
       "442597396195704832": {
         "coins_earned": 14.0,
-        "contribution": 0.004133,
+        "contribution": 0.006133,
         "new_cosmetics": 0,
-        "pet_levels_gained": 2,
+        "pet_feed": 1,
+        "pet_levels_gained": 3,
         "pet_puzzle": 1,
         "puzzle_solve": 4
       }
