@@ -1,0 +1,17 @@
+{
+  "action": "puzzle_solve",
+  "amount": 1,
+  "created_at": 1790966445,
+  "created_at_ns": 1790966445735869548,
+  "daily_key": "daily:2026-10-02",
+  "display_name": "Chessmass",
+  "metadata": {
+    "boss": false,
+    "source": "puzzle"
+  },
+  "operation": "quest-progress",
+  "quest_build": "quests-v1-2026-09-08",
+  "transaction_id": "quest:puzzle-solve:random_qm3Zd_1790966412849:1310661840707129370",
+  "user_id": "1310661840707129370",
+  "weekly_key": "weekly:2026-09-28"
+}
