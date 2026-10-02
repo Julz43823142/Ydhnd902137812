@@ -88,7 +88,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_08qSi_1790966584159",
-    "last_activity_at": "2026-10-02T18:43:41.001866+00:00",
+    "last_activity_at": "2026-10-02T18:44:01.622595+00:00",
     "rating": 2746,
     "rp_band": 5,
     "boss": false,
@@ -99,17 +99,17 @@
     "next_player_index": 2,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1555651504571027466
+      "1468320170891022417": 1555651590772359258
     },
-    "message_id": 1555651504571027466,
+    "message_id": 1555651590772359258,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "1310661840707129370": {
         "name": "Chessmass",
-        "move": "rxf1",
-        "correct": true,
-        "timestamp": "2026-10-02T18:43:41.002087+00:00"
+        "move": "bxc5",
+        "correct": false,
+        "timestamp": "2026-10-02T18:44:01.623133+00:00"
       }
     },
     "first_move_user_id": "1310661840707129370",
@@ -117,19 +117,8 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-10-02T18:43:41.001866+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1790966621.0020945,
-        "fen_before": "7r/k5pp/1p6/p1RBq3/P3P3/4B3/6PP/1R3r1K w - - 1 33",
-        "expected": {
-          "uci": "b1f1",
-          "san": "Rxf1",
-          "color": "white"
-        },
-        "accepted_uci": "b1f1"
-      }
-    ],
+    "last_card_activity_at": "2026-10-02T18:44:01.622595+00:00",
+    "recent_accepted_moves": [],
     "accepted_solution_moves": [
       {
         "san": "Rxc5",
@@ -142,7 +131,10 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 3 moves remaining.**\n↩️ **Opponent replies:** bxc5"
+    "last_feedback": "❌ **Close, Chessmass: there is a stronger continuation available.**\n↪️ **Move played:** `bxc5`",
+    "wrong_attempt_counts": {
+      "1310661840707129370": 1
+    }
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
