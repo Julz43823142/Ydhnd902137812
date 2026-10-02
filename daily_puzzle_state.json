@@ -6253,6 +6253,24 @@
         "created_at": 1790973357.3688462,
         "message_id": "1555679758107541546",
         "closed_at": 1790973369.804817
+      },
+      "racer-open:menu-open:1555682923871477933:442597396195704832": {
+        "id": "racer-open:menu-open:1555682923871477933:442597396195704832",
+        "kind": "open_lobby",
+        "status": "open",
+        "challenger_id": "442597396195704832",
+        "challenger_name": "Thice",
+        "channel_id": 1468320170891022417,
+        "minutes": 10,
+        "stake": 0,
+        "players": [
+          {
+            "id": "442597396195704832",
+            "name": "Thice"
+          }
+        ],
+        "created_at": 1790974112.5620136,
+        "message_id": "1555682925687603263"
       }
     },
     "games": {
