@@ -112,121 +112,74 @@
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
-    "url": "https://www.chess.com/daily/2026-10-01",
-    "title": "Defensive Breach",
-    "fen": "3q1rk1/pp3pbp/6p1/8/2Q2Pn1/1B6/PPP3PP/R1B2RK1 b - - 0 1",
-    "current_fen": "5rk1/pp3p1p/6p1/8/2Qb1Pnq/1B5P/PPP3P1/R1B2R1K b - - 0 3",
-    "last_move_uci": "h2h3",
-    "pgn": "[White \"Daily Puzzle Inspiration\"]\n[Black \"chesstiger787\"]\n[Result \"0-1\"]\n[FEN \"3q1rk1/pp3pbp/6p1/8/2Q2Pn1/1B6/PPP3PP/R1B2RK1 b - - 0 1\"]\n\n1... Bd4+ 2. Kh1 Qh4 3. h3 Qg3 4. hxg4 Qh4# 0-1",
+    "url": "https://www.chess.com/daily/2026-10-02",
+    "title": "Exit Strategy",
+    "fen": "r4rk1/3bbppp/pq2p1n1/1p2P3/2p2P2/2P2NPP/PP4BK/R1BQ1R2 w - - 2 16",
+    "current_fen": "r4rk1/3bbppp/pq2p1n1/1p2P3/2p2P2/2P2NPP/PP4BK/R1BQ1R2 w - - 2 16",
+    "last_move_uci": null,
+    "pgn": "[White \"Sean Bishop\"]\n[Black \"Daily Puzzle Inspiration\"]\n[Result \"*\"]\n[FEN \"r4rk1/3bbppp/pq2p1n1/1p2P3/2p2P2/2P2NPP/PP4BK/R1BQ1R2 w - - 2 16\"]\n\n16. f5 exf5 17. Qxd7 Rad8 18. Qxf5 *",
     "all_moves": [
       {
-        "uci": "g7d4",
-        "san": "Bd4+",
-        "color": "black"
-      },
-      {
-        "uci": "g1h1",
-        "san": "Kh1",
+        "uci": "f4f5",
+        "san": "f5",
         "color": "white"
       },
       {
-        "uci": "d8h4",
-        "san": "Qh4",
+        "uci": "e6f5",
+        "san": "exf5",
         "color": "black"
       },
       {
-        "uci": "h2h3",
-        "san": "h3",
+        "uci": "d1d7",
+        "san": "Qxd7",
         "color": "white"
       },
       {
-        "uci": "h4g3",
-        "san": "Qg3",
+        "uci": "a8d8",
+        "san": "Rad8",
         "color": "black"
       },
       {
-        "uci": "h3g4",
-        "san": "hxg4",
+        "uci": "d7f5",
+        "san": "Qxf5",
         "color": "white"
-      },
-      {
-        "uci": "g3h4",
-        "san": "Qh4#",
-        "color": "black"
       }
     ],
     "player_moves": [
       {
-        "uci": "g7d4",
-        "san": "Bd4+",
-        "color": "black"
+        "uci": "f4f5",
+        "san": "f5",
+        "color": "white"
       },
       {
-        "uci": "d8h4",
-        "san": "Qh4",
-        "color": "black"
+        "uci": "d1d7",
+        "san": "Qxd7",
+        "color": "white"
       },
       {
-        "uci": "h4g3",
-        "san": "Qg3",
-        "color": "black"
-      },
-      {
-        "uci": "g3h4",
-        "san": "Qh4#",
-        "color": "black"
+        "uci": "d7f5",
+        "san": "Qxf5",
+        "color": "white"
       }
     ],
-    "player_color": "black",
-    "player_move_count": 4,
-    "posted_at": "2026-10-01T07:04:29.664384+00:00",
-    "answer_posted": true,
+    "player_color": "white",
+    "player_move_count": 3,
+    "posted_at": "2026-10-02T07:08:59.513566+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "daily_1790838269664",
-    "next_solution_index": 4,
-    "next_player_index": 2,
+    "puzzle_id": "daily_1790924939513",
+    "next_solution_index": 0,
+    "next_player_index": 0,
     "solved": false,
-    "message_id": 1555213288424472707,
-    "attempted_users": {
-      "1310661840707129370": {
-        "name": "Chessmass",
-        "move": "Nf2",
-        "correct": false,
-        "timestamp": "2026-10-01T13:42:20.337208+00:00"
-      }
-    },
-    "first_move_user_id": "1310661840707129370",
-    "first_move_user_name": "Chessmass",
+    "message_id": null,
+    "attempted_users": {},
+    "first_move_user_id": null,
+    "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "message_ids": {
-      "1468320170891022417": 1555213288424472707,
-      "1546557493038284840": 1555213354031775774
-    },
-    "channel_id": 1468320170891022417,
-    "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-10-01T13:42:20.336844+00:00",
-    "recent_accepted_moves": [],
-    "accepted_solution_moves": [
-      {
-        "san": "Bd4+",
-        "uci": "g7d4",
-        "principal": true
-      },
-      {
-        "san": "Qh4",
-        "uci": "d8h4",
-        "principal": true
-      }
-    ],
-    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Bd4+ Qh4 Qg3 Qh4#",
-    "wrong_attempt_counts": {
-      "1310661840707129370": 3
-    },
-    "last_manual_bump": 1790862157.8066895
+    "helper_candidate_users": []
   },
   "lichess_rating_used": {
     "2000": [
