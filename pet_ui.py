@@ -13,6 +13,16 @@ import discord
 import pets
 
 
+async def _refresh_safely(view, interaction, **kwargs):
+    try:
+        await view._refresh(interaction, **kwargs)
+    except Exception:
+        await interaction.followup.send(
+            "Pet data could not be refreshed. Use Collection to retry; check your pets before repeating a purchase or care action.",
+            ephemeral=True,
+        )
+
+
 def title(pet):
     if pets.level(pet) == 0:
         return "🥚 Level 0 Mysterious Egg"
@@ -160,6 +170,9 @@ class PublicPetView(discord.ui.View):
         return True
 
     async def refresh(self, interaction):
+        await _refresh_safely(self, interaction)
+
+    async def _refresh(self, interaction):
         self.owner = await asyncio.to_thread(pets.get_owner, self.uid)
         pet = pets.current_pet(self.owner, self.pet_id)
         if pet is None or pet.get('died_at'):
@@ -230,6 +243,15 @@ class PetView(discord.ui.View):
         self.busy = asyncio.Lock()
         if any(not p.get("died_at") for p in owner["pets"]):
             self.add_item(PetPicker(self))
+        pet = pets.current_pet(owner, self.pet_id)
+        living = pet is not None and not pet.get("died_at")
+        today = pets.day_key(time.time())
+        for button in self.children:
+            if getattr(button, "label", "") in {"Feed", "Pet Puzzle", "Rename", "Make Active", "Submit Move"}:
+                button.disabled = not living
+                if button.label == "Submit Move" and living:
+                    button.disabled = (pet.get("puzzle", {}).get("day") != today
+                                       or pet.get("puzzle_day") == today)
 
     async def interaction_check(self, interaction):
         if interaction.user.id != self.uid:
@@ -238,6 +260,9 @@ class PetView(discord.ui.View):
         return True
 
     async def refresh(self, interaction, puzzle=False):
+        await _refresh_safely(self, interaction, puzzle=puzzle)
+
+    async def _refresh(self, interaction, puzzle=False):
         self.owner = await asyncio.to_thread(pets.get_owner, self.uid)
         pet = pets.current_pet(self.owner, self.pet_id)
         if pet is None or pet.get("died_at"):
