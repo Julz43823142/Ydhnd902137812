@@ -8720,9 +8720,11 @@
           "round": 2,
           "scores": {
             "442597396195704832": 2,
-            "386134006170910721": 2
+            "386134006170910721": 3
           },
-          "round_answers": {},
+          "round_answers": {
+            "386134006170910721": true
+          },
           "history": {
             "442597396195704832": [
               {
@@ -8769,6 +8771,17 @@
                 "submitted": "Rh2",
                 "correct": true,
                 "seconds": 9.27,
+                "timeout": false
+              },
+              {
+                "round": 3,
+                "id": "7z9CP",
+                "rating": 1404,
+                "fen": "r4Nk1/1p3p2/3p2p1/2p5/1pP2P2/P2q2n1/1B1P2PR/K2Q4 b - - 1 28",
+                "expected": "Rxa3+",
+                "submitted": "Rxa3",
+                "correct": true,
+                "seconds": 16.09,
                 "timeout": false
               }
             ]
