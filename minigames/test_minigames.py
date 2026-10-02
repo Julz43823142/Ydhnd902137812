@@ -3,11 +3,25 @@ import copy
 import io
 import random
 import unittest
+from unittest.mock import patch
 from collections import Counter
 import minigames_engine as e
 import minigames_poker as p
 import minigames_blackjack as bj
 from minigames_content import select_ladder
+
+
+def setUpModule():
+    # UI/game tests must never send synthetic wins to the real shared Git ledger.
+    # Quest persistence is covered separately by isolated local-remote tests.
+    global _quest_actions_patch
+    _quest_actions_patch = patch('quests.record_actions', return_value={
+        'recorded': 0, 'completed': [], 'failed_rewards': []})
+    _quest_actions_patch.start()
+
+
+def tearDownModule():
+    _quest_actions_patch.stop()
 
 
 def setup(kind,stake=0,n=2):
