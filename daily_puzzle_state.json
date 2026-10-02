@@ -2743,7 +2743,8 @@
       "finished_at": 1790976071.0734518,
       "finish_reason": "Time expired",
       "white_rating_after": 1493.3764785384171,
-      "black_rating_after": 1516.4525214615828
+      "black_rating_after": 1516.4525214615828,
+      "brilliant_coin_rewards_v1": {}
     }
   },
   "chess_challenges": {
@@ -2776,6 +2777,20 @@
       "wager_amount": 15.0,
       "created_at": 1789051903.3307006,
       "message_id": "1547620596177699018"
+    },
+    "386134006170910721:normal": {
+      "daily_game": false,
+      "variant": "standard",
+      "base_seconds": 600,
+      "increment": 0,
+      "challenge_id": "pvp-challenge:1555691209652052069:601406103712170014:386134006170910721:normal",
+      "challenger_id": "601406103712170014",
+      "challenger_name": "TheMakina",
+      "target_id": "386134006170910721",
+      "target_name": "mh",
+      "channel_id": 1468320170891022417,
+      "wager_amount": 0.0,
+      "created_at": 1790976133.0740793
     }
   },
   "puzzle_rush": {
