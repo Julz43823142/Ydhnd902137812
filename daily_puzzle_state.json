@@ -9004,7 +9004,7 @@
         "winner_id": "442597396195704832",
         "tied_winner_ids": [],
         "forfeit_ids": [],
-        "rewards_settled": false,
+        "rewards_settled": true,
         "data": {
           "puzzles": [
             {
