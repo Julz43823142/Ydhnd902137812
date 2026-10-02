@@ -98,7 +98,7 @@
     "player_color": "black",
     "player_move_count": 6,
     "posted_at": "2026-10-02T13:59:56.435667+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -146,12 +146,12 @@
         "principal": true
       }
     ],
-    "last_feedback": "❌ **Puzzle verdict on Thice: the puzzle asked for precision and you answered with pure ego.**\n↪️ **Move played:** `Qxg5`",
+    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** h4 hxg3 Qf2+ gxf2 Re1 Rxd1",
     "wrong_attempt_counts": {
       "442597396195704832": 2
     }
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-02",
