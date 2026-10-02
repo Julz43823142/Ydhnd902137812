@@ -82,12 +82,24 @@ PROFILE_THEMES = {
     "minecraft": {"label": "Minecraft", "embed_color": 0x69C44B, "command": "minecraft"},
 }
 
+# Keep the original Detroit key as Connor so existing purchases remain valid.
+DETROIT_CHARACTERS = {
+    "detroit": "Connor", "detroit_markus": "Markus", "detroit_kara": "Kara",
+    "detroit_hank": "Hank",
+}
+for _key, _character in DETROIT_CHARACTERS.items():
+    if _key != "detroit":
+        PROFILE_THEMES[_key] = {
+            "label": f"Detroit: {_character}", "embed_color": 0x37B7FF, "command": _key,
+        }
+
 # Game / YouTube-playlist themes are the premium tier. Classic stays free;
 # original Shark Bot themes cost 50 coins; game themes cost 100 coins.
 GAME_PROFILE_THEMES = {
     "shadows_of_doubt", "detroit", "stray", "cs2", "killer_frequency",
     "fears_to_fathom", "firewatch", "heavy_rain", "chess", "minecraft",
 }
+GAME_PROFILE_THEMES.update(DETROIT_CHARACTERS)
 
 
 def profile_theme_cost(theme_name):

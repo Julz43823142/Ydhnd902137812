@@ -63,7 +63,7 @@ from shop_catalog import (
     COLOR_COST, NAME_COLORS, SHOP_COLOR_ROLE_PREFIX, SURVIVAL_HEART_COST,
     SUBSCRIBER_NAME_COLOR, is_subscriber_name_color,
     member_has_subscriber_color, subscriber_entitlement_role,
-    PROFILE_THEME_COST, PROFILE_THEMES, profile_theme_cost,
+    PROFILE_THEME_COST, PROFILE_THEMES, DETROIT_CHARACTERS, profile_theme_cost,
     SURVIVAL_HEART_STYLES, canonical_survival_heart_style,
     twitch_channel_point_cost, is_twitch_channel_point_cosmetic,
 )
@@ -12324,7 +12324,7 @@ class CosmeticCatalogPager(discord.ui.View):
         elif self.kind == "arrow":
             self.names = list(ARROW_COLORS)
         elif self.kind == "theme":
-            self.names = list(PROFILE_THEMES)
+            self.names = [name for name in PROFILE_THEMES if name not in DETROIT_CHARACTERS or name == "detroit"]
         else:
             self.names = list(PIECE_SETS)
         self.page_size = 4 if self.kind == "theme" else 5
@@ -12332,7 +12332,8 @@ class CosmeticCatalogPager(discord.ui.View):
         self.page = max(1, min(int(page or 1), self.total_pages))
         page_names = self._page_names()
         wanted = str(selected_name or "").casefold()
-        self.selected_name = wanted if wanted in page_names else page_names[0]
+        parent = "detroit" if wanted in DETROIT_CHARACTERS else wanted
+        self.selected_name = wanted if parent in page_names else page_names[0]
         self._rebuild()
 
     async def interaction_check(self, interaction):
@@ -12351,6 +12352,8 @@ class CosmeticCatalogPager(discord.ui.View):
         if self.kind == "arrow":
             return ARROW_COLORS.get(name, {}).get("label", name.title())
         if self.kind == "theme":
+            if name in DETROIT_CHARACTERS:
+                return f"Detroit: Become Human — {DETROIT_CHARACTERS[name]}"
             return PROFILE_THEMES.get(name, {}).get("label", name.title())
         return PIECE_DISPLAY_NAMES.get(name, name.title())
 
@@ -12409,6 +12412,8 @@ class CosmeticCatalogPager(discord.ui.View):
             action_line = (
                 f"Click a name to instantly preview that {item_word}. Then use **Buy selected** or **Equip selected**."
             )
+            if self.kind == "theme" and self.selected_name in DETROIT_CHARACTERS:
+                action_line = "Choose a Detroit character below to preview it before buying. Each character is a separate 100-coin theme. Existing Detroit purchases include Connor."
         return (
             f"{icon} **{title}**\n"
             f"{price_line}\n"
@@ -12495,13 +12500,15 @@ class CosmeticCatalogPager(discord.ui.View):
     def _rebuild(self, profile=None):
         self.clear_items()
         page_names = self._page_names()
-        if self.selected_name not in page_names:
+        parent = "detroit" if self.kind == "theme" and self.selected_name in DETROIT_CHARACTERS else self.selected_name
+        if parent not in page_names:
             self.selected_name = page_names[0]
+            parent = self.selected_name
 
         for name in page_names:
             button = discord.ui.Button(
-                label=self._display_name(name)[:36],
-                style=discord.ButtonStyle.primary if name == self.selected_name else discord.ButtonStyle.secondary,
+                label=("Detroit: Become Human" if self.kind == "theme" and name == "detroit" else self._display_name(name))[:36],
+                style=discord.ButtonStyle.primary if name == parent else discord.ButtonStyle.secondary,
                 row=0,
             )
             async def select_callback(interaction, selected=name):
@@ -12527,6 +12534,22 @@ class CosmeticCatalogPager(discord.ui.View):
         self.add_item(indicator)
         self.add_item(next_button)
 
+        detroit = self.kind == "theme" and self.selected_name in DETROIT_CHARACTERS
+        action_row = 3 if detroit else 2
+        if detroit:
+            owned_themes = (profile or {}).get("profile_themes", [])
+            selector = discord.ui.Select(
+                placeholder="Choose a Detroit character", row=2,
+                options=[discord.SelectOption(label=character, value=key,
+                    description="Owned" if key in owned_themes else "100 coins",
+                    default=key == self.selected_name) for key, character in DETROIT_CHARACTERS.items()],
+            )
+            async def character_callback(interaction):
+                self.selected_name = selector.values[0]
+                await self._show_selected(interaction)
+            selector.callback = character_callback
+            self.add_item(selector)
+
         owned, _active = self._owned_active(profile)
         twitch_points = self._twitch_points()
         if twitch_points is not None:
@@ -12534,19 +12557,21 @@ class CosmeticCatalogPager(discord.ui.View):
                 label=f"Twitch • {twitch_points:,} pts",
                 style=discord.ButtonStyle.secondary,
                 disabled=True,
-                row=2,
+                row=action_row,
             )
         else:
             buy = discord.ui.Button(
                 label=f"Buy selected • {shared_format_points(self._price())} coins",
                 style=discord.ButtonStyle.success,
                 disabled=self._is_free_default(self.selected_name) or owned,
-                row=2,
+                row=action_row,
             )
-        equip = discord.ui.Button(label="Equip selected", style=discord.ButtonStyle.primary, disabled=not owned, row=2)
+        equip = discord.ui.Button(label="Equip selected", style=discord.ButtonStyle.primary, disabled=not owned, row=action_row)
+
+        action_name, action_price = self.selected_name, self._price()
 
         async def buy_callback(interaction):
-            name = self.selected_name
+            name = action_name
             await interaction.response.defer()
             try:
                 if self.kind == "board":
@@ -12565,12 +12590,12 @@ class CosmeticCatalogPager(discord.ui.View):
                 await interaction.followup.send(f"❌ Could not buy it: `{str(error)[:800]}`", ephemeral=True)
                 return
             buyer = discord.utils.escape_mentions(discord.utils.escape_markdown(interaction.user.display_name))
-            await interaction.followup.send(f"🛒 **{buyer}** bought **{label}** for **{shared_format_points(self._price())} coins**.", ephemeral=False, allowed_mentions=discord.AllowedMentions.none())
+            await interaction.followup.send(f"🛒 **{buyer}** bought **{label}** for **{shared_format_points(action_price)} coins**.", ephemeral=False, allowed_mentions=discord.AllowedMentions.none())
             self._rebuild(updated)
             await interaction.edit_original_response(content=self.render(updated), view=self)
 
         async def equip_callback(interaction):
-            name = self.selected_name
+            name = action_name
             await interaction.response.defer()
             try:
                 if self.kind == "board":
@@ -12686,6 +12711,9 @@ def _normalize_profile_theme_token(value):
     value = str(value or "").strip().casefold()
     compact = "".join(ch for ch in value if ch.isalnum())
     underscored = re.sub(r"[^a-z0-9]+", "_", value).strip("_")
+    for key, character in DETROIT_CHARACTERS.items():
+        if compact in {character.casefold(), f"detroit{character.casefold()}", f"dbh{character.casefold()}"}:
+            return key
     if value in PROFILE_THEMES:
         return value
     if underscored in PROFILE_THEMES:
@@ -12701,6 +12729,8 @@ def _profile_card_theme_svg(theme_key):
     (rain, radio, lookout tower, voxel hills, etc.) rather than copied artwork.
     """
     theme_key = str(theme_key or "classic").casefold()
+    if theme_key in DETROIT_CHARACTERS:
+        theme_key = "detroit"
 
     if theme_key == "purple":
         return (
@@ -13455,7 +13485,7 @@ async def make_profile_embed(user_id, display_name, member=None, profile=None):
     profile, file = await make_profile_card_file(user_id, display_name, avatar_url=avatar_url, profile=profile)
     theme_key = str(profile.get("active_profile_theme", "classic") or "classic").casefold()
     theme = PROFILE_THEMES.get(theme_key, PROFILE_THEMES["classic"])
-    embed = discord.Embed(color=int(theme["embed_color"]))
+    embed = discord.Embed(description=profile_message_header(profile, display_name), color=int(theme["embed_color"]))
     embed.set_image(url=f"attachment://{file.filename}" if file is not None else "attachment://profile_card.png")
     if member is not None:
         try:
@@ -13474,7 +13504,7 @@ async def slash_profile(interaction: discord.Interaction, user: discord.User = N
     embed, file = await make_profile_embed(target.id, target.display_name, member=target, profile=profile)
     view = CosmeticProfileView(interaction.user.id, target.id, target.display_name,
                                editable=target.id == interaction.user.id, profile=profile)
-    await interaction.followup.send(content=profile_message_header(profile, target.display_name), embed=embed,
+    await interaction.followup.send(embed=embed,
                                     file=file, view=view, allowed_mentions=discord.AllowedMentions.none())
 
 
@@ -13501,7 +13531,7 @@ async def send_profile_card(channel, viewer, target_user_id, target_name, editab
     profile = await asyncio.to_thread(get_cosmetic_profile, target_user_id, target_name)
     embed, file = await make_profile_embed(target_user_id, target_name, member=member, profile=profile)
     view = CosmeticProfileView(viewer.id, target_user_id, target_name, editable=editable, profile=profile)
-    return await channel.send(content=profile_message_header(profile, target_name), embed=embed, file=file,
+    return await channel.send(embed=embed, file=file,
                               view=view, allowed_mentions=discord.AllowedMentions.none())
 
 
@@ -17766,7 +17796,7 @@ class ShopHomeView(discord.ui.View):
             profile=profile,
         )
         await interaction.followup.send(
-            content=profile_message_header(profile, interaction.user.display_name), embed=embed, file=file,
+            embed=embed, file=file,
             view=CosmeticProfileView(interaction.user.id, interaction.user.id, interaction.user.display_name, editable=True, profile=profile),
             ephemeral=True, allowed_mentions=discord.AllowedMentions.none(),
         )
@@ -18005,7 +18035,7 @@ class MainMenuView(discord.ui.View):
             profile=profile,
         )
         await interaction.followup.send(
-            content=profile_message_header(profile, interaction.user.display_name), embed=embed, file=file,
+            embed=embed, file=file,
             view=CosmeticProfileView(interaction.user.id, interaction.user.id, interaction.user.display_name, editable=True, profile=profile),
             ephemeral=True, allowed_mentions=discord.AllowedMentions.none(),
         )

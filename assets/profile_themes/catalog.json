@@ -84,5 +84,24 @@
   "minecraft": {
     "file": "minecraft.jpg",
     "label": "Minecraft"
+  },
+  "detroit_markus": {
+    "file": "detroit_markus.jpg",
+    "label": "Detroit: Markus",
+    "art_height": 450,
+    "art_fit": "meet"
+  },
+  "detroit_kara": {
+    "file": "detroit_kara.jpg",
+    "label": "Detroit: Kara",
+    "art_height": 450,
+    "art_fit": "meet"
+  },
+  "detroit_hank": {
+    "file": "detroit_hank.jpg",
+    "label": "Detroit: Hank",
+    "art_height": 450,
+    "art_fit": "meet",
+    "companion_file": "detroit_sumo.jpg"
   }
 }
