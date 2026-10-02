@@ -2759,7 +2759,7 @@
       "white_rating": 1493.376,
       "black_rating": 1516.453,
       "initial_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-      "fen": "r2q1r1k/1ppbb1pp/1nn2p2/pB6/P2Pp3/2P1B2P/1P1N1PP1/RN1QR1K1 b - - 1 14",
+      "fen": "r2q1r1k/1ppbb1pp/1nn5/pB3p2/P2Pp3/2P1B2P/1P1N1PP1/RN1QR1K1 w - - 0 15",
       "moves": [
         "e4",
         "e5",
@@ -2787,12 +2787,13 @@
         "Bd7",
         "Be3",
         "e4",
-        "Nfd2"
+        "Nfd2",
+        "f5"
       ],
-      "last_move": "Nfd2",
+      "last_move": "f5",
       "started_at": 1790976147.4444008,
       "draw_offer": null,
-      "message_id": 1555692501321384030,
+      "message_id": 1555692579067138048,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
       "theme_owner_id": "601406103712170014",
@@ -2802,15 +2803,15 @@
       "wager_settled": false,
       "clock": {
         "white": 78.11315512657166,
-        "black": 88.19620871543884,
+        "black": 83.79132103919983,
         "increment": 2,
-        "at": 1790976411.4686034,
+        "at": 1790976417.873491,
         "label": "3+2",
         "daily": false,
         "started": true
       },
       "absence_claim": null,
-      "last_move_at": 1790976411.4700613,
+      "last_move_at": 1790976417.8749075,
       "clock_started_after_grace_at": 1790976167.7779672
     }
   },
