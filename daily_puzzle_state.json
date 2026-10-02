@@ -2781,16 +2781,17 @@
     "386134006170910721:normal": {
       "daily_game": false,
       "variant": "standard",
-      "base_seconds": 600,
-      "increment": 0,
-      "challenge_id": "pvp-challenge:1555691209652052069:601406103712170014:386134006170910721:normal",
+      "base_seconds": 180,
+      "increment": 2,
+      "challenge_id": "pvp-challenge:1555691388421541919:601406103712170014:386134006170910721:normal",
       "challenger_id": "601406103712170014",
       "challenger_name": "TheMakina",
       "target_id": "386134006170910721",
       "target_name": "mh",
       "channel_id": 1468320170891022417,
       "wager_amount": 0.0,
-      "created_at": 1790976133.0740793
+      "created_at": 1790976133.6213772,
+      "message_id": "1555691402837368905"
     }
   },
   "puzzle_rush": {
