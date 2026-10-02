@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/0pHcP",
     "title": "Lichess • 2730",
     "fen": "Q1K5/7p/2pk4/1q6/8/8/1P5P/8 b - - 6 43",
-    "current_fen": "Q1K5/7p/2pk4/1q6/8/8/1P5P/8 b - - 6 43",
-    "last_move_uci": "b8c8",
+    "current_fen": "QK6/7p/2pk4/5q2/8/8/1P5P/8 b - - 8 44",
+    "last_move_uci": "c8b8",
     "pgn": "Qf5+ Kb8 Qf8+ Ka7 Qf2+",
     "all_moves": [
       {
@@ -58,26 +58,56 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_0pHcP_1790974886542",
-    "last_activity_at": "2026-10-02T21:01:26.542221+00:00",
+    "last_activity_at": "2026-10-02T21:01:46.460598+00:00",
     "rating": 2730,
     "rp_band": 5,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
-    "message_ids": {},
-    "message_id": null,
+    "message_ids": {
+      "1468320170891022417": 1555686256355057735
+    },
+    "message_id": 1555686256355057735,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "attempted_users": {
+      "601406103712170014": {
+        "name": "TheMakina",
+        "move": "Qf5",
+        "correct": true,
+        "timestamp": "2026-10-02T21:01:46.460810+00:00"
+      }
+    },
+    "first_move_user_id": "601406103712170014",
+    "first_move_user_name": "TheMakina",
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "last_card_activity_at": "2026-10-02T21:01:46.460598+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1790974906.4608169,
+        "fen_before": "Q1K5/7p/2pk4/1q6/8/8/1P5P/8 b - - 6 43",
+        "expected": {
+          "uci": "b5f5",
+          "san": "Qf5+",
+          "color": "black"
+        },
+        "accepted_uci": "b5f5"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "Qf5+",
+        "uci": "b5f5",
+        "principal": true
+      }
+    ],
+    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Kb8"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
