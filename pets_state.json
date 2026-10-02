@@ -154,15 +154,15 @@
         "born_at": 1790975465.9143035,
         "fed_at": 1790975474.2654634,
         "feed_day": "2026-10-02",
-        "happiness": 80,
-        "happy_at": 1790975465.9143035,
+        "happiness": 100,
+        "happy_at": 1790975542.7421424,
         "id": "4cd600c103e243199044b0bad020a593",
         "name": "",
         "puzzle": {
           "day": "2026-10-02",
-          "fen": "1r2r1k1/4ppbp/5np1/2Np4/1p1P4/1P2P1P1/3NbPBP/R4RK1 b - - 2 21",
+          "fen": "1r2r1k1/4ppbp/5np1/2Np4/1p1P4/1P2P1P1/3N1PBP/R4bK1 w - - 0 22",
           "id": "2ROEK",
-          "index": 4,
+          "index": 5,
           "moves": [
             "b5d3",
             "c5d3",
@@ -171,9 +171,10 @@
             "e2f1"
           ]
         },
+        "puzzle_day": "2026-10-02",
         "rarity": "common",
         "species": "Dog",
-        "xp": 5
+        "xp": 25
       }
     ]
   }
