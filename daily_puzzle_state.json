@@ -3816,8 +3816,8 @@
         "url": "https://lichess.org/training/UzixS",
         "title": "Lichess • 3080",
         "fen": "1r5k/1q3pbP/3p4/Q4P2/5B2/2pB4/PrP5/K5RR b - - 2 30",
-        "current_fen": "1r5k/1q3pbP/3p4/1Q3P2/5B2/2pB4/P1r5/K5RR b - - 1 31",
-        "last_move_uci": "a5b5",
+        "current_fen": "1r5k/1q3pbP/3p4/1Q3P2/5B2/2pB4/P5R1/K6R b - - 0 32",
+        "last_move_uci": "g1g2",
         "pgn": "Rxc2 Qb5 Rg2 Rxg2 c2+ Be5 Bxe5+ Qxe5+ dxe5",
         "all_moves": [
           {
@@ -3901,26 +3901,26 @@
         "winner_name": null,
         "latest_attempts": {},
         "puzzle_id": "random_UzixS_1790975343975",
-        "last_activity_at": "2026-10-02T21:09:40.419180+00:00",
+        "last_activity_at": "2026-10-02T21:09:55.133401+00:00",
         "rating": 3080,
         "rp_band": 5,
         "boss": true,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink",
-        "next_solution_index": 2,
-        "next_player_index": 1,
+        "next_solution_index": 4,
+        "next_player_index": 2,
         "solved": false,
         "message_ids": {
-          "1546557493038284840": 1555688244228661448
+          "1546557493038284840": 1555688306124267612
         },
         "chat_since_refresh": 0,
         "attempted_users": {
           "442597396195704832": {
             "name": "Thice",
-            "move": "rxa2",
-            "correct": false,
-            "timestamp": "2026-10-02T21:09:40.420355+00:00"
+            "move": "rg2",
+            "correct": true,
+            "timestamp": "2026-10-02T21:09:55.134207+00:00"
           }
         },
         "first_move_user_id": "442597396195704832",
@@ -3929,16 +3929,32 @@
         "helper_awarded_users": [],
         "helper_candidate_users": [],
         "channel_id": 1546557493038284840,
-        "last_card_activity_at": "2026-10-02T21:09:40.419180+00:00",
-        "recent_accepted_moves": [],
+        "last_card_activity_at": "2026-10-02T21:09:55.133401+00:00",
+        "recent_accepted_moves": [
+          {
+            "accepted_at": 1790975395.1342142,
+            "fen_before": "1r5k/1q3pbP/3p4/1Q3P2/5B2/2pB4/P1r5/K5RR b - - 1 31",
+            "expected": {
+              "uci": "c2g2",
+              "san": "Rg2",
+              "color": "black"
+            },
+            "accepted_uci": "c2g2"
+          }
+        ],
         "wrong_attempt_counts": {
           "442597396195704832": 3
         },
-        "last_feedback": "❌ **Puzzle verdict on Thice: your move deserves its own evaluation symbol and none of them are positive.**\n↪️ **Move played:** `rxa2`",
+        "last_feedback": "**✅ Correct! 3 moves remaining.**\n↩️ **Opponent replies:** Rxg2",
         "accepted_solution_moves": [
           {
             "san": "Rxc2",
             "uci": "b2c2",
+            "principal": true
+          },
+          {
+            "san": "Rg2",
+            "uci": "c2g2",
             "principal": true
           }
         ]
