@@ -543,9 +543,9 @@
           "name": "Player 1",
           "paid": [],
           "progress": {
-            "daily:2026-10-02:minigame:minigame-3": 1
+            "daily:2026-10-02:minigame:minigame-3": 2
           },
-          "updated_at": 1790918904
+          "updated_at": 1790918906
         }
       }
     },
@@ -676,9 +676,9 @@
             "weekly:2026-09-28:minigame:minigame-5"
           ],
           "progress": {
-            "weekly:2026-09-28:minigame:minigame-5": 64
+            "weekly:2026-09-28:minigame:minigame-5": 65
           },
-          "updated_at": 1790918904
+          "updated_at": 1790918906
         },
         "1310661840707129370": {
           "name": "Chessmass",
