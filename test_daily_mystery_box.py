@@ -100,7 +100,7 @@ class DailyMysteryNavigation(unittest.IsolatedAsyncioTestCase):
                 await button.callback(ctx)
             claim.assert_called_once_with(42, 'Player')
             ctx.response.defer.assert_awaited_once_with(ephemeral=True)
-            self.assertIn('No coins spent', ctx.followup.send.call_args.args[0])
+            self.assertIn('No coins spent', ctx.followup.send.call_args.kwargs['embed'].description)
             view.stop()
         self.assertIn('1 free Mystery Box', bot.shop_home_embed({}).description)
         self.assertIn('1 free Mystery Box', guess_chatter.guess_shop_home_embed({}).description)
@@ -130,4 +130,4 @@ class DailyMysteryNavigation(unittest.IsolatedAsyncioTestCase):
         result = {'badge': '⭐', 'rarity_label': 'Common', 'already_claimed': False, 'claim_day': '2026-10-02'}
         with patch.object(badge_box_ui, 'claim_daily_mystery_box', return_value=result), patch('time.time', return_value=now):
             await badge_box_ui.claim_mystery_box(ctx)
-        self.assertIn('already claim your next free box', ctx.followup.send.call_args.args[0])
+        self.assertIn('already claim your next free box', ctx.followup.send.call_args.kwargs['embed'].description)

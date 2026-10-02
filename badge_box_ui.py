@@ -19,10 +19,13 @@ async def claim_mystery_box(interaction):
         if result.get('claim_day', mystery_box_day(now)) != mystery_box_day(now):
             status = 'Daily Mystery Box receipt'
             reset = 'A new day has begun. You can already claim your next free box in `!shop`.'
+        embed = discord.Embed(
+            title=f"🎁 {status}!",
+            description=f"Reward: {result['badge']} — **{result['rarity_label']}**.\nNo coins spent. {reset}",
+            colour=discord.Colour.gold(),
+        )
         await interaction.followup.send(
-            f"🎁 **{status}!**\nReward: {result['badge']} — **{result['rarity_label']}**.\n"
-            f"No coins spent. {reset}",
-            ephemeral=True, allowed_mentions=discord.AllowedMentions.none())
+            embed=embed, ephemeral=True, allowed_mentions=discord.AllowedMentions.none())
     except Exception:
         await interaction.followup.send('Your free box could not be confirmed. Retry in `!shop`; the daily claim is safe to repeat.', ephemeral=True)
 
@@ -37,7 +40,7 @@ def badge_box_picker_message(moment=None):
         availability += "\n" + "\n".join(holiday_event_details(key, moment) for key in active)
     return (
         "🎁 **Choose a Badge Box.**\n"
-        "🆓 Everyone can claim **1 free Mystery Box every day** in `!shop` — resets at midnight Amsterdam.\n"
+        "🎁 Everyone can claim **1 free Mystery Box every day** in `!shop` — resets at midnight Amsterdam.\n"
         f"{availability}\n"
         f"📅 The next Holiday Box opens in **{days} {unit}**: **{HOLIDAYS[holiday]['label']}**.\n"
         "Select a box, then confirm before spending coins."
@@ -59,7 +62,7 @@ class BadgeBoxPicker(discord.ui.View):
 
     def build_picker(self):
         self.clear_items()
-        daily = discord.ui.Button(label='Free Daily Mystery Box', emoji='🆓', style=discord.ButtonStyle.success, row=2)
+        daily = discord.ui.Button(label='Free Daily Mystery Box', emoji='🎁', style=discord.ButtonStyle.success, row=2)
         daily.callback = claim_mystery_box
         active = active_holidays()
         for holiday in [None, *active]:
