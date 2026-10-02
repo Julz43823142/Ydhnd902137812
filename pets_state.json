@@ -29,7 +29,7 @@
     ]
   },
   "442597396195704832": {
-    "active": "7ec4926c43f84137ae96f0da5cd9da72",
+    "active": "afc0be81766c4200af07aff4b0a9f7ca",
     "pets": [
       {
         "born_at": 1790888210.1498027,
@@ -110,6 +110,17 @@
         "species": "Dog",
         "xp": 60,
         "xp_day": "2026-10-02"
+      },
+      {
+        "born_at": 1790942195.040144,
+        "fed_at": 1790942195.040144,
+        "happiness": 80,
+        "happy_at": 1790942195.040144,
+        "id": "afc0be81766c4200af07aff4b0a9f7ca",
+        "name": "",
+        "rarity": "rare",
+        "species": "Owl",
+        "xp": 0
       }
     ]
   }
