@@ -3813,13 +3813,13 @@
   },
   "channel_puzzle_state": {
     "1546557493038284840": {
-      "latest_puzzle_type": "random",
+      "latest_puzzle_type": "daily",
       "latest_random_puzzle": {
         "url": "https://lichess.org/training/UzixS",
         "title": "Lichess • 3080",
         "fen": "1r5k/1q3pbP/3p4/Q4P2/5B2/2pB4/PrP5/K5RR b - - 2 30",
-        "current_fen": "1r5k/1q3p1P/3p4/4QP2/8/3B4/P1p3R1/K6R b - - 0 34",
-        "last_move_uci": "b5e5",
+        "current_fen": "1r5k/1q3p1P/8/4pP2/8/3B4/P1p3R1/K6R w - - 0 35",
+        "last_move_uci": "d6e5",
         "pgn": "Rxc2 Qb5 Rg2 Rxg2 c2+ Be5 Bxe5+ Qxe5+ dxe5",
         "all_moves": [
           {
@@ -3903,35 +3903,35 @@
         "winner_name": null,
         "latest_attempts": {},
         "puzzle_id": "random_UzixS_1790975343975",
-        "last_activity_at": "2026-10-02T21:10:13.121719+00:00",
+        "last_activity_at": "2026-10-02T21:10:19.121481+00:00",
         "rating": 3080,
         "rp_band": 5,
         "boss": true,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink",
-        "next_solution_index": 8,
-        "next_player_index": 4,
-        "solved": false,
+        "next_solution_index": 9,
+        "next_player_index": 5,
+        "solved": true,
         "message_ids": {
-          "1546557493038284840": 1555688382326251591
+          "1546557493038284840": 1555688406372319292
         },
         "chat_since_refresh": 0,
         "attempted_users": {
           "442597396195704832": {
             "name": "Thice",
-            "move": "bxe5",
+            "move": "dxe5",
             "correct": true,
-            "timestamp": "2026-10-02T21:10:13.122268+00:00"
+            "timestamp": "2026-10-02T21:10:19.121707+00:00"
           }
         },
         "first_move_user_id": "442597396195704832",
         "first_move_user_name": "Thice",
-        "first_move_awarded": false,
+        "first_move_awarded": true,
         "helper_awarded_users": [],
         "helper_candidate_users": [],
         "channel_id": 1546557493038284840,
-        "last_card_activity_at": "2026-10-02T21:10:13.121719+00:00",
+        "last_card_activity_at": "2026-10-02T21:10:19.121481+00:00",
         "recent_accepted_moves": [
           {
             "accepted_at": 1790975413.1222773,
@@ -3942,12 +3942,22 @@
               "color": "black"
             },
             "accepted_uci": "g7e5"
+          },
+          {
+            "accepted_at": 1790975419.1217158,
+            "fen_before": "1r5k/1q3p1P/3p4/4QP2/8/3B4/P1p3R1/K6R b - - 0 34",
+            "expected": {
+              "uci": "d6e5",
+              "san": "dxe5",
+              "color": "black"
+            },
+            "accepted_uci": "d6e5"
           }
         ],
         "wrong_attempt_counts": {
           "442597396195704832": 3
         },
-        "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Qxe5+",
+        "last_feedback": "✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\nUpdating stats and rewards…",
         "accepted_solution_moves": [
           {
             "san": "Rxc2",
@@ -3967,6 +3977,11 @@
           {
             "san": "Bxe5+",
             "uci": "g7e5",
+            "principal": true
+          },
+          {
+            "san": "dxe5",
+            "uci": "d6e5",
             "principal": true
           }
         ]
