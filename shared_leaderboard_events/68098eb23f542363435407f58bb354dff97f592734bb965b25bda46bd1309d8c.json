@@ -1,0 +1,14 @@
+{
+  "after_points": 1711.5,
+  "amount": 2.0,
+  "before_points": 1709.5,
+  "created_at": 1790975421,
+  "created_at_ns": 1790975421639456280,
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "add",
+  "pet_coin_bonus": 0.0,
+  "source": "puzzle-boss-first",
+  "transaction_id": "puzzle:random_UzixS_1790975343975:first:442597396195704832",
+  "user_id": "442597396195704832"
+}
