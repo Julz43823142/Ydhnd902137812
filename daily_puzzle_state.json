@@ -38,7 +38,7 @@
     "player_color": "white",
     "player_move_count": 2,
     "posted_at": "2026-10-02T18:41:54.499880+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -88,7 +88,7 @@
     "wrong_attempt_counts": {
       "1310661840707129370": 1
     },
-    "last_feedback": "✅ **Correct, Chessmass!**\n🎉 **Puzzle solved!**\nUpdating stats and rewards…",
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, Chessmass!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **29 points.**\n\n💡 **Solution:** Rxc7 Nxc7\n\n🏆 **Your ranking**\n**#3 👾 Sharkmeister — 77.5 points**\n**#4 🦞 Chessmass — 29 points ← you**\n**#5 WetisJas — 20 points**",
     "accepted_solution_moves": [
       {
         "san": "Rxc7",
