@@ -475,8 +475,8 @@
     },
     "442597396195704832": {
       "best_streak": 21,
-      "correct": 244,
-      "current_streak": 1,
+      "correct": 245,
+      "current_streak": 2,
       "name": "Thice",
       "targets": {
         "chatter": {
@@ -526,8 +526,8 @@
             "wrong": 4
           },
           "Nairyaaa": {
-            "correct": 3,
-            "total": 5,
+            "correct": 4,
+            "total": 6,
             "wrong": 2
           },
           "Pabu": {
@@ -634,8 +634,8 @@
           }
         }
       },
-      "total": 370,
-      "updated_at": 1790791992,
+      "total": 371,
+      "updated_at": 1790977215,
       "wrong": 126
     },
     "550338389535227926": {
