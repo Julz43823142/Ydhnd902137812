@@ -8270,7 +8270,7 @@
         "winner_id": null,
         "tied_winner_ids": [],
         "forfeit_ids": [],
-        "rewards_settled": false,
+        "rewards_settled": true,
         "data": {
           "puzzles": [
             {
