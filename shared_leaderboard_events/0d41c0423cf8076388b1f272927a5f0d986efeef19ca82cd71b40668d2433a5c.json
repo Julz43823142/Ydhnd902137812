@@ -1,0 +1,14 @@
+{
+  "after_points": 1546.5,
+  "amount": 0.5,
+  "before_points": 1546.0,
+  "created_at": 1790974801,
+  "created_at_ns": 1790974801686090772,
+  "display_name": "TheMakina",
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "add",
+  "pet_coin_bonus": 0.0,
+  "source": "puzzle-helper",
+  "transaction_id": "puzzle:random_ENRka_1790974776826:helper:601406103712170014",
+  "user_id": "601406103712170014"
+}
