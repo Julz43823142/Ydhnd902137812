@@ -14,7 +14,7 @@
       "progress": {
         "pet_feed": 3,
         "pet_puzzle": 1,
-        "puzzle_solve": 10
+        "puzzle_solve": 12
       },
       "start": 1790805600,
       "theme": "Care for the community",
@@ -24,12 +24,12 @@
           "puzzle_solve": 4
         },
         "386134006170910721": {
-          "puzzle_solve": 1
+          "puzzle_solve": 2
         },
         "442597396195704832": {
           "pet_feed": 3,
           "pet_puzzle": 1,
-          "puzzle_solve": 5
+          "puzzle_solve": 6
         }
       }
     }
@@ -48,18 +48,18 @@
       },
       "386134006170910721": {
         "coins_earned": 12.0,
-        "contribution": 0.0002,
+        "contribution": 0.0004,
         "new_cosmetics": 0,
-        "puzzle_solve": 1
+        "puzzle_solve": 2
       },
       "442597396195704832": {
         "coins_earned": 16.5,
-        "contribution": 0.010333,
+        "contribution": 0.010533,
         "new_cosmetics": 1,
         "pet_feed": 3,
         "pet_levels_gained": 4,
         "pet_puzzle": 1,
-        "puzzle_solve": 5
+        "puzzle_solve": 6
       }
     }
   }
