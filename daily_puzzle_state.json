@@ -8971,7 +8971,7 @@
       },
       "racer:racer-open:menu-open:1555682923871477933:442597396195704832": {
         "id": "racer:racer-open:menu-open:1555682923871477933:442597396195704832",
-        "status": "active",
+        "status": "finished",
         "channel_id": 1468320170891022417,
         "message_id": "1555684852735549570",
         "challenge_id": "racer-open:menu-open:1555682923871477933:442597396195704832",
@@ -9001,7 +9001,7 @@
         "piece_theme": "classic",
         "arrow_theme": "pink",
         "started_at": 1790974158.2035413,
-        "winner_id": null,
+        "winner_id": "442597396195704832",
         "tied_winner_ids": [],
         "forfeit_ids": [],
         "rewards_settled": false,
@@ -9170,13 +9170,14 @@
           ],
           "round": 19,
           "scores": {
-            "442597396195704832": 19,
+            "442597396195704832": 20,
             "386134006170910721": 18,
             "601406103712170014": 16
           },
           "round_answers": {
             "386134006170910721": true,
-            "601406103712170014": false
+            "601406103712170014": false,
+            "442597396195704832": true
           },
           "history": {
             "442597396195704832": [
@@ -9387,6 +9388,17 @@
                 "submitted": "bxf6",
                 "correct": true,
                 "seconds": 19.05,
+                "timeout": false
+              },
+              {
+                "round": 20,
+                "id": "EugDk",
+                "rating": 2225,
+                "fen": "2r4k/p1P3pp/4r1n1/3N2q1/2QpRp2/1P3P2/6PP/2R3K1 b - - 0 33",
+                "expected": "Nh4",
+                "submitted": "nh4",
+                "correct": true,
+                "seconds": 19.92,
                 "timeout": false
               }
             ],
@@ -9837,7 +9849,9 @@
           },
           "round_started_at": 1790974555.5785058,
           "deadline": 1790974585.5785058
-        }
+        },
+        "ended_at": 1790974575.5128684,
+        "result_text": "All scheduled puzzles completed."
       }
     }
   },
