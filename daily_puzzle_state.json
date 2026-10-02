@@ -43,7 +43,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_bzH29_1790966514499",
-    "last_activity_at": "2026-10-02T18:41:54.499880+00:00",
+    "last_activity_at": "2026-10-02T18:42:28.842094+00:00",
     "rating": 1560,
     "rp_band": 1,
     "boss": false,
@@ -54,17 +54,30 @@
     "next_player_index": 0,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1555651064882274369
+      "1468320170891022417": 1555651202077954223
     },
-    "message_id": 1555651064882274369,
+    "message_id": 1555651202077954223,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {},
+    "attempted_users": {
+      "1310661840707129370": {
+        "name": "Chessmass",
+        "move": "qg4",
+        "correct": false,
+        "timestamp": "2026-10-02T18:42:28.842888+00:00"
+      }
+    },
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "last_card_activity_at": "2026-10-02T18:42:28.842094+00:00",
+    "recent_accepted_moves": [],
+    "wrong_attempt_counts": {
+      "1310661840707129370": 1
+    },
+    "last_feedback": "❌ **Close, Chessmass: that move is playable-looking, but not the solution.**\n↪️ **Move played:** `qg4`"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
