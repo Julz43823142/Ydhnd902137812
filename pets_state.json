@@ -93,9 +93,9 @@
         "name": "",
         "puzzle": {
           "day": "2026-10-02",
-          "fen": "r2q1rk1/pp2ppbp/3p2p1/6B1/4P1n1/P1N5/1PP2PPP/R2Q1RK1 w - - 0 15",
+          "fen": "r2q1rk1/pp2pp1p/3p2p1/6B1/4P1Q1/P1b5/1PP2PPP/R4RK1 w - - 0 16",
           "id": "ybpNx",
-          "index": 2,
+          "index": 4,
           "moves": [
             "e2g4",
             "e5g4",
