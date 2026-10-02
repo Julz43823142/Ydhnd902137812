@@ -9171,11 +9171,12 @@
           "round": 1,
           "scores": {
             "442597396195704832": 2,
-            "386134006170910721": 1,
+            "386134006170910721": 2,
             "601406103712170014": 1
           },
           "round_answers": {
-            "442597396195704832": true
+            "442597396195704832": true,
+            "386134006170910721": true
           },
           "history": {
             "442597396195704832": [
@@ -9212,6 +9213,17 @@
                 "submitted": "Nxb3",
                 "correct": true,
                 "seconds": 23.32,
+                "timeout": false
+              },
+              {
+                "round": 2,
+                "id": "WOW1O",
+                "rating": 1329,
+                "fen": "5rk1/p4ppp/1p2b3/3p4/3q1B2/6Q1/Pr2BPPP/4R1K1 w - - 0 21",
+                "expected": "Be5",
+                "submitted": "Be5",
+                "correct": true,
+                "seconds": 11.24,
                 "timeout": false
               }
             ],
