@@ -476,7 +476,7 @@
     "442597396195704832": {
       "best_streak": 21,
       "correct": 248,
-      "current_streak": 2,
+      "current_streak": 0,
       "name": "Thice",
       "targets": {
         "chatter": {
@@ -547,8 +547,8 @@
           },
           "Screamingcat": {
             "correct": 0,
-            "total": 2,
-            "wrong": 2
+            "total": 3,
+            "wrong": 3
           },
           "Sh4rkmate is the best": {
             "correct": 3,
@@ -634,9 +634,9 @@
           }
         }
       },
-      "total": 375,
-      "updated_at": 1790977345,
-      "wrong": 127
+      "total": 376,
+      "updated_at": 1790977576,
+      "wrong": 128
     },
     "550338389535227926": {
       "best_streak": 0,
