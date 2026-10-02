@@ -164,7 +164,7 @@ def bar(x, y, width, ratio, color):
     return f'<rect x="{x}" y="{y}" width="{width}" height="9" rx="4.5" fill="#ffffff" opacity=".09"/><rect x="{x}" y="{y}" width="{width*ratio:.2f}" height="9" rx="4.5" fill="{color}"/>'
 
 
-def pet_svg(pet, now=None):
+def pet_svg(pet, now=None, accessory_override=None):
     now = time.time() if now is None else now
     lv, stage = pets.level(pet), pets.evolution(pet)
     egg = lv == 0
@@ -177,6 +177,8 @@ def pet_svg(pet, now=None):
         species = 'Mysterious Egg'
     else:
         portrait = artwork(pet['species'],stage)
+        from pet_accessories import artwork as accessory_artwork
+        portrait += accessory_artwork(pet.get('accessory', '') if accessory_override is None else accessory_override)
         species = pet['species']
     # Rare tiers gain increasingly rich constellation ornamentation, never gameplay effects.
     stars = ''

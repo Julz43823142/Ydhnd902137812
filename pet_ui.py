@@ -100,6 +100,9 @@ def profile_embed(owner, pet_id=None, show_stats=False):
             embed.add_field(name="Bonus status", value="Inactive — only the active pet grants its bonus.", inline=False)
         reset = f"<t:{pets.next_daily(now)}:R>"
         embed.add_field(name="Daily care", value=f"🍖 Feed: {'available now' if pet.get('feed_day') != pets.day_key(now) else 'available ' + reset}\n🧩 Pet Puzzle: {'available now' if pet.get('puzzle_day') != pets.day_key(now) else 'available ' + reset}", inline=False)
+        expedition = owner.get('expedition', {})
+        if expedition.get('status') == 'running' and expedition.get('pet_id') == pet['id']:
+            embed.add_field(name='Expedition', value=f"Returns <t:{int(expedition['end'])}:R> · {'Ready to claim' if now >= expedition['end'] else 'Travelling'}", inline=False)
     embed.set_footer(text="Care resets at midnight Amsterdam · 7 full days without food means permanent death · only active pets grant bonuses")
     return embed
 
@@ -117,11 +120,19 @@ def pet_image_legacy(pet):
     return discord.File(io.BytesIO(cairosvg.svg2png(bytestring=svg.encode())), filename="pet.png")
 
 
-def pet_image(pet):
+def pet_image(pet, thumbnail=False):
     from showcase_cards import legacy_style, pet_svg
     if legacy_style():
         return pet_image_legacy(pet)
-    return discord.File(io.BytesIO(cairosvg.svg2png(bytestring=pet_svg(pet).encode())), filename="pet.png")
+    svg = pet_svg(pet)
+    if thumbnail:
+        import xml.etree.ElementTree as ET
+        root = ET.fromstring(svg)
+        root.set('width', '480')
+        root.set('height', '560')
+        root.set('viewBox', '0 0 480 560')
+        svg = ET.tostring(root, encoding='unicode')
+    return discord.File(io.BytesIO(cairosvg.svg2png(bytestring=svg.encode())), filename="pet.png")
 
 
 async def send_profile(message, target_uid=None, target_name=None):
@@ -327,6 +338,16 @@ class PetView(discord.ui.View):
     async def collection(self, interaction, button):
         await interaction.response.defer()
         await self.refresh(interaction)
+
+    @discord.ui.button(label='Accessories', emoji='🎨', row=4)
+    async def accessories(self, interaction, button):
+        from pet_tools_ui import send_tools
+        await send_tools(interaction, self.uid, pet_id=self.pet_id)
+
+    @discord.ui.button(label='Expeditions', emoji='🗺️', row=4)
+    async def expeditions(self, interaction, button):
+        from pet_tools_ui import send_tools
+        await send_tools(interaction, self.uid, mode='expeditions')
 
     @discord.ui.button(label="Memorial", emoji="🕯️", style=discord.ButtonStyle.secondary, row=2)
     async def memorial(self, interaction, button):

@@ -1,4 +1,5 @@
 import hashlib
+import copy
 import io
 import json
 import os
@@ -900,6 +901,7 @@ def add_points(user_id, display_name, amount, transaction_id, source="chatter"):
             before = float(snapshot.get(uid, {}).get("points", 0))
             after = round(before + amount, 3)
             entry = _normalize_entry(snapshot.get(uid, {"name": display_name, "points": before}))
+            recap_before = copy.deepcopy(entry)
             entry["name"] = str(display_name)
             entry["points"] = after
             from pets import reward_extra
@@ -923,6 +925,8 @@ def add_points(user_id, display_name, amount, transaction_id, source="chatter"):
                 LEGACY_FILE: _snapshot_json(snapshot),
                 _event_filename(transaction_id): _event_json(payload),
             }
+            from community_progress import wallet_event
+            wallet_event(files, uid, recap_before, entry, payload['created_at'], source)
             if not migrated:
                 files[_event_filename(MIGRATION_TRANSACTION_ID)] = _event_json(
                     _migration_event()
@@ -1250,6 +1254,7 @@ def _shop_mutation(user_id, display_name, transaction_id, operation, mutate, *, 
             }))
             entry["name"] = str(display_name)
             before_coins = float(entry.get("coins", 0))
+            recap_before = copy.deepcopy(entry)
             details = mutate(entry) or {}
             after_coins = float(entry.get("coins", 0))
             snapshot[uid] = entry
@@ -1271,6 +1276,8 @@ def _shop_mutation(user_id, display_name, transaction_id, operation, mutate, *, 
                 LEGACY_FILE: _snapshot_json(snapshot),
                 _event_filename(transaction_id): _event_json(payload),
             }
+            from community_progress import wallet_event
+            wallet_event(files, uid, recap_before, entry, payload['created_at'], details.get('source', operation))
             if not migrated:
                 files[_event_filename(MIGRATION_TRANSACTION_ID)] = _event_json(
                     _migration_event()

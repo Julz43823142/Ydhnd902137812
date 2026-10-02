@@ -375,7 +375,8 @@ def record_actions(actions, moment=None):
                 # Do not create an immutable event for gameplay that cannot
                 # advance either the current Daily or Weekly quest. This keeps
                 # the quest event directory compact without affecting rewards.
-                if not any(matching.values()):
+                from community_progress import ACTIVITIES, attach, record
+                if not any(matching.values()) and item['action'] not in ACTIVITIES:
                     continue
                 for period_key in periods:
                     if not matching[period_key]:
@@ -404,6 +405,7 @@ def record_actions(actions, moment=None):
                     "created_at_ns": int(time.time_ns()),
                 }
                 files[event_path] = _event_json(payload)
+                attach(files, lambda progress: record(progress, uid, item['action'], item['amount'], now.timestamp()))
                 applied.append((item, event_path))
 
             if not applied:

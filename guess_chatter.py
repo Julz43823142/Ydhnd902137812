@@ -1212,6 +1212,8 @@ class GuessCosmeticProfileView(discord.ui.View):
             await send_interaction_profile(interaction, self.target_user_id)
         pet_button.callback = open_pets
         self.add_item(pet_button)
+        from feature_ui import add_buttons
+        add_buttons(self, self.target_user_id, row=4)
 
     def _build_badges(self, profile):
         self.clear_items()
@@ -3873,7 +3875,7 @@ def guess_trade_home_embed():
 
 
 async def _send_guess_catalog_from_interaction(interaction, kind):
-    if kind == "theme":
+    if kind in {"theme", "board", "piece"}:
         from bot import _send_catalog_from_interaction
         return await _send_catalog_from_interaction(interaction, kind)
     view = GuessCatalogPager(interaction.user.id, kind, 1)
@@ -4525,6 +4527,13 @@ class GuessShopHomeView(discord.ui.View):
     def __init__(self, user_id):
         super().__init__(timeout=600)
         self.user_id = int(user_id)
+        from feature_ui import add_buttons
+        add_buttons(self, row=2)
+
+    @discord.ui.button(label='Pet Accessories', emoji='🎨', row=1)
+    async def accessories(self, interaction, button):
+        from pet_tools_ui import send_tools
+        await send_tools(interaction)
 
     async def interaction_check(self, interaction):
         if int(interaction.user.id) != self.user_id:
@@ -4640,6 +4649,8 @@ async def request_guess_next_round(channel):
 class GuessMainMenuView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=600)
+        from feature_ui import add_buttons
+        add_buttons(self, row=2)
 
     @discord.ui.button(label="Pets", emoji="🐾", style=discord.ButtonStyle.success, row=1)
     async def pets(self, interaction, button):
@@ -4709,6 +4720,11 @@ async def command_handler(message):
 
     raw_command = message.content.strip()
     command = raw_command.casefold()
+
+    if command in ('!week', '!collection', '!community', '!challenge', '!event'):
+        from feature_ui import send_command
+        await send_command(message, {'!week': 'week', '!collection': 'collection', '!event': 'event'}.get(command, 'challenge'))
+        return
 
     if (command.split(maxsplit=1) or [""])[0] in {"!pet", "!pets"}:
         from pet_ui import send_pet_command
@@ -5073,14 +5089,8 @@ async def command_handler(message):
         return
 
     if command in {"!me", "!profile"}:
-        text = await asyncio.to_thread(
-            guess_cosmetic_profile_dashboard,
-            message.author.id,
-            message.author.display_name,
-        )
-        await message.channel.send(embed=community_embed(text), view=GuessCosmeticProfileView(
-            message.author.id, message.author.id, message.author.display_name, editable=True
-        ))
+        from bot import send_profile_card
+        await send_profile_card(message.channel, message.author, message.author.id, message.author.display_name, editable=True)
         return
 
     if command in {"!me badges", "!profile badges"}:
@@ -5210,11 +5220,8 @@ async def command_handler(message):
                 else:
                     from public_profiles import resolve_target
                     target_id, target_name = await resolve_target(message, requested_name)
-                text = await asyncio.to_thread(guess_cosmetic_profile_dashboard, target_id, target_name)
-                view = GuessCosmeticProfileView(
-                    message.author.id, target_id, target_name, editable=(str(target_id) == str(message.author.id))
-                )
-                await message.channel.send(embed=community_embed(text), view=view)
+                from bot import send_profile_card
+                await send_profile_card(message.channel, message.author, target_id, target_name, editable=(str(target_id) == str(message.author.id)))
             except Exception as error:
                 await message.channel.send(f"❌ **Profile not found:** {str(error)[:800]}")
             return

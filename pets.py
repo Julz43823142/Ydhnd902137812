@@ -127,6 +127,8 @@ def transact(uid, name, txid, mutate, *, wallet=False):
                 return copy.deepcopy(owner), json.loads(old)["details"]
             snapshot, migrated = ledger._origin_state() if wallet else (None, True)
             entry = ledger._normalize_entry(snapshot.get(str(uid), {"name": name})) if wallet else None
+            before_owner = copy.deepcopy(owner)
+            before_wallet = copy.deepcopy(entry)
             details = mutate(owner, entry, now) or {}
             payload = {"transaction_id": str(txid), "user_id": str(uid), "created_at": int(now), "details": details}
             files = {FILE: json.dumps(data, ensure_ascii=False, sort_keys=True, indent=2) + "\n",
@@ -136,6 +138,20 @@ def transact(uid, name, txid, mutate, *, wallet=False):
                 files[ledger.LEGACY_FILE] = ledger._snapshot_json(snapshot)
                 if not migrated:
                     files[ledger._event_filename(ledger.MIGRATION_TRANSACTION_ID)] = ledger._event_json(ledger._migration_event())
+            from community_progress import attach, record, wallet_event, _week
+            def progress(data):
+                if details.get('fed'):
+                    record(data, uid, 'pet_feed', 1, now)
+                if details.get('completed'):
+                    record(data, uid, 'pet_puzzle', 1, now)
+                previous = {p['id']: level(p) for p in before_owner['pets']}
+                gained = sum(max(0, level(p) - previous.get(p['id'], 0)) for p in owner['pets'])
+                week = _week(data, uid, now)
+                week['pet_levels_gained'] = week.get('pet_levels_gained', 0) + gained
+                week['new_cosmetics'] = week.get('new_cosmetics', 0) + len(set(owner.get('accessories', [])) - set(before_owner.get('accessories', [])))
+            attach(files, progress)
+            if wallet:
+                wallet_event(files, uid, before_wallet, entry, now, 'pet')
             ledger._push_files(files, "Update permanent pet state")
             # Even a failed push response may have committed remotely.
             if ledger._fetch_retry() and ledger._origin_file(_event_path(txid)) is not None:
@@ -201,6 +217,78 @@ def rename(uid, name, pet_id, new_name, txid):
         _living(owner, pet_id)["name"] = new_name
         return {"renamed": pet_id}
     return transact(uid, name, txid, mutate)
+
+
+def buy_accessory(uid, name, accessory, txid):
+    from pet_accessories import CATALOG
+    item = CATALOG.get(accessory)
+    if item is None or item['price'] is None:
+        raise ValueError('This accessory is a reward unlock, not a shop purchase.')
+    def mutate(owner, entry, now):
+        owned = owner.setdefault('accessories', [])
+        if accessory in owned:
+            raise ValueError('You already own this accessory.')
+        if entry['coins'] < item['price']:
+            raise ValueError('You do not have enough coins.')
+        entry['coins'] = round(entry['coins'] - item['price'], 3)
+        owned.append(accessory)
+        return {'accessory': accessory, 'spent': item['price']}
+    return transact(uid, name, txid, mutate, wallet=True)
+
+
+def equip_accessory(uid, name, pet_id, accessory, txid):
+    def mutate(owner, entry, now):
+        pet = _living(owner, pet_id)
+        if level(pet) == 0:
+            raise ValueError('Hatch your egg before equipping accessories.')
+        if accessory and accessory not in owner.get('accessories', []):
+            raise ValueError('You do not own this accessory.')
+        pet['accessory'] = accessory
+        return {'equipped_accessory': accessory}
+    return transact(uid, name, txid, mutate)
+
+
+def start_expedition(uid, name, hours, txid):
+    hours = int(hours)
+    if hours not in (2, 6, 12):
+        raise ValueError('Choose a 2, 6 or 12 hour expedition.')
+    rng = random.SystemRandom()
+    roll = rng.random()
+    from pet_accessories import CATALOG
+    accessory = 'star_crown' if hours == 12 and roll < .03 else rng.choice([key for key in CATALOG if CATALOG[key]['price'] is not None]) if roll < {2: .10, 6: .20, 12: .35}[hours] else None
+    reward = {'coins': {2: 1, 6: 3, 12: 6}[hours], 'xp': {2: 10, 6: 25, 12: 50}[hours], 'accessory': accessory}
+    def mutate(owner, entry, now):
+        if owner.get('expedition', {}).get('status') == 'running':
+            raise ValueError('Claim your current expedition before starting another.')
+        pet = _living(owner, owner.get('active'))
+        if level(pet) == 0 or hunger(pet, now) < 60 or happiness(pet, now) < 50:
+            raise ValueError('A hatched pet needs at least 60% Hunger and 50% Happiness to depart.')
+        owner['expedition'] = {'id': str(txid), 'pet_id': pet['id'], 'hours': hours, 'start': now,
+                               'end': now + hours * 3600, 'status': 'running', 'reward': reward}
+        return {'expedition_end': owner['expedition']['end']}
+    return transact(uid, name, txid, mutate)
+
+
+def claim_expedition(uid, name, txid):
+    def mutate(owner, entry, now):
+        expedition = owner.get('expedition', {})
+        if expedition.get('status') != 'running':
+            raise ValueError('No expedition is waiting to be claimed.')
+        if now < expedition['end']:
+            raise ValueError('Your pet has not returned yet.')
+        pet = current_pet(owner, expedition['pet_id'])
+        if not pet or pet.get('died_at'):
+            expedition['status'] = 'failed'
+            return {'expedition_failed': True}
+        reward = expedition['reward']
+        entry['coins'] = round(entry['coins'] + reward['coins'], 3)
+        pet['xp'] += reward['xp']
+        accessory = reward.get('accessory')
+        if accessory and accessory not in owner.setdefault('accessories', []):
+            owner['accessories'].append(accessory)
+        expedition['status'] = 'claimed'
+        return {'expedition_reward': reward}
+    return transact(uid, name, txid, mutate, wallet=True)
 
 
 def activate(uid, name, pet_id, txid):
