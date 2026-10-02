@@ -1,0 +1,21 @@
+{
+  "detroit_kara": {
+    "page": "https://steamcommunity.com/sharedfiles/filedetails/?id=3702714691",
+    "image": "https://images.steamusercontent.com/ugc/12501461509406998311/CD75DD41B85C526D45527A4C9DBD34B3757BD78E/",
+    "original_sha256": "61333aa2f1a87f23b6ac4ac89d30a53cb0d4d526eaefa4ddf7c07d238fb66387"
+  },
+  "detroit_hank": {
+    "page": "https://steamcommunity.com/sharedfiles/filedetails/?id=3545937815",
+    "image": "https://images.steamusercontent.com/ugc/14624045976619553699/AAF40C10AE5E8415F3D66B29032C3A09CFC7433C/",
+    "original_sha256": "ae74c9b062b153452b01fd70b8e43ae663ba7f43d8797cf3c732d9c854b4a286"
+  },
+  "detroit_sumo": {
+    "page": "https://steamcommunity.com/sharedfiles/filedetails/?id=3521791733",
+    "image": "https://images.steamusercontent.com/ugc/11096042270022681126/3C535B9D1B2B25224F8BD087732C3441015923B3/",
+    "original_sha256": "fbd73edfac044672c5b9805d48300f016b276fd9d2419599f8f9e58b02366c77"
+  },
+  "detroit_markus": {
+    "page": "https://www.quanticdream.com/en/detroit-become-human",
+    "image": "https://www.quanticdream.com/img/uploads/game/page_19/a95f9e95e3938badb58abbc7c4268144.jpeg"
+  }
+}

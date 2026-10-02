@@ -103,11 +103,11 @@ class PetNavigation(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(all(getattr(item, 'label', '') in {'Refresh collection', 'Memorial'} for item in view.children))
         view.stop()
 
-    async def test_profile_header_is_plain_text_and_collection_stays_behind_button(self):
+    async def test_profile_header_is_inside_embed_and_collection_stays_behind_button(self):
         with patch.object(bot, 'make_profile_card_file', AsyncMock(return_value=({'name': 'Shark', 'active_badge': '🦈', 'coins': 12.5, 'points': 34.125}, None))), patch.object(pet_ui, 'user_collection_summary') as summary:
             embed, file = await bot.make_profile_embed(42, 'Shark')
         self.assertIsNone(embed.title)
-        self.assertIsNone(embed.description)
+        self.assertEqual(embed.description, '🦈 **Shark**\n🪙 **12,5 coins** · ⭐ **34,13 points**')
         self.assertEqual(len(embed.fields), 0)
         summary.assert_not_called()
         header = bot.profile_message_header({'name': 'Shark', 'active_badge': '🦈', 'coins': 12.5, 'points': 34.125}, 'Fallback')

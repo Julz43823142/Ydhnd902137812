@@ -65,7 +65,18 @@ def profile_svg(theme_label, background, accent, soft, scene, overlay, stats, ic
         from shop_catalog import PROFILE_THEMES
         theme_key = next(key for key, item in PROFILE_THEMES.items() if item['label'] == theme_label)
     artwork_uri = image_uri(theme_key)
-    art_height = int(theme_art_catalog()[theme_key].get("art_height", 820))
+    art_config = theme_art_catalog()[theme_key]
+    art_height = int(art_config.get("art_height", 820))
+    art_fit = art_config.get("art_fit", "slice")
+    artwork = f'<image href="{artwork_uri}" x="0" y="0" width="1200" height="{art_height}" preserveAspectRatio="xMidYMin {art_fit}"/>'
+    if art_config.get("companion_file"):
+        # Two authentic game captures: preserve both faces without repainting them.
+        companion = image_uri(theme_key, 'companion_file')
+        artwork = (
+            f'<svg x="0" y="0" width="760" height="452" viewBox="0 0 760 452"><image href="{artwork_uri}" width="760" height="452" preserveAspectRatio="xMidYMin slice"/></svg>'
+            f'<svg x="760" y="0" width="440" height="452" viewBox="0 0 440 452"><image href="{companion}" width="440" height="452" preserveAspectRatio="xMidYMin slice"/></svg>'
+            f'<path d="M760 0v429" stroke="{accent}" stroke-opacity=".35"/>'
+        )
     tiles = []
     for i, (label, value, kind) in enumerate(stats):
         x, y = 32 + (i % 4) * 288, 452 + (i // 4) * 172
@@ -85,7 +96,7 @@ def profile_svg(theme_label, background, accent, soft, scene, overlay, stats, ic
     <linearGradient id="cinemaVeil" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#050b15" stop-opacity="0"/><stop offset=".43" stop-color="#050b15" stop-opacity=".02"/><stop offset=".57" stop-color="#050b15" stop-opacity=".76"/><stop offset=".78" stop-color="#050b15" stop-opacity=".93"/><stop offset="1" stop-color="#050b15"/></linearGradient>
     <linearGradient id="cinemaTile" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#101b2b" stop-opacity=".93"/><stop offset="1" stop-color="#08101e" stop-opacity=".96"/></linearGradient>
     </defs><g clip-path="url(#cinemaEdge)"><rect width="1200" height="820" fill="#050b15"/>
-    <image href="{artwork_uri}" x="0" y="0" width="1200" height="{art_height}" preserveAspectRatio="xMidYMin slice"/>
+    {artwork}
     <rect width="1200" height="820" fill="url(#cinemaVeil)"/>
     <rect x="{badge_x}" y="28" width="{badge_width}" height="44" rx="22" fill="#07111f" fill-opacity=".83" stroke="{accent}" stroke-opacity=".58"/>
     <circle cx="{badge_x+23}" cy="50" r="4" fill="{accent}"/>{text(badge_x+40,57,theme_label,18,'#f4f7ff',600)}

@@ -928,6 +928,9 @@ class GuessCatalogPager(discord.ui.View):
 
 
 async def send_guess_catalog_preview(message, kind, page=1):
+    if kind == "theme":
+        from bot import send_cosmetic_catalog_preview
+        return await send_cosmetic_catalog_preview(message, kind, page)
     view = GuessCatalogPager(message.author.id, kind, page)
     profile, file = await view.preview_file(message.author.display_name)
     view._rebuild(profile)
@@ -3870,6 +3873,9 @@ def guess_trade_home_embed():
 
 
 async def _send_guess_catalog_from_interaction(interaction, kind):
+    if kind == "theme":
+        from bot import _send_catalog_from_interaction
+        return await _send_catalog_from_interaction(interaction, kind)
     view = GuessCatalogPager(interaction.user.id, kind, 1)
     profile, file = await view.preview_file(interaction.user.display_name)
     view._rebuild(profile)

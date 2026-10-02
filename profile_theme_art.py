@@ -12,8 +12,10 @@ def catalog():
     return json.loads((ROOT / 'catalog.json').read_text())
 
 
-@lru_cache(maxsize=24)
-def image_uri(theme_key):
+@lru_cache(maxsize=40)
+def image_uri(theme_key, layer='file'):
     entry = catalog()[theme_key]
-    data = (ROOT / entry['file']).read_bytes()
-    return 'data:image/jpeg;base64,' + base64.b64encode(data).decode('ascii')
+    path = ROOT / entry[layer]
+    data = path.read_bytes()
+    mime = 'image/png' if path.suffix == '.png' else 'image/jpeg'
+    return f'data:{mime};base64,' + base64.b64encode(data).decode('ascii')

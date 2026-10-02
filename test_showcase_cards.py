@@ -150,7 +150,7 @@ class ShowcaseNavigation(unittest.IsolatedAsyncioTestCase):
             await bot.slash_profile.callback(ctx,target)
         view=ctx.followup.send.call_args.kwargs['view']
         self.assertEqual(view.target_user_id,'99')
-        self.assertEqual(ctx.followup.send.call_args.kwargs['content'], '🦈 **Player**\n🪙 **125 coins** · ⭐ **37 points**')
+        self.assertNotIn('content', ctx.followup.send.call_args.kwargs)
         self.assertFalse(view.editable)
         view.stop()
         for command in (bot.slash_pet,bot.slash_pets):
