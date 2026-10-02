@@ -14,14 +14,14 @@
       "progress": {
         "pet_feed": 3,
         "pet_puzzle": 1,
-        "puzzle_solve": 8
+        "puzzle_solve": 9
       },
       "start": 1790805600,
       "theme": "Care for the community",
       "title": "Animal Day Community Challenge",
       "users": {
         "1310661840707129370": {
-          "puzzle_solve": 3
+          "puzzle_solve": 4
         },
         "442597396195704832": {
           "pet_feed": 3,
@@ -35,9 +35,9 @@
     "2026-W40": {
       "1310661840707129370": {
         "coins_earned": 14.0,
-        "contribution": 0.0006,
+        "contribution": 0.0008,
         "new_cosmetics": 1,
-        "puzzle_solve": 3
+        "puzzle_solve": 4
       },
       "362606514764251137": {
         "coins_earned": 0,
