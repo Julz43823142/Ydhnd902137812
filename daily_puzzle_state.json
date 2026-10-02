@@ -2659,7 +2659,7 @@
       "white_rating": 1509.829,
       "black_rating": 1500.0,
       "initial_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-      "fen": "r1bq1rk1/1pp2ppp/2n2b2/p3p3/P1B1Nn2/2PPBN1P/1P3PP1/R2QR1K1 b - - 4 13",
+      "fen": "r1bq1rk1/1pp2pp1/2n2b1p/p3p3/P1B1Nn2/2PPBN1P/1P3PP1/R2QR1K1 w - - 0 14",
       "moves": [
         "e4",
         "e5",
@@ -2685,9 +2685,10 @@
         "Nf4",
         "Ne4",
         "Rf8",
-        "Be3"
+        "Be3",
+        "h6"
       ],
-      "last_move": "Be3",
+      "last_move": "h6",
       "started_at": 1790975016.0434976,
       "draw_offer": null,
       "message_id": 1555687972383232060,
@@ -2700,15 +2701,15 @@
       "wager_settled": false,
       "clock": {
         "white": 448.14762806892395,
-        "black": 464.3962631225586,
+        "black": 401.6859493255615,
         "increment": 0,
-        "at": 1790975315.3138716,
+        "at": 1790975378.0241854,
         "label": "10+0",
         "daily": false,
         "started": true
       },
       "absence_claim": null,
-      "last_move_at": 1790975315.3154678,
+      "last_move_at": 1790975378.0260668,
       "clock_started_after_grace_at": 1790975027.8577628
     }
   },
@@ -3900,7 +3901,7 @@
         "winner_name": null,
         "latest_attempts": {},
         "puzzle_id": "random_UzixS_1790975343975",
-        "last_activity_at": "2026-10-02T21:09:23.206216+00:00",
+        "last_activity_at": "2026-10-02T21:09:40.419180+00:00",
         "rating": 3080,
         "rp_band": 5,
         "boss": true,
@@ -3911,15 +3912,15 @@
         "next_player_index": 1,
         "solved": false,
         "message_ids": {
-          "1546557493038284840": 1555688171818197042
+          "1546557493038284840": 1555688244228661448
         },
         "chat_since_refresh": 0,
         "attempted_users": {
           "442597396195704832": {
             "name": "Thice",
-            "move": "rxc2",
-            "correct": true,
-            "timestamp": "2026-10-02T21:09:23.207251+00:00"
+            "move": "rxa2",
+            "correct": false,
+            "timestamp": "2026-10-02T21:09:40.420355+00:00"
           }
         },
         "first_move_user_id": "442597396195704832",
@@ -3928,23 +3929,12 @@
         "helper_awarded_users": [],
         "helper_candidate_users": [],
         "channel_id": 1546557493038284840,
-        "last_card_activity_at": "2026-10-02T21:09:23.206216+00:00",
-        "recent_accepted_moves": [
-          {
-            "accepted_at": 1790975363.2072601,
-            "fen_before": "1r5k/1q3pbP/3p4/Q4P2/5B2/2pB4/PrP5/K5RR b - - 2 30",
-            "expected": {
-              "uci": "b2c2",
-              "san": "Rxc2",
-              "color": "black"
-            },
-            "accepted_uci": "b2c2"
-          }
-        ],
+        "last_card_activity_at": "2026-10-02T21:09:40.419180+00:00",
+        "recent_accepted_moves": [],
         "wrong_attempt_counts": {
-          "442597396195704832": 1
+          "442597396195704832": 3
         },
-        "last_feedback": "**✅ Correct! 4 moves remaining.**\n↩️ **Opponent replies:** Qb5",
+        "last_feedback": "❌ **Puzzle verdict on Thice: your move deserves its own evaluation symbol and none of them are positive.**\n↪️ **Move played:** `rxa2`",
         "accepted_solution_moves": [
           {
             "san": "Rxc2",
