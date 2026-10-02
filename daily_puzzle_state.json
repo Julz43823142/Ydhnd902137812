@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/G1jZd",
     "title": "Lichess • 2515",
     "fen": "6k1/5p2/6p1/4PP1p/1R4P1/1p3K2/1r6/8 w - - 0 42",
-    "current_fen": "6k1/5p2/6p1/4PP1p/1R4P1/1p3K2/1r6/8 w - - 0 42",
-    "last_move_uci": "h7h5",
+    "current_fen": "1R6/5p1k/6p1/4PP1p/6P1/1p3K2/1r6/8 w - - 2 43",
+    "last_move_uci": "g8h7",
     "pgn": "Rb8+ Kh7 e6 fxe6 f6",
     "all_moves": [
       {
@@ -58,20 +58,20 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_G1jZd_1790974808396",
-    "last_activity_at": "2026-10-02T21:00:26.437482+00:00",
+    "last_activity_at": "2026-10-02T21:00:33.324648+00:00",
     "rating": 2515,
     "rp_band": 4,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1555685921624432753
+      "1468320170891022417": 1555685950041104384
     },
-    "message_id": 1555685921624432753,
+    "message_id": 1555685950041104384,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
@@ -80,19 +80,43 @@
         "move": "kf4",
         "correct": false,
         "timestamp": "2026-10-02T21:00:26.437941+00:00"
+      },
+      "601406103712170014": {
+        "name": "TheMakina",
+        "move": "Rb8",
+        "correct": true,
+        "timestamp": "2026-10-02T21:00:33.324874+00:00"
       }
     },
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "first_move_user_id": "601406103712170014",
+    "first_move_user_name": "TheMakina",
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-10-02T21:00:26.437482+00:00",
-    "recent_accepted_moves": [],
+    "last_card_activity_at": "2026-10-02T21:00:33.324648+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1790974833.3248801,
+        "fen_before": "6k1/5p2/6p1/4PP1p/1R4P1/1p3K2/1r6/8 w - - 0 42",
+        "expected": {
+          "uci": "b4b8",
+          "san": "Rb8+",
+          "color": "white"
+        },
+        "accepted_uci": "b4b8"
+      }
+    ],
     "wrong_attempt_counts": {
       "442597396195704832": 1
     },
-    "last_feedback": "❌ **Thice, congratulations: you made the board look complicated enough to hide the fact that you were wrong.**\n↪️ **Move played:** `kf4`"
+    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Kh7",
+    "accepted_solution_moves": [
+      {
+        "san": "Rb8+",
+        "uci": "b4b8",
+        "principal": true
+      }
+    ]
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
