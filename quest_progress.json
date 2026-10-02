@@ -1,48 +1,6 @@
 {
   "build": "quests-v1-2026-09-08",
   "periods": {
-    "daily:2026-09-11": {
-      "users": {
-        "1": {
-          "name": "Player 1",
-          "paid": [
-            "daily:2026-09-11:minigame:minigame-2"
-          ],
-          "progress": {
-            "daily:2026-09-11:minigame:minigame-2": 15
-          },
-          "updated_at": 1789165899
-        },
-        "362606514764251137": {
-          "name": "Sharkmeister",
-          "paid": [],
-          "progress": {
-            "daily:2026-09-11:puzzle:solve-8": 1
-          },
-          "updated_at": 1789133093
-        },
-        "442597396195704832": {
-          "name": "Thice",
-          "paid": [
-            "daily:2026-09-11:puzzle:solve-8",
-            "daily:2026-09-11:minigame:minigame-2"
-          ],
-          "progress": {
-            "daily:2026-09-11:minigame:minigame-2": 2,
-            "daily:2026-09-11:puzzle:solve-8": 14
-          },
-          "updated_at": 1789143484
-        },
-        "601406103712170014": {
-          "name": "TheMakina",
-          "paid": [],
-          "progress": {
-            "daily:2026-09-11:puzzle:solve-8": 4
-          },
-          "updated_at": 1789138458
-        }
-      }
-    },
     "daily:2026-09-12": {
       "users": {
         "1": {
@@ -579,6 +537,18 @@
         }
       }
     },
+    "daily:2026-10-02": {
+      "users": {
+        "1": {
+          "name": "Player 1",
+          "paid": [],
+          "progress": {
+            "daily:2026-10-02:minigame:minigame-3": 1
+          },
+          "updated_at": 1790918904
+        }
+      }
+    },
     "weekly:2026-09-07": {
       "users": {
         "1": {
@@ -706,9 +676,9 @@
             "weekly:2026-09-28:minigame:minigame-5"
           ],
           "progress": {
-            "weekly:2026-09-28:minigame:minigame-5": 63
+            "weekly:2026-09-28:minigame:minigame-5": 64
           },
-          "updated_at": 1790898706
+          "updated_at": 1790918904
         },
         "1310661840707129370": {
           "name": "Chessmass",
