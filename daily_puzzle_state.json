@@ -58,7 +58,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_0pHcP_1790974886542",
-    "last_activity_at": "2026-10-02T21:01:46.460598+00:00",
+    "last_activity_at": "2026-10-02T21:02:11.898560+00:00",
     "rating": 2730,
     "rp_band": 5,
     "boss": false,
@@ -69,17 +69,17 @@
     "next_player_index": 1,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1555686256355057735
+      "1468320170891022417": 1555686362361888861
     },
-    "message_id": 1555686256355057735,
+    "message_id": 1555686362361888861,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "601406103712170014": {
         "name": "TheMakina",
-        "move": "Qf5",
-        "correct": true,
-        "timestamp": "2026-10-02T21:01:46.460810+00:00"
+        "move": "Qd7",
+        "correct": false,
+        "timestamp": "2026-10-02T21:02:11.898776+00:00"
       }
     },
     "first_move_user_id": "601406103712170014",
@@ -87,19 +87,8 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-10-02T21:01:46.460598+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1790974906.4608169,
-        "fen_before": "Q1K5/7p/2pk4/1q6/8/8/1P5P/8 b - - 6 43",
-        "expected": {
-          "uci": "b5f5",
-          "san": "Qf5+",
-          "color": "black"
-        },
-        "accepted_uci": "b5f5"
-      }
-    ],
+    "last_card_activity_at": "2026-10-02T21:02:11.898560+00:00",
+    "recent_accepted_moves": [],
     "accepted_solution_moves": [
       {
         "san": "Qf5+",
@@ -107,7 +96,10 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Kb8"
+    "last_feedback": "❌ **TheMakina found another move nobody else was brave enough to play. For good reason.**\n↪️ **Move played:** `Qd7`",
+    "wrong_attempt_counts": {
+      "601406103712170014": 1
+    }
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
