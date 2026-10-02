@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/qweyE",
     "title": "Lichess • 1710",
     "fen": "5k2/5p2/3K4/1R6/3P4/1P5p/r7/8 b - - 0 39",
-    "current_fen": "5k2/5p2/3K4/1R6/3P4/1P5p/r7/8 b - - 0 39",
-    "last_move_uci": "c5b5",
+    "current_fen": "5k2/2K2p2/r7/1R6/3P4/1P5p/8/8 b - - 2 40",
+    "last_move_uci": "d6c7",
     "pgn": "Ra6+ Kc7 Rh6",
     "all_moves": [
       {
@@ -43,7 +43,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "practice_qweyE_386134006170910721_1790974022995",
-    "last_activity_at": "2026-10-02T20:47:02.995256+00:00",
+    "last_activity_at": "2026-10-02T20:47:25.618286+00:00",
     "rating": 1710,
     "rp_band": 1,
     "boss": false,
@@ -55,17 +55,48 @@
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
-    "message_id": null,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "message_id": 1555682645445189692,
+    "attempted_users": {
+      "386134006170910721": {
+        "name": "mh",
+        "move": "Ra6",
+        "correct": true,
+        "timestamp": "2026-10-02T20:47:25.618482+00:00"
+      }
+    },
+    "first_move_user_id": "386134006170910721",
+    "first_move_user_name": "mh",
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "channel_id": 1468320170891022417
+    "channel_id": 1468320170891022417,
+    "message_ids": {
+      "1468320170891022417": 1555682645445189692
+    },
+    "last_card_activity_at": "2026-10-02T20:47:25.618286+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1790974045.6184886,
+        "fen_before": "5k2/5p2/3K4/1R6/3P4/1P5p/r7/8 b - - 0 39",
+        "expected": {
+          "uci": "a2a6",
+          "san": "Ra6+",
+          "color": "black"
+        },
+        "accepted_uci": "a2a6"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "Ra6+",
+        "uci": "a2a6",
+        "principal": true
+      }
+    ],
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kc7"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
