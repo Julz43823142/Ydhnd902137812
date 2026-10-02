@@ -1,168 +1,85 @@
 {
   "latest_random_puzzle": {
-    "url": "https://lichess.org/training/08qSi",
-    "title": "Lichess • 2746",
-    "fen": "5r1r/k5pp/1p6/p1pBq3/P3P3/4B3/6PP/1RR4K w - - 2 32",
-    "current_fen": "1k5r/6pp/8/p1pB4/P3PR2/8/6PP/7K b - - 0 36",
-    "last_move_uci": "f7f4",
-    "pgn": "Rxc5 Rf1+ Rxf1 bxc5 Rf7+ Kb8 Bf4 Qxf4 Rxf4",
+    "url": "https://lichess.org/training/x21J0",
+    "title": "Lichess • 2119",
+    "fen": "4kb1r/pQ1b1ppp/8/3Pp3/4q3/8/PP4PP/2NK1B1R w k e6 0 17",
+    "current_fen": "4kb1r/pQ1b1ppp/8/3Pp3/4q3/8/PP4PP/2NK1B1R w k e6 0 17",
+    "last_move_uci": "e7e5",
+    "pgn": "Qa8+ Ke7 d6+ Kxd6 Qxe4",
     "all_moves": [
       {
-        "uci": "c1c5",
-        "san": "Rxc5",
+        "uci": "b7a8",
+        "san": "Qa8+",
         "color": "white"
       },
       {
-        "uci": "f8f1",
-        "san": "Rf1+",
+        "uci": "e8e7",
+        "san": "Ke7",
         "color": "black"
       },
       {
-        "uci": "b1f1",
-        "san": "Rxf1",
+        "uci": "d5d6",
+        "san": "d6+",
         "color": "white"
       },
       {
-        "uci": "b6c5",
-        "san": "bxc5",
+        "uci": "e7d6",
+        "san": "Kxd6",
         "color": "black"
       },
       {
-        "uci": "f1f7",
-        "san": "Rf7+",
-        "color": "white"
-      },
-      {
-        "uci": "a7b8",
-        "san": "Kb8",
-        "color": "black"
-      },
-      {
-        "uci": "e3f4",
-        "san": "Bf4",
-        "color": "white"
-      },
-      {
-        "uci": "e5f4",
-        "san": "Qxf4",
-        "color": "black"
-      },
-      {
-        "uci": "f7f4",
-        "san": "Rxf4",
+        "uci": "a8e4",
+        "san": "Qxe4",
         "color": "white"
       }
     ],
     "player_moves": [
       {
-        "uci": "c1c5",
-        "san": "Rxc5",
+        "uci": "b7a8",
+        "san": "Qa8+",
         "color": "white"
       },
       {
-        "uci": "b1f1",
-        "san": "Rxf1",
+        "uci": "d5d6",
+        "san": "d6+",
         "color": "white"
       },
       {
-        "uci": "f1f7",
-        "san": "Rf7+",
-        "color": "white"
-      },
-      {
-        "uci": "e3f4",
-        "san": "Bf4",
-        "color": "white"
-      },
-      {
-        "uci": "f7f4",
-        "san": "Rxf4",
+        "uci": "a8e4",
+        "san": "Qxe4",
         "color": "white"
       }
     ],
     "player_color": "white",
-    "player_move_count": 5,
-    "posted_at": "2026-10-02T18:43:04.159890+00:00",
-    "answer_posted": true,
+    "player_move_count": 3,
+    "posted_at": "2026-10-02T18:45:06.854545+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "random_08qSi_1790966584159",
-    "last_activity_at": "2026-10-02T18:44:50.873992+00:00",
-    "rating": 2746,
-    "rp_band": 5,
+    "puzzle_id": "random_x21J0_1790966706854",
+    "last_activity_at": "2026-10-02T18:45:06.854545+00:00",
+    "rating": 2119,
+    "rp_band": 3,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 9,
-    "next_player_index": 5,
-    "solved": true,
-    "message_ids": {
-      "1468320170891022417": 1555651797182455858
-    },
-    "message_id": 1555651797182455858,
+    "next_solution_index": 0,
+    "next_player_index": 0,
+    "solved": false,
+    "message_ids": {},
+    "message_id": null,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {
-      "1310661840707129370": {
-        "name": "Chessmass",
-        "move": "rxf4",
-        "correct": true,
-        "timestamp": "2026-10-02T18:44:50.874407+00:00"
-      }
-    },
-    "first_move_user_id": "1310661840707129370",
-    "first_move_user_name": "Chessmass",
-    "first_move_awarded": true,
+    "attempted_users": {},
+    "first_move_user_id": null,
+    "first_move_user_name": null,
+    "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "last_card_activity_at": "2026-10-02T18:44:50.873992+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1790966690.8744135,
-        "fen_before": "1k5r/5Rpp/8/p1pB4/P3Pq2/8/6PP/7K w - - 0 36",
-        "expected": {
-          "uci": "f7f4",
-          "san": "Rxf4",
-          "color": "white"
-        },
-        "accepted_uci": "f7f4"
-      }
-    ],
-    "accepted_solution_moves": [
-      {
-        "san": "Rxc5",
-        "uci": "c1c5",
-        "principal": true
-      },
-      {
-        "san": "Rxf1",
-        "uci": "b1f1",
-        "principal": true
-      },
-      {
-        "san": "Rf7+",
-        "uci": "f1f7",
-        "principal": true
-      },
-      {
-        "san": "Bf4",
-        "uci": "e3f4",
-        "principal": true
-      },
-      {
-        "san": "Rxf4",
-        "uci": "f7f4",
-        "principal": true
-      }
-    ],
-    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, Chessmass!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **30 points.**\n\n💡 **Solution:** Rxc5 Rxf1 Rf7+ Bf4 Rxf4\n\n🏆 **Your ranking**\n**#3 👾 Sharkmeister — 77.5 points**\n**#4 🦞 Chessmass — 30 points ← you**\n**#5 WetisJas — 20 points**",
-    "wrong_attempt_counts": {
-      "1310661840707129370": 2
-    }
+    "helper_candidate_users": []
   },
-  "latest_puzzle_type": "daily",
+  "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-02",
