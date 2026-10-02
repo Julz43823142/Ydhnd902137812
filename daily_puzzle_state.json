@@ -8973,7 +8973,7 @@
         "id": "racer:racer-open:menu-open:1555682923871477933:442597396195704832",
         "status": "active",
         "channel_id": 1468320170891022417,
-        "message_id": "1555684766093942874",
+        "message_id": "1555684784083050549",
         "challenge_id": "racer-open:menu-open:1555682923871477933:442597396195704832",
         "players": [
           {
@@ -9168,16 +9168,13 @@
               "rating": 2225
             }
           ],
-          "round": 18,
+          "round": 19,
           "scores": {
-            "442597396195704832": 18,
+            "442597396195704832": 19,
             "386134006170910721": 17,
             "601406103712170014": 16
           },
-          "round_answers": {
-            "386134006170910721": true,
-            "601406103712170014": true
-          },
+          "round_answers": {},
           "history": {
             "442597396195704832": [
               {
@@ -9376,6 +9373,17 @@
                 "submitted": "qf7",
                 "correct": true,
                 "seconds": 13.82,
+                "timeout": false
+              },
+              {
+                "round": 19,
+                "id": "TJhZ1",
+                "rating": 2371,
+                "fen": "r1bq1nkb/pp2Rp2/2p2Pn1/6Qp/7P/2NB4/PPP3P1/2K2R2 b - - 1 22",
+                "expected": "Bxf6",
+                "submitted": "bxf6",
+                "correct": true,
+                "seconds": 19.05,
                 "timeout": false
               }
             ],
@@ -9802,8 +9810,8 @@
               }
             ]
           },
-          "round_started_at": 1790974536.51964,
-          "deadline": 1790974566.51964
+          "round_started_at": 1790974555.5785058,
+          "deadline": 1790974585.5785058
         }
       }
     }
