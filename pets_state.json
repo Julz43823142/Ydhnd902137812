@@ -88,14 +88,14 @@
         "fed_at": 1790890940.8493562,
         "feed_day": "2026-10-01",
         "happiness": 100,
-        "happy_at": 1790890971.7993417,
+        "happy_at": 1790926406.8404403,
         "id": "7ec4926c43f84137ae96f0da5cd9da72",
         "name": "",
         "puzzle": {
           "day": "2026-10-02",
-          "fen": "r2q1rk1/pp2pp1p/3p2p1/6B1/4P1Q1/P1b5/1PP2PPP/R4RK1 w - - 0 16",
+          "fen": "r2q1rk1/pp2pp1p/3p2p1/6B1/4P1Q1/P1P5/2P2PPP/R4RK1 b - - 0 16",
           "id": "ybpNx",
-          "index": 4,
+          "index": 5,
           "moves": [
             "e2g4",
             "e5g4",
@@ -104,10 +104,10 @@
             "b2c3"
           ]
         },
-        "puzzle_day": "2026-10-01",
+        "puzzle_day": "2026-10-02",
         "rarity": "common",
         "species": "Dog",
-        "xp": 25
+        "xp": 45
       }
     ]
   }
