@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/08qSi",
     "title": "Lichess • 2746",
     "fen": "5r1r/k5pp/1p6/p1pBq3/P3P3/4B3/6PP/1RR4K w - - 2 32",
-    "current_fen": "7r/k5pp/8/p1pBq3/P3P3/4B3/6PP/5R1K w - - 0 34",
-    "last_move_uci": "b6c5",
+    "current_fen": "1k5r/5Rpp/8/p1pBq3/P3P3/4B3/6PP/7K w - - 2 35",
+    "last_move_uci": "a7b8",
     "pgn": "Rxc5 Rf1+ Rxf1 bxc5 Rf7+ Kb8 Bf4 Qxf4 Rxf4",
     "all_moves": [
       {
@@ -88,28 +88,28 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_08qSi_1790966584159",
-    "last_activity_at": "2026-10-02T18:44:01.622595+00:00",
+    "last_activity_at": "2026-10-02T18:44:10.032101+00:00",
     "rating": 2746,
     "rp_band": 5,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 4,
-    "next_player_index": 2,
+    "next_solution_index": 6,
+    "next_player_index": 3,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1555651590772359258
+      "1468320170891022417": 1555651626088402974
     },
-    "message_id": 1555651590772359258,
+    "message_id": 1555651626088402974,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "1310661840707129370": {
         "name": "Chessmass",
-        "move": "bxc5",
-        "correct": false,
-        "timestamp": "2026-10-02T18:44:01.623133+00:00"
+        "move": "rf7",
+        "correct": true,
+        "timestamp": "2026-10-02T18:44:10.032870+00:00"
       }
     },
     "first_move_user_id": "1310661840707129370",
@@ -117,8 +117,19 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-10-02T18:44:01.622595+00:00",
-    "recent_accepted_moves": [],
+    "last_card_activity_at": "2026-10-02T18:44:10.032101+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1790966650.0328782,
+        "fen_before": "7r/k5pp/8/p1pBq3/P3P3/4B3/6PP/5R1K w - - 0 34",
+        "expected": {
+          "uci": "f1f7",
+          "san": "Rf7+",
+          "color": "white"
+        },
+        "accepted_uci": "f1f7"
+      }
+    ],
     "accepted_solution_moves": [
       {
         "san": "Rxc5",
@@ -129,9 +140,14 @@
         "san": "Rxf1",
         "uci": "b1f1",
         "principal": true
+      },
+      {
+        "san": "Rf7+",
+        "uci": "f1f7",
+        "principal": true
       }
     ],
-    "last_feedback": "❌ **Close, Chessmass: there is a stronger continuation available.**\n↪️ **Move played:** `bxc5`",
+    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Kb8",
     "wrong_attempt_counts": {
       "1310661840707129370": 1
     }
