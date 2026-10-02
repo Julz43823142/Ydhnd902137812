@@ -158,6 +158,19 @@
         "happy_at": 1790975465.9143035,
         "id": "4cd600c103e243199044b0bad020a593",
         "name": "",
+        "puzzle": {
+          "day": "2026-10-02",
+          "fen": "1r2r1k1/4ppbp/5np1/1qNp4/1p1P2b1/1P1QP1P1/3N1PBP/R4RK1 b - - 3 19",
+          "id": "2ROEK",
+          "index": 0,
+          "moves": [
+            "b5d3",
+            "c5d3",
+            "g4e2",
+            "d3c5",
+            "e2f1"
+          ]
+        },
         "rarity": "common",
         "species": "Dog",
         "xp": 5
