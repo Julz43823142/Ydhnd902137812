@@ -2759,9 +2759,11 @@
       "white_rating": 1493.376,
       "black_rating": 1516.453,
       "initial_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-      "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-      "moves": [],
-      "last_move": null,
+      "fen": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
+      "moves": [
+        "e4"
+      ],
+      "last_move": "e4",
       "started_at": 1790976147.4444008,
       "draw_offer": null,
       "message_id": 1555691474350383136,
@@ -2776,11 +2778,13 @@
         "white": 180.0,
         "black": 180.0,
         "increment": 2,
-        "at": 1790976147.4444048,
+        "at": 1790976154.0760818,
         "label": "3+2",
         "daily": false,
         "started": false
-      }
+      },
+      "absence_claim": null,
+      "last_move_at": 1790976154.0761971
     }
   },
   "chess_challenges": {
