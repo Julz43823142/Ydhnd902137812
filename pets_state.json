@@ -56,7 +56,7 @@
         "xp": 30
       },
       {
-        "activity_xp": 25.25,
+        "activity_xp": 5.05,
         "born_at": 1790888246.8657486,
         "fed_at": 1790949791.5797703,
         "feed_day": "2026-10-02",
@@ -80,8 +80,8 @@
         "puzzle_day": "2026-10-01",
         "rarity": "uncommon",
         "species": "Fox",
-        "xp": 55.25,
-        "xp_day": "2026-10-01"
+        "xp": 60.3,
+        "xp_day": "2026-10-02"
       },
       {
         "activity_xp": 10,
