@@ -118,6 +118,17 @@
         "happy_at": 1790942195.040144,
         "id": "afc0be81766c4200af07aff4b0a9f7ca",
         "name": "",
+        "puzzle": {
+          "day": "2026-10-02",
+          "fen": "B5k1/p1p2pp1/1p5p/8/5bPr/4q3/PP3QP1/4RRK1 b - - 1 23",
+          "id": "t8sZG",
+          "index": 0,
+          "moves": [
+            "f4h2",
+            "g1h1",
+            "h2g3"
+          ]
+        },
         "rarity": "rare",
         "species": "Owl",
         "xp": 0
