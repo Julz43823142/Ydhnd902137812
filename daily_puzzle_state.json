@@ -9175,7 +9175,8 @@
             "601406103712170014": 16
           },
           "round_answers": {
-            "386134006170910721": true
+            "386134006170910721": true,
+            "601406103712170014": false
           },
           "history": {
             "442597396195704832": [
@@ -9819,6 +9820,17 @@
                 "submitted": "Bxf6",
                 "correct": true,
                 "seconds": 17.46,
+                "timeout": false
+              },
+              {
+                "round": 20,
+                "id": "EugDk",
+                "rating": 2225,
+                "fen": "2r4k/p1P3pp/4r1n1/3N2q1/2QpRp2/1P3P2/6PP/2R3K1 b - - 0 33",
+                "expected": "Nh4",
+                "submitted": "Rxe4",
+                "correct": false,
+                "seconds": 16.22,
                 "timeout": false
               }
             ]
