@@ -73,14 +73,17 @@
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_id": null,
+    "message_id": 1555685531126468680,
     "attempted_users": {},
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "channel_id": 1468320170891022417
+    "channel_id": 1468320170891022417,
+    "message_ids": {
+      "1468320170891022417": 1555685531126468680
+    }
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
@@ -9825,9 +9828,9 @@
     }
   },
   "twitch_oauth_v1": {
-    "refresh_token_enc": "gAAAAABqwBsK-WqyS857ENYwtVaeJ2dtbVZhgUJCKNflpnoA_gfy5CwsuAuHBsYehywIr1ZWD3W4TpSq8DNd21aVfKkAvQ1RytobXmOlqv4c7lX25C3Lt85LtOaA9dq553_QhUL7z3ckg0MBxMK0zfUUfouChsRfNg==",
-    "updated_at": 1790974730,
-    "reason": "worker-start"
+    "refresh_token_enc": "gAAAAABqwBsPWLNdCNC4OJDBz60TDUCmlQ9CMhlMgdsgwVshRrO8IiRxjBWyo5MwkT5G03tOC5B6pYIKolZ8ajRRnWMlWwKd8nW9nYWUO_PB_TKVId0K94ACNjhdD5EExXVRxq_5ur8wypmWhU76QFwtesqx00iV5A==",
+    "updated_at": 1790974735,
+    "reason": "live-preview-401"
   },
   "twitch_pending_redemptions_v1": {
     "2e64827e-b674-48cd-8da5-fdeff053a10a": {
