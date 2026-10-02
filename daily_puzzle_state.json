@@ -8356,12 +8356,26 @@
           ],
           "round": 0,
           "scores": {
-            "442597396195704832": 0,
+            "442597396195704832": 1,
             "386134006170910721": 0
           },
-          "round_answers": {},
+          "round_answers": {
+            "442597396195704832": true
+          },
           "history": {
-            "442597396195704832": [],
+            "442597396195704832": [
+              {
+                "round": 1,
+                "id": "lBQBq",
+                "rating": 1204,
+                "fen": "8/2p2ppk/p1Q5/5q2/1P4n1/P4PP1/8/5R1K b - - 0 48",
+                "expected": "Qh5+",
+                "submitted": "qh5",
+                "correct": true,
+                "seconds": 10.3,
+                "timeout": false
+              }
+            ],
             "386134006170910721": []
           },
           "round_started_at": 1790973138.9825897,
