@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/0pHcP",
     "title": "Lichess • 2730",
     "fen": "Q1K5/7p/2pk4/1q6/8/8/1P5P/8 b - - 6 43",
-    "current_fen": "Q4q2/K6p/2pk4/8/8/8/1P5P/8 b - - 10 45",
-    "last_move_uci": "b8a7",
+    "current_fen": "Q7/K6p/2pk4/8/8/8/1P3q1P/8 w - - 11 46",
+    "last_move_uci": "f8f2",
     "pgn": "Qf5+ Kb8 Qf8+ Ka7 Qf2+",
     "all_moves": [
       {
@@ -58,20 +58,20 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_0pHcP_1790974886542",
-    "last_activity_at": "2026-10-02T21:03:17.639356+00:00",
+    "last_activity_at": "2026-10-02T21:03:22.906747+00:00",
     "rating": 2730,
     "rp_band": 5,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 4,
-    "next_player_index": 2,
-    "solved": false,
+    "next_solution_index": 5,
+    "next_player_index": 3,
+    "solved": true,
     "message_ids": {
-      "1468320170891022417": 1555686638590623815
+      "1468320170891022417": 1555686660165861427
     },
-    "message_id": 1555686638590623815,
+    "message_id": 1555686660165861427,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
@@ -89,9 +89,9 @@
       },
       "386134006170910721": {
         "name": "mh",
-        "move": "Qf8",
+        "move": "Qf2",
         "correct": true,
-        "timestamp": "2026-10-02T21:03:17.639554+00:00"
+        "timestamp": "2026-10-02T21:03:22.906957+00:00"
       }
     },
     "first_move_user_id": "601406103712170014",
@@ -101,7 +101,7 @@
     "helper_candidate_users": [
       "386134006170910721"
     ],
-    "last_card_activity_at": "2026-10-02T21:03:17.639356+00:00",
+    "last_card_activity_at": "2026-10-02T21:03:22.906747+00:00",
     "recent_accepted_moves": [
       {
         "accepted_at": 1790974997.6395602,
@@ -112,6 +112,16 @@
           "color": "black"
         },
         "accepted_uci": "f5f8"
+      },
+      {
+        "accepted_at": 1790975002.9069645,
+        "fen_before": "Q4q2/K6p/2pk4/8/8/8/1P5P/8 b - - 10 45",
+        "expected": {
+          "uci": "f8f2",
+          "san": "Qf2+",
+          "color": "black"
+        },
+        "accepted_uci": "f8f2"
       }
     ],
     "accepted_solution_moves": [
@@ -124,15 +134,20 @@
         "san": "Qf8+",
         "uci": "f5f8",
         "principal": true
+      },
+      {
+        "san": "Qf2+",
+        "uci": "f8f2",
+        "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Ka7",
+    "last_feedback": "✅ **Correct, mh!**\n🎉 **Puzzle solved!**\nUpdating stats and rewards…",
     "wrong_attempt_counts": {
       "601406103712170014": 1,
       "442597396195704832": 2
     }
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-02",
@@ -2650,6 +2665,20 @@
       "wager_amount": 15.0,
       "created_at": 1789051903.3307006,
       "message_id": "1547620596177699018"
+    },
+    "386134006170910721:normal": {
+      "daily_game": false,
+      "variant": "standard",
+      "base_seconds": 600,
+      "increment": 0,
+      "challenge_id": "pvp-challenge:1555686673810198580:601406103712170014:386134006170910721:normal",
+      "challenger_id": "601406103712170014",
+      "challenger_name": "TheMakina",
+      "target_id": "386134006170910721",
+      "target_name": "mh",
+      "channel_id": 1468320170891022417,
+      "wager_amount": 0.0,
+      "created_at": 1790975006.352594
     }
   },
   "puzzle_rush": {
