@@ -8620,7 +8620,7 @@
         "id": "racer:racer-challenge:rematch:1555679757419417610:442597396195704832:386134006170910721",
         "status": "active",
         "channel_id": 1468320170891022417,
-        "message_id": "1555680142221774985",
+        "message_id": "1555680200509886486",
         "challenge_id": "racer-challenge:rematch:1555679757419417610:442597396195704832:386134006170910721",
         "player1_id": "442597396195704832",
         "player1_name": "Thice",
@@ -8717,14 +8717,12 @@
               "rating": 2215
             }
           ],
-          "round": 5,
+          "round": 6,
           "scores": {
-            "442597396195704832": 5,
+            "442597396195704832": 6,
             "386134006170910721": 6
           },
-          "round_answers": {
-            "386134006170910721": true
-          },
+          "round_answers": {},
           "history": {
             "442597396195704832": [
               {
@@ -8780,6 +8778,17 @@
                 "submitted": "qxe5",
                 "correct": true,
                 "seconds": 9.36,
+                "timeout": false
+              },
+              {
+                "round": 6,
+                "id": "E3SG7",
+                "rating": 1808,
+                "fen": "rn4kr/pQp3p1/4R3/8/3P3q/2N4p/PPP3P1/5RK1 b - - 0 18",
+                "expected": "Qxd4+",
+                "submitted": "qxd4",
+                "correct": true,
+                "seconds": 14.93,
                 "timeout": false
               }
             ],
@@ -8852,8 +8861,8 @@
               }
             ]
           },
-          "round_started_at": 1790973448.8848453,
-          "deadline": 1790973478.8848453
+          "round_started_at": 1790973463.8226836,
+          "deadline": 1790973493.8226836
         }
       }
     }
