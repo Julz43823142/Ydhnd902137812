@@ -6259,7 +6259,7 @@
       },
       "racer-challenge:rematch:1555679757419417610:442597396195704832:386134006170910721": {
         "id": "racer-challenge:rematch:1555679757419417610:442597396195704832:386134006170910721",
-        "status": "pending",
+        "status": "accepted",
         "challenger_id": "442597396195704832",
         "challenger_name": "Thice",
         "target_id": "386134006170910721",
@@ -6268,7 +6268,8 @@
         "minutes": 5,
         "stake": 0,
         "created_at": 1790973357.3688462,
-        "message_id": "1555679758107541546"
+        "message_id": "1555679758107541546",
+        "closed_at": 1790973369.804817
       }
     },
     "games": {
@@ -8614,6 +8615,121 @@
         },
         "ended_at": 1790973335.9996662,
         "result_text": "All scheduled puzzles completed."
+      },
+      "racer:racer-challenge:rematch:1555679757419417610:442597396195704832:386134006170910721": {
+        "id": "racer:racer-challenge:rematch:1555679757419417610:442597396195704832:386134006170910721",
+        "status": "active",
+        "channel_id": 1468320170891022417,
+        "message_id": null,
+        "challenge_id": "racer-challenge:rematch:1555679757419417610:442597396195704832:386134006170910721",
+        "player1_id": "442597396195704832",
+        "player1_name": "Thice",
+        "player2_id": "386134006170910721",
+        "player2_name": "mh",
+        "minutes": 5,
+        "stake": 0,
+        "board_theme": "blue",
+        "piece_theme": "classic",
+        "arrow_theme": "pink",
+        "started_at": 1790973369.804817,
+        "winner_id": null,
+        "rewards_settled": false,
+        "data": {
+          "puzzles": [
+            {
+              "id": "IsCTt",
+              "fen": "8/1k6/1ppq3p/3p3P/3Pn1P1/3N1Q2/2P5/1K6 b - - 1 51",
+              "setup_uci": "c1d3",
+              "expected_uci": "e4d2",
+              "expected_move": "Nd2+",
+              "rating": 1212
+            },
+            {
+              "id": "eBqs1",
+              "fen": "8/1pb5/2p3R1/p6k/7P/PBP4K/1P2r3/6R1 b - - 0 40",
+              "setup_uci": "f6g6",
+              "expected_uci": "e2h2",
+              "expected_move": "Rh2#",
+              "rating": 1324
+            },
+            {
+              "id": "7z9CP",
+              "fen": "r4Nk1/1p3p2/3p2p1/2p5/1pP2P2/P2q2n1/1B1P2PR/K2Q4 b - - 1 28",
+              "setup_uci": "c1b2",
+              "expected_uci": "a8a3",
+              "expected_move": "Rxa3+",
+              "rating": 1404
+            },
+            {
+              "id": "infpx",
+              "fen": "8/1qp1r2p/7k/6p1/P4n1P/8/2Q3P1/3R2BK b - - 0 37",
+              "setup_uci": "h2h4",
+              "expected_uci": "e7e2",
+              "expected_move": "Re2",
+              "rating": 1523
+            },
+            {
+              "id": "LSjxK",
+              "fen": "4r1k1/pp3ppp/2p5/4r1N1/4Q3/2P4q/PP1B4/2K3R1 w - - 0 25",
+              "setup_uci": "d5e5",
+              "expected_uci": "e4e5",
+              "expected_move": "Qxe5",
+              "rating": 1857
+            },
+            {
+              "id": "E3SG7",
+              "fen": "rn4kr/pQp3p1/4R3/8/3P3q/2N4p/PPP3P1/5RK1 b - - 0 18",
+              "setup_uci": "e1e6",
+              "expected_uci": "h4d4",
+              "expected_move": "Qxd4+",
+              "rating": 1808
+            },
+            {
+              "id": "LbhEn",
+              "fen": "4q3/p1p2pkp/2Bp2p1/2bP2Bn/8/5Q1P/PPP2PP1/6K1 b - - 0 21",
+              "setup_uci": "a4c6",
+              "expected_uci": "e8e1",
+              "expected_move": "Qe1+",
+              "rating": 2039
+            },
+            {
+              "id": "0RIae",
+              "fen": "2br2k1/4q2p/pR1b1pp1/3P4/2NQ1p2/5N1P/6PK/8 w - - 0 34",
+              "setup_uci": "f7f6",
+              "expected_uci": "c4d6",
+              "expected_move": "Nxd6",
+              "rating": 2131
+            },
+            {
+              "id": "v1sYu",
+              "fen": "r1b1kb1r/pp1p1ppp/4p3/2p5/2BnP3/2NPB3/PqP2PPP/R2Q1RK1 w kq - 0 10",
+              "setup_uci": "b6b2",
+              "expected_uci": "e3d4",
+              "expected_move": "Bxd4",
+              "rating": 2108
+            },
+            {
+              "id": "HGwcv",
+              "fen": "8/1N6/8/p6p/2PK4/8/2k5/8 b - - 0 45",
+              "setup_uci": "c3c4",
+              "expected_uci": "a5a4",
+              "expected_move": "a4",
+              "rating": 2215
+            }
+          ],
+          "round": 0,
+          "scores": {
+            "442597396195704832": 0,
+            "386134006170910721": 0
+          },
+          "round_answers": {},
+          "history": {
+            "442597396195704832": [],
+            "386134006170910721": []
+          },
+          "round_started_at": 1790973369.804817,
+          "deadline": 1790973399.804817
+        }
       }
     }
   },
