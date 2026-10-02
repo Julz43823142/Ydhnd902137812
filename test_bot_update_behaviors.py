@@ -86,7 +86,7 @@ class HolidayAnnouncementTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(embed.title, '🎊 Animal Day Event has started!')
         self.assertIn('Animal Day itself is on October 4.', embed.description)
         self.assertIn('through October 7', embed.description)
-        self.assertIn('35 coins', embed.description)
+        self.assertIn('25 coins', embed.description)
         await announce_holiday_starts(client, [channel], storage, persist, date(2026, 10, 1))
         channel.send.assert_awaited_once()
 

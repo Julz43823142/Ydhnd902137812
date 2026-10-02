@@ -14,8 +14,8 @@ Puzzle and Guess shops share the box picker, confirmation, wallet and categories
 | Halloween | October 15–November 1 | Spooky SharkBot |
 | Christmas | December 15–28 | Santa SharkBot |
 
-Shop > Badge Box opens a choice, not a purchase. Normal boxes cost 50 coins.
-Only currently active Holiday boxes appear; they cost 35 coins and guarantee
+Shop > Badge Box opens a choice, not a purchase. Normal boxes cost 20 coins.
+Only currently active Holiday boxes appear; they cost 25 coins and guarantee
 one of that event's badges, uniformly chosen within the collection. Duplicates are
 allowed. Every choice has a second confirmation before money is spent.
 Overlapping events appear side by side. Expired confirmations cannot spend coins.

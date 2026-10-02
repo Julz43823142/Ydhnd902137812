@@ -3,7 +3,7 @@ from holiday_events import HOLIDAY_BADGES
 
 SHOP_BUILD = "cosmetics-shop-v2-twitch-2026-09-27"
 
-BADGE_BOX_COST = 50.0
+BADGE_BOX_COST = 20.0
 BOARD_COST = 100.0
 PIECE_COST = 100.0
 ARROW_COST = 50.0
