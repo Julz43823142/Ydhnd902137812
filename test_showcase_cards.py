@@ -146,10 +146,11 @@ class ShowcaseNavigation(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(command.parameters[0].name,'user')
             self.assertEqual(command.parameters[0].type,discord.AppCommandOptionType.user)
         ctx=interaction();target=SimpleNamespace(id=99,display_name='Player')
-        with patch.object(bot,'make_profile_embed',AsyncMock(return_value=(discord.Embed(),None))), patch.object(bot,'get_cosmetic_profile',return_value={}):
+        with patch.object(bot,'make_profile_embed',AsyncMock(return_value=(discord.Embed(),None))), patch.object(bot,'get_cosmetic_profile',return_value={'name':'Player','active_badge':'🦈','coins':125,'points':37}):
             await bot.slash_profile.callback(ctx,target)
         view=ctx.followup.send.call_args.kwargs['view']
         self.assertEqual(view.target_user_id,'99')
+        self.assertEqual(ctx.followup.send.call_args.kwargs['content'], '🦈 **Player**\n🪙 **125 coins** · ⭐ **37 points**')
         self.assertFalse(view.editable)
         view.stop()
         for command in (bot.slash_pet,bot.slash_pets):

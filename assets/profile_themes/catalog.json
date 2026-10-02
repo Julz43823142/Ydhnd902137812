@@ -1,7 +1,8 @@
 {
   "classic": {
     "file": "classic.jpg",
-    "label": "Classic"
+    "label": "Classic",
+    "art_height": 675
   },
   "purple": {
     "file": "purple.jpg",
@@ -49,7 +50,8 @@
   },
   "detroit": {
     "file": "detroit.jpg",
-    "label": "Detroit: Become Human"
+    "label": "Detroit: Become Human",
+    "art_height": 675
   },
   "stray": {
     "file": "stray.jpg",
