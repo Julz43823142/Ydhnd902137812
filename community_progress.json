@@ -14,7 +14,7 @@
       "progress": {
         "pet_feed": 3,
         "pet_puzzle": 1,
-        "puzzle_solve": 13
+        "puzzle_solve": 14
       },
       "start": 1790805600,
       "theme": "Care for the community",
@@ -30,6 +30,9 @@
           "pet_feed": 3,
           "pet_puzzle": 1,
           "puzzle_solve": 6
+        },
+        "601406103712170014": {
+          "puzzle_solve": 1
         }
       }
     }
@@ -63,7 +66,9 @@
       },
       "601406103712170014": {
         "coins_earned": 13.0,
-        "new_cosmetics": 0
+        "contribution": 0.0002,
+        "new_cosmetics": 0,
+        "puzzle_solve": 1
       }
     }
   }

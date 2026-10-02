@@ -1,0 +1,17 @@
+{
+  "action": "puzzle_solve",
+  "amount": 1,
+  "created_at": 1790974773,
+  "created_at_ns": 1790974773216868556,
+  "daily_key": "daily:2026-10-02",
+  "display_name": "TheMakina",
+  "metadata": {
+    "boss": false,
+    "source": "practice"
+  },
+  "operation": "quest-progress",
+  "quest_build": "quests-v1-2026-09-08",
+  "transaction_id": "quest:puzzle-solve:practice_WVcbc_601406103712170014_1790974730402:601406103712170014",
+  "user_id": "601406103712170014",
+  "weekly_key": "weekly:2026-09-28"
+}
