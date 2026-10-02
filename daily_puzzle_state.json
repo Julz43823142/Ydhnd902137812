@@ -8633,7 +8633,7 @@
         "arrow_theme": "pink",
         "started_at": 1790973369.804817,
         "winner_id": "386134006170910721",
-        "rewards_settled": false,
+        "rewards_settled": true,
         "data": {
           "puzzles": [
             {
