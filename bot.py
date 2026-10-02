@@ -78,6 +78,7 @@ import chess.pgn
 from io import BytesIO, StringIO
 import cairosvg
 import asyncio
+import feature_ui
 import json
 import subprocess
 import time
@@ -6910,6 +6911,13 @@ async def finish_chess_game(channel, game, result, reason="Game finished"):
                 "metadata": {"mode": "pvp"},
             })
 
+    if game.get('mode') != 'bot' and result in {'1-0', '0-1'}:
+        side = 'white' if result == '1-0' else 'black'
+        quest_uid = str(game.get(f'{side}_id') or '')
+        if quest_uid and quest_uid != 'BOT':
+            quest_actions.append({'user_id': quest_uid, 'display_name': game.get(f'{side}_name', 'Player'),
+                                  'action': 'chess_pvp_win', 'transaction_id': f"community:pvp-win:{game.get('game_id')}:{quest_uid}"})
+
     if quest_actions:
         try:
             quest_result = await asyncio.to_thread(quest_tracker.record_actions, quest_actions)
@@ -12621,6 +12629,21 @@ class CosmeticCatalogPager(discord.ui.View):
         equip.callback = equip_callback
         self.add_item(buy)
         self.add_item(equip)
+        preview = discord.ui.Button(label='Preview', emoji='👀', row=action_row)
+        async def preview_callback(interaction):
+            await self._show_selected(interaction)
+        preview.callback = preview_callback
+        self.add_item(preview)
+        back = discord.ui.Button(label='Back to Shop', row=action_row)
+        async def back_callback(interaction):
+            self._preview_revision += 1
+            await interaction.response.defer()
+            profile = await asyncio.to_thread(get_cosmetic_profile, interaction.user.id, interaction.user.display_name)
+            async with self._preview_edit_lock:
+                await interaction.edit_original_response(content=None, embed=shop_home_embed(profile), attachments=[], view=ShopHomeView(interaction.user.id))
+            self.stop()
+        back.callback = back_callback
+        self.add_item(back)
 
 
 async def send_cosmetic_catalog_preview(message, kind, page=1):
@@ -13503,8 +13526,8 @@ async def slash_profile(interaction: discord.Interaction, user: discord.User = N
     embed, file = await make_profile_embed(target.id, target.display_name, member=target, profile=profile)
     view = CosmeticProfileView(interaction.user.id, target.id, target.display_name,
                                editable=target.id == interaction.user.id, profile=profile)
-    await interaction.followup.send(embed=embed,
-                                    file=file, view=view, allowed_mentions=discord.AllowedMentions.none())
+    await interaction.followup.send(**await feature_ui.profile_payload(target.id, embed, file),
+                                    view=view, allowed_mentions=discord.AllowedMentions.none())
 
 
 @command_tree.command(name="pet", description="View your active pet or another player's pet")
@@ -13519,6 +13542,26 @@ async def slash_pets(interaction: discord.Interaction, user: discord.User = None
     await send_interaction_profile(interaction, (user or interaction.user).id)
 
 
+@command_tree.command(name='week', description='View your personal weekly recap')
+async def slash_week(interaction: discord.Interaction):
+    await feature_ui.send_page(interaction, 'week')
+
+
+@command_tree.command(name='collection', description='View a completion book')
+async def slash_collection(interaction: discord.Interaction, user: discord.User = None):
+    await feature_ui.send_page(interaction, 'collection', (user or interaction.user).id)
+
+
+@command_tree.command(name='community', description='View community challenge progress and rewards')
+async def slash_community(interaction: discord.Interaction):
+    await feature_ui.send_page(interaction, 'challenge')
+
+
+@command_tree.command(name='event', description='Open the active Holiday Event Hub')
+async def slash_event(interaction: discord.Interaction):
+    await feature_ui.send_page(interaction, 'event')
+
+
 async def send_profile_card(channel, viewer, target_user_id, target_name, editable=False):
     member = None
     try:
@@ -13530,7 +13573,7 @@ async def send_profile_card(channel, viewer, target_user_id, target_name, editab
     profile = await asyncio.to_thread(get_cosmetic_profile, target_user_id, target_name)
     embed, file = await make_profile_embed(target_user_id, target_name, member=member, profile=profile)
     view = CosmeticProfileView(viewer.id, target_user_id, target_name, editable=editable, profile=profile)
-    return await channel.send(embed=embed, file=file,
+    return await channel.send(**await feature_ui.profile_payload(target_user_id, embed, file),
                               view=view, allowed_mentions=discord.AllowedMentions.none())
 
 
@@ -13742,6 +13785,14 @@ class CosmeticProfileView(discord.ui.View):
 
             button.callback = open_mode
             self.add_item(button)
+
+        feature_ui.add_buttons(self, self.target_user_id, row=2)
+        pet_button = discord.ui.Button(label='View Pet', emoji='🐾', row=1)
+        async def view_pet(interaction):
+            from pet_ui import send_interaction_profile
+            await send_interaction_profile(interaction, self.target_user_id)
+        pet_button.callback = view_pet
+        self.add_item(pet_button)
 
         if self.editable:
             count = _profile_trade_alert_count(profile) if isinstance(profile, dict) else 0
@@ -17731,6 +17782,12 @@ class ShopHomeView(discord.ui.View):
     def __init__(self, user_id):
         super().__init__(timeout=600)
         self.user_id = int(user_id)
+        feature_ui.add_buttons(self, row=2)
+
+    @discord.ui.button(label='Pet Accessories', emoji='🎨', row=1)
+    async def accessories(self, interaction, button):
+        from pet_tools_ui import send_tools
+        await send_tools(interaction)
 
     async def interaction_check(self, interaction):
         if interaction.user.id != self.user_id:
@@ -17795,7 +17852,7 @@ class ShopHomeView(discord.ui.View):
             profile=profile,
         )
         await interaction.followup.send(
-            embed=embed, file=file,
+            **await feature_ui.profile_payload(interaction.user.id, embed, file),
             view=CosmeticProfileView(interaction.user.id, interaction.user.id, interaction.user.display_name, editable=True, profile=profile),
             ephemeral=True, allowed_mentions=discord.AllowedMentions.none(),
         )
@@ -17969,6 +18026,7 @@ class ChessNewHereView(discord.ui.View):
 class MainMenuView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=600)
+        feature_ui.add_buttons(self, row=3)
 
     @discord.ui.button(label="Pets", emoji="🐾", style=discord.ButtonStyle.success, row=2)
     async def pets(self, interaction, button):
@@ -18034,7 +18092,7 @@ class MainMenuView(discord.ui.View):
             profile=profile,
         )
         await interaction.followup.send(
-            embed=embed, file=file,
+            **await feature_ui.profile_payload(interaction.user.id, embed, file),
             view=CosmeticProfileView(interaction.user.id, interaction.user.id, interaction.user.display_name, editable=True, profile=profile),
             ephemeral=True, allowed_mentions=discord.AllowedMentions.none(),
         )
@@ -18250,7 +18308,7 @@ async def on_message(
             return
         if in_chess_channel:
             note_chess_human_activity(message.channel.id)
-        public_shared_commands = {'!pet','!pets','!shop','!box','!customboard','!custompiece','!arrow','!arrowcolor',
+        public_shared_commands = {'!week','!collection','!community','!challenge','!event','!pet','!pets','!shop','!box','!customboard','!custompiece','!arrow','!arrowcolor',
                                   '!color','!me','!profile','!donate','!trade','!pendingtrade','!trades','!tradeinbox',
                                   '!accepttrade','!declinetrade','!pending','!accept','!decline',
                                   '!l','!lb','!leaderboard','!chessstats','!puzzlestreak','!quests','!quest','!q'}
@@ -19739,6 +19797,10 @@ async def on_message(
         if (command_lower.split(maxsplit=1) or [""])[0] in ("!pet", "!pets"):
             from pet_ui import send_pet_command
             await send_pet_command(message)
+            return
+
+        if command_lower in ('!week', '!collection', '!community', '!challenge', '!event'):
+            await feature_ui.send_command(message, {'!week': 'week', '!collection': 'collection', '!event': 'event'}.get(command_lower, 'challenge'))
             return
 
         # Fast exact aliases. Handle these before any puzzle logic.
