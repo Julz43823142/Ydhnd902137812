@@ -8719,10 +8719,12 @@
           ],
           "round": 1,
           "scores": {
-            "442597396195704832": 1,
+            "442597396195704832": 2,
             "386134006170910721": 1
           },
-          "round_answers": {},
+          "round_answers": {
+            "442597396195704832": true
+          },
           "history": {
             "442597396195704832": [
               {
@@ -8734,6 +8736,17 @@
                 "submitted": "nd2",
                 "correct": true,
                 "seconds": 8.66,
+                "timeout": false
+              },
+              {
+                "round": 2,
+                "id": "eBqs1",
+                "rating": 1324,
+                "fen": "8/1pb5/2p3R1/p6k/7P/PBP4K/1P2r3/6R1 b - - 0 40",
+                "expected": "Rh2#",
+                "submitted": "rh2",
+                "correct": true,
+                "seconds": 7.72,
                 "timeout": false
               }
             ],
