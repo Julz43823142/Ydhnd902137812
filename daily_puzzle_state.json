@@ -88,7 +88,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_08qSi_1790966584159",
-    "last_activity_at": "2026-10-02T18:44:10.032101+00:00",
+    "last_activity_at": "2026-10-02T18:44:18.099174+00:00",
     "rating": 2746,
     "rp_band": 5,
     "boss": false,
@@ -99,17 +99,17 @@
     "next_player_index": 3,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1555651626088402974
+      "1468320170891022417": 1555651660418908301
     },
-    "message_id": 1555651626088402974,
+    "message_id": 1555651660418908301,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "1310661840707129370": {
         "name": "Chessmass",
-        "move": "rf7",
-        "correct": true,
-        "timestamp": "2026-10-02T18:44:10.032870+00:00"
+        "move": "rf4",
+        "correct": false,
+        "timestamp": "2026-10-02T18:44:18.099735+00:00"
       }
     },
     "first_move_user_id": "1310661840707129370",
@@ -117,19 +117,8 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-10-02T18:44:10.032101+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1790966650.0328782,
-        "fen_before": "7r/k5pp/8/p1pBq3/P3P3/4B3/6PP/5R1K w - - 0 34",
-        "expected": {
-          "uci": "f1f7",
-          "san": "Rf7+",
-          "color": "white"
-        },
-        "accepted_uci": "f1f7"
-      }
-    ],
+    "last_card_activity_at": "2026-10-02T18:44:18.099174+00:00",
+    "recent_accepted_moves": [],
     "accepted_solution_moves": [
       {
         "san": "Rxc5",
@@ -147,9 +136,9 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Kb8",
+    "last_feedback": "❌ **One more try, Chessmass: that move is playable-looking, but not the solution.**\n↪️ **Move played:** `rf4`",
     "wrong_attempt_counts": {
-      "1310661840707129370": 1
+      "1310661840707129370": 2
     }
   },
   "latest_puzzle_type": "random",
