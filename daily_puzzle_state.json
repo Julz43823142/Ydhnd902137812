@@ -8241,7 +8241,7 @@
       },
       "racer:racer-open:menu-open:1555678707107233914:442597396195704832": {
         "id": "racer:racer-open:menu-open:1555678707107233914:442597396195704832",
-        "status": "active",
+        "status": "finished",
         "channel_id": 1468320170891022417,
         "message_id": "1555679654369693798",
         "challenge_id": "racer-open:menu-open:1555678707107233914:442597396195704832",
@@ -8357,10 +8357,11 @@
           "round": 9,
           "scores": {
             "442597396195704832": 10,
-            "386134006170910721": 9
+            "386134006170910721": 10
           },
           "round_answers": {
-            "442597396195704832": true
+            "442597396195704832": true,
+            "386134006170910721": true
           },
           "history": {
             "442597396195704832": [
@@ -8574,12 +8575,25 @@
                 "correct": true,
                 "seconds": 13.05,
                 "timeout": false
+              },
+              {
+                "round": 10,
+                "id": "L1tH1",
+                "rating": 2172,
+                "fen": "2r3k1/5p2/2p2n2/2B1q1p1/1P1RP1P1/5P2/7Q/r2R2K1 b - - 4 31",
+                "expected": "Qxd4+",
+                "submitted": "Qxd4",
+                "correct": true,
+                "seconds": 14.08,
+                "timeout": false
               }
             ]
           },
           "round_started_at": 1790973321.9130201,
           "deadline": 1790973351.9130201
-        }
+        },
+        "ended_at": 1790973335.9996662,
+        "result_text": "All scheduled puzzles completed."
       }
     }
   },
