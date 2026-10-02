@@ -3842,7 +3842,7 @@ def guess_shop_home_embed(profile):
         title="🛒 Guess Shop",
         description=(
             f"🪙 **Coins:** {shared_format_points(profile.get('coins', 0))}\n\n"
-            "🆓 **1 free Mystery Box per day** — claim below · resets at midnight Amsterdam\n"
+            "🎁 **1 free Mystery Box per day** — claim below · resets at midnight Amsterdam\n"
             "🐾 Pet Egg — **10 coins** · buy and care via **Pets**\n"
             f"🎁 Badge Box — **{shared_format_points(BADGE_BOX_COST)} coins**\n"
             f"📅 Active Holiday Boxes — **{shared_format_points(HOLIDAY_BOX_COST)} coins**, choose via Badge Box\n"
@@ -4536,7 +4536,7 @@ class GuessShopHomeView(discord.ui.View):
         from pet_tools_ui import send_tools
         await send_tools(interaction)
 
-    @discord.ui.button(label='Free Daily Mystery Box', emoji='🆓', style=discord.ButtonStyle.success, row=3)
+    @discord.ui.button(label='Free Daily Mystery Box', emoji='🎁', style=discord.ButtonStyle.success, row=3)
     async def mystery_box(self, interaction, button):
         from badge_box_ui import claim_mystery_box
         await claim_mystery_box(interaction)
