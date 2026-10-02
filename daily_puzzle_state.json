@@ -75,7 +75,7 @@
     },
     "first_move_user_id": "386134006170910721",
     "first_move_user_name": "mh",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "last_card_activity_at": "2026-10-02T20:30:10.774327+00:00",
@@ -106,9 +106,12 @@
     "last_feedback": "✅ **Correct, mh!**\n🎉 **Puzzle solved!**\nUpdating stats and rewards…",
     "wrong_attempt_counts": {
       "442597396195704832": 1
-    }
+    },
+    "activity_bonus_users": [
+      "386134006170910721"
+    ]
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-02",
