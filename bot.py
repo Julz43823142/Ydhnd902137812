@@ -12474,11 +12474,12 @@ class CosmeticCatalogPager(discord.ui.View):
         embed.set_image(url=f"attachment://{file.filename}")
         return embed
 
-    async def _show_selected(self, interaction):
+    async def _show_selected(self, interaction, *, defer=True):
         self._preview_revision += 1
         revision = self._preview_revision
         selected, page = self.selected_name, self.page
-        await interaction.response.defer()
+        if defer:
+            await interaction.response.defer()
         try:
             profile, file = await self.preview_file(interaction.user, selected_name=selected)
             # Serialize Discord edits, not rendering. A slow earlier request cannot
@@ -12591,8 +12592,7 @@ class CosmeticCatalogPager(discord.ui.View):
                 return
             buyer = discord.utils.escape_mentions(discord.utils.escape_markdown(interaction.user.display_name))
             await interaction.followup.send(f"🛒 **{buyer}** bought **{label}** for **{shared_format_points(action_price)} coins**.", ephemeral=False, allowed_mentions=discord.AllowedMentions.none())
-            self._rebuild(updated)
-            await interaction.edit_original_response(content=self.render(updated), view=self)
+            await self._show_selected(interaction, defer=False)
 
         async def equip_callback(interaction):
             name = action_name
@@ -12612,8 +12612,7 @@ class CosmeticCatalogPager(discord.ui.View):
                 else:
                     updated = await asyncio.to_thread(equip_piece, interaction.user.id, interaction.user.display_name, name, f"catalog-equip-piece:{interaction.id}:{interaction.user.id}:{name}")
                     label = PIECE_DISPLAY_NAMES.get(updated.get("active_piece", name), name.title())
-                self._rebuild(updated)
-                await interaction.edit_original_response(content=self.render(updated), view=self)
+                await self._show_selected(interaction, defer=False)
                 await interaction.followup.send(f"✅ Equipped **{label}**.", ephemeral=True)
             except Exception as error:
                 await interaction.followup.send(f"❌ Could not equip it: `{str(error)[:800]}`", ephemeral=True)

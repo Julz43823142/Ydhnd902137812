@@ -45,14 +45,17 @@ class DetroitShop(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(ctx.edit_original_response.call_args.kwargs['embed'].image.url, 'attachment://kara.jpg')
         purchased = {**profile, 'profile_themes': ['detroit', 'detroit_kara']}
         buy = next(item for item in view.children if getattr(item, 'label', '').startswith('Buy selected'))
-        with patch.object(bot, 'buy_profile_theme', return_value=purchased) as purchase:
+        with patch.object(bot, 'buy_profile_theme', return_value=purchased) as purchase, patch.object(view, 'preview_file', AsyncMock(return_value=(purchased, file('kara-purchased.jpg')))):
             await buy.callback(ctx)
         self.assertEqual(purchase.call_args.args[2], 'detroit_kara')
+        self.assertEqual(ctx.edit_original_response.call_args.kwargs['embed'].image.url, 'attachment://kara-purchased.jpg')
         equip = next(item for item in view.children if getattr(item, 'label', '') == 'Equip selected')
         self.assertFalse(equip.disabled)
-        with patch.object(bot, 'equip_profile_theme', return_value={**purchased, 'active_profile_theme': 'detroit_kara'}) as activate:
+        equipped = {**purchased, 'active_profile_theme': 'detroit_kara'}
+        with patch.object(bot, 'equip_profile_theme', return_value=equipped) as activate, patch.object(view, 'preview_file', AsyncMock(return_value=(equipped, file('kara-equipped.jpg')))):
             await equip.callback(ctx)
         self.assertEqual(activate.call_args.args[2], 'detroit_kara')
+        self.assertEqual(ctx.edit_original_response.call_args.kwargs['embed'].image.url, 'attachment://kara-equipped.jpg')
 
     async def test_other_user_cannot_use_character_picker(self):
         view = self.view()
