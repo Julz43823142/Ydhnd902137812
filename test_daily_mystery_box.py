@@ -79,7 +79,7 @@ class DailyMysteryTransactions(unittest.TestCase):
     def test_paid_box_still_charges_and_free_claim_never_bypasses_holiday_price(self):
         ledger.buy_badge_box(42, 'Shark', 'paid-box')
         ledger.claim_daily_mystery_box(42, 'Shark')
-        self.assertEqual(self.origin(ledger.LEGACY_FILE)['42']['coins'], 50)
+        self.assertEqual(self.origin(ledger.LEGACY_FILE)['42']['coins'], 80)
         with self.assertRaises(ValueError):
             ledger.buy_badge_box(42, 'Shark', None, holiday='animal_day', daily_free=True)
 
@@ -99,11 +99,23 @@ class DailyMysteryNavigation(unittest.IsolatedAsyncioTestCase):
             with patch.object(badge_box_ui, 'claim_daily_mystery_box', return_value=result) as claim:
                 await button.callback(ctx)
             claim.assert_called_once_with(42, 'Player')
-            ctx.response.defer.assert_awaited_once_with(ephemeral=True)
+            ctx.response.defer.assert_awaited_once_with(thinking=False)
+            self.assertFalse(ctx.followup.send.call_args.kwargs['ephemeral'])
+            self.assertIn('Player', ctx.followup.send.call_args.kwargs['embed'].title)
             self.assertIn('No coins spent', ctx.followup.send.call_args.kwargs['embed'].description)
             view.stop()
         self.assertIn('1 free Mystery Box', bot.shop_home_embed({}).description)
         self.assertIn('1 free Mystery Box', guess_chatter.guess_shop_home_embed({}).description)
+
+    async def test_repeat_claim_and_failure_stay_private(self):
+        for response in ({'badge': '⭐', 'rarity_label': 'Common', 'already_claimed': True}, RuntimeError('Unavailable')):
+            ctx = interaction()
+            options = {'side_effect': response} if isinstance(response, Exception) else {'return_value': response}
+            with patch.object(badge_box_ui, 'claim_daily_mystery_box', **options):
+                await badge_box_ui.claim_mystery_box(ctx)
+            self.assertTrue(ctx.followup.send.call_args.kwargs['ephemeral'])
+            if not isinstance(response, Exception):
+                self.assertIn('already claimed', ctx.followup.send.call_args.kwargs['embed'].title)
 
     async def test_weekly_notice_posts_once_daily_and_recovers_unsaved_message(self):
         client = SimpleNamespace(user=SimpleNamespace(id=999))

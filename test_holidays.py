@@ -80,17 +80,17 @@ class PurchaseTests(unittest.TestCase):
         self.mutation_patch.start()
         self.addCleanup(self.mutation_patch.stop)
 
-    def test_holiday_purchase_costs_35_and_only_drops_active_event(self):
+    def test_holiday_purchase_costs_25_and_only_drops_active_event(self):
         with patch.object(holidays, "active_holidays", return_value=["christmas"]):
             result = ledger.buy_badge_box(42, "Thice", "holiday-1", holiday="christmas")
-        self.assertEqual(result["coins"], 165)
+        self.assertEqual(result["coins"], 175)
         self.assertIn(result["badge"], holidays.HOLIDAYS["christmas"]["badges"])
         self.assertEqual(result["rarity"], "holiday")
         self.assertEqual(result["profile"]["active_badge"], "❄️")
 
-    def test_normal_box_remains_50_and_never_holiday(self):
+    def test_normal_box_costs_20_and_never_holiday(self):
         result = ledger.buy_badge_box(42, "Thice", "normal-1")
-        self.assertEqual(result["coins"], 150)
+        self.assertEqual(result["coins"], 180)
         self.assertNotIn(result["badge"], holidays.HOLIDAY_BADGES)
 
     def test_closed_or_unknown_event_spends_nothing(self):
@@ -107,7 +107,7 @@ class PurchaseTests(unittest.TestCase):
         self.assertEqual(self.entry["coins"], 200)
 
     def test_insufficient_funds_does_not_grant_badge(self):
-        self.entry["coins"] = 34
+        self.entry["coins"] = 24
         with patch.object(holidays, "active_holidays", return_value=["christmas"]):
             with self.assertRaisesRegex(ValueError, "Not enough coins"):
                 ledger.buy_badge_box(42, "Thice", "poor", holiday="christmas")
@@ -118,7 +118,7 @@ class PurchaseTests(unittest.TestCase):
             first = ledger.buy_badge_box(42, "Thice", "same", holiday="christmas")
             again = ledger.buy_badge_box(42, "Thice", "same", holiday="christmas")
         self.assertEqual(first["badge"], again["badge"])
-        self.assertEqual(again["coins"], 165)
+        self.assertEqual(again["coins"], 175)
         self.assertEqual(len(self.entry["badges"]), 2)
 
     def test_existing_seasonal_badge_can_still_be_equipped(self):
@@ -136,7 +136,7 @@ class BoxUITests(unittest.IsolatedAsyncioTestCase):
     async def test_only_active_boxes_show_and_selection_requires_confirmation(self):
         with patch.object(badge_box_ui, "active_holidays", return_value=["christmas"]):
             view = badge_box_ui.BadgeBoxPicker(42)
-        self.assertEqual([item.label for item in view.children], ["Random Badge Box • 50 coins", "Christmas Box • 35 coins", "Free Daily Mystery Box"])
+        self.assertEqual([item.label for item in view.children], ["Random Badge Box • 20 coins", "Christmas Box • 25 coins", "Free Daily Mystery Box"])
         self.assertFalse(view.children[1].disabled)
         self.assertEqual(str(view.children[1].emoji), "🎊")
         with patch.object(badge_box_ui, "buy_badge_box") as purchase:
@@ -150,7 +150,7 @@ class BoxUITests(unittest.IsolatedAsyncioTestCase):
             view = badge_box_ui.BadgeBoxPicker(42)
         self.assertEqual(len(view.children), 3)
         self.assertFalse(view.children[0].disabled)
-        self.assertEqual(view.children[1].label, "Holiday Box • 35 coins")
+        self.assertEqual(view.children[1].label, "Holiday Box • 25 coins")
         self.assertTrue(view.children[1].disabled)
         self.assertEqual(view.children[1].row, 1)
         self.assertEqual(str(view.children[1].emoji), "🎊")

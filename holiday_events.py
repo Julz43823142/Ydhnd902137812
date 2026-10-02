@@ -2,7 +2,7 @@
 from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo
 
-HOLIDAY_BOX_COST = 35.0
+HOLIDAY_BOX_COST = 25.0
 HOLIDAY_ZONE = ZoneInfo("Europe/Amsterdam")
 HOLIDAYS = {
     "new_year": {"label": "New Year", "name": "Party SharkBot", "start": (12, 29), "end": (1, 7), "badges": "🎆 🎇 🥂 🍾 🎉 🎊 🪩 🕛 📅 ✨".split()},

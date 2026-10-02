@@ -8,12 +8,14 @@ from shared_leaderboard import buy_badge_box, format_points, claim_daily_mystery
 
 async def claim_mystery_box(interaction):
     """No wallet minimum; backend daily audit prevents multi-view double claims."""
-    await interaction.response.defer(ephemeral=True)
+    await interaction.response.defer(thinking=False)
     try:
         result = await asyncio.to_thread(claim_daily_mystery_box, interaction.user.id, interaction.user.display_name)
         from pets import next_daily
         import time
         status = "You already claimed today's free Mystery Box" if result['already_claimed'] else 'Your free daily Mystery Box is open'
+        if not result['already_claimed']:
+            status = f"{discord.utils.escape_markdown(interaction.user.display_name)} opened a free daily Mystery Box"
         now = time.time()
         reset = f'Your next free box is available <t:{next_daily(now)}:R> (midnight Amsterdam).'
         if result.get('claim_day', mystery_box_day(now)) != mystery_box_day(now):
@@ -25,7 +27,7 @@ async def claim_mystery_box(interaction):
             colour=discord.Colour.gold(),
         )
         await interaction.followup.send(
-            embed=embed, ephemeral=True, allowed_mentions=discord.AllowedMentions.none())
+            embed=embed, ephemeral=result['already_claimed'], allowed_mentions=discord.AllowedMentions.none())
     except Exception:
         await interaction.followup.send('Your free box could not be confirmed. Retry in `!shop`; the daily claim is safe to repeat.', ephemeral=True)
 

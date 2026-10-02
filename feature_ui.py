@@ -5,7 +5,7 @@ import discord
 
 import community_progress as progress
 import pets
-from holiday_events import HOLIDAYS, active_holidays, holiday_daily_reminder
+from holiday_events import HOLIDAYS, HOLIDAY_BOX_COST, active_holidays, holiday_daily_reminder
 from shop_catalog import PROFILE_THEMES, BOARD_THEMES, PIECE_SETS, NAME_COLORS
 from pet_accessories import CATALOG
 
@@ -74,7 +74,7 @@ def challenge_embed(data, uid, now, event_only=False):
         if definition['event']:
             lines.append(definition['theme'])
             lines.append(holiday_daily_reminder(definition['event']))
-            lines.append('🎁 Holiday Box: **35 coins** · use the Holiday Box button below.')
+            lines.append(f'🎁 Holiday Box: **{progress.ledger.format_points(HOLIDAY_BOX_COST)} coins** · use the Holiday Box button below.')
         for action, goal in definition['goals'].items():
             lines.append(f"**{progress.LABELS[action]}:** {challenge.get('progress', {}).get(action, 0):,}/{goal:,} · you: {personal.get(action, 0):,}")
         lines.append(f"Reward pool: **{definition['pool']} coins** · minimum up to 2 coins · maximum 20% per player.")
