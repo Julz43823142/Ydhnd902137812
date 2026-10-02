@@ -126,7 +126,11 @@ class PetTransactions(unittest.TestCase):
         self.assertEqual(restored['pets'][0]['died_at'], pet['born_at'] + 7 * pets.DAY)
 
     def test_activity_replay_and_daily_cap(self):
-        self.adopt()
+        # Keep the base XP assertions independent of random species bonuses.
+        with patch.object(pets.random, 'SystemRandom') as rng:
+            rng.return_value.choices.return_value = ['common']
+            rng.return_value.choice.return_value = 'Dog'
+            self.adopt()
         for i in range(12):
             pets.award_activity(42, 'Shark', f'activity:{i}', timestamp=self.now)
         pets.award_activity(42, 'Shark', 'activity:0', timestamp=self.now)

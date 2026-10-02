@@ -88,14 +88,12 @@
   "detroit_markus": {
     "file": "detroit_markus.jpg",
     "label": "Detroit: Markus",
-    "art_height": 450,
-    "art_fit": "meet"
+    "art_height": 675
   },
   "detroit_kara": {
     "file": "detroit_kara.jpg",
     "label": "Detroit: Kara",
-    "art_height": 450,
-    "art_fit": "meet"
+    "art_height": 675
   },
   "detroit_hank": {
     "file": "detroit_hank.jpg",
