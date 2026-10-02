@@ -1,4 +1,4 @@
-"""Daily midnight event notices in both chess channels, owned by Daily only."""
+"""Daily Holiday/weekly reminders in both chess channels, owned by Daily only."""
 import asyncio
 import logging
 from datetime import datetime, time, timedelta
@@ -10,15 +10,15 @@ log = logging.getLogger(__name__)
 
 
 async def announce_holiday_starts(client, channels, storage, persist, moment=None):
-    """One notice per active event/channel/day, recovering unsaved sends."""
+    """One reminder per active event/channel/day, weekly outside Holidays."""
     today = holiday_date(moment)
     starts = set(starting_holidays(today))
-    for event in active_holidays(today):
-        label = HOLIDAYS[event]["label"]
+    for event in active_holidays(today) or [None]:
+        label = HOLIDAYS[event]["label"] if event else 'Weekly Community Challenge'
         kind = "launch" if event in starts else "reminder"
-        marker = f"Holiday {kind} • {event} • {today.isoformat()}"
+        marker = f"Holiday {kind} • {event} • {today.isoformat()}" if event else f"Weekly reminder • {today.isoformat()}"
         for channel in channels:
-            key = f"{channel.id}:{event}:{today.isoformat()}"
+            key = f"{channel.id}:{event or 'weekly'}:{today.isoformat()}"
             if storage.get(key):
                 continue
             # Recover a sent message after a restart/crash before state commit.
@@ -29,11 +29,21 @@ async def announce_holiday_starts(client, channels, storage, persist, moment=Non
                     existing = message
                     break
             if existing is None:
+                if event:
+                    title = f"🎊 {label} Event has started!" if event in starts else f"🎊 {label} Event is still active!"
+                    description = (holiday_daily_reminder(event, today) + "\n\n" + f"The **{label} Holiday Box** is available for **{format_points(HOLIDAY_BOX_COST)} coins**!\n"
+                                   "Use `!box` or `!shop` to choose your box and collect exclusive holiday badges.\n"
+                                   "Every Holiday Box guarantees one badge from this event. Duplicates are possible.")
+                else:
+                    from community_progress import definitions, LABELS
+                    challenge = definitions(datetime.combine(today, time.min, HOLIDAY_ZONE).timestamp())[0]
+                    title = '🌍 Weekly Community Challenge is active!'
+                    description = ('Work together this week: ' + ', '.join(f"**{goal:,} {LABELS[action].lower()}**" for action, goal in challenge['goals'].items())
+                                   + f".\nEnds <t:{challenge['end']}:R> · reward pool: **{challenge['pool']} coins**.\nUse `!community` to view progress and your contribution.")
+                description += '\n\n🆓 Everyone can claim **1 free Mystery Box today** in **`!shop`**!\nDaily claims reset at **00:00 Europe/Amsterdam**. One random badge; duplicates are possible.'
                 embed = discord.Embed(
-                    title=f"🎊 {label} Event has started!" if event in starts else f"🎊 {label} Event is still active!",
-                    description=(holiday_daily_reminder(event, today) + "\n\n" + f"The **{label} Holiday Box** is available for **{format_points(HOLIDAY_BOX_COST)} coins**!\n"
-                                 "Use `!box` or `!shop` to choose your box and collect exclusive holiday badges.\n"
-                                 "Every Holiday Box guarantees one badge from this event. Duplicates are possible."),
+                    title=title,
+                    description=description,
                     color=0xF1C40F,
                 )
                 embed.set_footer(text=marker)

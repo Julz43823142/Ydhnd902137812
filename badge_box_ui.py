@@ -3,7 +3,28 @@ import asyncio
 import discord
 from holiday_events import HOLIDAYS, HOLIDAY_BOX_COST, active_holidays, next_holiday, holiday_event_details
 from shop_catalog import BADGE_BOX_COST
-from shared_leaderboard import buy_badge_box, format_points
+from shared_leaderboard import buy_badge_box, format_points, claim_daily_mystery_box, mystery_box_day
+
+
+async def claim_mystery_box(interaction):
+    """No wallet minimum; backend daily audit prevents multi-view double claims."""
+    await interaction.response.defer(ephemeral=True)
+    try:
+        result = await asyncio.to_thread(claim_daily_mystery_box, interaction.user.id, interaction.user.display_name)
+        from pets import next_daily
+        import time
+        status = "You already claimed today's free Mystery Box" if result['already_claimed'] else 'Your free daily Mystery Box is open'
+        now = time.time()
+        reset = f'Your next free box is available <t:{next_daily(now)}:R> (midnight Amsterdam).'
+        if result.get('claim_day', mystery_box_day(now)) != mystery_box_day(now):
+            status = 'Daily Mystery Box receipt'
+            reset = 'A new day has begun. You can already claim your next free box in `!shop`.'
+        await interaction.followup.send(
+            f"🎁 **{status}!**\nReward: {result['badge']} — **{result['rarity_label']}**.\n"
+            f"No coins spent. {reset}",
+            ephemeral=True, allowed_mentions=discord.AllowedMentions.none())
+    except Exception:
+        await interaction.followup.send('Your free box could not be confirmed. Retry in `!shop`; the daily claim is safe to repeat.', ephemeral=True)
 
 
 def badge_box_picker_message(moment=None):
@@ -16,6 +37,7 @@ def badge_box_picker_message(moment=None):
         availability += "\n" + "\n".join(holiday_event_details(key, moment) for key in active)
     return (
         "🎁 **Choose a Badge Box.**\n"
+        "🆓 Everyone can claim **1 free Mystery Box every day** in `!shop` — resets at midnight Amsterdam.\n"
         f"{availability}\n"
         f"📅 The next Holiday Box opens in **{days} {unit}**: **{HOLIDAYS[holiday]['label']}**.\n"
         "Select a box, then confirm before spending coins."
@@ -37,6 +59,8 @@ class BadgeBoxPicker(discord.ui.View):
 
     def build_picker(self):
         self.clear_items()
+        daily = discord.ui.Button(label='Free Daily Mystery Box', emoji='🆓', style=discord.ButtonStyle.success, row=2)
+        daily.callback = claim_mystery_box
         active = active_holidays()
         for holiday in [None, *active]:
             label = HOLIDAYS[holiday]["label"] if holiday else "Random Badge"
@@ -94,3 +118,4 @@ class BadgeBoxPicker(discord.ui.View):
                 label=f"Holiday Box • {format_points(HOLIDAY_BOX_COST)} coins",
                 emoji="🎊", style=discord.ButtonStyle.secondary, disabled=True, row=1,
             ))
+        self.add_item(daily)

@@ -28,13 +28,15 @@ class DailyEventNotices(unittest.IsolatedAsyncioTestCase):
             await self.send(today)
         await self.send(date(2026, 10, 8))
         for channel in self.channels:
-            self.assertEqual(channel.send.await_count, 7)
+            self.assertEqual(channel.send.await_count, 8)
             embeds = [call.kwargs['embed'] for call in channel.send.call_args_list]
             self.assertEqual(embeds[1].title, '🎊 Animal Day Event is still active!')
             self.assertIn('Animal Day itself is in 2 days.', embeds[1].description)
             self.assertIn('Today is Animal Day!', embeds[3].description)
             self.assertIn('has passed', embeds[4].description)
             self.assertIn('Last day', embeds[6].description)
+            self.assertIn('Weekly Community Challenge', embeds[7].title)
+            self.assertTrue(all('1 free Mystery Box' in embed.description and '!shop' in embed.description for embed in embeds))
             for call in channel.send.call_args_list:
                 self.assertFalse(call.kwargs['allowed_mentions'].everyone)
 
