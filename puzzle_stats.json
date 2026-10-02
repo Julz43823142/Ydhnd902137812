@@ -44,14 +44,14 @@
       "current_wrong_streak": 0,
       "elo": 1973.6692039681918,
       "elo_games": 66,
-      "first_solves": 33,
+      "first_solves": 34,
       "max_rating_solved": 2795,
       "name": "Chessmass",
       "peak_elo": 2007.2664218323864,
       "rated_correct_count": 36,
       "rated_correct_rating_sum": 72915,
       "total": 68,
-      "updated_at": 1790966609,
+      "updated_at": 1790966693,
       "wrong": 30
     },
     "1370434994945916940": {
