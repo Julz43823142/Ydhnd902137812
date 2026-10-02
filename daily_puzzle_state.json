@@ -276,12 +276,12 @@
     },
     "601406103712170014": {
       "name": "TheMakina",
-      "elo": 1493.376,
+      "elo": 1478.437,
       "peak_elo": 1523.344,
-      "games": 8,
+      "games": 9,
       "wins": 3,
       "draws": 0,
-      "losses": 5
+      "losses": 6
     },
     "1310661840707129370": {
       "name": "Chessmass",
@@ -303,10 +303,10 @@
     },
     "386134006170910721": {
       "name": "mh",
-      "elo": 1516.453,
-      "peak_elo": 1516.453,
-      "games": 1,
-      "wins": 1,
+      "elo": 1531.392,
+      "peak_elo": 1531.392,
+      "games": 2,
+      "wins": 2,
       "draws": 0,
       "losses": 0
     }
@@ -2748,7 +2748,7 @@
     },
     "pvp-1555691459242491944-601406103712170014-386134006170910721": {
       "game_id": "pvp-1555691459242491944-601406103712170014-386134006170910721",
-      "status": "active",
+      "status": "finished",
       "mode": "pvp",
       "variant": "standard",
       "chess960_pos": null,
@@ -2803,7 +2803,7 @@
       "last_move": "Bd6",
       "started_at": 1790976147.4444008,
       "draw_offer": null,
-      "message_id": 1555693301817020508,
+      "message_id": 1555693311677833236,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
       "theme_owner_id": "601406103712170014",
@@ -2812,17 +2812,22 @@
       "wager_reserved": false,
       "wager_settled": false,
       "clock": {
-        "white": 3.5460643768310547,
+        "white": 0,
         "black": 8.355693578720093,
         "increment": 2,
-        "at": 1790976587.8762093,
+        "at": 1790976592.0045211,
         "label": "3+2",
         "daily": false,
         "started": true
       },
       "absence_claim": null,
       "last_move_at": 1790976587.878305,
-      "clock_started_after_grace_at": 1790976167.7779672
+      "clock_started_after_grace_at": 1790976167.7779672,
+      "result": "0-1",
+      "finished_at": 1790976592.0045335,
+      "finish_reason": "Time expired",
+      "white_rating_after": 1478.437175039124,
+      "black_rating_after": 1531.391824960876
     }
   },
   "chess_challenges": {
