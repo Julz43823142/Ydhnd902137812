@@ -2659,7 +2659,7 @@
       "white_rating": 1509.829,
       "black_rating": 1500.0,
       "initial_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-      "fen": "r1bq1rk1/1pp2pp1/2n2b1p/p3p3/P1B1Nn2/2PPBN1P/1P1Q1PP1/R3R1K1 b - - 1 14",
+      "fen": "r1bq1rk1/1pp2p2/2n2b1p/p3p1p1/P1B1Nn2/2PPBN1P/1P1Q1PP1/R3R1K1 w - - 0 15",
       "moves": [
         "e4",
         "e5",
@@ -2687,9 +2687,10 @@
         "Rf8",
         "Be3",
         "h6",
-        "Qd2"
+        "Qd2",
+        "g5"
       ],
-      "last_move": "Qd2",
+      "last_move": "g5",
       "started_at": 1790975016.0434976,
       "draw_offer": null,
       "message_id": 1555688334469242953,
@@ -2702,15 +2703,15 @@
       "wager_settled": false,
       "clock": {
         "white": 424.8236291408539,
-        "black": 401.6859493255615,
+        "black": 391.1875157356262,
         "increment": 0,
-        "at": 1790975401.3481843,
+        "at": 1790975411.846618,
         "label": "10+0",
         "daily": false,
         "started": true
       },
       "absence_claim": null,
-      "last_move_at": 1790975401.349824,
+      "last_move_at": 1790975411.848369,
       "clock_started_after_grace_at": 1790975027.8577628
     }
   },
