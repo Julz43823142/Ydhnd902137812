@@ -1,157 +1,70 @@
 {
   "latest_random_puzzle": {
-    "url": "https://lichess.org/training/Y41Et",
-    "title": "Lichess • 2545",
-    "fen": "6k1/2p5/p2rrPp1/1p2P1Pp/3P1q2/PQ4RP/1P5K/3R4 b - - 0 36",
-    "current_fen": "6k1/2p5/p2rrPp1/1p2P1P1/3P1q2/P5pP/1PQ3K1/3R4 b - - 1 38",
-    "last_move_uci": "b3c2",
-    "pgn": "h4 Kg2 hxg3 Qc2 Qf2+ Qxf2 gxf2 exd6 Re1 Kxf2 Rxd1",
+    "url": "https://lichess.org/training/hS5k4",
+    "title": "Lichess • 1525",
+    "fen": "6k1/8/p5p1/2p2p1p/P1PbQPb1/5R2/5PK1/3R4 b - - 0 35",
+    "current_fen": "6k1/8/p5p1/2p2p1p/P1PbQPb1/5R2/5PK1/3R4 b - - 0 35",
+    "last_move_uci": "d3e4",
+    "pgn": "fxe4 Rg3 Bxd1",
     "all_moves": [
       {
-        "uci": "h5h4",
-        "san": "h4",
+        "uci": "f5e4",
+        "san": "fxe4",
         "color": "black"
       },
       {
-        "uci": "h2g2",
-        "san": "Kg2",
+        "uci": "f3g3",
+        "san": "Rg3",
         "color": "white"
       },
       {
-        "uci": "h4g3",
-        "san": "hxg3",
-        "color": "black"
-      },
-      {
-        "uci": "b3c2",
-        "san": "Qc2",
-        "color": "white"
-      },
-      {
-        "uci": "f4f2",
-        "san": "Qf2+",
-        "color": "black"
-      },
-      {
-        "uci": "c2f2",
-        "san": "Qxf2",
-        "color": "white"
-      },
-      {
-        "uci": "g3f2",
-        "san": "gxf2",
-        "color": "black"
-      },
-      {
-        "uci": "e5d6",
-        "san": "exd6",
-        "color": "white"
-      },
-      {
-        "uci": "e6e1",
-        "san": "Re1",
-        "color": "black"
-      },
-      {
-        "uci": "g2f2",
-        "san": "Kxf2",
-        "color": "white"
-      },
-      {
-        "uci": "e1d1",
-        "san": "Rxd1",
+        "uci": "g4d1",
+        "san": "Bxd1",
         "color": "black"
       }
     ],
     "player_moves": [
       {
-        "uci": "h5h4",
-        "san": "h4",
+        "uci": "f5e4",
+        "san": "fxe4",
         "color": "black"
       },
       {
-        "uci": "h4g3",
-        "san": "hxg3",
-        "color": "black"
-      },
-      {
-        "uci": "f4f2",
-        "san": "Qf2+",
-        "color": "black"
-      },
-      {
-        "uci": "g3f2",
-        "san": "gxf2",
-        "color": "black"
-      },
-      {
-        "uci": "e6e1",
-        "san": "Re1",
-        "color": "black"
-      },
-      {
-        "uci": "e1d1",
-        "san": "Rxd1",
+        "uci": "g4d1",
+        "san": "Bxd1",
         "color": "black"
       }
     ],
     "player_color": "black",
-    "player_move_count": 6,
-    "posted_at": "2026-10-02T13:59:56.435667+00:00",
-    "answer_posted": true,
+    "player_move_count": 2,
+    "posted_at": "2026-10-02T14:01:38.918845+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "random_Y41Et_1790949596435",
-    "last_activity_at": "2026-10-02T14:01:33.186173+00:00",
-    "rating": 2545,
-    "rp_band": 4,
+    "puzzle_id": "random_hS5k4_1790949698918",
+    "last_activity_at": "2026-10-02T14:01:38.918845+00:00",
+    "rating": 1525,
+    "rp_band": 1,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 4,
-    "next_player_index": 2,
+    "next_solution_index": 0,
+    "next_player_index": 0,
     "solved": false,
-    "message_ids": {
-      "1468320170891022417": 1555580504122855525
-    },
-    "message_id": 1555580504122855525,
+    "message_ids": {},
+    "message_id": null,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {
-      "442597396195704832": {
-        "name": "Thice",
-        "move": "Qxg5",
-        "correct": false,
-        "timestamp": "2026-10-02T14:01:33.186370+00:00"
-      }
-    },
-    "first_move_user_id": "442597396195704832",
-    "first_move_user_name": "Thice",
+    "attempted_users": {},
+    "first_move_user_id": null,
+    "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "last_card_activity_at": "2026-10-02T14:01:33.186173+00:00",
-    "recent_accepted_moves": [],
-    "accepted_solution_moves": [
-      {
-        "san": "h4",
-        "uci": "h5h4",
-        "principal": true
-      },
-      {
-        "san": "hxg3",
-        "uci": "h4g3",
-        "principal": true
-      }
-    ],
-    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** h4 hxg3 Qf2+ gxf2 Re1 Rxd1",
-    "wrong_attempt_counts": {
-      "442597396195704832": 2
-    }
+    "helper_candidate_users": []
   },
-  "latest_puzzle_type": "daily",
+  "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-02",
