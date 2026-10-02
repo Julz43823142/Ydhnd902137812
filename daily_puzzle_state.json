@@ -8618,7 +8618,7 @@
       },
       "racer:racer-challenge:rematch:1555679757419417610:442597396195704832:386134006170910721": {
         "id": "racer:racer-challenge:rematch:1555679757419417610:442597396195704832:386134006170910721",
-        "status": "active",
+        "status": "finished",
         "channel_id": 1468320170891022417,
         "message_id": "1555680605272936448",
         "challenge_id": "racer-challenge:rematch:1555679757419417610:442597396195704832:386134006170910721",
@@ -8632,7 +8632,7 @@
         "piece_theme": "classic",
         "arrow_theme": "pink",
         "started_at": 1790973369.804817,
-        "winner_id": null,
+        "winner_id": "386134006170910721",
         "rewards_settled": false,
         "data": {
           "puzzles": [
@@ -8723,7 +8723,8 @@
             "386134006170910721": 9
           },
           "round_answers": {
-            "386134006170910721": true
+            "386134006170910721": true,
+            "442597396195704832": false
           },
           "history": {
             "442597396195704832": [
@@ -8824,6 +8825,17 @@
                 "submitted": "na4",
                 "correct": false,
                 "seconds": 19.18,
+                "timeout": false
+              },
+              {
+                "round": 10,
+                "id": "HGwcv",
+                "rating": 2215,
+                "fen": "8/1N6/8/p6p/2PK4/8/2k5/8 b - - 0 45",
+                "expected": "a4",
+                "submitted": "h4",
+                "correct": false,
+                "seconds": 18.49,
                 "timeout": false
               }
             ],
@@ -8942,7 +8954,10 @@
           },
           "round_started_at": 1790973547.0908384,
           "deadline": 1790973577.0908384
-        }
+        },
+        "tied_winner_ids": [],
+        "ended_at": 1790973565.595446,
+        "result_text": "All scheduled puzzles completed."
       }
     }
   },
