@@ -2,6 +2,12 @@
 
 All interface text is English. Existing pet/wallet/quest records remain authoritative. New owner fields are optional; no migration or production state reset is needed.
 
+## Daily Mystery Box
+
+Everyone can claim one free Mystery Box from either shop or the box picker per Amsterdam calendar day (00:00 reset, including DST). It uses the existing random badge pool and rarity weights, costs zero coins, and allows duplicate badges. An immutable `daily-mystery-box:<user>:<date>` wallet audit prevents repeat claims across shops, processes and restarts, without adding a profile field that older writers might drop. Paid random/holiday boxes retain their existing prices.
+
+The existing midnight announcement loop includes the free claim reminder during Holidays; outside Holidays it sends a daily Weekly Community Challenge reminder with the same `!shop` claim instruction. History/state recovery prevents duplicate reminder posts after restarts.
+
 ## Access and previews
 
 - Pets → Accessories / Expeditions. Shop → Pet Accessories.

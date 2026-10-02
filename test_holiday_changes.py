@@ -144,12 +144,12 @@ class AnnouncementTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(kwargs["embed"].title, "🎊 Animal Day Event has started!")
             self.assertFalse(kwargs["allowed_mentions"].everyone)
 
-    async def test_off_day_no_notice_and_next_year_posts_again(self):
+    async def test_off_day_weekly_notice_and_next_year_posts_again(self):
         await self.sync(date(2026, 10, 8))
-        self.channels[0].send.assert_not_awaited()
+        self.assertIn('Weekly Community Challenge', self.channels[0].send.call_args.kwargs['embed'].title)
         await self.sync(date(2026, 10, 1))
         await self.sync(date(2027, 10, 1))
-        self.assertEqual(self.channels[0].send.await_count, 2)
+        self.assertEqual(self.channels[0].send.await_count, 3)
 
     async def test_history_recovers_after_state_sync_failure(self):
         self.persist.return_value = False

@@ -17789,6 +17789,11 @@ class ShopHomeView(discord.ui.View):
         from pet_tools_ui import send_tools
         await send_tools(interaction)
 
+    @discord.ui.button(label='Free Daily Mystery Box', emoji='🆓', style=discord.ButtonStyle.success, row=3)
+    async def mystery_box(self, interaction, button):
+        from badge_box_ui import claim_mystery_box
+        await claim_mystery_box(interaction)
+
     async def interaction_check(self, interaction):
         if interaction.user.id != self.user_id:
             await interaction.response.send_message("Open your own shop with `!shop`.", ephemeral=True)
@@ -17863,6 +17868,7 @@ def shop_home_embed(profile):
         title="🛒 Shark Shop",
         description=(
             f"🪙 **Coins:** {shared_format_points(profile.get('coins', 0))}\n\n"
+            "🆓 **1 free Mystery Box per day** — claim below · resets at midnight Amsterdam\n"
             "🐾 Pet Egg — **10 coins** · buy and care via **Pets**\n"
             f"🎁 Badge Box — **{shared_format_points(BADGE_BOX_COST)} coins**\n"
             f"🎨 Boards — standard themes **{shared_format_points(BOARD_COST)} coins** each\n"

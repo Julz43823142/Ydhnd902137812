@@ -2751,15 +2751,27 @@ def reset_holiday_badges_once():
     raise RuntimeError("Could not safely verify the one-time Holiday badge reset")
 
 
-def buy_badge_box(user_id, display_name, transaction_id, holiday=None):
+def mystery_box_day(timestamp=None):
+    """Calendar day at midnight Amsterdam, independent of the 05:00 activity bonus."""
+    return datetime.fromtimestamp(time.time() if timestamp is None else timestamp, ACTIVITY_TIME_ZONE).date().isoformat()
+
+
+def buy_badge_box(user_id, display_name, transaction_id, holiday=None, *, daily_free=False):
     from holiday_events import HOLIDAYS, HOLIDAY_BOX_COST, active_holidays
+    claim_day = None
+    if daily_free:
+        if holiday is not None:
+            raise ValueError('The free daily Mystery Box uses the normal badge pool.')
+        claim_day = mystery_box_day()
+        # One durable audit per player/day, shared by all shops and processes.
+        transaction_id = f'daily-mystery-box:{user_id}:{claim_day}'
     if holiday is not None and holiday not in HOLIDAYS:
         raise ValueError("Unknown holiday box.")
     rarity_names = list(BADGE_RARITY_WEIGHTS)
     weights = [BADGE_RARITY_WEIGHTS[name] for name in rarity_names]
     rarity = random.choices(rarity_names, weights=weights, k=1)[0]
     badge = random.choice(BADGE_POOLS[rarity])
-    cost = BADGE_BOX_COST
+    cost = 0 if daily_free else BADGE_BOX_COST
     if holiday is not None:
         if holiday not in active_holidays():
             raise ValueError("This holiday box is not available today. Reopen the shop.")
@@ -2767,6 +2779,8 @@ def buy_badge_box(user_id, display_name, transaction_id, holiday=None):
         badge = random.choice(HOLIDAYS[holiday]["badges"])
 
     def mutate(entry):
+        if daily_free and mystery_box_day() != claim_day:
+            raise ValueError('A new day has started. Reopen the shop to claim your box.')
         if holiday is not None and holiday not in active_holidays():
             raise ValueError("This holiday box has ended. No coins were spent.")
         before = float(entry.get("coins", 0))
@@ -2784,11 +2798,17 @@ def buy_badge_box(user_id, display_name, transaction_id, holiday=None):
             "rarity": rarity,
             "rarity_label": RARITY_LABELS[rarity],
             "badge": badge,
+            "claim_day": claim_day,
         }
 
-    entry, event = _shop_mutation(
-        user_id, display_name, transaction_id, "badge-box", mutate
-    )
+    already_claimed = False
+    if daily_free:
+        entry, event, created = _shop_mutation(
+            user_id, display_name, transaction_id, 'daily-mystery-box', mutate, return_created=True)
+        already_claimed = not created
+    else:
+        entry, event = _shop_mutation(
+            user_id, display_name, transaction_id, "badge-box", mutate)
     details = event.get("details", {}) if isinstance(event, dict) else {}
     return {
         "badge": details.get("badge", badge),
@@ -2796,7 +2816,13 @@ def buy_badge_box(user_id, display_name, transaction_id, holiday=None):
         "rarity_label": details.get("rarity_label", RARITY_LABELS.get(rarity, rarity.title())),
         "coins": float(entry.get("coins", 0)),
         "profile": {"user_id": str(user_id), **entry},
+        "already_claimed": already_claimed,
+        "claim_day": claim_day,
     }
+
+
+def claim_daily_mystery_box(user_id, display_name):
+    return buy_badge_box(user_id, display_name, None, daily_free=True)
 
 
 def equip_badge(user_id, display_name, badge, transaction_id):
