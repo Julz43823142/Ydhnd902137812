@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/bzH29",
     "title": "Lichess • 1560",
     "fen": "6kb/pbpq3p/1p1p2pP/3N1rN1/8/1P2P3/PP4P1/2RQ2K1 w - - 1 22",
-    "current_fen": "6kb/pbpq3p/1p1p2pP/3N1rN1/8/1P2P3/PP4P1/2RQ2K1 w - - 1 22",
-    "last_move_uci": "f6f5",
+    "current_fen": "6kb/pbq4p/1p1p2pP/3N1rN1/8/1P2P3/PP4P1/3Q2K1 w - - 0 23",
+    "last_move_uci": "d7c7",
     "pgn": "Rxc7 Qxc7 Nxc7",
     "all_moves": [
       {
@@ -43,41 +43,59 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_bzH29_1790966514499",
-    "last_activity_at": "2026-10-02T18:42:28.842094+00:00",
+    "last_activity_at": "2026-10-02T18:42:44.120457+00:00",
     "rating": 1560,
     "rp_band": 1,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1555651202077954223
+      "1468320170891022417": 1555651265290178623
     },
-    "message_id": 1555651202077954223,
+    "message_id": 1555651265290178623,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "1310661840707129370": {
         "name": "Chessmass",
-        "move": "qg4",
-        "correct": false,
-        "timestamp": "2026-10-02T18:42:28.842888+00:00"
+        "move": "rxc7",
+        "correct": true,
+        "timestamp": "2026-10-02T18:42:44.121179+00:00"
       }
     },
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "first_move_user_id": "1310661840707129370",
+    "first_move_user_name": "Chessmass",
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-10-02T18:42:28.842094+00:00",
-    "recent_accepted_moves": [],
+    "last_card_activity_at": "2026-10-02T18:42:44.120457+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1790966564.1211863,
+        "fen_before": "6kb/pbpq3p/1p1p2pP/3N1rN1/8/1P2P3/PP4P1/2RQ2K1 w - - 1 22",
+        "expected": {
+          "uci": "c1c7",
+          "san": "Rxc7",
+          "color": "white"
+        },
+        "accepted_uci": "c1c7"
+      }
+    ],
     "wrong_attempt_counts": {
       "1310661840707129370": 1
     },
-    "last_feedback": "❌ **Close, Chessmass: that move is playable-looking, but not the solution.**\n↪️ **Move played:** `qg4`"
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Qxc7",
+    "accepted_solution_moves": [
+      {
+        "san": "Rxc7",
+        "uci": "c1c7",
+        "principal": true
+      }
+    ]
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
