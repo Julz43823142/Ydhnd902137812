@@ -6257,7 +6257,7 @@
       "racer-open:menu-open:1555682923871477933:442597396195704832": {
         "id": "racer-open:menu-open:1555682923871477933:442597396195704832",
         "kind": "open_lobby",
-        "status": "open",
+        "status": "started",
         "challenger_id": "442597396195704832",
         "challenger_name": "Thice",
         "channel_id": 1468320170891022417,
@@ -6278,7 +6278,8 @@
           }
         ],
         "created_at": 1790974112.5620136,
-        "message_id": "1555682925687603263"
+        "message_id": "1555682925687603263",
+        "closed_at": 1790974158.2035413
       }
     },
     "games": {
@@ -8967,6 +8968,221 @@
         "tied_winner_ids": [],
         "ended_at": 1790973565.595446,
         "result_text": "All scheduled puzzles completed."
+      },
+      "racer:racer-open:menu-open:1555682923871477933:442597396195704832": {
+        "id": "racer:racer-open:menu-open:1555682923871477933:442597396195704832",
+        "status": "active",
+        "channel_id": 1468320170891022417,
+        "message_id": null,
+        "challenge_id": "racer-open:menu-open:1555682923871477933:442597396195704832",
+        "players": [
+          {
+            "id": "442597396195704832",
+            "name": "Thice"
+          },
+          {
+            "id": "386134006170910721",
+            "name": "mh"
+          },
+          {
+            "id": "601406103712170014",
+            "name": "TheMakina"
+          }
+        ],
+        "player1_id": "442597396195704832",
+        "player1_name": "Thice",
+        "player2_id": "386134006170910721",
+        "player2_name": "mh",
+        "minutes": 10,
+        "stake": 0,
+        "wager_reserved": false,
+        "open_multiplayer": true,
+        "board_theme": "blue",
+        "piece_theme": "classic",
+        "arrow_theme": "pink",
+        "started_at": 1790974158.2035413,
+        "winner_id": null,
+        "tied_winner_ids": [],
+        "forfeit_ids": [],
+        "rewards_settled": false,
+        "data": {
+          "puzzles": [
+            {
+              "id": "vguII",
+              "fen": "1rb2rk1/5pb1/1q2p1p1/p2pP2p/2Pn1P1P/1PN5/P1PB1QP1/2KR1BR1 b - - 0 19",
+              "setup_uci": "d3c4",
+              "expected_uci": "d4b3",
+              "expected_move": "Nxb3+",
+              "rating": 1366
+            },
+            {
+              "id": "WOW1O",
+              "fen": "5rk1/p4ppp/1p2b3/3p4/3q1B2/6Q1/Pr2BPPP/4R1K1 w - - 0 21",
+              "setup_uci": "f6d4",
+              "expected_uci": "f4e5",
+              "expected_move": "Be5",
+              "rating": 1329
+            },
+            {
+              "id": "T3hmO",
+              "fen": "1k1r2r1/2q2p2/pNQ1p1n1/8/1p2P1B1/5P2/PPP5/2KR4 w - - 3 26",
+              "setup_uci": "c8b8",
+              "expected_uci": "c6a8",
+              "expected_move": "Qa8#",
+              "rating": 1338
+            },
+            {
+              "id": "iwsjS",
+              "fen": "6rk/pppqnp1p/3p1p1N/4p1r1/4P2Q/2PP2PP/P1P2P1K/R4R2 b - - 4 18",
+              "setup_uci": "f5h6",
+              "expected_uci": "e7g6",
+              "expected_move": "Ng6",
+              "rating": 1451
+            },
+            {
+              "id": "fdm5K",
+              "fen": "1rb1q1k1/pp2br2/3p3B/2pPpp1Q/8/P1PP3P/1P3PPK/R4R2 w - - 3 19",
+              "setup_uci": "d8e8",
+              "expected_uci": "h5g6",
+              "expected_move": "Qg6+",
+              "rating": 1484
+            },
+            {
+              "id": "AA5Zq",
+              "fen": "Q1R2nk1/6bp/8/2Pp4/3P2nq/8/4bpBP/1rB2N1K w - - 0 35",
+              "setup_uci": "d3e2",
+              "expected_uci": "g2d5",
+              "expected_move": "Bxd5+",
+              "rating": 1465
+            },
+            {
+              "id": "EpTFU",
+              "fen": "r5k1/2P3bp/8/3p4/1P6/r4N1P/p1R3P1/R3B1K1 b - - 0 33",
+              "setup_uci": "c6c7",
+              "expected_uci": "g7a1",
+              "expected_move": "Bxa1",
+              "rating": 1511
+            },
+            {
+              "id": "xBFk1",
+              "fen": "1r3r2/2pk3p/B1p1b3/2qp4/3bQ3/4RP2/P1P3PP/3R2K1 w - - 3 26",
+              "setup_uci": "b2d4",
+              "expected_uci": "e4e6",
+              "expected_move": "Qxe6+",
+              "rating": 1701
+            },
+            {
+              "id": "J0xMr",
+              "fen": "r4r2/ppqn1p1k/1bp1pBb1/6Qp/6P1/3B1P2/PPP4P/R4R1K w - - 1 19",
+              "setup_uci": "b8d7",
+              "expected_uci": "g5h5",
+              "expected_move": "Qxh5+",
+              "rating": 1688
+            },
+            {
+              "id": "YtX6M",
+              "fen": "2rr4/pp3pk1/1n1P1n1p/q1p2pp1/Pb5Q/2N1PNB1/1P3PPP/2RR2K1 w - - 0 22",
+              "setup_uci": "g6g5",
+              "expected_uci": "f3g5",
+              "expected_move": "Nxg5",
+              "rating": 1703
+            },
+            {
+              "id": "Smvck",
+              "fen": "5k2/1Q1rb1pp/4Rn2/3p4/3P4/2P2B1P/5PPq/5K2 w - - 7 26",
+              "setup_uci": "d8d7",
+              "expected_uci": "e6f6",
+              "expected_move": "Rxf6+",
+              "rating": 1686
+            },
+            {
+              "id": "Dyr5k",
+              "fen": "5nk1/5ppp/4p3/Np1p4/3PnP2/2r1P2P/P4bPB/2NQ3K b - - 3 27",
+              "setup_uci": "g1h1",
+              "expected_uci": "f2e3",
+              "expected_move": "Bxe3",
+              "rating": 1918
+            },
+            {
+              "id": "2Ky7M",
+              "fen": "3r4/6kp/2PqQ1p1/4pp2/1P2p3/6P1/5PPK/8 w - - 1 44",
+              "setup_uci": "d4d6",
+              "expected_uci": "e6d6",
+              "expected_move": "Qxd6",
+              "rating": 1927
+            },
+            {
+              "id": "dhTiP",
+              "fen": "8/5Rpk/6p1/p7/PprP2P1/8/5KPP/8 b - - 0 32",
+              "setup_uci": "e7f7",
+              "expected_uci": "b4b3",
+              "expected_move": "b3",
+              "rating": 1931
+            },
+            {
+              "id": "4EnAG",
+              "fen": "3r2k1/2p2pp1/2p4p/2P1b3/1P6/P3PQqP/6P1/2R1R1K1 b - - 4 28",
+              "setup_uci": "e2f3",
+              "expected_uci": "g3h2",
+              "expected_move": "Qh2+",
+              "rating": 2105
+            },
+            {
+              "id": "LTL6l",
+              "fen": "r4rk1/ppp2ppp/1b6/3P4/4P1n1/1N1B1NqP/PPP3Q1/R1B4K b - - 10 18",
+              "setup_uci": "f1g2",
+              "expected_uci": "g4f2",
+              "expected_move": "Nf2+",
+              "rating": 2058
+            },
+            {
+              "id": "PX4DL",
+              "fen": "8/8/p3p1p1/1p1k3p/1P3PPP/P4K2/8/8 w - - 1 42",
+              "setup_uci": "d6d5",
+              "expected_uci": "g4h5",
+              "expected_move": "gxh5",
+              "rating": 2259
+            },
+            {
+              "id": "F5w1d",
+              "fen": "1k5r/1p1qb2p/p2p4/P5Bn/3pPQ2/3P4/5PPP/2R3K1 w - - 1 27",
+              "setup_uci": "f6h5",
+              "expected_uci": "f4f7",
+              "expected_move": "Qf7",
+              "rating": 2306
+            },
+            {
+              "id": "TJhZ1",
+              "fen": "r1bq1nkb/pp2Rp2/2p2Pn1/6Qp/7P/2NB4/PPP3P1/2K2R2 b - - 1 22",
+              "setup_uci": "e1e7",
+              "expected_uci": "h8f6",
+              "expected_move": "Bxf6",
+              "rating": 2371
+            },
+            {
+              "id": "EugDk",
+              "fen": "2r4k/p1P3pp/4r1n1/3N2q1/2QpRp2/1P3P2/6PP/2R3K1 b - - 0 33",
+              "setup_uci": "e2e4",
+              "expected_uci": "g6h4",
+              "expected_move": "Nh4",
+              "rating": 2225
+            }
+          ],
+          "round": 0,
+          "scores": {
+            "442597396195704832": 0,
+            "386134006170910721": 0,
+            "601406103712170014": 0
+          },
+          "round_answers": {},
+          "history": {
+            "442597396195704832": [],
+            "386134006170910721": [],
+            "601406103712170014": []
+          },
+          "round_started_at": 1790974158.2035413,
+          "deadline": 1790974188.2035413
+        }
       }
     }
   },
