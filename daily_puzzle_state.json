@@ -6035,7 +6035,7 @@
       "racer-open:menu-open:1547665558764527676:442597396195704832": {
         "id": "racer-open:menu-open:1547665558764527676:442597396195704832",
         "kind": "open_lobby",
-        "status": "open",
+        "status": "expired",
         "challenger_id": "442597396195704832",
         "challenger_name": "Thice",
         "channel_id": 1468320170891022417,
@@ -6048,12 +6048,13 @@
           }
         ],
         "created_at": 1789062624.1895568,
-        "message_id": "1547665562224689353"
+        "message_id": "1547665562224689353",
+        "closed_at": 1790973357.3688123
       },
       "racer-open:menu-open:1547704340351946932:442597396195704832": {
         "id": "racer-open:menu-open:1547704340351946932:442597396195704832",
         "kind": "open_lobby",
-        "status": "open",
+        "status": "expired",
         "challenger_id": "442597396195704832",
         "challenger_name": "Thice",
         "channel_id": 1468320170891022417,
@@ -6066,7 +6067,8 @@
           }
         ],
         "created_at": 1789071870.5232074,
-        "message_id": "1547704344214904843"
+        "message_id": "1547704344214904843",
+        "closed_at": 1790973357.3688123
       },
       "racer-open:menu-open:1547926475305517168:442597396195704832": {
         "id": "racer-open:menu-open:1547926475305517168:442597396195704832",
@@ -6090,7 +6092,7 @@
       "racer-open:menu-open:1548015407401799790:442597396195704832": {
         "id": "racer-open:menu-open:1548015407401799790:442597396195704832",
         "kind": "open_lobby",
-        "status": "open",
+        "status": "expired",
         "challenger_id": "442597396195704832",
         "challenger_name": "Thice",
         "channel_id": 1468320170891022417,
@@ -6103,7 +6105,8 @@
           }
         ],
         "created_at": 1789146034.1051688,
-        "message_id": "1548015409058291814"
+        "message_id": "1548015409058291814",
+        "closed_at": 1790973357.3688123
       },
       "racer-open:menu-open:1548407043025674321:442597396195704832": {
         "id": "racer-open:menu-open:1548407043025674321:442597396195704832",
@@ -6154,7 +6157,7 @@
       "racer-open:menu-open:1548412888954437663:442597396195704832": {
         "id": "racer-open:menu-open:1548412888954437663:442597396195704832",
         "kind": "open_lobby",
-        "status": "open",
+        "status": "expired",
         "challenger_id": "442597396195704832",
         "challenger_name": "Thice",
         "channel_id": 1468320170891022417,
@@ -6171,12 +6174,13 @@
           }
         ],
         "created_at": 1789240801.2685726,
-        "message_id": "1548412890887749824"
+        "message_id": "1548412890887749824",
+        "closed_at": 1790973357.3688123
       },
       "racer-open:menu-open:1548421542776406106:442597396195704832": {
         "id": "racer-open:menu-open:1548421542776406106:442597396195704832",
         "kind": "open_lobby",
-        "status": "open",
+        "status": "expired",
         "challenger_id": "442597396195704832",
         "challenger_name": "Thice",
         "channel_id": 1468320170891022417,
@@ -6189,12 +6193,13 @@
           }
         ],
         "created_at": 1789242864.3693569,
-        "message_id": "1548421544496078879"
+        "message_id": "1548421544496078879",
+        "closed_at": 1790973357.3688123
       },
       "racer-open:menu-open:1549869387329310911:442597396195704832": {
         "id": "racer-open:menu-open:1549869387329310911:442597396195704832",
         "kind": "open_lobby",
-        "status": "open",
+        "status": "expired",
         "challenger_id": "442597396195704832",
         "challenger_name": "Thice",
         "channel_id": 1468320170891022417,
@@ -6207,12 +6212,13 @@
           }
         ],
         "created_at": 1789588057.3048432,
-        "message_id": "1549869388411314208"
+        "message_id": "1549869388411314208",
+        "closed_at": 1790973357.3688123
       },
       "racer-open:menu-open:1553360557774602382:442597396195704832": {
         "id": "racer-open:menu-open:1553360557774602382:442597396195704832",
         "kind": "open_lobby",
-        "status": "open",
+        "status": "expired",
         "challenger_id": "442597396195704832",
         "challenger_name": "Thice",
         "channel_id": 1546557493038284840,
@@ -6225,7 +6231,8 @@
           }
         ],
         "created_at": 1790420417.2674174,
-        "message_id": "1553360559313911829"
+        "message_id": "1553360559313911829",
+        "closed_at": 1790973357.3688123
       },
       "racer-open:menu-open:1555678707107233914:442597396195704832": {
         "id": "racer-open:menu-open:1555678707107233914:442597396195704832",
@@ -6249,6 +6256,19 @@
         "created_at": 1790973107.2131226,
         "message_id": "1555678708604473457",
         "closed_at": 1790973138.9825897
+      },
+      "racer-challenge:rematch:1555679757419417610:442597396195704832:386134006170910721": {
+        "id": "racer-challenge:rematch:1555679757419417610:442597396195704832:386134006170910721",
+        "status": "pending",
+        "challenger_id": "442597396195704832",
+        "challenger_name": "Thice",
+        "target_id": "386134006170910721",
+        "target_name": "mh",
+        "channel_id": 1468320170891022417,
+        "minutes": 5,
+        "stake": 0,
+        "created_at": 1790973357.3688462,
+        "message_id": "1555679758107541546"
       }
     },
     "games": {
