@@ -103,7 +103,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_Y41Et_1790949596435",
-    "last_activity_at": "2026-10-02T14:00:25.253357+00:00",
+    "last_activity_at": "2026-10-02T14:01:02.495545+00:00",
     "rating": 2545,
     "rp_band": 4,
     "boss": false,
@@ -114,17 +114,17 @@
     "next_player_index": 2,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1555580218838876192
+      "1468320170891022417": 1555580375751729332
     },
-    "message_id": 1555580218838876192,
+    "message_id": 1555580375751729332,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Hxg3",
-        "correct": true,
-        "timestamp": "2026-10-02T14:00:25.253971+00:00"
+        "move": "Rd7",
+        "correct": false,
+        "timestamp": "2026-10-02T14:01:02.495757+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
@@ -132,19 +132,8 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-10-02T14:00:25.253357+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1790949625.2539802,
-        "fen_before": "6k1/2p5/p2rrPp1/1p2P1P1/3P1q1p/PQ4RP/1P4K1/3R4 b - - 1 37",
-        "expected": {
-          "uci": "h4g3",
-          "san": "hxg3",
-          "color": "black"
-        },
-        "accepted_uci": "h4g3"
-      }
-    ],
+    "last_card_activity_at": "2026-10-02T14:01:02.495545+00:00",
+    "recent_accepted_moves": [],
     "accepted_solution_moves": [
       {
         "san": "h4",
@@ -157,7 +146,10 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 4 moves remaining.**\n↩️ **Opponent replies:** Qc2"
+    "last_feedback": "❌ **Thice, the board would like you to know that your ego saw mate in three while the board saw nonsense in one.**\n↪️ **Move played:** `Rd7`",
+    "wrong_attempt_counts": {
+      "442597396195704832": 1
+    }
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
