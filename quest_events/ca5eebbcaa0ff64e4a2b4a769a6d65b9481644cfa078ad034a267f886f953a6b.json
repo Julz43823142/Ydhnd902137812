@@ -1,0 +1,17 @@
+{
+  "action": "puzzle_solve",
+  "amount": 1,
+  "created_at": 1790974058,
+  "created_at_ns": 1790974058287773470,
+  "daily_key": "daily:2026-10-02",
+  "display_name": "mh",
+  "metadata": {
+    "boss": false,
+    "source": "practice"
+  },
+  "operation": "quest-progress",
+  "quest_build": "quests-v1-2026-09-08",
+  "transaction_id": "quest:puzzle-solve:practice_qweyE_386134006170910721_1790974022995:386134006170910721",
+  "user_id": "386134006170910721",
+  "weekly_key": "weekly:2026-09-28"
+}
