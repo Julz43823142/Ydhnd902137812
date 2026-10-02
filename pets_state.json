@@ -160,9 +160,9 @@
         "name": "",
         "puzzle": {
           "day": "2026-10-02",
-          "fen": "1r2r1k1/4ppbp/5np1/3p4/1p1P2b1/1P1NP1P1/3N1PBP/R4RK1 b - - 0 20",
+          "fen": "1r2r1k1/4ppbp/5np1/2Np4/1p1P4/1P2P1P1/3NbPBP/R4RK1 b - - 2 21",
           "id": "2ROEK",
-          "index": 2,
+          "index": 4,
           "moves": [
             "b5d3",
             "c5d3",
