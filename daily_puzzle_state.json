@@ -2745,6 +2745,42 @@
       "white_rating_after": 1493.3764785384171,
       "black_rating_after": 1516.4525214615828,
       "brilliant_coin_rewards_v1": {}
+    },
+    "pvp-1555691459242491944-601406103712170014-386134006170910721": {
+      "game_id": "pvp-1555691459242491944-601406103712170014-386134006170910721",
+      "status": "active",
+      "mode": "pvp",
+      "variant": "standard",
+      "chess960_pos": null,
+      "white_id": "601406103712170014",
+      "white_name": "TheMakina",
+      "black_id": "386134006170910721",
+      "black_name": "mh",
+      "white_rating": 1493.376,
+      "black_rating": 1516.453,
+      "initial_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      "moves": [],
+      "last_move": null,
+      "started_at": 1790976147.4444008,
+      "draw_offer": null,
+      "message_id": null,
+      "channel_id": 1468320170891022417,
+      "chat_since_refresh": 0,
+      "theme_owner_id": "601406103712170014",
+      "theme_owner_name": "TheMakina",
+      "wager_amount": 0.0,
+      "wager_reserved": false,
+      "wager_settled": false,
+      "clock": {
+        "white": 180.0,
+        "black": 180.0,
+        "increment": 2,
+        "at": 1790976147.4444048,
+        "label": "3+2",
+        "daily": false,
+        "started": false
+      }
     }
   },
   "chess_challenges": {
@@ -2777,21 +2813,6 @@
       "wager_amount": 15.0,
       "created_at": 1789051903.3307006,
       "message_id": "1547620596177699018"
-    },
-    "386134006170910721:normal": {
-      "daily_game": false,
-      "variant": "standard",
-      "base_seconds": 180,
-      "increment": 2,
-      "challenge_id": "pvp-challenge:1555691388421541919:601406103712170014:386134006170910721:normal",
-      "challenger_id": "601406103712170014",
-      "challenger_name": "TheMakina",
-      "target_id": "386134006170910721",
-      "target_name": "mh",
-      "channel_id": 1468320170891022417,
-      "wager_amount": 0.0,
-      "created_at": 1790976133.6213772,
-      "message_id": "1555691402837368905"
     }
   },
   "puzzle_rush": {
