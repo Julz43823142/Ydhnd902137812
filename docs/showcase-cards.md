@@ -2,6 +2,8 @@
 
 The default profile design uses a full cinematic illustration for each of the 21 themes. Only the theme badge remains above the eight-stat dashboard: no brand header, slogans, repeated name or Discord avatar. Stat icons are 62 px instead of 24 px; labels and values remain clear against dark panels. Profile images use compact JPEG attachments with theme/content-specific names, and immutable render bytes are cached. No background is downloaded while a Discord interaction is running.
 
+The chosen emoji, player name, coins and points appear as ordinary message text above the image embed. The embed has no showcase description or collection summary; **View Pets** opens the collection. This applies to prefix commands, slash commands and the Shop/Menu profile buttons.
+
 Pets use original SVG illustrations in `assets/pets/`. Each species file contains `Baby`, `Young`, `Adult`, and `Evolved` groups in a 400 × 350 canvas. `catalog.json` defines the asset, colors and habitat. Replace these files to improve the artwork without changing care, economy, progression or persistence. The renderer is in `showcase_cards.py`. Unhatched eggs never select species artwork or disclose rarity.
 
 `!profile [name or @user]`, `!pet [name or @user]`, and `!pets [name or @user]` support public browsing. `/profile`, `/pet`, and `/pets` expose optional Discord `user` selectors. The profile's **View Pets** button and collection selector retain the viewed user's identity. Other players' pets have only read-only collection and memorial controls.

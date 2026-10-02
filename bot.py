@@ -13432,7 +13432,17 @@ async def make_profile_card_file(user_id, display_name, avatar_url=None, theme_o
     return profile, discord.File(BytesIO(data), filename=filename)
 
 
-async def make_profile_embed(user_id, display_name, member=None):
+def profile_message_header(profile, display_name):
+    badge = str(profile.get("active_badge") or "")
+    name = discord.utils.escape_mentions(discord.utils.escape_markdown(str(profile.get("name") or display_name)))
+    return (
+        f"{badge + ' ' if badge else ''}**{name}**\n"
+        f"🪙 **{_profile_amount_exact(profile.get('coins', 0))} coins** · "
+        f"⭐ **{_profile_amount_exact(profile.get('points', 0))} points**"
+    )
+
+
+async def make_profile_embed(user_id, display_name, member=None, profile=None):
     avatar_url = None
     if member is not None:
         try:
@@ -13442,19 +13452,10 @@ async def make_profile_embed(user_id, display_name, member=None):
                 avatar_url = member.display_avatar.url
             except Exception:
                 avatar_url = None
-    profile, file = await make_profile_card_file(user_id, display_name, avatar_url=avatar_url)
+    profile, file = await make_profile_card_file(user_id, display_name, avatar_url=avatar_url, profile=profile)
     theme_key = str(profile.get("active_profile_theme", "classic") or "classic").casefold()
     theme = PROFILE_THEMES.get(theme_key, PROFILE_THEMES["classic"])
-    badge = str(profile.get("active_badge") or "")
-    title_name = profile.get("name", display_name)
-    embed = discord.Embed(
-        title=f"{badge + ' ' if badge else ''}{title_name}",
-        description="Public stats and collection showcase.",
-        color=int(theme["embed_color"]),
-    )
-    from pet_ui import user_collection_summary
-    pet_summary = await asyncio.to_thread(user_collection_summary, user_id)
-    embed.add_field(name="🐾 Pets", value=pet_summary, inline=False)
+    embed = discord.Embed(color=int(theme["embed_color"]))
     embed.set_image(url=f"attachment://{file.filename}" if file is not None else "attachment://profile_card.png")
     if member is not None:
         try:
@@ -13469,11 +13470,12 @@ async def make_profile_embed(user_id, display_name, member=None):
 async def slash_profile(interaction: discord.Interaction, user: discord.User = None):
     target = user or interaction.user
     await interaction.response.defer()
-    embed, file = await make_profile_embed(target.id, target.display_name, member=target)
     profile = await asyncio.to_thread(get_cosmetic_profile, target.id, target.display_name)
+    embed, file = await make_profile_embed(target.id, target.display_name, member=target, profile=profile)
     view = CosmeticProfileView(interaction.user.id, target.id, target.display_name,
                                editable=target.id == interaction.user.id, profile=profile)
-    await interaction.followup.send(embed=embed, file=file, view=view, allowed_mentions=discord.AllowedMentions.none())
+    await interaction.followup.send(content=profile_message_header(profile, target.display_name), embed=embed,
+                                    file=file, view=view, allowed_mentions=discord.AllowedMentions.none())
 
 
 @command_tree.command(name="pet", description="View your active pet or another player's pet")
@@ -13496,13 +13498,11 @@ async def send_profile_card(channel, viewer, target_user_id, target_name, editab
             member = await channel.guild.fetch_member(int(target_user_id))
     except Exception:
         member = None
-    embed, file = await make_profile_embed(target_user_id, target_name, member=member)
-    try:
-        profile = await asyncio.to_thread(get_cosmetic_profile, target_user_id, target_name)
-    except Exception:
-        profile = None
+    profile = await asyncio.to_thread(get_cosmetic_profile, target_user_id, target_name)
+    embed, file = await make_profile_embed(target_user_id, target_name, member=member, profile=profile)
     view = CosmeticProfileView(viewer.id, target_user_id, target_name, editable=editable, profile=profile)
-    return await channel.send(embed=embed, file=file, view=view, allowed_mentions=discord.AllowedMentions.none())
+    return await channel.send(content=profile_message_header(profile, target_name), embed=embed, file=file,
+                              view=view, allowed_mentions=discord.AllowedMentions.none())
 
 
 class CosmeticProfileView(discord.ui.View):
@@ -17758,16 +17758,17 @@ class ShopHomeView(discord.ui.View):
     @discord.ui.button(label="My Profile", emoji="👤", style=discord.ButtonStyle.secondary, row=1)
     async def profile(self, interaction, button):
         await interaction.response.defer(ephemeral=True)
+        profile = await asyncio.to_thread(get_cosmetic_profile, interaction.user.id, interaction.user.display_name)
         embed, file = await make_profile_embed(
             interaction.user.id,
             interaction.user.display_name,
             member=interaction.user,
+            profile=profile,
         )
-        profile = await asyncio.to_thread(get_cosmetic_profile, interaction.user.id, interaction.user.display_name)
         await interaction.followup.send(
-            embed=embed, file=file,
+            content=profile_message_header(profile, interaction.user.display_name), embed=embed, file=file,
             view=CosmeticProfileView(interaction.user.id, interaction.user.id, interaction.user.display_name, editable=True, profile=profile),
-            ephemeral=True,
+            ephemeral=True, allowed_mentions=discord.AllowedMentions.none(),
         )
 
 
@@ -17996,16 +17997,17 @@ class MainMenuView(discord.ui.View):
     @discord.ui.button(label="Profile", emoji="👤", style=discord.ButtonStyle.secondary, row=1)
     async def profile(self, interaction, button):
         await interaction.response.defer(ephemeral=True)
+        profile = await asyncio.to_thread(get_cosmetic_profile, interaction.user.id, interaction.user.display_name)
         embed, file = await make_profile_embed(
             interaction.user.id,
             interaction.user.display_name,
             member=interaction.user,
+            profile=profile,
         )
-        profile = await asyncio.to_thread(get_cosmetic_profile, interaction.user.id, interaction.user.display_name)
         await interaction.followup.send(
-            embed=embed, file=file,
+            content=profile_message_header(profile, interaction.user.display_name), embed=embed, file=file,
             view=CosmeticProfileView(interaction.user.id, interaction.user.id, interaction.user.display_name, editable=True, profile=profile),
-            ephemeral=True,
+            ephemeral=True, allowed_mentions=discord.AllowedMentions.none(),
         )
 
     @discord.ui.button(label="Shop", emoji="🛒", style=discord.ButtonStyle.secondary, row=1)

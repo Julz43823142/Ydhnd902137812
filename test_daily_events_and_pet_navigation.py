@@ -103,10 +103,15 @@ class PetNavigation(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(all(getattr(item, 'label', '') in {'Refresh collection', 'Memorial'} for item in view.children))
         view.stop()
 
-    async def test_profile_embed_shows_real_collection_summary(self):
-        with patch.object(bot, 'make_profile_card_file', AsyncMock(return_value=({}, None))), patch.object(pet_ui, 'user_collection_summary', return_value='2 living pets · Active: Buddy'):
+    async def test_profile_header_is_plain_text_and_collection_stays_behind_button(self):
+        with patch.object(bot, 'make_profile_card_file', AsyncMock(return_value=({'name': 'Shark', 'active_badge': '🦈', 'coins': 12.5, 'points': 34.125}, None))), patch.object(pet_ui, 'user_collection_summary') as summary:
             embed, file = await bot.make_profile_embed(42, 'Shark')
-        self.assertEqual(next(field.value for field in embed.fields if field.name == '🐾 Pets'), '2 living pets · Active: Buddy')
+        self.assertIsNone(embed.title)
+        self.assertIsNone(embed.description)
+        self.assertEqual(len(embed.fields), 0)
+        summary.assert_not_called()
+        header = bot.profile_message_header({'name': 'Shark', 'active_badge': '🦈', 'coins': 12.5, 'points': 34.125}, 'Fallback')
+        self.assertEqual(header, '🦈 **Shark**\n🪙 **12,5 coins** · ⭐ **34,13 points**')
 
     def test_summary_does_not_reveal_an_egg(self):
         egg = {'id': 'egg', 'species': 'Dragon', 'rarity': 'legendary', 'xp': 0}
