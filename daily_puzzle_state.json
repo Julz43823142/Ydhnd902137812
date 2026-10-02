@@ -138,7 +138,7 @@
     "player_color": "white",
     "player_move_count": 3,
     "posted_at": "2026-10-02T07:08:59.513566+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -146,7 +146,7 @@
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_id": 1555476680896684082,
+    "message_id": 1555657978458411018,
     "attempted_users": {},
     "first_move_user_id": null,
     "first_move_user_name": null,
@@ -154,11 +154,12 @@
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1555476680896684082,
-      "1546557493038284840": 1555476684705370132
+      "1546557493038284840": 1555657974184411198,
+      "1468320170891022417": 1555657978458411018
     },
     "channel_id": 1468320170891022417,
-    "chat_since_refresh": 0
+    "chat_since_refresh": 0,
+    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** f5 Qxd7 Qxf5"
   },
   "lichess_rating_used": {
     "2000": [
