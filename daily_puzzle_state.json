@@ -9168,16 +9168,13 @@
               "rating": 2225
             }
           ],
-          "round": 16,
+          "round": 17,
           "scores": {
             "442597396195704832": 17,
             "386134006170910721": 15,
             "601406103712170014": 15
           },
-          "round_answers": {
-            "442597396195704832": true,
-            "601406103712170014": false
-          },
+          "round_answers": {},
           "history": {
             "442597396195704832": [
               {
@@ -9544,6 +9541,17 @@
                 "correct": true,
                 "seconds": 13.82,
                 "timeout": false
+              },
+              {
+                "round": 17,
+                "id": "PX4DL",
+                "rating": 2259,
+                "fen": "8/8/p3p1p1/1p1k3p/1P3PPP/P4K2/8/8 w - - 1 42",
+                "expected": "gxh5",
+                "submitted": "—",
+                "correct": false,
+                "seconds": 30,
+                "timeout": true
               }
             ],
             "601406103712170014": [
@@ -9736,8 +9744,8 @@
               }
             ]
           },
-          "round_started_at": 1790974475.860193,
-          "deadline": 1790974505.860193
+          "round_started_at": 1790974506.1907203,
+          "deadline": 1790974536.1907203
         }
       }
     }
