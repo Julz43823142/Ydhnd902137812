@@ -8722,7 +8722,9 @@
             "442597396195704832": 8,
             "386134006170910721": 7
           },
-          "round_answers": {},
+          "round_answers": {
+            "442597396195704832": false
+          },
           "history": {
             "442597396195704832": [
               {
@@ -8811,6 +8813,17 @@
                 "submitted": "nxd6",
                 "correct": true,
                 "seconds": 20.4,
+                "timeout": false
+              },
+              {
+                "round": 9,
+                "id": "v1sYu",
+                "rating": 2108,
+                "fen": "r1b1kb1r/pp1p1ppp/4p3/2p5/2BnP3/2NPB3/PqP2PPP/R2Q1RK1 w kq - 0 10",
+                "expected": "Bxd4",
+                "submitted": "na4",
+                "correct": false,
+                "seconds": 19.18,
                 "timeout": false
               }
             ],
