@@ -2690,7 +2690,7 @@
       "last_move": "Be3",
       "started_at": 1790975016.0434976,
       "draw_offer": null,
-      "message_id": 1555687801889095880,
+      "message_id": 1555687972383232060,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
       "theme_owner_id": "601406103712170014",
@@ -3810,64 +3810,107 @@
   },
   "channel_puzzle_state": {
     "1546557493038284840": {
-      "latest_puzzle_type": "daily",
+      "latest_puzzle_type": "random",
       "latest_random_puzzle": {
-        "url": "https://lichess.org/training/b1ons",
-        "title": "Lichess • 1835",
-        "fen": "r5k1/1p2bpp1/p1n2q1p/3B4/Q1pP3N/P2bP1PP/1P3P2/3R1RK1 b - - 0 18",
-        "current_fen": "r5k1/1p2bpp1/p1n2q1p/3B4/Q1pP3N/P2bP1PP/1P3P2/3R1RK1 b - - 0 18",
-        "last_move_uci": "g2d5",
-        "pgn": "b5 Rxd3 bxa4",
+        "url": "https://lichess.org/training/UzixS",
+        "title": "Lichess • 3080",
+        "fen": "1r5k/1q3pbP/3p4/Q4P2/5B2/2pB4/PrP5/K5RR b - - 2 30",
+        "current_fen": "1r5k/1q3pbP/3p4/Q4P2/5B2/2pB4/PrP5/K5RR b - - 2 30",
+        "last_move_uci": "b1g1",
+        "pgn": "Rxc2 Qb5 Rg2 Rxg2 c2+ Be5 Bxe5+ Qxe5+ dxe5",
         "all_moves": [
           {
-            "uci": "b7b5",
-            "san": "b5",
+            "uci": "b2c2",
+            "san": "Rxc2",
             "color": "black"
           },
           {
-            "uci": "d1d3",
-            "san": "Rxd3",
+            "uci": "a5b5",
+            "san": "Qb5",
             "color": "white"
           },
           {
-            "uci": "b5a4",
-            "san": "bxa4",
+            "uci": "c2g2",
+            "san": "Rg2",
+            "color": "black"
+          },
+          {
+            "uci": "g1g2",
+            "san": "Rxg2",
+            "color": "white"
+          },
+          {
+            "uci": "c3c2",
+            "san": "c2+",
+            "color": "black"
+          },
+          {
+            "uci": "f4e5",
+            "san": "Be5",
+            "color": "white"
+          },
+          {
+            "uci": "g7e5",
+            "san": "Bxe5+",
+            "color": "black"
+          },
+          {
+            "uci": "b5e5",
+            "san": "Qxe5+",
+            "color": "white"
+          },
+          {
+            "uci": "d6e5",
+            "san": "dxe5",
             "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "b7b5",
-            "san": "b5",
+            "uci": "b2c2",
+            "san": "Rxc2",
             "color": "black"
           },
           {
-            "uci": "b5a4",
-            "san": "bxa4",
+            "uci": "c2g2",
+            "san": "Rg2",
+            "color": "black"
+          },
+          {
+            "uci": "c3c2",
+            "san": "c2+",
+            "color": "black"
+          },
+          {
+            "uci": "g7e5",
+            "san": "Bxe5+",
+            "color": "black"
+          },
+          {
+            "uci": "d6e5",
+            "san": "dxe5",
             "color": "black"
           }
         ],
         "player_color": "black",
-        "player_move_count": 2,
-        "posted_at": "2026-09-27T14:31:39.796494+00:00",
-        "answer_posted": true,
+        "player_move_count": 5,
+        "posted_at": "2026-10-02T21:09:03.975111+00:00",
+        "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "random_b1ons_1790519499796",
-        "last_activity_at": "2026-09-27T14:31:39.796494+00:00",
-        "rating": 1835,
-        "rp_band": 2,
-        "boss": false,
-        "board_theme": "classic",
-        "piece_theme": "purple",
-        "arrow_theme": "green",
+        "puzzle_id": "random_UzixS_1790975343975",
+        "last_activity_at": "2026-10-02T21:09:03.975111+00:00",
+        "rating": 3080,
+        "rp_band": 5,
+        "boss": true,
+        "board_theme": "blue",
+        "piece_theme": "classic",
+        "arrow_theme": "pink",
         "next_solution_index": 0,
         "next_player_index": 0,
         "solved": false,
-        "message_ids": {
-          "1546557493038284840": 1553776143340015687
-        },
+        "message_ids": {},
         "chat_since_refresh": 0,
         "attempted_users": {},
         "first_move_user_id": null,
@@ -3875,8 +3918,7 @@
         "first_move_awarded": false,
         "helper_awarded_users": [],
         "helper_candidate_users": [],
-        "channel_id": 1546557493038284840,
-        "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** b5 bxa4"
+        "channel_id": 1546557493038284840
       }
     }
   },
