@@ -84,7 +84,7 @@
         "xp_day": "2026-10-01"
       },
       {
-        "activity_xp": 5,
+        "activity_xp": 10,
         "born_at": 1790890932.9152176,
         "fed_at": 1790926421.520502,
         "feed_day": "2026-10-02",
@@ -108,7 +108,7 @@
         "puzzle_day": "2026-10-02",
         "rarity": "common",
         "species": "Dog",
-        "xp": 55,
+        "xp": 60,
         "xp_day": "2026-10-02"
       }
     ]
