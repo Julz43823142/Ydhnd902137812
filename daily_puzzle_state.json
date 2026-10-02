@@ -176,32 +176,19 @@
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_id": 1555549209539649587,
-    "attempted_users": {
-      "442597396195704832": {
-        "name": "Thice",
-        "move": "Bg3",
-        "correct": false,
-        "timestamp": "2026-10-02T11:57:12.119978+00:00"
-      }
-    },
+    "message_id": 1555476680896684082,
+    "attempted_users": {},
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1555549209539649587,
-      "1546557493038284840": 1555549218486100098
+      "1468320170891022417": 1555476680896684082,
+      "1546557493038284840": 1555476684705370132
     },
     "channel_id": 1468320170891022417,
-    "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-10-02T11:57:12.119426+00:00",
-    "recent_accepted_moves": [],
-    "wrong_attempt_counts": {
-      "442597396195704832": 1
-    },
-    "last_feedback": "❌ **Live from the blunder department, Thice: you somehow made overconfidence look like an opening system.**\n↪️ **Move played:** `Bg3`"
+    "chat_since_refresh": 0
   },
   "lichess_rating_used": {
     "2000": [
@@ -8213,9 +8200,9 @@
     }
   },
   "twitch_oauth_v1": {
-    "refresh_token_enc": "gAAAAABqv4-j-d2kJFa7rf06adbGeuHl6OeU0XSklIrMQSvYYKS_ip6XMPGdB0T2IbR0D7GYEsDRY5UtFUyJEIYYu5B80iqwKEmIHPqooTrSVjzw7AX62_kHbpeDbK2Ge1W5Fzs8H29epGAzCLlnL7vyM6Sy9QVsEA==",
-    "updated_at": 1790939043,
-    "reason": "live-preview-401"
+    "refresh_token_enc": "gAAAAABqv5xS4fTzUHP1nhWkhoeHvy3Cz5CbyIFoZEX__3P4ECe4BWYnpeVqMG25kpmnRzfVxuVQV8Te7Klc3TtNv4LeiHNjAcaGQJCpTxxMhxhCcbyEpFaFnZU1piooy-iRSn8k-cXLuD3YuDTAW0N3pNI5yvsbYg==",
+    "updated_at": 1790942290,
+    "reason": "worker-start"
   },
   "twitch_pending_redemptions_v1": {
     "2e64827e-b674-48cd-8da5-fdeff053a10a": {
