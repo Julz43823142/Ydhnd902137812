@@ -88,7 +88,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_c1Bl8_1791020595311",
-    "last_activity_at": "2026-10-03T09:44:22.749479+00:00",
+    "last_activity_at": "2026-10-03T09:46:45.912204+00:00",
     "rating": 2486,
     "rp_band": 4,
     "boss": false,
@@ -99,9 +99,9 @@
     "next_player_index": 1,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1555878171612676218
+      "1468320170891022417": 1555878771867914281
     },
-    "message_id": 1555878171612676218,
+    "message_id": 1555878771867914281,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
@@ -113,9 +113,9 @@
       },
       "442597396195704832": {
         "name": "Thice",
-        "move": "Qe3",
+        "move": "Qxg3",
         "correct": false,
-        "timestamp": "2026-10-03T09:44:22.749711+00:00"
+        "timestamp": "2026-10-03T09:46:45.912482+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
@@ -123,13 +123,13 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-10-03T09:44:22.749479+00:00",
+    "last_card_activity_at": "2026-10-03T09:46:45.912204+00:00",
     "recent_accepted_moves": [],
     "wrong_attempt_counts": {
       "601406103712170014": 2,
-      "442597396195704832": 4
+      "442597396195704832": 5
     },
-    "last_feedback": "❌ **Stockfish report for Thice: your ego saw mate in three while the board saw nonsense in one.**\n↪️ **Move played:** `Qe3`",
+    "last_feedback": "❌ **Thice, the board would like you to know that the engine checked your move twice because it assumed there had to be a typo.**\n↪️ **Move played:** `Qxg3`",
     "accepted_solution_moves": [
       {
         "san": "Rxg3",
