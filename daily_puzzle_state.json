@@ -68,7 +68,7 @@
     "player_color": "black",
     "player_move_count": 4,
     "posted_at": "2026-10-03T18:05:29.642365+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -148,7 +148,7 @@
         "principal": true
       }
     ],
-    "last_feedback": "✅ **Correct, mh!**\n🎉 **Puzzle solved!**\nUpdating stats and rewards…"
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, mh!**\n🎉 **Puzzle solved!**\n**+2 points** — you now have **19.5 points.**\n\n💡 **Solution:** Rxd4+ Qh3+ e5+ Qxc8\n\n🏆 **Your ranking**\n**#5 WetisJas — 20 points**\n**#6 👑 mh — 19.5 points ← you**\n**#7 Nairyaaa — 19 points**"
   },
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
