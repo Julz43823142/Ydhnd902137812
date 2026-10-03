@@ -83,7 +83,7 @@
     "player_color": "black",
     "player_move_count": 5,
     "posted_at": "2026-10-03T09:43:15.311777+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -155,7 +155,7 @@
       "601406103712170014": 3,
       "442597396195704832": 7
     },
-    "last_feedback": "✅ **Correct, TheMakina!**\n🎉 **Puzzle solved!**\nUpdating stats and rewards…",
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, TheMakina!**\n🎉 **Puzzle solved!**\n**+0.5 points for helping** — you now have **1549 points.**\n\n🏆 **Thice found the first move!** **+1 point**.\n\n💡 **Solution:** Rxg3 Nf3+ Qxg3 e5 Nxe5\n\n🏆 **Your ranking**\n**#1 🙂 Thice — 1713.5 points**\n**#2 🍅 TheMakina — 1549 points ← you**\n**#3 👾 Sharkmeister — 77.5 points**",
     "accepted_solution_moves": [
       {
         "san": "Rxg3",
