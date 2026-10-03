@@ -361,19 +361,19 @@
       "correct_2600": 14,
       "correct_2800": 3,
       "current_hard_streak_2600": 0,
-      "current_streak": 12,
-      "current_wrong_streak": 0,
-      "elo": 2444.727620363391,
-      "elo_games": 167,
+      "current_streak": 0,
+      "current_wrong_streak": 1,
+      "elo": 2430.619393516496,
+      "elo_games": 168,
       "first_solves": 125,
       "max_rating_solved": 2962,
       "name": "TheMakina",
       "peak_elo": 2484.275767037379,
       "rated_correct_count": 124,
       "rated_correct_rating_sum": 245263,
-      "total": 173,
-      "updated_at": 1791020578,
-      "wrong": 44
+      "total": 174,
+      "updated_at": 1791020606,
+      "wrong": 45
     }
   },
   "version": 1
