@@ -155,8 +155,8 @@
     "url": "https://www.chess.com/daily/2026-10-03",
     "title": "Brace for Impact",
     "fen": "2b1r2b/5k1p/2N1pPp1/1p1q3n/1QnBN3/p4B1P/P1r2PKP/3R4 w - - 0 1",
-    "current_fen": "2bqr1kb/7p/4pPp1/1p4Nn/1QnB4/p4B1P/P1r2PKP/3R4 w - - 2 3",
-    "last_move_uci": "f7g8",
+    "current_fen": "2bqr1kb/5P1p/4p1p1/1p4Nn/1QnB4/p4B1P/P1r2PKP/3R4 b - - 0 3",
+    "last_move_uci": "f6f7",
     "pgn": "[White \"bollnills\"]\n[Black \"Daily Puzzle Inspiration\"]\n[Result \"1-0\"]\n[FEN \"2b1r2b/5k1p/2N1pPp1/1p1q3n/1QnBN3/p4B1P/P1r2PKP/3R4 w - - 0 1\"]\n\n1. Nd8+ Qxd8 2. Ng5+ Kg8 3. f7#",
     "all_moves": [
       {
@@ -210,41 +210,31 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1791011590588",
-    "next_solution_index": 4,
-    "next_player_index": 2,
-    "solved": false,
-    "message_id": 1555879389114277898,
+    "next_solution_index": 5,
+    "next_player_index": 3,
+    "solved": true,
+    "message_id": 1555879411801129000,
     "attempted_users": {
       "601406103712170014": {
         "name": "TheMakina",
-        "move": "Ng5",
+        "move": "f7",
         "correct": true,
-        "timestamp": "2026-10-03T09:49:12.951271+00:00"
+        "timestamp": "2026-10-03T09:49:18.278697+00:00"
       }
     },
     "first_move_user_id": "601406103712170014",
     "first_move_user_name": "TheMakina",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1555879389114277898,
-      "1546557493038284840": 1555879393249730600
+      "1468320170891022417": 1555879411801129000,
+      "1546557493038284840": 1555879415571812443
     },
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-10-03T09:49:12.951063+00:00",
+    "last_card_activity_at": "2026-10-03T09:49:18.278430+00:00",
     "recent_accepted_moves": [
-      {
-        "accepted_at": 1791020947.5820563,
-        "fen_before": "2b1r2b/5k1p/2N1pPp1/1p1q3n/1QnBN3/p4B1P/P1r2PKP/3R4 w - - 0 1",
-        "expected": {
-          "uci": "c6d8",
-          "san": "Nd8+",
-          "color": "white"
-        },
-        "accepted_uci": "c6d8"
-      },
       {
         "accepted_at": 1791020952.9512784,
         "fen_before": "2bqr2b/5k1p/4pPp1/1p5n/1QnBN3/p4B1P/P1r2PKP/3R4 w - - 0 2",
@@ -254,12 +244,22 @@
           "color": "white"
         },
         "accepted_uci": "e4g5"
+      },
+      {
+        "accepted_at": 1791020958.2787051,
+        "fen_before": "2bqr1kb/7p/4pPp1/1p4Nn/1QnB4/p4B1P/P1r2PKP/3R4 w - - 2 3",
+        "expected": {
+          "uci": "f6f7",
+          "san": "f7#",
+          "color": "white"
+        },
+        "accepted_uci": "f6f7"
       }
     ],
     "wrong_attempt_counts": {
       "601406103712170014": 1
     },
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kg8",
+    "last_feedback": "✅ **Correct, TheMakina!**\n🎉 **Puzzle solved!**\nUpdating stats and rewards…",
     "accepted_solution_moves": [
       {
         "san": "Nd8+",
@@ -269,6 +269,11 @@
       {
         "san": "Ng5+",
         "uci": "e4g5",
+        "principal": true
+      },
+      {
+        "san": "f7#",
+        "uci": "f6f7",
         "principal": true
       }
     ]
