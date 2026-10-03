@@ -14,7 +14,7 @@
       "progress": {
         "pet_feed": 4,
         "pet_puzzle": 2,
-        "puzzle_solve": 20
+        "puzzle_solve": 21
       },
       "start": 1790805600,
       "theme": "Care for the community",
@@ -29,7 +29,7 @@
         "442597396195704832": {
           "pet_feed": 4,
           "pet_puzzle": 2,
-          "puzzle_solve": 8
+          "puzzle_solve": 9
         },
         "601406103712170014": {
           "puzzle_solve": 4
@@ -58,13 +58,13 @@
       },
       "442597396195704832": {
         "coins_earned": 67.5,
-        "contribution": 0.016266,
+        "contribution": 0.016466,
         "minigame_win": 3,
         "new_cosmetics": 3,
         "pet_feed": 4,
         "pet_levels_gained": 7,
         "pet_puzzle": 2,
-        "puzzle_solve": 8
+        "puzzle_solve": 9
       },
       "601406103712170014": {
         "coins_earned": 26.5,

@@ -554,6 +554,14 @@
     },
     "daily:2026-10-03": {
       "users": {
+        "442597396195704832": {
+          "name": "Thice",
+          "paid": [],
+          "progress": {
+            "daily:2026-10-03:puzzle:solve-5": 1
+          },
+          "updated_at": 1791020598
+        },
         "601406103712170014": {
           "name": "TheMakina",
           "paid": [],
@@ -724,9 +732,9 @@
           "paid": [],
           "progress": {
             "weekly:2026-09-28:minigame:minigame-5": 4,
-            "weekly:2026-09-28:puzzle:solve-60": 30
+            "weekly:2026-09-28:puzzle:solve-60": 31
           },
-          "updated_at": 1790976769
+          "updated_at": 1791020598
         },
         "601406103712170014": {
           "name": "TheMakina",
