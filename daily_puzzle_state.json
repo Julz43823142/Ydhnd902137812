@@ -205,7 +205,7 @@
     "player_color": "white",
     "player_move_count": 3,
     "posted_at": "2026-10-03T07:13:10.588825+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -259,7 +259,7 @@
     "wrong_attempt_counts": {
       "601406103712170014": 1
     },
-    "last_feedback": "✅ **Correct, TheMakina!**\n🎉 **Puzzle solved!**\nUpdating stats and rewards…",
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, TheMakina!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1552 points.**\n\n💡 **Solution:** Nd8+ Ng5+ f7#\n\n🏆 **Your ranking**\n**#1 🙂 Thice — 1713.5 points**\n**#2 🍅 TheMakina — 1552 points ← you**\n**#3 👾 Sharkmeister — 77.5 points**",
     "accepted_solution_moves": [
       {
         "san": "Nd8+",
