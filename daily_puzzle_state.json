@@ -54,9 +54,9 @@
     "next_player_index": 1,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1556003017151742076
+      "1468320170891022417": 1556003075481935990
     },
-    "message_id": 1556003017151742076,
+    "message_id": 1556003075481935990,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
@@ -91,7 +91,8 @@
         "uci": "c3c1",
         "principal": true
       }
-    ]
+    ],
+    "last_feedback": "⏱️ **Correct move, Thice — someone else played it just before you. No wrong answer or penalty.**"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
