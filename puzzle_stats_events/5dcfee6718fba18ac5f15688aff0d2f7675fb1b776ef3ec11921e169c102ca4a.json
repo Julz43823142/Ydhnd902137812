@@ -1,0 +1,17 @@
+{
+  "boss": false,
+  "correct": true,
+  "created_at": 1791049740,
+  "display_name": "mh",
+  "elo_after": 1769.495,
+  "elo_change": 19.027,
+  "new_achievements": [],
+  "puzzle_id": "practice_ENLdL_386134006170910721_1791049715386",
+  "puzzle_rating": 1817,
+  "source": "practice",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 11,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:practice_ENLdL_386134006170910721_1791049715386:386134006170910721",
+  "user_id": "386134006170910721"
+}
