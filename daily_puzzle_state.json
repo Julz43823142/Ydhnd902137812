@@ -1,51 +1,51 @@
 {
   "latest_random_puzzle": {
-    "url": "https://lichess.org/training/Aj5Xq",
-    "title": "Lichess • 1859",
-    "fen": "8/8/4b2p/pBp5/P4p2/1k2NP1P/4K1P1/8 b - - 0 40",
-    "current_fen": "8/8/4b2p/pB6/P1p5/1k2KP1P/6P1/8 w - - 0 42",
-    "last_move_uci": "c5c4",
-    "pgn": "fxe3 Kxe3 c4",
+    "url": "https://lichess.org/training/tBgP5",
+    "title": "Lichess • 1714",
+    "fen": "4rrk1/3n1ppp/2p5/pp6/3PN3/6Q1/PP2q1B1/K5R1 w - - 2 30",
+    "current_fen": "4rrk1/3n1ppp/2p5/pp6/3PN3/6Q1/PP2q1B1/K5R1 w - - 2 30",
+    "last_move_uci": "a8e8",
+    "pgn": "Bf3 g6 Bxe2",
     "all_moves": [
       {
-        "uci": "f4e3",
-        "san": "fxe3",
-        "color": "black"
-      },
-      {
-        "uci": "e2e3",
-        "san": "Kxe3",
+        "uci": "g2f3",
+        "san": "Bf3",
         "color": "white"
       },
       {
-        "uci": "c5c4",
-        "san": "c4",
+        "uci": "g7g6",
+        "san": "g6",
         "color": "black"
+      },
+      {
+        "uci": "f3e2",
+        "san": "Bxe2",
+        "color": "white"
       }
     ],
     "player_moves": [
       {
-        "uci": "f4e3",
-        "san": "fxe3",
-        "color": "black"
+        "uci": "g2f3",
+        "san": "Bf3",
+        "color": "white"
       },
       {
-        "uci": "c5c4",
-        "san": "c4",
-        "color": "black"
+        "uci": "f3e2",
+        "san": "Bxe2",
+        "color": "white"
       }
     ],
-    "player_color": "black",
+    "player_color": "white",
     "player_move_count": 2,
-    "posted_at": "2026-10-03T17:49:55.000843+00:00",
-    "answer_posted": true,
+    "posted_at": "2026-10-03T17:50:56.086345+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "practice_Aj5Xq_386134006170910721_1791049795000",
-    "last_activity_at": "2026-10-03T17:50:12.866194+00:00",
-    "rating": 1859,
-    "rp_band": 2,
+    "puzzle_id": "practice_tBgP5_386134006170910721_1791049856086",
+    "last_activity_at": "2026-10-03T17:50:56.086345+00:00",
+    "rating": 1714,
+    "rp_band": 1,
     "boss": false,
     "practice_only": true,
     "rated_practice": true,
@@ -55,65 +55,19 @@
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 3,
-    "next_player_index": 2,
-    "solved": true,
-    "message_id": 1556000436551557170,
-    "attempted_users": {
-      "386134006170910721": {
-        "name": "mh",
-        "move": "c4",
-        "correct": true,
-        "timestamp": "2026-10-03T17:50:12.866426+00:00"
-      }
-    },
-    "first_move_user_id": "386134006170910721",
-    "first_move_user_name": "mh",
-    "first_move_awarded": true,
+    "next_solution_index": 0,
+    "next_player_index": 0,
+    "solved": false,
+    "message_id": null,
+    "attempted_users": {},
+    "first_move_user_id": null,
+    "first_move_user_name": null,
+    "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "channel_id": 1468320170891022417,
-    "message_ids": {
-      "1468320170891022417": 1556000436551557170
-    },
-    "last_card_activity_at": "2026-10-03T17:50:12.866194+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1791049807.0040054,
-        "fen_before": "8/8/4b2p/pBp5/P4p2/1k2NP1P/4K1P1/8 b - - 0 40",
-        "expected": {
-          "uci": "f4e3",
-          "san": "fxe3",
-          "color": "black"
-        },
-        "accepted_uci": "f4e3"
-      },
-      {
-        "accepted_at": 1791049812.866436,
-        "fen_before": "8/8/4b2p/pBp5/P7/1k2KP1P/6P1/8 b - - 0 41",
-        "expected": {
-          "uci": "c5c4",
-          "san": "c4",
-          "color": "black"
-        },
-        "accepted_uci": "c5c4"
-      }
-    ],
-    "accepted_solution_moves": [
-      {
-        "san": "fxe3",
-        "uci": "f4e3",
-        "principal": true
-      },
-      {
-        "san": "c4",
-        "uci": "c5c4",
-        "principal": true
-      }
-    ],
-    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, mh!**\n🎉 **Practice solved!**\nPuzzle Elo: **1808**\n**+1 point** • **+1 coin** — you now have **11 points** and **46 coins**.\n\n💡 **Solution:** fxe3 c4\n\n🏆 **Your ranking**\n**#7 Capybrawlgames2 — 13.5 points**\n**#8 👑 mh — 11 points ← you**\n**#9 Martin — 3 points**"
+    "channel_id": 1468320170891022417
   },
-  "latest_puzzle_type": "daily",
+  "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-03",
