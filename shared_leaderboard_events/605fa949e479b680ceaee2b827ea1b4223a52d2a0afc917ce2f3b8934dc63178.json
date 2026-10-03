@@ -1,0 +1,24 @@
+{
+  "created_at": 1791051286,
+  "created_at_ns": 1791051286487222785,
+  "details": {
+    "declined_trade": {
+      "created_at": 1791051267,
+      "from_name": "Thice",
+      "from_user_id": "442597396195704832",
+      "offer": {
+        "badge": "🍅",
+        "type": "badge"
+      },
+      "request": {
+        "amount": 45.0,
+        "type": "coins"
+      },
+      "trade_id": "trade-propose:1556006531705868500:442597396195704832:386134006170910721"
+    }
+  },
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "trade-decline",
+  "transaction_id": "trade-decline-button:1556006613897314304:386134006170910721:trade-propose:1556006531705868500:442597396195704832:386134006170910721",
+  "user_id": "386134006170910721"
+}
