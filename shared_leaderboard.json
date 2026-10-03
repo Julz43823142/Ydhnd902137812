@@ -341,12 +341,12 @@
           "amount": 10.0,
           "type": "coins"
         },
-        "status": "pending",
-        "status_unread": false,
+        "status": "declined",
+        "status_unread": true,
         "to_name": "Thice",
         "to_user_id": "442597396195704832",
         "trade_id": "trade-propose:1556006412478455871:386134006170910721:442597396195704832",
-        "updated_at": 1791051239
+        "updated_at": 1791051257
       }
     ],
     "survival_heart_styles": [],
@@ -437,36 +437,8 @@
     "donation_inbox": [],
     "guess_points_coined": 337.0,
     "name": "Thice",
-    "pending_trade": {
-      "created_at": 1791051239,
-      "from_name": "mh",
-      "from_user_id": "386134006170910721",
-      "offer": {
-        "amount": 5.0,
-        "type": "coins"
-      },
-      "request": {
-        "amount": 10.0,
-        "type": "coins"
-      },
-      "trade_id": "trade-propose:1556006412478455871:386134006170910721:442597396195704832"
-    },
-    "pending_trades": [
-      {
-        "created_at": 1791051239,
-        "from_name": "mh",
-        "from_user_id": "386134006170910721",
-        "offer": {
-          "amount": 5.0,
-          "type": "coins"
-        },
-        "request": {
-          "amount": 10.0,
-          "type": "coins"
-        },
-        "trade_id": "trade-propose:1556006412478455871:386134006170910721:442597396195704832"
-      }
-    ],
+    "pending_trade": null,
+    "pending_trades": [],
     "pieces": [
       "eyes",
       "kiwen-suwi",
