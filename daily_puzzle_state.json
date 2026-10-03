@@ -73,7 +73,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_xMBwi_1791050489115",
-    "last_activity_at": "2026-10-03T18:01:36.578668+00:00",
+    "last_activity_at": "2026-10-03T18:01:42.750235+00:00",
     "rating": 2894,
     "rp_band": 5,
     "boss": false,
@@ -84,9 +84,9 @@
     "next_player_index": 1,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1556003304251596881
+      "1468320170891022417": 1556003330067533829
     },
-    "message_id": 1556003304251596881,
+    "message_id": 1556003330067533829,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
@@ -95,6 +95,12 @@
         "move": "gxh5",
         "correct": true,
         "timestamp": "2026-10-03T18:01:34.813501+00:00"
+      },
+      "386134006170910721": {
+        "name": "mh",
+        "move": "h4",
+        "correct": false,
+        "timestamp": "2026-10-03T18:01:42.750853+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
@@ -102,7 +108,7 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-10-03T18:01:36.578668+00:00",
+    "last_card_activity_at": "2026-10-03T18:01:42.750235+00:00",
     "recent_accepted_moves": [
       {
         "accepted_at": 1791050494.8135097,
@@ -122,7 +128,10 @@
         "principal": true
       }
     ],
-    "last_feedback": "⏱️ **Correct move, mh — someone else played it just before you. No wrong answer or penalty.**"
+    "last_feedback": "❌ **Almost, mh. that move looked tempting for a reason.**\n↪️ **Move played:** `h4`",
+    "wrong_attempt_counts": {
+      "386134006170910721": 1
+    }
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
