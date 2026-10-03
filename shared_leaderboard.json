@@ -323,8 +323,36 @@
     "donation_inbox": [],
     "guess_points_coined": 24.0,
     "name": "mh",
-    "pending_trade": null,
-    "pending_trades": [],
+    "pending_trade": {
+      "created_at": 1791051218,
+      "from_name": "Thice",
+      "from_user_id": "442597396195704832",
+      "offer": {
+        "amount": 5.0,
+        "type": "coins"
+      },
+      "request": {
+        "amount": 10.0,
+        "type": "coins"
+      },
+      "trade_id": "trade-propose:1556006327476813955:442597396195704832:386134006170910721"
+    },
+    "pending_trades": [
+      {
+        "created_at": 1791051218,
+        "from_name": "Thice",
+        "from_user_id": "442597396195704832",
+        "offer": {
+          "amount": 5.0,
+          "type": "coins"
+        },
+        "request": {
+          "amount": 10.0,
+          "type": "coins"
+        },
+        "trade_id": "trade-propose:1556006327476813955:442597396195704832:386134006170910721"
+      }
+    ],
     "pieces": [],
     "points": 21.5,
     "profile_themes": [
@@ -432,6 +460,23 @@
       "purple"
     ],
     "sent_trades": [
+      {
+        "created_at": 1791051218,
+        "offer": {
+          "amount": 5.0,
+          "type": "coins"
+        },
+        "request": {
+          "amount": 10.0,
+          "type": "coins"
+        },
+        "status": "pending",
+        "status_unread": false,
+        "to_name": "mh",
+        "to_user_id": "386134006170910721",
+        "trade_id": "trade-propose:1556006327476813955:442597396195704832:386134006170910721",
+        "updated_at": 1791051218
+      },
       {
         "created_at": 1789072686,
         "offer": {
