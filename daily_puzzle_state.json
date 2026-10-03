@@ -148,7 +148,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_7JTAi_1791051605257",
-    "last_activity_at": "2026-10-03T18:20:30.500633+00:00",
+    "last_activity_at": "2026-10-03T18:20:33.040568+00:00",
     "rating": 2981,
     "rp_band": 5,
     "boss": false,
@@ -159,17 +159,17 @@
     "next_player_index": 0,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1556008060814626960
+      "1468320170891022417": 1556008071086604429
     },
-    "message_id": 1556008060814626960,
+    "message_id": 1556008071086604429,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "ka5",
+        "move": "kc5",
         "correct": false,
-        "timestamp": "2026-10-03T18:20:30.500976+00:00"
+        "timestamp": "2026-10-03T18:20:33.040862+00:00"
       }
     },
     "first_move_user_id": null,
@@ -177,12 +177,12 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-10-03T18:20:30.500633+00:00",
+    "last_card_activity_at": "2026-10-03T18:20:33.040568+00:00",
     "recent_accepted_moves": [],
     "wrong_attempt_counts": {
-      "442597396195704832": 3
+      "442597396195704832": 4
     },
-    "last_feedback": "❌ **Live from the blunder department, Thice: your confidence calculated a winning line that your pieces never agreed to.**\n↪️ **Move played:** `ka5`"
+    "last_feedback": "❌ **Live from the blunder department, Thice: you treated a forced line like an optional suggestion.**\n↪️ **Move played:** `kc5`"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
