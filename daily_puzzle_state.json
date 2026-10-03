@@ -68,7 +68,7 @@
     "player_color": "white",
     "player_move_count": 4,
     "posted_at": "2026-10-03T09:48:22.933342+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -147,7 +147,7 @@
         "principal": true
       }
     ],
-    "last_feedback": "✅ **Correct, TheMakina!**\n🎉 **Puzzle solved!**\nUpdating stats and rewards…"
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, TheMakina!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1551 points.**\n\n💡 **Solution:** Kxc5 Kd6 Ke7 Kxf7\n\n🏆 **Your ranking**\n**#1 🙂 Thice — 1713.5 points**\n**#2 🍅 TheMakina — 1551 points ← you**\n**#3 👾 Sharkmeister — 77.5 points**"
   },
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
@@ -229,7 +229,7 @@
     "helper_candidate_users": [],
     "message_ids": {
       "1468320170891022417": 1555879294750957618,
-      "1546557493038284840": 1555840130315456575
+      "1546557493038284840": 1555879299574141040
     },
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
