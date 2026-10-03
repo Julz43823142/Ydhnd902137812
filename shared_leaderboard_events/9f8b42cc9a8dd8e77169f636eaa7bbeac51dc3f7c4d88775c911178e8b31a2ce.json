@@ -1,0 +1,16 @@
+{
+  "after_coins": 45.0,
+  "before_coins": 44.0,
+  "created_at": 1791049809,
+  "created_at_ns": 1791049809340348254,
+  "details": {
+    "credited": 1.0,
+    "pet_bonus": 0.0,
+    "source": "puzzle-achievement"
+  },
+  "display_name": "mh",
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "coin-credit",
+  "transaction_id": "puzzle-achievement:386134006170910721:elo_1800",
+  "user_id": "386134006170910721"
+}
