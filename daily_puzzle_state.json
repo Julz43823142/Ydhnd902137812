@@ -143,7 +143,7 @@
     "player_color": "white",
     "player_move_count": 9,
     "posted_at": "2026-10-03T18:20:05.257395+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -182,9 +182,9 @@
     "wrong_attempt_counts": {
       "442597396195704832": 4
     },
-    "last_feedback": "❌ **Live from the blunder department, Thice: you treated a forced line like an optional suggestion.**\n↪️ **Move played:** `kc5`"
+    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Kc7 Bc5+ Bxb4 Bc5 a4 Kb6 a5 a6 a7"
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-03",
