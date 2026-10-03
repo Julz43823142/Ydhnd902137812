@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/tBgP5",
     "title": "Lichess • 1714",
     "fen": "4rrk1/3n1ppp/2p5/pp6/3PN3/6Q1/PP2q1B1/K5R1 w - - 2 30",
-    "current_fen": "4rrk1/3n1ppp/2p5/pp6/3PN3/6Q1/PP2q1B1/K5R1 w - - 2 30",
-    "last_move_uci": "a8e8",
+    "current_fen": "4rrk1/3n1p1p/2p3p1/pp6/3PN3/5BQ1/PP2q3/K5R1 w - - 0 31",
+    "last_move_uci": "g7g6",
     "pgn": "Bf3 g6 Bxe2",
     "all_moves": [
       {
@@ -43,7 +43,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "practice_tBgP5_386134006170910721_1791049856086",
-    "last_activity_at": "2026-10-03T17:50:56.086345+00:00",
+    "last_activity_at": "2026-10-03T17:51:10.893870+00:00",
     "rating": 1714,
     "rp_band": 1,
     "boss": false,
@@ -55,17 +55,48 @@
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
-    "message_id": null,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "message_id": 1556000680223973478,
+    "attempted_users": {
+      "386134006170910721": {
+        "name": "mh",
+        "move": "Bf3",
+        "correct": true,
+        "timestamp": "2026-10-03T17:51:10.894077+00:00"
+      }
+    },
+    "first_move_user_id": "386134006170910721",
+    "first_move_user_name": "mh",
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "channel_id": 1468320170891022417
+    "channel_id": 1468320170891022417,
+    "message_ids": {
+      "1468320170891022417": 1556000680223973478
+    },
+    "last_card_activity_at": "2026-10-03T17:51:10.893870+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1791049870.8940847,
+        "fen_before": "4rrk1/3n1ppp/2p5/pp6/3PN3/6Q1/PP2q1B1/K5R1 w - - 2 30",
+        "expected": {
+          "uci": "g2f3",
+          "san": "Bf3",
+          "color": "white"
+        },
+        "accepted_uci": "g2f3"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "Bf3",
+        "uci": "g2f3",
+        "principal": true
+      }
+    ],
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** g6"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
