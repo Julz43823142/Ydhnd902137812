@@ -3945,7 +3945,7 @@
         "player_color": "black",
         "player_move_count": 3,
         "posted_at": "2026-10-03T09:42:20.775479+00:00",
-        "answer_posted": false,
+        "answer_posted": true,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
@@ -4008,7 +4008,7 @@
             "principal": true
           }
         ],
-        "last_feedback": "✅ **Correct, TheMakina!**\n🎉 **Puzzle solved!**\nUpdating stats and rewards…",
+        "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, TheMakina!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1548.5 points.**\n🔥 **Daily Activity Bonus: +10 coins**\n\n💡 **Solution:** Rxe2 Re1+ fxe6\n\n🏆 **Your ranking**\n**#1 🙂 Thice — 1711.5 points**\n**#2 🍅 TheMakina — 1548.5 points ← you**\n**#3 👾 Sharkmeister — 77.5 points**",
         "activity_bonus_users": [
           "601406103712170014"
         ]
