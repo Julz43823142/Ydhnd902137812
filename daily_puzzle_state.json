@@ -38,7 +38,7 @@
     "player_color": "black",
     "player_move_count": 2,
     "posted_at": "2026-10-03T09:48:00.276051+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -107,7 +107,7 @@
         "principal": true
       }
     ],
-    "last_feedback": "✅ **Correct, TheMakina!**\n🎉 **Puzzle solved!**\nUpdating stats and rewards…"
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, TheMakina!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1550 points.**\n\n💡 **Solution:** Ne4+ Nxg3\n\n🏆 **Your ranking**\n**#1 🙂 Thice — 1713.5 points**\n**#2 🍅 TheMakina — 1550 points ← you**\n**#3 👾 Sharkmeister — 77.5 points**"
   },
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
