@@ -88,7 +88,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_2ZtZg_1791051106431",
-    "last_activity_at": "2026-10-03T18:12:08.882283+00:00",
+    "last_activity_at": "2026-10-03T18:12:15.654394+00:00",
     "rating": 2555,
     "rp_band": 4,
     "boss": false,
@@ -99,17 +99,17 @@
     "next_player_index": 2,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1556005956599685190
+      "1468320170891022417": 1556005984600850534
     },
-    "message_id": 1556005956599685190,
+    "message_id": 1556005984600850534,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "386134006170910721": {
         "name": "mh",
-        "move": "Bd1",
-        "correct": true,
-        "timestamp": "2026-10-03T18:12:08.882477+00:00"
+        "move": "Kg2",
+        "correct": false,
+        "timestamp": "2026-10-03T18:12:15.655269+00:00"
       },
       "442597396195704832": {
         "name": "Thice",
@@ -123,7 +123,7 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-10-03T18:12:08.882283+00:00",
+    "last_card_activity_at": "2026-10-03T18:12:15.654394+00:00",
     "recent_accepted_moves": [
       {
         "accepted_at": 1791051128.882485,
@@ -148,9 +148,10 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 3 moves remaining.**\n↩️ **Opponent replies:** h7",
+    "last_feedback": "❌ **mh, that was a very human move.**\n↪️ **Move played:** `Kg2`",
     "wrong_attempt_counts": {
-      "442597396195704832": 1
+      "442597396195704832": 1,
+      "386134006170910721": 1
     }
   },
   "latest_puzzle_type": "random",
