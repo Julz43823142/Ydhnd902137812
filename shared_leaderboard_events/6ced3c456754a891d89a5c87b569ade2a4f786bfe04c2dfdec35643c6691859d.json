@@ -1,0 +1,14 @@
+{
+  "after_points": 20.5,
+  "amount": 1.0,
+  "before_points": 19.5,
+  "created_at": 1791050884,
+  "created_at_ns": 1791050884651932489,
+  "display_name": "mh",
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "add",
+  "pet_coin_bonus": 0.0,
+  "source": "puzzle-first",
+  "transaction_id": "puzzle:random_Bdcdc_1791050858996:first:386134006170910721",
+  "user_id": "386134006170910721"
+}
