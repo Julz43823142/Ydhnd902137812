@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/EjoJ7",
     "title": "Lichess • 1803",
     "fen": "8/1p6/6p1/1pk2b2/4pP1p/PPN1K2P/6P1/8 b - - 1 40",
-    "current_fen": "8/1p6/6p1/2k2b2/1P2pP1p/1PN1K2P/6P1/8 b - - 0 41",
-    "last_move_uci": "a3b4",
+    "current_fen": "8/1p6/6p1/5b2/1k2NP1p/1P2K2P/6P1/8 b - - 0 42",
+    "last_move_uci": "c3e4",
     "pgn": "b4 axb4+ Kxb4 Nxe4 Bxe4 Kxe4 Kxb3 g4 hxg3",
     "all_moves": [
       {
@@ -88,7 +88,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "practice_EjoJ7_386134006170910721_1791049946488",
-    "last_activity_at": "2026-10-03T17:52:35.576652+00:00",
+    "last_activity_at": "2026-10-03T17:52:42.532395+00:00",
     "rating": 1803,
     "rp_band": 2,
     "boss": false,
@@ -100,16 +100,16 @@
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 2,
-    "next_player_index": 1,
+    "next_solution_index": 4,
+    "next_player_index": 2,
     "solved": false,
-    "message_id": 1556001034248261665,
+    "message_id": 1556001065432916052,
     "attempted_users": {
       "386134006170910721": {
         "name": "mh",
-        "move": "b4",
+        "move": "Kxb4",
         "correct": true,
-        "timestamp": "2026-10-03T17:52:35.576856+00:00"
+        "timestamp": "2026-10-03T17:52:42.532622+00:00"
       }
     },
     "first_move_user_id": "386134006170910721",
@@ -119,9 +119,9 @@
     "helper_candidate_users": [],
     "channel_id": 1468320170891022417,
     "message_ids": {
-      "1468320170891022417": 1556001034248261665
+      "1468320170891022417": 1556001065432916052
     },
-    "last_card_activity_at": "2026-10-03T17:52:35.576652+00:00",
+    "last_card_activity_at": "2026-10-03T17:52:42.532395+00:00",
     "recent_accepted_moves": [
       {
         "accepted_at": 1791049955.5768645,
@@ -132,6 +132,16 @@
           "color": "black"
         },
         "accepted_uci": "b5b4"
+      },
+      {
+        "accepted_at": 1791049962.5326302,
+        "fen_before": "8/1p6/6p1/2k2b2/1P2pP1p/1PN1K2P/6P1/8 b - - 0 41",
+        "expected": {
+          "uci": "c5b4",
+          "san": "Kxb4",
+          "color": "black"
+        },
+        "accepted_uci": "c5b4"
       }
     ],
     "accepted_solution_moves": [
@@ -139,9 +149,14 @@
         "san": "b4",
         "uci": "b5b4",
         "principal": true
+      },
+      {
+        "san": "Kxb4",
+        "uci": "c5b4",
+        "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 4 moves remaining.**\n↩️ **Opponent replies:** axb4+"
+    "last_feedback": "**✅ Correct! 3 moves remaining.**\n↩️ **Opponent replies:** Nxe4"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
