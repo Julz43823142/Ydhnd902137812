@@ -556,11 +556,13 @@
       "users": {
         "386134006170910721": {
           "name": "mh",
-          "paid": [],
+          "paid": [
+            "daily:2026-10-03:puzzle:solve-5"
+          ],
           "progress": {
             "daily:2026-10-03:puzzle:solve-5": 5
           },
-          "updated_at": 1791049880
+          "updated_at": 1791049884
         },
         "442597396195704832": {
           "name": "Thice",
