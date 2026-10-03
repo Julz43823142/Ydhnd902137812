@@ -83,7 +83,7 @@
     "player_color": "white",
     "player_move_count": 5,
     "posted_at": "2026-10-03T17:53:23.845703+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -171,7 +171,7 @@
         "principal": true
       }
     ],
-    "last_feedback": "✅ **Correct, mh!**\n🎉 **Puzzle solved!**\nUpdating stats and rewards…"
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, mh!**\n🎉 **Practice solved!**\nPuzzle Elo: **1869**\n**+1 point** • **+1 coin** — you now have **15 points** and **56 coins**.\n\n💡 **Solution:** Kb6 Kxa6 a4 b5 b6\n\n🏆 **Your ranking**\n**#6 Nairyaaa — 19 points**\n**#7 👑 mh — 15 points ← you**\n**#8 Capybrawlgames2 — 13.5 points**"
   },
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
