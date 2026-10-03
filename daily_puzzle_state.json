@@ -83,7 +83,7 @@
     "player_color": "white",
     "player_move_count": 5,
     "posted_at": "2026-10-03T18:04:16.700065+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -157,7 +157,7 @@
         "principal": true
       }
     ],
-    "last_feedback": "✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\nUpdating stats and rewards…"
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1719 points.**\n\n💡 **Solution:** h5 h6 h7 h8=Q Qh5\n\n🏆 **Your ranking**\n**#1 🙂 Thice — 1719 points ← you**\n**#2 🍅 TheMakina — 1552 points**"
   },
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
