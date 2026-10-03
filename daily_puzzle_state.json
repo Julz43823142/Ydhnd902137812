@@ -1,129 +1,70 @@
 {
   "latest_random_puzzle": {
-    "url": "https://lichess.org/training/Bdcdc",
-    "title": "Lichess • 2243",
-    "fen": "6k1/pp3ppp/2p1pn2/2q5/3rPP2/5BPP/P3Q1K1/3R4 w - - 1 25",
-    "current_fen": "6k1/pp3ppp/2p1pn2/2Q5/4PP2/5BPP/P5K1/3r4 b - - 0 26",
-    "last_move_uci": "f2c5",
-    "pgn": "Qf2 Rxd1 Qxc5",
+    "url": "https://lichess.org/training/zwX5J",
+    "title": "Lichess • 1582",
+    "fen": "1kr2n1r/np1bbp2/2q1p3/3pP2p/pN1P2p1/NPBB4/P2Q1PPP/1R3RK1 b - - 2 22",
+    "current_fen": "1kr2n1r/np1bbp2/2q1p3/3pP2p/pN1P2p1/NPBB4/P2Q1PPP/1R3RK1 b - - 2 22",
+    "last_move_uci": "c2b4",
+    "pgn": "Qxc3 Qxc3 Rxc3",
     "all_moves": [
       {
-        "uci": "e2f2",
-        "san": "Qf2",
-        "color": "white"
-      },
-      {
-        "uci": "d4d1",
-        "san": "Rxd1",
+        "uci": "c6c3",
+        "san": "Qxc3",
         "color": "black"
       },
       {
-        "uci": "f2c5",
-        "san": "Qxc5",
+        "uci": "d2c3",
+        "san": "Qxc3",
         "color": "white"
+      },
+      {
+        "uci": "c8c3",
+        "san": "Rxc3",
+        "color": "black"
       }
     ],
     "player_moves": [
       {
-        "uci": "e2f2",
-        "san": "Qf2",
-        "color": "white"
+        "uci": "c6c3",
+        "san": "Qxc3",
+        "color": "black"
       },
       {
-        "uci": "f2c5",
-        "san": "Qxc5",
-        "color": "white"
+        "uci": "c8c3",
+        "san": "Rxc3",
+        "color": "black"
       }
     ],
-    "player_color": "white",
+    "player_color": "black",
     "player_move_count": 2,
-    "posted_at": "2026-10-03T18:07:38.996034+00:00",
-    "answer_posted": true,
+    "posted_at": "2026-10-03T18:08:43.512120+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "random_Bdcdc_1791050858996",
-    "last_activity_at": "2026-10-03T18:08:02.880143+00:00",
-    "rating": 2243,
-    "rp_band": 3,
+    "puzzle_id": "random_zwX5J_1791050923512",
+    "last_activity_at": "2026-10-03T18:08:43.512120+00:00",
+    "rating": 1582,
+    "rp_band": 1,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 3,
-    "next_player_index": 2,
-    "solved": true,
-    "message_ids": {
-      "1468320170891022417": 1556004924297445386
-    },
-    "message_id": 1556004924297445386,
+    "next_solution_index": 0,
+    "next_player_index": 0,
+    "solved": false,
+    "message_ids": {},
+    "message_id": null,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {
-      "442597396195704832": {
-        "name": "Thice",
-        "move": "qxc5",
-        "correct": true,
-        "timestamp": "2026-10-03T18:08:02.880506+00:00"
-      },
-      "386134006170910721": {
-        "name": "mh",
-        "move": "Qf2",
-        "correct": true,
-        "timestamp": "2026-10-03T18:07:58.987984+00:00"
-      }
-    },
-    "first_move_user_id": "386134006170910721",
-    "first_move_user_name": "mh",
-    "first_move_awarded": true,
-    "helper_awarded_users": [
-      "442597396195704832",
-      "442597396195704832"
-    ],
-    "helper_candidate_users": [
-      "442597396195704832"
-    ],
-    "last_card_activity_at": "2026-10-03T18:08:02.880143+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1791050878.9879909,
-        "fen_before": "6k1/pp3ppp/2p1pn2/2q5/3rPP2/5BPP/P3Q1K1/3R4 w - - 1 25",
-        "expected": {
-          "uci": "e2f2",
-          "san": "Qf2",
-          "color": "white"
-        },
-        "accepted_uci": "e2f2"
-      },
-      {
-        "accepted_at": 1791050882.8805168,
-        "fen_before": "6k1/pp3ppp/2p1pn2/2q5/4PP2/5BPP/P4QK1/3r4 w - - 0 26",
-        "expected": {
-          "uci": "f2c5",
-          "san": "Qxc5",
-          "color": "white"
-        },
-        "accepted_uci": "f2c5"
-      }
-    ],
-    "wrong_attempt_counts": {
-      "442597396195704832": 1
-    },
-    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+0.5 points for helping** — you now have **1720.5 points.**\n\n🏆 **mh found the first move!** **+1 point**.\n\n💡 **Solution:** Qf2 Qxc5\n\n🏆 **Your ranking**\n**#1 🙂 Thice — 1720.5 points ← you**\n**#2 🍅 TheMakina — 1552 points**",
-    "accepted_solution_moves": [
-      {
-        "san": "Qf2",
-        "uci": "e2f2",
-        "principal": true
-      },
-      {
-        "san": "Qxc5",
-        "uci": "f2c5",
-        "principal": true
-      }
-    ]
+    "attempted_users": {},
+    "first_move_user_id": null,
+    "first_move_user_name": null,
+    "first_move_awarded": false,
+    "helper_awarded_users": [],
+    "helper_candidate_users": []
   },
-  "latest_puzzle_type": "daily",
+  "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-03",
