@@ -83,7 +83,7 @@
     "player_color": "black",
     "player_move_count": 5,
     "posted_at": "2026-10-03T18:11:46.431644+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -178,7 +178,7 @@
         "principal": true
       }
     ],
-    "last_feedback": "✅ **Correct, mh!**\n🎉 **Puzzle solved!**\nUpdating stats and rewards…",
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, mh!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **21.5 points.**\n\n💡 **Solution:** Bxc2 Bd1 Kg7 Bg4 Kxh8\n\n🏆 **Your ranking**\n**#4 🦞 Chessmass — 30 points**\n**#5 👑 mh — 21.5 points ← you**\n**#6 WetisJas — 20 points**",
     "wrong_attempt_counts": {
       "442597396195704832": 1,
       "386134006170910721": 1
