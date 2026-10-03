@@ -73,7 +73,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_xMBwi_1791050489115",
-    "last_activity_at": "2026-10-03T18:02:08.210834+00:00",
+    "last_activity_at": "2026-10-03T18:02:13.738917+00:00",
     "rating": 2894,
     "rp_band": 5,
     "boss": false,
@@ -84,17 +84,17 @@
     "next_player_index": 3,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1556003437185994842
+      "1468320170891022417": 1556003460514713665
     },
-    "message_id": 1556003437185994842,
+    "message_id": 1556003460514713665,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "gxh5",
-        "correct": true,
-        "timestamp": "2026-10-03T18:01:34.813501+00:00"
+        "move": "c4",
+        "correct": false,
+        "timestamp": "2026-10-03T18:02:13.739231+00:00"
       },
       "386134006170910721": {
         "name": "mh",
@@ -110,18 +110,8 @@
     "helper_candidate_users": [
       "386134006170910721"
     ],
-    "last_card_activity_at": "2026-10-03T18:02:08.210834+00:00",
+    "last_card_activity_at": "2026-10-03T18:02:13.738917+00:00",
     "recent_accepted_moves": [
-      {
-        "accepted_at": 1791050521.7619216,
-        "fen_before": "8/8/8/p1pk3p/5P2/1P2K3/P7/8 b - - 1 45",
-        "expected": {
-          "uci": "a5a4",
-          "san": "a4",
-          "color": "black"
-        },
-        "accepted_uci": "a5a4"
-      },
       {
         "accepted_at": 1791050528.210988,
         "fen_before": "8/8/8/2pk3p/P4P2/4K3/P7/8 b - - 0 46",
@@ -150,9 +140,10 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** a5",
+    "last_feedback": "❌ **Thice, the board would like you to know that you spent all that calculation just to blunder with extra paperwork.**\n↪️ **Move played:** `c4`",
     "wrong_attempt_counts": {
-      "386134006170910721": 1
+      "386134006170910721": 1,
+      "442597396195704832": 1
     }
   },
   "latest_puzzle_type": "random",
