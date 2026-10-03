@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/AHzQQ",
     "title": "Lichess • 1854",
     "fen": "7r/pP1R1ppp/2R5/5k2/P7/4Kp2/7q/8 w - - 0 31",
-    "current_fen": "7r/pP3ppp/2R5/3R4/P5k1/4Kp2/7q/8 w - - 2 32",
-    "last_move_uci": "f5g4",
+    "current_fen": "7r/pP3ppp/8/3R4/P1R5/4Kpk1/7q/8 w - - 4 33",
+    "last_move_uci": "g4g3",
     "pgn": "Rd5+ Kg4 Rc4+ Kg3 Rg5+ Kh3 Rh5+",
     "all_moves": [
       {
@@ -73,7 +73,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "practice_AHzQQ_386134006170910721_1791049761088",
-    "last_activity_at": "2026-10-03T17:49:30.028370+00:00",
+    "last_activity_at": "2026-10-03T17:49:36.323213+00:00",
     "rating": 1854,
     "rp_band": 2,
     "boss": false,
@@ -85,16 +85,16 @@
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 2,
-    "next_player_index": 1,
+    "next_solution_index": 4,
+    "next_player_index": 2,
     "solved": false,
-    "message_id": 1556000256171180225,
+    "message_id": 1556000282918391818,
     "attempted_users": {
       "386134006170910721": {
         "name": "mh",
-        "move": "Rd5",
+        "move": "Rc4",
         "correct": true,
-        "timestamp": "2026-10-03T17:49:30.028612+00:00"
+        "timestamp": "2026-10-03T17:49:36.323520+00:00"
       }
     },
     "first_move_user_id": "386134006170910721",
@@ -104,9 +104,9 @@
     "helper_candidate_users": [],
     "channel_id": 1468320170891022417,
     "message_ids": {
-      "1468320170891022417": 1556000256171180225
+      "1468320170891022417": 1556000282918391818
     },
-    "last_card_activity_at": "2026-10-03T17:49:30.028370+00:00",
+    "last_card_activity_at": "2026-10-03T17:49:36.323213+00:00",
     "recent_accepted_moves": [
       {
         "accepted_at": 1791049770.028619,
@@ -117,6 +117,16 @@
           "color": "white"
         },
         "accepted_uci": "d7d5"
+      },
+      {
+        "accepted_at": 1791049776.3235304,
+        "fen_before": "7r/pP3ppp/2R5/3R4/P5k1/4Kp2/7q/8 w - - 2 32",
+        "expected": {
+          "uci": "c6c4",
+          "san": "Rc4+",
+          "color": "white"
+        },
+        "accepted_uci": "c6c4"
       }
     ],
     "accepted_solution_moves": [
@@ -124,9 +134,14 @@
         "san": "Rd5+",
         "uci": "d7d5",
         "principal": true
+      },
+      {
+        "san": "Rc4+",
+        "uci": "c6c4",
+        "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 3 moves remaining.**\n↩️ **Opponent replies:** Kg4"
+    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Kg3"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
