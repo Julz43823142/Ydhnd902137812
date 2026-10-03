@@ -88,7 +88,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_c1Bl8_1791020595311",
-    "last_activity_at": "2026-10-03T09:43:15.311777+00:00",
+    "last_activity_at": "2026-10-03T09:43:25.603409+00:00",
     "rating": 2486,
     "rp_band": 4,
     "boss": false,
@@ -99,17 +99,30 @@
     "next_player_index": 0,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1555877892464840724
+      "1468320170891022417": 1555877932591878224
     },
-    "message_id": 1555877892464840724,
+    "message_id": 1555877932591878224,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {},
+    "attempted_users": {
+      "601406103712170014": {
+        "name": "TheMakina",
+        "move": "Nf3",
+        "correct": false,
+        "timestamp": "2026-10-03T09:43:25.603677+00:00"
+      }
+    },
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "last_card_activity_at": "2026-10-03T09:43:25.603409+00:00",
+    "recent_accepted_moves": [],
+    "wrong_attempt_counts": {
+      "601406103712170014": 1
+    },
+    "last_feedback": "❌ **TheMakina, maybe look at the board before trying to calculate it.**\n↪️ **Move played:** `Nf3`"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
