@@ -121,7 +121,9 @@
     "first_move_user_id": "386134006170910721",
     "first_move_user_name": "mh",
     "first_move_awarded": true,
-    "helper_awarded_users": [],
+    "helper_awarded_users": [
+      "442597396195704832"
+    ],
     "helper_candidate_users": [
       "442597396195704832"
     ],
