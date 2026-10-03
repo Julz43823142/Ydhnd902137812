@@ -84,9 +84,9 @@
     "next_player_index": 2,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1556003410518741042
+      "1468320170891022417": 1556003415535001693
     },
-    "message_id": 1556003410518741042,
+    "message_id": 1556003415535001693,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
@@ -135,7 +135,7 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** bxa4",
+    "last_feedback": "⏱️ **Correct move, Thice — someone else played it just before you. No wrong answer or penalty.**",
     "wrong_attempt_counts": {
       "386134006170910721": 1
     }
