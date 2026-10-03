@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/zT7MO",
     "title": "Lichess • 2203",
     "fen": "r4rk1/p6p/2P2n2/5qp1/1P2pN2/P3p1P1/1BR1Q1KP/8 w - - 0 31",
-    "current_fen": "r4rk1/p6p/2P2n2/5qp1/1P2pN2/P3p1P1/1BR1Q1KP/8 w - - 0 31",
-    "last_move_uci": "g7g5",
+    "current_fen": "r4rk1/p6p/2P2n2/2q3p1/1P2pN2/P3p1P1/1B2Q1KP/8 w - - 0 32",
+    "last_move_uci": "f5c5",
     "pgn": "Rc5 Qxc5 bxc5",
     "all_moves": [
       {
@@ -43,28 +43,56 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_zT7MO_1791051696144",
-    "last_activity_at": "2026-10-03T18:21:36.144771+00:00",
+    "last_activity_at": "2026-10-03T18:21:55.535083+00:00",
     "rating": 2203,
     "rp_band": 3,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1556008340222513184
+      "1468320170891022417": 1556008416986796052
     },
-    "message_id": 1556008340222513184,
+    "message_id": 1556008416986796052,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "attempted_users": {
+      "442597396195704832": {
+        "name": "Thice",
+        "move": "rc5",
+        "correct": true,
+        "timestamp": "2026-10-03T18:21:55.535720+00:00"
+      }
+    },
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "last_card_activity_at": "2026-10-03T18:21:55.535083+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1791051715.5357275,
+        "fen_before": "r4rk1/p6p/2P2n2/5qp1/1P2pN2/P3p1P1/1BR1Q1KP/8 w - - 0 31",
+        "expected": {
+          "uci": "c2c5",
+          "san": "Rc5",
+          "color": "white"
+        },
+        "accepted_uci": "c2c5"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "Rc5",
+        "uci": "c2c5",
+        "principal": true
+      }
+    ],
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Qxc5"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
