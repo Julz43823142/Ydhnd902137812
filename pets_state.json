@@ -161,9 +161,9 @@
         "name": "",
         "puzzle": {
           "day": "2026-10-03",
-          "fen": "r2q1rk1/pp2ppbp/2n2np1/2p5/4N1b1/3P2P1/PPPN1PBP/R1BQ1RK1 w - - 1 10",
+          "fen": "r2q1rk1/pp3pbp/2n2pp1/2p5/6b1/3P2P1/PPPN1PBP/R1BQ1RK1 w - - 0 11",
           "id": "TdzL6",
-          "index": 0,
+          "index": 2,
           "moves": [
             "e4f6",
             "e7f6",
