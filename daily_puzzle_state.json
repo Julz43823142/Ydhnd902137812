@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/JrO4F",
     "title": "Lichess • 1222",
     "fen": "r1bq3r/ppp5/2npk2b/3N1p2/4P3/7Q/PPP2PPP/R3KB1R w KQ - 0 14",
-    "current_fen": "r1bq3r/ppp5/2npk2b/3N1p2/4P3/7Q/PPP2PPP/R3KB1R w KQ - 0 14",
-    "last_move_uci": "f7f5",
+    "current_fen": "r1bq3r/ppp5/2npk2b/3N1Q2/4P3/8/PPP2PPP/R3KB1R b KQ - 0 14",
+    "last_move_uci": "h3f5",
     "pgn": "Qxf5#",
     "all_moves": [
       {
@@ -28,30 +28,58 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_JrO4F_1791051730084",
-    "last_activity_at": "2026-10-03T18:22:10.084092+00:00",
+    "last_activity_at": "2026-10-03T18:22:17.720463+00:00",
     "rating": 1222,
     "rp_band": 0,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 0,
-    "next_player_index": 0,
-    "solved": false,
+    "next_solution_index": 1,
+    "next_player_index": 1,
+    "solved": true,
     "message_ids": {
-      "1468320170891022417": 1556008485580443779
+      "1468320170891022417": 1556008510666449016
     },
-    "message_id": 1556008485580443779,
+    "message_id": 1556008510666449016,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
-    "first_move_awarded": false,
+    "attempted_users": {
+      "442597396195704832": {
+        "name": "Thice",
+        "move": "qxf5",
+        "correct": true,
+        "timestamp": "2026-10-03T18:22:17.721039+00:00"
+      }
+    },
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
+    "first_move_awarded": true,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "last_card_activity_at": "2026-10-03T18:22:17.720463+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1791051737.7210486,
+        "fen_before": "r1bq3r/ppp5/2npk2b/3N1p2/4P3/7Q/PPP2PPP/R3KB1R w KQ - 0 14",
+        "expected": {
+          "uci": "h3f5",
+          "san": "Qxf5#",
+          "color": "white"
+        },
+        "accepted_uci": "h3f5"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "Qxf5#",
+        "uci": "h3f5",
+        "principal": true
+      }
+    ],
+    "last_feedback": "✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\nUpdating stats and rewards…"
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-03",
