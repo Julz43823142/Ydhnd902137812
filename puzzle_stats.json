@@ -215,6 +215,7 @@
         "giant_hunter",
         "boss_encounter",
         "boss_slayer",
+        "boss_first_blood",
         "elo_1600",
         "elo_1800"
       ],
@@ -224,7 +225,7 @@
       "best_wrong_streak": 1,
       "boss_attempts": 1,
       "boss_correct": 1,
-      "boss_first_solves": 0,
+      "boss_first_solves": 1,
       "comeback_count": 1,
       "correct": 20,
       "correct_2000": 7,
@@ -236,14 +237,14 @@
       "current_wrong_streak": 0,
       "elo": 1935.4578568795557,
       "elo_games": 21,
-      "first_solves": 7,
+      "first_solves": 8,
       "max_rating_solved": 2784,
       "name": "mh",
       "peak_elo": 1935.4578568795557,
       "rated_correct_count": 20,
       "rated_correct_rating_sum": 41044,
       "total": 21,
-      "updated_at": 1791050747,
+      "updated_at": 1791050798,
       "wrong": 1
     },
     "442597396195704832": {

@@ -1,0 +1,12 @@
+{
+  "boss": true,
+  "created_at": 1791050798,
+  "display_name": "mh",
+  "new_achievements": [
+    "boss_first_blood"
+  ],
+  "puzzle_id": "random_iqSTU_1791050729642",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "transaction_id": "puzzle-first-solve:random_iqSTU_1791050729642:386134006170910721",
+  "user_id": "386134006170910721"
+}
