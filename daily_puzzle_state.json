@@ -153,81 +153,74 @@
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
-    "url": "https://www.chess.com/daily/2026-10-02",
-    "title": "Exit Strategy",
-    "fen": "r4rk1/3bbppp/pq2p1n1/1p2P3/2p2P2/2P2NPP/PP4BK/R1BQ1R2 w - - 2 16",
-    "current_fen": "r4rk1/3bbppp/pq2p1n1/1p2P3/2p2P2/2P2NPP/PP4BK/R1BQ1R2 w - - 2 16",
+    "url": "https://www.chess.com/daily/2026-10-03",
+    "title": "Brace for Impact",
+    "fen": "2b1r2b/5k1p/2N1pPp1/1p1q3n/1QnBN3/p4B1P/P1r2PKP/3R4 w - - 0 1",
+    "current_fen": "2b1r2b/5k1p/2N1pPp1/1p1q3n/1QnBN3/p4B1P/P1r2PKP/3R4 w - - 0 1",
     "last_move_uci": null,
-    "pgn": "[White \"Sean Bishop\"]\n[Black \"Daily Puzzle Inspiration\"]\n[Result \"*\"]\n[FEN \"r4rk1/3bbppp/pq2p1n1/1p2P3/2p2P2/2P2NPP/PP4BK/R1BQ1R2 w - - 2 16\"]\n\n16. f5 exf5 17. Qxd7 Rad8 18. Qxf5 *",
+    "pgn": "[White \"bollnills\"]\n[Black \"Daily Puzzle Inspiration\"]\n[Result \"1-0\"]\n[FEN \"2b1r2b/5k1p/2N1pPp1/1p1q3n/1QnBN3/p4B1P/P1r2PKP/3R4 w - - 0 1\"]\n\n1. Nd8+ Qxd8 2. Ng5+ Kg8 3. f7#",
     "all_moves": [
       {
-        "uci": "f4f5",
-        "san": "f5",
+        "uci": "c6d8",
+        "san": "Nd8+",
         "color": "white"
       },
       {
-        "uci": "e6f5",
-        "san": "exf5",
+        "uci": "d5d8",
+        "san": "Qxd8",
         "color": "black"
       },
       {
-        "uci": "d1d7",
-        "san": "Qxd7",
+        "uci": "e4g5",
+        "san": "Ng5+",
         "color": "white"
       },
       {
-        "uci": "a8d8",
-        "san": "Rad8",
+        "uci": "f7g8",
+        "san": "Kg8",
         "color": "black"
       },
       {
-        "uci": "d7f5",
-        "san": "Qxf5",
+        "uci": "f6f7",
+        "san": "f7#",
         "color": "white"
       }
     ],
     "player_moves": [
       {
-        "uci": "f4f5",
-        "san": "f5",
+        "uci": "c6d8",
+        "san": "Nd8+",
         "color": "white"
       },
       {
-        "uci": "d1d7",
-        "san": "Qxd7",
+        "uci": "e4g5",
+        "san": "Ng5+",
         "color": "white"
       },
       {
-        "uci": "d7f5",
-        "san": "Qxf5",
+        "uci": "f6f7",
+        "san": "f7#",
         "color": "white"
       }
     ],
     "player_color": "white",
     "player_move_count": 3,
-    "posted_at": "2026-10-02T07:08:59.513566+00:00",
-    "answer_posted": true,
+    "posted_at": "2026-10-03T07:13:10.588825+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "daily_1790924939513",
+    "puzzle_id": "daily_1791011590588",
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_id": 1555657978458411018,
+    "message_id": null,
     "attempted_users": {},
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "message_ids": {
-      "1546557493038284840": 1555657974184411198,
-      "1468320170891022417": 1555657978458411018
-    },
-    "channel_id": 1468320170891022417,
-    "chat_since_refresh": 0,
-    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** f5 Qxd7 Qxf5"
+    "helper_candidate_users": []
   },
   "lichess_rating_used": {
     "2000": [
