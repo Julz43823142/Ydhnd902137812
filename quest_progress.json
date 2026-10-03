@@ -560,17 +560,17 @@
             "daily:2026-10-03:puzzle:solve-5"
           ],
           "progress": {
-            "daily:2026-10-03:puzzle:solve-5": 9
+            "daily:2026-10-03:puzzle:solve-5": 10
           },
-          "updated_at": 1791050116
+          "updated_at": 1791050459
         },
         "442597396195704832": {
           "name": "Thice",
           "paid": [],
           "progress": {
-            "daily:2026-10-03:puzzle:solve-5": 2
+            "daily:2026-10-03:puzzle:solve-5": 3
           },
-          "updated_at": 1791020869
+          "updated_at": 1791050459
         },
         "601406103712170014": {
           "name": "TheMakina",
@@ -735,18 +735,18 @@
           "name": "mh",
           "paid": [],
           "progress": {
-            "weekly:2026-09-28:puzzle:solve-60": 17
+            "weekly:2026-09-28:puzzle:solve-60": 18
           },
-          "updated_at": 1791050116
+          "updated_at": 1791050459
         },
         "442597396195704832": {
           "name": "Thice",
           "paid": [],
           "progress": {
             "weekly:2026-09-28:minigame:minigame-5": 4,
-            "weekly:2026-09-28:puzzle:solve-60": 32
+            "weekly:2026-09-28:puzzle:solve-60": 33
           },
-          "updated_at": 1791020869
+          "updated_at": 1791050459
         },
         "601406103712170014": {
           "name": "TheMakina",
