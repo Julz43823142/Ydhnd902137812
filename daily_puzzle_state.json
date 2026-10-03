@@ -2,7 +2,7 @@
   "latest_random_puzzle": {
     "title": "2000 • hrLZp",
     "fen": "6k1/6pp/p7/Pp3p2/1Ppqp3/4P2P/5PP1/5NK1 w - - 0 34",
-    "current_fen": "6k1/6pp/p7/Pp3p2/1Ppqp3/4P2P/5PP1/5NK1 w - - 0 34",
+    "current_fen": "6k1/6pp/p7/Pp6/1PpPpp2/7P/5PP1/5NK1 w - - 0 35",
     "all_moves": [
       {
         "uci": "e3d4",
@@ -52,15 +52,22 @@
     "pgn": "",
     "url": "https://lichess.org/training/hrLZp",
     "posted_at": "2026-10-03T18:03:02.782606+00:00",
-    "last_activity_at": "2026-10-03T18:03:02.782606+00:00",
+    "last_activity_at": "2026-10-03T18:03:15.246716+00:00",
     "puzzle_id": "random_lichess_2000_hrLZp_1791050582782",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
-    "message_id": 1556003666756894781,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "message_id": 1556003718321672305,
+    "attempted_users": {
+      "442597396195704832": {
+        "name": "Thice",
+        "move": "exd4",
+        "correct": true,
+        "timestamp": "2026-10-03T18:03:15.246921+00:00"
+      }
+    },
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
@@ -71,8 +78,31 @@
     "arrow_theme": "pink",
     "channel_id": 1468320170891022417,
     "message_ids": {
-      "1468320170891022417": 1556003666756894781
-    }
+      "1468320170891022417": 1556003718321672305
+    },
+    "last_card_activity_at": "2026-10-03T18:03:15.246716+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1791050595.246927,
+        "fen_before": "6k1/6pp/p7/Pp3p2/1Ppqp3/4P2P/5PP1/5NK1 w - - 0 34",
+        "expected": {
+          "uci": "e3d4",
+          "san": "exd4",
+          "color": "white"
+        },
+        "accepted_uci": "e3d4"
+      }
+    ],
+    "last_move_uci": "f5f4",
+    "accepted_solution_moves": [
+      {
+        "san": "exd4",
+        "uci": "e3d4",
+        "principal": true
+      }
+    ],
+    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** f4",
+    "chat_since_refresh": 0
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
