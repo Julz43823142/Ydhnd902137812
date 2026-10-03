@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/c1Bl8",
     "title": "Lichess • 2486",
     "fen": "8/3Q1ppk/4p2p/3p1bq1/3P4/1Br3BP/P2n1PP1/R1R3K1 b - - 4 25",
-    "current_fen": "8/3Q1ppk/4p2p/3p1bq1/3P4/1Br3BP/P2n1PP1/R1R3K1 b - - 4 25",
-    "last_move_uci": "f1c1",
+    "current_fen": "8/3Q1ppk/4p2p/3p1bq1/3P4/1B4PP/P2n2P1/R1R3K1 b - - 0 26",
+    "last_move_uci": "f2g3",
     "pgn": "Rxg3 fxg3 Nf3+ Kh1 Qxg3 Qc7 e5 Qxe5 Nxe5",
     "all_moves": [
       {
@@ -88,20 +88,20 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_c1Bl8_1791020595311",
-    "last_activity_at": "2026-10-03T09:43:44.627660+00:00",
+    "last_activity_at": "2026-10-03T09:44:01.090456+00:00",
     "rating": 2486,
     "rp_band": 4,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1555878014313828386
+      "1468320170891022417": 1555878081669894185
     },
-    "message_id": 1555878014313828386,
+    "message_id": 1555878081669894185,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
@@ -113,23 +113,41 @@
       },
       "442597396195704832": {
         "name": "Thice",
-        "move": "Nxb3",
-        "correct": false,
-        "timestamp": "2026-10-03T09:43:44.627892+00:00"
+        "move": "Rxg3",
+        "correct": true,
+        "timestamp": "2026-10-03T09:44:01.090637+00:00"
       }
     },
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-10-03T09:43:44.627660+00:00",
-    "recent_accepted_moves": [],
+    "last_card_activity_at": "2026-10-03T09:44:01.090456+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1791020641.090644,
+        "fen_before": "8/3Q1ppk/4p2p/3p1bq1/3P4/1Br3BP/P2n1PP1/R1R3K1 b - - 4 25",
+        "expected": {
+          "uci": "c3g3",
+          "san": "Rxg3",
+          "color": "black"
+        },
+        "accepted_uci": "c3g3"
+      }
+    ],
     "wrong_attempt_counts": {
       "601406103712170014": 1,
       "442597396195704832": 2
     },
-    "last_feedback": "❌ **Wrong, Thice. your inner grandmaster took the day off and left the ego in charge.**\n↪️ **Move played:** `Nxb3`"
+    "last_feedback": "**✅ Correct! 4 moves remaining.**\n↩️ **Opponent replies:** fxg3",
+    "accepted_solution_moves": [
+      {
+        "san": "Rxg3",
+        "uci": "c3g3",
+        "principal": true
+      }
+    ]
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
