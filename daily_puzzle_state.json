@@ -121,8 +121,9 @@
         "principal": true
       }
     ],
-    "last_feedback": "✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\nUpdating stats and rewards…",
-    "chat_since_refresh": 0
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, Thice!**\n🎉 **Practice puzzle solved!**\nExact-rating practice — **no shared points or coins**.\n\n💡 **Solution:** exd4 Nd2 Nb3\n\n🏆 **Your ranking**\n**#1 🙂 Thice — 1717 points ← you**\n**#2 🍅 TheMakina — 1552 points**",
+    "chat_since_refresh": 0,
+    "answer_posted": true
   },
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
