@@ -160,16 +160,14 @@
         "id": "4cd600c103e243199044b0bad020a593",
         "name": "",
         "puzzle": {
-          "day": "2026-10-02",
-          "fen": "1r2r1k1/4ppbp/5np1/2Np4/1p1P4/1P2P1P1/3N1PBP/R4bK1 w - - 0 22",
-          "id": "2ROEK",
-          "index": 5,
+          "day": "2026-10-03",
+          "fen": "r2q1rk1/pp2ppbp/2n2np1/2p5/4N1b1/3P2P1/PPPN1PBP/R1BQ1RK1 w - - 1 10",
+          "id": "TdzL6",
+          "index": 0,
           "moves": [
-            "b5d3",
-            "c5d3",
-            "g4e2",
-            "d3c5",
-            "e2f1"
+            "e4f6",
+            "e7f6",
+            "d1g4"
           ]
         },
         "puzzle_day": "2026-10-02",
