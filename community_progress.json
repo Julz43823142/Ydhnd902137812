@@ -14,7 +14,7 @@
       "progress": {
         "pet_feed": 5,
         "pet_puzzle": 3,
-        "puzzle_solve": 45
+        "puzzle_solve": 47
       },
       "start": 1790805600,
       "theme": "Care for the community",
@@ -24,12 +24,12 @@
           "puzzle_solve": 4
         },
         "386134006170910721": {
-          "puzzle_solve": 16
+          "puzzle_solve": 17
         },
         "442597396195704832": {
           "pet_feed": 5,
           "pet_puzzle": 3,
-          "puzzle_solve": 17
+          "puzzle_solve": 18
         },
         "601406103712170014": {
           "puzzle_solve": 8
@@ -52,19 +52,19 @@
       "386134006170910721": {
         "chess_pvp_win": 2,
         "coins_earned": 60.0,
-        "contribution": 0.0032,
+        "contribution": 0.0034,
         "new_cosmetics": 0,
-        "puzzle_solve": 16
+        "puzzle_solve": 17
       },
       "442597396195704832": {
         "coins_earned": 87.5,
-        "contribution": 0.023399,
+        "contribution": 0.023599,
         "minigame_win": 3,
         "new_cosmetics": 3,
         "pet_feed": 5,
         "pet_levels_gained": 10,
         "pet_puzzle": 3,
-        "puzzle_solve": 17
+        "puzzle_solve": 18
       },
       "601406103712170014": {
         "coins_earned": 35.0,
