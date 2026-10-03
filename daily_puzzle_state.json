@@ -148,7 +148,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_7JTAi_1791051605257",
-    "last_activity_at": "2026-10-03T18:20:05.257395+00:00",
+    "last_activity_at": "2026-10-03T18:20:18.040964+00:00",
     "rating": 2981,
     "rp_band": 5,
     "boss": false,
@@ -158,16 +158,31 @@
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_ids": {},
-    "message_id": null,
+    "message_ids": {
+      "1468320170891022417": 1556008008276770878
+    },
+    "message_id": 1556008008276770878,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {},
+    "attempted_users": {
+      "442597396195704832": {
+        "name": "Thice",
+        "move": "kb5",
+        "correct": false,
+        "timestamp": "2026-10-03T18:20:18.041390+00:00"
+      }
+    },
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "last_card_activity_at": "2026-10-03T18:20:18.040964+00:00",
+    "recent_accepted_moves": [],
+    "wrong_attempt_counts": {
+      "442597396195704832": 1
+    },
+    "last_feedback": "❌ **Nope, Thice. the Dutch Defense wants no association with what just happened.**\n↪️ **Move played:** `kb5`"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
