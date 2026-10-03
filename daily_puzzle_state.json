@@ -38,7 +38,7 @@
     "player_color": "white",
     "player_move_count": 2,
     "posted_at": "2026-10-03T18:25:32.852423+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -97,7 +97,7 @@
         "principal": true
       }
     ],
-    "last_feedback": "✅ **Correct, mh!**\n🎉 **Puzzle solved!**\nUpdating stats and rewards…"
+    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, mh!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **22.5 points.**\n\n💡 **Solution:** Rxg2 Qxd6\n\n🏆 **Your ranking**\n**#4 🦞 Chessmass — 30 points**\n**#5 👑 mh — 22.5 points ← you**\n**#6 WetisJas — 20 points**"
   },
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
