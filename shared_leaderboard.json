@@ -461,7 +461,7 @@
           "type": "coins"
         },
         "status": "declined",
-        "status_unread": true,
+        "status_unread": false,
         "to_name": "mh",
         "to_user_id": "386134006170910721",
         "trade_id": "trade-propose:1556006531705868500:442597396195704832:386134006170910721",
@@ -478,7 +478,7 @@
           "type": "coins"
         },
         "status": "declined",
-        "status_unread": true,
+        "status_unread": false,
         "to_name": "mh",
         "to_user_id": "386134006170910721",
         "trade_id": "trade-propose:1556006327476813955:442597396195704832:386134006170910721",
