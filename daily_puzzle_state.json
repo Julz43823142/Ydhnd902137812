@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/2ZtZg",
     "title": "Lichess • 2555",
     "fen": "8/8/5k2/5p1P/7K/6P1/2N5/3b4 b - - 0 61",
-    "current_fen": "8/7P/5k2/5p2/7K/6P1/8/3b4 b - - 0 63",
-    "last_move_uci": "h6h7",
+    "current_fen": "8/6kP/8/5pK1/8/6P1/8/3b4 b - - 2 64",
+    "last_move_uci": "h4g5",
     "pgn": "Bxc2 h6 Bd1 h7 Kg7 Kg5 Bg4 h8=Q+ Kxh8",
     "all_moves": [
       {
@@ -88,28 +88,28 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_2ZtZg_1791051106431",
-    "last_activity_at": "2026-10-03T18:12:15.654394+00:00",
+    "last_activity_at": "2026-10-03T18:12:24.224122+00:00",
     "rating": 2555,
     "rp_band": 4,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 4,
-    "next_player_index": 2,
+    "next_solution_index": 6,
+    "next_player_index": 3,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1556005984600850534
+      "1468320170891022417": 1556006020814344283
     },
-    "message_id": 1556005984600850534,
+    "message_id": 1556006020814344283,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "386134006170910721": {
         "name": "mh",
-        "move": "Kg2",
-        "correct": false,
-        "timestamp": "2026-10-03T18:12:15.655269+00:00"
+        "move": "Kg7",
+        "correct": true,
+        "timestamp": "2026-10-03T18:12:24.224305+00:00"
       },
       "442597396195704832": {
         "name": "Thice",
@@ -123,17 +123,17 @@
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "last_card_activity_at": "2026-10-03T18:12:15.654394+00:00",
+    "last_card_activity_at": "2026-10-03T18:12:24.224122+00:00",
     "recent_accepted_moves": [
       {
-        "accepted_at": 1791051128.882485,
-        "fen_before": "8/8/5k1P/5p2/7K/6P1/2b5/8 b - - 0 62",
+        "accepted_at": 1791051144.2243128,
+        "fen_before": "8/7P/5k2/5p2/7K/6P1/8/3b4 b - - 0 63",
         "expected": {
-          "uci": "c2d1",
-          "san": "Bd1",
+          "uci": "f6g7",
+          "san": "Kg7",
           "color": "black"
         },
-        "accepted_uci": "c2d1"
+        "accepted_uci": "f6g7"
       }
     ],
     "accepted_solution_moves": [
@@ -146,9 +146,14 @@
         "san": "Bd1",
         "uci": "c2d1",
         "principal": true
+      },
+      {
+        "san": "Kg7",
+        "uci": "f6g7",
+        "principal": true
       }
     ],
-    "last_feedback": "❌ **mh, that was a very human move.**\n↪️ **Move played:** `Kg2`",
+    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Kg5",
     "wrong_attempt_counts": {
       "442597396195704832": 1,
       "386134006170910721": 1
