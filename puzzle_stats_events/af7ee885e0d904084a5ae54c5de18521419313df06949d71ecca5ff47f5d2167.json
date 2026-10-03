@@ -1,0 +1,20 @@
+{
+  "boss": false,
+  "correct": true,
+  "created_at": 1791049699,
+  "display_name": "mh",
+  "elo_after": 1750.468,
+  "elo_change": 30.138,
+  "new_achievements": [
+    "ten_down",
+    "unstoppable"
+  ],
+  "puzzle_id": "random_kCWMe_1791049685058",
+  "puzzle_rating": 2204,
+  "source": "random",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 10,
+  "streak_bonus": true,
+  "transaction_id": "puzzle-attempt:random_kCWMe_1791049685058:386134006170910721",
+  "user_id": "386134006170910721"
+}
