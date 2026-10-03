@@ -41,7 +41,7 @@
         "xp": 50
       },
       "start": 1790972800.5149846,
-      "status": "running"
+      "status": "claimed"
     },
     "pets": [
       {
@@ -93,7 +93,7 @@
         "puzzle_day": "2026-10-01",
         "rarity": "uncommon",
         "species": "Fox",
-        "xp": 115.25,
+        "xp": 165.25,
         "xp_day": "2026-10-02"
       },
       {
