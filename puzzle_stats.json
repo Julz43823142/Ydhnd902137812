@@ -237,14 +237,14 @@
       "current_wrong_streak": 0,
       "elo": 1962.8019144473058,
       "elo_games": 22,
-      "first_solves": 8,
+      "first_solves": 9,
       "max_rating_solved": 2784,
       "name": "mh",
       "peak_elo": 1962.8019144473058,
       "rated_correct_count": 21,
       "rated_correct_rating_sum": 43287,
       "total": 22,
-      "updated_at": 1791050880,
+      "updated_at": 1791050887,
       "wrong": 1
     },
     "442597396195704832": {
