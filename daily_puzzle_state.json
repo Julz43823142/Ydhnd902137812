@@ -57,7 +57,7 @@
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_id": null,
+    "message_id": 1556003666756894781,
     "attempted_users": {},
     "first_move_user_id": null,
     "first_move_user_name": null,
@@ -69,7 +69,10 @@
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "channel_id": 1468320170891022417
+    "channel_id": 1468320170891022417,
+    "message_ids": {
+      "1468320170891022417": 1556003666756894781
+    }
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
