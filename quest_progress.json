@@ -1,41 +1,6 @@
 {
   "build": "quests-v1-2026-09-08",
   "periods": {
-    "daily:2026-09-12": {
-      "users": {
-        "1": {
-          "name": "Player 1",
-          "paid": [
-            "daily:2026-09-12:minigame:minigame-1"
-          ],
-          "progress": {
-            "daily:2026-09-12:minigame:minigame-1": 15
-          },
-          "updated_at": 1789251247
-        },
-        "442597396195704832": {
-          "name": "Thice",
-          "paid": [
-            "daily:2026-09-12:minigame:minigame-1"
-          ],
-          "progress": {
-            "daily:2026-09-12:minigame:minigame-1": 2,
-            "daily:2026-09-12:puzzle:solve-8": 5
-          },
-          "updated_at": 1789243441
-        },
-        "601406103712170014": {
-          "name": "TheMakina",
-          "paid": [
-            "daily:2026-09-12:puzzle:solve-8"
-          ],
-          "progress": {
-            "daily:2026-09-12:puzzle:solve-8": 37
-          },
-          "updated_at": 1789241127
-        }
-      }
-    },
     "daily:2026-09-13": {
       "users": {
         "1": {
@@ -587,6 +552,18 @@
         }
       }
     },
+    "daily:2026-10-03": {
+      "users": {
+        "601406103712170014": {
+          "name": "TheMakina",
+          "paid": [],
+          "progress": {
+            "daily:2026-10-03:puzzle:solve-5": 1
+          },
+          "updated_at": 1791020579
+        }
+      }
+    },
     "weekly:2026-09-07": {
       "users": {
         "1": {
@@ -755,9 +732,9 @@
           "name": "TheMakina",
           "paid": [],
           "progress": {
-            "weekly:2026-09-28:puzzle:solve-60": 3
+            "weekly:2026-09-28:puzzle:solve-60": 4
           },
-          "updated_at": 1790975015
+          "updated_at": 1791020579
         }
       }
     }
