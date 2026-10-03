@@ -1,0 +1,14 @@
+{
+  "after_points": 19.5,
+  "amount": 2.0,
+  "before_points": 17.5,
+  "created_at": 1791050797,
+  "created_at_ns": 1791050797276234711,
+  "display_name": "mh",
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "add",
+  "pet_coin_bonus": 0.0,
+  "source": "puzzle-boss-first",
+  "transaction_id": "puzzle:random_iqSTU_1791050729642:first:386134006170910721",
+  "user_id": "386134006170910721"
+}
