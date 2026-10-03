@@ -1,115 +1,77 @@
 {
   "latest_random_puzzle": {
-    "url": "https://lichess.org/training/AC7YD",
-    "title": "Lichess • 1432",
-    "fen": "r1b1k2r/p2pqpbp/2pQpnp1/4B3/2B1P3/1P6/P1P2PPP/RN2K2R b KQkq - 3 10",
-    "current_fen": "r1b1k2r/p2p1pbp/2pBp1p1/8/2B1n3/1P6/P1P2PPP/RN2K2R w KQkq - 0 12",
-    "last_move_uci": "f6e4",
-    "pgn": "Qxd6 Bxd6 Nxe4",
+    "title": "2000 • hrLZp",
+    "fen": "6k1/6pp/p7/Pp3p2/1Ppqp3/4P2P/5PP1/5NK1 w - - 0 34",
+    "current_fen": "6k1/6pp/p7/Pp3p2/1Ppqp3/4P2P/5PP1/5NK1 w - - 0 34",
     "all_moves": [
       {
-        "uci": "e7d6",
-        "san": "Qxd6",
-        "color": "black"
-      },
-      {
-        "uci": "e5d6",
-        "san": "Bxd6",
+        "uci": "e3d4",
+        "san": "exd4",
         "color": "white"
       },
       {
-        "uci": "f6e4",
-        "san": "Nxe4",
+        "uci": "f5f4",
+        "san": "f4",
         "color": "black"
+      },
+      {
+        "uci": "f1d2",
+        "san": "Nd2",
+        "color": "white"
+      },
+      {
+        "uci": "c4c3",
+        "san": "c3",
+        "color": "black"
+      },
+      {
+        "uci": "d2b3",
+        "san": "Nb3",
+        "color": "white"
       }
     ],
     "player_moves": [
       {
-        "uci": "e7d6",
-        "san": "Qxd6",
-        "color": "black"
+        "uci": "e3d4",
+        "san": "exd4",
+        "color": "white"
       },
       {
-        "uci": "f6e4",
-        "san": "Nxe4",
-        "color": "black"
+        "uci": "f1d2",
+        "san": "Nd2",
+        "color": "white"
+      },
+      {
+        "uci": "d2b3",
+        "san": "Nb3",
+        "color": "white"
       }
     ],
-    "player_color": "black",
-    "player_move_count": 2,
-    "posted_at": "2026-10-03T18:02:26.012533+00:00",
-    "answer_posted": true,
-    "winner_user_id": null,
-    "winner_name": null,
-    "latest_attempts": {},
-    "puzzle_id": "random_AC7YD_1791050546012",
-    "last_activity_at": "2026-10-03T18:02:37.076510+00:00",
-    "rating": 1432,
-    "rp_band": 0,
-    "boss": false,
+    "player_color": "white",
+    "player_move_count": 3,
+    "pgn": "",
+    "url": "https://lichess.org/training/hrLZp",
+    "posted_at": "2026-10-03T18:03:02.782606+00:00",
+    "last_activity_at": "2026-10-03T18:03:02.782606+00:00",
+    "puzzle_id": "random_lichess_2000_hrLZp_1791050582782",
+    "next_solution_index": 0,
+    "next_player_index": 0,
+    "solved": false,
+    "message_id": null,
+    "attempted_users": {},
+    "first_move_user_id": null,
+    "first_move_user_name": null,
+    "first_move_awarded": false,
+    "helper_awarded_users": [],
+    "helper_candidate_users": [],
+    "practice_only": true,
+    "rated_practice": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 3,
-    "next_player_index": 2,
-    "solved": true,
-    "message_ids": {
-      "1468320170891022417": 1556003558418030723
-    },
-    "message_id": 1556003558418030723,
-    "channel_id": 1468320170891022417,
-    "chat_since_refresh": 0,
-    "attempted_users": {
-      "442597396195704832": {
-        "name": "Thice",
-        "move": "nxe4",
-        "correct": true,
-        "timestamp": "2026-10-03T18:02:37.077066+00:00"
-      }
-    },
-    "first_move_user_id": "442597396195704832",
-    "first_move_user_name": "Thice",
-    "first_move_awarded": true,
-    "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "last_card_activity_at": "2026-10-03T18:02:37.076510+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1791050552.9263868,
-        "fen_before": "r1b1k2r/p2pqpbp/2pQpnp1/4B3/2B1P3/1P6/P1P2PPP/RN2K2R b KQkq - 3 10",
-        "expected": {
-          "uci": "e7d6",
-          "san": "Qxd6",
-          "color": "black"
-        },
-        "accepted_uci": "e7d6"
-      },
-      {
-        "accepted_at": 1791050557.077075,
-        "fen_before": "r1b1k2r/p2p1pbp/2pBpnp1/8/2B1P3/1P6/P1P2PPP/RN2K2R b KQkq - 0 11",
-        "expected": {
-          "uci": "f6e4",
-          "san": "Nxe4",
-          "color": "black"
-        },
-        "accepted_uci": "f6e4"
-      }
-    ],
-    "accepted_solution_moves": [
-      {
-        "san": "Qxd6",
-        "uci": "e7d6",
-        "principal": true
-      },
-      {
-        "san": "Nxe4",
-        "uci": "f6e4",
-        "principal": true
-      }
-    ],
-    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1717 points.**\n\n💡 **Solution:** Qxd6 Nxe4\n\n🏆 **Your ranking**\n**#1 🙂 Thice — 1717 points ← you**\n**#2 🍅 TheMakina — 1552 points**"
+    "channel_id": 1468320170891022417
   },
-  "latest_puzzle_type": "daily",
+  "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-03",
@@ -240,7 +202,8 @@
   },
   "lichess_rating_used": {
     "2000": [
-      "OA1zj"
+      "OA1zj",
+      "hrLZp"
     ],
     "400": [
       "BTdNu"
