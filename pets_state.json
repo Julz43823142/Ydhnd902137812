@@ -134,14 +134,12 @@
         "id": "afc0be81766c4200af07aff4b0a9f7ca",
         "name": "",
         "puzzle": {
-          "day": "2026-10-02",
-          "fen": "B5k1/p1p2pp1/1p5p/8/6Pr/4q1b1/PP3QP1/4RR1K w - - 4 25",
-          "id": "t8sZG",
-          "index": 3,
+          "day": "2026-10-04",
+          "fen": "8/R3ppkp/P5p1/8/2B1b1P1/1Pb1B2P/1r6/2K5 b - - 0 40",
+          "id": "nBuHw",
+          "index": 0,
           "moves": [
-            "f4h2",
-            "g1h1",
-            "h2g3"
+            "b2b1"
           ]
         },
         "puzzle_day": "2026-10-02",
