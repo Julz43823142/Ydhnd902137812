@@ -161,9 +161,9 @@ class MarketTransactions(unittest.TestCase):
     def test_wanted_cancel_expiry_and_full_buyer_rechecked(self):
         listing=self.wanted();market.cancel_wanted(99,listing['id'],'cancel')
         with self.assertRaises(ValueError):market.fulfil(42,'Shark',listing['id'],'a')
-        expired=self.wanted('expires');self.now+=8*pets.DAY
+        expired=self.wanted('expires');self.now+=15*pets.DAY
         with self.assertRaisesRegex(ValueError,'expired'):market.fulfil(42,'Shark',expired['id'],'a')
-        self.now-=8*pets.DAY
+        self.now-=15*pets.DAY
         full=self.wanted('full');self.data=pets._read_origin();self.data['99']['pets']=[self.pet('b'+str(i)) for i in range(10)]
         self.seed()
         with self.assertRaisesRegex(ValueError,'10 living'):market.fulfil(42,'Shark',full['id'],'a')

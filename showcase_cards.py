@@ -112,18 +112,29 @@ def render_svg_png(svg):
     return cairosvg.svg2png(bytestring=svg.encode('utf-8'))
 
 
-@lru_cache(maxsize=48)
 def render_profile_card(theme_key, theme_label, background, accent, soft, scene, overlay, stats, icon, style='cinematic'):
+    from twitch_presentation import live
+    return _render_profile_card(theme_key,theme_label,background,accent,soft,scene,overlay,stats,icon,style,live())
+
+
+@lru_cache(maxsize=48)
+def _render_profile_card(theme_key, theme_label, background, accent, soft, scene, overlay, stats, icon, style='cinematic',live_state=False):
     """Cache immutable card bytes, never reusable File streams or live player data."""
     import io
     import cairosvg
     from PIL import Image
     svg = profile_svg(theme_label, background, accent, soft, scene, overlay, stats, icon, theme_key, style)
+    if live_state:
+        from twitch_presentation import overlay as live_overlay
+        svg = live_overlay(svg,enabled=True)
     png = cairosvg.svg2png(bytestring=svg.encode(), background_color='#050b15')
     output = io.BytesIO()
     Image.open(io.BytesIO(png)).convert('RGB').save(output, format='JPEG', quality=93, subsampling=0, optimize=True)
     return output.getvalue()
 
+
+render_profile_card.cache_clear=_render_profile_card.cache_clear
+render_profile_card.cache_info=_render_profile_card.cache_info
 
 @lru_cache(maxsize=1)
 def catalog():

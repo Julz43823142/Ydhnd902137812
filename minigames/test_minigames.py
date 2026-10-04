@@ -917,3 +917,50 @@ class LatestDropAndUnlimitedCoins(unittest.TestCase):
         e.finish(s,w,g,['0'],1010,'duplicate')
         self.assertEqual(w['0']['coins'],105)
         self.assertEqual(w['0']['points'],123.5)
+
+
+class Rematches(unittest.TestCase):
+    def finished(self,kind='rps',stake=10,n=2):
+        state,wallets=setup(kind,stake,n);game=start(state,wallets)
+        e.finish(state,wallets,game,[],1005,'Finished game')
+        return state,wallets,game
+
+    def test_same_mode_stake_and_players_require_acceptance_then_host_start(self):
+        state,wallets,old=self.finished();before=copy.deepcopy(wallets)
+        e.action(state,wallets,'g','0','Player 0','rematch','',1006,random.Random(2),bank(),expected=old['rev'])
+        gid=old['rematch_id'];new=state['games'][gid]
+        self.assertEqual((new['kind'],new['stake'],new['status']),('rps',10,'lobby'))
+        self.assertEqual(wallets,before)
+        with self.assertRaisesRegex(ValueError,'accept'):
+            e.action(state,wallets,gid,'0','Player 0','start','',1007,random.Random(2),bank())
+        e.action(state,wallets,gid,'1','Player 1','join','',1007,random.Random(2),bank())
+        self.assertEqual(new['status'],'lobby')
+        e.action(state,wallets,gid,'0','Player 0','start','',1008,random.Random(2),bank())
+        self.assertEqual(new['status'],'playing');self.assertEqual([w['coins'] for w in wallets.values()],[90,90])
+
+    def test_duplicate_rematch_click_creates_one_lobby(self):
+        state,wallets,old=self.finished();rev=old['rev']
+        e.action(state,wallets,'g','0','Player 0','rematch','',1006,random.Random(2),bank(),expected=rev)
+        with self.assertRaises(ValueError):e.action(state,wallets,'g','1','Player 1','rematch','',1006,random.Random(2),bank(),expected=rev)
+        self.assertEqual(len(state['games']),2)
+
+    def test_uninvited_player_cannot_join_or_decline(self):
+        state,wallets,old=self.finished();new=e.rematch(state,wallets,old,'0','Player 0',1006)
+        for command in ['join','decline_rematch']:
+            with self.assertRaises(ValueError):e.action(state,wallets,new['id'],'77','Other',command,'',1007,random.Random(2),bank())
+        self.assertEqual(new['status'],'lobby')
+
+    def test_decline_closes_invitation_without_spending(self):
+        state,wallets,old=self.finished();before=copy.deepcopy(wallets)
+        new=e.rematch(state,wallets,old,'0','Player 0',1006)
+        e.action(state,wallets,new['id'],'1','Player 1','decline_rematch','',1007,random.Random(2),bank())
+        self.assertEqual((new['status'],wallets),('finished',before))
+
+    def test_multiplayer_rematch_requires_all_original_players(self):
+        state,wallets,old=self.finished('trivia',0,3);new=e.rematch(state,wallets,old,'0','Player 0',1006)
+        e.action(state,wallets,new['id'],'1','Player 1','join','',1007,random.Random(2),bank())
+        with self.assertRaisesRegex(ValueError,'Every previous'):
+            e.action(state,wallets,new['id'],'0','Player 0','start','',1008,random.Random(2),bank())
+        e.action(state,wallets,new['id'],'2','Player 2','join','',1008,random.Random(2),bank())
+        e.action(state,wallets,new['id'],'0','Player 0','start','',1009,random.Random(2),bank())
+        self.assertEqual(new['status'],'playing')

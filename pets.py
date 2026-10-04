@@ -139,7 +139,8 @@ def transact(uid, name, txid, mutate, *, wallet=False):
                 pet_history.ensure(changed_pet,uid,name,now=now,created=changed_pet['id'] not in previous_levels)
                 if previous_levels.get(changed_pet['id'],0)==0 and level(changed_pet)>0:
                     pet_history.append(changed_pet,'Hatched',uid,name,now=now)
-            payload = {"transaction_id": str(txid), "user_id": str(uid), "created_at": int(now), "details": details}
+                    details.setdefault('hatches',[]).append({'species':changed_pet['species'],'rarity':changed_pet['rarity'],'level':level(changed_pet)})
+            payload = {"transaction_id": str(txid), "user_id": str(uid), "created_at": int(now), "display_name": name, "details": details}
             files = {FILE: json.dumps(data, ensure_ascii=False, sort_keys=True, indent=2) + "\n",
                      _event_path(txid): json.dumps(payload, ensure_ascii=False) + "\n"}
             if wallet:

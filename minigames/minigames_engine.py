@@ -1271,6 +1271,20 @@ def trivia_end_round(state,wallets,g,now):
         finish(state,wallets,g,winners,now,'Knowledge ladder complete.',rewards)
 
 
+def rematch(state,wallets,g,uid,name,now):
+    import hashlib
+    if g.get('status')!='finished' or not g.get('started') or g.get('stats_void'):
+        raise ValueError('Finish a multiplayer game before requesting a rematch.')
+    players=[str(p['id']) for p in g.get('players',[])]
+    if uid not in players or len(players)<2:raise ValueError('Only the previous players can request a rematch.')
+    if g.get('rematch_id'):raise ValueError('A rematch invitation already exists.')
+    gid=hashlib.sha256(('rematch:'+g['id']).encode()).hexdigest()[:24]
+    new=create(state,wallets,gid,uid,name,g['kind'],g['stake'],now,mode=g.get('mode'))
+    new.update(rematch_of=g['id'],invited=players,required_players=players)
+    g['rematch_id']=gid
+    return new
+
+
 def action(state,wallets,gid,uid,name,command,value,now,rng,bank,expected=None):
     if gid not in state['games']:raise ValueError('This game is no longer available.')
     g=state['games'][gid]
@@ -1291,6 +1305,13 @@ def action(state,wallets,gid,uid,name,command,value,now,rng,bank,expected=None):
                  or (g['kind']=='cluest' and command in ('cluest_board','cluest_call','cluest_hint'))
                  or (g['kind']=='ships' and command in ('ready','randomize','place') and len(d['ready'])<2)))
         if not (concurrent_lobby or concurrent_mines or concurrent_round):raise ValueError('The board changed. Use the latest buttons or Refresh.')
+    if command=='rematch':
+        rematch(state,wallets,g,uid,name,now)
+        g['rev']+=1
+        return g
+    if command=='decline_rematch':
+        if g.get('status')!='lobby' or uid not in g.get('invited',[]):raise ValueError('This invitation is no longer available.')
+        finish(state,wallets,g,[],now,'Rematch declined.',refund=True);g['rev']+=1;return g
     if command in ('replay','replay_stake'):
         stake_value=None if command=='replay' else value
         _replay_blackjack(state,wallets,g,uid,name,now,rng,stake_value)
@@ -1300,6 +1321,7 @@ def action(state,wallets,gid,uid,name,command,value,now,rng,bank,expected=None):
     if now >= g['deadline'] and command!='leave':raise ValueError('The timer has expired. Press Refresh in a moment.')
     players=[p['id'] for p in g['players']]
     if command=='join':
+        if g.get('invited') and uid not in g['invited']:raise ValueError('This rematch is reserved for the previous players.')
         if g['status']!='lobby' or uid in players:raise ValueError('You cannot join this lobby.')
         if len(players)>=LIMITS[g['kind']]:raise ValueError('This lobby is full.')
         if any(x['status']!='finished' and uid not in x.get('left',[]) and any(p['id']==uid for p in x['players']) for x in state['games'].values()):raise ValueError('You are already in a minigame.')
@@ -1311,6 +1333,7 @@ def action(state,wallets,gid,uid,name,command,value,now,rng,bank,expected=None):
         i=players.index(uid)
         if command=='start':
             if i!=0 or g['status']!='lobby':raise ValueError('Only the host can start the lobby.')
+            if g.get('required_players') and not set(g['required_players']).issubset(players):raise ValueError('Every previous player must accept the rematch first.')
             start(state,wallets,g,now,rng,bank)
         elif command=='leave':
             if g['status']=='lobby':

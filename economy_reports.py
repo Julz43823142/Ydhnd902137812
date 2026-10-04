@@ -75,10 +75,18 @@ async def publish_once(channel,now=None):
 
 async def loop(channel):
     import pet_market
-    while True:
-        try:
-            await asyncio.to_thread(pet_market.bootstrap)
-            await publish_once(channel)
-        except Exception as error:
-            print('Economy report unavailable:',type(error).__name__,flush=True)
-        await asyncio.sleep(60)
+    import shark_reports,feature_usage
+    # Background services belong to the same primary-worker lifecycle.
+    background=[asyncio.create_task(feature_usage.loop()),asyncio.create_task(shark_reports.loop(channel))]
+    try:
+        while True:
+            try:
+                await asyncio.to_thread(pet_market.bootstrap)
+                await publish_once(channel)
+            except Exception as error:
+                print('Economy report unavailable:',type(error).__name__,flush=True)
+            await asyncio.sleep(60)
+
+    finally:
+        for task in background:task.cancel()
+        await asyncio.gather(*background,return_exceptions=True)

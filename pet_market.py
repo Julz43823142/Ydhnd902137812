@@ -99,7 +99,7 @@ def create_wanted(uid,name,species,coins,txid,rarity=None,evolution=None):
         entry=_entry(wallet,uid,name)
         if entry['coins']<coins:raise ValueError('You cannot currently afford this offer.')
         listing={'id':listing_id,'buyer_id':str(uid),'buyer_name':name,'species':species,'coins':coins,
-                 'rarity':rarity,'evolution':evolution,'status':'open','created_at':now,'expires_at':now+7*pets.DAY}
+                 'rarity':rarity,'evolution':evolution,'status':'open','created_at':now,'expires_at':now+14*pets.DAY}
         market['wanted'][listing_id]=listing
         return {FILE:json.dumps(market,ensure_ascii=False)},listing,'wanted-create'
     return run(txid,build)
