@@ -1,0 +1,19 @@
+{
+  "after_coins": 15.28,
+  "before_coins": 40.28,
+  "created_at": 1791118473,
+  "created_at_ns": 1791118473428644635,
+  "details": {
+    "badge": "🐶",
+    "claim_day": null,
+    "holiday": "animal_day",
+    "rarity": "holiday",
+    "rarity_label": "Holiday",
+    "spent": 25.0
+  },
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "badge-box",
+  "transaction_id": "badge-box:1556288416042197146:442597396195704832",
+  "user_id": "442597396195704832"
+}
