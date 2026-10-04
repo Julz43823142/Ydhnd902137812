@@ -861,6 +861,8 @@ def _commit_snapshot(base_commit, files, message):
 def _push_files(files, message):
     import economy_analytics
     economy_analytics.observe(files, message)
+    import shark_activity
+    shark_activity.observe(files, message)
     from repository_transaction import current
     transaction = current()
     if transaction is not None:
@@ -2639,7 +2641,7 @@ def get_open_trade_acceptance(open_trade_id):
         details = event.get("details")
         return {**details,"receipt_id":event["transaction_id"],"completed_at":event["created_at"]} if isinstance(details, dict) else None
 
-def accept_open_trade(seller_user_id, seller_name, buyer_user_id, buyer_name, offer, request, transaction_id, open_trade_id=None):
+def accept_open_trade(seller_user_id, seller_name, buyer_user_id, buyer_name, offer, request, transaction_id, open_trade_id=None, expires_at=None):
     """Atomically settle a public/open trade between seller and the first eligible buyer.
 
     Unlike direct trades, no recipient pending_trade slot is used. Availability is
@@ -2666,6 +2668,15 @@ def accept_open_trade(seller_user_id, seller_name, buyer_user_id, buyer_name, of
                 continue
             if existing is not None:
                 return existing.get("details", {}) if isinstance(existing, dict) else {}
+
+            import market_listings
+            listing_data, listing_row = market_listings.validate(open_trade_id, time.time(), expires_at)
+            if listing_row is not None:
+                def asset_identity(asset):
+                    return {k:v for k,v in normalize_trade_asset(asset).items() if k!='label'}
+                if str(listing_row['seller_id'])!=seller_uid or asset_identity(listing_row['offer'])!=asset_identity(offer) or asset_identity(listing_row['request'])!=asset_identity(request):
+                    raise ValueError('The listing terms changed. Refresh before accepting.')
+
 
             seller_entry = _normalize_entry(snapshot.get(seller_uid, {"name": seller_name, "points": 0}))
             buyer_entry = _normalize_entry(snapshot.get(buyer_uid, {"name": buyer_name, "points": 0}))
@@ -2705,6 +2716,9 @@ def accept_open_trade(seller_user_id, seller_name, buyer_user_id, buyer_name, of
                 LEGACY_FILE: _snapshot_json(snapshot),
                 _event_filename(transaction_id): _event_json(payload),
             }
+            if listing_row is not None:
+                listing_row.update(status='completed', buyer_id=buyer_uid, closed_at=time.time())
+                files['pet_market.json'] = json.dumps(listing_data)
             files.update(pet_files)
             if not migrated:
                 files[_event_filename(MIGRATION_TRANSACTION_ID)] = _event_json(_migration_event())

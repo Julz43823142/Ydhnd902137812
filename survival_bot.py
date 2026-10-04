@@ -1658,6 +1658,24 @@ async def send_puzzle_embed(
 
 async def finish_survival_embed(channel, team, run, title, description):
     """Turn the current Survival card into an end-state message in place."""
+    try:
+        from market_transactions import run as activity_tx
+        import hashlib
+        key=hashlib.sha256((str(run.get('started_at'))+':'+str(run.get('captain_id'))).encode()).hexdigest()
+        members=run.get('members',{})
+        ids=list(members) or [str(run.get('captain_id',''))]
+        rows=[]
+        for uid in ids:
+            if not uid:continue
+            member=members.get(uid,{})
+            name=member.get('name',run.get('captain_name','Player')) if isinstance(member,dict) else run.get('captain_name','Player')
+            rows.append({'uid':str(uid),'name':name,'action':'survival_complete','kind':'Survival',
+                         'score':max(0,int(run.get('puzzle_number',1))-1)})
+        rows.append({'uid':'server','name':'Server','action':'games_completed'})
+        await asyncio.to_thread(activity_tx,'survival-activity:'+key,lambda:({}, {'activity':rows},'game-activity'))
+    except Exception:
+        print('Survival activity summary unavailable; run data remains preserved.',flush=True)
+
     embed = discord.Embed(
         title=title,
         description=description,

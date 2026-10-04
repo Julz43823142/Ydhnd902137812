@@ -2311,6 +2311,8 @@ async def _twitch_cleanup_if_offline():
     """Only an explicit, successful offline response permits deletion."""
     async with _twitch_live_notification_lock:
         stream = await _twitch_get_live_stream_info()
+        import twitch_presentation
+        await asyncio.to_thread(twitch_presentation.set_status,stream)
         if stream is not None:
             return False
         return await _twitch_delete_live_notifications()
@@ -4151,9 +4153,10 @@ def _open_shop_trade_for_message(message_id):
 
 
 def _active_open_shop_trades():
+    from market_listings import active as listing_active
     trades = [
         item for item in _open_shop_trades_state().values()
-        if isinstance(item, dict) and str(item.get("status") or "open") == "open"
+        if isinstance(item, dict) and listing_active(item) and str(item.get("status") or "open") == "open"
     ]
     trades.sort(key=lambda item: float(item.get("created_at", 0) or 0), reverse=True)
     return trades
@@ -5371,6 +5374,9 @@ def _open_shop_trade_embed(trade):
     if status == "completed":
         status_line = f"✅ **Accepted by {discord.utils.escape_markdown(str(trade.get('buyer_name') or 'a player'))}**"
         color = 0x57F287
+    elif status == "expired":
+        status_line="⏳ **Expired — no items or coins moved**"
+        color=0x747F8D
     elif status == "cancelled":
         status_line = "🚫 **Cancelled**"
         color = 0xED4245
@@ -5391,6 +5397,8 @@ def _open_shop_trade_embed(trade):
         ),
         color=color,
     )
+    from market_listings import timing
+    embed.description += '\n\n' + timing(trade)
     embed.set_footer(text="Open trades are first-come, first-served • coins, badges and pets")
     return embed
 
@@ -5486,6 +5494,7 @@ class OpenShopTradeView(discord.ui.View):
                     trade["request"],
                     transaction_id,
                     trade["trade_id"],
+                    expires_at=__import__("market_listings").expires(trade),
                 )
             except ValueError as error:
                 text = str(error)
@@ -5553,6 +5562,9 @@ class OpenShopTradeView(discord.ui.View):
                 await interaction.followup.send("❌ Only the seller or Sharkmeister can cancel this trade.", ephemeral=True)
                 return
 
+            from market_listings import register, close
+            await asyncio.to_thread(register, [trade], 'daily')
+            await asyncio.to_thread(close, trade['seller_id'], trade['trade_id'])
             trade["status"] = "cancelled"
             trade["closed_at"] = time.time()
             trade["cancelled_by"] = str(interaction.user.id)
@@ -5631,6 +5643,8 @@ async def create_open_shop_trade(interaction, offer_text, request_text):
     trade["message_id"] = str(message.id)
     _open_shop_trades_state()[trade_id] = trade
     await save_all()
+    from market_listings import register
+    await asyncio.to_thread(register, [trade], 'daily')
     return trade
 
 
@@ -5668,6 +5682,10 @@ class OpenShopTradeModal(discord.ui.Modal, title="Create Open Trade"):
 client.pet_open_trade_modal = OpenShopTradeModal
 
 async def restore_open_shop_trades():
+    from market_listings import register
+    await asyncio.to_thread(register, _open_shop_trades_state().values(), 'daily')
+    from market_listings import sync_views
+    if not getattr(client,'_listing_sync_task',None):client._listing_sync_task=asyncio.create_task(sync_views(_open_shop_trades_state,save_all,_refresh_open_shop_trade_message))
     changed = False
     for trade in _active_open_shop_trades():
         if await _reconcile_open_shop_trade(trade):
@@ -6699,6 +6717,50 @@ async def send_chess_game_position(channel, game, note=None, *, move_to_bottom=F
     return sent
 
 
+def chess_rematch_settings(game):
+    clock=game.get('clock',{})
+    base=game.get('base_seconds')
+    inc=game.get('increment',clock.get('increment',0))
+    if base is None:
+        if clock.get('daily'):base=86400
+        else:
+            match=re.fullmatch(r'(\d+)\+(\d+)',str(clock.get('label','')))
+            base=int(match.group(1))*60 if match else 600
+            if match and 'increment' not in game and 'increment' not in clock:inc=int(match.group(2))
+    return int(base),int(inc)
+
+
+_chess_rematch_lock=asyncio.Lock()
+
+
+class ChessRematchView(discord.ui.View):
+    def __init__(self,game):
+        super().__init__(timeout=900);self.game=game;self.lock=_chess_rematch_lock
+
+    @discord.ui.button(label='Rematch',emoji='🔁',style=discord.ButtonStyle.success)
+    async def rematch(self,ctx,button):
+        ids={str(self.game.get(side+'_id')) for side in ('white','black')}
+        if str(ctx.user.id) not in ids:
+            await ctx.response.send_message('Only the previous players can request this rematch.',ephemeral=True);return
+        await ctx.response.defer(ephemeral=True)
+        async with self.lock:
+            if self.game.get('rematch_requested'):
+                await ctx.followup.send('A rematch invitation already exists.',ephemeral=True);return
+            opponent_id=next(uid for uid in ids if uid!=str(ctx.user.id))
+            opponent=ctx.guild.get_member(int(opponent_id)) or await ctx.guild.fetch_member(int(opponent_id))
+            pending=_pending_challenge_for_user(opponent.id)
+            if pending and time.time()-float(pending.get('created_at',0)) < (86400 if pending.get('daily_game') else CHESS_CHALLENGE_SECONDS):
+                await ctx.followup.send('The opponent already has a pending chess invitation.',ephemeral=True);return
+            base,inc=chess_rematch_settings(self.game)
+            proxy=InteractionMessageProxy(ctx,'!pvp')
+            okay=await create_player_challenge(proxy,opponent,self.game.get('wager_amount',0),
+                        base,inc,_game_variant(self.game))
+            if okay:
+                self.game['rematch_requested']=True;await save_all_critical()
+                button.disabled=True;await ctx.message.edit(view=self)
+            await ctx.followup.send('Rematch invitation posted. The opponent must accept.' if okay else 'Rematch could not be created. Check the channel.',ephemeral=True)
+
+
 async def finish_chess_game(channel, game, result, reason="Game finished"):
     if game.get("status") != "active":
         return
@@ -6918,6 +6980,17 @@ async def finish_chess_game(channel, game, result, reason="Game finished"):
         except Exception as error:
             print(f"Chess quest progress warning: {error}", flush=True)
 
+    try:
+        from market_transactions import run as record_tx
+        public_activity=[]
+        for side in ('white','black'):
+            pid=str(game.get(side+'_id',''))
+            if pid and pid!='BOT':
+                public_activity.append({'uid':pid,'name':game.get(side+'_name','Player'),'action':'chess_completed'})
+        public_activity.append({'uid':'server','name':'Server','action':'games_completed'})
+        await asyncio.to_thread(record_tx,'chess-activity:'+str(game['game_id']),lambda:({}, {'activity':public_activity},'game-activity'))
+    except Exception:
+        print('Chess activity summary needs retry; game rewards remain protected.',flush=True)
     _prune_chess_game_history()
     sync_ok = await save_all_critical()
     if not sync_ok:
@@ -6930,6 +7003,8 @@ async def finish_chess_game(channel, game, result, reason="Game finished"):
         game,
         "\n".join(lines),
     )
+    if game.get('mode')=='pvp':
+        await channel.send('🔁 Play the same opponent again?',view=ChessRematchView(game),allowed_mentions=discord.AllowedMentions.none())
     await _send_finished_chess_extras(channel, game, result_message=result_message)
 
 
@@ -7962,6 +8037,7 @@ async def accept_player_challenge(message, daily=False):
         "wager_settled": False,
     }
     base = int(challenge.get("base_seconds", 600))
+    game["base_seconds"]=base;game["increment"]=int(challenge.get("increment",0))
     inc = int(challenge.get("increment", 0))
     game["clock"] = {
         "white": float(base),
@@ -8822,7 +8898,7 @@ def _puzzle_racer_lobby_embed(challenge):
     return embed
 
 
-async def _create_open_puzzle_racer_lobby(channel, challenger, minutes=3, stake=0, origin_id=None):
+async def _create_open_puzzle_racer_lobby(channel, challenger, minutes=3, stake=0, origin_id=None, invited=None):
     minutes = int(minutes)
     stake = int(stake)
     if not 1 <= minutes <= 15:
@@ -8849,6 +8925,7 @@ async def _create_open_puzzle_racer_lobby(channel, challenger, minutes=3, stake=
 
     challenge_id = f"racer-open:{origin_id or time.time_ns()}:{challenger.id}"
     challenge = {
+        "invited": invited or [],
         "id": challenge_id,
         "kind": "open_lobby",
         "status": "open",
@@ -8911,6 +8988,8 @@ class PuzzleRacerOpenLobbyView(discord.ui.View):
                 return
             uid = str(interaction.user.id)
             players = _puzzle_racer_lobby_players(challenge)
+            if challenge.get('invited') and uid not in challenge['invited']:
+                await interaction.response.send_message('This rematch is reserved for the previous players.',ephemeral=True);return
             if uid in {pid for pid, _name in players}:
                 await interaction.response.send_message("✅ You are already in this lobby.", ephemeral=True)
                 return
@@ -8992,6 +9071,8 @@ class PuzzleRacerOpenLobbyView(discord.ui.View):
                 await interaction.followup.send("❌ A Puzzle Battle is already active in this Chessbot channel.", ephemeral=True)
                 return
             players = _puzzle_racer_lobby_players(challenge)
+            if challenge.get('invited') and not set(challenge['invited']).issubset({p for p,_ in players}):
+                await interaction.followup.send('Every previous player must join before this rematch starts.',ephemeral=True);return
             if len(players) < 2:
                 await interaction.followup.send("❌ At least 2 players must join before the host can start.", ephemeral=True)
                 return
@@ -9420,6 +9501,14 @@ async def _finish_puzzle_racer(game, reason="Race complete.", forfeit_id=None):
 
     game["winner_id"] = winner or None
     game["tied_winner_ids"] = tied
+    try:
+        from market_transactions import run as activity_tx
+        rows=[{'uid':uid,'name':name,'action':'puzzle_battle_completed','kind':'Puzzle Battle',
+               'record_kind':'Puzzle Battle:'+str(game.get('minutes',3)),
+               'score':(game.get('data') or {}).get('scores',{}).get(uid,0)} for uid,name in _puzzle_racer_players(game)]
+        rows.append({'uid':'server','name':'Server','action':'games_completed'})
+        await asyncio.to_thread(activity_tx,'battle-activity:'+str(game['id']),lambda:({}, {'activity':rows},'game-activity'))
+    except Exception:print('Puzzle Battle activity summary unavailable; rewards remain protected.',flush=True)
     game["status"] = "finished"
     game["ended_at"] = time.time()
     game["result_text"] = reason
@@ -9526,10 +9615,30 @@ async def show_puzzle_racer_review(interaction):
     await interaction.response.send_message(text, ephemeral=True)
 
 
+def _rematch_racer_game(interaction):
+    mid=str(getattr(getattr(interaction,'message',None),'id',''))
+    for game in _puzzle_racer_state().get('games',{}).values():
+        if str(game.get('message_id',''))==mid and game.get('status')=='finished':
+            if str(interaction.user.id) in {uid for uid,_ in _puzzle_racer_players(game)}:return game
+    return None
+
+
 async def create_puzzle_racer_rematch(interaction):
-    game = _latest_finished_puzzle_racer_for_user(interaction.user.id, interaction.channel_id)
+    await interaction.response.defer(ephemeral=True)
+    async with puzzle_racer_lock:
+        game=_rematch_racer_game(interaction)
+        if game and game.get('rematch_requested'):
+            await interaction.followup.send('A rematch invitation has already been posted.',ephemeral=True);return
+        await _create_puzzle_racer_rematch_inner(interaction)
+        if game and _active_pending_puzzle_racer_for_user(interaction.user.id):
+            game['rematch_requested']=True
+            await save_all_critical()
+
+
+async def _create_puzzle_racer_rematch_inner(interaction):
+    game = _rematch_racer_game(interaction)
     if game is None:
-        await interaction.response.send_message("❌ Finish a Puzzle Battle first.", ephemeral=True)
+        await interaction.followup.send("❌ Finish a Puzzle Battle first.", ephemeral=True)
         return
     players = _puzzle_racer_players(game)
     if len(players) > 2:
@@ -9539,18 +9648,19 @@ async def create_puzzle_racer_rematch(interaction):
                 interaction.user,
                 int(game.get("minutes", 3) or 3),
                 int(float(game.get("stake", 0) or 0)),
-                origin_id=f"multiplayer-rematch:{interaction.id}",
+                origin_id=f"multiplayer-rematch:{game.get('id', game.get('game_id'))}",
+                invited=[pid for pid,_ in players],
             )
         except Exception as error:
-            await interaction.response.send_message(f"❌ Could not create multiplayer rematch lobby: {str(error)[:700]}", ephemeral=True)
+            await interaction.followup.send(f"❌ Could not create multiplayer rematch lobby: {str(error)[:700]}", ephemeral=True)
             return
-        await interaction.response.send_message("🔁 New open multiplayer Puzzle Battle lobby posted.", ephemeral=True)
+        await interaction.followup.send("🔁 New open multiplayer Puzzle Battle lobby posted.", ephemeral=True)
         return
 
     uid = str(interaction.user.id)
     opponent_id = next((pid for pid, _name in players if pid != uid), "")
     if not opponent_id:
-        await interaction.response.send_message("❌ Your previous opponent could not be found.", ephemeral=True)
+        await interaction.followup.send("❌ Your previous opponent could not be found.", ephemeral=True)
         return
     opponent = interaction.guild.get_member(int(opponent_id))
     if opponent is None:
@@ -9559,7 +9669,7 @@ async def create_puzzle_racer_rematch(interaction):
         except Exception:
             opponent = None
     if opponent is None:
-        await interaction.response.send_message("❌ Your previous opponent is no longer available.", ephemeral=True)
+        await interaction.followup.send("❌ Your previous opponent is no longer available.", ephemeral=True)
         return
     try:
         await _create_puzzle_racer_challenge(
@@ -9571,9 +9681,9 @@ async def create_puzzle_racer_rematch(interaction):
             origin_id=f"rematch:{interaction.id}",
         )
     except Exception as error:
-        await interaction.response.send_message(f"❌ Could not create rematch: {str(error)[:700]}", ephemeral=True)
+        await interaction.followup.send(f"❌ Could not create rematch: {str(error)[:700]}", ephemeral=True)
         return
-    await interaction.response.send_message("🔁 Rematch challenge posted.", ephemeral=True)
+    await interaction.followup.send("🔁 Rematch challenge posted.", ephemeral=True)
 
 
 async def forfeit_puzzle_racer(interaction):
@@ -17337,6 +17447,8 @@ class TradeHomeView(discord.ui.View):
     def __init__(self, user_id):
         super().__init__(timeout=600)
         self.user_id = int(user_id)
+        from next_batch_ui import add_market_buttons
+        add_market_buttons(self)
 
     @discord.ui.button(label='Last Week Economy',emoji='📊',row=2)
     async def economy(self,interaction,button):
@@ -17998,6 +18110,8 @@ class MainMenuView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=600)
         feature_ui.add_buttons(self, row=3)
+        from next_batch_ui import add_economy_button
+        add_economy_button(self,row=3)
 
     @discord.ui.button(label="Pets", emoji="🐾", style=discord.ButtonStyle.success, row=2)
     async def pets(self, interaction, button):
@@ -18304,6 +18418,9 @@ async def on_message(
         content = message.content.strip()
 
         command_lower = content.casefold()
+        if content.startswith('!'):
+            import feature_usage
+            feature_usage.note('command:'+content.split()[0].lower(),message.author.id)
 
         # Puzzle and Chess cards move down after real moves only. Ordinary chat never bumps them.
         await note_single_card_channel_message(message)
@@ -18351,6 +18468,17 @@ async def on_message(
         if command_lower == "!stopsurvival":
             clear_survival_guard(message.channel.id)
             note_survival_stop_requested(message.channel.id)
+            return
+
+        if command_lower in {'!economy', '!eco'}:
+            from next_batch_ui import EconomyView
+            from market_ui import report_embed
+            import economy_history
+            try:
+                report=await asyncio.to_thread(economy_history.last_week)
+                await message.channel.send(embed=report_embed(report),view=EconomyView(),allowed_mentions=discord.AllowedMentions.none())
+            except Exception:
+                await message.channel.send('Economy history is temporarily unavailable.')
             return
 
         if command_lower in {"!menu", "!m"}:
@@ -20044,6 +20172,9 @@ async def on_message(
 
 @client.event
 async def on_ready():
+    from next_batch_ui import restore_public_views
+    try:await restore_public_views(client)
+    except Exception:print('Public recap/match buttons need restore retry.',flush=True)
 
     if getattr(
         client,
@@ -20319,6 +20450,9 @@ async def on_ready():
 
 @client.event
 async def on_interaction(interaction):
+    import feature_usage
+    custom=(interaction.data or {}).get("custom_id", "slash")
+    feature_usage.note("button:"+":".join(custom.split(":")[:2]),interaction.user.id)
     try:
         if interaction.user and not interaction.user.bot and is_chess_channel_id(interaction.channel_id):
             note_chess_human_activity(interaction.channel_id)

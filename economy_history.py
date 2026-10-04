@@ -104,7 +104,8 @@ def last_week(now=None):
         if not ledger._fetch_retry():
             raise RuntimeError('Economy history could not be refreshed. Please try again.')
         data = economy._load()
-        saved = (data or {}).get('reports', {}).get(key, {}).get('report')
+        saved = ((data or {}).get('reports', {}).get(key, {}).get('report') or
+                 (data or {}).get('weekly_snapshots',{}).get(key))
         if saved:
             return saved
         ref = _git('rev-parse', ledger._origin_ref()).decode().strip()

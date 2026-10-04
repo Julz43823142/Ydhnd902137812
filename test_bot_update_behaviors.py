@@ -10,6 +10,10 @@ from holiday_announcements import announce_holiday_starts
 
 
 class TwitchStatusTests(unittest.IsolatedAsyncioTestCase):
+    def setUp(self):
+        self.live_status_patch=patch("twitch_presentation.set_status",return_value={})
+        self.live_status_patch.start()
+        self.addCleanup(self.live_status_patch.stop)
     async def test_live_message_is_kept(self):
         with patch.object(bot, '_twitch_get_live_stream_info', AsyncMock(return_value={'id': 'live'})), patch.object(bot, '_twitch_delete_live_notifications', AsyncMock()) as delete:
             self.assertFalse(await bot._twitch_cleanup_if_offline())

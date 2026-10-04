@@ -48,6 +48,9 @@ def report_embed(report):
     categories=a.get('categories',{})
     if categories:embed.add_field(name='Largest audited sources / sinks',value='\n'.join(f'{k[:65]}: {v:+,.3f}' for k,v in sorted(categories.items(),key=lambda item:abs(item[1]),reverse=True)[:6]),inline=False)
     embed.set_footer(text='First tracked week can be partial · tracked flows only · wager escrow excluded from wallet totals and mint/burn')
+    from economy_health import assess
+    health=report.get('health') or assess(report)
+    embed.add_field(name='Economy Health: '+health['label'],value='\n'.join(health['reasons'])[:1024],inline=False)
     add_next_report(embed)
     return embed
 
@@ -90,9 +93,10 @@ def historical_report_embed(report):
 async def send_economy(interaction):
     await interaction.response.defer()
     try:
+        from next_batch_ui import EconomyView
         from economy_history import last_week
         report=await asyncio.to_thread(last_week)
-        await interaction.followup.send(embed=report_embed(report),allowed_mentions=discord.AllowedMentions.none())
+        await interaction.followup.send(embed=report_embed(report),view=EconomyView(),allowed_mentions=discord.AllowedMentions.none())
     except Exception:
         await interaction.followup.send('Economy history is temporarily unavailable. Please try again.',ephemeral=True)
 
@@ -264,7 +268,7 @@ async def send_market(ctx,mode,page=0,selected=None):
                 from pet_ui import pet_image
                 image=await asyncio.to_thread(pet_image,pet);embed.set_image(url='attachment://pet.png')
             else:
-                embed.add_field(name=f"Looking for: {row['species']}",value=f"Paying **{row['coins']} coins** · {row.get('rarity') or 'Any rarity'} · {row.get('evolution') or 'Any stage'}\nBuyer: {row['buyer_name']} · expires <t:{int(row['expires_at'])}:R>",inline=False)
+                embed.add_field(name=f"Looking for: {row['species']}",value=f"Paying **{row['coins']} coins** · {row.get('rarity') or 'Any rarity'} · {row.get('evolution') or 'Any stage'}\nBuyer: {row['buyer_name']} · expires <t:{int(row['expires_at'])}:R>\n{__import__('market_listings').timing(row)}",inline=False)
         else:embed.add_field(name='Empty',value='No available pets.' if mode=='shelter' else 'No active listings. Create one below.')
         embed.set_footer(text=f'Page {view.page+1} · {len(view.rows)} available')
         kwargs={'embed':embed,'view':view,'allowed_mentions':discord.AllowedMentions.none()}

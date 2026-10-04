@@ -95,6 +95,10 @@ class FeatureView(discord.ui.View):
             economy_button.callback=send_economy
             self.add_item(economy_button)
         if mode in {'event', 'challenge'}:
+            previous=discord.ui.Button(label='Previous Event Recaps',emoji='📚')
+            from next_batch_ui import send_archives
+            previous.callback=send_archives;self.add_item(previous)
+        if mode in {'event', 'challenge'}:
             next_button=discord.ui.Button(label='Next Event',emoji='📅')
             async def upcoming(interaction):
                 await interaction.response.send_message(embed=next_event_embed(),ephemeral=True)

@@ -66,6 +66,8 @@ def menu_view():
     button(view,'My Stats','mg:stats',discord.ButtonStyle.primary)
     button(view,'Quests','mg:quests',discord.ButtonStyle.success)
     button(view,'Game Info','mg:rules',discord.ButtonStyle.secondary)
+    button(view,'Economy','mg:economy',discord.ButtonStyle.primary)
+    button(view,'Admin Stats','mg:usage',discord.ButtonStyle.secondary)
     return view
 
 
@@ -342,6 +344,8 @@ def game_view(g):
     v=discord.ui.View(timeout=None);prefix=f'mg:{g["id"]}:{g["rev"]}:'
     def add(label,action,style=discord.ButtonStyle.secondary):button(v,label,prefix+action,style)
     if g['status']=='finished':
+        if len(g.get('players',[]))>=2 and g.get('started') and not g.get('stats_void'):
+            add('Rematch','rematch',discord.ButtonStyle.success)
         if g.get('kind')=='blackjack':
             stake=float(g.get('stake',0) or 0)
             same_label=(f'Again · {stake:g} coins' if stake else 'Again · Free')
@@ -349,7 +353,8 @@ def game_view(g):
             add('Change Stake','replay_stake',discord.ButtonStyle.primary)
         return v
     if g['status']=='lobby':
-        if len(g['players'])<engine.LIMITS[g['kind']]:add('Join'+(f' · {g["stake"]} coins' if g['stake'] else ' · Free'),'join',discord.ButtonStyle.success)
+        if g.get('invited'):add('Decline Rematch','decline_rematch',discord.ButtonStyle.danger)
+        if len(g['players'])<engine.LIMITS[g['kind']]:add(('Accept Rematch' if g.get('invited') else 'Join')+(f' · {g["stake"]} coins' if g['stake'] else ' · Free'),'join',discord.ButtonStyle.success)
         add('Start Game','start',discord.ButtonStyle.primary);add('Leave / Close','leave')
     else:
         d=g['data'];kind=g['kind']
@@ -782,6 +787,8 @@ class Arcade(discord.Client):
         await self.save('menu:'+str(msg.id),lambda s,w:s.update(menu_id=msg.id))
 
     async def on_ready(self):
+        import feature_usage
+        if not getattr(self,'_usage_task',None):self._usage_task=asyncio.create_task(feature_usage.loop())
         if self.booted:return
         self.booted=True
         self.tasks=[asyncio.create_task(self.bootstrap())]
@@ -1047,7 +1054,15 @@ class Arcade(discord.Client):
                     allowed_mentions=discord.AllowedMentions.none(),
                 )
             return
+        if custom=='mg:economy':
+            from next_batch_ui import send_economy_page
+            await send_economy_page(interaction);return
+        if custom=='mg:usage':
+            from next_batch_ui import send_usage
+            await send_usage(interaction);return
         if not custom.startswith('mg:'):return
+        import feature_usage
+        feature_usage.note('button:minigames:'+custom.split(':')[-1].split('_')[0],interaction.user.id)
         if interaction.channel_id!=CHANNEL_ID or interaction.user.bot:
             await interaction.response.send_message('Use the Minigames channel.',ephemeral=True);return
         # Button/modal activity counts as real human activity for the one-hour help tip.
@@ -1249,6 +1264,8 @@ class Arcade(discord.Client):
                 await self.award_activity_for_game(gid)
                 await self.award_quests_for_game(gid)
                 await self.refresh_one(gid)
+                if command=='rematch' and self.state['games'][gid].get('rematch_id'):
+                    await self.refresh_one(self.state['games'][gid]['rematch_id'])
                 if command=='inspect':
                     g=self.state['games'][gid]
                     response=engine.escape_clue_text(g,uid)

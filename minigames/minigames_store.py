@@ -95,8 +95,29 @@ def transact(txid, callback):
                     raise RuntimeError('Invalid wallet balance.')
                 if entry != original.get(uid):
                     changed[uid] = {'before_coins': before['coins'], 'after_coins': amount}
+            activity=[]
+            for gid,game in state['games'].items():
+                old=before_state['games'].get(gid,{})
+                started=bool(game.get('started')) and not old.get('started')
+                ended=game.get('status')=='finished' and old.get('status')!='finished' and game.get('started') and not game.get('stats_void')
+                if ended:activity.append({'uid':'server','name':'Server','action':'games_completed'})
+                for player in game.get('players',[]):
+                    base={'uid':str(player['id']),'name':player.get('name','Player'),'kind':game['kind'],'record_kind':game['kind']+':'+str(game.get('mode','standard'))}
+                    if started:activity.append({**base,'action':'minigame_started'})
+                    if ended:
+                        score=(game.get('data') or {}).get('score')
+                        activity.append({**base,'action':'minigame_completed','score':score})
+                        activity.append({**base,'action':'game:'+game['kind']})
+                        if str(player['id']) in game.get('winners',[]):activity.append({**base,'action':'minigame_win'})
+            for uid,change in changed.items():
+                delta=change['after_coins']-change['before_coins']
+                if delta:activity.append({'uid':uid,'name':wallets[uid].get('name','Player'),'action':'coins_earned' if delta>0 else 'coins_spent','amount':abs(delta)})
+            def escrow(snapshot):
+                return sum(float(g.get('blackjack_reserved',g.get('stake',0)*len(g.get('players',[]))) or 0)
+                           for g in snapshot['games'].values() if g.get('reserved'))
+            escrow_change=escrow(state)-escrow(before_state)
             event = {'transaction_id': txid, 'operation': 'minigames', 'ledger_build': ledger.LEDGER_BUILD,
-                     'created_at': int(time.time()), 'details': {'wallets': changed}}
+                     'created_at': int(time.time()), 'details': {'wallets': changed, 'activity':activity,'escrow_change':escrow_change}}
             files = {STATE_FILE: encode(state, before_state, raw),
                      ledger._event_filename(txid): ledger._event_json(event)}
             if changed or not migrated:

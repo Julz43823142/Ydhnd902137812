@@ -263,8 +263,9 @@ async def save_guess_open_trades():
 
 
 def _active_guess_open_trades():
+    from market_listings import active as listing_active
     return sorted(
-        [trade for trade in _guess_open_trades.values() if trade.get("status") == "open"],
+        [trade for trade in _guess_open_trades.values() if listing_active(trade)],
         key=lambda trade: float(trade.get("created_at", 0) or 0),
         reverse=True,
     )
@@ -4260,6 +4261,8 @@ def _guess_open_trade_embed(trade):
     if status == "completed":
         line = f"✅ **Accepted by {discord.utils.escape_markdown(str(trade.get('buyer_name') or 'a player'))}**"
         color = 0x57F287
+    elif status == "expired":
+        line="⏳ **Expired — no items or coins moved**";color=0x747F8D
     elif status == "cancelled":
         line = "🚫 **Cancelled**"; color = 0xED4245
     elif status == "invalid":
@@ -4274,6 +4277,8 @@ def _guess_open_trade_embed(trade):
         ),
         color=color,
     )
+    from market_listings import timing
+    embed.description += '\n\n' + timing(trade)
     embed.set_footer(text="First-come, first-served • coins, badges and pets")
     return embed
 
@@ -4348,6 +4353,7 @@ class GuessOpenTradeView(discord.ui.View):
                     trade["request"],
                     f"open-trade-accept:{trade['trade_id']}",
                     trade["trade_id"],
+                    expires_at=__import__("market_listings").expires(trade),
                 )
             except ValueError as error:
                 text = str(error)
@@ -4396,6 +4402,9 @@ class GuessOpenTradeView(discord.ui.View):
             if str(interaction.user.id) not in {str(trade.get("seller_id")), SHARKMEISTER_DEFAULT_USER_ID}:
                 await interaction.followup.send("❌ Only the seller or Sharkmeister can cancel this trade.", ephemeral=True)
                 return
+            from market_listings import register, close
+            await asyncio.to_thread(register, [trade], 'guess')
+            await asyncio.to_thread(close, trade['seller_id'], trade['trade_id'])
             trade["status"] = "cancelled"
             trade["closed_at"] = time.time()
             trade["cancelled_by"] = str(interaction.user.id)
@@ -4457,6 +4466,8 @@ async def create_guess_open_trade(interaction, offer_text, request_text):
         except Exception:
             pass
         raise
+    from market_listings import register
+    await asyncio.to_thread(register, [trade], 'guess')
     return trade
 
 
@@ -4497,6 +4508,10 @@ def guess_open_trades_embed():
 
 
 async def restore_guess_open_trades():
+    from market_listings import register
+    await asyncio.to_thread(register, _guess_open_trades.values(), 'guess')
+    from market_listings import sync_views
+    if not getattr(client,'_listing_sync_task',None):client._listing_sync_task=asyncio.create_task(sync_views(lambda:_guess_open_trades,save_guess_open_trades,_refresh_guess_open_trade_message))
     changed = False
     for trade in _active_guess_open_trades():
         try:
@@ -4513,6 +4528,8 @@ class GuessTradeHomeView(discord.ui.View):
     def __init__(self, user_id):
         super().__init__(timeout=600)
         self.user_id = int(user_id)
+        from next_batch_ui import add_market_buttons
+        add_market_buttons(self)
 
     @discord.ui.button(label='Last Week Economy',emoji='📊',row=2)
     async def economy(self,interaction,button):
@@ -4713,6 +4730,8 @@ class GuessMainMenuView(discord.ui.View):
         super().__init__(timeout=600)
         from feature_ui import add_buttons
         add_buttons(self, row=2)
+        from next_batch_ui import add_economy_button
+        add_economy_button(self,row=2)
 
     @discord.ui.button(label="Pets", emoji="🐾", style=discord.ButtonStyle.success, row=1)
     async def pets(self, interaction, button):
@@ -4783,6 +4802,9 @@ async def command_handler(message):
 
     raw_command = message.content.strip()
     command = raw_command.casefold()
+    if raw_command.startswith('!'):
+        import feature_usage
+        feature_usage.note('command:'+raw_command.split()[0].lower(),message.author.id)
 
     if command in ('!week', '!collection', '!community', '!challenge', '!event'):
         from feature_ui import send_command
@@ -4792,6 +4814,17 @@ async def command_handler(message):
     if (command.split(maxsplit=1) or [""])[0] in {"!pet", "!pets"}:
         from pet_ui import send_pet_command
         await send_pet_command(message)
+        return
+
+    if command in {'!economy', '!eco'}:
+        from next_batch_ui import EconomyView
+        from market_ui import report_embed
+        import economy_history
+        try:
+            report=await asyncio.to_thread(economy_history.last_week)
+            await message.channel.send(embed=report_embed(report),view=EconomyView(),allowed_mentions=discord.AllowedMentions.none())
+        except Exception:
+            await message.channel.send('Economy history is temporarily unavailable.')
         return
 
     if command in {"!m", "!menu"}:
@@ -5361,6 +5394,13 @@ async def command_handler(message):
 
 
 @client.event
+async def on_interaction(interaction):
+    import feature_usage
+    custom=(interaction.data or {}).get('custom_id','slash')
+    feature_usage.note('button:'+':'.join(custom.split(':')[:2]),interaction.user.id)
+
+
+@client.event
 async def on_message(message):
     if not message.author.bot and message.channel.id == CHANNEL_ID:
         note_guess_human_activity()
@@ -5386,6 +5426,8 @@ async def on_message(message):
 
 @client.event
 async def on_ready():
+    import feature_usage
+    if not getattr(client,'_usage_task',None):client._usage_task=asyncio.create_task(feature_usage.loop())
     global SCHEDULER_TASK
 
     if getattr(client, "_guess_controller_started", False):

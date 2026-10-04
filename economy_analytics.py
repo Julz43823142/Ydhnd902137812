@@ -45,6 +45,7 @@ def observe(files,message):
     if data is None:
         # Bootstrap creates the baseline deliberately; no speculative backfill.
         return
+    before_weeks=copy.deepcopy(data["weeks"])
     now=time.time()
     before_raw=ledger._origin_file(ledger.LEGACY_FILE)
     before=json.loads(before_raw) if before_raw else {}
@@ -66,7 +67,8 @@ def observe(files,message):
     delta=round(supply(after)-supply(before),3)
     data['last_wallet_supply']=supply(after)
     is_escrow=any(e.get('operation') in ('chess-wager-reserve','chess-wager-settle','multiplayer-wager-reserve','multiplayer-wager-settle') for _,e in events)
-    economic_delta=0 if is_escrow else delta
+    escrow_change=sum(float(e.get('details',{}).get('escrow_change',0)) for _,e in events)
+    economic_delta=0 if is_escrow else round(delta+escrow_change,3)
     week['minted']=round(week['minted']+max(0,economic_delta),3)
     week['burned']=round(week['burned']+max(0,-economic_delta),3)
     week['closing_supply']=supply(after)
@@ -112,6 +114,13 @@ def observe(files,message):
         event_week['traded_coins']=round(event_week['traded_coins']+sum(float(a.get('amount',0)) for a in (offer,request) if a.get('type')=='coins'),3)
         if sale:
             data['sales'][txid]={**sale,'at':event.get('created_at',now),'receipt_id':txid}
+    day=datetime.fromtimestamp(now,HOLIDAY_ZONE).date().isoformat()
+    daily=data.setdefault('days',{}).setdefault(day,{'opening_supply':supply(before),
+                         'minted':0,'burned':0,'trades':0,'traded_coins':0,'surrenders':0,'adoptions':0})
+    daily.update(closing_supply=supply(after),saved_at=now)
+    for key in ('minted','burned','trades','traded_coins','surrenders','adoptions'):
+        delta=sum(w.get(key,0)-before_weeks.get(k,{}).get(key,0) for k,w in data['weeks'].items())
+        daily[key]=round(daily.get(key,0)+delta,3)
     files[FILE]=json.dumps(data,ensure_ascii=False,sort_keys=True)+'\n'
 
 
@@ -142,15 +151,43 @@ def report(data,wallet,key):
     for receipt in data['receipts'].values():
         if week_key(receipt['completed_at'])!=key:continue
         for pet in receipt.get('pet_transfers',[]):counts[pet['species']]=counts.get(pet['species'],0)+1
-    return {'week':key,'tracking_since':data['tracking_since'],'supply':supply(wallet),
+    result={'week':key,'tracking_since':data['tracking_since'],'supply':supply(wallet),
             'wallets':len(values),'mean':statistics.mean(values) if values else 0,
             'median':statistics.median(values) if values else 0,'top':sorted(wallet.items(),key=lambda item:float(item[1].get('coins',0)),reverse=True)[:3],
             'activity':week,'pet_sales':len(sales),'highest_sale':max((s['coins'] for s in sales),default=None),
             'median_sale':statistics.median(s['coins'] for s in sales) if sales else None,
             'species':counts}
+    from economy_health import assess
+    previous_key=previous_week(week_bounds_start(key))
+    previous=data.get('reports',{}).get(previous_key,{}).get('report')
+    result['health']=assess(result,previous)
+    return result
 
 
 def previous_week(now):
     local=datetime.fromtimestamp(now,HOLIDAY_ZONE)
     monday=local.date()-timedelta(days=local.weekday())
     return week_key(datetime.combine(monday-timedelta(days=1),datetime.min.time(),HOLIDAY_ZONE).timestamp())
+
+
+def week_bounds_start(key):
+    year,week=key.split('-W')
+    return datetime.fromisocalendar(int(year),int(week),1).replace(tzinfo=HOLIDAY_ZONE).timestamp()
+
+
+def freeze_completed_weeks(now=None):
+    """Retain missing closed-week snapshots after downtime; never replace a frozen week."""
+    from market_transactions import run
+    from economy_history import week_bounds
+    now=time.time() if now is None else now
+    def build():
+        data=_load()
+        if not data:return {},{'frozen':0},'economy-history-empty'
+        wallet,_=ledger._origin_state();frozen=data.setdefault('weekly_snapshots',{});count=0
+        for key in data['weeks']:
+            if key not in frozen and week_bounds(key)[1]<=now:
+                row=data.get('reports',{}).get(key,{}).get('report') or report(data,wallet,key)
+                frozen[key]=copy.deepcopy(row);count+=1
+        return {FILE:json.dumps(data)}, {'frozen':count},'economy-history-freeze'
+    local=datetime.fromtimestamp(now,HOLIDAY_ZONE).date().isoformat()
+    return run('economy-history-freeze:'+local,build)
