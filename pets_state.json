@@ -263,6 +263,19 @@
         "happy_at": 1791108628.4203353,
         "id": "8543145f331f465fb923a46cf3ff6ea4",
         "name": "",
+        "puzzle": {
+          "day": "2026-10-04",
+          "fen": "8/6p1/8/5p1p/5P1P/4K3/2k3P1/8 w - - 6 39",
+          "id": "Y6KQw",
+          "index": 0,
+          "moves": [
+            "e3d4",
+            "c2d2",
+            "d4e5",
+            "d2e3",
+            "e5f5"
+          ]
+        },
         "rarity": "common",
         "species": "Dog",
         "xp": 5
