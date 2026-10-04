@@ -29,7 +29,7 @@
     ]
   },
   "442597396195704832": {
-    "active": "4cd600c103e243199044b0bad020a593",
+    "active": "b1f79c9c9de44831a956b2f90a8795ba",
     "expedition": {
       "end": 1791093511.8138034,
       "hours": 12,
@@ -171,6 +171,17 @@
         "species": "Dog",
         "xp": 165,
         "xp_day": "2026-10-03"
+      },
+      {
+        "born_at": 1791072335.280981,
+        "fed_at": 1791072335.280981,
+        "happiness": 80,
+        "happy_at": 1791072335.280981,
+        "id": "b1f79c9c9de44831a956b2f90a8795ba",
+        "name": "",
+        "rarity": "uncommon",
+        "species": "Fox",
+        "xp": 0
       }
     ]
   }
