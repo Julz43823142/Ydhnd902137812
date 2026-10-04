@@ -3998,7 +3998,7 @@
         "winner_name": null,
         "latest_attempts": {},
         "puzzle_id": "random_pL0O0_1791118560674",
-        "last_activity_at": "2026-10-04T12:56:00.674830+00:00",
+        "last_activity_at": "2026-10-04T12:56:22.343352+00:00",
         "rating": 2666,
         "rp_band": 4,
         "boss": false,
@@ -4008,15 +4008,30 @@
         "next_solution_index": 0,
         "next_player_index": 0,
         "solved": false,
-        "message_ids": {},
+        "message_ids": {
+          "1546557493038284840": 1556288877499781200
+        },
         "chat_since_refresh": 0,
-        "attempted_users": {},
+        "attempted_users": {
+          "442597396195704832": {
+            "name": "Thice",
+            "move": "qf5",
+            "correct": false,
+            "timestamp": "2026-10-04T12:56:22.343734+00:00"
+          }
+        },
         "first_move_user_id": null,
         "first_move_user_name": null,
         "first_move_awarded": false,
         "helper_awarded_users": [],
         "helper_candidate_users": [],
-        "channel_id": 1546557493038284840
+        "channel_id": 1546557493038284840,
+        "last_card_activity_at": "2026-10-04T12:56:22.343352+00:00",
+        "recent_accepted_moves": [],
+        "wrong_attempt_counts": {
+          "442597396195704832": 1
+        },
+        "last_feedback": "❌ **Nope, Thice. Mr Thick has entered the chat and the correct move has quietly left.**\n↪️ **Move played:** `qf5`"
       }
     }
   },
