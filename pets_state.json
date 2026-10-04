@@ -130,22 +130,22 @@
         "fed_at": 1791072124.006745,
         "feed_day": "2026-10-04",
         "happiness": 100,
-        "happy_at": 1790942242.4615028,
+        "happy_at": 1791072145.3876605,
         "id": "afc0be81766c4200af07aff4b0a9f7ca",
         "name": "",
         "puzzle": {
           "day": "2026-10-04",
-          "fen": "8/R3ppkp/P5p1/8/2B1b1P1/1Pb1B2P/1r6/2K5 b - - 0 40",
+          "fen": "8/R3ppkp/P5p1/8/2B1b1P1/1Pb1B2P/8/1rK5 w - - 1 41",
           "id": "nBuHw",
-          "index": 0,
+          "index": 1,
           "moves": [
             "b2b1"
           ]
         },
-        "puzzle_day": "2026-10-02",
+        "puzzle_day": "2026-10-04",
         "rarity": "rare",
         "species": "Owl",
-        "xp": 60,
+        "xp": 80,
         "xp_day": "2026-10-02"
       },
       {
