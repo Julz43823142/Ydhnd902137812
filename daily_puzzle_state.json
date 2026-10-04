@@ -3944,7 +3944,7 @@
   },
   "channel_puzzle_state": {
     "1546557493038284840": {
-      "latest_puzzle_type": "random",
+      "latest_puzzle_type": "daily",
       "latest_random_puzzle": {
         "url": "https://lichess.org/training/qtb5C",
         "title": "Lichess • 1884",
@@ -3984,7 +3984,7 @@
         "player_color": "white",
         "player_move_count": 2,
         "posted_at": "2026-10-04T13:58:07.677004+00:00",
-        "answer_posted": false,
+        "answer_posted": true,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
@@ -4000,7 +4000,7 @@
         "next_player_index": 2,
         "solved": true,
         "message_ids": {
-          "1546557493038284840": 1556304467396272229
+          "1546557493038284840": 1556304487411351563
         },
         "chat_since_refresh": 0,
         "attempted_users": {
@@ -4013,7 +4013,7 @@
         },
         "first_move_user_id": "442597396195704832",
         "first_move_user_name": "Thice",
-        "first_move_awarded": false,
+        "first_move_awarded": true,
         "helper_awarded_users": [],
         "helper_candidate_users": [],
         "channel_id": 1546557493038284840,
@@ -4055,7 +4055,11 @@
             "principal": true
           }
         ],
-        "last_feedback": "✅ **Correct, Thice!**\n🎉 **Puzzle solved!**"
+        "last_feedback": "✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1736 points.**\n\nPuzzle Elo: **2525**\n\n💡 **Solution:** Nxe5 Na4\n\n🏆 **Your ranking**\n**#1 🐶 Thice — 1736 points ← you**\n**#2 🍅 TheMakina — 1552 points**",
+        "completion_solver_id": "442597396195704832",
+        "completion_solver_name": "Thice",
+        "activity_bonus_users": [],
+        "auto_next_started": true
       }
     }
   },
