@@ -3603,6 +3603,13 @@ async def scheduler_loop(channel):
         await asyncio.sleep(1.2)
 
 
+async def _guess_shop_trade_asset_from_text(text, owned_badges, pet_owner_id=None):
+    import pet_trading
+    if str(text or '').strip().casefold().startswith(('pet:', 'pet ')):
+        return await asyncio.to_thread(pet_trading.asset_from_text, text, pet_owner_id)
+    return _guess_shop_asset_from_text(text, owned_badges)
+
+
 def _guess_shop_asset_from_text(text, owned_badges):
     raw = str(text or "").strip()
     try:
@@ -3674,7 +3681,7 @@ async def _guess_parse_donation_args(message, arg_text):
 async def _guess_parse_trade_args(message, arg_text):
     words = str(arg_text or "").split()
     if len(words) < 3:
-        raise ValueError("Usage: `!trade <name> <give coins/badge> <receive coins/badge>`")
+        raise ValueError("Usage: `!trade <name> <give coins/badge/pet:ID> <receive coins/badge/pet:ID>`")
     sender_profile = await asyncio.to_thread(
         get_cosmetic_profile, message.author.id, message.author.display_name
     )
@@ -3700,19 +3707,19 @@ async def _guess_parse_trade_args(message, arg_text):
         target_profile = await asyncio.to_thread(get_cosmetic_profile, target_id, target_name)
         for split in range(1, len(remaining)):
             try:
-                offer = _guess_shop_asset_from_text(" ".join(remaining[:split]), sender_profile.get("badges", []))
-                request = _guess_shop_asset_from_text(" ".join(remaining[split:]), target_profile.get("badges", []))
+                offer = await _guess_shop_trade_asset_from_text(" ".join(remaining[:split]), sender_profile.get("badges", []), message.author.id)
+                request = await _guess_shop_trade_asset_from_text(" ".join(remaining[split:]), target_profile.get("badges", []), target_id)
             except Exception:
                 continue
             key = (
-                str(target_id), offer["type"], str(offer.get("amount", offer.get("badge", ""))),
-                request["type"], str(request.get("amount", request.get("badge", ""))),
+                str(target_id), offer["type"], str(offer.get("amount", offer.get("badge", offer.get("pet_id", "")))),
+                request["type"], str(request.get("amount", request.get("badge", request.get("pet_id", "")))),
             )
             if key not in seen:
                 seen.add(key)
                 parsed.append((target_id, target_name, offer, request))
     if not parsed:
-        raise ValueError("Could not understand that trade. Only coins and badges can be traded.")
+        raise ValueError("Could not understand that trade. Coins, badges and pets can be traded. Use pet:<ID> for pets.")
     if len(parsed) > 1:
         raise ValueError("That trade is ambiguous. Mention the player and/or use exact badge emojis.")
     return parsed[0]
@@ -3880,7 +3887,9 @@ def guess_trade_home_embed():
             "📋 **Browse Trades** — see current public Guess-channel offers.\n"
             "🎁 **Donate** — send coins or one badge without asking for anything back.\n"
             "📨 **Pending Trade** — reopen a direct offer waiting for your answer.\n\n"
-            "Typing only `10` means **10 coins**. Badge names/emojis are also accepted."
+            "Typing only `10` means **10 coins**. Badge names/emojis are also accepted.\n"
+            "🐾 **Pets** — use `pet:<ID>` from the Pet Card, or `pet Dog` if the owner has one matching pet.\n"
+            "Prices are set by players. Trades cannot exceed **10 living pets**; pet-for-pet swaps are allowed at the limit."
         ),
         color=0x4DD6B6,
     )
@@ -4071,6 +4080,9 @@ def _guess_profile_has_trade_asset(profile, asset):
     asset = shared_ledger.normalize_trade_asset(asset)
     if asset["type"] == "coins":
         return float(profile.get("coins", 0) or 0) + 1e-9 >= float(asset["amount"])
+    if asset['type'] == 'pet':
+        import pets, pet_trading
+        return pet_trading.available({str(profile.get('user_id')): pets.get_owner(profile.get('user_id'))}, profile.get('user_id'), asset)
     return str(asset["badge"]) in {str(item) for item in profile.get("badges", [])}
 
 
@@ -4081,6 +4093,8 @@ def _guess_same_trade_asset(first, second):
         return False
     if first["type"] == "coins":
         return abs(float(first["amount"]) - float(second["amount"])) < 1e-9
+    if first['type'] == 'pet':
+        return first['pet_id'] == second['pet_id']
     return str(first["badge"]) == str(second["badge"])
 
 
@@ -4089,8 +4103,8 @@ async def create_guess_direct_trade(interaction, target_user_id, target_name, of
         raise ValueError("You cannot trade with yourself.")
     sender_profile = await asyncio.to_thread(get_cosmetic_profile, interaction.user.id, interaction.user.display_name)
     target_profile = await asyncio.to_thread(get_cosmetic_profile, target_user_id, target_name)
-    offer = shared_ledger.normalize_trade_asset(_guess_shop_asset_from_text(offer_text, sender_profile.get("badges", [])))
-    request = shared_ledger.normalize_trade_asset(_guess_shop_asset_from_text(request_text, target_profile.get("badges", [])))
+    offer = shared_ledger.normalize_trade_asset(await _guess_shop_trade_asset_from_text(offer_text, sender_profile.get("badges", []), interaction.user.id))
+    request = shared_ledger.normalize_trade_asset(await _guess_shop_trade_asset_from_text(request_text, target_profile.get("badges", []), target_user_id))
     if _guess_same_trade_asset(offer, request):
         raise ValueError("The offered item and requested item cannot be exactly the same.")
     await asyncio.to_thread(
@@ -4122,8 +4136,8 @@ class GuessDirectTradeModal(discord.ui.Modal):
         super().__init__(title=f"Trade with {clean_name}"[:45])
         self.target_user_id = str(target_user_id)
         self.target_name = clean_name
-        self.give = discord.ui.TextInput(label="You give", placeholder="Example: Ninja or 10", max_length=100)
-        self.want = discord.ui.TextInput(label="You want", placeholder="Example: 10 or Ninja", max_length=100)
+        self.give = discord.ui.TextInput(label="You give", placeholder="Example: 10, Ninja, or pet:<ID>", max_length=100)
+        self.want = discord.ui.TextInput(label="You want", placeholder="Example: 10, Ninja, or pet:<ID>", max_length=100)
         self.add_item(self.give)
         self.add_item(self.want)
 
@@ -4263,7 +4277,7 @@ def _guess_open_trade_embed(trade):
         ),
         color=color,
     )
-    embed.set_footer(text="First-come, first-served • coins and badges only")
+    embed.set_footer(text="First-come, first-served • coins, badges and pets")
     return embed
 
 
@@ -4393,9 +4407,9 @@ class GuessOpenTradeView(discord.ui.View):
 
 async def create_guess_open_trade(interaction, offer_text, request_text):
     seller_profile = await asyncio.to_thread(get_cosmetic_profile, interaction.user.id, interaction.user.display_name)
-    offer = shared_ledger.normalize_trade_asset(_guess_shop_asset_from_text(offer_text, seller_profile.get("badges", [])))
-    request = shared_ledger.normalize_trade_asset(_guess_shop_asset_from_text(request_text, None))
-    if not _guess_profile_has_trade_asset(seller_profile, offer):
+    offer = shared_ledger.normalize_trade_asset(await _guess_shop_trade_asset_from_text(offer_text, seller_profile.get("badges", []), interaction.user.id))
+    request = shared_ledger.normalize_trade_asset(await _guess_shop_trade_asset_from_text(request_text, None))
+    if not await asyncio.to_thread(_guess_profile_has_trade_asset, seller_profile, offer):
         raise ValueError("You do not currently own/have the item you are offering.")
     if _guess_same_trade_asset(offer, request):
         raise ValueError("The offered item and requested item cannot be exactly the same.")
@@ -4406,6 +4420,10 @@ async def create_guess_open_trade(interaction, offer_text, request_text):
         listed = sum(float(item.get("offer", {}).get("amount", 0) or 0) for item in seller_open if item.get("offer", {}).get("type") == "coins")
         if listed + float(offer["amount"]) > float(seller_profile.get("coins", 0) or 0) + 1e-9:
             raise ValueError("Your existing open trades plus this one would offer more coins than you have.")
+    elif offer['type'] == 'pet':
+        if any(item.get('offer', {}).get('type') == 'pet'
+               and item['offer'].get('pet_id') == offer['pet_id'] for item in seller_open):
+            raise ValueError('That pet is already listed in an open trade.')
     else:
         badge = str(offer["badge"])
         owned = sum(1 for item in seller_profile.get("badges", []) if str(item) == badge)
@@ -4444,8 +4462,8 @@ async def create_guess_open_trade(interaction, offer_text, request_text):
 
 
 class GuessOpenTradeModal(discord.ui.Modal, title="Create Open Trade"):
-    give = discord.ui.TextInput(label="You give", placeholder="Example: Ninja or 10", max_length=100)
-    want = discord.ui.TextInput(label="You want", placeholder="Example: 10 or Ninja", max_length=100)
+    give = discord.ui.TextInput(label="You give", placeholder="Example: 10, Ninja, or pet:<ID>", max_length=100)
+    want = discord.ui.TextInput(label="You want", placeholder="Example: 10, Ninja, or pet:<ID>", max_length=100)
 
     async def on_submit(self, interaction):
         await interaction.response.defer(ephemeral=True)
