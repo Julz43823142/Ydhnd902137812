@@ -54,7 +54,7 @@
         "xp": 25
       },
       "start": 1791108556.917684,
-      "status": "running"
+      "status": "claimed"
     },
     "pets": [
       {
@@ -295,7 +295,7 @@
         "puzzle_day": "2026-10-04",
         "rarity": "common",
         "species": "Rabbit",
-        "xp": 25
+        "xp": 50
       },
       {
         "born_at": 1791108570.1412249,
