@@ -306,6 +306,9 @@ def refresh_for_read(fetch=None):
     All callers still read the current origin ref, including newly committed data.
     """
     global _READ_REFRESH
+    from repository_transaction import current
+    if current() is not None:
+        return True
     with REPOSITORY_LOCK:
         scope = (os.getcwd(), _branch())
         now = time.monotonic()
@@ -334,10 +337,17 @@ def _branch():
 
 
 def _origin_ref():
+    from repository_transaction import current
+    transaction = current()
+    if transaction is not None:
+        return transaction.base
     return f"origin/{_branch()}"
 
 
 def _fetch():
+    from repository_transaction import current
+    if current() is not None:
+        return True
     branch = _branch()
     result = _run([
         "git",
@@ -358,6 +368,10 @@ def _fetch_retry(attempts=4):
 
 
 def _origin_file(path):
+    from repository_transaction import current
+    transaction = current()
+    if transaction is not None:
+        return transaction.read(path)
     result = _run(["git", "show", f"{_origin_ref()}:{path}"])
     if result.returncode != 0:
         return None
@@ -837,6 +851,11 @@ def _commit_snapshot(base_commit, files, message):
 
 
 def _push_files(files, message):
+    from repository_transaction import current
+    transaction = current()
+    if transaction is not None:
+        transaction.files.update(files)
+        return True
     base = _run(["git", "rev-parse", _origin_ref()])
     if base.returncode != 0:
         return False

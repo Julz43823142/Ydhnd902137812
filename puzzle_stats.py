@@ -91,10 +91,17 @@ def _branch():
 
 
 def _origin_ref():
+    from repository_transaction import current
+    transaction = current()
+    if transaction is not None:
+        return transaction.base
     return f"origin/{_branch()}"
 
 
 def _fetch():
+    from repository_transaction import current
+    if current() is not None:
+        return True
     result = _run([
         "git", "fetch", "origin",
         f"+refs/heads/{_branch()}:refs/remotes/origin/{_branch()}",
@@ -103,6 +110,10 @@ def _fetch():
 
 
 def _origin_file(path):
+    from repository_transaction import current
+    transaction = current()
+    if transaction is not None:
+        return transaction.read(path)
     result = _run(["git", "show", f"{_origin_ref()}:{path}"])
     if result.returncode != 0:
         return None
@@ -252,6 +263,10 @@ def _git_blob(content):
 
 
 def _commit_files(base_commit, files, message):
+    from repository_transaction import current
+    transaction = current()
+    if transaction is not None:
+        return transaction.prepare(files)
     with tempfile.TemporaryDirectory(prefix="puzzle-stats-index-") as temp_dir:
         index_file = os.path.join(temp_dir, "index")
         index_env = os.environ.copy()
@@ -289,6 +304,10 @@ def _commit_files(base_commit, files, message):
 
 
 def _push_commit(commit_id, base_commit):
+    from repository_transaction import current
+    transaction = current()
+    if transaction is not None:
+        return transaction.publish(commit_id)
     branch = _branch()
     result = _run([
         "git", "push", "origin",
@@ -299,6 +318,11 @@ def _push_commit(commit_id, base_commit):
 
 
 def _write_local(path, content):
+    from repository_transaction import current
+    transaction = current()
+    if transaction is not None:
+        transaction.local_writes[path] = content
+        return
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
     temp = target.with_suffix(target.suffix + ".tmp")

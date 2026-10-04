@@ -6556,27 +6556,6 @@ async def _known_channel_message(channel, message_id):
     return partial(int(message_id)) if callable(partial) else await channel.fetch_message(int(message_id))
 
 
-_puzzle_card_images = {}
-
-
-def _remember_puzzle_card_image(channel_id, message):
-    """Short-lived public attachment URLs avoid GETs for text-only feedback."""
-    embeds = getattr(message, 'embeds', None)
-    message_id = getattr(message, 'id', None)
-    if isinstance(embeds, list) and embeds and isinstance(message_id, int):
-        url = embeds[0].image.url
-        if isinstance(url, str) and url.startswith('https://'):
-            key = (int(channel_id), message_id)
-            _puzzle_card_images[key] = (url, time.monotonic())
-            while len(_puzzle_card_images) > 128:
-                del _puzzle_card_images[next(iter(_puzzle_card_images))]
-
-
-def _cached_puzzle_card_image(channel_id, message_id):
-    value = _puzzle_card_images.get((int(channel_id), int(message_id)))
-    return value[0] if value and time.monotonic() - value[1] < 300 else None
-
-
 async def send_chess_game_position(channel, game, note=None, *, move_to_bottom=False, cosmetic_profile=None):
     """Create or refresh the one public board card for a chess game."""
     file, board = await make_chess_game_file(game, cosmetic_profile=cosmetic_profile)
@@ -10182,6 +10161,7 @@ def _looks_like_puzzle_answer_attempt(text):
         value = value[1:].strip()
     if not value or len(value) > 24:
         return False
+    value = _clean_puzzle_answer_text(value)
     tokens = value.split()
     if not (1 <= len(tokens) <= 3):
         return False
@@ -10204,7 +10184,8 @@ def _clean_puzzle_answer_text(text):
     if value.startswith("!"):
         value = value[1:].strip()
     parts = value.split()
-    return " ".join(re.sub(r"[!?]{1,2}$", "", part) for part in parts)
+    cleaned = " ".join(re.sub(r"[!?]{1,2}$", "", part) for part in parts)
+    return re.sub(r'^([KQRBN])\s+([a-h][1-8][+#]?)$', r'\1\2', cleaned, flags=re.IGNORECASE)
 
 
 RUSH_MISTAKE_REVIEW_STATE_KEY = "puzzle_rush_mistake_reviews_v1"
@@ -11063,7 +11044,7 @@ async def post_daily_puzzle(
         allowed_mentions=discord.AllowedMentions.none(),
     )
     _set_puzzle_message_id_for_channel(puzzle, channel.id, posted.id)
-    _remember_puzzle_card_image(channel.id, posted)
+    puzzle.setdefault('board_attachment_filenames', {})[str(channel.id)] = file.filename
     puzzle["chat_since_refresh"] = 0
 
     print(
@@ -11263,7 +11244,7 @@ async def post_random_puzzle(
             )
 
             _set_puzzle_message_id_for_channel(puzzle, channel.id, message.id)
-            _remember_puzzle_card_image(channel.id, message)
+            puzzle.setdefault('board_attachment_filenames', {})[str(channel.id)] = file.filename
             save_json(STATE_FILE, state)
 
             print(
@@ -11670,7 +11651,11 @@ async def save_attempt(
 # PERSONAL PUZZLE STATS / ELO / STREAK
 # =========================================================
 
-async def record_official_puzzle_result(
+async def record_official_puzzle_result(puzzle, user, correct):
+    return await asyncio.to_thread(_record_official_puzzle_result_sync, puzzle, user, correct)
+
+
+def _record_official_puzzle_result_sync(
     puzzle,
     user,
     correct,
@@ -11692,17 +11677,11 @@ async def record_official_puzzle_result(
         source = "daily" if puzzle_id.startswith("daily_") else "random"
 
     try:
-        result = await asyncio.to_thread(
-            record_puzzle_attempt,
-            puzzle_id,
-            user.id,
-            user.display_name,
-            bool(correct),
-            puzzle_rating=puzzle.get("rating"),
-            boss=bool(puzzle.get("boss", False)),
-            source=source,
-        )
+        result = record_puzzle_attempt(puzzle_id, user.id, user.display_name, bool(correct), puzzle_rating=puzzle.get('rating'), boss=bool(puzzle.get('boss', False)), source=source)
     except Exception as error:
+        from repository_transaction import current
+        if current() is not None:
+            raise
         print(
             f"Puzzle stats error for {user.display_name}: {error}",
             flush=True,
@@ -11715,22 +11694,14 @@ async def record_official_puzzle_result(
     if result.get("streak_bonus") and source != "practice":
         try:
             activity_started_ns = time.time_ns()
-            await asyncio.to_thread(
-                shared_credit_coins,
-                user.id,
-                user.display_name,
-                1.0,
-                f"puzzle-streak-bonus:{puzzle_id}:{user.id}",
-                "puzzle-streak-bonus",
-            )
+            shared_credit_coins(user.id, user.display_name, 1.0, f'puzzle-streak-bonus:{puzzle_id}:{user.id}', 'puzzle-streak-bonus')
             result["streak_bonus_coin_awarded"] = True
-            if await asyncio.to_thread(
-                shared_ledger.activity_bonus_awarded_since,
-                user.id,
-                activity_started_ns,
-            ):
+            if shared_ledger.activity_bonus_awarded_since(user.id, activity_started_ns):
                 result["activity_bonus_awarded"] = True
         except Exception as error:
+            from repository_transaction import current
+            if current() is not None:
+                raise
             result["streak_bonus_coin_warning"] = True
             print(
                 f"Puzzle streak coin bonus error for {user.display_name}: {error}",
@@ -11745,22 +11716,14 @@ async def record_official_puzzle_result(
             continue
         try:
             activity_started_ns = time.time_ns()
-            await asyncio.to_thread(
-                shared_credit_coins,
-                user.id,
-                user.display_name,
-                1.0,
-                f"puzzle-achievement:{user.id}:{achievement_id}",
-                "puzzle-achievement",
-            )
+            shared_credit_coins(user.id, user.display_name, 1.0, f'puzzle-achievement:{user.id}:{achievement_id}', 'puzzle-achievement')
             achievement_reward_coins += 1
-            if await asyncio.to_thread(
-                shared_ledger.activity_bonus_awarded_since,
-                user.id,
-                activity_started_ns,
-            ):
+            if shared_ledger.activity_bonus_awarded_since(user.id, activity_started_ns):
                 result["activity_bonus_awarded"] = True
         except Exception as error:
+            from repository_transaction import current
+            if current() is not None:
+                raise
             result["achievement_reward_warning"] = True
             print(
                 f"Puzzle achievement coin reward error for {user.display_name}/{achievement_id}: {error}",
@@ -11800,7 +11763,13 @@ def achievement_unlock_text(result):
 # RANDOM PUZZLE SCORING
 # =========================================================
 
-async def award_random_move_points(
+async def award_random_move_points(puzzle, user, first_move):
+    result = await asyncio.to_thread(_award_random_move_points_sync, puzzle, user, first_move)
+    await save_all()
+    return result
+
+
+def _award_random_move_points_sync(
     puzzle,
     user,
     first_move
@@ -11838,7 +11807,7 @@ async def award_random_move_points(
             # Exact-rating `!2500`-style practice remains training-only.
             if not rated_practice:
                 puzzle["first_move_awarded"] = True
-                await save_all()
+
                 return "none"
 
             point_amount = 1.0
@@ -11849,26 +11818,15 @@ async def award_random_move_points(
             )
             activity_started_ns = time.time_ns()
 
-            await asyncio.to_thread(
-                shared_add_points,
-                user.id,
-                user.display_name,
-                point_amount,
-                point_transaction_id,
-                source="rated-practice-solve",
-            )
-            if await asyncio.to_thread(
-                shared_ledger.activity_bonus_awarded_since,
-                user.id,
-                activity_started_ns,
-            ):
+            shared_add_points(user.id, user.display_name, point_amount, point_transaction_id, source='rated-practice-solve')
+            if shared_ledger.activity_bonus_awarded_since(user.id, activity_started_ns):
                 bonus_users = puzzle.setdefault("activity_bonus_users", [])
                 if user_id not in bonus_users:
                     bonus_users.append(user_id)
             puzzle[
                 "first_move_awarded"
             ] = True
-            await save_all()
+
             return "practice"
 
         transaction_id = (
@@ -11884,36 +11842,18 @@ async def award_random_move_points(
         )
 
         activity_started_ns = time.time_ns()
-        await asyncio.to_thread(
-            shared_add_points,
-            user.id,
-            user.display_name,
-            first_amount,
-            transaction_id,
-            source=(
-                "puzzle-boss-first"
-                if puzzle.get("boss", False)
-                else "puzzle-first"
-            ),
-        )
-        if await asyncio.to_thread(
-            shared_ledger.activity_bonus_awarded_since,
-            user.id,
-            activity_started_ns,
-        ):
+        shared_add_points(user.id, user.display_name, first_amount, transaction_id, source='puzzle-boss-first' if puzzle.get('boss', False) else 'puzzle-first')
+        if shared_ledger.activity_bonus_awarded_since(user.id, activity_started_ns):
             bonus_users = puzzle.setdefault("activity_bonus_users", [])
             if user_id not in bonus_users:
                 bonus_users.append(user_id)
 
         try:
-            await asyncio.to_thread(
-                record_first_solve,
-                puzzle.get("puzzle_id", "unknown"),
-                user.id,
-                user.display_name,
-                boss=bool(puzzle.get("boss", False)),
-            )
+            record_first_solve(puzzle.get('puzzle_id', 'unknown'), user.id, user.display_name, boss=bool(puzzle.get('boss', False)))
         except Exception as error:
+            from repository_transaction import current
+            if current() is not None:
+                raise
             print(
                 f"Puzzle first-solve stats error for {user.display_name}: {error}",
                 flush=True,
@@ -11923,7 +11863,7 @@ async def award_random_move_points(
             "first_move_awarded"
         ] = True
 
-        await save_all()
+
         return "first"
 
     if practice_only:
@@ -11960,23 +11900,8 @@ async def award_random_move_points(
     )
 
     activity_started_ns = time.time_ns()
-    await asyncio.to_thread(
-        shared_add_points,
-        user.id,
-        user.display_name,
-        helper_amount,
-        transaction_id,
-        source=(
-            "puzzle-boss-helper"
-            if puzzle.get("boss", False)
-            else "puzzle-helper"
-        ),
-    )
-    if await asyncio.to_thread(
-        shared_ledger.activity_bonus_awarded_since,
-        user.id,
-        activity_started_ns,
-    ):
+    shared_add_points(user.id, user.display_name, helper_amount, transaction_id, source='puzzle-boss-helper' if puzzle.get('boss', False) else 'puzzle-helper')
+    if shared_ledger.activity_bonus_awarded_since(user.id, activity_started_ns):
         bonus_users = puzzle.setdefault("activity_bonus_users", [])
         if user_id not in bonus_users:
             bonus_users.append(user_id)
@@ -11985,8 +11910,62 @@ async def award_random_move_points(
         user_id
     )
 
-    await save_all()
+
     return "helper"
+
+
+def _puzzle_completion_rewards_sync(puzzle, user):
+    """Reuse the existing stats/wallet/quest/pet writers in one atomic group."""
+    import copy
+    from types import SimpleNamespace
+    from repository_transaction import run
+    original = copy.deepcopy(puzzle)
+    txid = f"puzzle-completion:{original['puzzle_id']}:{user.id}"
+
+    def build():
+        working = copy.deepcopy(original)
+        personal = _record_official_puzzle_result_sync(working, user, True)
+        if personal and personal.get('activity_bonus_awarded'):
+            bonus_users = working.setdefault('activity_bonus_users', [])
+            if str(user.id) not in bonus_users:
+                bonus_users.append(str(user.id))
+        first_id = str(working.get('first_move_user_id') or '')
+        helpers = list(dict.fromkeys(str(uid) for uid in working.get('helper_candidate_users', [])
+                                    if str(uid) != first_id))
+        contributors = ([first_id] if first_id else []) + helpers
+        actions = []
+        for uid in contributors:
+            name = (working.get('first_move_user_name') if uid == first_id else None)
+            name = name or working.get('attempted_users', {}).get(uid, {}).get('name') or 'Player'
+            participant = SimpleNamespace(id=int(uid), display_name=name)
+            _award_random_move_points_sync(working, participant, uid == first_id)
+            training_only = bool(working.get('practice_only')) or str(working['puzzle_id']).startswith('random_lichess_')
+            if not training_only or working.get('rated_practice'):
+                actions.append({
+                    'user_id': uid, 'display_name': name, 'action': 'puzzle_solve',
+                    'transaction_id': f"quest:puzzle-solve:{working['puzzle_id']}:{uid}",
+                    'metadata': {'source': 'practice' if working.get('rated_practice') else
+                                 'boss' if working.get('boss') else 'puzzle',
+                                 'boss': bool(working.get('boss'))},
+                })
+        quests_result = quest_tracker.record_actions(actions)
+        return {
+            'personal_result': personal, 'quest_result': quests_result,
+            'first_move_awarded': bool(working.get('first_move_awarded')),
+            'helper_awarded_users': working.get('helper_awarded_users', []),
+            'activity_bonus_users': working.get('activity_bonus_users', []),
+            'points': get_player_score(user.id), 'coins': get_player_coins(user.id),
+            'ranking': get_personal_ranking(user.id),
+        }
+    training_only = bool(original.get('practice_only')) or str(original['puzzle_id']).startswith('random_lichess_')
+    return build() if training_only and not original.get('rated_practice') else run(txid, build)
+
+
+async def complete_puzzle_rewards(puzzle, user):
+    result = await asyncio.to_thread(_puzzle_completion_rewards_sync, puzzle, user)
+    for key in ('first_move_awarded', 'helper_awarded_users', 'activity_bonus_users'):
+        puzzle[key] = result[key]
+    return result
 
 
 # =========================================================
@@ -15867,7 +15846,26 @@ async def _mirror_daily_puzzle_card(source_channel, puzzle, *, move_to_bottom=Fa
             print(f"Could not mirror Daily Puzzle card to {channel_id}: {error}", flush=True)
 
 
-async def update_random_puzzle_message(
+_puzzle_card_locks = {}
+
+
+async def update_random_puzzle_message(channel, puzzle, message_text=None, *, move_to_bottom=False,
+                                       render_board=True, mirror_daily=True):
+    # Serialize reading/changing the card ID with its send/delete. Two quick
+    # accepted moves must delete their immediate predecessor, not the same old ID.
+    lock = _puzzle_card_locks.setdefault(int(channel.id), asyncio.Lock())
+    async with lock:
+        result = await _update_random_puzzle_message(
+            channel, puzzle, message_text, move_to_bottom=move_to_bottom,
+            render_board=render_board, mirror_daily=False,
+        )
+    # Release before mirroring so updates in the two chess channels cannot deadlock.
+    if mirror_daily and result is not None:
+        await _mirror_daily_puzzle_card(channel, puzzle, move_to_bottom=move_to_bottom)
+    return result
+
+
+async def _update_random_puzzle_message(
     channel,
     puzzle,
     message_text=None,
@@ -15928,12 +15926,13 @@ async def update_random_puzzle_message(
     )
     embed.set_image(url="attachment://random_puzzle.png")
     embed.set_footer(text="Moves update this same puzzle card to keep the channel clean")
-    card_view = None if puzzle.get("answer_posted") or puzzle.get("solved") else PuzzleMoveToBottomView()
+    card_view = (PuzzleCompletionRetryView(puzzle) if puzzle.get('completion_failed') else
+                 None if puzzle.get("answer_posted") or puzzle.get("solved") else PuzzleMoveToBottomView())
 
     if message_id and not move_to_bottom:
-        cached_url = _cached_puzzle_card_image(channel.id, message_id)
+        attachment_name = puzzle.get('board_attachment_filenames', {}).get(str(channel.id))
         try:
-            old_message = await _known_channel_message(channel, message_id) if file is not None or cached_url else await channel.fetch_message(int(message_id))
+            old_message = await _known_channel_message(channel, message_id) if file is not None or attachment_name else await channel.fetch_message(int(message_id))
         except discord.NotFound:
             old_message = None
             _set_puzzle_message_id_for_channel(puzzle, channel.id, None)
@@ -15944,14 +15943,23 @@ async def update_random_puzzle_message(
         if old_message is not None:
             try:
                 if file is None:
-                    if cached_url:
-                        embed.set_image(url=cached_url)
-                    elif old_message.embeds and old_message.embeds[0].image.url:
-                        embed.set_image(url=old_message.embeds[0].image.url)
-                    updated = await old_message.edit(embed=embed, view=card_view)
+                    if not attachment_name:
+                        attachments = getattr(old_message, 'attachments', [])
+                        attachment_name = next((item.filename for item in attachments
+                                                if item.filename.endswith('.png')), None)
+                    if attachment_name:
+                        embed.set_image(url=f'attachment://{attachment_name}')
+                        puzzle.setdefault('board_attachment_filenames', {})[str(channel.id)] = attachment_name
+                        await old_message.edit(embed=embed, view=card_view)
+                    else:
+                        # Legacy cards without a board attachment need a new
+                        # embedded file, never a CDN link plus a standalone file.
+                        file, _board = await make_board_file(puzzle, 'random_puzzle.png')
+                        await old_message.edit(embed=embed, attachments=[file], view=card_view)
+                        puzzle.setdefault('board_attachment_filenames', {})[str(channel.id)] = file.filename
                 else:
-                    updated = await old_message.edit(embed=embed, attachments=[file], view=card_view)
-                _remember_puzzle_card_image(channel.id, updated)
+                    await old_message.edit(embed=embed, attachments=[file], view=card_view)
+                    puzzle.setdefault('board_attachment_filenames', {})[str(channel.id)] = file.filename
                 if mirror_daily:
                     await _mirror_daily_puzzle_card(channel, puzzle, move_to_bottom=False)
                 return old_message
@@ -15973,7 +15981,7 @@ async def update_random_puzzle_message(
     )
     old_message_id = message_id
     _set_puzzle_message_id_for_channel(puzzle, channel.id, sent.id)
-    _remember_puzzle_card_image(channel.id, sent)
+    puzzle.setdefault('board_attachment_filenames', {})[str(channel.id)] = file.filename
     puzzle["chat_since_refresh"] = 0
 
     if move_to_bottom and old_message_id and int(old_message_id) != int(sent.id):
@@ -15985,6 +15993,197 @@ async def update_random_puzzle_message(
     if mirror_daily:
         await _mirror_daily_puzzle_card(channel, puzzle, move_to_bottom=move_to_bottom)
     return sent
+
+
+class PuzzleCompletionRetryView(discord.ui.View):
+    def __init__(self, puzzle):
+        super().__init__(timeout=None)
+        self.puzzle = puzzle
+        self.busy = asyncio.Lock()
+        key = hashlib.sha256(str(puzzle['puzzle_id']).encode()).hexdigest()[:24]
+        self.children[0].custom_id = f'shark:puzzle-rewards:{key}'
+
+    @discord.ui.button(label='Retry Rewards', emoji='🔄', style=discord.ButtonStyle.primary)
+    async def retry(self, interaction, button):
+        from types import SimpleNamespace
+        await interaction.response.defer(ephemeral=True)
+        async with self.busy:
+            proxy = InteractionMessageProxy(interaction)
+            proxy.author = SimpleNamespace(id=int(self.puzzle['completion_solver_id']),
+                                           display_name=self.puzzle['completion_solver_name'])
+            success = await finish_random_puzzle_completion(proxy, self.puzzle)
+            await interaction.followup.send(
+                'Puzzle rewards confirmed.' if success else 'Rewards are still pending. Retry safely later.',
+                ephemeral=True,
+            )
+
+
+async def finish_random_puzzle_completion(message, puzzle, *, feedback_sent=True,
+                                          alternate_solution_accepted=False, accepted_san=None,
+                                          opponent_replies=()):
+    puzzle['solved'] = True
+    puzzle['completion_solver_id'] = str(message.author.id)
+    puzzle['completion_solver_name'] = message.author.display_name
+    if puzzle is _latest_random_for_channel(message.channel.id) and state.get('current_puzzle'):
+        _set_latest_puzzle_type_for_channel(message.channel.id, 'daily')
+    try:
+        completion = await complete_puzzle_rewards(puzzle, message.author)
+    except Exception as error:
+        print(f'Puzzle completion could not be confirmed: {type(error).__name__}', flush=True)
+        puzzle['completion_failed'] = True
+        await update_random_puzzle_message(
+            message.channel, puzzle,
+            '🎉 **Puzzle solved!**\nRewards could not be confirmed yet. Use **Retry Rewards**; retries cannot pay twice.',
+            move_to_bottom=not feedback_sent, render_board=not feedback_sent,
+        )
+        await save_all()
+        return False
+    puzzle.pop('completion_failed', None)
+    personal_result = completion.get('personal_result')
+    practice_only = bool(puzzle.get('practice_only')) or str(puzzle.get('puzzle_id', '')).startswith('random_lichess_')
+    rated_practice = bool(puzzle.get('rated_practice'))
+    is_boss = bool(puzzle.get('boss'))
+    first_user_id = puzzle.get('first_move_user_id')
+    helper_users = [str(uid) for uid in puzzle.get('helper_candidate_users', []) if str(uid) != str(first_user_id)]
+    points, ranking = completion['points'], completion['ranking']
+    embed_progress = ""
+    if alternate_solution_accepted and accepted_san:
+        embed_progress += f"\n✅ **Alternative checkmate accepted:** {accepted_san}"
+
+    if opponent_replies:
+        embed_progress += (
+            "\n"
+            f"↩️ **Opponent:** "
+            f"{' '.join(opponent_replies)}"
+        )
+
+    first_reward = 2.0 if is_boss else 1.0
+    helper_reward = 1.0 if is_boss else 0.5
+    awarded_for_solver = 0.0
+
+    if (
+        not practice_only
+        and str(
+            message.author.id
+        ) == str(first_user_id)
+    ):
+        awarded_for_solver = first_reward
+
+    elif (
+        not practice_only
+        and str(
+            message.author.id
+        ) in helper_users
+    ):
+        awarded_for_solver = helper_reward
+
+    if practice_only:
+        coins = completion['coins']
+        if rated_practice:
+            updated_stats = (personal_result or {}).get("stats", {})
+            elo_now = int(round(float(updated_stats.get("elo", 1500))))
+            score_message = (
+                f"✅ **Correct, {message.author.display_name}!**\n"
+                f"🎉 **Practice solved!**\n"
+                f"Puzzle Elo: **{elo_now}**\n"
+                f"**+1 point** • **+1 coin** — you now have "
+                f"**{format_points(points)} points** and **{shared_format_points(coins)} coins**."
+            )
+        else:
+            score_message = (
+                f"✅ **Correct, {message.author.display_name}!**\n"
+                f"🎉 **Practice puzzle solved!**\n"
+                "Exact-rating practice — **no shared points or coins**."
+            )
+    elif awarded_for_solver == first_reward and awarded_for_solver > 0:
+        score_message = (
+            f"✅ **Correct, {message.author.display_name}!**\n"
+            f"🎉 **Puzzle solved!**\n"
+            f"**+{format_points(first_reward)} point"
+            f"{'s' if first_reward != 1 else ''}** — you now have "
+            f"**{format_points(points)} points.**"
+        )
+    elif awarded_for_solver == helper_reward and awarded_for_solver > 0:
+        score_message = (
+            f"✅ **Correct, {message.author.display_name}!**\n"
+            f"🎉 **Puzzle solved!**\n"
+            f"**+{format_points(helper_reward)} point"
+            f"{'s' if helper_reward != 1 else ''} for helping** — "
+            f"you now have **{format_points(points)} points.**"
+        )
+    else:
+        score_message = (
+            f"✅ **Correct, {message.author.display_name}!**\n"
+            f"🎉 **Puzzle solved!**\n"
+            f"You have **{format_points(points)} points.**"
+        )
+
+    if str(message.author.id) in {str(uid) for uid in puzzle.get("activity_bonus_users", [])}:
+        score_message += "\n🔥 **Daily Activity Bonus: +10 coins**"
+
+    # Keep the full completion summary, rewards and solution on the same card.
+    completion_lines = [score_message]
+    if embed_progress:
+        completion_lines.append(embed_progress.strip())
+    if personal_result and personal_result.get('stats') and not rated_practice:
+        elo = int(round(float(personal_result['stats'].get('elo', 1500))))
+        completion_lines.append(f"Puzzle Elo: **{elo}**")
+    if personal_result and personal_result.get('streak_bonus') and not rated_practice:
+        streak = personal_result.get('stats', {}).get('current_streak', 0)
+        completion_lines.append(f"🔥 **{streak}-puzzle streak! +1 bonus coin.**")
+    unlock_text = achievement_unlock_text(personal_result)
+    if unlock_text:
+        completion_lines.append(unlock_text)
+    quest_text = _quest_completion_text(completion.get('quest_result', {}))
+    if quest_text:
+        completion_lines.append(quest_text)
+
+    if (
+        not practice_only
+        and first_user_id
+        and str(message.author.id)
+        != str(first_user_id)
+    ):
+        first_name = puzzle.get(
+            "first_move_user_name",
+            "First solver"
+        )
+
+        first_reward = 2.0 if is_boss else 1.0
+        first_bonus = (
+            str(first_user_id) in {str(uid) for uid in puzzle.get("activity_bonus_users", [])}
+        )
+        first_notice = (
+            f"🏆 **{first_name} found the first move!** "
+            f"**+{format_points(first_reward)} point"
+            f"{'s' if first_reward != 1 else ''}**."
+        )
+        if first_bonus:
+            first_notice += "\n🔥 **Daily Activity Bonus: +10 coins**"
+        completion_lines.append(first_notice)
+
+    displayed_moves = puzzle.get("accepted_solution_moves") or puzzle.get("player_moves", [])
+    player_solution = " ".join(
+        str(move.get("san", ""))
+        for move in displayed_moves
+        if isinstance(move, dict) and move.get("san")
+    )
+    if player_solution:
+        completion_lines.append(f"💡 **Solution:** {player_solution}")
+    if ranking:
+        completion_lines.append(ranking)
+
+    puzzle["answer_posted"] = True
+    await update_random_puzzle_message(
+        message.channel,
+        puzzle,
+        "\n\n".join(completion_lines),
+        move_to_bottom=not feedback_sent,
+        render_board=not feedback_sent,
+    )
+    await save_all()
+
+    return True
 
 
 async def handle_random_answer(
@@ -16339,7 +16538,7 @@ async def handle_random_answer(
     elif next_player_index >= len(player_moves):
         immediate_feedback = (
             f"✅ **Correct, {message.author.display_name}!**\n"
-            "🎉 **Puzzle solved!**\nUpdating stats and rewards…"
+            "🎉 **Puzzle solved!**"
         )
     else:
         remaining = len(player_moves) - next_player_index
@@ -16358,6 +16557,14 @@ async def handle_random_answer(
     except Exception as error:
         # A Discord/render failure must not cancel earned rewards.
         print(f"Could not show immediate puzzle feedback: {error}", flush=True)
+
+    if correct and next_player_index >= len(player_moves):
+        await finish_random_puzzle_completion(
+            message, puzzle, feedback_sent=feedback_sent,
+            alternate_solution_accepted=alternate_solution_accepted,
+            accepted_san=accepted_san, opponent_replies=opponent_replies,
+        )
+        return
 
     personal_result = await record_official_puzzle_result(
         puzzle,
@@ -16392,324 +16599,7 @@ async def handle_random_answer(
             )
         return
 
-    # -----------------------------------------------------
-    # PUZZLE COMPLETE
-    #
-    # IMPORTANT:
-    # No points are awarded yet. We only record the first
-    # move solver and helpers while the puzzle is in progress.
-    # Points are awarded ONLY when the full puzzle is solved.
-    # -----------------------------------------------------
-
-    # -----------------------------------------------------
-    # PUZZLE COMPLETE
-    # -----------------------------------------------------
-
-    if next_player_index >= len(player_moves):
-        puzzle["solved"] = True
-        # Once an RP/Practice finishes, ordinary moves can immediately target the Daily again.
-        if puzzle is _latest_random_for_channel(message.channel.id) and state.get("current_puzzle"):
-            _set_latest_puzzle_type_for_channel(message.channel.id, "daily")
-
-        # -----------------------------------------------------
-        # NOW, AND ONLY NOW, AWARD POINTS
-        # -----------------------------------------------------
-
-        first_user_id = puzzle.get(
-            "first_move_user_id"
-        )
-
-        helper_users = [
-            uid
-            for uid in puzzle.get(
-                "helper_candidate_users",
-                []
-            )
-            if str(uid) != str(first_user_id)
-        ]
-
-        # First mover: normal +1, Boss +2
-        if first_user_id:
-            first_user = None
-
-            if str(first_user_id) == str(
-                message.author.id
-            ):
-                first_user = message.author
-
-            else:
-                # The first mover may have zero points so far and
-                # therefore may not exist in `scores` yet. Recover
-                # their display name from the puzzle's recorded move
-                # history instead of requiring a leaderboard entry.
-                first_user_name = (
-                    puzzle.get(
-                        "first_move_user_name"
-                    )
-                    or puzzle.get(
-                        "attempted_users",
-                        {}
-                    )
-                    .get(
-                        str(first_user_id),
-                        {}
-                    )
-                    .get(
-                        "name",
-                        "Unknown"
-                    )
-                )
-
-                class StoredUser:
-                    def __init__(self, user_id, name):
-                        self.id = int(user_id)
-                        self.display_name = name
-
-                first_user = StoredUser(
-                    first_user_id,
-                    first_user_name
-                )
-
-            if not puzzle.get(
-                "first_move_awarded",
-                False
-            ):
-                await award_random_move_points(
-                    puzzle,
-                    first_user,
-                    first_move=True
-                )
-
-        # Helpers: normal +0.5, Boss +1 each, max once per puzzle.
-        for helper_id in helper_users:
-            if helper_id in puzzle.get(
-                "helper_awarded_users",
-                []
-            ):
-                continue
-
-            if helper_id == first_user_id:
-                continue
-
-            helper_name = (
-                puzzle.get(
-                    "attempted_users",
-                    {}
-                )
-                .get(
-                    helper_id,
-                    {}
-                )
-                .get(
-                    "name",
-                    "Unknown"
-                )
-            )
-
-            class StoredHelper:
-                def __init__(self, user_id, name):
-                    self.id = int(user_id)
-                    self.display_name = name
-
-            helper_user = StoredHelper(
-                helper_id,
-                helper_name
-            )
-
-            result = await award_random_move_points(
-                puzzle,
-                helper_user,
-                first_move=False
-            )
-
-            if result == "helper":
-                puzzle.setdefault(
-                    "helper_awarded_users",
-                    []
-                ).append(
-                    helper_id
-                )
-
-        # Daily/Random/Rated-Practice quest progress counts a FULL solved puzzle,
-        # not each individual correct move. In community puzzles every player
-        # who actually contributed a correct solution move receives one solve.
-        if (not practice_only) or rated_practice:
-            quest_actions = []
-            contributor_ids = []
-            if first_user_id:
-                contributor_ids.append(str(first_user_id))
-            contributor_ids.extend(str(uid) for uid in helper_users)
-            for quest_uid in dict.fromkeys(contributor_ids):
-                if quest_uid == str(first_user_id):
-                    quest_name = str(
-                        puzzle.get("first_move_user_name")
-                        or puzzle.get("attempted_users", {}).get(quest_uid, {}).get("name")
-                        or "Player"
-                    )
-                else:
-                    quest_name = str(
-                        puzzle.get("attempted_users", {}).get(quest_uid, {}).get("name")
-                        or "Player"
-                    )
-                quest_actions.append({
-                    "user_id": quest_uid,
-                    "display_name": quest_name,
-                    "action": "puzzle_solve",
-                    "transaction_id": f"quest:puzzle-solve:{puzzle.get('puzzle_id', 'unknown')}:{quest_uid}",
-                    "metadata": {
-                        "source": "practice" if rated_practice else ("boss" if is_boss else "puzzle"),
-                        "boss": bool(is_boss),
-                    },
-                })
-            await _record_quest_actions_safe(message.channel, quest_actions)
-
-        practice_only = bool(puzzle.get("practice_only")) or str(
-            puzzle.get(
-                "puzzle_id",
-                "",
-            )
-        ).startswith(
-            "random_lichess_"
-        )
-
-        points = await asyncio.to_thread(get_player_score,
-            message.author.id
-        )
-
-        ranking = await asyncio.to_thread(get_personal_ranking,
-            message.author.id
-        )
-
-        embed_progress = "🎉 **Puzzle solved!**"
-        if alternate_solution_accepted and accepted_san:
-            embed_progress += f"\n✅ **Alternative checkmate accepted:** {accepted_san}"
-
-        if opponent_replies:
-            embed_progress += (
-                "\n"
-                f"↩️ **Opponent:** "
-                f"{' '.join(opponent_replies)}"
-            )
-
-        await save_all()
-
-        first_reward = 2.0 if is_boss else 1.0
-        helper_reward = 1.0 if is_boss else 0.5
-        awarded_for_solver = 0.0
-
-        if (
-            not practice_only
-            and str(
-                message.author.id
-            ) == str(first_user_id)
-        ):
-            awarded_for_solver = first_reward
-
-        elif (
-            not practice_only
-            and str(
-                message.author.id
-            ) in helper_users
-        ):
-            awarded_for_solver = helper_reward
-
-        if practice_only:
-            coins = await asyncio.to_thread(get_player_coins,
-                message.author.id
-            )
-            if rated_practice:
-                updated_stats = (personal_result or {}).get("stats", {})
-                elo_now = int(round(float(updated_stats.get("elo", 1500))))
-                score_message = (
-                    f"✅ **Correct, {message.author.display_name}!**\n"
-                    f"🎉 **Practice solved!**\n"
-                    f"Puzzle Elo: **{elo_now}**\n"
-                    f"**+1 point** • **+1 coin** — you now have "
-                    f"**{format_points(points)} points** and **{shared_format_points(coins)} coins**."
-                )
-            else:
-                score_message = (
-                    f"✅ **Correct, {message.author.display_name}!**\n"
-                    f"🎉 **Practice puzzle solved!**\n"
-                    "Exact-rating practice — **no shared points or coins**."
-                )
-        elif awarded_for_solver == first_reward and awarded_for_solver > 0:
-            score_message = (
-                f"✅ **Correct, {message.author.display_name}!**\n"
-                f"🎉 **Puzzle solved!**\n"
-                f"**+{format_points(first_reward)} point"
-                f"{'s' if first_reward != 1 else ''}** — you now have "
-                f"**{format_points(points)} points.**"
-            )
-        elif awarded_for_solver == helper_reward and awarded_for_solver > 0:
-            score_message = (
-                f"✅ **Correct, {message.author.display_name}!**\n"
-                f"🎉 **Puzzle solved!**\n"
-                f"**+{format_points(helper_reward)} point"
-                f"{'s' if helper_reward != 1 else ''} for helping** — "
-                f"you now have **{format_points(points)} points.**"
-            )
-        else:
-            score_message = (
-                f"✅ **Correct, {message.author.display_name}!**\n"
-                f"🎉 **Puzzle solved!**\n"
-                f"You have **{format_points(points)} points.**"
-            )
-
-        if str(message.author.id) in {str(uid) for uid in puzzle.get("activity_bonus_users", [])}:
-            score_message += "\n🔥 **Daily Activity Bonus: +10 coins**"
-
-        # Keep the full completion summary, rewards and solution on the same card.
-        completion_lines = [score_message]
-
-        if (
-            not practice_only
-            and first_user_id
-            and str(message.author.id)
-            != str(first_user_id)
-        ):
-            first_name = puzzle.get(
-                "first_move_user_name",
-                "First solver"
-            )
-
-            first_reward = 2.0 if is_boss else 1.0
-            first_bonus = (
-                str(first_user_id) in {str(uid) for uid in puzzle.get("activity_bonus_users", [])}
-            )
-            first_notice = (
-                f"🏆 **{first_name} found the first move!** "
-                f"**+{format_points(first_reward)} point"
-                f"{'s' if first_reward != 1 else ''}**."
-            )
-            if first_bonus:
-                first_notice += "\n🔥 **Daily Activity Bonus: +10 coins**"
-            completion_lines.append(first_notice)
-
-        displayed_moves = puzzle.get("accepted_solution_moves") or puzzle.get("player_moves", [])
-        player_solution = " ".join(
-            str(move.get("san", ""))
-            for move in displayed_moves
-            if isinstance(move, dict) and move.get("san")
-        )
-        if player_solution:
-            completion_lines.append(f"💡 **Solution:** {player_solution}")
-        if ranking:
-            completion_lines.append(ranking)
-
-        puzzle["answer_posted"] = True
-        await update_random_puzzle_message(
-            message.channel,
-            puzzle,
-            embed_progress + "\n\n" + "\n\n".join(completion_lines),
-            move_to_bottom=not feedback_sent,
-            render_board=not feedback_sent,
-        )
-        await save_all()
-
-        return
-
-    # -----------------------------------------------------
+    # Points remain completion-only; intermediate moves record stats/contributors.
     # MORE PLAYER MOVES TO GO
     # -----------------------------------------------------
 
@@ -20086,11 +19976,14 @@ async def on_ready():
     client.add_view(PuzzleRacerGameView())
 
     global state, _twitch_eventsub_task, _twitch_live_cleanup_task
-
     state = load_json(
         STATE_FILE,
         {}
     )
+    pending_puzzles = [state.get('current_puzzle')] + [_latest_random_for_channel(cid) for cid in CHESS_CHANNEL_IDS]
+    for pending in pending_puzzles:
+        if isinstance(pending, dict) and pending.get('completion_failed') and pending.get('completion_solver_id'):
+            client.add_view(PuzzleCompletionRetryView(pending))
 
     state.setdefault(
         "leaderboard_last_posted_date",
