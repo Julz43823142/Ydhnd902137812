@@ -54,9 +54,9 @@
         "name": "",
         "puzzle": {
           "day": "2026-10-04",
-          "fen": "r1b1k2r/1p2ppb1/pnnp4/6p1/3NP3/1N1P3P/P4BP1/2R1KB1R w Kkq - 2 20",
+          "fen": "r1b1k2r/4ppb1/pnpp4/6p1/4P3/1N1P3P/P4BP1/2R1KB1R w Kkq - 0 21",
           "id": "oIB4U",
-          "index": 0,
+          "index": 2,
           "moves": [
             "d4c6",
             "b7c6",
