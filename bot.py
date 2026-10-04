@@ -3608,7 +3608,7 @@ async def _post_exact_lichess_puzzle_unlocked(
         posted = await channel.send(
             embed=embed,
             file=file,
-            view=PuzzleMoveToBottomView(),
+            view=PuzzleMoveToBottomView(channel.id),
         )
         _set_puzzle_message_id_for_channel(puzzle, channel.id, posted.id)
         await save_all()
@@ -9944,8 +9944,47 @@ class RushAllTimeLeaderboardView(discord.ui.View):
 
 class PuzzleMoveToBottomView(discord.ui.View):
     """Persistent manual bump button for Daily/RP/Practice/Exact/Rush cards."""
-    def __init__(self):
+    def __init__(self, channel_id=None, *, finished=False):
         super().__init__(timeout=None)
+        if finished:
+            self.clear_items()
+        if channel_id is not None:
+            enabled = bool(state.get('puzzle_auto_next', {}).get(str(channel_id)))
+            button = discord.ui.Button(
+                label=f"Auto Next: {'On' if enabled else 'Off'}",
+                style=discord.ButtonStyle.success if enabled else discord.ButtonStyle.danger,
+                custom_id='puzzle:card:auto-next:v1',
+            )
+            button.callback = self.toggle_auto_next
+            self.add_item(button)
+
+    async def toggle_auto_next(self, interaction):
+        await interaction.response.defer(ephemeral=True)
+        channel_id = int(interaction.channel_id)
+        async with _puzzle_card_locks.setdefault(channel_id, asyncio.Lock()):
+            candidates = [state.get('current_puzzle'), _latest_random_for_channel(channel_id)]
+            puzzle = next((p for p in candidates if isinstance(p, dict)
+                           and int(_puzzle_message_id_for_channel(p, channel_id) or 0)
+                           == int(interaction.message.id)), None)
+            if puzzle is None:
+                await interaction.followup.send('This is no longer the current puzzle card.', ephemeral=True)
+                return
+            settings = state.setdefault('puzzle_auto_next', {})
+            settings[str(channel_id)] = not bool(settings.get(str(channel_id)))
+            enabled = settings[str(channel_id)]
+            finished = bool(puzzle.get('solved') or puzzle.get('answer_posted'))
+            view = (PuzzleCompletionRetryView(puzzle, channel_id) if puzzle.get('completion_failed')
+                    else PuzzleMoveToBottomView(channel_id, finished=finished))
+            await interaction.message.edit(view=view)
+            await save_all()
+        await interaction.followup.send(
+            'Auto Next is On in this channel.'
+            ' When a puzzle is solved, a new random puzzle starts automatically.'
+            if enabled else 'Auto Next is Off in this channel.',
+            ephemeral=True,
+        )
+        if enabled and puzzle.get('answer_posted') and not puzzle.get('completion_failed'):
+            await maybe_start_next_random_puzzle(interaction.channel, interaction.user, puzzle)
 
     @discord.ui.button(label="Move to Bottom", emoji="⬇️",
                        style=discord.ButtonStyle.secondary,
@@ -10078,7 +10117,7 @@ async def restore_puzzle_move_button(channel):
         if not mid:continue
         try:
             message=await channel.fetch_message(int(mid))
-            await message.edit(view=PuzzleMoveToBottomView())
+            await message.edit(view=PuzzleMoveToBottomView(None if item is rush_session else channel.id))
         except Exception as error:
             print(f"Could not restore puzzle Move to Bottom button in {channel.id}: {error}",flush=True)
 
@@ -11040,7 +11079,7 @@ async def post_daily_puzzle(
     posted = await channel.send(
         embed=embed,
         file=file,
-        view=PuzzleMoveToBottomView(),
+        view=PuzzleMoveToBottomView(channel.id),
         allowed_mentions=discord.AllowedMentions.none(),
     )
     _set_puzzle_message_id_for_channel(puzzle, channel.id, posted.id)
@@ -11099,9 +11138,13 @@ async def warm_random_puzzle_pool():
         print(f"RP pool warmup unavailable: {type(error).__name__}", flush=True)
 
 
+_ANY_PREVIOUS_PUZZLE = object()
+
+
 async def post_random_puzzle(
     channel,
     owner=None,
+    *, expected_previous=_ANY_PREVIOUS_PUZZLE,
 ):
     channel_rp_lock = _rp_command_lock_for_channel(channel.id)
     if channel_rp_lock.locked():
@@ -11111,6 +11154,10 @@ async def post_random_puzzle(
         return False
 
     async with channel_rp_lock:
+        if expected_previous is not _ANY_PREVIOUS_PUZZLE:
+            if (_latest_random_for_channel(channel.id) is not expected_previous
+                    or not state.get('puzzle_auto_next', {}).get(str(channel.id))):
+                return False
         if not await prepare_interactive_puzzle_start(channel, owner, "Random Puzzle"):
             return False
         try:
@@ -11240,7 +11287,7 @@ async def post_random_puzzle(
             message = await channel.send(
                 embed=embed,
                 file=file,
-                view=PuzzleMoveToBottomView(),
+                view=PuzzleMoveToBottomView(channel.id),
             )
 
             _set_puzzle_message_id_for_channel(puzzle, channel.id, message.id)
@@ -11370,7 +11417,7 @@ async def post_practice_puzzle(channel, owner):
                 color=0x8E44AD,
             )
             embed.set_image(url="attachment://practice_puzzle.png")
-            posted = await channel.send(embed=embed, file=file, view=PuzzleMoveToBottomView())
+            posted = await channel.send(embed=embed, file=file, view=PuzzleMoveToBottomView(channel.id))
             _set_puzzle_message_id_for_channel(puzzle, channel.id, posted.id)
             save_json(STATE_FILE, state)
             return True
@@ -15920,8 +15967,8 @@ async def _update_random_puzzle_message(
     )
     embed.set_image(url="attachment://random_puzzle.png")
     embed.set_footer(text="Moves update this same puzzle card to keep the channel clean")
-    card_view = (PuzzleCompletionRetryView(puzzle) if puzzle.get('completion_failed') else
-                 None if puzzle.get("answer_posted") or puzzle.get("solved") else PuzzleMoveToBottomView())
+    card_view = (PuzzleCompletionRetryView(puzzle, channel.id) if puzzle.get('completion_failed') else
+                 PuzzleMoveToBottomView(channel.id, finished=bool(puzzle.get("answer_posted") or puzzle.get("solved"))))
 
     if message_id and not move_to_bottom:
         attachment_name = puzzle.get('board_attachment_filenames', {}).get(str(channel.id))
@@ -15990,12 +16037,15 @@ async def _update_random_puzzle_message(
 
 
 class PuzzleCompletionRetryView(discord.ui.View):
-    def __init__(self, puzzle):
+    def __init__(self, puzzle, channel_id=None):
         super().__init__(timeout=None)
         self.puzzle = puzzle
         self.busy = asyncio.Lock()
         key = hashlib.sha256(str(puzzle['puzzle_id']).encode()).hexdigest()[:24]
         self.children[0].custom_id = f'shark:puzzle-rewards:{key}'
+        if channel_id is not None:
+            toggle = PuzzleMoveToBottomView(channel_id, finished=True).children[0]
+            self.add_item(toggle)
 
     @discord.ui.button(label='Retry Rewards', emoji='🔄', style=discord.ButtonStyle.primary)
     async def retry(self, interaction, button):
@@ -16177,7 +16227,19 @@ async def finish_random_puzzle_completion(message, puzzle, *, feedback_sent=True
     )
     await save_all()
 
+    await maybe_start_next_random_puzzle(message.channel, message.author, puzzle)
+
     return True
+
+
+async def maybe_start_next_random_puzzle(channel, owner, puzzle):
+    if state.get('puzzle_auto_next', {}).get(str(channel.id)) and not puzzle.get('auto_next_started'):
+        current = _latest_random_for_channel(channel.id)
+        # A late retry must never replace a newer puzzle already being played.
+        if current is None or current is puzzle or current.get('solved') or current.get('answer_posted'):
+            puzzle['auto_next_started'] = True
+            await save_all()
+            await post_random_puzzle(channel, owner, expected_previous=current)
 
 
 async def handle_random_answer(
@@ -19962,7 +20024,7 @@ async def on_ready():
     client.add_view(BotIdeasTicketPublicManageView())
     client.add_view(PuzzleStreakLeaderboardView())
     client.add_view(RushAllTimeLeaderboardView())
-    client.add_view(PuzzleMoveToBottomView())
+    client.add_view(PuzzleMoveToBottomView(0))
     client.add_view(ChessMoveToBottomView())
     client.add_view(ChessNewHereView())
     client.add_view(PuzzleRacerChallengeView())
