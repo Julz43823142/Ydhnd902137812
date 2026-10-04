@@ -3983,7 +3983,7 @@
         "winner_name": null,
         "latest_attempts": {},
         "puzzle_id": "random_mKxJr_1791118117672",
-        "last_activity_at": "2026-10-04T12:49:02.482516+00:00",
+        "last_activity_at": "2026-10-04T12:49:19.646927+00:00",
         "rating": 2316,
         "rp_band": 3,
         "boss": false,
@@ -3994,15 +3994,15 @@
         "next_player_index": 1,
         "solved": false,
         "message_ids": {
-          "1546557493038284840": 1556287032203153434
+          "1546557493038284840": 1556287103388885066
         },
         "chat_since_refresh": 0,
         "attempted_users": {
           "442597396195704832": {
             "name": "Thice",
-            "move": "rae1",
-            "correct": true,
-            "timestamp": "2026-10-04T12:49:02.483080+00:00"
+            "move": "re8",
+            "correct": false,
+            "timestamp": "2026-10-04T12:49:19.647398+00:00"
           }
         },
         "first_move_user_id": "442597396195704832",
@@ -4011,19 +4011,8 @@
         "helper_awarded_users": [],
         "helper_candidate_users": [],
         "channel_id": 1546557493038284840,
-        "last_card_activity_at": "2026-10-04T12:49:02.482516+00:00",
-        "recent_accepted_moves": [
-          {
-            "accepted_at": 1791118142.4830854,
-            "fen_before": "6kr/p1pq1ppp/3r1b2/2pB4/2Pp4/1P3Q2/P3RPPP/R5K1 w - - 3 27",
-            "expected": {
-              "uci": "a1e1",
-              "san": "Rae1",
-              "color": "white"
-            },
-            "accepted_uci": "a1e1"
-          }
-        ],
+        "last_card_activity_at": "2026-10-04T12:49:19.646927+00:00",
+        "recent_accepted_moves": [],
         "accepted_solution_moves": [
           {
             "san": "Rae1",
@@ -4031,7 +4020,10 @@
             "principal": true
           }
         ],
-        "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** g6"
+        "last_feedback": "❌ **Puzzle verdict on Thice: your inner grandmaster took the day off and left the ego in charge.**\n↪️ **Move played:** `re8`",
+        "wrong_attempt_counts": {
+          "442597396195704832": 1
+        }
       }
     }
   },
