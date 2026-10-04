@@ -132,131 +132,104 @@
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
-    "url": "https://www.chess.com/daily/2026-10-03",
-    "title": "Brace for Impact",
-    "fen": "2b1r2b/5k1p/2N1pPp1/1p1q3n/1QnBN3/p4B1P/P1r2PKP/3R4 w - - 0 1",
-    "current_fen": "2bqr1kb/5P1p/4p1p1/1p4Nn/1QnB4/p4B1P/P1r2PKP/3R4 b - - 0 3",
-    "last_move_uci": "f6f7",
-    "pgn": "[White \"bollnills\"]\n[Black \"Daily Puzzle Inspiration\"]\n[Result \"1-0\"]\n[FEN \"2b1r2b/5k1p/2N1pPp1/1p1q3n/1QnBN3/p4B1P/P1r2PKP/3R4 w - - 0 1\"]\n\n1. Nd8+ Qxd8 2. Ng5+ Kg8 3. f7#",
+    "url": "https://www.chess.com/daily/2026-10-04",
+    "title": "Beware of the Gift Horse",
+    "fen": "8/p5pk/5r2/3Q1ppn/3N4/1P2P3/P4BRK/1q6 b - - 0 42",
+    "current_fen": "8/p5pk/5r2/3Q1ppn/3N4/1P2P3/P4BRK/1q6 b - - 0 42",
+    "last_move_uci": null,
+    "pgn": "[Date \"2026.03.31\"]\n[Round \"3.4\"]\n[White \"Tan, Zhongyi\"]\n[Black \"Lagno, Kateryna\"]\n[Result \"0-1\"]\n[FEN \"8/p5pk/5r2/3Q1ppn/3N4/1P2P3/P4BRK/1q6 b - - 0 42\"]\n[WhiteElo \"2535\"]\n[BlackElo \"2508\"]\n\n42... Nf4 43. exf4 Rh6+ 44. Kg3 Qd3+ 45. Qf3 g4 46. Qxd3 Rh3# 0-1",
     "all_moves": [
       {
-        "uci": "c6d8",
-        "san": "Nd8+",
-        "color": "white"
-      },
-      {
-        "uci": "d5d8",
-        "san": "Qxd8",
+        "uci": "h5f4",
+        "san": "Nf4",
         "color": "black"
       },
       {
-        "uci": "e4g5",
-        "san": "Ng5+",
+        "uci": "e3f4",
+        "san": "exf4",
         "color": "white"
       },
       {
-        "uci": "f7g8",
-        "san": "Kg8",
+        "uci": "f6h6",
+        "san": "Rh6+",
         "color": "black"
       },
       {
-        "uci": "f6f7",
-        "san": "f7#",
+        "uci": "h2g3",
+        "san": "Kg3",
         "color": "white"
+      },
+      {
+        "uci": "b1d3",
+        "san": "Qd3+",
+        "color": "black"
+      },
+      {
+        "uci": "d5f3",
+        "san": "Qf3",
+        "color": "white"
+      },
+      {
+        "uci": "g5g4",
+        "san": "g4",
+        "color": "black"
+      },
+      {
+        "uci": "f3d3",
+        "san": "Qxd3",
+        "color": "white"
+      },
+      {
+        "uci": "h6h3",
+        "san": "Rh3#",
+        "color": "black"
       }
     ],
     "player_moves": [
       {
-        "uci": "c6d8",
-        "san": "Nd8+",
-        "color": "white"
+        "uci": "h5f4",
+        "san": "Nf4",
+        "color": "black"
       },
       {
-        "uci": "e4g5",
-        "san": "Ng5+",
-        "color": "white"
+        "uci": "f6h6",
+        "san": "Rh6+",
+        "color": "black"
       },
       {
-        "uci": "f6f7",
-        "san": "f7#",
-        "color": "white"
+        "uci": "b1d3",
+        "san": "Qd3+",
+        "color": "black"
+      },
+      {
+        "uci": "g5g4",
+        "san": "g4",
+        "color": "black"
+      },
+      {
+        "uci": "h6h3",
+        "san": "Rh3#",
+        "color": "black"
       }
     ],
-    "player_color": "white",
-    "player_move_count": 3,
-    "posted_at": "2026-10-03T07:13:10.588825+00:00",
-    "answer_posted": true,
+    "player_color": "black",
+    "player_move_count": 5,
+    "posted_at": "2026-10-04T07:18:42.201680+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "daily_1791011590588",
-    "next_solution_index": 5,
-    "next_player_index": 3,
-    "solved": true,
-    "message_id": 1555879411801129000,
-    "attempted_users": {
-      "601406103712170014": {
-        "name": "TheMakina",
-        "move": "f7",
-        "correct": true,
-        "timestamp": "2026-10-03T09:49:18.278697+00:00"
-      }
-    },
-    "first_move_user_id": "601406103712170014",
-    "first_move_user_name": "TheMakina",
-    "first_move_awarded": true,
+    "puzzle_id": "daily_1791098322201",
+    "next_solution_index": 0,
+    "next_player_index": 0,
+    "solved": false,
+    "message_id": null,
+    "attempted_users": {},
+    "first_move_user_id": null,
+    "first_move_user_name": null,
+    "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "message_ids": {
-      "1468320170891022417": 1555879411801129000,
-      "1546557493038284840": 1555879415571812443
-    },
-    "channel_id": 1468320170891022417,
-    "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-10-03T09:49:18.278430+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1791020952.9512784,
-        "fen_before": "2bqr2b/5k1p/4pPp1/1p5n/1QnBN3/p4B1P/P1r2PKP/3R4 w - - 0 2",
-        "expected": {
-          "uci": "e4g5",
-          "san": "Ng5+",
-          "color": "white"
-        },
-        "accepted_uci": "e4g5"
-      },
-      {
-        "accepted_at": 1791020958.2787051,
-        "fen_before": "2bqr1kb/7p/4pPp1/1p4Nn/1QnB4/p4B1P/P1r2PKP/3R4 w - - 2 3",
-        "expected": {
-          "uci": "f6f7",
-          "san": "f7#",
-          "color": "white"
-        },
-        "accepted_uci": "f6f7"
-      }
-    ],
-    "wrong_attempt_counts": {
-      "601406103712170014": 1
-    },
-    "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, TheMakina!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1552 points.**\n\n💡 **Solution:** Nd8+ Ng5+ f7#\n\n🏆 **Your ranking**\n**#1 🙂 Thice — 1713.5 points**\n**#2 🍅 TheMakina — 1552 points ← you**\n**#3 👾 Sharkmeister — 77.5 points**",
-    "accepted_solution_moves": [
-      {
-        "san": "Nd8+",
-        "uci": "c6d8",
-        "principal": true
-      },
-      {
-        "san": "Ng5+",
-        "uci": "e4g5",
-        "principal": true
-      },
-      {
-        "san": "f7#",
-        "uci": "f6f7",
-        "principal": true
-      }
-    ]
+    "helper_candidate_users": []
   },
   "lichess_rating_used": {
     "2000": [
