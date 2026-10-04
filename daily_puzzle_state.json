@@ -4004,7 +4004,7 @@
         "winner_name": null,
         "latest_attempts": {},
         "puzzle_id": "random_hnz2p_1791129155497",
-        "last_activity_at": "2026-10-04T15:53:25.139256+00:00",
+        "last_activity_at": "2026-10-04T15:53:30.637623+00:00",
         "rating": 2547,
         "rp_band": 4,
         "boss": false,
@@ -4015,15 +4015,15 @@
         "next_player_index": 2,
         "solved": false,
         "message_ids": {
-          "1546557493038284840": 1556333431967842327
+          "1546557493038284840": 1556333454260699150
         },
         "chat_since_refresh": 0,
         "attempted_users": {
           "442597396195704832": {
             "name": "Thice",
-            "move": "Ke5",
-            "correct": true,
-            "timestamp": "2026-10-04T15:53:25.139410+00:00"
+            "move": "A3",
+            "correct": false,
+            "timestamp": "2026-10-04T15:53:30.638092+00:00"
           }
         },
         "first_move_user_id": "442597396195704832",
@@ -4035,18 +4035,8 @@
         "board_attachment_filenames": {
           "1546557493038284840": "random_puzzle.png"
         },
-        "last_card_activity_at": "2026-10-04T15:53:25.139256+00:00",
+        "last_card_activity_at": "2026-10-04T15:53:30.637623+00:00",
         "recent_accepted_moves": [
-          {
-            "accepted_at": 1791129199.29952,
-            "fen_before": "8/8/8/8/pp3pk1/3P4/PP4K1/8 b - - 1 53",
-            "expected": {
-              "uci": "g4f5",
-              "san": "Kf5",
-              "color": "black"
-            },
-            "accepted_uci": "g4f5"
-          },
           {
             "accepted_at": 1791129205.1394157,
             "fen_before": "8/8/8/5k2/pp3p2/3P1K2/PP6/8 b - - 3 54",
@@ -4059,9 +4049,9 @@
           }
         ],
         "wrong_attempt_counts": {
-          "442597396195704832": 3
+          "442597396195704832": 4
         },
-        "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** b3",
+        "last_feedback": "❌ **Wrong, Thice. your chess brain said trust me and that was the first warning sign.**\n↪️ **Move played:** `A3`",
         "accepted_solution_moves": [
           {
             "san": "Kf5",
