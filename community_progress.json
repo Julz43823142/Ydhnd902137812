@@ -12,7 +12,7 @@
       "paid": [],
       "pool": 1500,
       "progress": {
-        "pet_feed": 5,
+        "pet_feed": 6,
         "pet_puzzle": 3,
         "puzzle_solve": 58
       },
@@ -27,7 +27,7 @@
           "puzzle_solve": 19
         },
         "442597396195704832": {
-          "pet_feed": 5,
+          "pet_feed": 6,
           "pet_puzzle": 3,
           "puzzle_solve": 27
         },
@@ -58,10 +58,10 @@
       },
       "442597396195704832": {
         "coins_earned": 121.0,
-        "contribution": 0.025399,
+        "contribution": 0.027399,
         "minigame_win": 4,
         "new_cosmetics": 5,
-        "pet_feed": 5,
+        "pet_feed": 6,
         "pet_levels_gained": 10,
         "pet_puzzle": 3,
         "puzzle_solve": 27
