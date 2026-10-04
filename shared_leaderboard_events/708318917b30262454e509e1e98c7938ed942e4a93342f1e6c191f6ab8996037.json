@@ -1,0 +1,23 @@
+{
+  "created_at": 1791146868,
+  "details": {
+    "activity": [
+      {
+        "action": "coins_earned",
+        "amount": 3.0,
+        "name": "Thice",
+        "uid": "442597396195704832"
+      }
+    ],
+    "escrow_change": 0,
+    "wallets": {
+      "442597396195704832": {
+        "after_coins": 92.78,
+        "before_coins": 89.78
+      }
+    }
+  },
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "minigames",
+  "transaction_id": "minigames:1556407512952213525"
+}
