@@ -221,7 +221,7 @@
     "player_color": "black",
     "player_move_count": 5,
     "posted_at": "2026-10-04T07:18:42.201680+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -241,7 +241,12 @@
       "1546557493038284840": 1556203903798878361
     },
     "channel_id": 1468320170891022417,
-    "chat_since_refresh": 0
+    "chat_since_refresh": 0,
+    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Nf4 Rh6+ Qd3+ g4 Rh3#",
+    "board_attachment_filenames": {
+      "1468320170891022417": "random_puzzle.png",
+      "1546557493038284840": "random_puzzle.png"
+    }
   },
   "lichess_rating_used": {
     "2000": [
@@ -4322,9 +4327,9 @@
   },
   "bot_ideas_ticket_counter_v1": 14,
   "bot_ideas_idle_v1": {
-    "last_activity_at": 1791130565.18584,
+    "last_activity_at": 1791138467.452383,
     "reminder_sent": true,
-    "reminder_message_id": "1556346739655577635",
+    "reminder_message_id": "1556379964805226517",
     "tickets_since_prompt": 0
   },
   "bot_ideas_panel_message_id_v1": "1546854821351395401",
