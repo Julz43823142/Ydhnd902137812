@@ -4322,9 +4322,9 @@
   },
   "bot_ideas_ticket_counter_v1": 14,
   "bot_ideas_idle_v1": {
-    "last_activity_at": 1791130565.18584,
+    "last_activity_at": 1791138467.452383,
     "reminder_sent": true,
-    "reminder_message_id": "1556346739655577635",
+    "reminder_message_id": "1556379964805226517",
     "tickets_since_prompt": 0
   },
   "bot_ideas_panel_message_id_v1": "1546854821351395401",
