@@ -20,6 +20,7 @@ from shop_catalog import BOARD_THEMES, PIECE_SETS, ARROW_COLORS, NAME_COLORS, ca
 
 ADMIN_ID = 362606514764251137
 ADMIN_LIST = """🛠️ **Admin Commands**
+`/usage` — Private feature popularity: This Week / All Time.
 **Points & coins — exact totals**
 `!edit <name> <points>` — Shared / Puzzle points.
 `!editcoins <name> <coins>` — Shared coins.

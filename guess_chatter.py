@@ -1903,6 +1903,13 @@ client = discord.Client(
 command_tree = discord.app_commands.CommandTree(client)
 
 
+@command_tree.command(name='usage', description='View private Sharkmeister feature usage analytics.')
+async def private_usage_command(interaction: discord.Interaction):
+    if interaction.channel_id!=CHANNEL_ID:return
+    from next_batch_ui import send_usage
+    await send_usage(interaction)
+
+
 SHARK_ADMIN_COMMAND_LIST = shark_admin.ADMIN_LIST
 
 
@@ -4805,6 +4812,7 @@ async def command_handler(message):
     if raw_command.startswith('!'):
         import feature_usage
         feature_usage.note('command:'+raw_command.split()[0].lower(),message.author.id)
+        feature_usage.note_command(raw_command.split()[0],message.author.id)
 
     if command in ('!week', '!collection', '!community', '!challenge', '!event'):
         from feature_ui import send_command
@@ -5398,6 +5406,7 @@ async def on_interaction(interaction):
     import feature_usage
     custom=(interaction.data or {}).get('custom_id','slash')
     feature_usage.note('button:'+':'.join(custom.split(':')[:2]),interaction.user.id)
+    if interaction.channel_id==CHANNEL_ID:feature_usage.note_interaction(interaction)
 
 
 @client.event

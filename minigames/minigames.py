@@ -1046,6 +1046,11 @@ class Arcade(discord.Client):
 
     async def on_interaction(self,interaction):
         data=interaction.data or {};custom=data.get('custom_id','')
+        if interaction.type==discord.InteractionType.application_command and data.get('name')=='usage':
+            if interaction.channel_id==CHANNEL_ID:
+                from next_batch_ui import send_usage
+                await send_usage(interaction)
+            return
         if interaction.type==discord.InteractionType.application_command and data.get('name')=='status':
             if interaction.channel_id==CHANNEL_ID:
                 await interaction.response.send_message(

@@ -235,33 +235,44 @@ async def send_archives(ctx,prefix='event-recap:',page=0):
     except Exception:await ctx.followup.send('Recaps temporarily unavailable.',ephemeral=True)
 
 
-async def send_usage(ctx,days=7):
+class UsageView(discord.ui.View):
+    def __init__(self, all_time=False):
+        super().__init__(timeout=600)
+        for label,value in [('📅 This Week',False),('∞ All Time',True)]:
+            button=discord.ui.Button(label=label,style=discord.ButtonStyle.primary if value==all_time else discord.ButtonStyle.secondary)
+            async def show(ctx,value=value):await send_usage(ctx,value,update=True)
+            button.callback=show;self.add_item(button)
+
+    async def interaction_check(self,ctx):
+        from shark_admin import require_admin
+        try:require_admin(ctx.user.id);return True
+        except PermissionError:
+            await ctx.response.send_message('Only Sharkmeister can view usage analytics.',ephemeral=True)
+            return False
+
+
+async def send_usage(ctx,all_time=False,*,update=False):
     from shark_admin import require_admin
     import feature_usage
     try:require_admin(ctx.user.id)
     except PermissionError:
-        await ctx.response.send_message('Only Shark can view Feature Usage Stats.',ephemeral=True);return
+        await ctx.response.send_message('Only Sharkmeister can view usage analytics.',ephemeral=True);return
     await ctx.response.defer(ephemeral=True)
     try:
-        rows=await asyncio.to_thread(feature_usage.summary,ctx.user.id,days)
-        embed=discord.Embed(title='🔒 Feature Usage · '+(f'Last {days} days' if days else 'All time'),color=0x9146FF)
-        embed.description='\n'.join(f"**{r['feature']}**: {r['count']} uses · ~{r['unique']} unique users"+(f" · {r['trend']}" if r.get('trend') else '') for r in rows[:10]) or 'No buffered usage has been saved yet.'
-        if len(rows)>10:embed.add_field(name='Least used recorded features',value='\n'.join(f"{r['feature']}: {r['count']}" for r in rows[-5:]),inline=False)
-        by_feature={r['feature']:r['count'] for r in rows}
-        completion=[]
-        for feature,started in by_feature.items():
-            if feature.endswith(':started') and started:
-                ended=by_feature.get(feature.removesuffix(':started')+':completed',0)
-                completion.append(f'{feature.removesuffix(":started")}: {ended}/{started} observed completions/starts'+(f' · {ended/started:.0%}' if days is None and ended<=started else ''))
-        if completion:embed.add_field(name='Game completion activity',value='\n'.join(completion[:5])+'\nWindow counts may include games started before this window.',inline=False)
-        embed.set_footer(text='Approximate uniques (~6.5% standard error) · no raw user IDs or command arguments stored · buffered each minute')
-        view=discord.ui.View(timeout=300)
-        for label,value in [('7 Days',7),('30 Days',30),('All Time',None)]:
-            button=discord.ui.Button(label=label)
-            async def show(i,value=value):await send_usage(i,value)
-            button.callback=show;view.add_item(button)
-        await ctx.followup.send(embed=embed,view=view,ephemeral=True)
-    except Exception:await ctx.followup.send('Usage stats temporarily unavailable.',ephemeral=True)
+        async with feature_usage._flush_lock:
+            await asyncio.to_thread(feature_usage.recover_plays)
+            await asyncio.to_thread(feature_usage.flush)
+        data=await asyncio.to_thread(feature_usage.popularity,ctx.user.id,all_time)
+        embed=discord.Embed(title='📊 SharkBot Usage — '+('All Time' if all_time else 'This Week'),color=0x9146FF)
+        embed.description='\n'.join(f"**{r['name']}** — {r['count']:,} {'play' if r['count']==1 else 'plays'}" if r['plays'] else f"**{r['name']}** — {r['count']:,} {'use' if r['count']==1 else 'uses'}" for r in data['rows']) or 'No feature usage recorded yet.'
+        if not all_time:embed.add_field(name='Week',value=f"Monday–Sunday · Europe/Amsterdam · starts {data['week_start']}",inline=False)
+        since=data.get('since')
+        if since:embed.add_field(name='Tracking',value=f'Feature counts from <t:{int(since)}:f>. Earlier technical counters are not backfilled.',inline=False)
+        embed.set_footer(text='Private · game starts count once per session · other features count user actions · no refresh/background counts')
+        kwargs={'embed':embed,'view':UsageView(all_time),'allowed_mentions':discord.AllowedMentions.none()}
+        if update:await ctx.edit_original_response(**kwargs)
+        else:await ctx.followup.send(**kwargs,ephemeral=True)
+    except Exception:await ctx.followup.send('Usage stats temporarily unavailable. Please try again.',ephemeral=True)
 
 
 def add_market_buttons(view,row=3):
