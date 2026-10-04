@@ -3998,7 +3998,7 @@
         "winner_name": null,
         "latest_attempts": {},
         "puzzle_id": "random_TbfO2_1791116013753",
-        "last_activity_at": "2026-10-04T12:15:58.259227+00:00",
+        "last_activity_at": "2026-10-04T12:16:03.412892+00:00",
         "rating": 2264,
         "rp_band": 3,
         "boss": false,
@@ -4009,15 +4009,15 @@
         "next_player_index": 2,
         "solved": false,
         "message_ids": {
-          "1546557493038284840": 1556278709110054983
+          "1546557493038284840": 1556278731067236352
         },
         "chat_since_refresh": 0,
         "attempted_users": {
           "442597396195704832": {
             "name": "Thice",
-            "move": "qxd4",
+            "move": "qf3",
             "correct": false,
-            "timestamp": "2026-10-04T12:15:58.260039+00:00"
+            "timestamp": "2026-10-04T12:16:03.413771+00:00"
           }
         },
         "first_move_user_id": "442597396195704832",
@@ -4026,7 +4026,7 @@
         "helper_awarded_users": [],
         "helper_candidate_users": [],
         "channel_id": 1546557493038284840,
-        "last_card_activity_at": "2026-10-04T12:15:58.259227+00:00",
+        "last_card_activity_at": "2026-10-04T12:16:03.412892+00:00",
         "recent_accepted_moves": [],
         "accepted_solution_moves": [
           {
@@ -4040,9 +4040,9 @@
             "principal": true
           }
         ],
-        "last_feedback": "❌ **Thice, congratulations: you just proved that long calculation and correct calculation are different hobbies.**\n↪️ **Move played:** `qxd4`",
+        "last_feedback": "❌ **Puzzle verdict on Thice: your calculation tree had a lot of branches and zero fruit.**\n↪️ **Move played:** `qf3`",
         "wrong_attempt_counts": {
-          "442597396195704832": 4
+          "442597396195704832": 5
         }
       }
     }
