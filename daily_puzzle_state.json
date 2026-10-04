@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/6HXm7",
     "title": "Lichess • 1318",
     "fen": "r5k1/r1R3p1/5p1p/P3p3/1Q1p4/3q2P1/5P1P/R5K1 w - - 2 40",
-    "current_fen": "1Q6/r5pk/5p1p/P3p3/3p4/3q2P1/5P1P/R5K1 w - - 2 42",
-    "last_move_uci": "g8h7",
+    "current_fen": "8/Q5pk/5p1p/P3p3/3p4/3q2P1/5P1P/R5K1 b - - 0 42",
+    "last_move_uci": "b8a7",
     "pgn": "Rxa7 Rxa7 Qb8+ Kh7 Qxa7",
     "all_moves": [
       {
@@ -53,55 +53,45 @@
     "player_color": "white",
     "player_move_count": 3,
     "posted_at": "2026-10-04T13:13:56.242136+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_6HXm7_1791119636242",
-    "last_activity_at": "2026-10-04T13:14:11.315252+00:00",
+    "last_activity_at": "2026-10-04T13:14:18.001942+00:00",
     "rating": 1318,
     "rp_band": 0,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "purple",
-    "next_solution_index": 4,
-    "next_player_index": 2,
-    "solved": false,
+    "next_solution_index": 5,
+    "next_player_index": 3,
+    "solved": true,
     "message_ids": {
-      "1468320170891022417": 1556293360367702106
+      "1468320170891022417": 1556293388582527118
     },
-    "message_id": 1556293360367702106,
+    "message_id": 1556293388582527118,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "362606514764251137": {
         "name": "Sharkmeister",
-        "move": "Qb8",
+        "move": "Qxa7",
         "correct": true,
-        "timestamp": "2026-10-04T13:14:11.315471+00:00"
+        "timestamp": "2026-10-04T13:14:18.002173+00:00"
       }
     },
     "first_move_user_id": "362606514764251137",
     "first_move_user_name": "Sharkmeister",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
-    "last_card_activity_at": "2026-10-04T13:14:11.315252+00:00",
+    "last_card_activity_at": "2026-10-04T13:14:18.001942+00:00",
     "recent_accepted_moves": [
-      {
-        "accepted_at": 1791119645.5122507,
-        "fen_before": "r5k1/r1R3p1/5p1p/P3p3/1Q1p4/3q2P1/5P1P/R5K1 w - - 2 40",
-        "expected": {
-          "uci": "c7a7",
-          "san": "Rxa7",
-          "color": "white"
-        },
-        "accepted_uci": "c7a7"
-      },
       {
         "accepted_at": 1791119651.3154786,
         "fen_before": "6k1/r5p1/5p1p/P3p3/1Q1p4/3q2P1/5P1P/R5K1 w - - 0 41",
@@ -111,6 +101,16 @@
           "color": "white"
         },
         "accepted_uci": "b4b8"
+      },
+      {
+        "accepted_at": 1791119658.002181,
+        "fen_before": "1Q6/r5pk/5p1p/P3p3/3p4/3q2P1/5P1P/R5K1 w - - 2 42",
+        "expected": {
+          "uci": "b8a7",
+          "san": "Qxa7",
+          "color": "white"
+        },
+        "accepted_uci": "b8a7"
       }
     ],
     "accepted_solution_moves": [
@@ -123,11 +123,19 @@
         "san": "Qb8+",
         "uci": "b4b8",
         "principal": true
+      },
+      {
+        "san": "Qxa7",
+        "uci": "b8a7",
+        "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kh7"
+    "last_feedback": "✅ **Correct, Sharkmeister!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **79.5 points.**\n\nPuzzle Elo: **1743**\n\n💡 **Solution:** Rxa7 Qb8+ Qxa7\n\n🏆 **Your ranking**\n**#2 🍅 TheMakina — 1552 points**\n**#3 👾 Sharkmeister — 79.5 points ← you**\n**#4 🦞 Chessmass — 30 points**",
+    "completion_solver_id": "362606514764251137",
+    "completion_solver_name": "Sharkmeister",
+    "activity_bonus_users": []
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-04",
