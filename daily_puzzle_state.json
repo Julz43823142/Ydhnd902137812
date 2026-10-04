@@ -3998,7 +3998,7 @@
         "winner_name": null,
         "latest_attempts": {},
         "puzzle_id": "random_TbfO2_1791116013753",
-        "last_activity_at": "2026-10-04T12:15:03.789718+00:00",
+        "last_activity_at": "2026-10-04T12:15:09.176198+00:00",
         "rating": 2264,
         "rp_band": 3,
         "boss": false,
@@ -4009,15 +4009,15 @@
         "next_player_index": 2,
         "solved": false,
         "message_ids": {
-          "1546557493038284840": 1556278480549711952
+          "1546557493038284840": 1556278503362527262
         },
         "chat_since_refresh": 0,
         "attempted_users": {
           "442597396195704832": {
             "name": "Thice",
-            "move": "ne5",
+            "move": "qd4",
             "correct": false,
-            "timestamp": "2026-10-04T12:15:03.790561+00:00"
+            "timestamp": "2026-10-04T12:15:09.177438+00:00"
           }
         },
         "first_move_user_id": "442597396195704832",
@@ -4026,7 +4026,7 @@
         "helper_awarded_users": [],
         "helper_candidate_users": [],
         "channel_id": 1546557493038284840,
-        "last_card_activity_at": "2026-10-04T12:15:03.789718+00:00",
+        "last_card_activity_at": "2026-10-04T12:15:09.176198+00:00",
         "recent_accepted_moves": [],
         "accepted_solution_moves": [
           {
@@ -4040,9 +4040,9 @@
             "principal": true
           }
         ],
-        "last_feedback": "❌ **Another one for the collection, Thice: you turned a puzzle into a demonstration of why checking your work matters.**\n↪️ **Move played:** `ne5`",
+        "last_feedback": "❌ **Another one for the collection, Thice: you played that move like everyone else was too weak to understand it.**\n↪️ **Move played:** `qd4`",
         "wrong_attempt_counts": {
-          "442597396195704832": 2
+          "442597396195704832": 3
         }
       }
     }
