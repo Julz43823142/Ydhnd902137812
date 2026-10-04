@@ -3978,7 +3978,7 @@
         "player_color": "white",
         "player_move_count": 2,
         "posted_at": "2026-10-04T12:48:37.672243+00:00",
-        "answer_posted": false,
+        "answer_posted": true,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
@@ -4036,7 +4036,7 @@
             "principal": true
           }
         ],
-        "last_feedback": "✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\nUpdating stats and rewards…",
+        "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1733 points.**\n\n💡 **Solution:** Rae1 Re7\n\n🏆 **Your ranking**\n**#1 🙂 Thice — 1733 points ← you**\n**#2 🍅 TheMakina — 1552 points**",
         "wrong_attempt_counts": {
           "442597396195704832": 1
         }
