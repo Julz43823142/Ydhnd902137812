@@ -32,7 +32,7 @@
     "accessories": [
       "glasses"
     ],
-    "active": "5e3a854983714a1a9331574fdaa902e0",
+    "active": "8543145f331f465fb923a46cf3ff6ea4",
     "expedition": {
       "end": 1791130156.917684,
       "hours": 6,
@@ -254,6 +254,17 @@
         "rarity": "common",
         "species": "Rabbit",
         "xp": 25
+      },
+      {
+        "born_at": 1791108628.4203353,
+        "fed_at": 1791108628.4203353,
+        "happiness": 80,
+        "happy_at": 1791108628.4203353,
+        "id": "8543145f331f465fb923a46cf3ff6ea4",
+        "name": "",
+        "rarity": "common",
+        "species": "Dog",
+        "xp": 0
       }
     ]
   }
