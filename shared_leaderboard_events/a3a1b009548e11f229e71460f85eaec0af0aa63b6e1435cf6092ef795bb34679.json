@@ -1,0 +1,11 @@
+{
+  "created_at": 1791146839,
+  "details": {
+    "activity": [],
+    "escrow_change": 0,
+    "wallets": {}
+  },
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "minigames",
+  "transaction_id": "minigames:message:1556407381695664168"
+}
