@@ -3943,8 +3943,8 @@
         "url": "https://lichess.org/training/mKxJr",
         "title": "Lichess • 2316",
         "fen": "6kr/p1pq1ppp/3r1b2/2pB4/2Pp4/1P3Q2/P3RPPP/R5K1 w - - 3 27",
-        "current_fen": "6kr/p1pq1ppp/3r1b2/2pB4/2Pp4/1P3Q2/P3RPPP/R5K1 w - - 3 27",
-        "last_move_uci": "b6d6",
+        "current_fen": "6kr/p1pq1p1p/3r1bp1/2pB4/2Pp4/1P3Q2/P3RPPP/4R1K1 w - - 0 28",
+        "last_move_uci": "g7g6",
         "pgn": "Rae1 g6 Re7",
         "all_moves": [
           {
@@ -3983,25 +3983,55 @@
         "winner_name": null,
         "latest_attempts": {},
         "puzzle_id": "random_mKxJr_1791118117672",
-        "last_activity_at": "2026-10-04T12:48:37.672243+00:00",
+        "last_activity_at": "2026-10-04T12:49:02.482516+00:00",
         "rating": 2316,
         "rp_band": 3,
         "boss": false,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink",
-        "next_solution_index": 0,
-        "next_player_index": 0,
+        "next_solution_index": 2,
+        "next_player_index": 1,
         "solved": false,
-        "message_ids": {},
+        "message_ids": {
+          "1546557493038284840": 1556287032203153434
+        },
         "chat_since_refresh": 0,
-        "attempted_users": {},
-        "first_move_user_id": null,
-        "first_move_user_name": null,
+        "attempted_users": {
+          "442597396195704832": {
+            "name": "Thice",
+            "move": "rae1",
+            "correct": true,
+            "timestamp": "2026-10-04T12:49:02.483080+00:00"
+          }
+        },
+        "first_move_user_id": "442597396195704832",
+        "first_move_user_name": "Thice",
         "first_move_awarded": false,
         "helper_awarded_users": [],
         "helper_candidate_users": [],
-        "channel_id": 1546557493038284840
+        "channel_id": 1546557493038284840,
+        "last_card_activity_at": "2026-10-04T12:49:02.482516+00:00",
+        "recent_accepted_moves": [
+          {
+            "accepted_at": 1791118142.4830854,
+            "fen_before": "6kr/p1pq1ppp/3r1b2/2pB4/2Pp4/1P3Q2/P3RPPP/R5K1 w - - 3 27",
+            "expected": {
+              "uci": "a1e1",
+              "san": "Rae1",
+              "color": "white"
+            },
+            "accepted_uci": "a1e1"
+          }
+        ],
+        "accepted_solution_moves": [
+          {
+            "san": "Rae1",
+            "uci": "a1e1",
+            "principal": true
+          }
+        ],
+        "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** g6"
       }
     }
   },
