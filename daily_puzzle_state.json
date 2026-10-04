@@ -3938,7 +3938,7 @@
   },
   "channel_puzzle_state": {
     "1546557493038284840": {
-      "latest_puzzle_type": "random",
+      "latest_puzzle_type": "daily",
       "latest_random_puzzle": {
         "url": "https://lichess.org/training/pL0O0",
         "title": "Lichess • 2666",
@@ -3993,7 +3993,7 @@
         "player_color": "white",
         "player_move_count": 3,
         "posted_at": "2026-10-04T12:56:00.674830+00:00",
-        "answer_posted": false,
+        "answer_posted": true,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
@@ -4031,7 +4031,7 @@
         "wrong_attempt_counts": {
           "442597396195704832": 2
         },
-        "last_feedback": "❌ **Thice, congratulations: that move had the confidence of a grandmaster and the evidence of a coin flip.**\n↪️ **Move played:** `nc7`"
+        "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Nf4+ Qxb7+ Qd5+"
       }
     }
   },
