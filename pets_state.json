@@ -175,15 +175,15 @@
       {
         "born_at": 1791072335.280981,
         "fed_at": 1791072335.280981,
-        "happiness": 80,
-        "happy_at": 1791072335.280981,
+        "happiness": 100,
+        "happy_at": 1791072427.5888352,
         "id": "b1f79c9c9de44831a956b2f90a8795ba",
         "name": "",
         "puzzle": {
           "day": "2026-10-04",
-          "fen": "8/8/7p/6p1/6P1/2k4P/8/2K5 b - - 3 50",
+          "fen": "8/8/7p/6p1/6P1/3k3P/8/2K5 w - - 4 51",
           "id": "uiJe2",
-          "index": 10,
+          "index": 11,
           "moves": [
             "b4a3",
             "c2b1",
@@ -198,9 +198,10 @@
             "c3d3"
           ]
         },
+        "puzzle_day": "2026-10-04",
         "rarity": "uncommon",
         "species": "Fox",
-        "xp": 0
+        "xp": 20
       }
     ]
   }
