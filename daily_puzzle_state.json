@@ -3989,7 +3989,7 @@
         "winner_name": null,
         "latest_attempts": {},
         "puzzle_id": "random_pyykO_1791122308654",
-        "last_activity_at": "2026-10-04T13:58:51.688669+00:00",
+        "last_activity_at": "2026-10-04T13:59:04.691116+00:00",
         "rating": 2650,
         "rp_band": 4,
         "boss": false,
@@ -4000,15 +4000,15 @@
         "next_player_index": 1,
         "solved": false,
         "message_ids": {
-          "1546557493038284840": 1556304601890685059
+          "1546557493038284840": 1556304657339519036
         },
         "chat_since_refresh": 0,
         "attempted_users": {
           "442597396195704832": {
             "name": "Thice",
-            "move": "rc8",
-            "correct": true,
-            "timestamp": "2026-10-04T13:58:51.689444+00:00"
+            "move": "qa4",
+            "correct": false,
+            "timestamp": "2026-10-04T13:59:04.691899+00:00"
           }
         },
         "first_move_user_id": "442597396195704832",
@@ -4020,19 +4020,8 @@
         "board_attachment_filenames": {
           "1546557493038284840": "random_puzzle.png"
         },
-        "last_card_activity_at": "2026-10-04T13:58:51.688669+00:00",
-        "recent_accepted_moves": [
-          {
-            "accepted_at": 1791122331.6894503,
-            "fen_before": "3r1rk1/2R3p1/4p2p/8/3p2P1/3Q3P/1RKB4/q7 b - - 1 39",
-            "expected": {
-              "uci": "d8c8",
-              "san": "Rc8",
-              "color": "black"
-            },
-            "accepted_uci": "d8c8"
-          }
-        ],
+        "last_card_activity_at": "2026-10-04T13:59:04.691116+00:00",
+        "recent_accepted_moves": [],
         "accepted_solution_moves": [
           {
             "san": "Rc8",
@@ -4040,7 +4029,10 @@
             "principal": true
           }
         ],
-        "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Rb7"
+        "last_feedback": "❌ **Nope, Thice. your chess brain said trust me and that was the first warning sign.**\n↪️ **Move played:** `qa4`",
+        "wrong_attempt_counts": {
+          "442597396195704832": 1
+        }
       }
     }
   },
