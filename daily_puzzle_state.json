@@ -4019,7 +4019,7 @@
         "winner_name": null,
         "latest_attempts": {},
         "puzzle_id": "random_0fynN_1791128991277",
-        "last_activity_at": "2026-10-04T15:50:47.060528+00:00",
+        "last_activity_at": "2026-10-04T15:50:51.021598+00:00",
         "rating": 2644,
         "rp_band": 4,
         "boss": false,
@@ -4030,15 +4030,15 @@
         "next_player_index": 3,
         "solved": false,
         "message_ids": {
-          "1546557493038284840": 1556332768244404257
+          "1546557493038284840": 1556332785105375402
         },
         "chat_since_refresh": 0,
         "attempted_users": {
           "442597396195704832": {
             "name": "Thice",
-            "move": "Qxf5",
-            "correct": true,
-            "timestamp": "2026-10-04T15:50:47.060759+00:00"
+            "move": "Rg7",
+            "correct": false,
+            "timestamp": "2026-10-04T15:50:51.021855+00:00"
           }
         },
         "first_move_user_id": "442597396195704832",
@@ -4050,7 +4050,7 @@
         "board_attachment_filenames": {
           "1546557493038284840": "random_puzzle.png"
         },
-        "last_card_activity_at": "2026-10-04T15:50:47.060528+00:00",
+        "last_card_activity_at": "2026-10-04T15:50:51.021598+00:00",
         "recent_accepted_moves": [
           {
             "accepted_at": 1791129047.0607662,
@@ -4080,7 +4080,10 @@
             "principal": true
           }
         ],
-        "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Ke7"
+        "last_feedback": "❌ **Thice, the board would like you to know that your pieces are starting to request a second opinion.**\n↪️ **Move played:** `Rg7`",
+        "wrong_attempt_counts": {
+          "442597396195704832": 1
+        }
       }
     }
   },
