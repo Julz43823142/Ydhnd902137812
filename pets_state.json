@@ -283,14 +283,15 @@
       },
       {
         "born_at": 1791108685.6424184,
-        "fed_at": 1791108685.6424184,
+        "fed_at": 1791108692.2947786,
+        "feed_day": "2026-10-04",
         "happiness": 80,
         "happy_at": 1791108685.6424184,
         "id": "a694b65e5fd547a48c21a63fe10808a2",
         "name": "",
         "rarity": "uncommon",
         "species": "Penguin",
-        "xp": 0
+        "xp": 5
       }
     ]
   }
