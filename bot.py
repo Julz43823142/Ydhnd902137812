@@ -13770,12 +13770,6 @@ class CosmeticProfileView(discord.ui.View):
             self.add_item(button)
 
         feature_ui.add_buttons(self, self.target_user_id, row=2)
-        pet_button = discord.ui.Button(label='View Pet', emoji='🐾', row=1)
-        async def view_pet(interaction):
-            from pet_ui import send_interaction_profile
-            await send_interaction_profile(interaction, self.target_user_id)
-        pet_button.callback = view_pet
-        self.add_item(pet_button)
 
         if self.editable:
             count = _profile_trade_alert_count(profile) if isinstance(profile, dict) else 0

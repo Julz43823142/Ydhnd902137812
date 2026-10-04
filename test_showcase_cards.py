@@ -132,6 +132,8 @@ class ShowcaseNavigation(unittest.IsolatedAsyncioTestCase):
         views=[bot.CosmeticProfileView(42,99,'Player',editable=False,profile={}),
                guess_chatter.GuessCosmeticProfileView(42,99,'Player',editable=False)]
         for view in views:
+            pet_buttons=[item for item in view.children if getattr(item,'label','') in {'View Pet','View Pets'}]
+            self.assertEqual(len(pet_buttons),1)
             button=next(item for item in view.children if getattr(item,'label','')=='View Pets')
             ctx=interaction()
             with patch.object(pet_ui,'send_interaction_profile',AsyncMock()) as send:

@@ -28,7 +28,7 @@ async def profile_payload(uid, embed, file):
             embed.add_field(name='Active Pet', value=f"{title(pet)}\n{identity} · Level {pets.level(pet)}", inline=False)
             return {'embed': embed, 'files': [attachment for attachment in (file, image) if attachment is not None]}
     except Exception:
-        embed.add_field(name='Active Pet', value='Pet showcase temporarily unavailable. Use View Pet to retry.', inline=False)
+        embed.add_field(name='Active Pet', value='Pet showcase temporarily unavailable. Use View Pets to retry.', inline=False)
     return {'embed': embed, **({'file': file} if file is not None else {})}
 
 
