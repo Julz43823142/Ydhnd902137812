@@ -4442,6 +4442,25 @@
       "message_id": "1546958659790311539",
       "closed_at": 1788894098.4351168,
       "cancelled_by": "362606514764251137"
+    },
+    "open-shop:1556352873695023265:442597396195704832": {
+      "trade_id": "open-shop:1556352873695023265:442597396195704832",
+      "seller_id": "442597396195704832",
+      "seller_name": "Thice",
+      "offer": {
+        "type": "pet",
+        "pet_id": "8543145f331f465fb923a46cf3ff6ea4",
+        "label": "Dog · Dog · Common · Level 1"
+      },
+      "request": {
+        "type": "coins",
+        "amount": 1.0
+      },
+      "status": "open",
+      "created_at": 1791133840.8915927,
+      "guild_id": 1298908892507410462,
+      "channel_id": 1546557493038284840,
+      "message_id": "1556352874798383169"
     }
   },
   "puzzle_rush_mistake_reviews_v1": {
