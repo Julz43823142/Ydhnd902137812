@@ -3989,7 +3989,7 @@
         "winner_name": null,
         "latest_attempts": {},
         "puzzle_id": "random_pyykO_1791122308654",
-        "last_activity_at": "2026-10-04T13:59:19.916113+00:00",
+        "last_activity_at": "2026-10-04T13:59:30.403420+00:00",
         "rating": 2650,
         "rp_band": 4,
         "boss": false,
@@ -4000,15 +4000,15 @@
         "next_player_index": 1,
         "solved": false,
         "message_ids": {
-          "1546557493038284840": 1556304720862384289
+          "1546557493038284840": 1556304764588007505
         },
         "chat_since_refresh": 0,
         "attempted_users": {
           "442597396195704832": {
             "name": "Thice",
-            "move": "qa2",
+            "move": "qa8",
             "correct": false,
-            "timestamp": "2026-10-04T13:59:19.916982+00:00"
+            "timestamp": "2026-10-04T13:59:30.404268+00:00"
           }
         },
         "first_move_user_id": "442597396195704832",
@@ -4020,7 +4020,7 @@
         "board_attachment_filenames": {
           "1546557493038284840": "random_puzzle.png"
         },
-        "last_card_activity_at": "2026-10-04T13:59:19.916113+00:00",
+        "last_card_activity_at": "2026-10-04T13:59:30.403420+00:00",
         "recent_accepted_moves": [],
         "accepted_solution_moves": [
           {
@@ -4029,9 +4029,9 @@
             "principal": true
           }
         ],
-        "last_feedback": "❌ **Wrong, Thice. you made a simple puzzle look like a dissertation on being wrong.**\n↪️ **Move played:** `qa2`",
+        "last_feedback": "❌ **Puzzle verdict on Thice: you somehow overthought the position and still underthought the move.**\n↪️ **Move played:** `qa8`",
         "wrong_attempt_counts": {
-          "442597396195704832": 2
+          "442597396195704832": 3
         }
       }
     }
