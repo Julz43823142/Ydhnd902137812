@@ -32,7 +32,7 @@
     "accessories": [
       "glasses"
     ],
-    "active": "8543145f331f465fb923a46cf3ff6ea4",
+    "active": "a694b65e5fd547a48c21a63fe10808a2",
     "expedition": {
       "end": 1791130156.917684,
       "hours": 6,
@@ -280,6 +280,17 @@
         "rarity": "common",
         "species": "Dog",
         "xp": 25
+      },
+      {
+        "born_at": 1791108685.6424184,
+        "fed_at": 1791108685.6424184,
+        "happiness": 80,
+        "happy_at": 1791108685.6424184,
+        "id": "a694b65e5fd547a48c21a63fe10808a2",
+        "name": "",
+        "rarity": "uncommon",
+        "species": "Penguin",
+        "xp": 0
       }
     ]
   }
