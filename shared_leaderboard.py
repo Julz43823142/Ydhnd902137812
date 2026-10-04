@@ -118,13 +118,21 @@ def normalize_trade_asset(asset):
         if not badge:
             raise ValueError("Badge is missing.")
         return {"type": "badge", "badge": badge}
-    raise ValueError("Trades only support coins and badges.")
+    if kind == "pet":
+        pet_id = str(asset.get("pet_id", "")).strip()
+        if not pet_id or not pet_id.isalnum() or len(pet_id) > 64:
+            raise ValueError("A valid pet ID is required.")
+        return {"type": "pet", "pet_id": pet_id,
+                **({"label": str(asset["label"])[:160]} if asset.get("label") else {})}
+    raise ValueError("Trades support coins, badges and pets.")
 
 
 def format_trade_asset(asset):
     asset = normalize_trade_asset(asset)
     if asset["type"] == "coins":
         return f"{format_points(asset['amount'])} coins"
+    if asset["type"] == "pet":
+        return f"🐾 {asset.get('label') or 'Pet'} (`pet:{asset['pet_id']}`)"
     return f"{asset['badge']} ({badge_name(asset['badge'])})"
 
 
@@ -2246,15 +2254,39 @@ def settle_multiplayer_wager(
     raise RuntimeError(f"Could not safely settle multiplayer wager for {transaction_id}.")
 
 
-def _asset_available(entry, asset):
+def _trade_pet_data(offer, request):
+    if offer["type"] == "pet" or request["type"] == "pet":
+        import pets
+        return pets._read_origin()
+    return None
+
+
+def _settle_trade_assets(first, second, first_uid, second_uid, offer, request, pet_data):
+    files = {}
+    if pet_data is not None:
+        import pet_trading
+        files = pet_trading.settle(pet_data, first_uid, second_uid, offer, request)
+    for source, target, asset in ((first, second, offer), (second, first, request)):
+        if asset["type"] != "pet":
+            _move_asset(source, target, asset)
+    return files
+
+
+def _asset_available(entry, asset, user_id=None, pet_data=None):
     asset = normalize_trade_asset(asset)
     if asset["type"] == "coins":
         return float(entry.get("coins", 0)) + 1e-9 >= float(asset["amount"])
+    if asset["type"] == "pet":
+        import pets
+        import pet_trading
+        return pet_trading.available(pet_data if pet_data is not None else pets._read_origin(), user_id, asset)
     return asset["badge"] in entry.get("badges", [])
 
 
 def _move_asset(from_entry, to_entry, asset):
     asset = normalize_trade_asset(asset)
+    if asset["type"] == "pet":
+        raise ValueError("Pets must be transferred with both trade sides atomically.")
     if asset["type"] == "coins":
         amount = float(asset["amount"])
         if float(from_entry.get("coins", 0)) + 1e-9 < amount:
@@ -2386,9 +2418,10 @@ def propose_trade(sender_user_id, sender_name, recipient_user_id, recipient_name
             inbox = list(recipient_entry.get("pending_trades", []))
             if len(inbox) >= 25:
                 raise ValueError("That player's direct-trade inbox is full (25 offers).")
-            if not _asset_available(sender_entry, offer):
+            pet_data = _trade_pet_data(offer, request)
+            if not _asset_available(sender_entry, offer, sender_uid, pet_data):
                 raise ValueError("You no longer own/have the item you are offering.")
-            if not _asset_available(recipient_entry, request):
+            if not _asset_available(recipient_entry, request, recipient_uid, pet_data):
                 raise ValueError("That player does not currently own/have the item you requested.")
             pending = {
                 "trade_id": str(transaction_id), "from_user_id": sender_uid, "from_name": str(sender_name),
@@ -2515,12 +2548,12 @@ def accept_trade(recipient_user_id, recipient_name, transaction_id, pending_trad
             sender_entry = _normalize_entry(snapshot.get(sender_uid, {"name": pending.get("from_name", "Unknown"), "points": 0}))
             offer = normalize_trade_asset(pending["offer"])
             request = normalize_trade_asset(pending["request"])
-            if not _asset_available(sender_entry, offer):
+            pet_data = _trade_pet_data(offer, request)
+            if not _asset_available(sender_entry, offer, sender_uid, pet_data):
                 raise ValueError("Trade is no longer valid: the sender no longer has the offered item.")
-            if not _asset_available(recipient_entry, request):
+            if not _asset_available(recipient_entry, request, recipient_uid, pet_data):
                 raise ValueError("Trade is no longer valid: you no longer have the requested item.")
-            _move_asset(sender_entry, recipient_entry, offer)
-            _move_asset(recipient_entry, sender_entry, request)
+            pet_files = _settle_trade_assets(sender_entry, recipient_entry, sender_uid, recipient_uid, offer, request, pet_data)
             inbox.pop(index)
             _set_pending_trade_inbox(recipient_entry, inbox)
             _upsert_sent_trade(
@@ -2545,6 +2578,7 @@ def accept_trade(recipient_user_id, recipient_name, transaction_id, pending_trad
                 "created_at": int(time.time()), "created_at_ns": int(time.time_ns()),
             }
             files = {LEGACY_FILE: _snapshot_json(snapshot), _event_filename(transaction_id): _event_json(payload)}
+            files.update(pet_files)
             if not migrated:
                 files[_event_filename(MIGRATION_TRANSACTION_ID)] = _event_json(_migration_event())
             if _push_files(files, "Accept shop trade"):
@@ -2628,13 +2662,13 @@ def accept_open_trade(seller_user_id, seller_name, buyer_user_id, buyer_name, of
             seller_entry["name"] = str(seller_name)
             buyer_entry["name"] = str(buyer_name)
 
-            if not _asset_available(seller_entry, offer):
+            pet_data = _trade_pet_data(offer, request)
+            if not _asset_available(seller_entry, offer, seller_uid, pet_data):
                 raise ValueError("Trade is no longer valid: the seller no longer has the offered item.")
-            if not _asset_available(buyer_entry, request):
+            if not _asset_available(buyer_entry, request, buyer_uid, pet_data):
                 raise ValueError("You do not currently have the item/coins requested by this trade.")
 
-            _move_asset(seller_entry, buyer_entry, offer)
-            _move_asset(buyer_entry, seller_entry, request)
+            pet_files = _settle_trade_assets(seller_entry, buyer_entry, seller_uid, buyer_uid, offer, request, pet_data)
             snapshot[seller_uid] = seller_entry
             snapshot[buyer_uid] = buyer_entry
 
@@ -2660,6 +2694,7 @@ def accept_open_trade(seller_user_id, seller_name, buyer_user_id, buyer_name, of
                 LEGACY_FILE: _snapshot_json(snapshot),
                 _event_filename(transaction_id): _event_json(payload),
             }
+            files.update(pet_files)
             if not migrated:
                 files[_event_filename(MIGRATION_TRANSACTION_ID)] = _event_json(_migration_event())
             if _push_files(files, "Accept open shop trade"):

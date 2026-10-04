@@ -96,6 +96,13 @@ def profile_embed(owner, pet_id=None, show_stats=False):
             embed.add_field(name="Current bonus", value=f"{rate * 100:g}% {labels[kind]}" if kind else "Hatch your egg to unlock its bonus", inline=False)
         embed.add_field(name="Age", value=f"{int((age_end - pet['born_at']) // pets.DAY)} days")
         embed.add_field(name="Feeding deadline", value=f"Feed before <t:{int(pet['fed_at'] + 7 * pets.DAY)}:F>")
+        if not pet.get('died_at'):
+            embed.add_field(
+                name="Trade Pet",
+                value=f"`pet:{pet['id']}`\nUse this ID in **Trade Player** or **Open Trade** in `!menu`.\n"
+                      "Trade for coins, badges or another pet · maximum 10 living pets.",
+                inline=False,
+            )
         if owner.get("active") != pet["id"]:
             embed.add_field(name="Bonus status", value="Inactive — only the active pet grants its bonus.", inline=False)
         reset = f"<t:{pets.next_daily(now)}:R>"

@@ -4746,6 +4746,13 @@ async def resolve_server_member(message, typed_name):
     return candidates[0] if len(candidates) == 1 else None
 
 
+async def _shop_trade_asset_from_text(text, owned_badges, pet_owner_id=None):
+    import pet_trading
+    if str(text or '').strip().casefold().startswith(('pet:', 'pet ')):
+        return await asyncio.to_thread(pet_trading.asset_from_text, text, pet_owner_id)
+    return _shop_asset_from_text(text, owned_badges)
+
+
 def _shop_asset_from_text(text, owned_badges):
     raw = str(text or "").strip()
     compact = " ".join(raw.split())
@@ -4864,7 +4871,7 @@ async def _parse_donation_args(message, arg_text):
 async def _parse_trade_args(message, arg_text):
     words = str(arg_text or "").split()
     if len(words) < 3:
-        raise ValueError("Usage: `!trade <name> <give coins/badge> <receive coins/badge>`")
+        raise ValueError("Usage: `!trade <name> <give coins/badge/pet:ID> <receive coins/badge/pet:ID>`")
     sender_profile = await asyncio.to_thread(
         get_cosmetic_profile, message.author.id, message.author.display_name
     )
@@ -4890,19 +4897,19 @@ async def _parse_trade_args(message, arg_text):
         target_profile = await asyncio.to_thread(get_cosmetic_profile, target_id, target_name)
         for split in range(1, len(remaining)):
             try:
-                offer = _shop_asset_from_text(" ".join(remaining[:split]), sender_profile.get("badges", []))
-                request = _shop_asset_from_text(" ".join(remaining[split:]), target_profile.get("badges", []))
+                offer = await _shop_trade_asset_from_text(" ".join(remaining[:split]), sender_profile.get("badges", []), message.author.id)
+                request = await _shop_trade_asset_from_text(" ".join(remaining[split:]), target_profile.get("badges", []), target_id)
             except Exception:
                 continue
             key = (
                 str(target_id),
-                offer["type"], str(offer.get("amount", offer.get("badge", ""))),
-                request["type"], str(request.get("amount", request.get("badge", ""))),
+                offer["type"], str(offer.get("amount", offer.get("badge", offer.get("pet_id", "")))),
+                request["type"], str(request.get("amount", request.get("badge", request.get("pet_id", "")))),
             )
             if key not in {item[0] for item in parsed}:
                 parsed.append((key, target_id, target_name, offer, request))
     if not parsed:
-        raise ValueError("Could not understand that trade. Only coins and badges can be traded.")
+        raise ValueError("Could not understand that trade. Coins, badges and pets can be traded. Use pet:<ID> for pets.")
     if len(parsed) > 1:
         raise ValueError("That trade is ambiguous. Mention the player and/or use exact badge emojis.")
     _, target_id, target_name, offer, request = parsed[0]
@@ -5206,6 +5213,9 @@ def _profile_has_trade_asset(profile, asset):
     asset = shared_ledger.normalize_trade_asset(asset)
     if asset["type"] == "coins":
         return float(profile.get("coins", 0) or 0) + 1e-9 >= float(asset["amount"])
+    if asset['type'] == 'pet':
+        import pets, pet_trading
+        return pet_trading.available({str(profile.get('user_id')): pets.get_owner(profile.get('user_id'))}, profile.get('user_id'), asset)
     return str(asset["badge"]) in {str(item) for item in profile.get("badges", [])}
 
 
@@ -5216,6 +5226,8 @@ def _same_trade_asset(first, second):
         return False
     if first["type"] == "coins":
         return abs(float(first["amount"]) - float(second["amount"])) < 1e-9
+    if first['type'] == 'pet':
+        return first['pet_id'] == second['pet_id']
     return str(first["badge"]) == str(second["badge"])
 
 
@@ -5234,8 +5246,8 @@ async def create_direct_shop_trade(interaction, target_user_id, target_name, off
         target_name,
     )
 
-    offer = _shop_asset_from_text(offer_text, sender_profile.get("badges", []))
-    request = _shop_asset_from_text(request_text, target_profile.get("badges", []))
+    offer = await _shop_trade_asset_from_text(offer_text, sender_profile.get("badges", []), interaction.user.id)
+    request = await _shop_trade_asset_from_text(request_text, target_profile.get("badges", []), target_user_id)
     offer = shared_ledger.normalize_trade_asset(offer)
     request = shared_ledger.normalize_trade_asset(request)
 
@@ -5275,12 +5287,12 @@ class DirectShopTradeModal(discord.ui.Modal):
 
         self.give = discord.ui.TextInput(
             label="You give",
-            placeholder="Example: Ninja or 10",
+            placeholder="Example: 10, Ninja, or pet:<ID>",
             max_length=100,
         )
         self.want = discord.ui.TextInput(
             label="You want",
-            placeholder="Example: 10 or Ninja",
+            placeholder="Example: 10, Ninja, or pet:<ID>",
             max_length=100,
         )
         self.add_item(self.give)
@@ -5385,7 +5397,7 @@ def _open_shop_trade_embed(trade):
         ),
         color=color,
     )
-    embed.set_footer(text="Open trades are first-come, first-served • coins and badges only")
+    embed.set_footer(text="Open trades are first-come, first-served • coins, badges and pets")
     return embed
 
 
@@ -5559,12 +5571,12 @@ async def create_open_shop_trade(interaction, offer_text, request_text):
         interaction.user.id,
         interaction.user.display_name,
     )
-    offer = _shop_asset_from_text(offer_text, seller_profile.get("badges", []))
-    request = _shop_asset_from_text(request_text, None)
+    offer = await _shop_trade_asset_from_text(offer_text, seller_profile.get("badges", []), interaction.user.id)
+    request = await _shop_trade_asset_from_text(request_text, None)
     offer = shared_ledger.normalize_trade_asset(offer)
     request = shared_ledger.normalize_trade_asset(request)
 
-    if not _profile_has_trade_asset(seller_profile, offer):
+    if not await asyncio.to_thread(_profile_has_trade_asset, seller_profile, offer):
         raise ValueError("You do not currently own/have the item you are offering.")
     if _same_trade_asset(offer, request):
         raise ValueError("The offered item and requested item cannot be exactly the same.")
@@ -5587,6 +5599,10 @@ async def create_open_shop_trade(interaction, offer_text, request_text):
         )
         if already_listed + float(offer["amount"]) > float(seller_profile.get("coins", 0) or 0) + 1e-9:
             raise ValueError("Your existing open trades plus this one would offer more coins than you currently have.")
+    elif offer['type'] == 'pet':
+        if any(item.get('offer', {}).get('type') == 'pet'
+               and item['offer'].get('pet_id') == offer['pet_id'] for item in seller_open):
+            raise ValueError('That pet is already listed in an open trade.')
     else:
         badge = str(offer["badge"])
         owned_copies = sum(1 for item in seller_profile.get("badges", []) if str(item) == badge)
@@ -5625,12 +5641,12 @@ async def create_open_shop_trade(interaction, offer_text, request_text):
 class OpenShopTradeModal(discord.ui.Modal, title="Create Open Trade"):
     give = discord.ui.TextInput(
         label="You give",
-        placeholder="Example: Ninja or 10",
+        placeholder="Example: 10, Ninja, or pet:<ID>",
         max_length=100,
     )
     want = discord.ui.TextInput(
         label="You want",
-        placeholder="Example: 10 or Ninja",
+        placeholder="Example: 10, Ninja, or pet:<ID>",
         max_length=100,
     )
 
@@ -17391,7 +17407,9 @@ def trade_home_embed():
             "📋 **Browse Trades** — see current public offers.\n"
             "🎁 **Donate** — send coins or one badge without asking for anything back.\n"
             "📨 **Trade Inbox** — incoming offers, donations and the status of trades you sent.\n\n"
-            "Typing only `10` means **10 coins**. Badge names/emojis are also accepted."
+            "Typing only `10` means **10 coins**. Badge names/emojis are also accepted.\n"
+            "🐾 **Pets** — use `pet:<ID>` from the Pet Card, or `pet Dog` if the owner has one matching pet.\n"
+            "Prices are set by players. Trades cannot exceed **10 living pets**; pet-for-pet swaps are allowed at the limit."
         ),
         color=0x4DD6B6,
     )
