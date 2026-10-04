@@ -179,6 +179,25 @@
         "happy_at": 1791072335.280981,
         "id": "b1f79c9c9de44831a956b2f90a8795ba",
         "name": "",
+        "puzzle": {
+          "day": "2026-10-04",
+          "fen": "8/8/7p/1p4p1/1k4P1/7P/P1K5/8 b - - 5 45",
+          "id": "uiJe2",
+          "index": 0,
+          "moves": [
+            "b4a3",
+            "c2b1",
+            "b5b4",
+            "b1a1",
+            "b4b3",
+            "a2b3",
+            "a3b3",
+            "a1b1",
+            "b3c3",
+            "b1c1",
+            "c3d3"
+          ]
+        },
         "rarity": "uncommon",
         "species": "Fox",
         "xp": 0
