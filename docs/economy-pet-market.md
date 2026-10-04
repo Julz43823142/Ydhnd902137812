@@ -33,3 +33,22 @@ Publication uses a stable Discord nonce with enforced deduplication and a persis
 ## Validation
 
 Real disposable Git tests cover fees, timer freezing, capacity, dead/expedition exclusions, history, direct and Wanted receipts, non-coin exclusions, concurrent adopters/sellers, conflict rebuilds, uncertain acknowledgements, report claims and median pricing. UI checks cover pagination, confirmation ownership, hidden eggs, receipt identity, DST/weekly boundaries, Next Event and report recovery. Full root/minigame suites, Python compilation and JSON/YAML validation are required before merging.
+# Last week's economy on demand
+
+`Last Week Economy` is available in both bots' Trade menus and on My Week,
+Community and Event Hub pages. It posts a public report and shows the next
+Monday 00:00 Europe/Amsterdam publication time with a countdown. Opening it
+never triggers rewards, creates a report outbox entry, or changes wallets.
+
+The last complete Amsterdam calendar week is selected, not a rolling seven
+days. An already frozen weekly report is reused. For a week before tracking
+started, a read-only reconstruction uses committed immutable audit records
+and the latest saved wallet snapshots before each week boundary. Actual
+snapshot dates are displayed; the supply difference is explicitly between
+those snapshots, not an exact midnight-to-midnight measurement.
+
+Legacy individual wallet increases/decreases are not presented as complete
+coin creation/destruction. Recorded trades and coin pet sales use completed
+receipts only. Duplicate transaction IDs and events outside the week are
+excluded. Missing historical metrics are marked unavailable; no old pet
+species, balances or activity are inferred from today's state.
