@@ -3949,8 +3949,8 @@
         "url": "https://lichess.org/training/90p2f",
         "title": "Lichess • 2443",
         "fen": "2kr2r1/R1pnb1q1/1p1p4/1P4p1/3Pb2p/2P1P2P/4Q1PN/R5K1 w - - 0 23",
-        "current_fen": "2kr2r1/R1pnb1q1/1p1p4/1P4p1/3Pb2p/2P1P2P/4Q1PN/R5K1 w - - 0 23",
-        "last_move_uci": "b7e4",
+        "current_fen": "2kr2r1/R1p1b1q1/1p1p4/1Pn3p1/2QPb2p/2P1P2P/6PN/R5K1 w - - 2 24",
+        "last_move_uci": "d7c5",
         "pgn": "Qc4 Nc5 dxc5",
         "all_moves": [
           {
@@ -3989,30 +3989,30 @@
         "winner_name": null,
         "latest_attempts": {},
         "puzzle_id": "random_90p2f_1791122495050",
-        "last_activity_at": "2026-10-04T14:01:47.784074+00:00",
+        "last_activity_at": "2026-10-04T14:01:55.493978+00:00",
         "rating": 2443,
         "rp_band": 4,
         "boss": false,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink",
-        "next_solution_index": 0,
-        "next_player_index": 0,
+        "next_solution_index": 2,
+        "next_player_index": 1,
         "solved": false,
         "message_ids": {
-          "1546557493038284840": 1556305340830715924
+          "1546557493038284840": 1556305373369999370
         },
         "chat_since_refresh": 0,
         "attempted_users": {
           "442597396195704832": {
             "name": "Thice",
-            "move": "rxc7",
-            "correct": false,
-            "timestamp": "2026-10-04T14:01:47.784868+00:00"
+            "move": "qc4",
+            "correct": true,
+            "timestamp": "2026-10-04T14:01:55.494826+00:00"
           }
         },
-        "first_move_user_id": null,
-        "first_move_user_name": null,
+        "first_move_user_id": "442597396195704832",
+        "first_move_user_name": "Thice",
         "first_move_awarded": false,
         "helper_awarded_users": [],
         "helper_candidate_users": [],
@@ -4020,12 +4020,30 @@
         "board_attachment_filenames": {
           "1546557493038284840": "random_puzzle.png"
         },
-        "last_card_activity_at": "2026-10-04T14:01:47.784074+00:00",
-        "recent_accepted_moves": [],
+        "last_card_activity_at": "2026-10-04T14:01:55.493978+00:00",
+        "recent_accepted_moves": [
+          {
+            "accepted_at": 1791122515.494834,
+            "fen_before": "2kr2r1/R1pnb1q1/1p1p4/1P4p1/3Pb2p/2P1P2P/4Q1PN/R5K1 w - - 0 23",
+            "expected": {
+              "uci": "e2c4",
+              "san": "Qc4",
+              "color": "white"
+            },
+            "accepted_uci": "e2c4"
+          }
+        ],
         "wrong_attempt_counts": {
           "442597396195704832": 1
         },
-        "last_feedback": "❌ **Thice, congratulations: you turned a puzzle into a demonstration of why checking your work matters.**\n↪️ **Move played:** `rxc7`"
+        "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Nc5",
+        "accepted_solution_moves": [
+          {
+            "san": "Qc4",
+            "uci": "e2c4",
+            "principal": true
+          }
+        ]
       }
     }
   },
