@@ -3944,13 +3944,13 @@
   },
   "channel_puzzle_state": {
     "1546557493038284840": {
-      "latest_puzzle_type": "random",
+      "latest_puzzle_type": "daily",
       "latest_random_puzzle": {
         "url": "https://lichess.org/training/GI2Sk",
         "title": "Lichess • 1270",
         "fen": "r5rk/pp3p1p/2p1nPp1/8/3P3Q/5R2/Pq2N1PP/4R1K1 w - - 5 26",
-        "current_fen": "r5r1/pp3p1k/2p1nPp1/8/3P4/5R2/Pq2N1PP/4R1K1 w - - 0 27",
-        "last_move_uci": "h8h7",
+        "current_fen": "r5r1/pp3p1k/2p1nPp1/8/3P4/7R/Pq2N1PP/4R1K1 b - - 1 27",
+        "last_move_uci": "f3h3",
         "pgn": "Qxh7+ Kxh7 Rh3#",
         "all_moves": [
           {
@@ -3984,43 +3984,43 @@
         "player_color": "white",
         "player_move_count": 2,
         "posted_at": "2026-10-04T13:57:47.582640+00:00",
-        "answer_posted": false,
+        "answer_posted": true,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
         "puzzle_id": "random_GI2Sk_1791122267582",
-        "last_activity_at": "2026-10-04T13:58:00.949279+00:00",
+        "last_activity_at": "2026-10-04T13:58:04.151653+00:00",
         "rating": 1270,
         "rp_band": 0,
         "boss": false,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink",
-        "next_solution_index": 2,
-        "next_player_index": 1,
-        "solved": false,
+        "next_solution_index": 3,
+        "next_player_index": 2,
+        "solved": true,
         "message_ids": {
-          "1546557493038284840": 1556304389822750751
+          "1546557493038284840": 1556304403147788308
         },
         "chat_since_refresh": 0,
         "attempted_users": {
           "442597396195704832": {
             "name": "Thice",
-            "move": "qxh7",
+            "move": "rh3",
             "correct": true,
-            "timestamp": "2026-10-04T13:58:00.950086+00:00"
+            "timestamp": "2026-10-04T13:58:04.152285+00:00"
           }
         },
         "first_move_user_id": "442597396195704832",
         "first_move_user_name": "Thice",
-        "first_move_awarded": false,
+        "first_move_awarded": true,
         "helper_awarded_users": [],
         "helper_candidate_users": [],
         "channel_id": 1546557493038284840,
         "board_attachment_filenames": {
           "1546557493038284840": "random_puzzle.png"
         },
-        "last_card_activity_at": "2026-10-04T13:58:00.949279+00:00",
+        "last_card_activity_at": "2026-10-04T13:58:04.151653+00:00",
         "recent_accepted_moves": [
           {
             "accepted_at": 1791122280.950094,
@@ -4031,6 +4031,16 @@
               "color": "white"
             },
             "accepted_uci": "h4h7"
+          },
+          {
+            "accepted_at": 1791122284.1522937,
+            "fen_before": "r5r1/pp3p1k/2p1nPp1/8/3P4/5R2/Pq2N1PP/4R1K1 w - - 0 27",
+            "expected": {
+              "uci": "f3h3",
+              "san": "Rh3#",
+              "color": "white"
+            },
+            "accepted_uci": "f3h3"
           }
         ],
         "accepted_solution_moves": [
@@ -4038,9 +4048,18 @@
             "san": "Qxh7+",
             "uci": "h4h7",
             "principal": true
+          },
+          {
+            "san": "Rh3#",
+            "uci": "f3h3",
+            "principal": true
           }
         ],
-        "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kxh7"
+        "last_feedback": "✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1735 points.**\n\nPuzzle Elo: **2524**\n\n💡 **Solution:** Qxh7+ Rh3#\n\n🏆 **Your ranking**\n**#1 🐶 Thice — 1735 points ← you**\n**#2 🍅 TheMakina — 1552 points**",
+        "completion_solver_id": "442597396195704832",
+        "completion_solver_name": "Thice",
+        "activity_bonus_users": [],
+        "auto_next_started": true
       }
     }
   },
