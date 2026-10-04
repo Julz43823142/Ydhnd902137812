@@ -208,24 +208,25 @@
         "born_at": 1791108474.02901,
         "fed_at": 1791108481.1681635,
         "feed_day": "2026-10-04",
-        "happiness": 80,
-        "happy_at": 1791108474.02901,
+        "happiness": 100,
+        "happy_at": 1791108507.2291093,
         "id": "eee0c5787c154765833526fd6002f367",
         "name": "",
         "puzzle": {
           "day": "2026-10-04",
-          "fen": "r4rk1/pp4pp/5p2/3p4/3qp1N1/2P5/PP3PPP/R3R1K1 w - - 0 20",
+          "fen": "r4rk1/pp4pp/5p2/3p4/3Pp1N1/8/PP3PPP/R3R1K1 b - - 0 20",
           "id": "beyxJ",
-          "index": 2,
+          "index": 3,
           "moves": [
             "d3d4",
             "b6d4",
             "c3d4"
           ]
         },
+        "puzzle_day": "2026-10-04",
         "rarity": "common",
         "species": "Rabbit",
-        "xp": 5
+        "xp": 25
       }
     ]
   }
