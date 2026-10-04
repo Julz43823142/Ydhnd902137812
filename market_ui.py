@@ -26,6 +26,8 @@ def receipt_embed(details):
 
 
 def report_embed(report):
+    if report.get('historical'):
+        return historical_report_embed(report)
     a=report['activity'];fmt=lambda n:f'{n:,.3f}'.rstrip('0').rstrip('.')
     embed=discord.Embed(title=f"📊 Server Economy · {report['week']}",color=0xE5B94D)
     embed.description=f"Tracking since <t:{int(report['tracking_since'])}:D> · Monday–Sunday · Amsterdam"
@@ -46,7 +48,53 @@ def report_embed(report):
     categories=a.get('categories',{})
     if categories:embed.add_field(name='Largest audited sources / sinks',value='\n'.join(f'{k[:65]}: {v:+,.3f}' for k,v in sorted(categories.items(),key=lambda item:abs(item[1]),reverse=True)[:6]),inline=False)
     embed.set_footer(text='First tracked week can be partial · tracked flows only · wager escrow excluded from wallet totals and mint/burn')
+    add_next_report(embed)
     return embed
+
+
+def add_next_report(embed, now=None):
+    from economy_history import next_report_at
+    stamp=int(next_report_at(time.time() if now is None else now))
+    embed.add_field(name='Next weekly report', value=f'<t:{stamp}:F> · <t:{stamp}:R>\nMonday 00:00 · Europe/Amsterdam', inline=False)
+
+
+def historical_report_embed(report):
+    fmt=lambda n:f'{n:,.3f}'.rstrip('0').rstrip('.')
+    embed=discord.Embed(title=f"📊 Last Week's Economy · {report['week']}",color=0xE5B94D)
+    embed.description=(f"<t:{int(report['start'])}:D> – <t:{int(report['end']-1)}:D> · Amsterdam\n"
+                       'Reconstructed from saved wallets and immutable audits. Historical coverage is partial.')
+    for label,key in [('Before the week','opening'),('End of the week','closing')]:
+        row=report[key]
+        value=(f"**{fmt(row['supply'])} coins** · {row['wallets']} wallets\n"
+               f"Mean / median: {fmt(row['mean'])} / {fmt(row['median'])}\n"
+               f"Last saved snapshot: <t:{row['at']}:F>" if row else 'No historical wallet snapshot available.')
+        embed.add_field(name=label+' · last saved wallet',value=value,inline=False)
+    if report['opening'] and report['closing']:
+        change=report['closing']['supply']-report['opening']['supply']
+        embed.add_field(name='Change between these saved snapshots',value=f'{change:+,.3f} coins')
+    audit=report['audit']
+    embed.add_field(name='Available audits in this week',value=str(audit['records']))
+    embed.add_field(name='Audited individual wallet increases / decreases',
+                    value=f"+{fmt(audit['positive'])} / −{fmt(audit['negative'])}\n{audit['coin_records']} records with explicit before/after balances. These are not total coins minted/burned.",inline=False)
+    embed.add_field(name='Recorded completed trades / coins exchanged',value=f"{audit['trades']} / {fmt(audit['traded_coins'])}")
+    sales=audit['sales']
+    import statistics
+    embed.add_field(name='Recorded pet coin sales / highest / median',value=f"{len(sales)} / {fmt(max(sales)) if sales else '—'} / {fmt(statistics.median(sales)) if sales else '—'}")
+    embed.add_field(name='Not reliably tracked for this historical week',
+                    value='Complete coin creation/destruction, active wallets, detailed sources/sinks, Shelter activity and traded species. Missing metrics are unavailable, not zero.',inline=False)
+    add_next_report(embed)
+    embed.set_footer(text='Read-only reconstruction · recorded activity only · no rewards or wallet changes')
+    return embed
+
+
+async def send_economy(interaction):
+    await interaction.response.defer()
+    try:
+        from economy_history import last_week
+        report=await asyncio.to_thread(last_week)
+        await interaction.followup.send(embed=report_embed(report),allowed_mentions=discord.AllowedMentions.none())
+    except Exception:
+        await interaction.followup.send('Economy history is temporarily unavailable. Please try again.',ephemeral=True)
 
 
 async def send_history(interaction,uid,pet_id,page=0):

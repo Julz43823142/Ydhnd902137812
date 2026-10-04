@@ -89,6 +89,11 @@ class FeatureView(discord.ui.View):
     def __init__(self, viewer, uid, mode, data=None):
         super().__init__(timeout=600)
         self.viewer, self.uid, self.mode = int(viewer), str(uid), mode
+        if mode in {'week', 'event', 'challenge'}:
+            economy_button=discord.ui.Button(label='Last Week Economy',emoji='📊')
+            from market_ui import send_economy
+            economy_button.callback=send_economy
+            self.add_item(economy_button)
         if mode in {'event', 'challenge'}:
             next_button=discord.ui.Button(label='Next Event',emoji='📅')
             async def upcoming(interaction):

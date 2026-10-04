@@ -17338,6 +17338,11 @@ class TradeHomeView(discord.ui.View):
         super().__init__(timeout=600)
         self.user_id = int(user_id)
 
+    @discord.ui.button(label='Last Week Economy',emoji='📊',row=2)
+    async def economy(self,interaction,button):
+        from market_ui import send_economy
+        await send_economy(interaction)
+
     @discord.ui.button(label='Wanted Market',emoji='🔎',row=2)
     async def wanted(self,interaction,button):
         from market_ui import send_market
