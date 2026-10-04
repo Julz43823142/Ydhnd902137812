@@ -2,7 +2,6 @@
 import asyncio
 import io
 import time
-import cairosvg
 import discord
 import pets
 from pet_accessories import CATALOG
@@ -99,8 +98,8 @@ async def tools_embed(owner, mode, selected, pet_id):
         embed = discord.Embed(title=f"🎨 Pet Accessory · {item['label']}", description=f"{price}\n{'Owned' if selected in owner.get('accessories', []) else 'Not owned'} · Cosmetic only\nPreview uses your selected pet and does not equip or spend coins.", color=0x4DD6B6)
         pet = pets.current_pet(owner, pet_id)
         if pet and pets.level(pet) > 0:
-            from showcase_cards import pet_svg
-            data = await asyncio.to_thread(cairosvg.svg2png, bytestring=pet_svg(pet, accessory_override=selected).encode())
+            from showcase_cards import pet_svg, render_svg_png
+            data = await asyncio.to_thread(render_svg_png, pet_svg(pet, accessory_override=selected))
             image = discord.File(io.BytesIO(data), filename='accessory-preview.png')
             embed.set_image(url='attachment://accessory-preview.png')
         else:

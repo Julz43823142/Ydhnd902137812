@@ -1,15 +1,17 @@
 import base64
+import copy
 import hashlib
 import io
 import json
 import os
 import subprocess
 import tarfile
-import threading
 import time
 from pathlib import Path
+from functools import lru_cache
 
 from shared_leaderboard import (
+    REPOSITORY_LOCK, refresh_for_read,
     badge_map,
     sync_guess_points_to_coins as shared_sync_guess_points_to_coins,
     backfill_guess_points_to_coins as shared_backfill_guess_points_to_coins,
@@ -24,7 +26,7 @@ STATS_EVENT_DIR = "guess_stats_events"
 STATS_FILE = "guess_stats.json"
 GUESS_STATS_BUILD = "guess-stats-v2-streaks-nemesis-2026-09-04"
 
-_LOCK = threading.Lock()
+_LOCK = REPOSITORY_LOCK
 MAX_RETRIES = 12
 
 
@@ -97,23 +99,23 @@ def _origin_legacy_scores():
 
 
 def _origin_events():
-    """
-    Read all immutable event files from origin in one git-archive call.
-    The event files are the source of truth.
-    """
-    result = subprocess.run(
-        [
-            "git",
-            "archive",
-            "--format=tar",
-            f"origin/{_branch()}",
-            EVENT_DIR,
-        ],
-        capture_output=True,
-    )
-
-    if result.returncode != 0:
+    """Cache immutable events by their Git tree, never by a mutable branch name."""
+    tree = _run(['git', 'rev-parse', f'origin/{_branch()}:{EVENT_DIR}'])
+    if tree.returncode != 0:
         return {}
+    # An unreadable existing event tree is not an empty ledger. Propagate the
+    # failure so a transaction cannot re-import the legacy baseline or mint coins.
+    return copy.deepcopy(_events_for_tree(os.getcwd(), tree.stdout.strip()))
+
+
+@lru_cache(maxsize=2)
+def _events_for_tree(repository, tree_id):
+    result = subprocess.run(
+        ['git', 'archive', '--format=tar', f'--prefix={EVENT_DIR}/', tree_id],
+        capture_output=True, cwd=repository,
+    )
+    if result.returncode != 0:
+        raise RuntimeError('Could not read immutable Guess event tree.')
 
     events = {}
 
@@ -157,8 +159,8 @@ def _origin_events():
                 except Exception:
                     continue
 
-    except Exception:
-        return {}
+    except Exception as error:
+        raise RuntimeError('Could not parse immutable Guess event tree.') from error
 
     return events
 
@@ -660,21 +662,10 @@ def add_points(
 
 def _current_snapshot():
     with _LOCK:
-
-        if not _fetch():
-
-            return _snapshot(
-                {},
-                _origin_legacy_scores(),
-            )
-
-        events = _origin_events()
-        legacy = _origin_legacy_scores()
-
-        return _snapshot(
-            events,
-            legacy,
-        )
+        # Even offline, the last fetched immutable ledger is more authoritative
+        # than the historical legacy file. Do not replace real scores by baselines.
+        refresh_for_read(_fetch)
+        return _snapshot(_origin_events(), _origin_legacy_scores())
 
 
 def get_score(
@@ -1304,7 +1295,7 @@ def record_poll_votes(
 
 def _current_stats_snapshot():
     with _LOCK:
-        if _fetch():
+        if refresh_for_read(_fetch):
             return _origin_stats_snapshot()
         return _local_stats_snapshot()
 

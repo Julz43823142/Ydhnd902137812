@@ -164,7 +164,7 @@ def transact(uid, name, txid, mutate, *, wallet=False):
 
 def get_owner(uid):
     with ledger._LOCK:
-        if not ledger._fetch_retry():
+        if not ledger.refresh_for_read():
             raise RuntimeError("Pet data cannot be refreshed right now. Please try again.")
         return copy.deepcopy(_owner(_read_origin(), uid, time.time()))
 

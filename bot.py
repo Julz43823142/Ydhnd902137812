@@ -5182,6 +5182,7 @@ class TradeDecisionView(discord.ui.View):
         return True
 
     async def _accept(self, interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=True)
         try:
             details = await asyncio.to_thread(
                 shared_accept_trade,
@@ -5191,13 +5192,13 @@ class TradeDecisionView(discord.ui.View):
                 self.trade_id,
             )
         except ValueError as error:
-            await interaction.response.send_message(f"❌ **{error}**", ephemeral=True)
+            await interaction.followup.send(f"❌ **{error}**", ephemeral=True)
             return
         except Exception as error:
-            await interaction.response.send_message(f"❌ Could not safely accept trade: `{str(error)[:700]}`", ephemeral=True)
+            await interaction.followup.send(f"❌ Could not safely accept trade: `{str(error)[:700]}`", ephemeral=True)
             return
         self.stop()
-        await interaction.response.edit_message(
+        await interaction.edit_original_response(
             content=(
                 "✅ **Trade accepted!**\n"
                 f"{interaction.user.display_name} received **{shared_format_trade_asset(details['offer'])}**.\n"
@@ -5207,6 +5208,7 @@ class TradeDecisionView(discord.ui.View):
         )
 
     async def _decline(self, interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=True)
         try:
             pending = await asyncio.to_thread(
                 shared_decline_trade,
@@ -5216,13 +5218,13 @@ class TradeDecisionView(discord.ui.View):
                 self.trade_id,
             )
         except ValueError as error:
-            await interaction.response.send_message(f"❌ **{error}**", ephemeral=True)
+            await interaction.followup.send(f"❌ **{error}**", ephemeral=True)
             return
         except Exception as error:
-            await interaction.response.send_message(f"❌ Could not safely decline trade: `{str(error)[:700]}`", ephemeral=True)
+            await interaction.followup.send(f"❌ Could not safely decline trade: `{str(error)[:700]}`", ephemeral=True)
             return
         self.stop()
-        await interaction.response.edit_message(
+        await interaction.edit_original_response(
             content=f"❌ **Trade declined.** Offer from {pending.get('from_name', 'Unknown')} was removed.",
             view=None,
         )
@@ -13763,6 +13765,7 @@ class CosmeticProfileView(discord.ui.View):
                     from pet_ui import send_interaction_profile
                     await send_interaction_profile(interaction, self.target_user_id)
                     return
+                await interaction.response.defer(ephemeral=True)
                 if mode == "colors" and self.editable:
                     current = await sync_subscriber_color_profile(
                         interaction.user,
@@ -13781,7 +13784,7 @@ class CosmeticProfileView(discord.ui.View):
                         self._build_assets(current)
                     else:
                         self._build_colors(current)
-                await interaction.response.edit_message(content=None, embed=community_embed(self.render(current)), view=self)
+                await interaction.edit_original_response(content=None, embed=community_embed(self.render(current)), view=self)
 
             button.callback = open_mode
             self.add_item(button)
@@ -13804,6 +13807,7 @@ class CosmeticProfileView(discord.ui.View):
             )
 
             async def open_trades(interaction):
+                await interaction.response.defer(ephemeral=True)
                 before = await self._profile()
                 inbox_text = pending_trade_message(before)
                 try:
@@ -13818,7 +13822,7 @@ class CosmeticProfileView(discord.ui.View):
                 current = await self._profile()
                 trades = _profile_pending_trades(current)
                 self._build_dashboard(current)
-                await interaction.response.edit_message(
+                await interaction.edit_original_response(
                     content=None,
                     embed=community_embed(self.render(current)),
                     view=self,
@@ -13847,12 +13851,13 @@ class CosmeticProfileView(discord.ui.View):
             )
 
             async def open_rarity(interaction, rarity=rarity):
+                await interaction.response.defer(ephemeral=True)
                 current = await self._profile()
                 self.mode = "badges"
                 self.rarity = rarity
                 self.page = 1
                 self._build_badges(current)
-                await interaction.response.edit_message(
+                await interaction.edit_original_response(
                     content=None,
                     embed=community_embed(self.render(current)),
                     view=self,
@@ -13863,9 +13868,10 @@ class CosmeticProfileView(discord.ui.View):
 
         back = discord.ui.Button(label="← Profile", style=discord.ButtonStyle.secondary, row=4)
         async def back_callback(interaction):
+            await interaction.response.defer(ephemeral=True)
             current = await self._profile()
             self._build_dashboard(current)
-            await interaction.response.edit_message(content=None, embed=community_embed(self.render(current)), view=self)
+            await interaction.edit_original_response(content=None, embed=community_embed(self.render(current)), view=self)
         back.callback = back_callback
         self.add_item(back)
 
@@ -13882,12 +13888,13 @@ class CosmeticProfileView(discord.ui.View):
                     row=pos // 5,
                 )
                 async def equip_callback(interaction, badge=badge):
+                    await interaction.response.defer(ephemeral=True)
                     updated = await asyncio.to_thread(
                         equip_badge, self.target_user_id, self.target_name, badge,
                         f"profile-button-badge:{interaction.id}:{self.target_user_id}",
                     )
                     self._build_badges(updated)
-                    await interaction.response.edit_message(content=None, embed=community_embed(self.render(updated)), view=self)
+                    await interaction.edit_original_response(content=None, embed=community_embed(self.render(updated)), view=self)
                 button.callback = equip_callback
                 self.add_item(button)
         self._add_nav(total_pages, include_none=self.editable)
@@ -13923,12 +13930,13 @@ class CosmeticProfileView(discord.ui.View):
                     row=pos // 5,
                 )
                 async def equip_callback(interaction, name=name, equip_func=equip_func):
+                    await interaction.response.defer(ephemeral=True)
                     updated = await asyncio.to_thread(
                         equip_func, self.target_user_id, self.target_name, name,
                         f"profile-button-{self.mode}:{interaction.id}:{self.target_user_id}:{name}",
                     )
                     self._build_assets(updated)
-                    await interaction.response.edit_message(content=None, embed=community_embed(self.render(updated)), view=self)
+                    await interaction.edit_original_response(content=None, embed=community_embed(self.render(updated)), view=self)
                 button.callback = equip_callback
                 self.add_item(button)
         self._add_nav(total_pages)
@@ -13975,9 +13983,10 @@ class CosmeticProfileView(discord.ui.View):
                 self.add_item(button)
         back = discord.ui.Button(label="← Profile", style=discord.ButtonStyle.primary, row=4)
         async def back_callback(interaction):
+            await interaction.response.defer(ephemeral=True)
             current = await self._profile()
             self._build_dashboard(current)
-            await interaction.response.edit_message(content=None, embed=community_embed(self.render(current)), view=self)
+            await interaction.edit_original_response(content=None, embed=community_embed(self.render(current)), view=self)
         back.callback = back_callback
         self.add_item(back)
 
@@ -13988,27 +13997,30 @@ class CosmeticProfileView(discord.ui.View):
         next_button = discord.ui.Button(label="▶", style=discord.ButtonStyle.secondary, row=4, disabled=self.page >= max(1, total_pages))
 
         async def back_callback(interaction):
+            await interaction.response.defer(ephemeral=True)
             profile = await self._profile()
             self._build_dashboard(profile)
-            await interaction.response.edit_message(content=None, embed=community_embed(self.render(profile)), view=self)
+            await interaction.edit_original_response(content=None, embed=community_embed(self.render(profile)), view=self)
 
         async def previous_callback(interaction):
+            await interaction.response.defer(ephemeral=True)
             profile = await self._profile()
             self.page = max(1, self.page - 1)
             if self.mode == "badges":
                 self._build_badges(profile)
             else:
                 self._build_assets(profile)
-            await interaction.response.edit_message(content=None, embed=community_embed(self.render(profile)), view=self)
+            await interaction.edit_original_response(content=None, embed=community_embed(self.render(profile)), view=self)
 
         async def next_callback(interaction):
+            await interaction.response.defer(ephemeral=True)
             profile = await self._profile()
             self.page = min(max(1, total_pages), self.page + 1)
             if self.mode == "badges":
                 self._build_badges(profile)
             else:
                 self._build_assets(profile)
-            await interaction.response.edit_message(content=None, embed=community_embed(self.render(profile)), view=self)
+            await interaction.edit_original_response(content=None, embed=community_embed(self.render(profile)), view=self)
 
         back.callback = back_callback
         previous.callback = previous_callback
@@ -14021,12 +14033,13 @@ class CosmeticProfileView(discord.ui.View):
         if include_none:
             none_button = discord.ui.Button(label="No badge", style=discord.ButtonStyle.danger, row=4)
             async def none_callback(interaction):
+                await interaction.response.defer(ephemeral=True)
                 updated = await asyncio.to_thread(
                     equip_badge, self.target_user_id, self.target_name, "",
                     f"profile-button-badge:{interaction.id}:{self.target_user_id}:none",
                 )
                 self._build_badges(updated)
-                await interaction.response.edit_message(content=None, embed=community_embed(self.render(updated)), view=self)
+                await interaction.edit_original_response(content=None, embed=community_embed(self.render(updated)), view=self)
             none_button.callback = none_callback
             self.add_item(none_button)
 
@@ -14055,6 +14068,7 @@ class ProfileThemePurchaseView(discord.ui.View):
         return True
 
     async def _equip(self, interaction):
+        await interaction.response.defer(ephemeral=True)
         label = PROFILE_THEMES.get(self.theme_name, {"label": self.theme_name.title()})["label"]
         try:
             await asyncio.to_thread(
@@ -14065,9 +14079,9 @@ class ProfileThemePurchaseView(discord.ui.View):
                 f"equip-profile-theme-button:{interaction.id}:{self.user_id}:{self.theme_name}",
             )
         except Exception as error:
-            await interaction.response.send_message(f"❌ Could not equip theme: {str(error)[:700]}", ephemeral=True)
+            await interaction.followup.send(f"❌ Could not equip theme: {str(error)[:700]}", ephemeral=True)
             return
-        await interaction.response.edit_message(
+        await interaction.edit_original_response(
             content=f"🖼️ **Profile theme equipped:** {label}\nUse `!profile` to see it.",
             view=None,
         )
@@ -16802,12 +16816,9 @@ async def handle_answer(
         message.author
     )
 
-    current_points = get_player_score(
-        message.author.id
-    )
-
-    personal_ranking = get_personal_ranking(
-        message.author.id
+    current_points, personal_ranking = await asyncio.gather(
+        asyncio.to_thread(get_player_score, message.author.id),
+        asyncio.to_thread(get_personal_ranking, message.author.id),
     )
 
     if got_point:
@@ -17210,83 +17221,51 @@ class PvPStartChoiceView(discord.ui.View):
 
 
 class LeaderboardMenuView(discord.ui.View):
-    """Compact chooser for every public Shark Bot leaderboard."""
+    """Acknowledge before any remote reads; never block Discord's event loop."""
     def __init__(self):
         super().__init__(timeout=600)
 
+    async def _show(self, interaction, formatter, *args, **kwargs):
+        await interaction.response.defer(ephemeral=True)
+        try:
+            result = await asyncio.to_thread(formatter, *args, **kwargs)
+            embed = result if isinstance(result, discord.Embed) else community_embed(result)
+            await interaction.followup.send(embed=embed, ephemeral=True,
+                                            allowed_mentions=discord.AllowedMentions.none())
+        except Exception:
+            await interaction.followup.send("❌ Could not load this leaderboard right now. Please try again.", ephemeral=True)
+
     @discord.ui.button(label="Chess Elo", emoji="♟️", style=discord.ButtonStyle.secondary, row=0)
     async def chess(self, interaction, button):
-        await interaction.response.send_message(
-            embed=community_embed(format_chess_elo_leaderboard(10, use_mentions=False)),
-            ephemeral=True,
-            allowed_mentions=discord.AllowedMentions.none(),
-        )
+        await self._show(interaction, format_chess_elo_leaderboard, 10, use_mentions=False)
 
     @discord.ui.button(label="Puzzle Elo", emoji="🧩", style=discord.ButtonStyle.secondary, row=0)
     async def puzzle(self, interaction, button):
-        await interaction.response.defer(ephemeral=True)
-        try:
-            puzzle_elo, _streaks = await asyncio.to_thread(split_puzzle_leaderboards, 10, False)
-            await interaction.followup.send(
-                embed=community_embed(puzzle_elo),
-                ephemeral=True,
-                allowed_mentions=discord.AllowedMentions.none(),
-            )
-        except Exception as error:
-            print(f"Puzzle Elo leaderboard button error: {error}", flush=True)
-            await interaction.followup.send(
-                "❌ Could not load the Puzzle Elo leaderboard right now.",
-                ephemeral=True,
-            )
+        def text():
+            return split_puzzle_leaderboards(10, False)[0]
+        await self._show(interaction, text)
 
     @discord.ui.button(label="Best Puzzle Streak", emoji="🔥", style=discord.ButtonStyle.secondary, row=0)
     async def streak(self, interaction, button):
-        await interaction.response.defer(ephemeral=True)
-        try:
-            _puzzle_elo, streaks = await asyncio.to_thread(split_puzzle_leaderboards, 10, False)
-            await interaction.followup.send(
-                embed=community_embed(streaks),
-                ephemeral=True,
-                allowed_mentions=discord.AllowedMentions.none(),
-            )
-        except Exception as error:
-            print(f"Puzzle streak leaderboard button error: {error}", flush=True)
-            await interaction.followup.send(
-                "❌ Could not load the Puzzle streak leaderboard right now.",
-                ephemeral=True,
-            )
+        def text():
+            return split_puzzle_leaderboards(10, False)[1]
+        await self._show(interaction, text)
 
     @discord.ui.button(label="5-Min Rush", emoji="⚡", style=discord.ButtonStyle.secondary, row=1)
     async def rush(self, interaction, button):
-        await interaction.response.send_message(
-            embed=community_embed(format_puzzle_rush_leaderboard(10, use_mentions=False)),
-            ephemeral=True,
-            allowed_mentions=discord.AllowedMentions.none(),
-        )
+        await self._show(interaction, format_puzzle_rush_leaderboard, 10, use_mentions=False)
 
     @discord.ui.button(label="All-Time Rush", emoji="🏆", style=discord.ButtonStyle.secondary, row=1)
     async def rush_all_time(self, interaction, button):
-        await interaction.response.send_message(
-            embed=community_embed(format_puzzle_rush_all_time(10)),
-            ephemeral=True,
-            allowed_mentions=discord.AllowedMentions.none(),
-        )
+        await self._show(interaction, format_puzzle_rush_all_time, 10)
 
     @discord.ui.button(label="Shared Points", emoji="⭐", style=discord.ButtonStyle.secondary, row=1)
     async def shared(self, interaction, button):
-        await interaction.response.send_message(
-            embed=community_embed(make_leaderboard(use_mentions=False)),
-            ephemeral=True,
-            allowed_mentions=discord.AllowedMentions.none(),
-        )
+        await self._show(interaction, make_leaderboard, use_mentions=False)
 
     @discord.ui.button(label="Shared Coins", emoji="🪙", style=discord.ButtonStyle.secondary, row=1)
     async def coins(self, interaction, button):
-        await interaction.response.send_message(
-            embed=await asyncio.to_thread(shared_coin_top10_embed),
-            ephemeral=True,
-            allowed_mentions=discord.AllowedMentions.none(),
-        )
+        await self._show(interaction, shared_coin_top10_embed)
 
 
 async def _send_catalog_from_interaction(interaction, kind):
@@ -17324,6 +17303,7 @@ class DonateAssetModal(discord.ui.Modal, title="Donate Coins / Badge"):
         if str(interaction.user.id) == self.target_user_id:
             await interaction.response.send_message("❌ You cannot donate to yourself.", ephemeral=True)
             return
+        await interaction.response.defer(ephemeral=True)
         try:
             sender_profile = await asyncio.to_thread(
                 get_cosmetic_profile, interaction.user.id, interaction.user.display_name
@@ -17351,14 +17331,14 @@ class DonateAssetModal(discord.ui.Modal, title="Donate Coins / Badge"):
                 )
                 text = f"🎁 **Donated {asset['badge']} to {self.target_name}.**"
         except ValueError as error:
-            await interaction.response.send_message(f"❌ **{error}**", ephemeral=True)
+            await interaction.followup.send(f"❌ **{error}**", ephemeral=True)
             return
         except Exception as error:
-            await interaction.response.send_message(
+            await interaction.followup.send(
                 f"❌ Could not safely donate: `{str(error)[:700]}`", ephemeral=True
             )
             return
-        await interaction.response.send_message(text, ephemeral=True)
+        await interaction.followup.send(text, ephemeral=True)
 
 
 class DonateTargetSelect(discord.ui.UserSelect):
@@ -17434,6 +17414,7 @@ class TradeHomeView(discord.ui.View):
 
     @discord.ui.button(label="Trade Inbox", emoji="📨", style=discord.ButtonStyle.secondary, row=1)
     async def pending(self, interaction, button):
+        await interaction.response.defer(ephemeral=True)
         try:
             profile = await asyncio.to_thread(get_cosmetic_profile, interaction.user.id, interaction.user.display_name)
             inbox_text = pending_trade_message(profile)
@@ -17445,13 +17426,13 @@ class TradeHomeView(discord.ui.View):
             )
             profile = await asyncio.to_thread(get_cosmetic_profile, interaction.user.id, interaction.user.display_name)
             trades = _profile_pending_trades(profile)
-            await interaction.response.send_message(
+            await interaction.followup.send(
                 inbox_text,
                 view=TradeInboxView(interaction.user.id, interaction.user.display_name, profile) if trades else None,
                 ephemeral=True,
             )
         except Exception as error:
-            await interaction.response.send_message(f"❌ Could not read trade inbox: `{str(error)[:700]}`", ephemeral=True)
+            await interaction.followup.send(f"❌ Could not read trade inbox: `{str(error)[:700]}`", ephemeral=True)
 
 
 def trade_home_embed():
@@ -17831,20 +17812,22 @@ class ShopHomeView(discord.ui.View):
 
     @discord.ui.button(label="Name Colors", emoji="🖌️", style=discord.ButtonStyle.secondary, row=1)
     async def colors(self, interaction, button):
+        await interaction.response.defer(ephemeral=True)
         profile = await sync_subscriber_color_profile(
             interaction.user,
             f"subscriber-pink-sync:{interaction.id}:{interaction.user.id}",
         )
         view = ColorCatalogView(interaction.user.id, profile=profile)
-        await interaction.response.send_message(embed=view.embed(profile), view=view, ephemeral=True)
+        await interaction.followup.send(embed=view.embed(profile), view=view, ephemeral=True)
 
     @discord.ui.button(label="Survival Hearts", emoji="💜", style=discord.ButtonStyle.secondary, row=1)
     async def survival_hearts(self, interaction, button):
+        await interaction.response.defer(ephemeral=True)
         profile = await asyncio.to_thread(
             get_cosmetic_profile, interaction.user.id, interaction.user.display_name
         )
         view = SurvivalHeartStyleView(interaction.user.id, profile=profile)
-        await interaction.response.send_message(embed=view.embed(profile), view=view, ephemeral=True)
+        await interaction.followup.send(embed=view.embed(profile), view=view, ephemeral=True)
 
     @discord.ui.button(label="My Profile", emoji="👤", style=discord.ButtonStyle.secondary, row=1)
     async def profile(self, interaction, button):
@@ -18105,10 +18088,11 @@ class MainMenuView(discord.ui.View):
 
     @discord.ui.button(label="Shop", emoji="🛒", style=discord.ButtonStyle.secondary, row=1)
     async def shop(self, interaction, button):
+        await interaction.response.defer(ephemeral=True)
         profile = await asyncio.to_thread(
             get_cosmetic_profile, interaction.user.id, interaction.user.display_name
         )
-        await interaction.response.send_message(
+        await interaction.followup.send(
             embed=shop_home_embed(profile),
             view=ShopHomeView(interaction.user.id),
             ephemeral=True,

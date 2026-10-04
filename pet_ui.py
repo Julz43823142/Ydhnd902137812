@@ -121,7 +121,7 @@ def pet_image_legacy(pet):
 
 
 def pet_image(pet, thumbnail=False):
-    from showcase_cards import legacy_style, pet_svg
+    from showcase_cards import legacy_style, pet_svg, render_svg_png
     if legacy_style():
         return pet_image_legacy(pet)
     svg = pet_svg(pet)
@@ -132,7 +132,7 @@ def pet_image(pet, thumbnail=False):
         root.set('height', '560')
         root.set('viewBox', '0 0 480 560')
         svg = ET.tostring(root, encoding='unicode')
-    return discord.File(io.BytesIO(cairosvg.svg2png(bytestring=svg.encode())), filename="pet.png")
+    return discord.File(io.BytesIO(render_svg_png(svg)), filename="pet.png")
 
 
 async def send_profile(message, target_uid=None, target_name=None):
@@ -167,12 +167,12 @@ async def send_pet_command(message):
 
 class PublicPetView(discord.ui.View):
     """Read-only controls. Viewer and collection owner must never be conflated."""
-    def __init__(self, viewer_id, uid, owner, pet_id=None):
+    def __init__(self, viewer_id, uid, owner, pet_id=None, collection_page=None):
         super().__init__(timeout=600)
         self.viewer_id, self.uid, self.owner = int(viewer_id), int(uid), owner
         self.pet_id = pet_id or owner.get("active")
-        if any(not pet.get('died_at') for pet in owner['pets']):
-            self.add_item(PetPicker(self))
+        self.collection_page = collection_page
+        add_collection_picker(self)
 
     async def interaction_check(self, interaction):
         if interaction.user.id != self.viewer_id:
@@ -197,7 +197,7 @@ class PublicPetView(discord.ui.View):
         if pet:
             attachments = [await asyncio.to_thread(pet_image, pet)]
             embed.set_image(url='attachment://pet.png')
-        fresh = PublicPetView(self.viewer_id, self.uid, self.owner, self.pet_id)
+        fresh = PublicPetView(self.viewer_id, self.uid, self.owner, self.pet_id, self.collection_page)
         await interaction.edit_original_response(embed=embed, attachments=attachments, view=fresh,
                                                  allowed_mentions=discord.AllowedMentions.none())
         self.stop()
@@ -232,11 +232,35 @@ class PetTextModal(discord.ui.Modal):
             await self.view.run(interaction, partial(pets.puzzle_move, expected=self.expected), self.view.pet_id, str(self.text), puzzle=True)
 
 
+def add_collection_picker(view):
+    """Discord accepts at most 25 options; keep larger collections navigable."""
+    living = [pet for pet in view.owner['pets'] if not pet.get('died_at')]
+    if not living:
+        return
+    pages = (len(living) + 24) // 25
+    if view.collection_page is None:
+        index = next((i for i, pet in enumerate(living) if pet['id'] == view.pet_id), 0)
+        view.collection_page = index // 25
+    view.collection_page = max(0, min(view.collection_page, pages - 1))
+    view.add_item(PetPicker(view))
+    if pages > 1:
+        for label, change in [('Previous pets', -1), ('Next pets', 1)]:
+            button = discord.ui.Button(label=label, row=2, disabled=(view.collection_page == 0 if change < 0 else view.collection_page == pages - 1))
+            async def turn(interaction, change=change):
+                await interaction.response.defer()
+                view.collection_page += change
+                await view.refresh(interaction)
+            button.callback = turn
+            view.add_item(button)
+
+
 class PetPicker(discord.ui.Select):
     def __init__(self, view):
         self.pet_view = view
         living = [p for p in view.owner["pets"] if not p.get("died_at")]
-        super().__init__(placeholder="Collection — choose a pet", row=3, options=[discord.SelectOption(label=("Mysterious Egg" if pets.level(p) == 0 else (p.get("name") or p["species"]))[:80], description=f"Level {pets.level(p)} · born {time.strftime('%Y-%m-%d', time.gmtime(p['born_at']))}", value=p["id"], default=p["id"] == view.pet_id) for p in living])
+        pages = (len(living) + 24) // 25
+        living = living[view.collection_page * 25:(view.collection_page + 1) * 25]
+        super().__init__(placeholder=f"Collection — page {view.collection_page + 1}/{pages}", row=3, options=[discord.SelectOption(label=("Mysterious Egg" if pets.level(p) == 0 else (p.get("name") or p["species"]))[:80], description=f"Level {pets.level(p)} · born {time.strftime('%Y-%m-%d', time.gmtime(p['born_at']))}", value=p["id"], default=p["id"] == view.pet_id) for p in living])
 
     async def callback(self, interaction):
         if not await self.pet_view.interaction_check(interaction):
@@ -247,13 +271,13 @@ class PetPicker(discord.ui.Select):
 
 
 class PetView(discord.ui.View):
-    def __init__(self, uid, owner, pet_id=None):
+    def __init__(self, uid, owner, pet_id=None, collection_page=None):
         super().__init__(timeout=600)
         self.uid, self.owner = uid, owner
         self.pet_id = pet_id or owner.get("active")
         self.busy = asyncio.Lock()
-        if any(not p.get("died_at") for p in owner["pets"]):
-            self.add_item(PetPicker(self))
+        self.collection_page = collection_page
+        add_collection_picker(self)
         pet = pets.current_pet(owner, self.pet_id)
         living = pet is not None and not pet.get("died_at")
         today = pets.day_key(time.time())
@@ -279,7 +303,7 @@ class PetView(discord.ui.View):
         if pet is None or pet.get("died_at"):
             self.pet_id = self.owner.get("active")
             pet = pets.current_pet(self.owner, self.pet_id)
-        fresh = PetView(self.uid, self.owner, self.pet_id)
+        fresh = PetView(self.uid, self.owner, self.pet_id, self.collection_page)
         embed = profile_embed(self.owner, self.pet_id, show_stats=puzzle)
         embed.add_field(name="Collection", value=collection_summary(self.owner), inline=False)
         attachments = []

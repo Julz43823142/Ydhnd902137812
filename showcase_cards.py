@@ -105,6 +105,13 @@ def profile_svg(theme_label, background, accent, soft, scene, overlay, stats, ic
     </g></svg>'''
 
 
+@lru_cache(maxsize=64)
+def render_svg_png(svg):
+    """Bounded cache of image bytes, keyed by all SVG content (not live objects)."""
+    import cairosvg
+    return cairosvg.svg2png(bytestring=svg.encode('utf-8'))
+
+
 @lru_cache(maxsize=48)
 def render_profile_card(theme_key, theme_label, background, accent, soft, scene, overlay, stats, icon, style='cinematic'):
     """Cache immutable card bytes, never reusable File streams or live player data."""
