@@ -99,6 +99,7 @@ def transact(txid, callback):
             for gid,game in state['games'].items():
                 old=before_state['games'].get(gid,{})
                 started=bool(game.get('started')) and not old.get('started')
+                if started:activity.append({'action':'feature_played','kind':game['kind'],'session_id':str(gid)})
                 ended=game.get('status')=='finished' and old.get('status')!='finished' and game.get('started') and not game.get('stats_void')
                 if ended:activity.append({'uid':'server','name':'Server','action':'games_completed'})
                 for player in game.get('players',[]):

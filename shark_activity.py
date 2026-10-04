@@ -58,6 +58,7 @@ def observe(files,message):
         if op=='quest-progress' and action and action!='minigame_win':
             add(data,uid,name,action,float(event.get('amount',1)),at,event.get('metadata'))
         for entry in details.get('activity',[]):
+            if entry['action']=='feature_played':continue  # aggregated product analytics only
             add(data,entry['uid'],entry.get('name','Player'),entry['action'],entry.get('amount',1),at,entry)
         if op in ('trade-accept','open-trade-accept','wanted-fulfill') and details.get('offer') and details.get('request'):
             add(data,'server','Server','trades',1,at)

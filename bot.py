@@ -712,6 +712,13 @@ command_tree = discord.app_commands.CommandTree(client)
 SHARK_ADMIN_COMMAND_LIST = shark_admin.ADMIN_LIST
 
 
+@command_tree.command(name='usage', description='View private Sharkmeister feature usage analytics.')
+async def private_usage_command(interaction: discord.Interaction):
+    if interaction.channel_id in (GUESS_GAMES_CHANNEL_ID,1546155761405788230):return
+    from next_batch_ui import send_usage
+    await send_usage(interaction)
+
+
 @command_tree.command(name="list", description="Show the private Sharkmeister admin command reference.")
 async def private_admin_list_command(interaction: discord.Interaction):
     # Route the shared bot application to exactly one process per channel.
@@ -18421,6 +18428,7 @@ async def on_message(
         if content.startswith('!'):
             import feature_usage
             feature_usage.note('command:'+content.split()[0].lower(),message.author.id)
+            feature_usage.note_command(content.split()[0],message.author.id)
 
         # Puzzle and Chess cards move down after real moves only. Ordinary chat never bumps them.
         await note_single_card_channel_message(message)
@@ -20453,6 +20461,8 @@ async def on_interaction(interaction):
     import feature_usage
     custom=(interaction.data or {}).get("custom_id", "slash")
     feature_usage.note("button:"+":".join(custom.split(":")[:2]),interaction.user.id)
+    if interaction.channel_id!=GUESS_GAMES_CHANNEL_ID and not custom.startswith('mg:'):
+        feature_usage.note_interaction(interaction)
     try:
         if interaction.user and not interaction.user.bot and is_chess_channel_id(interaction.channel_id):
             note_chess_human_activity(interaction.channel_id)
