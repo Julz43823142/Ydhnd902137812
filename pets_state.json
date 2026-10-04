@@ -53,14 +53,14 @@
         "id": "ec762f8f4d884118a7a8429b28da7bd9",
         "name": "",
         "puzzle": {
-          "day": "2026-10-01",
-          "fen": "8/8/4p1p1/1K3p1p/1P3P1P/1k4P1/8/8 b - - 0 51",
-          "id": "GROnc",
-          "index": 3,
+          "day": "2026-10-04",
+          "fen": "r1b1k2r/1p2ppb1/pnnp4/6p1/3NP3/1N1P3P/P4BP1/2R1KB1R w Kkq - 2 20",
+          "id": "oIB4U",
+          "index": 0,
           "moves": [
-            "h3h4",
-            "a4b3",
-            "c5b5"
+            "d4c6",
+            "b7c6",
+            "f2b6"
           ]
         },
         "puzzle_day": "2026-10-01",
