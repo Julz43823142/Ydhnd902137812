@@ -74,24 +74,24 @@
         "fed_at": 1791072169.5978622,
         "feed_day": "2026-10-04",
         "happiness": 100,
-        "happy_at": 1790888337.7283175,
+        "happy_at": 1791072196.6065679,
         "id": "83101ee6f3104150ac91ea63c62fc35b",
         "name": "",
         "puzzle": {
           "day": "2026-10-04",
-          "fen": "8/5qk1/2p4p/p1p1p1r1/P1Pp2Q1/3P4/1P4P1/5RK1 w - - 2 45",
+          "fen": "8/5Rk1/2p4p/p1p1p1r1/P1Pp2Q1/3P4/1P4P1/6K1 b - - 0 45",
           "id": "Os34e",
-          "index": 2,
+          "index": 3,
           "moves": [
             "h4g4",
             "f5g5",
             "f1f7"
           ]
         },
-        "puzzle_day": "2026-10-01",
+        "puzzle_day": "2026-10-04",
         "rarity": "uncommon",
         "species": "Fox",
-        "xp": 170.25,
+        "xp": 190.25,
         "xp_day": "2026-10-02"
       },
       {
