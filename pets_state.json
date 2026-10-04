@@ -3,7 +3,7 @@
     "active": "f52af29b941c419c9186a22d702d1f1f",
     "pets": [
       {
-        "activity_xp": 10,
+        "activity_xp": 20,
         "born_at": 1790887920.6410599,
         "fed_at": 1790888010.2671776,
         "feed_day": "2026-10-01",
@@ -25,7 +25,7 @@
         "puzzle_day": "2026-10-01",
         "rarity": "common",
         "species": "Cat",
-        "xp": 35,
+        "xp": 45,
         "xp_day": "2026-10-04"
       }
     ]
