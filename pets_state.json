@@ -29,7 +29,7 @@
     ]
   },
   "442597396195704832": {
-    "active": "b1f79c9c9de44831a956b2f90a8795ba",
+    "active": "eee0c5787c154765833526fd6002f367",
     "expedition": {
       "end": 1791093511.8138034,
       "hours": 12,
@@ -203,6 +203,17 @@
         "rarity": "uncommon",
         "species": "Fox",
         "xp": 25
+      },
+      {
+        "born_at": 1791108474.02901,
+        "fed_at": 1791108474.02901,
+        "happiness": 80,
+        "happy_at": 1791108474.02901,
+        "id": "eee0c5787c154765833526fd6002f367",
+        "name": "",
+        "rarity": "common",
+        "species": "Rabbit",
+        "xp": 0
       }
     ]
   }
