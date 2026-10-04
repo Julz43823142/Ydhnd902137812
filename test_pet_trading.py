@@ -65,12 +65,15 @@ class PetTradeTransactions(unittest.TestCase):
         data=self.origin(pets.FILE);wallet=self.origin(ledger.LEGACY_FILE)
         received=next(p for p in data['99']['pets'] if p['id']=='420')
         original.pop('accessory')
-        self.assertEqual(received,original)
+        self.assertEqual({k:v for k,v in received.items() if k!='owner_history'},original)
+        self.assertEqual([r['owner_id'] for r in received['owner_history']],['42','99'])
         self.assertEqual(data['42']['active'],'421')
         self.assertEqual(data['99']['active'],'990')
         self.assertEqual((wallet['42']['coins'],wallet['99']['coins']),(110,90))
         self.assertEqual(data['42']['accessories'],['crown'])
-        self.assertEqual(ledger.accept_trade(99,'Buyer','accepted','proposal')['offer'],self.asset())
+        replay=ledger.accept_trade(99,'Buyer','accepted','proposal')
+        self.assertEqual(replay['offer']['pet_id'],self.asset()['pet_id'])
+        self.assertIn('Dog',replay['offer']['label'])
         self.assertEqual(self.origin(ledger.LEGACY_FILE)['99']['coins'],90)
 
     def test_pet_for_badge_and_reverse_coin_for_pet(self):

@@ -94,6 +94,9 @@ def profile_embed(owner, pet_id=None, show_stats=False):
             embed.add_field(name="Hunger / Happiness", value=f"{pets.hunger(pet, now)}% / {pets.happiness(pet, now)}%")
             labels = {"shop": "cosmetic shop discount", "quest": "extra quest coins", "puzzle": "extra puzzle coins", "xp": "extra Pet activity XP"}
             embed.add_field(name="Current bonus", value=f"{rate * 100:g}% {labels[kind]}" if kind else "Hatch your egg to unlock its bonus", inline=False)
+        import economy_analytics
+        value_info=economy_analytics.market_value(pet)
+        embed.add_field(name='💹 Market Value',value=(f"~{value_info['coins']:g} coins\nBased on {value_info['count']} completed sales · last 30 days" if value_info else 'Not enough market data'),inline=False)
         embed.add_field(name="Age", value=f"{int((age_end - pet['born_at']) // pets.DAY)} days")
         embed.add_field(name="Feeding deadline", value=f"Feed before <t:{int(pet['fed_at'] + 7 * pets.DAY)}:F>")
         if not pet.get('died_at'):
@@ -180,6 +183,13 @@ class PublicPetView(discord.ui.View):
         self.pet_id = pet_id or owner.get("active")
         self.collection_page = collection_page
         add_collection_picker(self)
+        for item in self.children:
+            if getattr(item,'label','')=='Owner History':item.disabled=pets.current_pet(owner,self.pet_id) is None
+
+    @discord.ui.button(label='Owner History',emoji='👤',row=1)
+    async def history(self,interaction,button):
+        from market_ui import send_history
+        await send_history(interaction,self.uid,self.pet_id)
 
     async def interaction_check(self, interaction):
         if interaction.user.id != self.viewer_id:
@@ -289,11 +299,34 @@ class PetView(discord.ui.View):
         living = pet is not None and not pet.get("died_at")
         today = pets.day_key(time.time())
         for button in self.children:
-            if getattr(button, "label", "") in {"Feed", "Pet Puzzle", "Rename", "Make Active", "Submit Move", "Kill"}:
+            if getattr(button,'label','')=='Owner History':button.disabled=pet is None
+            if getattr(button, "label", "") in {"Feed", "Pet Puzzle", "Rename", "Make Active", "Submit Move", "Kill", "Trade", "Shelter"}:
                 button.disabled = not living
                 if button.label == "Submit Move" and living:
                     button.disabled = (pet.get("puzzle", {}).get("day") != today
                                        or pet.get("puzzle_day") == today)
+
+    @discord.ui.button(label='Owner History',emoji='👤',row=1)
+    async def history(self,interaction,button):
+        from market_ui import send_history
+        await send_history(interaction,self.uid,self.pet_id)
+
+    @discord.ui.button(label='Trade',emoji='🤝',row=1)
+    async def trade(self,interaction,button):
+        factory=getattr(interaction.client,'pet_open_trade_modal',None)
+        if not factory:
+            await interaction.response.send_message('Open Trade in `!menu` to list this pet.',ephemeral=True)
+            return
+        modal=factory();modal.give.default=f'pet:{self.pet_id}'
+        await interaction.response.send_modal(modal)
+
+    @discord.ui.button(label='Shelter',emoji='🏠',row=4)
+    async def shelter(self,interaction,button):
+        from market_ui import SurrenderConfirm
+        await interaction.response.send_message(
+            'Surrender this pet permanently to the Shelter? **15 coins** will be removed from the economy. '
+            'You receive nothing and cannot adopt your own current Shelter pet. Accessories stay with you.',
+            view=SurrenderConfirm(self.uid,self.pet_id),ephemeral=True)
 
     async def interaction_check(self, interaction):
         if interaction.user.id != self.uid:

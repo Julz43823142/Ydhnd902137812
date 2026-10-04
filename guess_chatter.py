@@ -3789,14 +3789,8 @@ class GuessTradeDecisionView(discord.ui.View):
             return
 
         self.stop()
-        await interaction.edit_original_response(
-            content=(
-                "✅ **Trade accepted!**\n"
-                f"{interaction.user.display_name} received **{shared_format_trade_asset(details['offer'])}**.\n"
-                f"{details.get('from_name', 'Other player')} received **{shared_format_trade_asset(details['request'])}**."
-            ),
-            view=None,
-        )
+        from market_ui import receipt_embed
+        await interaction.edit_original_response(content=None,embed=receipt_embed(details),view=None)
 
     async def _decline(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True)
@@ -4255,6 +4249,9 @@ class GuessDonateTargetView(discord.ui.View):
 
 
 def _guess_open_trade_embed(trade):
+    if trade.get('status') == 'completed' and trade.get('receipt'):
+        from market_ui import receipt_embed
+        return receipt_embed(trade['receipt'])
     status = str(trade.get("status") or "open")
     seller_id = str(trade.get("seller_id") or "")
     seller_name = discord.utils.escape_markdown(str(trade.get("seller_name") or "Player"))
@@ -4307,6 +4304,7 @@ async def _reconcile_guess_open_trade(trade):
     if not isinstance(details, dict) or not details.get("buyer_user_id"):
         return False
     trade["status"] = "completed"
+    trade["receipt"] = details
     trade["buyer_id"] = str(details.get("buyer_user_id"))
     trade["buyer_name"] = str(details.get("buyer_name") or "Player")
     trade["closed_at"] = time.time()
@@ -4365,6 +4363,7 @@ class GuessOpenTradeView(discord.ui.View):
                 return
             winning_id = str(details.get("buyer_user_id") or interaction.user.id)
             trade["status"] = "completed"
+            trade["receipt"] = details
             trade["buyer_id"] = winning_id
             trade["buyer_name"] = str(details.get("buyer_name") or interaction.user.display_name)
             trade["closed_at"] = time.time()
@@ -4475,6 +4474,8 @@ class GuessOpenTradeModal(discord.ui.Modal, title="Create Open Trade"):
         await interaction.followup.send("🤝 Open trade posted. Anyone eligible can accept it.", ephemeral=True)
 
 
+client.pet_open_trade_modal = GuessOpenTradeModal
+
 def guess_open_trades_embed():
     active = _active_guess_open_trades()
     if not active:
@@ -4512,6 +4513,21 @@ class GuessTradeHomeView(discord.ui.View):
     def __init__(self, user_id):
         super().__init__(timeout=600)
         self.user_id = int(user_id)
+
+    @discord.ui.button(label='Wanted Market',emoji='🔎',row=2)
+    async def wanted(self,interaction,button):
+        from market_ui import send_market
+        await send_market(interaction,'wanted')
+
+    @discord.ui.button(label='Pet Shelter',emoji='🏠',row=2)
+    async def shelter(self,interaction,button):
+        from market_ui import send_market
+        await send_market(interaction,'shelter')
+
+    @discord.ui.button(label='Trade Receipts',emoji='🧾',row=2)
+    async def receipts(self,interaction,button):
+        from market_ui import send_receipts
+        await send_receipts(interaction)
 
     async def interaction_check(self, interaction):
         if int(interaction.user.id) != self.user_id:

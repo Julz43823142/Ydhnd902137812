@@ -89,6 +89,12 @@ class FeatureView(discord.ui.View):
     def __init__(self, viewer, uid, mode, data=None):
         super().__init__(timeout=600)
         self.viewer, self.uid, self.mode = int(viewer), str(uid), mode
+        if mode in {'event', 'challenge'}:
+            next_button=discord.ui.Button(label='Next Event',emoji='📅')
+            async def upcoming(interaction):
+                await interaction.response.send_message(embed=next_event_embed(),ephemeral=True)
+            next_button.callback=upcoming
+            self.add_item(next_button)
         if mode == 'event' and active_holidays():
             button = discord.ui.Button(label='Holiday Box', emoji='🎁')
             async def boxes(interaction):
@@ -155,3 +161,17 @@ def add_buttons(view, uid=None, row=2):
             await send_page(interaction, mode, uid)
         button.callback = open_page
         view.add_item(button)
+
+
+def next_event_embed(moment=None):
+    from datetime import date, datetime, time as day_time, timedelta
+    from holiday_events import next_holiday,holiday_event_details,HOLIDAY_ZONE,easter_sunday
+    key,start,days=next_holiday(moment)
+    event=HOLIDAYS[key]
+    end=(easter_sunday(start.year)+timedelta(days=1) if key=='easter' else
+         date(start.year+(1 if event['start']>event['end'] else 0),*event['end']))
+    begin=datetime.combine(start,day_time.min,HOLIDAY_ZONE)
+    finish=datetime.combine(end+timedelta(days=1),day_time.min,HOLIDAY_ZONE)
+    embed=discord.Embed(title=f"📅 Next Event: {event['label']}",color=0x9146FF)
+    embed.description=f"Event starts <t:{int(begin.timestamp())}:F> · in {days} days\n{holiday_event_details(key,start)}\nEvent ends {end.strftime('%B')} {end.day} (inclusive) · closes <t:{int(finish.timestamp())}:R>\n🎁 Holiday Box: **{HOLIDAY_BOX_COST:g} coins**, available throughout the event."
+    return embed

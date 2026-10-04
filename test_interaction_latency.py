@@ -249,7 +249,8 @@ class MenuAcknowledgementTests(unittest.IsolatedAsyncioTestCase):
             view = cls(42, 'Player')
             with patch.object(module, 'shared_accept_trade', side_effect=transact):
                 await next(item for item in view.children if item.label == 'Accept').callback(ctx)
-            self.assertIn('Trade accepted', ctx.edit_original_response.call_args.kwargs['content'])
+            self.assertIsNone(ctx.edit_original_response.call_args.kwargs['content'])
+            self.assertEqual(ctx.edit_original_response.call_args.kwargs['embed'].title,'🤝 Trade Completed')
             self.assertIsNone(ctx.edit_original_response.call_args.kwargs['view'])
             view.stop()
 
