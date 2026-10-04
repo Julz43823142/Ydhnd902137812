@@ -3943,8 +3943,8 @@
         "url": "https://lichess.org/training/5pyMP",
         "title": "Lichess • 1870",
         "fen": "r1bq1r1k/pp4pp/2nb4/5p2/N1BPp3/PN2P3/1P1B2P1/2KQ3R w - - 2 19",
-        "current_fen": "r1bq1r1k/pp4pp/2nb4/5p2/N1BPp3/PN2P3/1P1B2P1/2KQ3R w - - 2 19",
-        "last_move_uci": "g8h8",
+        "current_fen": "r1bq1r2/pp4pk/2nb4/5p2/N1BPp3/PN2P3/1P1B2P1/2KQ4 w - - 0 20",
+        "last_move_uci": "h8h7",
         "pgn": "Rxh7+ Kxh7 Qh5#",
         "all_moves": [
           {
@@ -3983,27 +3983,55 @@
         "winner_name": null,
         "latest_attempts": {},
         "puzzle_id": "random_5pyMP_1791118590328",
-        "last_activity_at": "2026-10-04T12:56:30.327990+00:00",
+        "last_activity_at": "2026-10-04T12:56:37.034602+00:00",
         "rating": 1870,
         "rp_band": 2,
         "boss": false,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink",
-        "next_solution_index": 0,
-        "next_player_index": 0,
+        "next_solution_index": 2,
+        "next_player_index": 1,
         "solved": false,
         "message_ids": {
-          "1546557493038284840": 1556288911989542912
+          "1546557493038284840": 1556288937633255539
         },
         "chat_since_refresh": 0,
-        "attempted_users": {},
-        "first_move_user_id": null,
-        "first_move_user_name": null,
+        "attempted_users": {
+          "442597396195704832": {
+            "name": "Thice",
+            "move": "rxh7",
+            "correct": true,
+            "timestamp": "2026-10-04T12:56:37.035052+00:00"
+          }
+        },
+        "first_move_user_id": "442597396195704832",
+        "first_move_user_name": "Thice",
         "first_move_awarded": false,
         "helper_awarded_users": [],
         "helper_candidate_users": [],
-        "channel_id": 1546557493038284840
+        "channel_id": 1546557493038284840,
+        "last_card_activity_at": "2026-10-04T12:56:37.034602+00:00",
+        "recent_accepted_moves": [
+          {
+            "accepted_at": 1791118597.035057,
+            "fen_before": "r1bq1r1k/pp4pp/2nb4/5p2/N1BPp3/PN2P3/1P1B2P1/2KQ3R w - - 2 19",
+            "expected": {
+              "uci": "h1h7",
+              "san": "Rxh7+",
+              "color": "white"
+            },
+            "accepted_uci": "h1h7"
+          }
+        ],
+        "accepted_solution_moves": [
+          {
+            "san": "Rxh7+",
+            "uci": "h1h7",
+            "principal": true
+          }
+        ],
+        "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kxh7"
       }
     }
   },
