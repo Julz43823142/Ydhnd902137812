@@ -53,9 +53,8 @@ class PoolIndexTests(unittest.TestCase):
 
 class BoardTransportTests(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
-        self.images = patch.dict(bot._puzzle_card_images, {}, clear=True)
-        self.images.start()
-        self.addCleanup(self.images.stop)
+        self.locks = patch.dict(bot._puzzle_card_locks, {}, clear=True)
+        self.locks.start();self.addCleanup(self.locks.stop)
 
     def puzzle(self):
         return {'puzzle_id': 'random_test', 'player_move_count': 1, 'next_player_index': 0,
@@ -90,31 +89,52 @@ class BoardTransportTests(unittest.IsolatedAsyncioTestCase):
         channel.send.assert_not_awaited()
         self.assertEqual(value['message_id'], 123)
 
-    async def test_text_only_feedback_reuses_recent_url_without_fetch_or_render(self):
-        url = 'https://cdn.discordapp.com/attachments/one/board.png'
-        message = SimpleNamespace(id=123, embeds=[SimpleNamespace(image=SimpleNamespace(url=url))])
+    async def test_text_only_feedback_embeds_retained_attachment_without_fetch_or_render(self):
         partial = SimpleNamespace(edit=AsyncMock())
         channel = SimpleNamespace(id=1, get_partial_message=lambda mid: partial, fetch_message=AsyncMock(), send=AsyncMock())
-        with patch.object(bot.time, 'monotonic', return_value=100):
-            bot._remember_puzzle_card_image(channel.id, message)
-            with patch.object(bot, 'make_board_file', AsyncMock()) as render:
-                await bot.update_random_puzzle_message(channel, self.puzzle(), 'Solved!', render_board=False, mirror_daily=False)
-            render.assert_not_awaited()
+        puzzle = self.puzzle();puzzle['board_attachment_filenames'] = {'1': 'random_puzzle.png'}
+        with patch.object(bot, 'make_board_file', AsyncMock()) as render:
+            await bot.update_random_puzzle_message(channel, puzzle, 'Solved!', render_board=False, mirror_daily=False)
+        render.assert_not_awaited()
         channel.fetch_message.assert_not_awaited()
         partial.edit.assert_awaited_once()
-        self.assertEqual(partial.edit.call_args.kwargs['embed'].image.url, url)
+        self.assertEqual(partial.edit.call_args.kwargs['embed'].image.url, 'attachment://random_puzzle.png')
         self.assertNotIn('attachments', partial.edit.call_args.kwargs)
 
-    async def test_expired_url_fetches_current_message_attachment(self):
-        message = SimpleNamespace(id=123, embeds=[SimpleNamespace(image=SimpleNamespace(url='https://cdn.discordapp.com/old.png'))])
-        old = SimpleNamespace(embeds=[SimpleNamespace(image=SimpleNamespace(url='https://cdn.discordapp.com/fresh.png'))], edit=AsyncMock())
-        channel = SimpleNamespace(id=1, get_partial_message=lambda mid: self.fail('Expired URLs must refresh'), fetch_message=AsyncMock(return_value=old), send=AsyncMock())
-        with patch.object(bot.time, 'monotonic', return_value=100):
-            bot._remember_puzzle_card_image(channel.id, message)
-        with patch.object(bot.time, 'monotonic', return_value=401):
-            await bot.update_random_puzzle_message(channel, self.puzzle(), render_board=False, mirror_daily=False)
+    async def test_legacy_card_discovers_attachment_filename_once(self):
+        old = SimpleNamespace(attachments=[SimpleNamespace(filename='daily_puzzle.png')], edit=AsyncMock())
+        channel = SimpleNamespace(id=1, fetch_message=AsyncMock(return_value=old), send=AsyncMock())
+        puzzle = self.puzzle()
+        await bot.update_random_puzzle_message(channel, puzzle, render_board=False, mirror_daily=False)
         channel.fetch_message.assert_awaited_once_with(123)
-        self.assertEqual(old.edit.call_args.kwargs['embed'].image.url, 'https://cdn.discordapp.com/fresh.png')
+        self.assertEqual(old.edit.call_args.kwargs['embed'].image.url, 'attachment://daily_puzzle.png')
+        self.assertEqual(puzzle['board_attachment_filenames']['1'], 'daily_puzzle.png')
+
+    async def test_overlapping_moves_delete_their_immediate_predecessor_without_leaving_extra_boards(self):
+        entered, release = asyncio.Event(), asyncio.Event()
+        messages = {mid: SimpleNamespace(id=mid, delete=AsyncMock()) for mid in (123, 124, 125)}
+        count = 0
+        async def send(**kwargs):
+            nonlocal count
+            count += 1
+            if count == 1:
+                entered.set();await release.wait()
+            return messages[123 + count]
+        channel = SimpleNamespace(id=1, send=AsyncMock(side_effect=send),
+                                  get_partial_message=lambda mid: messages[mid])
+        puzzle = self.puzzle()
+        async def render(*args):return file('random_puzzle.png'), chess.Board()
+        with patch.object(bot, 'make_board_file', side_effect=render):
+            first = asyncio.create_task(bot.update_random_puzzle_message(channel, puzzle, 'First', move_to_bottom=True, mirror_daily=False))
+            await entered.wait()
+            second = asyncio.create_task(bot.update_random_puzzle_message(channel, puzzle, 'Second', move_to_bottom=True, mirror_daily=False))
+            await asyncio.sleep(0)
+            self.assertEqual(channel.send.await_count, 1)
+            release.set();await asyncio.gather(first, second)
+        messages[123].delete.assert_awaited_once()
+        messages[124].delete.assert_awaited_once()
+        messages[125].delete.assert_not_awaited()
+        self.assertEqual(bot._puzzle_message_id_for_channel(puzzle, 1), 125)
 
     async def test_rp_start_lock_prevents_second_guard_and_data_consumption(self):
         entered, release = asyncio.Event(), asyncio.Event()

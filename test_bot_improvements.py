@@ -133,6 +133,12 @@ class PuzzleFeedbackTests(unittest.IsolatedAsyncioTestCase):
         async def award(*args, **kwargs):
             events.append(("reward",))
 
+        async def completion(*args):
+            events.append(('completion',))
+            return {'personal_result': None, 'quest_result': {}, 'points': 1, 'coins': 1,
+                    'ranking': '', 'first_move_awarded': True,
+                    'helper_awarded_users': [], 'activity_bonus_users': []}
+
         with ExitStack() as stack:
             replacements = {
                 "puzzle_is_open": lambda *args: True,
@@ -141,6 +147,7 @@ class PuzzleFeedbackTests(unittest.IsolatedAsyncioTestCase):
                 "update_random_puzzle_message": feedback,
                 "record_official_puzzle_result": stats,
                 "award_random_move_points": award,
+                "complete_puzzle_rewards": completion,
                 "_record_quest_actions_safe": AsyncMock(),
                 "save_all": AsyncMock(),
                 "_latest_random_for_channel": lambda *args: None,
@@ -155,7 +162,9 @@ class PuzzleFeedbackTests(unittest.IsolatedAsyncioTestCase):
     async def test_final_feedback_precedes_stats_and_reward_then_edits_same_card(self):
         puzzle, events = await self.run_answer()
         self.assertIn("Puzzle solved", events[0][1])
-        self.assertEqual([e[0] for e in events], ["feedback", "stats", "reward", "feedback"])
+        self.assertEqual([e[0] for e in events], ["feedback", "completion", "feedback"])
+        self.assertNotIn('Updating', events[0][1])
+        self.assertEqual(events[-1][1].count('Puzzle solved'), 1)
         self.assertFalse(events[-1][2])
         self.assertTrue(puzzle["answer_posted"])
 
@@ -171,7 +180,7 @@ class PuzzleFeedbackTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_discord_feedback_failure_does_not_cancel_rewards(self):
         puzzle, events = await self.run_answer(fail_feedback=True)
-        self.assertIn("reward", [e[0] for e in events])
+        self.assertIn("completion", [e[0] for e in events])
         self.assertTrue(puzzle["answer_posted"])
 
 
@@ -230,14 +239,14 @@ class PuzzleSpeedTests(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(mocked.call_count, 1)
 
     async def test_final_reward_update_keeps_board_attachment_without_rerender(self):
-        old = SimpleNamespace(embeds=[SimpleNamespace(image=SimpleNamespace(url="https://cdn.discordapp.com/attachments/test.png"))], edit=AsyncMock())
+        old = SimpleNamespace(attachments=[SimpleNamespace(filename='random_puzzle.png')], edit=AsyncMock())
         channel = SimpleNamespace(id=123, fetch_message=AsyncMock(return_value=old))
         puzzle = {"player_move_count": 1, "next_player_index": 1, "player_color": "white", "puzzle_id": "random_test", "solved": True}
         with patch.object(bot, "_puzzle_message_id_for_channel", return_value=99), patch.object(bot, "make_board_file", new_callable=AsyncMock) as render:
             await bot.update_random_puzzle_message(channel, puzzle, "Rewards saved", render_board=False, mirror_daily=False)
             render.assert_not_awaited()
         self.assertNotIn("attachments", old.edit.call_args.kwargs)
-        self.assertEqual(old.edit.call_args.kwargs["embed"].image.url, old.embeds[0].image.url)
+        self.assertEqual(old.edit.call_args.kwargs["embed"].image.url, 'attachment://random_puzzle.png')
 
 
 if __name__ == "__main__":

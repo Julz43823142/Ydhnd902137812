@@ -29,7 +29,7 @@ Random Puzzle starts acquire their channel lock before checking Survival or clos
 
 Random/daily boards, live chess, Game Review, Survival, Pet Puzzle, Guess chess browsing and chess shop previews reuse the bounded, full-SVG PNG byte cache. New moves, check highlights, orientation, cosmetics and arrows are part of the image key. Changed positions still render normally; each attachment has its own file stream.
 
-Board edits with new images use Discord's partial-message API: one EDIT request rather than GET + EDIT. Text-only puzzle feedback can also use one EDIT, retaining the existing public image URL for up to five minutes in a bounded 128-message in-memory cache. Older cards/restarts fetch the current attachment URL. Move-to-bottom cleanup uses DELETE rather than GET + DELETE. Missing messages repost with a fresh attachment stream; temporary edit failures do not post duplicates.
+Board edits with new images use Discord's partial-message API: one EDIT request rather than GET + EDIT. Text-only feedback references the retained board by `attachment://<filename>`, so Discord does not show that file again as a standalone image above the embed. Its filename is stored per channel; legacy cards discover it once. Move-to-bottom cleanup uses DELETE rather than GET + DELETE. Missing messages repost with a fresh attachment stream; temporary edit failures do not post duplicates. Per-channel card locks serialize send/ID/delete operations so overlapping moves do not leave orphan boards. Daily mirroring runs after releasing the source lock to avoid cross-channel deadlocks.
 
 Game Reviews use a separate lazily started Stockfish process/lock, so a long review cannot monopolize the live-move engine. Default additional review-engine resources are one thread and 64 MiB hash (existing environment overrides still apply). Live bot moves keep their existing Elo and thinking time; cosmetic lookup runs concurrently with engine thinking and is reused for the resulting board.
 
@@ -51,4 +51,30 @@ This reads the real SQLite pool without writing it, evaluates the three previous
 
 Selection uses 60 calls; image timings use 15 calls after rendering the unchanged position once. These are local processing measurements, not total Discord command latency. New positions still incur first-render cost, and GitHub/Discord network latency varies. The script does not start a bot, fetch GitHub, read a wallet, or alter production data.
 
-Additional regressions cover sparse row IDs, pool replacement, six-band rotation, concurrent RP starts, fresh attachment streams after 404s, temporary Discord failures, attachment-URL expiry, render invalidation, overlapping cosmetic/engine work, failed Survival fetches and review/live-engine lock isolation.
+Additional regressions cover sparse row IDs, pool replacement, six-band rotation, concurrent RP starts, fresh attachment streams after 404s, temporary Discord failures, retained attachment references, overlapping move cleanup, render invalidation, overlapping cosmetic/engine work, failed Survival fetches and review/live-engine lock isolation.
+
+## Completion stats and rewards
+
+A correct final move immediately moves one solved result card to the bottom. It displays **Puzzle solved!**, without an “Updating stats and rewards” placeholder. The confirmed points, ranking, solution, Puzzle Elo and applicable bonuses/achievements/quests edit that same card without another board render or upload. “Puzzle solved” appears once.
+
+The completion worker reuses the existing stats, point/coin, achievement, first-solve, quest, community and pet writers inside one opt-in `repository_transaction` group. Staged reads/writes are visible only to that worker thread, under the existing repository lock. Ordinary writes in other modes retain their strict fetch/push/verification protocol. The outer group starts from one fresh immutable Git base, publishes all files in one ordinary fast-forward push, then fetches and verifies an immutable completion receipt. Existing individual audit IDs are retained.
+
+Conflicting remote updates rebuild the group from the latest base. Lost acknowledgements are resolved by the receipt before replaying any reward. Failed builds restore display caches and never write local stats files or expose tentative balances. A failed confirmation leaves **Retry Rewards** on the public card; its persistent button remains bound to the original solver after restart, regardless of who clicks it. Exact-rating training remains reward/stat-free and does not create an unnecessary completion commit.
+
+### Completion benchmark
+
+```sh
+python benchmark_puzzle_completion.py --baseline f47d623b6693c3374f2da239bc0025cb4cebfe4d
+```
+
+Both implementations run their real writers against disposable local Git repositories. The scenario uses an existing player with an active pet. A controlled 200 ms delay is added to each actual Git fetch/push; background Daily-state sync and Discord delivery are excluded. Medians of three runs:
+
+| Completion work | Before | After |
+| --- | ---: | ---: |
+| Stats and rewards | 5.034 s | 0.710 s |
+| Fetch/push requests | 23 | 3 |
+| Pushes / commits | 7 | 1 |
+
+This is **7.09× faster in the controlled benchmark**, not a measured live Discord guarantee. The script never starts a bot or pushes production state/GitHub. Remaining live latency includes Discord requests, lock waits, GitHub round trips and contention/retries.
+
+Regression coverage verifies one completion commit, wallet/stat/quest/community/pet outcomes, concurrent duplicate workers, uncertain acknowledgements, conflict preservation, cache/local-file rollback, quest payouts plus paid markers, rated/exact practice rules, one final board upload, persistent retry target binding and optional capture markers with mandatory disambiguation.

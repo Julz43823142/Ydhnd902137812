@@ -169,6 +169,8 @@ def move_like_text(text):
         value = value[1:].strip()
     if value.casefold().startswith("move "):
         value = value[5:].strip()
+    from puzzle_move_validation import clean_move_text
+    value = clean_move_text(value)
     return bool(value and len(value) <= 12 and _MOVE_LIKE.fullmatch(value))
 
 
@@ -182,20 +184,22 @@ def parse_move(board, text):
 
     try:
         move = board.parse_san(value)
+        if move not in board.legal_moves:
+            raise ValueError('Illegal move')
         return move, board.san(move)
     except Exception:
         pass
 
-    # Match SAN case-insensitively, just like the Puzzle Bot already does.
-    # This accepts `nf3`, `BF2+`, etc. without weakening legality checks.
-    submitted_key = value.casefold().rstrip("+#")
-    for legal in board.legal_moves:
-        san = board.san(legal)
-        if san.casefold().rstrip("+#") == submitted_key:
-            return legal, san
+    # Shared legal SAN matching supports casing, optional x/check and UCI.
+    from puzzle_move_validation import parse_legal_move
+    candidate = parse_legal_move(board, value)
+    if candidate is not None:
+        return candidate, board.san(candidate)
 
     try:
         move = board.parse_uci(value.casefold())
+        if move not in board.legal_moves:
+            raise ValueError('Illegal move')
         return move, board.san(move)
     except Exception:
         pass

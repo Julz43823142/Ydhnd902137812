@@ -10,6 +10,32 @@ from puzzle_move_validation import (
 
 
 class PuzzleMoveValidationTests(unittest.TestCase):
+    def test_piece_capture_x_is_optional_for_puzzles_and_live_chess(self):
+        from chess_play import parse_move, move_like_text
+        import bot
+        board = chess.Board('4k3/8/8/8/8/2B5/1r6/4K3 w - - 0 1')
+        expected = chess.Move.from_uci('c3b2')
+        for text in ('Bxb2', 'Bb2', 'bb2', 'B B2', 'Bb2!'):
+            self.assertEqual(parse_legal_move(board, text), expected, text)
+            self.assertEqual(parse_move(board, text)[0], expected, text)
+            self.assertTrue(move_like_text(text), text)
+            self.assertTrue(bot._looks_like_puzzle_answer_attempt(text), text)
+        self.assertEqual(board.fen(), '4k3/8/8/8/8/2B5/1r6/4K3 w - - 0 1')
+
+    def test_pawn_capture_still_requires_source_file_and_ambiguous_pieces_are_rejected(self):
+        board = chess.Board('4k3/8/8/3p4/4P3/8/8/4K3 w - - 0 1')
+        for text in ('exd5', 'ed5'):
+            self.assertEqual(parse_legal_move(board, text), chess.Move.from_uci('e4d5'))
+        self.assertIsNone(parse_legal_move(board, 'd5'))
+        board = chess.Board('4k3/8/8/8/8/8/1r6/B1B1K3 w - - 0 1')
+        self.assertIsNone(parse_legal_move(board, 'Bb2'))
+        self.assertEqual(parse_legal_move(board, 'Bab2'), chess.Move.from_uci('a1b2'))
+
+    def test_capture_promotion_without_x_or_equals_is_unambiguous(self):
+        board = chess.Board('1r5k/P7/8/8/8/8/8/K7 w - - 0 1')
+        for text in ('ab8Q', 'axb8Q', 'ab8=Q'):
+            self.assertEqual(parse_legal_move(board, text), chess.Move.from_uci('a7b8q'))
+
     def test_fast_parser_rejects_null_and_illegal_moves_without_mutating_board(self):
         board = chess.Board()
         original = board.fen()
