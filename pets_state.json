@@ -79,9 +79,9 @@
         "name": "",
         "puzzle": {
           "day": "2026-10-04",
-          "fen": "8/5qk1/2p4p/p1p1pr2/P1Pp3Q/3P4/1P4P1/5RK1 w - - 0 44",
+          "fen": "8/5qk1/2p4p/p1p1p1r1/P1Pp2Q1/3P4/1P4P1/5RK1 w - - 2 45",
           "id": "Os34e",
-          "index": 0,
+          "index": 2,
           "moves": [
             "h4g4",
             "f5g5",
