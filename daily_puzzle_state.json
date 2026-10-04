@@ -3944,155 +3944,85 @@
   },
   "channel_puzzle_state": {
     "1546557493038284840": {
-      "latest_puzzle_type": "daily",
+      "latest_puzzle_type": "random",
       "latest_random_puzzle": {
-        "url": "https://lichess.org/training/0fynN",
-        "title": "Lichess • 2644",
-        "fen": "2Q5/5pk1/ppp2p1p/2q1p3/P2rP3/7P/5PP1/1R4K1 w - - 4 32",
-        "current_fen": "8/4kp2/ppp4p/2q1pQ2/P2rP3/5R1P/5PP1/6K1 b - - 2 35",
-        "last_move_uci": "g3f3",
-        "pgn": "Rb3 f5 Rg3+ Kf6 Qxf5+ Ke7 Rf3",
+        "url": "https://lichess.org/training/evMJS",
+        "title": "Lichess • 2261",
+        "fen": "1Q6/p5k1/1b2qrpp/8/3p3P/3B2P1/P4PK1/5R2 b - - 0 32",
+        "current_fen": "1Q6/p5k1/1b2qrpp/8/3p3P/3B2P1/P4PK1/5R2 b - - 0 32",
+        "last_move_uci": "h2h4",
+        "pgn": "Qd5+ Kg1 Rf8 Bc4 Qxc4",
         "all_moves": [
           {
-            "uci": "b1b3",
-            "san": "Rb3",
-            "color": "white"
-          },
-          {
-            "uci": "f6f5",
-            "san": "f5",
+            "uci": "e6d5",
+            "san": "Qd5+",
             "color": "black"
           },
           {
-            "uci": "b3g3",
-            "san": "Rg3+",
+            "uci": "g2g1",
+            "san": "Kg1",
             "color": "white"
           },
           {
-            "uci": "g7f6",
-            "san": "Kf6",
+            "uci": "f6f8",
+            "san": "Rf8",
             "color": "black"
           },
           {
-            "uci": "c8f5",
-            "san": "Qxf5+",
+            "uci": "d3c4",
+            "san": "Bc4",
             "color": "white"
           },
           {
-            "uci": "f6e7",
-            "san": "Ke7",
+            "uci": "d5c4",
+            "san": "Qxc4",
             "color": "black"
-          },
-          {
-            "uci": "g3f3",
-            "san": "Rf3",
-            "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "b1b3",
-            "san": "Rb3",
-            "color": "white"
+            "uci": "e6d5",
+            "san": "Qd5+",
+            "color": "black"
           },
           {
-            "uci": "b3g3",
-            "san": "Rg3+",
-            "color": "white"
+            "uci": "f6f8",
+            "san": "Rf8",
+            "color": "black"
           },
           {
-            "uci": "c8f5",
-            "san": "Qxf5+",
-            "color": "white"
-          },
-          {
-            "uci": "g3f3",
-            "san": "Rf3",
-            "color": "white"
+            "uci": "d5c4",
+            "san": "Qxc4",
+            "color": "black"
           }
         ],
-        "player_color": "white",
-        "player_move_count": 4,
-        "posted_at": "2026-10-04T15:49:51.277753+00:00",
-        "answer_posted": true,
+        "player_color": "black",
+        "player_move_count": 3,
+        "posted_at": "2026-10-04T15:51:17.961019+00:00",
+        "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "random_0fynN_1791128991277",
-        "last_activity_at": "2026-10-04T15:51:12.482242+00:00",
-        "rating": 2644,
-        "rp_band": 4,
+        "puzzle_id": "random_evMJS_1791129077961",
+        "last_activity_at": "2026-10-04T15:51:17.961019+00:00",
+        "rating": 2261,
+        "rp_band": 3,
         "boss": false,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink",
-        "next_solution_index": 7,
-        "next_player_index": 4,
-        "solved": true,
-        "message_ids": {
-          "1546557493038284840": 1556332877334061128
-        },
+        "next_solution_index": 0,
+        "next_player_index": 0,
+        "solved": false,
+        "message_ids": {},
         "chat_since_refresh": 0,
-        "attempted_users": {
-          "442597396195704832": {
-            "name": "Thice",
-            "move": "Rf3",
-            "correct": true,
-            "timestamp": "2026-10-04T15:51:12.482408+00:00"
-          }
-        },
-        "first_move_user_id": "442597396195704832",
-        "first_move_user_name": "Thice",
-        "first_move_awarded": true,
+        "attempted_users": {},
+        "first_move_user_id": null,
+        "first_move_user_name": null,
+        "first_move_awarded": false,
         "helper_awarded_users": [],
         "helper_candidate_users": [],
-        "channel_id": 1546557493038284840,
-        "board_attachment_filenames": {
-          "1546557493038284840": "random_puzzle.png"
-        },
-        "last_card_activity_at": "2026-10-04T15:51:12.482242+00:00",
-        "recent_accepted_moves": [
-          {
-            "accepted_at": 1791129072.482413,
-            "fen_before": "8/4kp2/ppp4p/2q1pQ2/P2rP3/6RP/5PP1/6K1 w - - 1 35",
-            "expected": {
-              "uci": "g3f3",
-              "san": "Rf3",
-              "color": "white"
-            },
-            "accepted_uci": "g3f3"
-          }
-        ],
-        "accepted_solution_moves": [
-          {
-            "san": "Rb3",
-            "uci": "b1b3",
-            "principal": true
-          },
-          {
-            "san": "Rg3+",
-            "uci": "b3g3",
-            "principal": true
-          },
-          {
-            "san": "Qxf5+",
-            "uci": "c8f5",
-            "principal": true
-          },
-          {
-            "san": "Rf3",
-            "uci": "g3f3",
-            "principal": true
-          }
-        ],
-        "last_feedback": "✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1745 points.**\n\nPuzzle Elo: **2559**\n\n💡 **Solution:** Rb3 Rg3+ Qxf5+ Rf3\n\n🏆 **Your ranking**\n**#1 🐶 Thice — 1745 points ← you**\n**#2 🍅 TheMakina — 1552 points**",
-        "wrong_attempt_counts": {
-          "442597396195704832": 1
-        },
-        "completion_solver_id": "442597396195704832",
-        "completion_solver_name": "Thice",
-        "activity_bonus_users": [],
-        "auto_next_started": true
+        "channel_id": 1546557493038284840
       }
     }
   },
