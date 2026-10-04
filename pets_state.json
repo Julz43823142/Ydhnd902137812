@@ -285,24 +285,25 @@
         "born_at": 1791108685.6424184,
         "fed_at": 1791108692.2947786,
         "feed_day": "2026-10-04",
-        "happiness": 80,
-        "happy_at": 1791108685.6424184,
+        "happiness": 100,
+        "happy_at": 1791108749.5466716,
         "id": "a694b65e5fd547a48c21a63fe10808a2",
         "name": "",
         "puzzle": {
           "day": "2026-10-04",
-          "fen": "r1b1k2r/4bppp/p4q2/3p4/7n/8/PPP3PP/R1BQRB1K w kq - 0 17",
+          "fen": "r1b1k2r/4bppp/p4q2/3Q4/7n/8/PPP3PP/R1B1RB1K b kq - 0 17",
           "id": "hREit",
-          "index": 2,
+          "index": 3,
           "moves": [
             "c3d5",
             "e6d5",
             "d1d5"
           ]
         },
+        "puzzle_day": "2026-10-04",
         "rarity": "uncommon",
         "species": "Penguin",
-        "xp": 5
+        "xp": 25
       }
     ]
   }
