@@ -29,6 +29,9 @@
     ]
   },
   "442597396195704832": {
+    "accessories": [
+      "glasses"
+    ],
     "active": "eee0c5787c154765833526fd6002f367",
     "expedition": {
       "end": 1791093511.8138034,
@@ -41,7 +44,7 @@
         "xp": 50
       },
       "start": 1791050311.8138034,
-      "status": "running"
+      "status": "claimed"
     },
     "pets": [
       {
@@ -169,7 +172,7 @@
         "puzzle_day": "2026-10-04",
         "rarity": "common",
         "species": "Dog",
-        "xp": 165,
+        "xp": 215,
         "xp_day": "2026-10-03"
       },
       {
