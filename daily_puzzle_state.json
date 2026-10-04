@@ -3944,13 +3944,13 @@
   },
   "channel_puzzle_state": {
     "1546557493038284840": {
-      "latest_puzzle_type": "random",
+      "latest_puzzle_type": "daily",
       "latest_random_puzzle": {
         "url": "https://lichess.org/training/hnz2p",
         "title": "Lichess • 2547",
         "fen": "8/8/8/8/pp3pk1/3P4/PP4K1/8 b - - 1 53",
-        "current_fen": "8/8/8/4k3/pp3p2/1P1P1K2/P7/8 b - - 0 55",
-        "last_move_uci": "b2b3",
+        "current_fen": "8/8/8/4k3/1p3p2/1p1P1K2/P7/8 w - - 0 56",
+        "last_move_uci": "a4b3",
         "pgn": "Kf5 Kf3 Ke5 b3 axb3",
         "all_moves": [
           {
@@ -3999,59 +3999,59 @@
         "player_color": "black",
         "player_move_count": 3,
         "posted_at": "2026-10-04T15:52:35.497373+00:00",
-        "answer_posted": false,
+        "answer_posted": true,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
         "puzzle_id": "random_hnz2p_1791129155497",
-        "last_activity_at": "2026-10-04T15:53:30.637623+00:00",
+        "last_activity_at": "2026-10-04T15:53:36.331260+00:00",
         "rating": 2547,
         "rp_band": 4,
         "boss": false,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink",
-        "next_solution_index": 4,
-        "next_player_index": 2,
-        "solved": false,
+        "next_solution_index": 5,
+        "next_player_index": 3,
+        "solved": true,
         "message_ids": {
-          "1546557493038284840": 1556333454260699150
+          "1546557493038284840": 1556333478671548469
         },
         "chat_since_refresh": 0,
         "attempted_users": {
           "442597396195704832": {
             "name": "Thice",
-            "move": "A3",
-            "correct": false,
-            "timestamp": "2026-10-04T15:53:30.638092+00:00"
+            "move": "Axb3",
+            "correct": true,
+            "timestamp": "2026-10-04T15:53:36.331512+00:00"
           }
         },
         "first_move_user_id": "442597396195704832",
         "first_move_user_name": "Thice",
-        "first_move_awarded": false,
+        "first_move_awarded": true,
         "helper_awarded_users": [],
         "helper_candidate_users": [],
         "channel_id": 1546557493038284840,
         "board_attachment_filenames": {
           "1546557493038284840": "random_puzzle.png"
         },
-        "last_card_activity_at": "2026-10-04T15:53:30.637623+00:00",
+        "last_card_activity_at": "2026-10-04T15:53:36.331260+00:00",
         "recent_accepted_moves": [
           {
-            "accepted_at": 1791129205.1394157,
-            "fen_before": "8/8/8/5k2/pp3p2/3P1K2/PP6/8 b - - 3 54",
+            "accepted_at": 1791129216.331518,
+            "fen_before": "8/8/8/4k3/pp3p2/1P1P1K2/P7/8 b - - 0 55",
             "expected": {
-              "uci": "f5e5",
-              "san": "Ke5",
+              "uci": "a4b3",
+              "san": "axb3",
               "color": "black"
             },
-            "accepted_uci": "f5e5"
+            "accepted_uci": "a4b3"
           }
         ],
         "wrong_attempt_counts": {
           "442597396195704832": 4
         },
-        "last_feedback": "❌ **Wrong, Thice. your chess brain said trust me and that was the first warning sign.**\n↪️ **Move played:** `A3`",
+        "last_feedback": "✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1747 points.**\n\nPuzzle Elo: **2547**\n\n💡 **Solution:** Kf5 Ke5 axb3\n\n🏆 **Your ranking**\n**#1 🐶 Thice — 1747 points ← you**\n**#2 🍅 TheMakina — 1552 points**",
         "accepted_solution_moves": [
           {
             "san": "Kf5",
@@ -4062,8 +4062,17 @@
             "san": "Ke5",
             "uci": "f5e5",
             "principal": true
+          },
+          {
+            "san": "axb3",
+            "uci": "a4b3",
+            "principal": true
           }
-        ]
+        ],
+        "completion_solver_id": "442597396195704832",
+        "completion_solver_name": "Thice",
+        "activity_bonus_users": [],
+        "auto_next_started": true
       }
     }
   },
