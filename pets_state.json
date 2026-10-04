@@ -239,6 +239,17 @@
         "happy_at": 1791108570.1412249,
         "id": "5e3a854983714a1a9331574fdaa902e0",
         "name": "",
+        "puzzle": {
+          "day": "2026-10-04",
+          "fen": "5rk1/1b6/p1q2r1p/1ppn1p2/3p1b1N/P2P1B1P/1PPQ1PP1/R3R1K1 w - - 3 26",
+          "id": "1KmDn",
+          "index": 0,
+          "moves": [
+            "f3d5",
+            "c6d5",
+            "d2f4"
+          ]
+        },
         "rarity": "common",
         "species": "Rabbit",
         "xp": 5
