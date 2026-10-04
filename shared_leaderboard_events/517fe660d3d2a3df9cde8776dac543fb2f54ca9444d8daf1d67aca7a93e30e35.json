@@ -1,0 +1,50 @@
+{
+  "created_at": 1791146890,
+  "details": {
+    "activity": [
+      {
+        "action": "games_completed",
+        "name": "Server",
+        "uid": "server"
+      },
+      {
+        "action": "minigame_completed",
+        "kind": "blackjack",
+        "name": "Thice",
+        "record_kind": "blackjack:standard",
+        "score": null,
+        "uid": "442597396195704832"
+      },
+      {
+        "action": "game:blackjack",
+        "kind": "blackjack",
+        "name": "Thice",
+        "record_kind": "blackjack:standard",
+        "uid": "442597396195704832"
+      },
+      {
+        "action": "minigame_win",
+        "kind": "blackjack",
+        "name": "Thice",
+        "record_kind": "blackjack:standard",
+        "uid": "442597396195704832"
+      },
+      {
+        "action": "coins_earned",
+        "amount": 2.0,
+        "name": "Thice",
+        "uid": "442597396195704832"
+      }
+    ],
+    "escrow_change": 0,
+    "wallets": {
+      "442597396195704832": {
+        "after_coins": 94.78,
+        "before_coins": 92.78
+      }
+    }
+  },
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "minigames",
+  "transaction_id": "minigames:1556407607403610173"
+}
