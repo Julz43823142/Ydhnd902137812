@@ -3944,84 +3944,69 @@
   },
   "channel_puzzle_state": {
     "1546557493038284840": {
-      "latest_puzzle_type": "daily",
+      "latest_puzzle_type": "random",
       "latest_random_puzzle": {
-        "url": "https://lichess.org/training/GWdhb",
-        "title": "Lichess • 2761",
-        "fen": "8/p4p1p/Pp2p3/2P1P1Pk/1B1n1P2/8/4K3/8 w - - 1 54",
-        "current_fen": "8/p4p1p/Pp2p3/2P1P1Pk/1B1n1P2/8/4K3/8 w - - 1 54",
-        "last_move_uci": "f5d4",
-        "pgn": "Kd3 bxc5 Bxc5 Nc6 Bd6 Kg4 Kc4",
+        "url": "https://lichess.org/training/8kdzs",
+        "title": "Lichess • 2229",
+        "fen": "2r2rk1/pp4p1/3q1p1p/3pN2n/3P4/2R2P2/PP1Q2PP/5RK1 w - - 0 19",
+        "current_fen": "2r2rk1/pp4p1/3q1p1p/3pN2n/3P4/2R2P2/PP1Q2PP/5RK1 w - - 0 19",
+        "last_move_uci": "f7f6",
+        "pgn": "Ng6 Rxc3 bxc3 Re8 g4",
         "all_moves": [
           {
-            "uci": "e2d3",
-            "san": "Kd3",
+            "uci": "e5g6",
+            "san": "Ng6",
             "color": "white"
           },
           {
-            "uci": "b6c5",
-            "san": "bxc5",
+            "uci": "c8c3",
+            "san": "Rxc3",
             "color": "black"
           },
           {
-            "uci": "b4c5",
-            "san": "Bxc5",
+            "uci": "b2c3",
+            "san": "bxc3",
             "color": "white"
           },
           {
-            "uci": "d4c6",
-            "san": "Nc6",
+            "uci": "f8e8",
+            "san": "Re8",
             "color": "black"
           },
           {
-            "uci": "c5d6",
-            "san": "Bd6",
-            "color": "white"
-          },
-          {
-            "uci": "h5g4",
-            "san": "Kg4",
-            "color": "black"
-          },
-          {
-            "uci": "d3c4",
-            "san": "Kc4",
+            "uci": "g2g4",
+            "san": "g4",
             "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "e2d3",
-            "san": "Kd3",
+            "uci": "e5g6",
+            "san": "Ng6",
             "color": "white"
           },
           {
-            "uci": "b4c5",
-            "san": "Bxc5",
+            "uci": "b2c3",
+            "san": "bxc3",
             "color": "white"
           },
           {
-            "uci": "c5d6",
-            "san": "Bd6",
-            "color": "white"
-          },
-          {
-            "uci": "d3c4",
-            "san": "Kc4",
+            "uci": "g2g4",
+            "san": "g4",
             "color": "white"
           }
         ],
         "player_color": "white",
-        "player_move_count": 4,
-        "posted_at": "2026-10-04T14:00:32.293239+00:00",
-        "answer_posted": true,
+        "player_move_count": 3,
+        "posted_at": "2026-10-04T14:00:42.946948+00:00",
+        "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "random_GWdhb_1791122432293",
-        "last_activity_at": "2026-10-04T14:00:32.293239+00:00",
-        "rating": 2761,
-        "rp_band": 5,
+        "puzzle_id": "random_8kdzs_1791122442946",
+        "last_activity_at": "2026-10-04T14:00:42.946948+00:00",
+        "rating": 2229,
+        "rp_band": 3,
         "boss": false,
         "board_theme": "blue",
         "piece_theme": "classic",
@@ -4029,9 +4014,7 @@
         "next_solution_index": 0,
         "next_player_index": 0,
         "solved": false,
-        "message_ids": {
-          "1546557493038284840": 1556305030137651271
-        },
+        "message_ids": {},
         "chat_since_refresh": 0,
         "attempted_users": {},
         "first_move_user_id": null,
@@ -4039,11 +4022,7 @@
         "first_move_awarded": false,
         "helper_awarded_users": [],
         "helper_candidate_users": [],
-        "channel_id": 1546557493038284840,
-        "board_attachment_filenames": {
-          "1546557493038284840": "random_puzzle.png"
-        },
-        "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Kd3 Bxc5 Bd6 Kc4"
+        "channel_id": 1546557493038284840
       }
     }
   },
