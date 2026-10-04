@@ -3949,8 +3949,8 @@
         "url": "https://lichess.org/training/9LEm9",
         "title": "Lichess • 2896",
         "fen": "7r/ppp3p1/2npk1q1/4p3/4P3/3P1Rp1/PPP3P1/RNBQ2K1 b - - 1 18",
-        "current_fen": "7r/ppp3pq/2npkR2/4p3/4P3/3P2p1/PPP3P1/RNBQ2K1 b - - 3 19",
-        "last_move_uci": "f3f6",
+        "current_fen": "7r/ppp3pq/2np1k2/4p3/4P3/3P1Qp1/PPP3P1/RNB3K1 b - - 1 20",
+        "last_move_uci": "d1f3",
         "pgn": "Qh7 Rf6+ Kxf6 Qf3+ Ke7 Bg5+ Ke8",
         "all_moves": [
           {
@@ -4019,26 +4019,26 @@
         "winner_name": null,
         "latest_attempts": {},
         "puzzle_id": "random_9LEm9_1791129267580",
-        "last_activity_at": "2026-10-04T15:55:29.291647+00:00",
+        "last_activity_at": "2026-10-04T15:55:34.349000+00:00",
         "rating": 2896,
         "rp_band": 5,
         "boss": false,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink",
-        "next_solution_index": 2,
-        "next_player_index": 1,
+        "next_solution_index": 4,
+        "next_player_index": 2,
         "solved": false,
         "message_ids": {
-          "1546557493038284840": 1556333952359203007
+          "1546557493038284840": 1556333975398776922
         },
         "chat_since_refresh": 0,
         "attempted_users": {
           "442597396195704832": {
             "name": "Thice",
-            "move": "Gxf6",
-            "correct": false,
-            "timestamp": "2026-10-04T15:55:29.291910+00:00"
+            "move": "Kxf6",
+            "correct": true,
+            "timestamp": "2026-10-04T15:55:34.349182+00:00"
           }
         },
         "first_move_user_id": "442597396195704832",
@@ -4050,16 +4050,32 @@
         "board_attachment_filenames": {
           "1546557493038284840": "random_puzzle.png"
         },
-        "last_card_activity_at": "2026-10-04T15:55:29.291647+00:00",
-        "recent_accepted_moves": [],
+        "last_card_activity_at": "2026-10-04T15:55:34.349000+00:00",
+        "recent_accepted_moves": [
+          {
+            "accepted_at": 1791129334.3491876,
+            "fen_before": "7r/ppp3pq/2npkR2/4p3/4P3/3P2p1/PPP3P1/RNBQ2K1 b - - 3 19",
+            "expected": {
+              "uci": "e6f6",
+              "san": "Kxf6",
+              "color": "black"
+            },
+            "accepted_uci": "e6f6"
+          }
+        ],
         "wrong_attempt_counts": {
           "442597396195704832": 3
         },
-        "last_feedback": "❌ **Another one for the collection, Thice: you treated a forced line like an optional suggestion.**\n↪️ **Move played:** `Gxf6`",
+        "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Qf3+",
         "accepted_solution_moves": [
           {
             "san": "Qh7",
             "uci": "g6h7",
+            "principal": true
+          },
+          {
+            "san": "Kxf6",
+            "uci": "e6f6",
             "principal": true
           }
         ]
