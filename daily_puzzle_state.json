@@ -3999,7 +3999,9 @@
         "next_solution_index": 0,
         "next_player_index": 0,
         "solved": false,
-        "message_ids": {},
+        "message_ids": {
+          "1546557493038284840": 1556304334239563877
+        },
         "chat_since_refresh": 0,
         "attempted_users": {},
         "first_move_user_id": null,
@@ -4007,7 +4009,10 @@
         "first_move_awarded": false,
         "helper_awarded_users": [],
         "helper_candidate_users": [],
-        "channel_id": 1546557493038284840
+        "channel_id": 1546557493038284840,
+        "board_attachment_filenames": {
+          "1546557493038284840": "random_puzzle.png"
+        }
       }
     }
   },
@@ -10339,5 +10344,8 @@
     "1546557493038284840:animal_day:2026-10-03": 1555700926533210215,
     "1468320170891022417:animal_day:2026-10-04": 1556063296879198232,
     "1546557493038284840:animal_day:2026-10-04": 1556063314184773723
+  },
+  "puzzle_auto_next": {
+    "1546557493038284840": true
   }
 }
