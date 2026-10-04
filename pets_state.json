@@ -214,9 +214,9 @@
         "name": "",
         "puzzle": {
           "day": "2026-10-04",
-          "fen": "r4rk1/pp4pp/1q3p2/3p4/3bp1N1/2PQ4/PP3PPP/R3R1K1 w - - 0 19",
+          "fen": "r4rk1/pp4pp/5p2/3p4/3qp1N1/2P5/PP3PPP/R3R1K1 w - - 0 20",
           "id": "beyxJ",
-          "index": 0,
+          "index": 2,
           "moves": [
             "d3d4",
             "b6d4",
