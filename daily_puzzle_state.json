@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/6HXm7",
     "title": "Lichess • 1318",
     "fen": "r5k1/r1R3p1/5p1p/P3p3/1Q1p4/3q2P1/5P1P/R5K1 w - - 2 40",
-    "current_fen": "r5k1/r1R3p1/5p1p/P3p3/1Q1p4/3q2P1/5P1P/R5K1 w - - 2 40",
-    "last_move_uci": "a6a7",
+    "current_fen": "6k1/r5p1/5p1p/P3p3/1Q1p4/3q2P1/5P1P/R5K1 w - - 0 41",
+    "last_move_uci": "a8a7",
     "pgn": "Rxa7 Rxa7 Qb8+ Kh7 Qxa7",
     "all_moves": [
       {
@@ -58,26 +58,59 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_6HXm7_1791119636242",
-    "last_activity_at": "2026-10-04T13:13:56.242136+00:00",
+    "last_activity_at": "2026-10-04T13:14:05.511780+00:00",
     "rating": 1318,
     "rp_band": 0,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "purple",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
-    "message_ids": {},
-    "message_id": null,
+    "message_ids": {
+      "1468320170891022417": 1556293336044675152
+    },
+    "message_id": 1556293336044675152,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "attempted_users": {
+      "362606514764251137": {
+        "name": "Sharkmeister",
+        "move": "Rxa7",
+        "correct": true,
+        "timestamp": "2026-10-04T13:14:05.512243+00:00"
+      }
+    },
+    "first_move_user_id": "362606514764251137",
+    "first_move_user_name": "Sharkmeister",
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "board_attachment_filenames": {
+      "1468320170891022417": "random_puzzle.png"
+    },
+    "last_card_activity_at": "2026-10-04T13:14:05.511780+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1791119645.5122507,
+        "fen_before": "r5k1/r1R3p1/5p1p/P3p3/1Q1p4/3q2P1/5P1P/R5K1 w - - 2 40",
+        "expected": {
+          "uci": "c7a7",
+          "san": "Rxa7",
+          "color": "white"
+        },
+        "accepted_uci": "c7a7"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "Rxa7",
+        "uci": "c7a7",
+        "principal": true
+      }
+    ],
+    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Rxa7"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
