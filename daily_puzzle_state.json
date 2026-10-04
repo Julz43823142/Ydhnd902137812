@@ -4019,7 +4019,7 @@
         "winner_name": null,
         "latest_attempts": {},
         "puzzle_id": "random_9LEm9_1791129267580",
-        "last_activity_at": "2026-10-04T15:55:09.850010+00:00",
+        "last_activity_at": "2026-10-04T15:55:29.291647+00:00",
         "rating": 2896,
         "rp_band": 5,
         "boss": false,
@@ -4030,15 +4030,15 @@
         "next_player_index": 1,
         "solved": false,
         "message_ids": {
-          "1546557493038284840": 1556333870930989146
+          "1546557493038284840": 1556333952359203007
         },
         "chat_since_refresh": 0,
         "attempted_users": {
           "442597396195704832": {
             "name": "Thice",
-            "move": "Qh7",
-            "correct": true,
-            "timestamp": "2026-10-04T15:55:09.850162+00:00"
+            "move": "Gxf6",
+            "correct": false,
+            "timestamp": "2026-10-04T15:55:29.291910+00:00"
           }
         },
         "first_move_user_id": "442597396195704832",
@@ -4050,23 +4050,12 @@
         "board_attachment_filenames": {
           "1546557493038284840": "random_puzzle.png"
         },
-        "last_card_activity_at": "2026-10-04T15:55:09.850010+00:00",
-        "recent_accepted_moves": [
-          {
-            "accepted_at": 1791129309.8501666,
-            "fen_before": "7r/ppp3p1/2npk1q1/4p3/4P3/3P1Rp1/PPP3P1/RNBQ2K1 b - - 1 18",
-            "expected": {
-              "uci": "g6h7",
-              "san": "Qh7",
-              "color": "black"
-            },
-            "accepted_uci": "g6h7"
-          }
-        ],
+        "last_card_activity_at": "2026-10-04T15:55:29.291647+00:00",
+        "recent_accepted_moves": [],
         "wrong_attempt_counts": {
-          "442597396195704832": 2
+          "442597396195704832": 3
         },
-        "last_feedback": "**✅ Correct! 3 moves remaining.**\n↩️ **Opponent replies:** Rf6+",
+        "last_feedback": "❌ **Another one for the collection, Thice: you treated a forced line like an optional suggestion.**\n↪️ **Move played:** `Gxf6`",
         "accepted_solution_moves": [
           {
             "san": "Qh7",
