@@ -3938,109 +3938,62 @@
   },
   "channel_puzzle_state": {
     "1546557493038284840": {
-      "latest_puzzle_type": "daily",
+      "latest_puzzle_type": "random",
       "latest_random_puzzle": {
-        "url": "https://lichess.org/training/8j3op",
-        "title": "Lichess • 2786",
-        "fen": "R6Q/5rp1/1pq3p1/6kp/3P2P1/2P1K1P1/8/2R5 b - - 2 38",
-        "current_fen": "R6Q/5rp1/1pq3p1/6kp/3P2P1/2P1K1P1/8/2R5 b - - 2 38",
-        "last_move_uci": "f2e3",
-        "pgn": "Qe6+ Kd3 Rf3+ Kc2 Rf2+ Kb1 Qb3+ Ka1 Qb2#",
+        "url": "https://lichess.org/training/mbLnW",
+        "title": "Lichess • 1403",
+        "fen": "2N3k1/7p/2r3p1/8/8/4n2P/3R2P1/6K1 w - - 1 45",
+        "current_fen": "2N3k1/7p/2r3p1/8/8/4n2P/3R2P1/6K1 w - - 1 45",
+        "last_move_uci": "e6c6",
+        "pgn": "Ne7+ Kf8 Nxc6",
         "all_moves": [
           {
-            "uci": "c6e6",
-            "san": "Qe6+",
-            "color": "black"
-          },
-          {
-            "uci": "e3d3",
-            "san": "Kd3",
+            "uci": "c8e7",
+            "san": "Ne7+",
             "color": "white"
           },
           {
-            "uci": "f7f3",
-            "san": "Rf3+",
+            "uci": "g8f8",
+            "san": "Kf8",
             "color": "black"
           },
           {
-            "uci": "d3c2",
-            "san": "Kc2",
+            "uci": "e7c6",
+            "san": "Nxc6",
             "color": "white"
-          },
-          {
-            "uci": "f3f2",
-            "san": "Rf2+",
-            "color": "black"
-          },
-          {
-            "uci": "c2b1",
-            "san": "Kb1",
-            "color": "white"
-          },
-          {
-            "uci": "e6b3",
-            "san": "Qb3+",
-            "color": "black"
-          },
-          {
-            "uci": "b1a1",
-            "san": "Ka1",
-            "color": "white"
-          },
-          {
-            "uci": "b3b2",
-            "san": "Qb2#",
-            "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "c6e6",
-            "san": "Qe6+",
-            "color": "black"
+            "uci": "c8e7",
+            "san": "Ne7+",
+            "color": "white"
           },
           {
-            "uci": "f7f3",
-            "san": "Rf3+",
-            "color": "black"
-          },
-          {
-            "uci": "f3f2",
-            "san": "Rf2+",
-            "color": "black"
-          },
-          {
-            "uci": "e6b3",
-            "san": "Qb3+",
-            "color": "black"
-          },
-          {
-            "uci": "b3b2",
-            "san": "Qb2#",
-            "color": "black"
+            "uci": "e7c6",
+            "san": "Nxc6",
+            "color": "white"
           }
         ],
-        "player_color": "black",
-        "player_move_count": 5,
-        "posted_at": "2026-10-04T12:16:43.515038+00:00",
-        "answer_posted": true,
+        "player_color": "white",
+        "player_move_count": 2,
+        "posted_at": "2026-10-04T12:30:35.329866+00:00",
+        "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "random_8j3op_1791116203515",
-        "last_activity_at": "2026-10-04T12:16:43.515038+00:00",
-        "rating": 2786,
-        "rp_band": 5,
+        "puzzle_id": "random_mbLnW_1791117035329",
+        "last_activity_at": "2026-10-04T12:30:35.329866+00:00",
+        "rating": 1403,
+        "rp_band": 0,
         "boss": false,
-        "board_theme": "blue",
+        "board_theme": "classic",
         "piece_theme": "classic",
-        "arrow_theme": "pink",
+        "arrow_theme": "purple",
         "next_solution_index": 0,
         "next_player_index": 0,
         "solved": false,
-        "message_ids": {
-          "1546557493038284840": 1556278904413495339
-        },
+        "message_ids": {},
         "chat_since_refresh": 0,
         "attempted_users": {},
         "first_move_user_id": null,
@@ -4048,8 +4001,7 @@
         "first_move_awarded": false,
         "helper_awarded_users": [],
         "helper_candidate_users": [],
-        "channel_id": 1546557493038284840,
-        "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Qe6+ Rf3+ Rf2+ Qb3+ Qb2#"
+        "channel_id": 1546557493038284840
       }
     }
   },
