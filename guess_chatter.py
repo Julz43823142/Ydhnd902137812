@@ -1181,17 +1181,19 @@ class GuessCosmeticProfileView(discord.ui.View):
                 row=idx // 3,
             )
             async def open_rarity(interaction, rarity=rarity):
+                await interaction.response.defer(ephemeral=True)
                 profile = await self._profile()
                 self.mode = "badges"
                 self.rarity = rarity
                 self.page = 1
                 self._build_badges(profile)
-                await interaction.response.edit_message(content=None, embed=community_embed(self.render(profile)), view=self)
+                await interaction.edit_original_response(content=None, embed=community_embed(self.render(profile)), view=self)
             button.callback = open_rarity
             self.add_item(button)
         for label, mode, emoji in (("Boards", "boards", "🎨"), ("Pieces", "pieces", "♟️"), ("Arrows", "arrows", "➡️"), ("Themes", "themes", "🖼️"), ("Name Colors", "colors", "🖌️")):
             button = discord.ui.Button(label=label, emoji=emoji, style=discord.ButtonStyle.secondary, row=2 if mode in {"boards", "pieces", "arrows"} else 3)
             async def open_mode(interaction, mode=mode):
+                await interaction.response.defer(ephemeral=True)
                 if mode == "colors" and self.editable:
                     profile = await guess_sync_subscriber_color_profile(
                         interaction.user,
@@ -1202,7 +1204,7 @@ class GuessCosmeticProfileView(discord.ui.View):
                 self.mode = mode
                 self.page = 1
                 self._build_assets(profile)
-                await interaction.response.edit_message(content=None, embed=community_embed(self.render(profile)), view=self)
+                await interaction.edit_original_response(content=None, embed=community_embed(self.render(profile)), view=self)
             button.callback = open_mode
             self.add_item(button)
 
@@ -1228,12 +1230,13 @@ class GuessCosmeticProfileView(discord.ui.View):
                     row=pos // 5,
                 )
                 async def equip_callback(interaction, badge=badge):
+                    await interaction.response.defer(ephemeral=True)
                     updated = await asyncio.to_thread(
                         equip_badge, self.target_user_id, self.target_name, badge,
                         f"guess-profile-button-badge:{interaction.id}:{self.target_user_id}",
                     )
                     self._build_badges(updated)
-                    await interaction.response.edit_message(content=None, embed=community_embed(self.render(updated)), view=self)
+                    await interaction.edit_original_response(content=None, embed=community_embed(self.render(updated)), view=self)
                 button.callback = equip_callback
                 self.add_item(button)
         self._add_nav(total_pages, include_none=self.editable)
@@ -1274,6 +1277,7 @@ class GuessCosmeticProfileView(discord.ui.View):
                     row=pos // 5,
                 )
                 async def equip_callback(interaction, name=name, equip_func=equip_func):
+                    await interaction.response.defer(ephemeral=True)
                     if self.mode == "colors":
                         updated = await guess_equip_color_from_interaction(
                             interaction, self.target_user_id, self.target_name, name
@@ -1284,7 +1288,7 @@ class GuessCosmeticProfileView(discord.ui.View):
                             f"guess-profile-button-{self.mode}:{interaction.id}:{self.target_user_id}:{name}",
                         )
                     self._build_assets(updated)
-                    await interaction.response.edit_message(content=None, embed=community_embed(self.render(updated)), view=self)
+                    await interaction.edit_original_response(content=None, embed=community_embed(self.render(updated)), view=self)
                 button.callback = equip_callback
                 self.add_item(button)
         self._add_nav(total_pages)
@@ -1295,25 +1299,28 @@ class GuessCosmeticProfileView(discord.ui.View):
         indicator = discord.ui.Button(label=f"{self.page}/{max(1, total_pages)}", style=discord.ButtonStyle.secondary, row=4, disabled=True)
         next_button = discord.ui.Button(label="▶", style=discord.ButtonStyle.secondary, row=4, disabled=self.page >= max(1, total_pages))
         async def back_callback(interaction):
+            await interaction.response.defer(ephemeral=True)
             profile = await self._profile()
             self._build_dashboard()
-            await interaction.response.edit_message(content=None, embed=community_embed(self.render(profile)), view=self)
+            await interaction.edit_original_response(content=None, embed=community_embed(self.render(profile)), view=self)
         async def previous_callback(interaction):
+            await interaction.response.defer(ephemeral=True)
             profile = await self._profile()
             self.page = max(1, self.page - 1)
             if self.mode == "badges":
                 self._build_badges(profile)
             else:
                 self._build_assets(profile)
-            await interaction.response.edit_message(content=None, embed=community_embed(self.render(profile)), view=self)
+            await interaction.edit_original_response(content=None, embed=community_embed(self.render(profile)), view=self)
         async def next_callback(interaction):
+            await interaction.response.defer(ephemeral=True)
             profile = await self._profile()
             self.page = min(max(1, total_pages), self.page + 1)
             if self.mode == "badges":
                 self._build_badges(profile)
             else:
                 self._build_assets(profile)
-            await interaction.response.edit_message(content=None, embed=community_embed(self.render(profile)), view=self)
+            await interaction.edit_original_response(content=None, embed=community_embed(self.render(profile)), view=self)
         back.callback = back_callback
         previous.callback = previous_callback
         next_button.callback = next_callback
@@ -1324,12 +1331,13 @@ class GuessCosmeticProfileView(discord.ui.View):
         if include_none:
             none_button = discord.ui.Button(label="No badge", style=discord.ButtonStyle.danger, row=4)
             async def none_callback(interaction):
+                await interaction.response.defer(ephemeral=True)
                 updated = await asyncio.to_thread(
                     equip_badge, self.target_user_id, self.target_name, "",
                     f"guess-profile-button-badge:{interaction.id}:{self.target_user_id}:none",
                 )
                 self._build_badges(updated)
-                await interaction.response.edit_message(content=None, embed=community_embed(self.render(updated)), view=self)
+                await interaction.edit_original_response(content=None, embed=community_embed(self.render(updated)), view=self)
             none_button.callback = none_callback
             self.add_item(none_button)
 
@@ -2957,7 +2965,7 @@ async def post_guess(
 
     # Persistent controller can run many rounds in one process.
     NEXT_REQUESTED = False
-    chatters, all_entries = load_chatters()
+    chatters, all_entries = await asyncio.to_thread(load_chatters)
 
     mode = guess_special_mode()
 
@@ -3754,6 +3762,7 @@ class GuessTradeDecisionView(discord.ui.View):
         return True
 
     async def _accept(self, interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=True)
         try:
             details = await asyncio.to_thread(
                 shared_accept_trade,
@@ -3762,17 +3771,17 @@ class GuessTradeDecisionView(discord.ui.View):
                 f"trade-accept-button:{interaction.id}:{interaction.user.id}",
             )
         except ValueError as error:
-            await interaction.response.send_message(f"❌ **{error}**", ephemeral=True)
+            await interaction.followup.send(f"❌ **{error}**", ephemeral=True)
             return
         except Exception as error:
-            await interaction.response.send_message(
+            await interaction.followup.send(
                 f"❌ Could not safely accept trade: `{str(error)[:700]}`",
                 ephemeral=True,
             )
             return
 
         self.stop()
-        await interaction.response.edit_message(
+        await interaction.edit_original_response(
             content=(
                 "✅ **Trade accepted!**\n"
                 f"{interaction.user.display_name} received **{shared_format_trade_asset(details['offer'])}**.\n"
@@ -3782,6 +3791,7 @@ class GuessTradeDecisionView(discord.ui.View):
         )
 
     async def _decline(self, interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=True)
         try:
             pending = await asyncio.to_thread(
                 shared_decline_trade,
@@ -3790,17 +3800,17 @@ class GuessTradeDecisionView(discord.ui.View):
                 f"trade-decline-button:{interaction.id}:{interaction.user.id}",
             )
         except ValueError as error:
-            await interaction.response.send_message(f"❌ **{error}**", ephemeral=True)
+            await interaction.followup.send(f"❌ **{error}**", ephemeral=True)
             return
         except Exception as error:
-            await interaction.response.send_message(
+            await interaction.followup.send(
                 f"❌ Could not safely decline trade: `{str(error)[:700]}`",
                 ephemeral=True,
             )
             return
 
         self.stop()
-        await interaction.response.edit_message(
+        await interaction.edit_original_response(
             content=(
                 f"❌ **Trade declined.** Offer from "
                 f"{pending.get('from_name', 'Unknown')} was removed."
@@ -4169,6 +4179,7 @@ class GuessDonateAssetModal(discord.ui.Modal):
         if str(interaction.user.id) == self.target_user_id:
             await interaction.response.send_message("❌ You cannot donate to yourself.", ephemeral=True)
             return
+        await interaction.response.defer(ephemeral=True)
         try:
             sender_profile = await asyncio.to_thread(get_cosmetic_profile, interaction.user.id, interaction.user.display_name)
             asset = _guess_shop_asset_from_text(self.asset.value, sender_profile.get("badges", []))
@@ -4197,9 +4208,9 @@ class GuessDonateAssetModal(discord.ui.Modal):
                 )
                 text = f"🎁 Donated {asset['badge']} to **{self.target_name}**."
         except Exception as error:
-            await interaction.response.send_message(f"❌ Could not donate: `{str(error)[:700]}`", ephemeral=True)
+            await interaction.followup.send(f"❌ Could not donate: `{str(error)[:700]}`", ephemeral=True)
             return
-        await interaction.response.send_message(text, ephemeral=True)
+        await interaction.followup.send(text, ephemeral=True)
 
 
 class GuessDonateTargetSelect(discord.ui.UserSelect):
@@ -4515,9 +4526,10 @@ class GuessTradeHomeView(discord.ui.View):
 
     @discord.ui.button(label="Pending Trade", emoji="📨", style=discord.ButtonStyle.secondary, row=1)
     async def pending(self, interaction, button):
+        await interaction.response.defer(ephemeral=True)
         profile = await asyncio.to_thread(get_cosmetic_profile, interaction.user.id, interaction.user.display_name)
         pending = profile.get("pending_trade") if isinstance(profile, dict) else None
-        await interaction.response.send_message(
+        await interaction.followup.send(
             guess_pending_trade_message(profile),
             view=GuessTradeDecisionView(interaction.user.id, interaction.user.display_name) if pending else None,
             ephemeral=True,
@@ -4578,17 +4590,19 @@ class GuessShopHomeView(discord.ui.View):
 
     @discord.ui.button(label="Name Colors", emoji="🖌️", style=discord.ButtonStyle.secondary, row=1)
     async def colors(self, interaction, button):
+        await interaction.response.defer(ephemeral=True)
         profile = await guess_sync_subscriber_color_profile(
             interaction.user,
             f"guess-subscriber-pink-sync:{interaction.id}:{interaction.user.id}",
         )
         view = GuessColorCatalogView(interaction.user.id, profile=profile)
-        await interaction.response.send_message(embed=view.embed(profile), view=view, ephemeral=True)
+        await interaction.followup.send(embed=view.embed(profile), view=view, ephemeral=True)
 
     @discord.ui.button(label="My Profile", emoji="👤", style=discord.ButtonStyle.secondary, row=1)
     async def profile(self, interaction, button):
+        await interaction.response.defer(ephemeral=True)
         text = await asyncio.to_thread(guess_cosmetic_profile_dashboard, interaction.user.id, interaction.user.display_name)
-        await interaction.response.send_message(
+        await interaction.followup.send(
             embed=community_embed(text),
             view=GuessCosmeticProfileView(interaction.user.id, interaction.user.id, interaction.user.display_name, editable=True),
             ephemeral=True,
@@ -4601,12 +4615,14 @@ class GuessLeaderboardMenuView(discord.ui.View):
 
     @discord.ui.button(label="Guess Points", emoji="🏆", style=discord.ButtonStyle.primary)
     async def guess_points(self, interaction, button):
+        await interaction.response.defer(ephemeral=True)
         text = await asyncio.to_thread(full_leaderboard, "🏆 **Guess Games Leaderboard**", False)
-        await interaction.response.send_message(embed=community_embed(text), ephemeral=True)
+        await interaction.followup.send(embed=community_embed(text), ephemeral=True)
 
     @discord.ui.button(label="Shared Coins", emoji="🪙", style=discord.ButtonStyle.secondary)
     async def shared_coins(self, interaction, button):
-        await interaction.response.send_message(embed=await asyncio.to_thread(shared_coin_top10_embed), ephemeral=True, allowed_mentions=discord.AllowedMentions.none())
+        await interaction.response.defer(ephemeral=True)
+        await interaction.followup.send(embed=await asyncio.to_thread(shared_coin_top10_embed), ephemeral=True, allowed_mentions=discord.AllowedMentions.none())
 
 
 async def request_guess_next_round(channel):
@@ -4680,8 +4696,9 @@ class GuessMainMenuView(discord.ui.View):
 
     @discord.ui.button(label="Shop", emoji="🛒", style=discord.ButtonStyle.secondary, row=0)
     async def shop(self, interaction, button):
+        await interaction.response.defer(ephemeral=True)
         profile = await asyncio.to_thread(get_cosmetic_profile, interaction.user.id, interaction.user.display_name)
-        await interaction.response.send_message(embed=guess_shop_home_embed(profile), view=GuessShopHomeView(interaction.user.id), ephemeral=True)
+        await interaction.followup.send(embed=guess_shop_home_embed(profile), view=GuessShopHomeView(interaction.user.id), ephemeral=True)
 
     @discord.ui.button(label="Trade", emoji="🤝", style=discord.ButtonStyle.success, row=0)
     async def trade(self, interaction, button):

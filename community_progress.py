@@ -136,7 +136,7 @@ def wallet_event(files, uid, before, after, now, source=''):
 
 def snapshot():
     with ledger._LOCK:
-        if not ledger._fetch_retry():
+        if not ledger.refresh_for_read():
             raise RuntimeError('Community data cannot be refreshed right now.')
         return copy.deepcopy(read_origin())
 

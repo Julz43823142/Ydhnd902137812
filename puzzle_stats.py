@@ -8,7 +8,7 @@ import time
 from difflib import get_close_matches
 from pathlib import Path
 
-from shared_leaderboard import REPOSITORY_LOCK, badge_map
+from shared_leaderboard import REPOSITORY_LOCK, badge_map, refresh_for_read
 
 PUZZLE_STATS_BUILD = "puzzle-stats-v1-elo-streak-achievements-2026-09-04"
 STATS_FILE = "puzzle_stats.json"
@@ -624,7 +624,7 @@ def record_first_solve(puzzle_id, user_id, display_name, *, boss=False):
 
 def _current_snapshot():
     with REPOSITORY_LOCK:
-        if _fetch():
+        if refresh_for_read(_fetch):
             return _origin_snapshot()
         return _local_snapshot()
 

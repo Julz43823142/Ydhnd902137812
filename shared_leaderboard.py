@@ -293,6 +293,30 @@ REPOSITORY_LOCK = threading.RLock()
 _LOCK = REPOSITORY_LOCK
 
 _CACHE_SNAPSHOT = None
+# Only display reads share a very short refresh window. Transactions always fetch.
+READ_REFRESH_SECONDS = 2.0
+_READ_REFRESH = None
+
+
+def refresh_for_read(fetch=None):
+    """Coalesce display refreshes; never call this before a wallet/state mutation.
+
+    Scope by checkout and branch so isolated tests and separate repositories do
+    not share freshness. Cache successful refreshes only, not failed requests.
+    All callers still read the current origin ref, including newly committed data.
+    """
+    global _READ_REFRESH
+    with REPOSITORY_LOCK:
+        scope = (os.getcwd(), _branch())
+        now = time.monotonic()
+        if _READ_REFRESH is not None:
+            previous_scope, refreshed = _READ_REFRESH
+            if previous_scope == scope and 0 <= now - refreshed < READ_REFRESH_SECONDS:
+                return True
+        if not (fetch or _fetch_retry)():
+            return False
+        _READ_REFRESH = (scope, time.monotonic())
+        return True
 
 
 def _run(args, *, env=None, input_text=None):
@@ -831,10 +855,10 @@ def _push_files(files, message):
     return push.returncode == 0
 
 
-def _verified_origin_snapshot(required_transaction_id=None):
+def _verified_origin_snapshot(required_transaction_id=None, *, for_read=False):
     global _CACHE_SNAPSHOT
 
-    if not _fetch_retry():
+    if not (refresh_for_read() if for_read else _fetch_retry()):
         return None, False
 
     try:
@@ -854,7 +878,7 @@ def _current_snapshot():
     global _CACHE_SNAPSHOT
 
     with _LOCK:
-        snapshot, verified = _verified_origin_snapshot()
+        snapshot, verified = _verified_origin_snapshot(for_read=True)
         if verified and snapshot is not None:
             return snapshot
 
