@@ -4004,7 +4004,7 @@
         "winner_name": null,
         "latest_attempts": {},
         "puzzle_id": "random_hnz2p_1791129155497",
-        "last_activity_at": "2026-10-04T15:53:08.316311+00:00",
+        "last_activity_at": "2026-10-04T15:53:11.806444+00:00",
         "rating": 2547,
         "rp_band": 4,
         "boss": false,
@@ -4015,15 +4015,15 @@
         "next_player_index": 0,
         "solved": false,
         "message_ids": {
-          "1546557493038284840": 1556333361113604196
+          "1546557493038284840": 1556333384639320216
         },
         "chat_since_refresh": 0,
         "attempted_users": {
           "442597396195704832": {
             "name": "Thice",
-            "move": "B3",
+            "move": "A3",
             "correct": false,
-            "timestamp": "2026-10-04T15:53:08.316587+00:00"
+            "timestamp": "2026-10-04T15:53:11.806717+00:00"
           }
         },
         "first_move_user_id": null,
@@ -4035,12 +4035,12 @@
         "board_attachment_filenames": {
           "1546557493038284840": "random_puzzle.png"
         },
-        "last_card_activity_at": "2026-10-04T15:53:08.316311+00:00",
+        "last_card_activity_at": "2026-10-04T15:53:11.806444+00:00",
         "recent_accepted_moves": [],
         "wrong_attempt_counts": {
-          "442597396195704832": 2
+          "442597396195704832": 3
         },
-        "last_feedback": "❌ **Live from the blunder department, Thice: you spent all that calculation just to blunder with extra paperwork.**\n↪️ **Move played:** `B3`"
+        "last_feedback": "❌ **Thice, congratulations: you made a simple puzzle look like a dissertation on being wrong.**\n↪️ **Move played:** `A3`"
       }
     }
   },
