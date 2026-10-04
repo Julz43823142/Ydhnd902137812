@@ -3949,8 +3949,8 @@
         "url": "https://lichess.org/training/sEHam",
         "title": "Lichess • 1350",
         "fen": "r4rk1/2q1p3/b2p2pp/1pp1n3/4P3/pPbP1NQP/P1PNB1P1/1R3RK1 w - - 0 20",
-        "current_fen": "r4rk1/2q1p3/b2p2pp/1pp1n3/4P3/pPbP1NQP/P1PNB1P1/1R3RK1 w - - 0 20",
-        "last_move_uci": "f7g6",
+        "current_fen": "r4rk1/2q1p3/b2p2pp/1pp1N3/3bP3/pP1P2QP/P1PNB1P1/1R3RK1 w - - 1 21",
+        "last_move_uci": "c3d4",
         "pgn": "Nxe5 Bd4+ Kh1",
         "all_moves": [
           {
@@ -3989,25 +3989,58 @@
         "winner_name": null,
         "latest_attempts": {},
         "puzzle_id": "random_sEHam_1791129220279",
-        "last_activity_at": "2026-10-04T15:53:40.279034+00:00",
+        "last_activity_at": "2026-10-04T15:53:53.160075+00:00",
         "rating": 1350,
         "rp_band": 0,
         "boss": false,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink",
-        "next_solution_index": 0,
-        "next_player_index": 0,
+        "next_solution_index": 2,
+        "next_player_index": 1,
         "solved": false,
-        "message_ids": {},
+        "message_ids": {
+          "1546557493038284840": 1556333549450174554
+        },
         "chat_since_refresh": 0,
-        "attempted_users": {},
-        "first_move_user_id": null,
-        "first_move_user_name": null,
+        "attempted_users": {
+          "442597396195704832": {
+            "name": "Thice",
+            "move": "Nxe5",
+            "correct": true,
+            "timestamp": "2026-10-04T15:53:53.160258+00:00"
+          }
+        },
+        "first_move_user_id": "442597396195704832",
+        "first_move_user_name": "Thice",
         "first_move_awarded": false,
         "helper_awarded_users": [],
         "helper_candidate_users": [],
-        "channel_id": 1546557493038284840
+        "channel_id": 1546557493038284840,
+        "board_attachment_filenames": {
+          "1546557493038284840": "random_puzzle.png"
+        },
+        "last_card_activity_at": "2026-10-04T15:53:53.160075+00:00",
+        "recent_accepted_moves": [
+          {
+            "accepted_at": 1791129233.1602619,
+            "fen_before": "r4rk1/2q1p3/b2p2pp/1pp1n3/4P3/pPbP1NQP/P1PNB1P1/1R3RK1 w - - 0 20",
+            "expected": {
+              "uci": "f3e5",
+              "san": "Nxe5",
+              "color": "white"
+            },
+            "accepted_uci": "f3e5"
+          }
+        ],
+        "accepted_solution_moves": [
+          {
+            "san": "Nxe5",
+            "uci": "f3e5",
+            "principal": true
+          }
+        ],
+        "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Bd4+"
       }
     }
   },
