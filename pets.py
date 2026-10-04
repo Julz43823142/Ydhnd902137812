@@ -126,11 +126,19 @@ def transact(uid, name, txid, mutate, *, wallet=False):
             old = ledger._origin_file(_event_path(txid))
             if old is not None:
                 return copy.deepcopy(owner), json.loads(old)["details"]
+            import pet_history
+            for existing_pet in owner['pets']:
+                pet_history.ensure(existing_pet,uid,name,now=now)
             snapshot, migrated = ledger._origin_state() if wallet else (None, True)
             entry = ledger._normalize_entry(snapshot.get(str(uid), {"name": name})) if wallet else None
             before_owner = copy.deepcopy(owner)
             before_wallet = copy.deepcopy(entry)
             details = mutate(owner, entry, now) or {}
+            previous_levels={p['id']:level(p) for p in before_owner['pets']}
+            for changed_pet in owner['pets']:
+                pet_history.ensure(changed_pet,uid,name,now=now,created=changed_pet['id'] not in previous_levels)
+                if previous_levels.get(changed_pet['id'],0)==0 and level(changed_pet)>0:
+                    pet_history.append(changed_pet,'Hatched',uid,name,now=now)
             payload = {"transaction_id": str(txid), "user_id": str(uid), "created_at": int(now), "details": details}
             files = {FILE: json.dumps(data, ensure_ascii=False, sort_keys=True, indent=2) + "\n",
                      _event_path(txid): json.dumps(payload, ensure_ascii=False) + "\n"}

@@ -5100,11 +5100,8 @@ class TradeInboxView(discord.ui.View):
         self.selected_trade_id = None
         self._rebuild(profile)
         await interaction.edit_original_response(content=pending_trade_message(profile), view=self if _profile_pending_trades(profile) else None)
-        await interaction.followup.send(
-            f"✅ Trade accepted: you received **{shared_format_trade_asset(details['offer'])}** and "
-            f"{details.get('from_name', 'the other player')} received **{shared_format_trade_asset(details['request'])}**.",
-            ephemeral=True,
-        )
+        from market_ui import receipt_embed
+        await interaction.followup.send(embed=receipt_embed(details),ephemeral=True)
 
     async def _decline(self, interaction):
         trade_id = self.selected_trade_id
@@ -5175,14 +5172,8 @@ class TradeDecisionView(discord.ui.View):
             await interaction.followup.send(f"❌ Could not safely accept trade: `{str(error)[:700]}`", ephemeral=True)
             return
         self.stop()
-        await interaction.edit_original_response(
-            content=(
-                "✅ **Trade accepted!**\n"
-                f"{interaction.user.display_name} received **{shared_format_trade_asset(details['offer'])}**.\n"
-                f"{details.get('from_name', 'Other player')} received **{shared_format_trade_asset(details['request'])}**."
-            ),
-            view=None,
-        )
+        from market_ui import receipt_embed
+        await interaction.edit_original_response(content=None,embed=receipt_embed(details),view=None)
 
     async def _decline(self, interaction: discord.Interaction):
         await interaction.response.defer(ephemeral=True)
@@ -5368,6 +5359,9 @@ class DirectTradeTargetView(discord.ui.View):
 
 
 def _open_shop_trade_embed(trade):
+    if trade.get('status') == 'completed' and trade.get('receipt'):
+        from market_ui import receipt_embed
+        return receipt_embed(trade['receipt'])
     status = str(trade.get("status") or "open")
     seller_id = str(trade.get("seller_id") or "")
     seller_name = str(trade.get("seller_name") or "Player")
@@ -5436,6 +5430,7 @@ async def _reconcile_open_shop_trade(trade):
     if not isinstance(details, dict) or not details.get("buyer_user_id"):
         return False
     trade["status"] = "completed"
+    trade["receipt"] = details
     trade["buyer_id"] = str(details.get("buyer_user_id"))
     trade["buyer_name"] = str(details.get("buyer_name") or "Player")
     trade["closed_at"] = time.time()
@@ -5510,6 +5505,7 @@ class OpenShopTradeView(discord.ui.View):
 
             winning_buyer_id = str(details.get("buyer_user_id") or interaction.user.id)
             trade["status"] = "completed"
+            trade["receipt"] = details
             trade["buyer_id"] = winning_buyer_id
             trade["buyer_name"] = str(details.get("buyer_name") or interaction.user.display_name)
             trade["closed_at"] = time.time()
@@ -5668,6 +5664,8 @@ class OpenShopTradeModal(discord.ui.Modal, title="Create Open Trade"):
             ephemeral=True,
         )
 
+
+client.pet_open_trade_modal = OpenShopTradeModal
 
 async def restore_open_shop_trades():
     changed = False
@@ -17340,6 +17338,21 @@ class TradeHomeView(discord.ui.View):
         super().__init__(timeout=600)
         self.user_id = int(user_id)
 
+    @discord.ui.button(label='Wanted Market',emoji='🔎',row=2)
+    async def wanted(self,interaction,button):
+        from market_ui import send_market
+        await send_market(interaction,'wanted')
+
+    @discord.ui.button(label='Pet Shelter',emoji='🏠',row=2)
+    async def shelter(self,interaction,button):
+        from market_ui import send_market
+        await send_market(interaction,'shelter')
+
+    @discord.ui.button(label='Trade Receipts',emoji='🧾',row=2)
+    async def receipts(self,interaction,button):
+        from market_ui import send_receipts
+        await send_receipts(interaction)
+
     async def interaction_check(self, interaction):
         if int(interaction.user.id) != self.user_id:
             await interaction.response.send_message("Open your own Trade menu with `!menu`.", ephemeral=True)
@@ -20189,6 +20202,10 @@ async def on_ready():
         (item for item in channels if int(item.id) == PRIMARY_CHESS_CHANNEL_ID),
         channels[0],
     )
+
+    import economy_reports
+    if not getattr(client, '_economy_report_task', None) or client._economy_report_task.done():
+        client._economy_report_task = asyncio.create_task(economy_reports.loop(primary_channel))
 
     # Only Daily controls the shared bot avatar; Guess/Survival must not race it.
     seasonal_profile = SeasonalBotProfile(

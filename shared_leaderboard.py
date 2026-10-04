@@ -859,6 +859,8 @@ def _commit_snapshot(base_commit, files, message):
 
 
 def _push_files(files, message):
+    import economy_analytics
+    economy_analytics.observe(files, message)
     from repository_transaction import current
     transaction = current()
     if transaction is not None:
@@ -2265,7 +2267,14 @@ def _settle_trade_assets(first, second, first_uid, second_uid, offer, request, p
     files = {}
     if pet_data is not None:
         import pet_trading
-        files = pet_trading.settle(pet_data, first_uid, second_uid, offer, request)
+        import pets
+        for uid,asset in ((first_uid,offer),(second_uid,request)):
+            if asset['type']=='pet':
+                owner=pets._owner(pet_data,uid,time.time())
+                asset['label']=pet_trading.label(pet_trading.ensure_tradable(owner,asset['pet_id']))
+        files = pet_trading.settle(pet_data, first_uid, second_uid, offer, request,
+                                  names={str(first_uid):first.get('name',str(first_uid)),
+                                         str(second_uid):second.get('name',str(second_uid))})
     for source, target, asset in ((first, second, offer), (second, first, request)):
         if asset["type"] != "pet":
             _move_asset(source, target, asset)
@@ -2567,6 +2576,7 @@ def accept_trade(recipient_user_id, recipient_name, transaction_id, pending_trad
             snapshot[sender_uid] = sender_entry
             snapshot[recipient_uid] = recipient_entry
             details = {
+                "receipt_id":str(transaction_id), "completed_at":int(time.time()),
                 "trade_id": pending["trade_id"], "from_user_id": sender_uid,
                 "from_name": pending.get("from_name", sender_entry.get("name", "Unknown")),
                 "recipient_user_id": recipient_uid, "recipient_name": recipient_entry.get("name", recipient_name),
@@ -2627,7 +2637,7 @@ def get_open_trade_acceptance(open_trade_id):
         if not isinstance(event, dict) or str(event.get("operation") or "") != "open-trade-accept":
             return None
         details = event.get("details")
-        return dict(details) if isinstance(details, dict) else None
+        return {**details,"receipt_id":event["transaction_id"],"completed_at":event["created_at"]} if isinstance(details, dict) else None
 
 def accept_open_trade(seller_user_id, seller_name, buyer_user_id, buyer_name, offer, request, transaction_id, open_trade_id=None):
     """Atomically settle a public/open trade between seller and the first eligible buyer.
@@ -2673,6 +2683,7 @@ def accept_open_trade(seller_user_id, seller_name, buyer_user_id, buyer_name, of
             snapshot[buyer_uid] = buyer_entry
 
             details = {
+                "receipt_id":str(transaction_id), "completed_at":int(time.time()),
                 "open_trade_id": str(open_trade_id or ""),
                 "seller_user_id": seller_uid,
                 "seller_name": str(seller_name),

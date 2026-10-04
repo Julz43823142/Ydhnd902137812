@@ -102,7 +102,7 @@ class PetNavigation(unittest.IsolatedAsyncioTestCase):
             await pet_ui.send_interaction_profile(interaction, 99)
         view = interaction.followup.send.call_args.kwargs['view']
         self.assertIsInstance(view, pet_ui.PublicPetView)
-        self.assertTrue(all(getattr(item, 'label', '') in {'Refresh collection', 'Memorial'} for item in view.children))
+        self.assertTrue(all(getattr(item, 'label', '') in {'Refresh collection', 'Memorial', 'Owner History'} for item in view.children))
         view.stop()
 
     async def test_profile_header_is_inside_embed_and_collection_stays_behind_button(self):

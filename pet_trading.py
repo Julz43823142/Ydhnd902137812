@@ -64,9 +64,10 @@ def available(data, uid, asset):
         return False
 
 
-def settle(data, first_uid, second_uid, offer, request):
+def settle(data, first_uid, second_uid, offer, request, *, names=None):
     """Validate the final capacities before moving either pet or any payment."""
     now = time.time()
+    names = names or {}
     owners = {str(uid): pets._owner(data, uid, now) for uid in (first_uid, second_uid)}
     outgoing = {}
     for uid, asset in ((str(first_uid), offer), (str(second_uid), request)):
@@ -87,6 +88,9 @@ def settle(data, first_uid, second_uid, offer, request):
     for uid, other in ((str(first_uid), str(second_uid)), (str(second_uid), str(first_uid))):
         if uid in outgoing:
             pet = copy.deepcopy(outgoing[uid])
+            import pet_history
+            pet_history.ensure(pet,uid,names.get(uid),now=now)
+            pet_history.append(pet,'Traded',other,names.get(other),now=now)
             # Accessory unlocks belong to their owner and are not part of a pet trade.
             pet.pop('accessory', None)
             owners[other]['pets'].append(pet)
