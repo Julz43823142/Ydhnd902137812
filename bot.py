@@ -267,18 +267,17 @@ def remote_survival_status(channel_id=None):
 
     try:
         branch = os.getenv("GITHUB_REF_NAME", "main")
-        subprocess.run(
-            ["git", "fetch", "origin", branch],
-            capture_output=True,
-            text=True,
-            timeout=8,
-        )
-        result = subprocess.run(
-            ["git", "show", f"origin/{branch}:survival_runs.json"],
-            capture_output=True,
-            text=True,
-            timeout=8,
-        )
+        def fetch():
+            return subprocess.run(
+                ["git", "fetch", "origin", branch], capture_output=True, text=True, timeout=8,
+            ).returncode == 0
+        with shared_ledger.REPOSITORY_LOCK:
+            if not shared_ledger.refresh_for_read(fetch):
+                raise RuntimeError("Survival state could not be refreshed")
+            result = subprocess.run(
+                ["git", "show", f"origin/{branch}:survival_runs.json"],
+                capture_output=True, text=True, timeout=8,
+            )
         if result.returncode != 0:
             raise RuntimeError("survival_runs.json not available remotely")
         data = json.loads(result.stdout)
@@ -2515,49 +2514,24 @@ def fetch_random_puzzle(force_band=None):
         )
 
         try:
-            count = int(
-                con.execute(
-                    "SELECT COUNT(*) FROM puzzles WHERE band = ?",
-                    (band,),
-                ).fetchone()[0]
-            )
-
-            if count <= 0:
-                raise RuntimeError(
-                    f"Offline RP band {minimum}-{maximum} is empty."
-                )
-
+            from rp_pool import band_row_ids
+            row_ids = band_row_ids(RP_POOL_FILE, band)
+            if not row_ids:
+                raise RuntimeError(f"Offline RP band {minimum}-{maximum} is empty.")
             row = None
             recent = set(_rp_recent_ids[-1000:])
-
-            # A 50k band makes a repeat extremely unlikely, but retry a few
-            # offsets so recently used puzzles are explicitly avoided.
             for _ in range(12):
-                offset = random.randrange(count)
                 candidate = con.execute(
-                    """
-                    SELECT puzzle_id, fen, moves, rating, band
-                    FROM puzzles
-                    WHERE band = ?
-                    LIMIT 1 OFFSET ?
-                    """,
-                    (band, offset),
+                    "SELECT puzzle_id, fen, moves, rating, band FROM puzzles WHERE rowid = ? AND band = ?",
+                    (row_ids[random.randrange(len(row_ids))], band),
                 ).fetchone()
-
                 if candidate and str(candidate[0]) not in recent:
                     row = candidate
                     break
-
             if row is None:
-                offset = random.randrange(count)
                 row = con.execute(
-                    """
-                    SELECT puzzle_id, fen, moves, rating, band
-                    FROM puzzles
-                    WHERE band = ?
-                    LIMIT 1 OFFSET ?
-                    """,
-                    (band, offset),
+                    "SELECT puzzle_id, fen, moves, rating, band FROM puzzles WHERE rowid = ? AND band = ?",
+                    (row_ids[random.randrange(len(row_ids))], band),
                 ).fetchone()
 
         finally:
@@ -3977,12 +3951,8 @@ async def make_board_file(
         arrows=arrows,
     )
 
-    png_bytes = await asyncio.to_thread(
-        cairosvg.svg2png,
-        bytestring=svg_board.encode(
-            "utf-8"
-        )
-    )
+    from showcase_cards import render_svg_png
+    png_bytes = await asyncio.to_thread(render_svg_png, svg_board)
 
     image = BytesIO(
         png_bytes
@@ -6193,10 +6163,8 @@ async def _make_chess_review_file(game, ply_index, filename="chess_review.png"):
         lastmove=last_move,
         arrows=arrows,
     )
-    png = await asyncio.to_thread(
-        cairosvg.svg2png,
-        bytestring=svg.encode("utf-8"),
-    )
+    from showcase_cards import render_svg_png
+    png = await asyncio.to_thread(render_svg_png, svg)
     return discord.File(fp=BytesIO(png), filename=filename)
 
 
@@ -6537,7 +6505,7 @@ def _current_game_last_move(game):
     return last_move
 
 
-async def make_chess_game_file(game, filename="chess_game.png"):
+async def make_chess_game_file(game, filename="chess_game.png", cosmetic_profile=None):
     board = _chess_board_from_game(game)
     owner_id = game.get("theme_owner_id")
     owner_name = game.get("theme_owner_name", "Player")
@@ -6546,11 +6514,9 @@ async def make_chess_game_file(game, filename="chess_game.png"):
     arrow_theme = DEFAULT_ARROW_COLOR
     if owner_id:
         try:
-            profile = await asyncio.to_thread(
-                get_cosmetic_profile,
-                owner_id,
-                owner_name,
-            )
+            profile = cosmetic_profile
+            if profile is None:
+                profile = await asyncio.to_thread(get_cosmetic_profile, owner_id, owner_name)
             board_theme = profile.get("active_board", "classic")
             piece_theme = profile.get("active_piece", "classic")
             arrow_theme = profile.get("active_arrow", DEFAULT_ARROW_COLOR)
@@ -6578,17 +6544,42 @@ async def make_chess_game_file(game, filename="chess_game.png"):
         lastmove=last_move,
         arrows=arrows,
     )
-    png = await asyncio.to_thread(
-        cairosvg.svg2png,
-        bytestring=svg.encode("utf-8"),
-    )
+    from showcase_cards import render_svg_png
+    png = await asyncio.to_thread(render_svg_png, svg)
     return discord.File(fp=BytesIO(png), filename=filename), board
 
 
 
-async def send_chess_game_position(channel, game, note=None, *, move_to_bottom=False):
+async def _known_channel_message(channel, message_id):
+    """An ID is sufficient for edits/deletes; avoid an extra Discord GET."""
+    partial = getattr(channel, 'get_partial_message', None)
+    return partial(int(message_id)) if callable(partial) else await channel.fetch_message(int(message_id))
+
+
+_puzzle_card_images = {}
+
+
+def _remember_puzzle_card_image(channel_id, message):
+    """Short-lived public attachment URLs avoid GETs for text-only feedback."""
+    embeds = getattr(message, 'embeds', None)
+    message_id = getattr(message, 'id', None)
+    if isinstance(embeds, list) and embeds and isinstance(message_id, int):
+        url = embeds[0].image.url
+        if isinstance(url, str) and url.startswith('https://'):
+            key = (int(channel_id), message_id)
+            _puzzle_card_images[key] = (url, time.monotonic())
+            while len(_puzzle_card_images) > 128:
+                del _puzzle_card_images[next(iter(_puzzle_card_images))]
+
+
+def _cached_puzzle_card_image(channel_id, message_id):
+    value = _puzzle_card_images.get((int(channel_id), int(message_id)))
+    return value[0] if value and time.monotonic() - value[1] < 300 else None
+
+
+async def send_chess_game_position(channel, game, note=None, *, move_to_bottom=False, cosmetic_profile=None):
     """Create or refresh the one public board card for a chess game."""
-    file, board = await make_chess_game_file(game)
+    file, board = await make_chess_game_file(game, cosmetic_profile=cosmetic_profile)
     variant = _game_variant(game)
     white_rating = game.get("white_rating")
     black_rating = game.get("black_rating")
@@ -6669,7 +6660,7 @@ async def send_chess_game_position(channel, game, note=None, *, move_to_bottom=F
                 except Exception:
                     fetch_channel = channel
         try:
-            old_message = await fetch_channel.fetch_message(int(old_message_id))
+            old_message = await _known_channel_message(fetch_channel, old_message_id)
         except discord.NotFound:
             old_message = None
             game["message_id"] = None
@@ -6683,6 +6674,7 @@ async def send_chess_game_position(channel, game, note=None, *, move_to_bottom=F
                 return old_message
             except discord.NotFound:
                 game["message_id"] = None
+                file, board = await make_chess_game_file(game, cosmetic_profile=cosmetic_profile)
             except Exception as error:
                 # A temporary Discord edit failure must not create duplicate boards.
                 print(f"Could not edit chess game card in place; no duplicate posted: {error}", flush=True)
@@ -6705,7 +6697,7 @@ async def send_chess_game_position(channel, game, note=None, *, move_to_bottom=F
                 cleanup_channel = client.get_channel(old_channel_id)
                 if cleanup_channel is None:
                     cleanup_channel = await client.fetch_channel(old_channel_id)
-            old_message = await cleanup_channel.fetch_message(int(old_message_id))
+            old_message = await _known_channel_message(cleanup_channel, old_message_id)
             await old_message.delete()
         except discord.NotFound:
             pass
@@ -6989,10 +6981,16 @@ async def perform_bot_turn(channel, game, opening=False):
         return
 
     try:
-        move = await asyncio.to_thread(
-            choose_bot_move,
-            board.copy(stack=True),
-            int(game.get("bot_rating", 1500)),
+        async def cosmetics():
+            if not game.get('theme_owner_id'):
+                return {}
+            try:
+                return await asyncio.to_thread(get_cosmetic_profile, game['theme_owner_id'], game.get('theme_owner_name', 'Player'))
+            except Exception:
+                return {}
+        move, profile = await asyncio.gather(
+            asyncio.to_thread(choose_bot_move, board.copy(stack=True), int(game.get("bot_rating", 1500))),
+            cosmetics(),
         )
     except StockfishUnavailableError as error:
         await channel.send(
@@ -7027,7 +7025,7 @@ async def perform_bot_turn(channel, game, opening=False):
     saved_start_note = game.pop("start_note", None) if opening else None
     if saved_start_note:
         note = saved_start_note + "\n\n" + note
-    await send_chess_game_position(channel, game, note, move_to_bottom=True)
+    await send_chess_game_position(channel, game, note, move_to_bottom=True, cosmetic_profile=profile)
 
 
 async def start_bot_game(message, requested_rating=None, variant=CHESS_VARIANT_STANDARD):
@@ -11065,6 +11063,7 @@ async def post_daily_puzzle(
         allowed_mentions=discord.AllowedMentions.none(),
     )
     _set_puzzle_message_id_for_channel(puzzle, channel.id, posted.id)
+    _remember_puzzle_card_image(channel.id, posted)
     puzzle["chat_since_refresh"] = 0
 
     print(
@@ -11108,22 +11107,21 @@ async def prepare_interactive_puzzle_start(channel, owner, label="Puzzle"):
 # POST RANDOM PUZZLE
 # =========================================================
 
+async def warm_random_puzzle_pool():
+    def warm():
+        from rp_pool import band_row_ids
+        for band in range(len(RP_BANDS)):
+            band_row_ids(RP_POOL_FILE, band)
+    try:
+        await asyncio.to_thread(warm)
+    except Exception as error:
+        print(f"RP pool warmup unavailable: {type(error).__name__}", flush=True)
+
+
 async def post_random_puzzle(
     channel,
     owner=None,
 ):
-    if not await prepare_interactive_puzzle_start(channel, owner, "Random Puzzle"):
-        return False
-    survival_active, survival_team = await async_remote_survival_status(channel.id)
-
-    if survival_active:
-        team = survival_team or active_team(channel.id) or "another team"
-        await channel.send(
-            f"⚠️ **Survival Mode is active for {team}.** "
-            "Random Puzzle is unavailable until Survival is paused."
-        )
-        return
-
     channel_rp_lock = _rp_command_lock_for_channel(channel.id)
     if channel_rp_lock.locked():
         await channel.send(
@@ -11132,6 +11130,8 @@ async def post_random_puzzle(
         return False
 
     async with channel_rp_lock:
+        if not await prepare_interactive_puzzle_start(channel, owner, "Random Puzzle"):
+            return False
         try:
             boss = random.random() < BOSS_PUZZLE_CHANCE
 
@@ -11263,6 +11263,7 @@ async def post_random_puzzle(
             )
 
             _set_puzzle_message_id_for_channel(puzzle, channel.id, message.id)
+            _remember_puzzle_card_image(channel.id, message)
             save_json(STATE_FILE, state)
 
             print(
@@ -15203,20 +15204,12 @@ async def finalize_expired_puzzle(
             channel,
             puzzle,
             close_text,
+            render_board=False,
         )
     except Exception as error:
         print(f"Could not finalize puzzle card in place: {error}", flush=True)
 
-    save_json(
-        STATE_FILE,
-        state
-    )
-
-    asyncio.create_task(
-        asyncio.to_thread(
-            push_to_github
-        )
-    )
+    await save_all()
 
 
 # =========================================================
@@ -15938,8 +15931,9 @@ async def update_random_puzzle_message(
     card_view = None if puzzle.get("answer_posted") or puzzle.get("solved") else PuzzleMoveToBottomView()
 
     if message_id and not move_to_bottom:
+        cached_url = _cached_puzzle_card_image(channel.id, message_id)
         try:
-            old_message = await channel.fetch_message(int(message_id))
+            old_message = await _known_channel_message(channel, message_id) if file is not None or cached_url else await channel.fetch_message(int(message_id))
         except discord.NotFound:
             old_message = None
             _set_puzzle_message_id_for_channel(puzzle, channel.id, None)
@@ -15950,16 +15944,21 @@ async def update_random_puzzle_message(
         if old_message is not None:
             try:
                 if file is None:
-                    if old_message.embeds and old_message.embeds[0].image.url:
+                    if cached_url:
+                        embed.set_image(url=cached_url)
+                    elif old_message.embeds and old_message.embeds[0].image.url:
                         embed.set_image(url=old_message.embeds[0].image.url)
-                    await old_message.edit(embed=embed, view=card_view)
+                    updated = await old_message.edit(embed=embed, view=card_view)
                 else:
-                    await old_message.edit(embed=embed, attachments=[file], view=card_view)
+                    updated = await old_message.edit(embed=embed, attachments=[file], view=card_view)
+                _remember_puzzle_card_image(channel.id, updated)
                 if mirror_daily:
                     await _mirror_daily_puzzle_card(channel, puzzle, move_to_bottom=False)
                 return old_message
             except discord.NotFound:
                 _set_puzzle_message_id_for_channel(puzzle, channel.id, None)
+                # Failed uploads can close their file stream; recreate before send.
+                file = None
             except Exception as error:
                 print(f"Could not edit RP/Practice card in place; no duplicate posted: {error}", flush=True)
                 return old_message
@@ -15974,11 +15973,12 @@ async def update_random_puzzle_message(
     )
     old_message_id = message_id
     _set_puzzle_message_id_for_channel(puzzle, channel.id, sent.id)
+    _remember_puzzle_card_image(channel.id, sent)
     puzzle["chat_since_refresh"] = 0
 
     if move_to_bottom and old_message_id and int(old_message_id) != int(sent.id):
         try:
-            old_message = await channel.fetch_message(int(old_message_id))
+            old_message = await _known_channel_message(channel, old_message_id)
             await old_message.delete()
         except Exception as error:
             print(f"Could not remove old RP/Practice card: {error}", flush=True)
@@ -19896,43 +19896,6 @@ async def on_message(
             "r",
         ):
 
-            await settle_recent_survival_stop(message.channel.id)
-
-            if survival_guard_active(message.channel.id):
-                await message.channel.send(
-                    "⏳ **Survival is starting.** Try `rp` again in a moment "
-                    "if no Survival run appears."
-                )
-                return
-
-            survival_active, survival_team = await verified_survival_status(message.channel.id)
-            if survival_active:
-                team = survival_team or "another team"
-                await message.channel.send(
-                    f"⚠️ **Survival Mode is active for {team}.** "
-                    "Random Puzzle is unavailable until Survival is paused."
-                )
-                return
-
-            previous_random = _latest_random_for_channel(message.channel.id)
-
-            if (
-                previous_random
-                and not previous_random.get(
-                    "answer_posted",
-                    False
-                )
-                and not previous_random.get(
-                    "solved",
-                    False
-                )
-            ):
-                await finalize_expired_puzzle(
-                    message.channel,
-                    previous_random,
-                    "random"
-                )
-
             await post_random_puzzle(
                 message.channel,
                 message.author,
@@ -20253,6 +20216,7 @@ async def on_ready():
         return
 
     asyncio.create_task(survival_status_refresh_loop())
+    asyncio.create_task(warm_random_puzzle_pool())
 
     primary_channel = next(
         (item for item in channels if int(item.id) == PRIMARY_CHESS_CHANNEL_ID),

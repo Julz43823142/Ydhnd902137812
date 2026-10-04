@@ -1,7 +1,7 @@
 """Permanent pets, committed through the shared ledger's Git transaction lock.
 
 Pets live in a separate snapshot: older profile writers cannot drop pet fields.
-Only an egg purchase writes the wallet and pet snapshot together. Public views
+Wallet-changing pet actions commit the wallet and pet snapshot together. Public views
 never disclose an egg's preselected species or rarity.
 """
 from __future__ import annotations
@@ -25,6 +25,7 @@ FILE = "pets_state.json"
 EVENT_DIR = "pet_events"
 ZONE = ZoneInfo("Europe/Amsterdam")
 EGG_COST = 10.0
+MURDER_COST_POINTS = 10.0
 MAX_LIVING = 10
 DAY = 86400
 SPECIES = {
@@ -196,6 +197,24 @@ def buy_egg(uid, name, txid):
                               "xp": 0, "born_at": now, "fed_at": now, "happiness": 80, "happy_at": now})
         owner["active"] = pet_id
         return {"pet_id": pet_id, "spent": EGG_COST}
+    return transact(uid, name, txid, mutate, wallet=True)
+
+
+def murder(uid, name, pet_id, txid):
+    """Permanently kill the owner's selected pet; spend points, never coins."""
+    def mutate(owner, entry, now):
+        pet = _living(owner, pet_id)
+        if entry['points'] < MURDER_COST_POINTS:
+            raise ValueError('Murder costs 10 points. You do not have enough points.')
+        entry['points'] = round(entry['points'] - MURDER_COST_POINTS, 3)
+        pet.update(died_at=now, death_cause='murder', killed_by=str(uid))
+        expedition = owner.get('expedition', {})
+        failed = expedition.get('status') == 'running' and expedition.get('pet_id') == pet_id
+        if failed:
+            expedition['status'] = 'failed'
+        expire(owner, now)
+        return {'murdered': pet_id, 'spent_points': MURDER_COST_POINTS,
+                'pet': copy.deepcopy(pet), 'expedition_failed': failed}
     return transact(uid, name, txid, mutate, wallet=True)
 
 
