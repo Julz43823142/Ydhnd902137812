@@ -282,7 +282,7 @@
         "xp": 25
       },
       {
-        "activity_xp": 5,
+        "activity_xp": 10,
         "born_at": 1791108685.6424184,
         "fed_at": 1791108692.2947786,
         "feed_day": "2026-10-04",
@@ -304,7 +304,7 @@
         "puzzle_day": "2026-10-04",
         "rarity": "uncommon",
         "species": "Penguin",
-        "xp": 30,
+        "xp": 35,
         "xp_day": "2026-10-04"
       }
     ]
