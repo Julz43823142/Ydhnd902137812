@@ -291,9 +291,9 @@
         "name": "",
         "puzzle": {
           "day": "2026-10-04",
-          "fen": "r1b1k2r/4bppp/p3pq2/3p4/7n/2N5/PPP3PP/R1BQRB1K w kq - 0 16",
+          "fen": "r1b1k2r/4bppp/p4q2/3p4/7n/8/PPP3PP/R1BQRB1K w kq - 0 17",
           "id": "hREit",
-          "index": 0,
+          "index": 2,
           "moves": [
             "c3d5",
             "e6d5",
