@@ -3938,118 +3938,70 @@
   },
   "channel_puzzle_state": {
     "1546557493038284840": {
-      "latest_puzzle_type": "daily",
+      "latest_puzzle_type": "random",
       "latest_random_puzzle": {
-        "url": "https://lichess.org/training/mbLnW",
-        "title": "Lichess • 1403",
-        "fen": "2N3k1/7p/2r3p1/8/8/4n2P/3R2P1/6K1 w - - 1 45",
-        "current_fen": "5k2/7p/2N3p1/8/8/4n2P/3R2P1/6K1 b - - 0 46",
-        "last_move_uci": "e7c6",
-        "pgn": "Ne7+ Kf8 Nxc6",
+        "url": "https://lichess.org/training/mKxJr",
+        "title": "Lichess • 2316",
+        "fen": "6kr/p1pq1ppp/3r1b2/2pB4/2Pp4/1P3Q2/P3RPPP/R5K1 w - - 3 27",
+        "current_fen": "6kr/p1pq1ppp/3r1b2/2pB4/2Pp4/1P3Q2/P3RPPP/R5K1 w - - 3 27",
+        "last_move_uci": "b6d6",
+        "pgn": "Rae1 g6 Re7",
         "all_moves": [
           {
-            "uci": "c8e7",
-            "san": "Ne7+",
+            "uci": "a1e1",
+            "san": "Rae1",
             "color": "white"
           },
           {
-            "uci": "g8f8",
-            "san": "Kf8",
+            "uci": "g7g6",
+            "san": "g6",
             "color": "black"
           },
           {
-            "uci": "e7c6",
-            "san": "Nxc6",
+            "uci": "e2e7",
+            "san": "Re7",
             "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "c8e7",
-            "san": "Ne7+",
+            "uci": "a1e1",
+            "san": "Rae1",
             "color": "white"
           },
           {
-            "uci": "e7c6",
-            "san": "Nxc6",
+            "uci": "e2e7",
+            "san": "Re7",
             "color": "white"
           }
         ],
         "player_color": "white",
         "player_move_count": 2,
-        "posted_at": "2026-10-04T12:30:35.329866+00:00",
-        "answer_posted": true,
+        "posted_at": "2026-10-04T12:48:37.672243+00:00",
+        "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "random_mbLnW_1791117035329",
-        "last_activity_at": "2026-10-04T12:30:51.501973+00:00",
-        "rating": 1403,
-        "rp_band": 0,
+        "puzzle_id": "random_mKxJr_1791118117672",
+        "last_activity_at": "2026-10-04T12:48:37.672243+00:00",
+        "rating": 2316,
+        "rp_band": 3,
         "boss": false,
-        "board_theme": "classic",
+        "board_theme": "blue",
         "piece_theme": "classic",
-        "arrow_theme": "purple",
-        "next_solution_index": 3,
-        "next_player_index": 2,
-        "solved": true,
-        "message_ids": {
-          "1546557493038284840": 1556282455961505802
-        },
+        "arrow_theme": "pink",
+        "next_solution_index": 0,
+        "next_player_index": 0,
+        "solved": false,
+        "message_ids": {},
         "chat_since_refresh": 0,
-        "attempted_users": {
-          "362606514764251137": {
-            "name": "Sharkmeister",
-            "move": "Nxc6",
-            "correct": true,
-            "timestamp": "2026-10-04T12:30:51.502147+00:00"
-          }
-        },
-        "first_move_user_id": "362606514764251137",
-        "first_move_user_name": "Sharkmeister",
-        "first_move_awarded": true,
+        "attempted_users": {},
+        "first_move_user_id": null,
+        "first_move_user_name": null,
+        "first_move_awarded": false,
         "helper_awarded_users": [],
         "helper_candidate_users": [],
-        "channel_id": 1546557493038284840,
-        "last_card_activity_at": "2026-10-04T12:30:51.501973+00:00",
-        "recent_accepted_moves": [
-          {
-            "accepted_at": 1791117046.1981862,
-            "fen_before": "2N3k1/7p/2r3p1/8/8/4n2P/3R2P1/6K1 w - - 1 45",
-            "expected": {
-              "uci": "c8e7",
-              "san": "Ne7+",
-              "color": "white"
-            },
-            "accepted_uci": "c8e7"
-          },
-          {
-            "accepted_at": 1791117051.5021842,
-            "fen_before": "5k2/4N2p/2r3p1/8/8/4n2P/3R2P1/6K1 w - - 3 46",
-            "expected": {
-              "uci": "e7c6",
-              "san": "Nxc6",
-              "color": "white"
-            },
-            "accepted_uci": "e7c6"
-          }
-        ],
-        "accepted_solution_moves": [
-          {
-            "san": "Ne7+",
-            "uci": "c8e7",
-            "principal": true
-          },
-          {
-            "san": "Nxc6",
-            "uci": "e7c6",
-            "principal": true
-          }
-        ],
-        "last_feedback": "🎉 **Puzzle solved!**\n\n✅ **Correct, Sharkmeister!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **78.5 points.**\n🔥 **Daily Activity Bonus: +10 coins**\n\n💡 **Solution:** Ne7+ Nxc6\n\n🏆 **Your ranking**\n**#2 🍅 TheMakina — 1552 points**\n**#3 👾 Sharkmeister — 78.5 points ← you**\n**#4 🦞 Chessmass — 30 points**",
-        "activity_bonus_users": [
-          "362606514764251137"
-        ]
+        "channel_id": 1546557493038284840
       }
     }
   },
