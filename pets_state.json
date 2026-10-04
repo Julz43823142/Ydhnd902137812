@@ -34,17 +34,17 @@
     ],
     "active": "eee0c5787c154765833526fd6002f367",
     "expedition": {
-      "end": 1791093511.8138034,
-      "hours": 12,
-      "id": "pet-tools:1556002526334034021:442597396195704832",
-      "pet_id": "4cd600c103e243199044b0bad020a593",
+      "end": 1791130156.917684,
+      "hours": 6,
+      "id": "pet-tools:1556246823532757043:442597396195704832",
+      "pet_id": "eee0c5787c154765833526fd6002f367",
       "reward": {
-        "accessory": "glasses",
-        "coins": 6,
-        "xp": 50
+        "accessory": null,
+        "coins": 3,
+        "xp": 25
       },
-      "start": 1791050311.8138034,
-      "status": "claimed"
+      "start": 1791108556.917684,
+      "status": "running"
     },
     "pets": [
       {
