@@ -289,6 +289,17 @@
         "happy_at": 1791108685.6424184,
         "id": "a694b65e5fd547a48c21a63fe10808a2",
         "name": "",
+        "puzzle": {
+          "day": "2026-10-04",
+          "fen": "r1b1k2r/4bppp/p3pq2/3p4/7n/2N5/PPP3PP/R1BQRB1K w kq - 0 16",
+          "id": "hREit",
+          "index": 0,
+          "moves": [
+            "c3d5",
+            "e6d5",
+            "d1d5"
+          ]
+        },
         "rarity": "uncommon",
         "species": "Penguin",
         "xp": 5
