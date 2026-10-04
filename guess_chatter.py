@@ -1503,7 +1503,8 @@ def guess_cosmetic_preview_file(
     svg = guess_render_custom_board_svg(
         board, board_theme, piece_theme, 500, lastmove=last_move, arrows=arrows
     )
-    png = cairosvg.svg2png(bytestring=svg.encode("utf-8"))
+    from showcase_cards import render_svg_png
+    png = render_svg_png(svg)
     return discord.File(BytesIO(png), filename=filename)
 
 

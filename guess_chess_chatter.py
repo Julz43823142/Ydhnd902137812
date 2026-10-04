@@ -647,11 +647,8 @@ def make_board_file(
         arrows=arrows
     )
 
-    png = cairosvg.svg2png(
-        bytestring=svg.encode(
-            "utf-8"
-        )
-    )
+    from showcase_cards import render_svg_png
+    png = render_svg_png(svg)
 
     return (
         discord.File(

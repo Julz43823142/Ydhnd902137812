@@ -1505,13 +1505,8 @@ def render_board(
 def awaitable_svg_to_png(
     svg
 ):
-    import cairosvg
-
-    return cairosvg.svg2png(
-        bytestring=svg.encode(
-            "utf-8"
-        )
-    )
+    from showcase_cards import render_svg_png
+    return render_svg_png(svg)
 
 
 class SurvivalPuzzleMoveView(discord.ui.View):

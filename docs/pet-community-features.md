@@ -20,6 +20,14 @@ The existing midnight announcement loop includes the free claim reminder during 
 
 Profile pet artwork uses a portrait thumbnail beside the header and a compact name/species/rarity/level field. Follow-up pages keep the viewed user ID. Public pet controls remain read-only.
 
+## Permanent pet murder
+
+The owner's Pet Card includes **Kill**. It opens a private, owner-only **Murder · 10 points** confirmation, bound to that selected pet even if the active pet changes. Cancel spends nothing. Confirmation permanently kills the pet and deducts exactly 10 **points**, with coins unchanged. Insufficient points, foreign pets and pets already dead are rejected without charge.
+
+Death, point deduction, expedition failure and the immutable transaction marker commit atomically. Uncertain push acknowledgements and repeated clicks cannot charge twice. The pet remains in the Memorial, marked **Murdered by owner**; another living pet becomes active when necessary. Its running expedition fails without rewards. Unhatched eggs never reveal their hidden species/rarity.
+
+After a confirmed transaction, the bot posts a public **Pet Murder** announcement in the channel, naming the player and pet species and attaching that pet's card artwork. Only the confirmation/receipt is private. If posting fails, the private receipt accurately reports that the death and deduction already happened; it does not retry the transaction or announce an unconfirmed death.
+
 ## Accessories and expeditions
 
 Crown 30 coins, Glasses 15, Bandana 15, Hat 25, Necklace 20, Bow 15. Permanent account unlocks can be worn by any owned hatched pet, one at a time. No bonuses. `pet_accessories.py` keeps the catalog/art layers separate from the card renderer so artwork can be replaced later.

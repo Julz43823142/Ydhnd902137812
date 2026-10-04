@@ -208,6 +208,9 @@ class StockfishUnavailableError(RuntimeError):
 
 
 _STOCKFISH_LOCK = threading.RLock()
+_STOCKFISH_ANALYSIS_LOCK = threading.RLock()
+_STOCKFISH_STARTUP_LOCK = threading.RLock()
+_STOCKFISH_ANALYSIS_ENGINE = None
 _STOCKFISH_ENGINE = None
 _STOCKFISH_PATH = None
 _STOCKFISH_INSTALL_ATTEMPTED = False
@@ -419,9 +422,10 @@ def _close_stockfish_engine():
 atexit.register(_close_stockfish_engine)
 
 
-def _open_stockfish_engine():
-    global _STOCKFISH_ENGINE
-    path = _resolve_stockfish_binary()
+def _create_stockfish_engine():
+    # Binary discovery/auto-install is shared, engine commands are independent.
+    with _STOCKFISH_STARTUP_LOCK:
+        path = _resolve_stockfish_binary()
     try:
         engine = chess.engine.SimpleEngine.popen_uci(path, timeout=15.0)
     except Exception as error:
@@ -463,8 +467,41 @@ def _open_stockfish_engine():
         max_hash = int(option.max or STOCKFISH_HASH_MB)
         config["Hash"] = min(max(STOCKFISH_HASH_MB, min_hash), max_hash)
     engine.configure(config)
-    _STOCKFISH_ENGINE = engine
     return engine
+
+
+def _open_stockfish_engine():
+    global _STOCKFISH_ENGINE
+    _STOCKFISH_ENGINE = _create_stockfish_engine()
+    return _STOCKFISH_ENGINE
+
+
+def _close_analysis_engine():
+    global _STOCKFISH_ANALYSIS_ENGINE
+    with _STOCKFISH_ANALYSIS_LOCK:
+        engine, _STOCKFISH_ANALYSIS_ENGINE = _STOCKFISH_ANALYSIS_ENGINE, None
+        if engine is not None:
+            try:
+                engine.quit()
+            except Exception:
+                try:
+                    engine.close()
+                except Exception:
+                    pass
+
+
+atexit.register(_close_analysis_engine)
+
+
+def _get_analysis_engine():
+    global _STOCKFISH_ANALYSIS_ENGINE
+    if _STOCKFISH_ANALYSIS_ENGINE is not None:
+        returncode = getattr(_STOCKFISH_ANALYSIS_ENGINE, 'returncode', None)
+        if returncode is not None and returncode.done():
+            _close_analysis_engine()
+    if _STOCKFISH_ANALYSIS_ENGINE is None:
+        _STOCKFISH_ANALYSIS_ENGINE = _create_stockfish_engine()
+    return _STOCKFISH_ANALYSIS_ENGINE
 
 
 def _get_stockfish_engine():
@@ -873,8 +910,8 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
             return [item for item in result if isinstance(item, dict)]
         return [result] if isinstance(result, dict) else []
 
-    with _STOCKFISH_LOCK:
-        engine = _get_stockfish_engine()
+    with _STOCKFISH_ANALYSIS_LOCK:
+        engine = _get_analysis_engine()
         if bool(getattr(board, "chess960", False)) and "UCI_Chess960" not in engine.options:
             raise StockfishUnavailableError("This Stockfish build does not expose UCI_Chess960.")
         engine.configure(_full_strength_config(engine))

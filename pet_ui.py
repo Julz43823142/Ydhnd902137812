@@ -282,7 +282,7 @@ class PetView(discord.ui.View):
         living = pet is not None and not pet.get("died_at")
         today = pets.day_key(time.time())
         for button in self.children:
-            if getattr(button, "label", "") in {"Feed", "Pet Puzzle", "Rename", "Make Active", "Submit Move"}:
+            if getattr(button, "label", "") in {"Feed", "Pet Puzzle", "Rename", "Make Active", "Submit Move", "Kill"}:
                 button.disabled = not living
                 if button.label == "Submit Move" and living:
                     button.disabled = (pet.get("puzzle", {}).get("day") != today
@@ -310,7 +310,8 @@ class PetView(discord.ui.View):
         if pet:
             if puzzle and pet.get("puzzle", {}).get("day") == pets.day_key(time.time()) and pet.get("puzzle_day") != pets.day_key(time.time()):
                 board = chess.Board(pet["puzzle"]["fen"])
-                data = await asyncio.to_thread(cairosvg.svg2png, bytestring=chess.svg.board(board, orientation=board.turn).encode())
+                from showcase_cards import render_svg_png
+                data = await asyncio.to_thread(render_svg_png, chess.svg.board(board, orientation=board.turn))
                 attachments = [discord.File(io.BytesIO(data), filename="pet-puzzle.png")]
                 embed.set_image(url="attachment://pet-puzzle.png")
                 embed.add_field(name="Pet Puzzle", value=f"{'White' if board.turn else 'Black'} to move. Use **Submit Move**; the opponent replies automatically.", inline=False)
@@ -373,13 +374,28 @@ class PetView(discord.ui.View):
         from pet_tools_ui import send_tools
         await send_tools(interaction, self.uid, mode='expeditions')
 
+    @discord.ui.button(label="Kill", emoji="💀", style=discord.ButtonStyle.danger, row=4)
+    async def kill(self, interaction, button):
+        pet = pets.current_pet(self.owner, self.pet_id)
+        if not pet or pet.get('died_at'):
+            await interaction.response.send_message('This pet is no longer alive. Reopen `!pet`.', ephemeral=True)
+            return
+        await interaction.response.send_message(
+            f"Murder **{title(pet)}** for **10 points**?\n"
+            "This permanently kills your pet and sends it to the Memorial. "
+            "Any expedition for this pet fails without rewards. Everyone will see what you did.\n"
+            "**There is no undo.**",
+            view=MurderConfirm(self.uid, pet['id']), ephemeral=True,
+            allowed_mentions=discord.AllowedMentions.none(),
+        )
+
     @discord.ui.button(label="Memorial", emoji="🕯️", style=discord.ButtonStyle.secondary, row=2)
     async def memorial(self, interaction, button):
         await interaction.response.defer(ephemeral=True)
         try:
             owner = await asyncio.to_thread(pets.get_owner, self.uid)
             dead = [p for p in owner["pets"] if p.get("died_at")]
-            lines = [f"🕯️ **{title(p)}** · {'Mystery' if pets.level(p) == 0 else p['species'] + ' · ' + p['rarity'].title()} · Level {pets.level(p)} · lived {(p['died_at'] - p['born_at']) / pets.DAY:.1f} days" for p in dead]
+            lines = [f"🕯️ **{title(p)}** · {'Mystery' if pets.level(p) == 0 else p['species'] + ' · ' + p['rarity'].title()} · Level {pets.level(p)} · lived {(p['died_at'] - p['born_at']) / pets.DAY:.1f} days" + (' · **Murdered by owner**' if p.get('death_cause') == 'murder' else '') for p in dead]
             # Multiple embeds preserve the entire permanent memorial.
             chunks, current = [], ""
             for line in lines:
@@ -391,6 +407,76 @@ class PetView(discord.ui.View):
                 await interaction.followup.send(embed=discord.Embed(title="🕯️ Pet Memorial", description=chunk, color=0x747F8D), ephemeral=True, allowed_mentions=discord.AllowedMentions.none())
         except Exception:
             await interaction.followup.send("Pet Memorial is temporarily unavailable.", ephemeral=True)
+
+
+class MurderConfirm(discord.ui.View):
+    """Explicit owner-only confirmation, tied to the selected pet, not active state."""
+    def __init__(self, uid, pet_id):
+        super().__init__(timeout=60)
+        self.uid, self.pet_id, self.used = int(uid), str(pet_id), False
+
+    async def interaction_check(self, interaction):
+        if interaction.user.id != self.uid:
+            await interaction.response.send_message('Only the pet owner can confirm this murder.', ephemeral=True)
+            return False
+        return True
+
+    @discord.ui.button(label='Murder · 10 points', emoji='💀', style=discord.ButtonStyle.danger)
+    async def confirm(self, interaction, button):
+        if not await self.interaction_check(interaction):
+            return
+        if self.used:
+            await interaction.response.send_message('This confirmation is no longer active. Check `!pet`.', ephemeral=True)
+            return
+        self.used = True
+        await interaction.response.defer()
+        try:
+            owner, details = await asyncio.to_thread(
+                pets.murder, self.uid, interaction.user.display_name, self.pet_id,
+                f'pet-murder:{interaction.id}:{self.uid}:{self.pet_id}',
+            )
+        except ValueError as error:
+            await interaction.edit_original_response(content=str(error), view=None)
+            self.stop()
+            return
+        except Exception:
+            await interaction.edit_original_response(
+                content='Murder could not be confirmed. Check your pet and points in `!pet` before trying again.', view=None)
+            self.stop()
+            return
+        pet = details['pet']
+        player = discord.utils.escape_mentions(discord.utils.escape_markdown(interaction.user.display_name))
+        species = pet['species'].lower() if pets.level(pet) else 'mysterious egg'
+        article = 'an' if species[0] in 'aeiou' else 'a'
+        embed = discord.Embed(
+            title='💀 Pet Murder',
+            description=f'**{player}** has just murdered {article} **{species}**.\n'
+                        f'{title(pet)} is now in the Pet Memorial.\n**They trusted you.**',
+            color=0xB91C1C,
+        )
+        embed.set_footer(text='Permanent death · 10 points spent · no undo')
+        try:
+            image = await asyncio.to_thread(pet_image, pet)
+            embed.set_image(url='attachment://pet.png')
+            await interaction.channel.send(embed=embed, file=image,
+                                           allowed_mentions=discord.AllowedMentions.none())
+            receipt = 'Your pet has been permanently murdered. **10 points** spent; coins unchanged. Reopen `!pet` to view the Memorial.'
+        except Exception:
+            receipt = 'Your pet has been permanently murdered and **10 points** spent, but the public announcement could not be posted. Check `!pet`.'
+        await interaction.edit_original_response(content=receipt, view=None,
+                                                 allowed_mentions=discord.AllowedMentions.none())
+        self.stop()
+
+    @discord.ui.button(label='Cancel', style=discord.ButtonStyle.secondary)
+    async def cancel(self, interaction, button):
+        if not await self.interaction_check(interaction):
+            return
+        if self.used:
+            await interaction.response.send_message('The murder was already submitted. Check `!pet`.', ephemeral=True)
+            return
+        self.used = True
+        await interaction.response.edit_message(content='Cancelled. Your pet is safe. No points spent.', view=None)
+        self.stop()
 
 
 class EggConfirm(discord.ui.View):
