@@ -49,24 +49,24 @@
         "fed_at": 1791072217.9549632,
         "feed_day": "2026-10-04",
         "happiness": 100,
-        "happy_at": 1790888465.900299,
+        "happy_at": 1791072251.9245884,
         "id": "ec762f8f4d884118a7a8429b28da7bd9",
         "name": "",
         "puzzle": {
           "day": "2026-10-04",
-          "fen": "r1b1k2r/4ppb1/pnpp4/6p1/4P3/1N1P3P/P4BP1/2R1KB1R w Kkq - 0 21",
+          "fen": "r1b1k2r/4ppb1/pBpp4/6p1/4P3/1N1P3P/P5P1/2R1KB1R b Kkq - 0 21",
           "id": "oIB4U",
-          "index": 2,
+          "index": 3,
           "moves": [
             "d4c6",
             "b7c6",
             "f2b6"
           ]
         },
-        "puzzle_day": "2026-10-01",
+        "puzzle_day": "2026-10-04",
         "rarity": "common",
         "species": "Cat",
-        "xp": 35
+        "xp": 55
       },
       {
         "activity_xp": 50.0,
