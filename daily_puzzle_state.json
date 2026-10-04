@@ -3938,13 +3938,13 @@
   },
   "channel_puzzle_state": {
     "1546557493038284840": {
-      "latest_puzzle_type": "random",
+      "latest_puzzle_type": "daily",
       "latest_random_puzzle": {
         "url": "https://lichess.org/training/mKxJr",
         "title": "Lichess • 2316",
         "fen": "6kr/p1pq1ppp/3r1b2/2pB4/2Pp4/1P3Q2/P3RPPP/R5K1 w - - 3 27",
-        "current_fen": "6kr/p1pq1p1p/3r1bp1/2pB4/2Pp4/1P3Q2/P3RPPP/4R1K1 w - - 0 28",
-        "last_move_uci": "g7g6",
+        "current_fen": "6kr/p1pqRp1p/3r1bp1/2pB4/2Pp4/1P3Q2/P4PPP/4R1K1 b - - 1 28",
+        "last_move_uci": "e2e7",
         "pgn": "Rae1 g6 Re7",
         "all_moves": [
           {
@@ -3983,44 +3983,60 @@
         "winner_name": null,
         "latest_attempts": {},
         "puzzle_id": "random_mKxJr_1791118117672",
-        "last_activity_at": "2026-10-04T12:49:19.646927+00:00",
+        "last_activity_at": "2026-10-04T12:49:24.794460+00:00",
         "rating": 2316,
         "rp_band": 3,
         "boss": false,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink",
-        "next_solution_index": 2,
-        "next_player_index": 1,
-        "solved": false,
+        "next_solution_index": 3,
+        "next_player_index": 2,
+        "solved": true,
         "message_ids": {
-          "1546557493038284840": 1556287103388885066
+          "1546557493038284840": 1556287124767244434
         },
         "chat_since_refresh": 0,
         "attempted_users": {
           "442597396195704832": {
             "name": "Thice",
-            "move": "re8",
-            "correct": false,
-            "timestamp": "2026-10-04T12:49:19.647398+00:00"
+            "move": "re7",
+            "correct": true,
+            "timestamp": "2026-10-04T12:49:24.794873+00:00"
           }
         },
         "first_move_user_id": "442597396195704832",
         "first_move_user_name": "Thice",
-        "first_move_awarded": false,
+        "first_move_awarded": true,
         "helper_awarded_users": [],
         "helper_candidate_users": [],
         "channel_id": 1546557493038284840,
-        "last_card_activity_at": "2026-10-04T12:49:19.646927+00:00",
-        "recent_accepted_moves": [],
+        "last_card_activity_at": "2026-10-04T12:49:24.794460+00:00",
+        "recent_accepted_moves": [
+          {
+            "accepted_at": 1791118164.794879,
+            "fen_before": "6kr/p1pq1p1p/3r1bp1/2pB4/2Pp4/1P3Q2/P3RPPP/4R1K1 w - - 0 28",
+            "expected": {
+              "uci": "e2e7",
+              "san": "Re7",
+              "color": "white"
+            },
+            "accepted_uci": "e2e7"
+          }
+        ],
         "accepted_solution_moves": [
           {
             "san": "Rae1",
             "uci": "a1e1",
             "principal": true
+          },
+          {
+            "san": "Re7",
+            "uci": "e2e7",
+            "principal": true
           }
         ],
-        "last_feedback": "❌ **Puzzle verdict on Thice: your inner grandmaster took the day off and left the ego in charge.**\n↪️ **Move played:** `re8`",
+        "last_feedback": "✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\nUpdating stats and rewards…",
         "wrong_attempt_counts": {
           "442597396195704832": 1
         }
