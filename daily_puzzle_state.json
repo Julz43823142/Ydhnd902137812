@@ -4346,7 +4346,7 @@
         "type": "coins",
         "amount": 144.0
       },
-      "status": "open",
+      "status": "expired",
       "created_at": 1788881211.8420987,
       "guild_id": 1298908892507410462,
       "channel_id": 1468320170891022417,
@@ -4364,7 +4364,7 @@
         "type": "coins",
         "amount": 50.0
       },
-      "status": "open",
+      "status": "expired",
       "created_at": 1788881616.9821978,
       "guild_id": 1298908892507410462,
       "channel_id": 1468320170891022417,
@@ -4382,7 +4382,7 @@
         "type": "coins",
         "amount": 87.0
       },
-      "status": "open",
+      "status": "expired",
       "created_at": 1788881651.9734285,
       "guild_id": 1298908892507410462,
       "channel_id": 1468320170891022417,
@@ -10143,9 +10143,9 @@
     }
   },
   "twitch_oauth_v1": {
-    "refresh_token_enc": "gAAAAABqwqkadEoYMzNEAJgsESV0wtIEUWg_45eQZNoBAKXe9m1p6UGMi3WC2YgS3EqZnRPYLvHLZ5ZDGJCnxTW3t9XRMC2ATPswgQ-S32eOYeOa4rrNxC84IJ-ntdEPAh0ms1rSc1pAmPmUlVeJCXQ_OKJJABGm-g==",
-    "updated_at": 1791142170,
-    "reason": "worker-start"
+    "refresh_token_enc": "gAAAAABqwqkf7oQ2YuB0zZD-UmLf8kHf4BDzq7VN3UUqFqesXGcikfzjoEuBcS-Ay-lxH8ElyLTP1TAXnbtMKw6jNDn3URFSGiA8uazPuRTZrgN-wEwjTh59y03lG6s2s7gVhALA_wsjrRFx52PCVZ_2AFs4hV0C9w==",
+    "updated_at": 1791142175,
+    "reason": "live-preview-401"
   },
   "twitch_pending_redemptions_v1": {
     "2e64827e-b674-48cd-8da5-fdeff053a10a": {
