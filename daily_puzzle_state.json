@@ -4008,7 +4008,9 @@
         "next_solution_index": 0,
         "next_player_index": 0,
         "solved": false,
-        "message_ids": {},
+        "message_ids": {
+          "1546557493038284840": 1556278104241217670
+        },
         "chat_since_refresh": 0,
         "attempted_users": {},
         "first_move_user_id": null,
