@@ -1,0 +1,17 @@
+{
+  "boss": false,
+  "correct": true,
+  "created_at": 1791119646,
+  "display_name": "Sharkmeister",
+  "elo_after": 1743.308,
+  "elo_change": 2.581,
+  "new_achievements": [],
+  "puzzle_id": "random_6HXm7_1791119636242",
+  "puzzle_rating": 1318,
+  "source": "random",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 3,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:random_6HXm7_1791119636242:362606514764251137",
+  "user_id": "362606514764251137"
+}
