@@ -265,9 +265,9 @@
         "name": "",
         "puzzle": {
           "day": "2026-10-04",
-          "fen": "8/6p1/8/5p1p/5P1P/4K3/2k3P1/8 w - - 6 39",
+          "fen": "8/6p1/8/5p1p/3K1P1P/8/3k2P1/8 w - - 8 40",
           "id": "Y6KQw",
-          "index": 0,
+          "index": 2,
           "moves": [
             "e3d4",
             "c2d2",
