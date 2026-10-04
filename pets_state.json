@@ -181,9 +181,9 @@
         "name": "",
         "puzzle": {
           "day": "2026-10-04",
-          "fen": "8/8/7p/1p4p1/1k4P1/7P/P1K5/8 b - - 5 45",
+          "fen": "8/8/7p/1p4p1/6P1/k6P/P7/1K6 b - - 7 46",
           "id": "uiJe2",
-          "index": 0,
+          "index": 2,
           "moves": [
             "b4a3",
             "c2b1",
