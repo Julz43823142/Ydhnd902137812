@@ -3944,53 +3944,53 @@
   },
   "channel_puzzle_state": {
     "1546557493038284840": {
-      "latest_puzzle_type": "daily",
+      "latest_puzzle_type": "random",
       "latest_random_puzzle": {
-        "url": "https://lichess.org/training/suH2k",
-        "title": "Lichess • 1398",
-        "fen": "3q1bk1/p4pp1/7p/8/2Q1P1P1/PPB2P2/2R2PK1/3r4 b - - 8 35",
-        "current_fen": "3q1bk1/p4pp1/7p/8/2Q1P1P1/PPB2P2/2R2PK1/3r4 b - - 8 35",
-        "last_move_uci": "b2c3",
-        "pgn": "Qh4 Qf1 Rxf1",
+        "url": "https://lichess.org/training/Jtq5M",
+        "title": "Lichess • 1350",
+        "fen": "6k1/pp3pbp/1n4p1/1n4N1/8/5qB1/PPr2P1P/1K2R2R w - - 0 23",
+        "current_fen": "6k1/pp3pbp/1n4p1/1n4N1/8/5qB1/PPr2P1P/1K2R2R w - - 0 23",
+        "last_move_uci": "d4b5",
+        "pgn": "Re8+ Bf8 Nxf3",
         "all_moves": [
           {
-            "uci": "d8h4",
-            "san": "Qh4",
-            "color": "black"
-          },
-          {
-            "uci": "c4f1",
-            "san": "Qf1",
+            "uci": "e1e8",
+            "san": "Re8+",
             "color": "white"
           },
           {
-            "uci": "d1f1",
-            "san": "Rxf1",
+            "uci": "g7f8",
+            "san": "Bf8",
             "color": "black"
+          },
+          {
+            "uci": "g5f3",
+            "san": "Nxf3",
+            "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "d8h4",
-            "san": "Qh4",
-            "color": "black"
+            "uci": "e1e8",
+            "san": "Re8+",
+            "color": "white"
           },
           {
-            "uci": "d1f1",
-            "san": "Rxf1",
-            "color": "black"
+            "uci": "g5f3",
+            "san": "Nxf3",
+            "color": "white"
           }
         ],
-        "player_color": "black",
+        "player_color": "white",
         "player_move_count": 2,
-        "posted_at": "2026-10-04T14:02:05.045376+00:00",
-        "answer_posted": true,
+        "posted_at": "2026-10-04T15:47:45.700529+00:00",
+        "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "random_suH2k_1791122525045",
-        "last_activity_at": "2026-10-04T14:02:05.045376+00:00",
-        "rating": 1398,
+        "puzzle_id": "random_Jtq5M_1791128865700",
+        "last_activity_at": "2026-10-04T15:47:45.700529+00:00",
+        "rating": 1350,
         "rp_band": 0,
         "boss": false,
         "board_theme": "blue",
@@ -3999,9 +3999,7 @@
         "next_solution_index": 0,
         "next_player_index": 0,
         "solved": false,
-        "message_ids": {
-          "1546557493038284840": 1556305420346204301
-        },
+        "message_ids": {},
         "chat_since_refresh": 0,
         "attempted_users": {},
         "first_move_user_id": null,
@@ -4009,11 +4007,7 @@
         "first_move_awarded": false,
         "helper_awarded_users": [],
         "helper_candidate_users": [],
-        "channel_id": 1546557493038284840,
-        "board_attachment_filenames": {
-          "1546557493038284840": "random_puzzle.png"
-        },
-        "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Qh4 Rxf1"
+        "channel_id": 1546557493038284840
       }
     }
   },
