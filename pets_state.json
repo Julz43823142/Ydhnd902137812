@@ -78,16 +78,14 @@
         "id": "83101ee6f3104150ac91ea63c62fc35b",
         "name": "",
         "puzzle": {
-          "day": "2026-10-01",
-          "fen": "8/3k2p1/1p4P1/p2K4/P7/1P6/8/8 b - - 4 46",
-          "id": "Og7Ac",
-          "index": 5,
+          "day": "2026-10-04",
+          "fen": "8/5qk1/2p4p/p1p1pr2/P1Pp3Q/3P4/1P4P1/5RK1 w - - 0 44",
+          "id": "Os34e",
+          "index": 0,
           "moves": [
-            "g5g6",
-            "f7e7",
-            "f5e5",
-            "e7d7",
-            "e5d5"
+            "h4g4",
+            "f5g5",
+            "f1f7"
           ]
         },
         "puzzle_day": "2026-10-01",
