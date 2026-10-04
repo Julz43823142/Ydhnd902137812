@@ -60,18 +60,21 @@ async def publish(channel,key,build,view_factory=None):
             if message.author.id==channel.guild.me.id and any(marker in (e.footer.text or '') for e in message.embeds):
                 await asyncio.to_thread(update,key,'sent',message_id=message.id);return
         await asyncio.to_thread(update,key,'uncertain');return
-    claim=uuid.uuid4().hex
-    owned=await asyncio.to_thread(update,key,'sending',claim=claim)
-    if owned.get('claim')!=claim or owned['status']!='sending':return
-    embed=discord.Embed.from_dict(owned['payload']['embed'])
+    # Rendering/view construction is reversible; do it before claiming delivery.
+    embed=discord.Embed.from_dict(current['payload']['embed'])
     embed.set_footer(text=(embed.footer.text or '')+' · '+marker)
     kwargs={'embed':embed,'nonce':hashlib.sha256(marker.encode()).hexdigest()[:24],
             'allowed_mentions':discord.AllowedMentions.none()}
-    if view_factory:kwargs['view']=view_factory(owned['payload'])
-    if owned['payload'].get('graph'):
+    if view_factory:kwargs['view']=view_factory(current['payload'])
+    if current['payload'].get('graph'):
         from next_batch_ui import graph_file
-        file=await asyncio.to_thread(graph_file,owned['payload']['graph'])
+        file=await asyncio.to_thread(graph_file,current['payload']['graph'])
         if file:kwargs['file']=file;embed.set_image(url='attachment://economy-history.png')
+    claim=uuid.uuid4().hex
+    owned=await asyncio.to_thread(update,key,'sending',claim=claim)
+    if owned.get('claim')!=claim or owned['status']!='sending':
+        if kwargs.get('file'):kwargs['file'].close()
+        return
     try:message=await channel.send(**kwargs)
     except (discord.Forbidden,discord.NotFound):
         await asyncio.to_thread(update,key,'failed');raise

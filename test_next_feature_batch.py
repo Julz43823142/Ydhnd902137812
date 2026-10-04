@@ -321,6 +321,16 @@ class SchedulingAndUI(unittest.TestCase):
         self.assertLess(abs(feature_usage.unique(registers)-10000),2000)
         self.assertEqual(len(registers),256)
 
+    def test_graph_failure_does_not_claim_or_send_delivery(self):
+        async def run():
+            row={'key':'monthly:2026-10','eligible':True,'status':'prepared','prepared_at':1700000000,
+                 'payload':{'embed':discord.Embed(title='Monthly').to_dict(),'graph':[('2026-10-01',100),('2026-10-02',110)]}}
+            channel=SimpleNamespace(send=AsyncMock())
+            with patch.object(publications,'prepare',return_value=row),patch.object(publications,'current_row',return_value=row),patch.object(ui,'graph_file',side_effect=OSError('Unavailable renderer')),patch.object(publications,'update') as update:
+                with self.assertRaises(OSError):await publications.publish(channel,row['key'],lambda:row['payload'])
+            update.assert_not_called();channel.send.assert_not_awaited()
+        asyncio.run(run())
+
     def test_unknown_discord_delivery_reconciles_and_does_not_resend(self):
         async def run():
             key='wrapped:2026';marker='SharkBot Publication '+__import__('hashlib').sha256(key.encode()).hexdigest()[:16]
