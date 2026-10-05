@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/TOwGx",
     "title": "Lichess • 2622",
     "fen": "4rrk1/1pp3pp/1n1q4/p1pP1p2/P1Pb4/4RP2/1BQ1BPRP/4K3 w - - 8 22",
-    "current_fen": "4rrk1/1pp3pp/1n1q4/p1pP1p2/P1Pb4/4RP2/1BQ1BPRP/4K3 w - - 8 22",
-    "last_move_uci": "a8e8",
+    "current_fen": "4rrk1/1pp3pp/1n1q4/p2P1p2/P1Pp4/4RP2/2Q1BPRP/4K3 w - - 0 23",
+    "last_move_uci": "c5d4",
     "pgn": "Bxd4 cxd4 c5 Qf6 Rxe8 Rxe8 cxb6",
     "all_moves": [
       {
@@ -73,44 +73,62 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_TOwGx_1791219607733",
-    "last_activity_at": "2026-10-05T17:00:43.117528+00:00",
+    "last_activity_at": "2026-10-05T17:00:54.323617+00:00",
     "rating": 2622,
     "rp_band": 4,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1556712756021821514
+      "1468320170891022417": 1556712803853664337
     },
-    "message_id": 1556712756021821514,
+    "message_id": 1556712803853664337,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Rxe8",
-        "correct": false,
-        "timestamp": "2026-10-05T17:00:43.117811+00:00"
+        "move": "Bxd4",
+        "correct": true,
+        "timestamp": "2026-10-05T17:00:54.323859+00:00"
       }
     },
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
-    "last_card_activity_at": "2026-10-05T17:00:43.117528+00:00",
-    "recent_accepted_moves": [],
+    "last_card_activity_at": "2026-10-05T17:00:54.323617+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1791219654.323867,
+        "fen_before": "4rrk1/1pp3pp/1n1q4/p1pP1p2/P1Pb4/4RP2/1BQ1BPRP/4K3 w - - 8 22",
+        "expected": {
+          "uci": "b2d4",
+          "san": "Bxd4",
+          "color": "white"
+        },
+        "accepted_uci": "b2d4"
+      }
+    ],
     "wrong_attempt_counts": {
       "442597396195704832": 1
     },
-    "last_feedback": "❌ **Stockfish report for Thice: the position was asking for chess and you gave it a TED Talk.**\n↪️ **Move played:** `Rxe8`"
+    "last_feedback": "**✅ Correct! 3 moves remaining.**\n↩️ **Opponent replies:** cxd4",
+    "accepted_solution_moves": [
+      {
+        "san": "Bxd4",
+        "uci": "b2d4",
+        "principal": true
+      }
+    ]
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
