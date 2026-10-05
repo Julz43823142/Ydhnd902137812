@@ -177,11 +177,13 @@
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1556567052116951070
+      "1468320170891022417": 1556567052116951070,
+      "1546557493038284840": 1556567067115913226
     },
     "channel_id": 1468320170891022417,
     "board_attachment_filenames": {
-      "1468320170891022417": "daily_puzzle.png"
+      "1468320170891022417": "daily_puzzle.png",
+      "1546557493038284840": "daily_puzzle.png"
     },
     "chat_since_refresh": 0
   },
