@@ -583,10 +583,10 @@
             "daily:2026-10-05:puzzle:solve-8"
           ],
           "progress": {
-            "daily:2026-10-05:minigame:minigame-3": 2,
+            "daily:2026-10-05:minigame:minigame-3": 3,
             "daily:2026-10-05:puzzle:solve-8": 8
           },
-          "updated_at": 1791239226
+          "updated_at": 1791239249
         }
       }
     },
@@ -773,10 +773,10 @@
           "name": "Thice",
           "paid": [],
           "progress": {
-            "weekly:2026-10-05:minigame:minigame-8": 2,
+            "weekly:2026-10-05:minigame:minigame-8": 3,
             "weekly:2026-10-05:puzzle:solve-25": 8
           },
-          "updated_at": 1791239226
+          "updated_at": 1791239249
         }
       }
     }
