@@ -12,7 +12,7 @@
       "paid": [],
       "pool": 1500,
       "progress": {
-        "pet_feed": 16,
+        "pet_feed": 17,
         "pet_puzzle": 12,
         "puzzle_solve": 83
       },
@@ -31,7 +31,7 @@
           "puzzle_solve": 19
         },
         "442597396195704832": {
-          "pet_feed": 15,
+          "pet_feed": 16,
           "pet_puzzle": 12,
           "puzzle_solve": 50
         },
@@ -84,7 +84,10 @@
     "2026-W41": {
       "442597396195704832": {
         "coins_earned": 50.0,
-        "new_cosmetics": 0
+        "contribution": 0.002,
+        "new_cosmetics": 0,
+        "pet_feed": 1,
+        "pet_levels_gained": 0
       }
     }
   }
