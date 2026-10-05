@@ -383,9 +383,9 @@
         ],
         "puzzle": {
           "day": "2026-10-05",
-          "fen": "8/2R3pp/4pk2/2P5/p7/8/2r2PPP/4K3 b - - 0 27",
+          "fen": "8/R5pp/4pk2/2P5/8/p7/2r2PPP/4K3 b - - 1 28",
           "id": "Jeujd",
-          "index": 0,
+          "index": 2,
           "moves": [
             "a4a3",
             "c7a7",
