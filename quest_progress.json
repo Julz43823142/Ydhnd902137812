@@ -579,11 +579,13 @@
       "users": {
         "442597396195704832": {
           "name": "Thice",
-          "paid": [],
+          "paid": [
+            "daily:2026-10-05:puzzle:solve-8"
+          ],
           "progress": {
-            "daily:2026-10-05:puzzle:solve-8": 7
+            "daily:2026-10-05:puzzle:solve-8": 8
           },
-          "updated_at": 1791219408
+          "updated_at": 1791219698
         }
       }
     },
@@ -770,9 +772,9 @@
           "name": "Thice",
           "paid": [],
           "progress": {
-            "weekly:2026-10-05:puzzle:solve-25": 7
+            "weekly:2026-10-05:puzzle:solve-25": 8
           },
-          "updated_at": 1791219408
+          "updated_at": 1791219698
         }
       }
     }

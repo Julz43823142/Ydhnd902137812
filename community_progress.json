@@ -14,7 +14,7 @@
       "progress": {
         "pet_feed": 18,
         "pet_puzzle": 14,
-        "puzzle_solve": 90
+        "puzzle_solve": 91
       },
       "start": 1790805600,
       "theme": "Care for the community",
@@ -33,7 +33,7 @@
         "442597396195704832": {
           "pet_feed": 17,
           "pet_puzzle": 14,
-          "puzzle_solve": 57
+          "puzzle_solve": 58
         },
         "601406103712170014": {
           "puzzle_solve": 8
@@ -83,13 +83,13 @@
     },
     "2026-W41": {
       "442597396195704832": {
-        "coins_earned": 67.0,
-        "contribution": 0.012066,
+        "coins_earned": 76.08,
+        "contribution": 0.012266,
         "new_cosmetics": 1,
         "pet_feed": 2,
         "pet_levels_gained": 2,
         "pet_puzzle": 2,
-        "puzzle_solve": 7
+        "puzzle_solve": 8
       }
     }
   }
