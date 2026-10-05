@@ -370,7 +370,7 @@
         "fed_at": 1791172299.0386844,
         "feed_day": "2026-10-05",
         "happiness": 100,
-        "happy_at": 1791108749.5466716,
+        "happy_at": 1791172362.940326,
         "id": "a694b65e5fd547a48c21a63fe10808a2",
         "name": "",
         "owner_history": [
@@ -383,19 +383,19 @@
         ],
         "puzzle": {
           "day": "2026-10-05",
-          "fen": "8/R5pp/4pk2/2P5/8/p7/2r2PPP/4K3 b - - 1 28",
+          "fen": "8/R5pp/4pk2/2P5/8/8/p1r2PPP/4K3 w - - 0 29",
           "id": "Jeujd",
-          "index": 2,
+          "index": 3,
           "moves": [
             "a4a3",
             "c7a7",
             "a3a2"
           ]
         },
-        "puzzle_day": "2026-10-04",
+        "puzzle_day": "2026-10-05",
         "rarity": "uncommon",
         "species": "Penguin",
-        "xp": 80,
+        "xp": 100,
         "xp_day": "2026-10-04"
       }
     ]
