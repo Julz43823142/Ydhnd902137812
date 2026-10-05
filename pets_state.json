@@ -365,7 +365,7 @@
       },
       {
         "accessory": "glasses",
-        "activity_xp": 40,
+        "activity_xp": 50,
         "born_at": 1791108685.6424184,
         "fed_at": 1791172299.0386844,
         "feed_day": "2026-10-05",
@@ -395,7 +395,7 @@
         "puzzle_day": "2026-10-05",
         "rarity": "uncommon",
         "species": "Penguin",
-        "xp": 140,
+        "xp": 150,
         "xp_day": "2026-10-05"
       }
     ]
