@@ -138,115 +138,44 @@
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
-    "url": "https://www.chess.com/daily/2026-10-04",
-    "title": "Beware of the Gift Horse",
-    "fen": "8/p5pk/5r2/3Q1ppn/3N4/1P2P3/P4BRK/1q6 b - - 0 42",
-    "current_fen": "8/p5pk/5r2/3Q1ppn/3N4/1P2P3/P4BRK/1q6 b - - 0 42",
+    "url": "https://www.chess.com/daily/2026-10-05",
+    "title": "Nowhere Square",
+    "fen": "8/5p2/4p1p1/4Bq2/4kP2/4p3/2KbB1PP/8 w - - 0 1",
+    "current_fen": "8/5p2/4p1p1/4Bq2/4kP2/4p3/2KbB1PP/8 w - - 0 1",
     "last_move_uci": null,
-    "pgn": "[Date \"2026.03.31\"]\n[Round \"3.4\"]\n[White \"Tan, Zhongyi\"]\n[Black \"Lagno, Kateryna\"]\n[Result \"0-1\"]\n[FEN \"8/p5pk/5r2/3Q1ppn/3N4/1P2P3/P4BRK/1q6 b - - 0 42\"]\n[WhiteElo \"2535\"]\n[BlackElo \"2508\"]\n\n42... Nf4 43. exf4 Rh6+ 44. Kg3 Qd3+ 45. Qf3 g4 46. Qxd3 Rh3# 0-1",
+    "pgn": "[Result \"*\"]\n[FEN \"8/5p2/4p1p1/4Bq2/4kP2/4p3/2KbB1PP/8 w - - 0 1\"]\n\n1. Bf3# *",
     "all_moves": [
       {
-        "uci": "h5f4",
-        "san": "Nf4",
-        "color": "black"
-      },
-      {
-        "uci": "e3f4",
-        "san": "exf4",
+        "uci": "e2f3",
+        "san": "Bf3#",
         "color": "white"
-      },
-      {
-        "uci": "f6h6",
-        "san": "Rh6+",
-        "color": "black"
-      },
-      {
-        "uci": "h2g3",
-        "san": "Kg3",
-        "color": "white"
-      },
-      {
-        "uci": "b1d3",
-        "san": "Qd3+",
-        "color": "black"
-      },
-      {
-        "uci": "d5f3",
-        "san": "Qf3",
-        "color": "white"
-      },
-      {
-        "uci": "g5g4",
-        "san": "g4",
-        "color": "black"
-      },
-      {
-        "uci": "f3d3",
-        "san": "Qxd3",
-        "color": "white"
-      },
-      {
-        "uci": "h6h3",
-        "san": "Rh3#",
-        "color": "black"
       }
     ],
     "player_moves": [
       {
-        "uci": "h5f4",
-        "san": "Nf4",
-        "color": "black"
-      },
-      {
-        "uci": "f6h6",
-        "san": "Rh6+",
-        "color": "black"
-      },
-      {
-        "uci": "b1d3",
-        "san": "Qd3+",
-        "color": "black"
-      },
-      {
-        "uci": "g5g4",
-        "san": "g4",
-        "color": "black"
-      },
-      {
-        "uci": "h6h3",
-        "san": "Rh3#",
-        "color": "black"
+        "uci": "e2f3",
+        "san": "Bf3#",
+        "color": "white"
       }
     ],
-    "player_color": "black",
-    "player_move_count": 5,
-    "posted_at": "2026-10-04T07:18:42.201680+00:00",
-    "answer_posted": true,
+    "player_color": "white",
+    "player_move_count": 1,
+    "posted_at": "2026-10-05T07:21:44.371576+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "daily_1791098322201",
+    "puzzle_id": "daily_1791184904371",
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_id": 1556203899915079751,
+    "message_id": null,
     "attempted_users": {},
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "message_ids": {
-      "1468320170891022417": 1556203899915079751,
-      "1546557493038284840": 1556203903798878361
-    },
-    "channel_id": 1468320170891022417,
-    "chat_since_refresh": 0,
-    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Nf4 Rh6+ Qd3+ g4 Rh3#",
-    "board_attachment_filenames": {
-      "1468320170891022417": "random_puzzle.png",
-      "1546557493038284840": "random_puzzle.png"
-    }
+    "helper_candidate_users": []
   },
   "lichess_rating_used": {
     "2000": [
