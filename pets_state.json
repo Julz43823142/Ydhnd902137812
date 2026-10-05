@@ -382,14 +382,14 @@
           }
         ],
         "puzzle": {
-          "day": "2026-10-04",
-          "fen": "r1b1k2r/4bppp/p4q2/3Q4/7n/8/PPP3PP/R1B1RB1K b kq - 0 17",
-          "id": "hREit",
-          "index": 3,
+          "day": "2026-10-05",
+          "fen": "8/2R3pp/4pk2/2P5/p7/8/2r2PPP/4K3 b - - 0 27",
+          "id": "Jeujd",
+          "index": 0,
           "moves": [
-            "c3d5",
-            "e6d5",
-            "d1d5"
+            "a4a3",
+            "c7a7",
+            "a3a2"
           ]
         },
         "puzzle_day": "2026-10-04",
