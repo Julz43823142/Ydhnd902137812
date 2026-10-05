@@ -98,7 +98,7 @@
     "player_color": "white",
     "player_move_count": 6,
     "posted_at": "2026-10-05T16:51:35.271924+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -140,9 +140,9 @@
     "wrong_attempt_counts": {
       "442597396195704832": 1
     },
-    "last_feedback": "❌ **Puzzle verdict on Thice: you just proved that long calculation and correct calculation are different hobbies.**\n↪️ **Move played:** `Rb8`"
+    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Rxc7+ Qc4+ Rd1+ Qxe4+ Rxd8 Qc6+"
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-05",
