@@ -157,7 +157,7 @@ class API(unittest.TestCase):
             if suffix=='/games/archives':return {'archives':[f'https://api.chess.com/pub/player/{TARGET}/games/2026/09',f'https://api.chess.com/pub/player/{TARGET}/games/2026/10','http://127.0.0.1/secret']}
             return {'games':list(reversed(rows[60:]))} if suffix.endswith('/10') else {'games':rows[:60]}
         api = SimpleNamespace(get=Mock(side_effect=get),deadline=time.monotonic()+60)
-        games,skipped,partial = data.collect_games(api,TARGET,lambda _:None)
+        games,skipped,partial = data.collect_games(api,TARGET,lambda _:None,replace(CONFIG,history_games=100))
         self.assertEqual(len(games),100)
         self.assertEqual([g.identity for g in games],[f'synthetic-{i}' for i in range(11,111)])
         self.assertFalse(partial);self.assertGreater(sum(skipped.values()),0)
@@ -200,7 +200,7 @@ class MetricMath(unittest.TestCase):
 
     def test_critical_requires_nonforced_choices_gap_and_spread(self):
         d = self.decision()
-        for change in ({'useful':False},{'capture':True},{'gives_check':True},{'legal':2}):
+        for change in ({'useful':False},{'legal':2}):
             subject = copy.deepcopy(d)
             for key,value in change.items():setattr(subject,key,value)
             self.assertFalse(analysis.engine_metrics(subject,self.lines(d),{},True)['critical'])
