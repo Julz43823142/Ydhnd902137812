@@ -39,6 +39,7 @@ def summary(games, fast=False):
         denom = sum(m.get(count, 0) for m in rows if m.get(key) is not None)
         return sum(m[key]*m.get(count, 0) for m in rows if m.get(key) is not None)/denom if denom else None
     return {'games': len(games), 'decisions': n, 'critical': c, 'unique': u,
+            'eligible_games':sum(m.get('decisions',0)>=CONFIG.min_game_decisions for m in rows),
             'competitive_decisions':sum(m.get('competitive_decisions',0) for m in rows),
             'competitive_top1':rate('competitive_top1','competitive_decisions'),
             'competitive_cpl':med([m.get('competitive_cpl') for m in rows]),
@@ -110,6 +111,7 @@ def contiguous(group):
 
 def group_record(group, kind, config=CONFIG, fast=False):
     m = summary(group, fast)
+    m['eligible_games']=sum(r.get('decisions',0)>=config.min_game_decisions for r in rows_for(group,fast))
     engine, critical = evidence(m, med([g.rating for g in group]),config=config)
     reliability = .35 if group[0].time_class == 'bullet' else 1.0
     def sustained_game(g):
@@ -140,7 +142,10 @@ def group_record(group, kind, config=CONFIG, fast=False):
 
 
 def find_clusters(games, config=CONFIG, fast=False):
-    games=[g for g in games if g.rated is True and rows_for([g],fast)[0].get('decisions',0)>=config.min_game_decisions]
+    # Retain known fully analyzed short/easy games in the timeline. Their actual
+    # losses and missed critical moves remain in the period denominator. Missing
+    # engine games still break chronology through control_index; no gap bridging.
+    games=[g for g in games if g.rated is True and not g.probe_only and 'decisions' in rows_for([g],fast)[0]]
     candidates = []
     for _, group in sorted(buckets(games).items()):
         for width in config.cluster_windows:
@@ -187,10 +192,14 @@ def find_clusters(games, config=CONFIG, fast=False):
         row['high_qualifying']=high_cluster_qualification(row,games,config)
     finalists.sort(key=lambda r:(r['high_qualifying'],r['personal']['established'],r['strength'],r['end']),reverse=True)
     best=finalists[0] if finalists else None
+    discovery=max((r for r in candidates if r['kind']!='ranked'
+                   and r['metrics']['eligible_games']>=config.high_cluster_games
+                   and r['metrics']['decisions']>=config.high_cluster_decisions
+                   and r['strength']>=.5),key=lambda r:r['strength'],default=None)
     return {'strongest': best, 'strongest_engine': max(candidates,key=lambda r:r['engine_score'],default=None),
             'strongest_critical': max(candidates,key=lambda r:r['critical_score'],default=None),
             'independent': independent, 'recurrence': recurrence, 'recurrence_groups':recurrence_groups,
-            'candidates': finalists[:12] if finalists else candidates[:12]}
+            'candidates': finalists[:12] if finalists else candidates[:12], 'discovery':discovery}
 
 
 def regime_changes(games, config=CONFIG):
@@ -216,8 +225,17 @@ def regime_changes(games, config=CONFIG):
     return sorted(changes,key=lambda r:(r['effect_mad'],r['width']),reverse=True)[:12]
 
 
+def review_candidate(clusters, config=CONFIG):
+    if clusters['strongest'] is not None:return clusters['strongest']
+    if clusters.get('discovery') is not None:return clusters['discovery']
+    return max((r for r in clusters['candidates'] if r['kind']!='ranked'
+                and r['metrics']['eligible_games']>=config.high_cluster_games
+                and r['metrics']['decisions']>=config.high_cluster_decisions
+                and r['strength']>=.5),key=lambda r:r['strength'],default=None)
+
+
 def select_deep_games(games, config=CONFIG):
-    games=[g for g in games if g.rated is True and (g.fast_metrics or g.metrics).get('decisions',0)>=config.min_game_decisions]
+    games=[g for g in games if g.rated is True and not g.probe_only and 'decisions' in (g.fast_metrics or g.metrics)]
     clusters = find_clusters(games,config,True)
     lookup = {g.identity:g for g in games}
     selected = []
@@ -228,9 +246,11 @@ def select_deep_games(games, config=CONFIG):
             if not g.deep and g not in selected:
                 selected.append(g);count-=1
                 if count<=0:return
-    strongest = clusters['strongest']
+    # Near-threshold chronological candidates receive real confirmation data.
+    # This selection does not itself qualify them for a HIGH priority.
+    strongest = review_candidate(clusters,config)
     if strongest:
-        members=[lookup[i] for i in strongest['ids']]
+        members=[lookup[i] for i in strongest['ids'] if (lookup[i].fast_metrics or lookup[i].metrics).get('decisions',0)>=config.min_game_decisions]
         controls=representative_controls(comparable_baseline(strongest,games,config),config.baseline_deep_games)
         reserve=min(len(controls),config.baseline_deep_games, max(0,config.deep_games-5))
         count=min(len(members),config.deep_games-reserve)
@@ -247,9 +267,10 @@ def select_deep_games(games, config=CONFIG):
                     period[period.index(worst)]=candidate
         add(period,count)
         add(controls,reserve)
+    games=[g for g in games if (g.fast_metrics or g.metrics).get('decisions',0)>=config.min_game_decisions]
     add(sorted(games,key=lambda g:evidence(summary([g],True),config=config)[1],reverse=True),2)
     # A second independent period helps test recurrence instead of cherry-picking.
-    for row in clusters['independent'][1:2]:add([lookup[i] for i in row['ids']],2)
+    for row in clusters['independent'][1:2]:add([lookup[i] for i in row['ids'] if (lookup[i].fast_metrics or lookup[i].metrics).get('decisions',0)>=config.min_game_decisions],2)
     add(sorted(games,key=lambda g:evidence(summary([g],True),config=config)[0],reverse=True),config.deep_games)
     return selected[:config.deep_games]
 

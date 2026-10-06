@@ -4,6 +4,8 @@ from fairplay_clusters import clamp, evidence, find_clusters, regime_changes, co
 from fairplay_baseline import personal_timing, timing_profile
 from fairplay_calibration import baseline_comparison, stable_history
 from fairplay_timing import trivial_delay_summary, cadence_recurrence, delay_floor_periods, delay_floor_profile
+from fairplay_results import result_support
+from fairplay_clusters import review_candidate
 
 def priority_model(scores, *, games, decisions, critical, confidence, deep_confirmed, partial,
                    config=CONFIG, persistent=True, recurrence=False, cluster_games=None, deep_cluster_games=None,
@@ -44,15 +46,19 @@ def priority_model(scores, *, games, decisions, critical, confidence, deep_confi
 def score_review(target, games, selected, skipped, partial, engine_name, profile, elapsed, config=CONFIG):
     from fairplay_analysis import aggregate, performance_metrics, context_metrics, median, family_label, ReviewResult
     # Only rated games with usable equal-budget engine coverage enter ANY signal.
-    scanned_rated=[g for g in games if g.rated is True]
-    games=[g for g in games if g.rated is True and (g.fast_metrics or g.metrics).get('decisions',0)>=config.min_game_decisions]
+    scanned_rated=[g for g in games if g.rated is True and not g.probe_only]
+    timeline=[g for g in scanned_rated if 'decisions' in (g.fast_metrics or g.metrics)]
+    games=[g for g in scanned_rated if (g.fast_metrics or g.metrics).get('decisions',0)>=config.min_game_decisions]
     useful = sorted([g for g in games if g.metrics.get('decisions',0)>=config.min_game_decisions],key=lambda g:(g.ended,g.identity))
     totals = aggregate(useful)
     classes = {kind:aggregate([g for g in useful if g.time_class==kind]) for kind in ('rapid','blitz','bullet')}
     performance, context = performance_metrics(useful), context_metrics(games,profile)
     changes = regime_changes(useful,config)
     performance['regime_changes'] = changes
-    clusters = find_clusters(games,config,True)
+    clusters = find_clusters(timeline,config,True)
+    candidate=review_candidate(clusters,config)
+    clusters['review_candidate']=candidate
+    clusters['candidate_deep']=confirm_cluster(candidate,timeline,config)
     strongest = clusters['strongest']
     # A title changes expectations, not the evidence. It never multiplies away
     # a personal anomaly. Stable elite play needs an independent behavior shift.
@@ -93,7 +99,7 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
         weight=.35 if cluster['time_class']=='bullet' else 1
         engine_score=max(engine_score,e*weight);critical_score=max(critical_score,c*weight)
     # A ranked subset is useful for detail/selection, never a persistence gate.
-    deep_confirmation = confirm_cluster(strongest,games,config)
+    deep_confirmation = confirm_cluster(strongest,timeline,config)
     clusters['deep'] = deep_confirmation
     coverage = aggregate([g for g in games if g.deep])
     deep_confirmed = deep_confirmation['confirmed']
@@ -106,6 +112,8 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
         weight=.35 if kind=='bullet' else 1
         if row['excess_z'] is not None:ctx_score=max(ctx_score,clamp((row['excess_z']-2)/4)*.65*weight)
         if row['rating_gain'] is not None:ctx_score=max(ctx_score,clamp(row['rating_gain']/600)*.35*weight)
+    for (kind,_),group in buckets(useful).items():
+        ctx_score=max(ctx_score,result_support(group,config)['score']*(.35 if kind=='bullet' else 1))
     # Independent recurrence needs a contrasting surrounding baseline. Hundreds
     # of equally excellent games do not become 'multiple suspicious clusters'.
     baseline = [g for g in useful if (g.metrics.get('top1') or 0)<.65 and (g.metrics.get('critical_top1') or 0)<.65]
@@ -117,7 +125,7 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
     recurrence = period_recurrence and len(comparable_baseline)>=config.cluster_min_games
     # Recurrence is replication, reported separately from engine regime change.
     clusters['recurrence'] = recurrence
-    comparison=baseline_comparison(strongest,games,config,fast=True)
+    comparison=baseline_comparison(strongest,timeline,config,fast=True)
     clusters['personal']=comparison
     # Absence of a qualifying period blocks HIGH, but must not erase large
     # same-control aggregate signals from a descriptive MODERATE review.
@@ -129,8 +137,8 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
     if within_shift:perf_score=max(perf_score,.55)
     # Supporting evidence must overlap the engine period and comparison group.
     # A rapid clock anomaly cannot confirm unrelated blitz precision.
-    scope=[g for g in games if strongest and g.identity in strongest['ids']] if strongest else fallback
-    controls=[g for g in games if g.identity in set(comparison['baseline_ids'])]
+    scope=[g for g in timeline if strongest and g.identity in strongest['ids']] if strongest else fallback
+    controls=[g for g in timeline if g.identity in set(comparison['baseline_ids'])]
     if controls and scope:
         bp,hp=timing_profile(controls,config),timing_profile(scope,config)
         comparison['timing']={'baseline':bp,'cluster':hp,'deltas':{k:(hp['comparison'][k]-bp['comparison'][k] if hp['comparison'][k] is not None and bp['comparison'][k] is not None else None) for k in bp['comparison']}}
@@ -155,8 +163,8 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
 
     if sum(g.metrics['timing'].get('regime_shift',False) and g.time_class!='bullet' for g in scope)>=5:
         gate_timing=max(gate_timing,.55)
-    scope_context=context_metrics(scope,profile)['classes'].get(scope_class,{})
-    gate_context=clamp(((scope_context.get('excess_z') or 0)-2)/4)*.65 if scope_class!='bullet' else 0
+    scoped_results=result_support(scope,config)
+    gate_context=scoped_results['score'] if scope_class!='bullet' else 0
     scope_behavior=bool(any(r['state'] in ('Moderate','Strong','Very Strong') for r in matching_personal)
                         or recurrence or scope_floor['elevated'] or scope_trivial['recurrent'])
     if stable_strong and not scope_behavior:
@@ -177,7 +185,7 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
     priority=priority_model(gate_scores,games=len(useful),decisions=totals['decisions'],critical=summary(scope)['critical'],
                            confidence=confidence,deep_confirmed=deep_confirmed,partial=partial,config=config,
                            persistent=bool(strongest and strongest['persistent']),recurrence=recurrence,
-                           cluster_games=strongest['metrics']['games'] if strongest else 0,deep_cluster_games=deep_confirmation['games'],
+                           cluster_games=strongest['metrics']['eligible_games'] if strongest else 0,deep_cluster_games=deep_confirmation['games'],
                            cluster_decisions=summary(scope)['decisions'],cluster_qualified=bool(strongest and strongest.get('high_qualifying')),
                            baseline_available=comparison['sufficient'],baseline_anomaly=comparison['established'],
                            baseline_confirmed=deep_confirmation.get('anomaly_confirmed',False))
@@ -217,6 +225,7 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
                                      'independent_support':max(gate_timing,gate_context)>=.5 or recurrence,
                                      'engine_confidence':confidence,'timing_available':any(g.metrics['timing']['count']>=config.min_timing_moves for g in games),
                                      'gate_scores':dict(zip(names,gate_scores)), 'stable_strong_play':stable_strong and not scope_behavior,
+                                     'result_support':scoped_results,'timeline_games':len(timeline),
                                      'same_period_support':max(gate_timing,gate_context)>=.5 or recurrence,
                                      'descriptive_control_fallback':strongest is None and bool(scope),
                                      'high_path':('Personal anomaly with independent support' if comparison['established'] and deep_confirmation.get('anomaly_confirmed') else 'Exceptional absolute evidence with behavioral support or recurrence') if priority in ('HIGH','VERY HIGH') else None,
@@ -228,7 +237,7 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
                                                         'usable_moves':sum(g.metrics['timing']['count'] for g in games),
                                                         'engine_linked_moves':sum(g.metrics['timing'].get('engine_clock_count',0) for g in games),
                                                         'clock_comments':sum(g.metrics['timing'].get('clock_comments',0) for g in games),
-                                                        'excluded_clocks':sum(g.metrics['timing'].get('excluded_clocks',0) for g in games)}})
+                                                        'excluded_clocks':sum(g.metrics['timing'].get('excluded_clocks',0) for g in games)}},timeline=timeline)
 
 
 def high_block_reasons(priority, comparison, deep, cluster, timing, context, recurrence, games, config=CONFIG):
@@ -260,8 +269,7 @@ def descriptive_group_rank(group, profile, personal, config=CONFIG):
     key=comparison_control(group[0])
     timing=max(timing,max(({'Slight':.25,'Moderate':.5,'Strong':.75,'Very Strong':.9}.get(r['state'],0)
                           for r in personal if r['time_class']==group[0].time_class and r['time_control']==key),default=0))*weight
-    context=context_metrics(group,profile)['classes'][group[0].time_class]
-    support=max(timing,clamp(((context.get('excess_z') or 0)-2)/4)*.65*weight)
+    support=max(timing,result_support(group,config)['score']*weight)
     corroborated=max(e,c)>=.5 and support>=.35
     moderate=corroborated or min(e,c)>=.65
     return corroborated,moderate,max(e,c),len(group)
