@@ -522,10 +522,12 @@ def _set_latest_random_for_channel(channel_id, puzzle):
 
 
 def _latest_puzzle_type_for_channel(channel_id):
-    return _channel_puzzle_bucket(channel_id, create=False).get("latest_puzzle_type")
+    kind = _channel_puzzle_bucket(channel_id, create=False).get("latest_puzzle_type")
+    return None if kind=='daily' and _channel_id_or_primary(channel_id)!=PRIMARY_CHESS_CHANNEL_ID else kind
 
 
 def _set_latest_puzzle_type_for_channel(channel_id, puzzle_type):
+    if puzzle_type=='daily' and _channel_id_or_primary(channel_id)!=PRIMARY_CHESS_CHANNEL_ID:return
     _channel_puzzle_bucket(channel_id, create=True)["latest_puzzle_type"] = str(puzzle_type)
 
 
@@ -702,7 +704,9 @@ intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 
-client = discord.Client(intents=intents)
+from fairplay_config import CHANNEL_ID as FAIRPLAY_CHANNEL_ID
+from fairplay_routing import FairPlayClient
+client = FairPlayClient(intents=intents)
 
 # Guild slash commands. /status is a health check only and never exposes
 # puzzle solutions or other hidden game information.
@@ -710,6 +714,12 @@ command_tree = discord.app_commands.CommandTree(client)
 
 
 SHARK_ADMIN_COMMAND_LIST = shark_admin.ADMIN_LIST
+
+
+@command_tree.command(name='fairplay',description='Submit a Chess.com account for moderator fair-play screening.')
+async def fairplay_command(interaction: discord.Interaction, username: str):
+    from fairplay_ui import channel_check,submit
+    if await channel_check(interaction):await submit(interaction,username)
 
 
 @command_tree.command(name='usage', description='View private Sharkmeister feature usage analytics.')
@@ -11169,6 +11179,7 @@ async def post_daily_puzzle(
     channel,
     puzzle
 ):
+    if int(channel.id)!=PRIMARY_CHESS_CHANNEL_ID:return
 
     file, board = await make_board_file(
         puzzle,
@@ -15375,7 +15386,7 @@ async def check_expired_puzzles(
         "current_puzzle"
     )
 
-    if daily:
+    if daily and int(channel.id)==PRIMARY_CHESS_CHANNEL_ID:
 
         if not daily.get(
             "answer_posted",
@@ -15421,6 +15432,7 @@ async def check_expired_puzzles(
 async def check_for_new_puzzle(
     channel
 ):
+    if int(channel.id)!=PRIMARY_CHESS_CHANNEL_ID:return
     survival_active, survival_team = await async_remote_survival_status(channel.id)
 
     if survival_active:
@@ -15528,7 +15540,7 @@ async def check_for_new_puzzle(
         "current_puzzle"
     ] = puzzle
 
-    for _cid in CHESS_CHANNEL_IDS:
+    for _cid in (PRIMARY_CHESS_CHANNEL_ID,):
         live_random = _latest_random_for_channel(_cid)
         random_is_active = bool(
             isinstance(live_random, dict)
@@ -15545,6 +15557,25 @@ async def check_for_new_puzzle(
         puzzle
     )
     await save_all()
+
+
+async def retire_secondary_daily_card(channel):
+    """Remove only the tracked, unsolved Daily card; preserve RP and game history."""
+    if int(channel.id)!=SECONDARY_CHESS_CHANNEL_ID:return
+    puzzle = state.get('current_puzzle')
+    if not isinstance(puzzle,dict):return
+    message_id = _puzzle_message_id_for_channel(puzzle,channel.id)
+    if message_id:
+        try:
+            message = await channel.fetch_message(int(message_id))
+            if (not puzzle.get('solved') and not puzzle.get('answer_posted')
+                    and message.author.id==client.user.id and message.embeds
+                    and str(message.embeds[0].title).startswith('♟️ Daily Puzzle')):
+                await message.delete()
+        except (discord.NotFound,discord.Forbidden):pass
+        except discord.HTTPException:return
+        _set_puzzle_message_id_for_channel(puzzle,channel.id,None)
+        await save_all()
 
 
 # =========================================================
@@ -15991,31 +16022,9 @@ def wrong_message_with_move(user, move_text):
 # =========================================================
 
 async def _mirror_daily_puzzle_card(source_channel, puzzle, *, move_to_bottom=False):
-    if not isinstance(puzzle, dict):
-        return
-    if not str(puzzle.get("puzzle_id", "")).startswith("daily_"):
-        return
-    for channel_id in CHESS_CHANNEL_IDS:
-        if int(channel_id) == int(source_channel.id):
-            continue
-        if not _puzzle_message_id_for_channel(puzzle, channel_id):
-            continue
-        target = client.get_channel(channel_id)
-        if target is None:
-            try:
-                target = await client.fetch_channel(channel_id)
-            except Exception:
-                continue
-        try:
-            await update_random_puzzle_message(
-                target,
-                puzzle,
-                None,
-                move_to_bottom=move_to_bottom,
-                mirror_daily=False,
-            )
-        except Exception as error:
-            print(f"Could not mirror Daily Puzzle card to {channel_id}: {error}", flush=True)
+    # Daily Puzzle now lives only in ChessBot 1. Keep this compatibility hook
+    # for old callers, but never update/repost the old secondary card.
+    return
 
 
 _puzzle_card_locks = {}
@@ -16023,6 +16032,7 @@ _puzzle_card_locks = {}
 
 async def update_random_puzzle_message(channel, puzzle, message_text=None, *, move_to_bottom=False,
                                        render_board=True, mirror_daily=True):
+    if str((puzzle or {}).get('puzzle_id','')).startswith('daily_') and int(channel.id)!=PRIMARY_CHESS_CHANNEL_ID:return
     # Serialize reading/changing the card ID with its send/delete. Two quick
     # accepted moves must delete their immediate predecessor, not the same old ID.
     lock = _puzzle_card_locks.setdefault(int(channel.id), asyncio.Lock())
@@ -18380,6 +18390,11 @@ async def on_message(
         if message.author.bot:
             return
 
+        if message.channel.id==FAIRPLAY_CHANNEL_ID:
+            from fairplay_ui import handle_message
+            await handle_message(message)
+            return
+
         # Human activity in the Ideas channel or one of its ticket threads resets
         # the 30-minute timer. The single movable Create Ticket prompt is only
         # refreshed after 5 tickets or after a new 30-minute quiet period.
@@ -20180,6 +20195,9 @@ async def on_message(
 
 @client.event
 async def on_ready():
+    import fairplay_ui
+    try:await fairplay_ui.startup(client)
+    except Exception:print('Fair Play startup needs a retry; normal SharkBot remains available.',flush=True)
     from next_batch_ui import restore_public_views
     try:await restore_public_views(client)
     except Exception:print('Public recap/match buttons need restore retry.',flush=True)
@@ -20411,10 +20429,12 @@ async def on_ready():
 
     for channel in channels:
         await restore_chess_idle_state_from_history(channel)
-        await check_for_new_puzzle(channel)
+        await retire_secondary_daily_card(channel)
+        if int(channel.id)==PRIMARY_CHESS_CHANNEL_ID:
+            await check_for_new_puzzle(channel)
+            asyncio.create_task(puzzle_loop(channel))
         await restore_puzzle_move_button(channel)
         await restore_chess_move_buttons(channel)
-        asyncio.create_task(puzzle_loop(channel))
         asyncio.create_task(maintenance_loop(channel))
         asyncio.create_task(chess_idle_tip_loop(channel))
 
@@ -20458,6 +20478,14 @@ async def on_ready():
 
 @client.event
 async def on_interaction(interaction):
+    if interaction.channel_id==FAIRPLAY_CHANNEL_ID:
+        import fairplay_ui
+        custom = (interaction.data or {}).get('custom_id','')
+        if fairplay_ui._service and not interaction.user.bot:
+            fairplay_ui._service.note_human()
+        if interaction.type==discord.InteractionType.modal_submit and custom.startswith('shark:fairplay:') and custom not in client._connection._view_store._modals and not interaction.response.is_done():
+            await interaction.response.send_message('This submission form expired after a restart. Open Submit Chess.com Account again.',ephemeral=True)
+        return
     import feature_usage
     custom=(interaction.data or {}).get("custom_id", "slash")
     feature_usage.note("button:"+":".join(custom.split(":")[:2]),interaction.user.id)

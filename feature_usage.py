@@ -22,6 +22,7 @@ _buffer_lock=threading.RLock()
 
 # Public feature names only. Game counts come from saved starts, never menu clicks.
 FEATURE_NAMES={
+    'fairplay-scan':'Fair Play Scans',
     'profile':'Profile','shop':'Shop','pets':'Pets','collection':'Collection Book',
     'trades':'Trades','wanted':'Wanted Market','shelter':'Pet Shelter','event':'Event Hub',
     'economy':'Economy Pages','week':'My Week','community':'Community Challenge',

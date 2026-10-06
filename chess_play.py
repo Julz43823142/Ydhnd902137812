@@ -383,13 +383,13 @@ def _try_install_stockfish_on_github_actions():
         _STOCKFISH_LAST_INSTALL_ERROR = str(error)
 
 
-def _resolve_stockfish_binary():
+def _resolve_stockfish_binary(*, allow_install=True):
     global _STOCKFISH_PATH
     if _STOCKFISH_PATH and os.path.isfile(_STOCKFISH_PATH):
         return _STOCKFISH_PATH
 
     path = _find_stockfish_binary()
-    if path is None:
+    if path is None and allow_install:
         _try_install_stockfish_on_github_actions()
         path = _STOCKFISH_PATH or _find_stockfish_binary()
 
@@ -426,12 +426,18 @@ def _close_stockfish_engine():
 atexit.register(_close_stockfish_engine)
 
 
-def _create_stockfish_engine():
+def _create_stockfish_engine(*, allow_install=True, engine_class=None):
     # Binary discovery/auto-install is shared, engine commands are independent.
-    with _STOCKFISH_STARTUP_LOCK:
-        path = _resolve_stockfish_binary()
+    if allow_install:
+        with _STOCKFISH_STARTUP_LOCK:path = _resolve_stockfish_binary()
+    else:
+        # A review should not wait indefinitely behind a normal engine build.
+        if not _STOCKFISH_STARTUP_LOCK.acquire(timeout=5):
+            raise StockfishUnavailableError('Stockfish startup is busy. Please retry shortly.')
+        try:path = _resolve_stockfish_binary(allow_install=False)
+        finally:_STOCKFISH_STARTUP_LOCK.release()
     try:
-        engine = chess.engine.SimpleEngine.popen_uci(path, timeout=15.0)
+        engine = (engine_class or chess.engine.SimpleEngine).popen_uci(path, timeout=15.0)
     except Exception as error:
         raise StockfishUnavailableError(
             f"Could not start Stockfish at '{path}': {error}"

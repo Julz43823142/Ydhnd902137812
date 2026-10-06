@@ -1,0 +1,426 @@
+"""Discord is the case history. Runtime review data stays in bounded memory.
+
+One dedicated executor/queue keeps engine work off Discord's loop and outside
+the normal chess engine locks. No Discord token, ledger, wallet or punishments.
+"""
+import asyncio
+import threading
+import time
+import uuid
+from collections import OrderedDict
+from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+
+import discord
+
+from fairplay_analysis import ReviewResult, review, review_interest
+from fairplay_config import CHANNEL_ID, DISCLAIMER, NAMESPACE
+from fairplay_data import AccountNotFound, ReviewError, username
+
+RESERVED = '🛡️ This channel is reserved for Fair Play reviews.'
+PANEL_TITLE = '🛡️ Fair Play Task Force'
+REPORT_PREFIX = '🛡️ Fair Play Review — '
+IDLE_SECONDS = 60*60
+PANEL_MARKER = 'shark:fairplay:panel:v1'
+_service = None
+
+
+def public_text(value):
+    return discord.utils.escape_markdown(str(value))
+
+
+def panel_embed():
+    embed = discord.Embed(title=PANEL_TITLE, color=0x427CBA,
+        description='Want to review a suspicious Chess.com account?\n\n'
+                    "Submit the Chess.com username and SharkBot will analyze up to the player's latest 100 eligible games for unusual engine, performance and move-time patterns.\n\n"
+                    '**This is an automated screening tool — not proof of cheating.**')
+    embed.set_footer(text=PANEL_MARKER)
+    return embed
+
+
+def progress_embed(target, stage):
+    embed = discord.Embed(title=REPORT_PREFIX+target, description=stage, color=0x427CBA)
+    embed.add_field(name='⚠️ Automated screening only', value=DISCLAIMER, inline=False)
+    return embed
+
+
+def number(value, suffix=''):
+    return 'Unavailable' if value is None else f'{value:.1f}{suffix}'
+
+
+def percentage(value):
+    return number(None if value is None else value*100,'%')
+
+
+def result_embed(result: ReviewResult):
+    icons = {'LOW':'🟢','MODERATE':'🟡','HIGH':'🟠','VERY HIGH':'🔴','INSUFFICIENT DATA':'⚪'}
+    colors = {'LOW':0x2E9E65,'MODERATE':0xE9B44C,'HIGH':0xEA8537,'VERY HIGH':0xD94F55,'INSUFFICIENT DATA':0x788491}
+    embed = discord.Embed(title=REPORT_PREFIX+result.username,color=colors[result.priority])
+    embed.add_field(name='Fair Play Review Priority',value=f'{icons[result.priority]} **{result.priority}**')
+    embed.add_field(name='Data Confidence',value=result.confidence)
+    totals = result.totals
+    classes = ' • '.join(f'{kind.title()}: {data["games"]}' for kind,data in result.classes.items())
+    sample = (f'Games reviewed: **{totals["games"]}** / {result.selected_games} collected\n'
+              f'Meaningful decisions: **{totals["decisions"]:,}**\n{classes}\n'
+              f'Account age: {result.context["age_days"] if result.context["age_days"] is not None else "unavailable"} days')
+    if result.skipped:sample += f'\nSkipped archive/game entries: {sum(result.skipped.values())}'
+    if result.partial:sample += '\n⚠️ Partial scan / limited archive coverage. Missing data is not suspicious.'
+    embed.add_field(name='Sample',value=sample,inline=False)
+    embed.add_field(name='Signals',value='\n'.join(f'**{key}:** {value}' for key,value in result.families.items()),inline=False)
+    embed.add_field(name='Review notes',value='\n'.join('• '+value for value in result.reasons)[:1024],inline=False)
+    embed.add_field(name='⚠️ Automated screening only',value=DISCLAIMER,inline=False)
+    embed.set_footer(text=f'{result.version} · {result.engine} · heuristic thresholds, not probabilities · details expire after restart')
+    return embed
+
+
+def detail_embed(result, mode):
+    embed = discord.Embed(title=f'{mode} — {result.username}',color=0x427CBA)
+    if mode=='Highest-Signal Games':
+        games = sorted(result.games,key=review_interest,reverse=True)[:10]
+        for index,game in enumerate(games,1):
+            metrics = game.metrics
+            rate = percentage(metrics['critical_top1'])
+            text = (f'{game.time_class.title()} · {game.result} · <t:{game.ended}:d>\n'
+                    f'Rating: {game.rating or "unavailable"} vs {game.opponent_rating or "unavailable"}\n'
+                    f'Critical top-1: {rate} / {metrics["critical"]} opportunities · '
+                    f'Median CPL: {number(metrics["median_cpl"])}\n'
+                    f'Timing: {"Elevated" if metrics["timing"].get("elevated") else "Not established"} · '
+                    f'{"Deep reviewed" if game.deep else "Fast scan"}')
+            if game.url:text += f'\n[Open Game]({game.url})'
+            embed.add_field(name=f'Game {index}',value=text,inline=False)
+    elif mode=='Timing':
+        eligible = [g for g in result.games if g.metrics['timing']['count']>=15]
+        regular = [g for g in eligible if g.metrics['timing'].get('elevated')]
+        embed.description = (f'Games with ≥15 usable clock decisions: **{len(eligible)}**\n'
+                             f'Repeated narrow-cadence games: **{len(regular)}**\n'
+                             'First moves, missing clocks, ≤0.5-second premoves, opening autopilot and time trouble are excluded. '
+                             'Clock estimates use previous remaining time + increment − new remaining time. '
+                             'Bullet, clock rounding and lag reduce reliability. Timing alone cannot produce HIGH priority.')
+        for game in sorted(eligible,key=lambda g:g.metrics['timing'].get('cluster_fraction',0),reverse=True)[:5]:
+            m = game.metrics['timing']
+            embed.add_field(name=f'{game.time_class.title()} · <t:{game.ended}:d>',
+                value=f'Modal band: {m.get("modal_seconds",0)} ± 1 sec · {percentage(m.get("cluster_fraction"))}\n'
+                      f'CV: {number(m.get("cv"))} · entropy: {number(m.get("entropy"))}\n'
+                      f'Ordinary / critical median: {number(m.get("ordinary_median"))} / {number(m.get("critical_median"))} sec\n'
+                      f'Gap–time correlation: {number(m.get("complexity_response"))} · within-game regime change: {bool(m.get("regime_shift"))}\n'
+                      f'Critical-hit cadence: {percentage(m.get("critical_cadence",{}).get("cluster_fraction"))} · reliability: {m["reliability"]}',inline=False)
+    elif mode=='Performance':
+        embed.description = 'Sustained changes compare adjacent 10-game windows within the same time class using robust CPL and MAD. One exceptional game is insufficient.'
+        for kind,m in result.performance['classes'].items():
+            c = result.context['classes'][kind]
+            shift = m['shift']
+            text = f'W/L/D: {m["wins"]}/{m["losses"]}/{m["draws"]}\nWin / loss / draw robust CPL: {number(m["win_cpl"])} / {number(m["loss_cpl"])} / {number(m["draw_cpl"])}\n'
+            text += f'Expected / actual points: {c["expected"]:.1f} / {c["actual"]:.1f} in {c["rated_games"]} rated games\nRating change: {number(c["rating_gain"])} · volatility: {number(c["rating_volatility"])}\nLongest win streak: {c["longest_win_streak"]}'
+            if shift:text += f'\nStrongest window change: {number(shift["before_cpl"])} → {number(shift["after_cpl"])} CPL · sustained criteria met: {shift["elevated"]}'
+            if len(m['rolling_cpl'])>=2:text += f'\nRolling 10-game CPL: {number(m["rolling_cpl"][0])} → {number(m["rolling_cpl"][-1])}'
+            embed.add_field(name=kind.title(),value=text,inline=False)
+    else:
+        a = result.totals
+        embed.description = (f'Meaningful decisions: **{a["decisions"]:,}**\nMedian / 90th percentile CPL: {number(a["median_cpl"])} / {number(a["p90_cpl"])}\n'
+                             f'Top-1 / top-3: {percentage(a["top1"])} / {percentage(a["top3"])}\n'
+                             f'Critical opportunities: {a["critical"]} · top-1 / top-3: {percentage(a["critical_top1"])} / {percentage(a["critical_top3"])}\n'
+                             f'Critical median CPL: {number(a["critical_cpl"])} · unique-best hits: {a["unique_hits"]}/{a["unique"]}\n'
+                             f'Mistake / blunder-like losses: {a["mistakes"]}/{a["blunders"]} · critical mistakes: {a["critical_mistakes"]}\n'
+                             f'Deep confirmation: {result.deep_confirmed} · {result.deep_coverage["games"]} games / {result.deep_coverage["decisions"]} decisions\n\n'
+                             'First 20 plies, checks/near-forced moves and recaptures are excluded. Strongly won/lost positions are de-weighted. '
+                             'Critical positions require several choices, a best–second gap and candidate spread; quiet unique choices receive the strongest evidence. '
+                             'These heuristic measures have innocent explanations and do not establish misconduct.')
+        for kind,a in result.classes.items():
+            embed.add_field(name=kind.title(),value=f'{a["games"]} games · {a["decisions"]} decisions · median CPL {number(a["median_cpl"])} · top-1 {percentage(a["top1"])} · critical top-1 {percentage(a["critical_top1"])}',inline=False)
+    embed.set_footer(text=DISCLAIMER)
+    return embed
+
+
+async def channel_check(ctx):
+    if ctx.channel_id==CHANNEL_ID and not ctx.user.bot:return True
+    await ctx.response.send_message('🛡️ Fair Play reviews are only available in the Fair Play Task Force channel.',ephemeral=True)
+    return False
+
+
+class SubmitModal(discord.ui.Modal, title='Fair Play Review'):
+    account = discord.ui.TextInput(label='Chess.com username',min_length=2,max_length=25,required=True)
+
+    def __init__(self):
+        super().__init__(custom_id=NAMESPACE+'submit-modal',timeout=300)
+
+    async def on_submit(self,ctx):
+        if await channel_check(ctx):await submit(ctx,str(self.account.value))
+
+    async def on_error(self,ctx,error):
+        # Never let discord.py's default error logger include a case/traceback.
+        if not ctx.response.is_done():await ctx.response.send_message('Could not submit the review. Please try again.',ephemeral=True)
+
+
+class SubmitView(discord.ui.View):
+    def __init__(self):super().__init__(timeout=None)
+
+    async def interaction_check(self,ctx):return await channel_check(ctx)
+
+    @discord.ui.button(label='Submit Chess.com Account',emoji='🔎',custom_id=NAMESPACE+'submit')
+    async def open(self,ctx,button):await ctx.response.send_modal(SubmitModal())
+
+    async def on_error(self,ctx,error,item):
+        if not ctx.response.is_done():await ctx.response.send_message('Fair Play is temporarily unavailable.',ephemeral=True)
+
+
+class ReportView(SubmitView):
+    def __init__(self,target=None):
+        super().__init__()
+        self.clear_items()
+        for label,emoji,action in [('Highest-Signal Games','🎯','games'),('Timing','⏱️','timing'),
+                                   ('Performance','📈','performance'),('Engine Analysis','♟️','engine'),('Re-scan','🔄','rescan')]:
+            button = discord.ui.Button(label=label,emoji=emoji,custom_id=NAMESPACE+action)
+            async def show(ctx,action=action,label=label):
+                if _service is None:
+                    await ctx.response.send_message('Fair Play is reconnecting. Please try again shortly.',ephemeral=True);return
+                if action=='rescan':
+                    try:target = username(ctx.message.embeds[0].title.removeprefix(REPORT_PREFIX))
+                    except (ValueError,IndexError,ReviewError):
+                        await ctx.response.send_message('Open the submission panel to start a new review.',ephemeral=True);return
+                    await submit(ctx,target);return
+                result = _service.result_for(ctx.message.id)
+                if result is None:
+                    await ctx.response.send_message('Detailed data expired or was cleared after a restart. Re-scan to rebuild it. The public review remains in Discord.',ephemeral=True);return
+                await ctx.response.send_message(embed=detail_embed(result,label),ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
+            button.callback = show;self.add_item(button)
+        if target:self.add_item(discord.ui.Button(label='Chess.com Profile',emoji='🔗',url=f'https://www.chess.com/member/{username(target)}'))
+
+
+@dataclass
+class Job:
+    target: str
+    ctx: object
+    stage: str = 'Fetching profile…'
+    message: object = None
+    stop: threading.Event = field(default_factory=threading.Event)
+    message_deleted: bool = False
+    delivery_unknown: bool = False
+    token: str = field(default_factory=lambda:uuid.uuid4().hex[:12])
+
+
+class FairPlayService:
+    def __init__(self,client,channel,analyzer=review):
+        self.client,self.channel,self.analyzer = client,channel,analyzer
+        self.executor = ThreadPoolExecutor(max_workers=1,thread_name_prefix='fairplay')
+        self.queue = asyncio.Queue(maxsize=2)
+        self.jobs = {}
+        self.results = OrderedDict()
+        self.cache = OrderedDict()
+        self.last_human = time.time()
+        self.restore_grace = time.time()+60
+        self.panel_id = None
+        self.panel_lock = asyncio.Lock()
+        self.worker = None
+        self.idle_task = None
+        self.closed = False
+
+    def note_human(self):self.last_human = time.time()
+
+    def result_for(self,message_id):
+        self.expire_cache()
+        entry = self.results.get(int(message_id))
+        return entry[1] if entry else None
+
+    def expire_cache(self):
+        now = time.time()
+        for key,(at,_) in list(self.results.items()):
+            if now-at>7200:self.results.pop(key,None)
+        for key,(at,_,_) in list(self.cache.items()):
+            if now-at>1800:self.cache.pop(key,None)
+        while len(self.results)>50:self.results.popitem(last=False)
+        while len(self.cache)>20:self.cache.popitem(last=False)
+
+    async def enqueue(self,ctx,target):
+        self.expire_cache()
+        if self.closed:
+            await ctx.followup.send('Fair Play is restarting. Please try again shortly.',ephemeral=True);return
+        if target in self.jobs:
+            job = self.jobs[target]
+            text = 'This account already has a queued or running review. The existing scan is reused.'
+            if job.message:text += f' [View progress]({job.message.jump_url})'
+            await ctx.followup.send(text,ephemeral=True);return
+        if target in self.cache:
+            _,result,message = self.cache[target]
+            await ctx.followup.send(f'A recent review is cached. [View review]({message.jump_url}). Re-scan becomes available after 30 minutes.',ephemeral=True);return
+        if len(self.jobs)>=2:
+            await ctx.followup.send('The Fair Play queue is full (one scan and one waiting review). Please try again later.',ephemeral=True);return
+        job = Job(target,ctx)
+        self.jobs[target] = job
+        self.queue.put_nowait(job)
+        import feature_usage
+        feature_usage.note('use:fairplay-scan',ctx.user.id)
+        await ctx.followup.send('Review queued. Public progress appears after the account is validated. One heavy scan runs at a time.',ephemeral=True)
+
+    async def safe_progress(self,job,stage,*,view=None,embed=None):
+        if job.message_deleted:return False
+        try:
+            if job.delivery_unknown and job.message is None:
+                async for candidate in self.channel.history(limit=100):
+                    if candidate.author.id==self.client.user.id and candidate.embeds and f'Review ID: {job.token}' in str(candidate.embeds[0].footer.text):
+                        job.message = candidate;job.delivery_unknown = False;break
+                if job.message is None:return False  # an uncertain ACK is not permission to repost
+            card = (embed.copy() if embed is not None else progress_embed(job.target,stage))
+            card.set_footer(text=(card.footer.text or '')+f' · Review ID: {job.token}')
+            if job.message is None:
+                job.delivery_unknown = True
+                job.message = await self.channel.send(embed=card,view=view,nonce=job.token,
+                                                      allowed_mentions=discord.AllowedMentions.none())
+                job.delivery_unknown = False
+            else:await job.message.edit(embed=card,view=view)
+            return True
+        except discord.NotFound:job.message_deleted = True
+        except discord.HTTPException:pass  # retry later; never create a second progress card
+        return False
+
+    async def process(self,job):
+        loop = asyncio.get_running_loop()
+        def progress(stage):
+            if not self.closed:loop.call_soon_threadsafe(setattr,job,'stage',stage)
+        future = None
+        last = None
+        try:
+            future = loop.run_in_executor(self.executor,lambda:self.analyzer(job.target,progress,cancel=job.stop))
+            while not future.done():
+                if job.stage!='Fetching profile…' and job.stage!=last:
+                    if await self.safe_progress(job,job.stage):last = job.stage
+                await asyncio.wait({future},timeout=3)
+            result = await future
+            # All detailed position caches remain bounded in the engine worker.
+            # Discord detail pages need game summaries, not thousands of FENs.
+            for game in result.games:game.decisions.clear()
+            if await self.safe_progress(job,'Complete',view=ReportView(result.username),embed=result_embed(result)):
+                self.results[job.message.id] = (time.time(),result)
+                self.cache[job.target] = (time.time(),result,job.message)
+                self.expire_cache()
+        except AccountNotFound:
+            try:await job.ctx.followup.send('❌ **Chess.com account not found**\nCheck the username and try again.',ephemeral=True)
+            except discord.HTTPException:pass
+        except ReviewError as error:
+            if job.message is not None:await self.safe_progress(job,'❌ '+str(error))
+            else:
+                try:await job.ctx.followup.send('❌ '+str(error),ephemeral=True)
+                except discord.HTTPException:pass
+        except asyncio.CancelledError:
+            job.stop.set()
+            # Await bounded cleanup so a replacement task cannot launch a second
+            # engine while the previous executor is still finishing.
+            try:
+                if future is not None:await asyncio.wait_for(asyncio.shield(future),timeout=20)
+            except Exception:pass
+            raise
+        except Exception:
+            # Deliberately do not log exception values/targets/reports.
+            if job.message is not None:await self.safe_progress(job,'❌ Analysis could not finish safely. Please try again later.')
+            else:
+                try:await job.ctx.followup.send('Analysis could not finish safely. Please try again later.',ephemeral=True)
+                except discord.HTTPException:pass
+
+    async def run_queue(self):
+        try:
+            while not self.closed and not self.client.is_closed():
+                job = await self.queue.get()
+                try:await self.process(job)
+                finally:self.jobs.pop(job.target,None);self.queue.task_done()
+        finally:
+            for job in self.jobs.values():job.stop.set()
+            self.executor.shutdown(wait=False,cancel_futures=True)
+
+    def is_panel(self,message):
+        return (message.author.id==self.client.user.id and bool(message.embeds)
+                and message.embeds[0].title==PANEL_TITLE and message.embeds[0].footer.text==PANEL_MARKER)
+
+    async def restore_history(self):
+        try:
+            anchor = None
+            baseline = self.last_human
+            # Stream until the newest panel is found, even if it is >200 posts
+            # up. Do not retain a case/history list in memory or on disk.
+            async for message in self.channel.history(limit=None):
+                if not message.author.bot:
+                    anchor = max(anchor or 0,message.created_at.timestamp())
+                elif self.is_panel(message):
+                    if self.panel_id is None:self.panel_id = message.id
+                    anchor = max(anchor or 0,message.created_at.timestamp())
+                    break
+                elif message.author.id==self.client.user.id and message.embeds and str(message.embeds[0].title).startswith(REPORT_PREFIX):
+                    anchor = max(anchor or 0,message.created_at.timestamp())
+            if anchor is not None:
+                self.last_human = anchor if self.last_human==baseline else max(self.last_human,anchor)
+        except discord.HTTPException:pass  # default to a fresh hour if history is inaccessible
+
+    async def ensure_panel(self):
+        if self.jobs or time.time()<self.restore_grace or time.time()-self.last_human<IDLE_SECONDS:return False
+        async with self.panel_lock:
+            # A human can arrive while the first caller was waiting for the lock.
+            if self.jobs or time.time()-self.last_human<IDLE_SECONDS:return False
+            try:
+                messages = [m async for m in self.channel.history(limit=200)]
+                if any(not m.author.bot and m.created_at.timestamp()>self.last_human for m in messages):
+                    self.last_human = max(m.created_at.timestamp() for m in messages if not m.author.bot)
+                    if time.time()-self.last_human<IDLE_SECONDS:return False
+                panels = [m for m in messages if self.is_panel(m)]
+                if messages and self.is_panel(messages[0]):
+                    self.panel_id = messages[0].id
+                    for old in panels[1:]:await old.delete()
+                    return False
+                # Refuse to add another panel if deleting an old one fails.
+                for old in panels:await old.delete()
+                if self.panel_id and not any(m.id==self.panel_id for m in panels):
+                    try:await self.channel.get_partial_message(self.panel_id).delete()
+                    except discord.NotFound:pass
+                if time.time()-self.last_human<IDLE_SECONDS:return False
+                message = await self.channel.send(embed=panel_embed(),view=SubmitView(),allowed_mentions=discord.AllowedMentions.none())
+                self.panel_id = message.id
+                return True
+            except discord.HTTPException:return False
+
+    async def idle_loop(self):
+        while not self.closed and not self.client.is_closed():
+            await self.ensure_panel()
+            await asyncio.sleep(60)
+
+    async def close(self):
+        self.closed = True
+        for job in self.jobs.values():job.stop.set()
+        for task in (self.idle_task,self.worker):
+            if task and not task.done():task.cancel()
+        await asyncio.gather(*(task for task in (self.idle_task,self.worker) if task),return_exceptions=True)
+        self.executor.shutdown(wait=False,cancel_futures=True)
+
+
+async def submit(ctx,target):
+    await ctx.response.defer(ephemeral=True,thinking=True)
+    try:target = username(target)
+    except ReviewError as error:
+        await ctx.followup.send(str(error),ephemeral=True);return
+    if _service is None:
+        await ctx.followup.send('Fair Play is reconnecting. Please try again shortly.',ephemeral=True);return
+    _service.note_human()
+    await _service.enqueue(ctx,target)
+
+
+async def handle_message(message):
+    if message.channel.id!=CHANNEL_ID:return False
+    if not message.author.bot:
+        if _service:_service.note_human()
+        if message.content.strip().startswith('!'):
+            # User text is never parsed as a chess move or account URL here.
+            await message.channel.send(RESERVED,allowed_mentions=discord.AllowedMentions.none(),delete_after=15)
+    return True
+
+
+async def startup(client):
+    global _service
+    if _service is not None and not _service.closed:return
+    client.add_view(SubmitView())
+    client.add_view(ReportView())
+    try:channel = client.get_channel(CHANNEL_ID) or await client.fetch_channel(CHANNEL_ID)
+    except discord.HTTPException:
+        print('Fair Play channel unavailable; normal SharkBot startup continues.',flush=True);return
+    _service = FairPlayService(client,channel)
+    _service.worker = asyncio.create_task(_service.run_queue(),name='fairplay-queue')
+    async def restore_and_idle():
+        await _service.restore_history()
+        await _service.idle_loop()
+    _service.idle_task = asyncio.create_task(restore_and_idle(),name='fairplay-idle')
