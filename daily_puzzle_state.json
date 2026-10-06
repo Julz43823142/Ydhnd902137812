@@ -2816,8 +2816,8 @@
         "url": "https://lichess.org/training/P4CYy",
         "title": "Lichess • 1563",
         "fen": "1rbq1rk1/1p3p1p/p2bp1p1/5n2/P2PB3/2PQ1NB1/1P3PPP/R3K2R b KQ - 2 16",
-        "current_fen": "1rbq1rk1/1p3p1p/p2bp1p1/5n2/P2PB3/2PQ1NB1/1P3PPP/R3K2R b KQ - 2 16",
-        "last_move_uci": "c4d3",
+        "current_fen": "1rbq1rk1/1p3p1p/p2bp1p1/8/P2PB3/2PQ1NP1/1P3PP1/R3K2R b KQ - 0 17",
+        "last_move_uci": "h2g3",
         "pgn": "Nxg3 hxg3 f5 Qd2 fxe4",
         "all_moves": [
           {
@@ -2872,16 +2872,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_P4CYy_1791296612221",
         "rating": 1563,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1557035561141932072,
+      "message_id": 1557035589063286896,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1791296612.2179523,
-      "last_feedback": "✅ **Qd1#** — solved! Score: **8**."
+      "last_card_activity_at": 1791296627.6090674,
+      "last_feedback": "✅ **Nxg3** • Opponent: **hxg3**"
     },
     "362606514764251137": {
       "active": false,
