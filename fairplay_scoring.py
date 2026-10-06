@@ -62,12 +62,16 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
     strongest = clusters['strongest']
     # A title changes expectations, not the evidence. It never multiplies away
     # a personal anomaly. Stable elite play needs an independent behavior shift.
-    personal = personal_timing(useful,config)
+    # Engine opportunity coverage and clock coverage are independent. A fully
+    # scanned game can contain mostly forced/easy moves but still useful clocks.
+    # Keep probes/unscanned games out; personal_timing applies its own stronger
+    # engine-quality minimum before comparing quality-defined groups.
+    personal = personal_timing(timeline,config)
     timing_score = 0.0
     for row in personal:
         timing_score = max(timing_score,{'Slight':.25,'Moderate':.5,'Strong':.75,'Very Strong':.9}.get(row['state'],0)*(.35 if row['time_class']=='bullet' else 1))
     recurrent, trivial_timing, cadence_groups, delay_floors = [], {}, {}, {}
-    for (kind,control),group in buckets(games).items():
+    for (kind,control),group in buckets(timeline).items():
         weight = .35 if kind=='bullet' else 1.0
         floor = delay_floor_periods(group,config)
         delay_floors[f'{kind} · {control}'] = floor
@@ -129,7 +133,7 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
     clusters['personal']=comparison
     # Absence of a qualifying period blocks HIGH, but must not erase large
     # same-control aggregate signals from a descriptive MODERATE review.
-    fallback=max(buckets(games).values(),key=lambda group:descriptive_group_rank(group,profile,personal,config),default=[])
+    fallback=max(buckets(timeline).values(),key=lambda group:descriptive_group_rank(group,profile,personal,config),default=[])
     reference=[g for g in games if strongest and g.time_class==strongest['time_class'] and g.time_control==strongest['time_control']] if strongest else fallback
     stable_strong=comparison['stable'] or stable_history(reference,config)
     independent_timing = any(row['state'] in ('Moderate','Strong','Very Strong') and row['time_class']!='bullet' for row in personal)
@@ -203,12 +207,12 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
     if recurrence:reasons.append('Separate high-signal periods recur against a lower-anomaly personal baseline.')
     if stable_strong and not scope_behavior:reasons.append('Strong precision without an independent personal behavior change is compatible with stable expert play.')
     if critical_score>=.5 and engine_score<.5 and max(gate_scores[2:])<.35:reasons.append('Critical-move agreement alone is insufficient to raise review priority.')
-    if not any(g.metrics['timing']['count']>=config.min_timing_moves for g in games):reasons.append('Clock coverage is limited; missing timing evidence is not a normal-behavior finding.')
+    if not any(g.metrics['timing']['count']>=config.min_timing_moves for g in timeline):reasons.append('Clock coverage is limited; missing timing evidence is not a normal-behavior finding.')
     if not reasons:reasons.append('No well-supported elevated signal combination was found; this does not establish fair play.')
     names=('Engine Precision','Critical Position Precision','Move-Time Pattern','Performance Shift','Account / Results')
     families=dict(zip(names,(family_label(v) for v in scores)))
-    clock_games=sum(g.metrics['timing']['count']>=config.timing_min_game_moves for g in games)
-    clock_moves=sum(g.metrics['timing']['count'] for g in games)
+    clock_games=sum(g.metrics['timing']['count']>=config.timing_min_game_moves for g in timeline)
+    clock_moves=sum(g.metrics['timing']['count'] for g in timeline)
     if clock_games<config.timing_recurrence_games or clock_moves<config.timing_recurrence_moves:
         families['Move-Time Pattern']='Insufficient clock data'
     if totals['decisions']<config.min_games*config.min_game_decisions:families['Engine Precision']='Insufficient meaningful decisions'
@@ -223,7 +227,7 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
                                   'excluded_after_fast':len(scanned_rated)-len(useful)},
                         diagnostics={'scores':dict(zip(names,scores)),'weighted_review_score':sum(v*w for v,w in zip(scores,config.weights)),
                                      'independent_support':max(gate_timing,gate_context)>=.5 or recurrence,
-                                     'engine_confidence':confidence,'timing_available':any(g.metrics['timing']['count']>=config.min_timing_moves for g in games),
+                                     'engine_confidence':confidence,'timing_available':any(g.metrics['timing']['count']>=config.min_timing_moves for g in timeline),
                                      'gate_scores':dict(zip(names,gate_scores)), 'stable_strong_play':stable_strong and not scope_behavior,
                                      'result_support':scoped_results,'timeline_games':len(timeline),
                                      'same_period_support':max(gate_timing,gate_context)>=.5 or recurrence,
@@ -233,11 +237,12 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
                                      'baseline_anomaly':comparison['established'],'baseline_anomaly_confirmed':deep_confirmation.get('anomaly_confirmed',False),
                                      'qualifying_cluster':bool(strongest and strongest.get('high_qualifying')),
                                      'high_blocked':high_block_reasons(priority,comparison,deep_confirmation,strongest,gate_timing,gate_context,recurrence,len(useful),config),
-                                     'timing_coverage':{'games':sum(g.metrics['timing'].get('all_valid_clocks',0)>0 for g in games),
-                                                        'usable_moves':sum(g.metrics['timing']['count'] for g in games),
-                                                        'engine_linked_moves':sum(g.metrics['timing'].get('engine_clock_count',0) for g in games),
-                                                        'clock_comments':sum(g.metrics['timing'].get('clock_comments',0) for g in games),
-                                                        'excluded_clocks':sum(g.metrics['timing'].get('excluded_clocks',0) for g in games)}},timeline=timeline)
+                                     'timing_coverage':{'games':sum(g.metrics['timing'].get('all_valid_clocks',0)>0 for g in timeline),
+                                                        'below_engine_minimum_games':sum(g.metrics['timing'].get('all_valid_clocks',0)>0 and (g.fast_metrics or g.metrics).get('decisions',0)<config.min_game_decisions for g in timeline),
+                                                        'usable_moves':sum(g.metrics['timing']['count'] for g in timeline),
+                                                        'engine_linked_moves':sum(g.metrics['timing'].get('engine_clock_count',0) for g in timeline),
+                                                        'clock_comments':sum(g.metrics['timing'].get('clock_comments',0) for g in timeline),
+                                                        'excluded_clocks':sum(g.metrics['timing'].get('excluded_clocks',0) for g in timeline)}},timeline=timeline)
 
 
 def high_block_reasons(priority, comparison, deep, cluster, timing, context, recurrence, games, config=CONFIG):
