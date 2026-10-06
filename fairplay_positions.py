@@ -64,6 +64,7 @@ Hard decisions remain evidence even against a very weak opponent.
                                              and m.get('gap',0)>=config.unique_gap)))
         competitive=bool(m['useful'] and abs(before)<=config.competitive_eval_cp and not error)
         m.update(opponent_swing_cp=swing,post_opponent_error=error,
+                 automatic_material_gain=automatic,
                  opponent_material_exposure=bool(error and obvious_gain),
                  equal_to_winning=bool(error and previous is not None
                     and abs(previous.metrics['actual_cp'])<=config.competitive_eval_cp and winning),

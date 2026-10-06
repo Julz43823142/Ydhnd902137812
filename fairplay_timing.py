@@ -127,6 +127,10 @@ def distribution_overlap(left, right):
     return min(1.0,max(0.0,sum(min(a[k],b[k]) for k in a.keys()|b.keys())))
 
 
+def decision_trivial_kind(decision):
+    return decision.trivial_kind or ('obvious material gain' if decision.metrics.get('automatic_material_gain') and decision.phase!='opening' else None)
+
+
 def trivial_delay_metrics(decisions, config=CONFIG):
     groups = {'trivial':[],'normal':[],'critical':[]}
     kinds = Counter()
@@ -134,8 +138,9 @@ def trivial_delay_metrics(decisions, config=CONFIG):
         if decision.think is None or not math.isfinite(decision.think) or decision.think<0:
             continue
         # Opening, missing/unsupported clocks and time trouble stay excluded.
-        if decision.trivial_kind and (decision.clock_valid or decision.clock_reliable):
-            groups['trivial'].append(decision.think);kinds[decision.trivial_kind] += 1
+        trivial=decision_trivial_kind(decision)
+        if trivial and (decision.clock_valid or decision.clock_reliable):
+            groups['trivial'].append(decision.think);kinds[trivial] += 1
         elif decision.clock_valid and decision.phase!='opening':
             groups['critical' if decision.metrics.get('critical') else 'normal'].append(decision.think)
     samples = {}
@@ -181,7 +186,7 @@ def trivial_delay_summary(games, config=CONFIG):
                 and center is not None and abs((m['common_band_seconds'] or 0)-center)<=config.timing_band_halfwidth):
             matches.append(game)
     pooled['same_cadence_games'] = len(matches)
-    pooled['games_with_trivial_data'] = sum(any(d.trivial_kind and d.clock_valid for d in g.decisions) for g in games)
+    pooled['games_with_trivial_data'] = sum(any(decision_trivial_kind(d) and d.clock_valid for d in g.decisions) for g in games)
     pooled['recurrent'] = pooled['elevated'] and len(matches)>=config.trivial_recurrence_games
     return pooled
 
@@ -199,7 +204,7 @@ def delay_floor_profile(games, config=CONFIG):
     for game in games:
         for d in game.decisions:
             if not d.clock_valid or d.think is None or not math.isfinite(d.think) or d.think<0 or d.phase=='opening':continue
-            category='trivial' if d.trivial_kind else 'critical' if d.metrics.get('critical') else 'normal'
+            category='trivial' if decision_trivial_kind(d) else 'critical' if d.metrics.get('critical') else 'normal'
             groups[category].append(d.think);contributors[category].add(game.identity)
     profiles={}
     for key,values in groups.items():

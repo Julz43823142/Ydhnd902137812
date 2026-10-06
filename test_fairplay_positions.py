@@ -78,6 +78,17 @@ class Positions(unittest.TestCase):
         self.assertEqual(g.metrics['easy_conversion_decisions'],1)
         self.assertEqual(g.metrics['competitive_decisions'],0)
 
+    def test_obvious_material_gain_retains_trivial_timing_and_premoves(self):
+        from fairplay_baseline import timing_values
+        from fairplay_timing import trivial_delay_metrics
+        for think in (.1,5):
+            g=played(0);d=self.capture();d.think=think;d.clock_valid=True
+            d.phase='middlegame';d.trivial_kind=None;g.decisions=[d];a.summarize(g)
+            self.assertEqual(timing_values(g)['trivial'],[think])
+            timing=trivial_delay_metrics(g.decisions)
+            self.assertEqual(timing['samples']['trivial']['count'],1)
+            self.assertEqual(timing['samples']['trivial']['near_instant'],int(think==.1))
+
     def test_adjacent_opponent_error_uses_same_budget_player_pov(self):
         g=played(0);first,second=copy.deepcopy(g.decisions[:2])
         first.ply=21;second.ply=23

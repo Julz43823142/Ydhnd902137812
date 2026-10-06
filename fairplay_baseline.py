@@ -10,7 +10,7 @@ from collections import defaultdict
 
 from fairplay_config import CONFIG
 from fairplay_clusters import contiguous, comparison_control
-from fairplay_timing import cadence, distribution_overlap
+from fairplay_timing import cadence, distribution_overlap, decision_trivial_kind
 
 
 def median(values):
@@ -46,7 +46,7 @@ def timing_values(game, config=CONFIG):
             continue
         groups['overall'].append(d.think)
         if d.phase=='opening':groups['opening'].append(d.think)
-        elif d.trivial_kind:groups['trivial'].append(d.think)
+        elif decision_trivial_kind(d):groups['trivial'].append(d.think)
         else:
             groups['critical' if d.metrics.get('critical') else 'ordinary'].append(d.think)
             if d.phase=='middlegame':groups['middlegame'].append(d.think)
