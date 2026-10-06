@@ -2808,80 +2808,65 @@
       "started_at": 1791296511.7162442,
       "run_id": "rush:442597396195704832:1791296511716",
       "end_at": 1791296811.7162442,
-      "score": 1,
+      "score": 2,
       "wrong": 0,
       "mistakes": [],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/ei1pP",
-        "title": "Lichess • 1224",
-        "fen": "r2r3k/p1p2Qpp/1pn1p3/8/4P3/P1q5/2P3PP/3R1RK1 w - - 0 18",
-        "current_fen": "5r1k/p1p3pp/1pn1p3/8/4P3/P1q5/2P3PP/5RK1 w - - 0 20",
-        "last_move_uci": "d8f8",
-        "pgn": "Rxd8+ Rxd8 Qf8+ Rxf8 Rxf8#",
+        "url": "https://lichess.org/training/WWl5T",
+        "title": "Lichess • 1235",
+        "fen": "r4r1k/p2qNppp/8/4Pp2/3Pb3/2Q4R/P5PP/R5K1 w - - 3 26",
+        "current_fen": "r4r1k/p2qNppp/8/4Pp2/3Pb3/2Q4R/P5PP/R5K1 w - - 3 26",
+        "last_move_uci": "a4d7",
+        "pgn": "Rxh7+ Kxh7 Qh3#",
         "all_moves": [
           {
-            "uci": "d1d8",
-            "san": "Rxd8+",
+            "uci": "h3h7",
+            "san": "Rxh7+",
             "color": "white"
           },
           {
-            "uci": "a8d8",
-            "san": "Rxd8",
+            "uci": "h8h7",
+            "san": "Kxh7",
             "color": "black"
           },
           {
-            "uci": "f7f8",
-            "san": "Qf8+",
-            "color": "white"
-          },
-          {
-            "uci": "d8f8",
-            "san": "Rxf8",
-            "color": "black"
-          },
-          {
-            "uci": "f1f8",
-            "san": "Rxf8#",
+            "uci": "c3h3",
+            "san": "Qh3#",
             "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "d1d8",
-            "san": "Rxd8+",
+            "uci": "h3h7",
+            "san": "Rxh7+",
             "color": "white"
           },
           {
-            "uci": "f7f8",
-            "san": "Qf8+",
-            "color": "white"
-          },
-          {
-            "uci": "f1f8",
-            "san": "Rxf8#",
+            "uci": "c3h3",
+            "san": "Qh3#",
             "color": "white"
           }
         ],
         "player_color": "white",
-        "player_move_count": 3,
-        "posted_at": "2026-10-06T14:22:01.238427+00:00",
+        "player_move_count": 2,
+        "posted_at": "2026-10-06T14:22:15.313382+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_ei1pP_1791296521238",
-        "rating": 1224,
-        "next_solution_index": 4,
+        "puzzle_id": "practice_rush_442597396195704832_WWl5T_1791296535313",
+        "rating": 1235,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1557035235991093338,
+      "message_id": 1557035247382695986,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1791296530.9482324,
-      "last_feedback": "✅ **Qf8+** • Opponent: **Rxf8**"
+      "last_card_activity_at": 1791296535.3097465,
+      "last_feedback": "✅ **Rxf8#** — solved! Score: **2**."
     },
     "362606514764251137": {
       "active": false,
