@@ -2816,8 +2816,8 @@
         "url": "https://lichess.org/training/ei1pP",
         "title": "Lichess • 1224",
         "fen": "r2r3k/p1p2Qpp/1pn1p3/8/4P3/P1q5/2P3PP/3R1RK1 w - - 0 18",
-        "current_fen": "r2r3k/p1p2Qpp/1pn1p3/8/4P3/P1q5/2P3PP/3R1RK1 w - - 0 18",
-        "last_move_uci": "b2c3",
+        "current_fen": "3r3k/p1p2Qpp/1pn1p3/8/4P3/P1q5/2P3PP/5RK1 w - - 0 19",
+        "last_move_uci": "a8d8",
         "pgn": "Rxd8+ Rxd8 Qf8+ Rxf8 Rxf8#",
         "all_moves": [
           {
@@ -2872,16 +2872,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_ei1pP_1791296521238",
         "rating": 1224,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1557035190302281738,
+      "message_id": 1557035207213846571,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1791296521.2349555,
-      "last_feedback": "✅ **Bxc7** — solved! Score: **1**."
+      "last_card_activity_at": 1791296528.3228636,
+      "last_feedback": "✅ **Rxd8+** • Opponent: **Rxd8**"
     },
     "362606514764251137": {
       "active": false,
