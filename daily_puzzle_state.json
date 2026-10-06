@@ -2802,7 +2802,7 @@
   },
   "puzzle_rush": {
     "442597396195704832": {
-      "active": true,
+      "active": false,
       "user_id": "442597396195704832",
       "name": "Thice",
       "started_at": 1791296511.7162442,
@@ -2862,11 +2862,16 @@
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1557036381824614430,
+      "message_id": 1557036431552020601,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1791296806.4829707,
-      "last_feedback": "✅ **dxe6** — solved! Score: **18**."
+      "last_card_activity_at": 1791296813.3831732,
+      "last_feedback": "✅ **dxe6** — solved! Score: **18**.",
+      "ended_at": 1791296814.7403257,
+      "solve_reward_coins": 13.0,
+      "solve_reward_paid": true,
+      "completion_reward_coins": 10.0,
+      "completion_reward_paid": true
     },
     "362606514764251137": {
       "active": false,
@@ -3223,6 +3228,14 @@
         "name": "Thice",
         "updated_at": "2026-09-30T17:18:52.765222+00:00",
         "achieved_at": "2026-09-30T17:18:52.765222+00:00"
+      }
+    },
+    "2026-W41": {
+      "442597396195704832": {
+        "score": 18,
+        "name": "Thice",
+        "updated_at": "2026-10-06T14:26:54.740334+00:00",
+        "achieved_at": "2026-10-06T14:26:54.740334+00:00"
       }
     }
   },
@@ -3773,6 +3786,14 @@
       "achieved_at": "2026-09-30T17:18:52.765222+00:00",
       "started_at": 1790788406.1228375,
       "week": "2026-W40"
+    },
+    "rush:442597396195704832:1791296511716": {
+      "user_id": "442597396195704832",
+      "name": "Thice",
+      "score": 18,
+      "achieved_at": "2026-10-06T14:26:54.740334+00:00",
+      "started_at": 1791296511.7162442,
+      "week": "2026-W41"
     }
   },
   "puzzle_rush_runs_seeded_v1": true,
