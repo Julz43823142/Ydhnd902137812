@@ -137,6 +137,7 @@ class GameSample:
     fast_metrics: dict = field(default_factory=dict)
     control_index: int | None = None
     rated: bool | None = None
+    probe_only: bool = False
 
 
 class QuietGameBuilder(chess.pgn.GameBuilder):

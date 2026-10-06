@@ -122,8 +122,9 @@ def baseline_comparison(cluster, games, config=CONFIG, *, fast=True, controls=No
 def high_cluster_qualification(cluster, games, config=CONFIG):
     if not cluster:return False
     m=cluster['metrics']
-    normal=(m['games']>=config.high_cluster_games and m['decisions']>=config.high_cluster_decisions)
-    exceptional=(m['games']>=config.cluster_min_games and m['decisions']>=config.small_high_decisions
+    eligible=m.get('eligible_games',m['games'])
+    normal=(eligible>=config.high_cluster_games and m['decisions']>=config.high_cluster_decisions)
+    exceptional=(eligible>=config.cluster_min_games and m['decisions']>=config.small_high_decisions
                  and m['critical']>=config.small_high_critical
                  and min(cluster['engine_score'],cluster['critical_score'])>=config.exceptional_evidence
                  and cluster['sustained_games']>=math.ceil(m['games']*.9))

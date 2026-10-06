@@ -64,7 +64,7 @@ def result_embed(result: ReviewResult):
     coverage = result.coverage
     sample = (f'Eligible rated history: **{coverage.get("collected",result.selected_games)}**\n'
               f'Full fast scans: **{coverage.get("fast_scanned",totals["games"])}** · used in scoring: **{coverage.get("used",totals["games"])}**\n'
-              f'Deep-reviewed: **{coverage.get("deep_reviewed",result.deep_coverage["games"])}** · excluded after fast scan: **{coverage.get("excluded_after_fast",0)}**\n'
+              f'Deep-reviewed: **{coverage.get("deep_reviewed",result.deep_coverage["games"])}** · below per-game coverage: **{coverage.get("excluded_after_fast",0)}**\n'
               f'Meaningful decisions: **{totals["decisions"]:,}**\n{classes}\n'
               f'Account age: {result.context["age_days"] if result.context["age_days"] is not None else "unavailable"} days')
     if coverage.get('primary_collected'):
@@ -319,6 +319,19 @@ def add_gate_fields(embed,result):
     embed.add_field(name='HIGH blocked because' if blocked else 'HIGH trigger',inline=False,
                     value=('\n'.join('• '+v for v in blocked) if blocked else
                            str(d.get('high_path') or 'Persistent, deep-confirmed anomaly with independent support.')+(' · small-sample exception' if d.get('small_sample_high') else ''))[:1024])
+    candidate=result.clusters.get('review_candidate')
+    if candidate and candidate is not result.clusters.get('strongest'):
+        review=result.clusters['candidate_deep'];m=candidate['metrics']
+        embed.add_field(name='Deep discovery candidate',inline=False,
+            value=f'Chronological {m["games"]}-game period · {m["eligible_games"]} adequately covered games\n'
+                  f'Deep-reviewed: {review["games"]} · core confirmation: {review["confirmed"]}\n'
+                  'This exploratory review does not bypass persistence or independent-support requirements.')
+    support=d.get('result_support',{})
+    if support.get('bound') is not None:
+        embed.add_field(name='Same-period result context',inline=False,
+            value=f'{support["games"]} rated games · actual score {number(support["actual"])} / expected {number(support["expected_with_margin"])}\n'
+                  f'Expected score allows {support["rating_margin"]} Elo of underrating. Conservative bounded-score support: {support["score"]:.2f}.\n'
+                  'Supporting result context only. Underrating, improvement and correlated games remain alternatives.')
 
 
 async def channel_check(ctx):

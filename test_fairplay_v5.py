@@ -207,7 +207,7 @@ class EvidenceGates(unittest.TestCase):
         self.assertIn(games[0],selected);self.assertIn(games[-1],selected)
         self.assertLessEqual(len(selected),CONFIG.deep_games)
 
-    def test_post_engine_exclusions_do_not_bridge_missing_analytical_games(self):
+    def test_sparse_intervening_games_are_not_hidden_by_engine_filtering(self):
         games=[game(i,True) for i in range(40)]
         for i,g in enumerate(games):
             g.control_index=i

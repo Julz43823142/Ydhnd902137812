@@ -293,6 +293,7 @@ class ReviewResult:
     coverage: dict = field(default_factory=dict)
     diagnostics: dict = field(default_factory=dict)
     history: dict = field(default_factory=dict)
+    timeline: list[GameSample] = field(default_factory=list)
 
 
 def family_label(value):
@@ -428,7 +429,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             for index,game in enumerate(older):
                 if time.monotonic()>=probe_end:probe_complete=False;break
                 progress(f'Lightweight history screen: {index} / {len(older)}')
-                probe=copy.deepcopy(game);probe.decisions=probe_decisions(probe,config)
+                probe=copy.deepcopy(game);probe.decisions=probe_decisions(probe,config);probe.probe_only=True
                 try:
                     scanner.analyse(probe,config.historical_probe_nodes)
                     probes[game.identity]=probe.metrics
