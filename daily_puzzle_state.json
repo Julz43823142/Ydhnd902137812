@@ -2816,8 +2816,8 @@
         "url": "https://lichess.org/training/qv4zo",
         "title": "Lichess • 1905",
         "fen": "r5k1/1bp2q1p/1p1pR2B/1P1Pbp2/5P2/3p2P1/r5BP/4RQK1 w - - 0 29",
-        "current_fen": "r5k1/1bp2q1p/1p1pR2B/1P1PPp2/8/3p2P1/6rP/4RQK1 w - - 0 30",
-        "last_move_uci": "a2g2",
+        "current_fen": "r5k1/1bp4p/1p1pq2B/1P1PPp2/8/3p2P1/6QP/4R1K1 w - - 0 31",
+        "last_move_uci": "f7e6",
         "pgn": "fxe5 Rxg2+ Qxg2 Qxe6 dxe6",
         "all_moves": [
           {
@@ -2872,16 +2872,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_qv4zo_1791296782368",
         "rating": 1905,
-        "next_solution_index": 2,
+        "next_solution_index": 4,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1557036301637779486,
+      "message_id": 1557036351822626897,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1791296794.3657546,
-      "last_feedback": "✅ **fxe5** • Opponent: **Rxg2+**"
+      "last_card_activity_at": 1791296801.4872057,
+      "last_feedback": "✅ **Qxg2** • Opponent: **Qxe6**"
     },
     "362606514764251137": {
       "active": false,
