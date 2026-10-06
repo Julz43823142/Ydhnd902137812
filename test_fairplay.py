@@ -41,7 +41,7 @@ def sample_row(index=1,*,color=True,time_class='blitz',increment=0,clocks=True):
         if clocks:node.set_clock(remaining[side])
         board.push(move)
     return {'uuid':f'synthetic-{index}','url':f'https://www.chess.com/game/live/{index}',
-            'end_time':1700000000+index,'rules':'chess','time_class':time_class,'time_control':f'600+{increment}',
+            'end_time':1700000000+index,'rated':True,'rules':'chess','time_class':time_class,'time_control':f'600+{increment}',
             'pgn':str(game),'white':{'username':game.headers['White'],'rating':1400,'result':'win'},
             'black':{'username':game.headers['Black'],'rating':1450,'result':'resigned'}}
 
@@ -226,7 +226,7 @@ class MetricMath(unittest.TestCase):
         self.assertFalse(analysis.performance_metrics(mixed)['shifts'])
 
     def test_risk_gates_and_small_sample(self):
-        defaults = dict(games=100,decisions=2000,critical=100,confidence='HIGH',deep_confirmed=True,partial=False)
+        defaults = dict(games=100,decisions=2000,critical=100,confidence='HIGH',deep_confirmed=True,partial=False,baseline_anomaly=True,baseline_confirmed=True)
         for scores in ((0,0,0,0,1),(0,0,1,0,0),(1,0,0,0,0)):
             self.assertNotIn(analysis.priority_model(scores,**defaults),('HIGH','VERY HIGH'))
         self.assertEqual(analysis.priority_model((.85,.95,.75,.85,.55),**defaults),'VERY HIGH')

@@ -74,7 +74,8 @@ class ClusterSafety(unittest.TestCase):
         result=report([game(i,20<=i<26 or 50<=i<56) for i in range(80)])
         self.assertTrue(result.clusters['recurrence'])
         self.assertGreaterEqual(len(result.clusters['independent']),2)
-        self.assertIn(result.priority,('HIGH','VERY HIGH'))
+        # Discovery recurrence survives; short periods lack HIGH coverage.
+        self.assertNotIn(result.priority,('HIGH','VERY HIGH'))
 
     def test_ranked_nonchronological_subset_cannot_establish_persistence(self):
         result=report([game(i,i%10==0) for i in range(100)])
@@ -111,7 +112,8 @@ class ClusterSafety(unittest.TestCase):
     def test_missing_clocks_does_not_destroy_engine_confidence(self):
         result=report([game(i,i>=30,clocks=False) for i in range(40)])
         self.assertEqual(result.confidence,'HIGH')
-        self.assertIn(result.priority,('HIGH','VERY HIGH'))
+        # Engine-only regime shifts no longer supply independent support.
+        self.assertNotIn(result.priority,('HIGH','VERY HIGH'))
         self.assertFalse(result.diagnostics['timing_available'])
 
     def test_bullet_only_cannot_high(self):
@@ -136,7 +138,7 @@ class ClusterSafety(unittest.TestCase):
         self.assertLess(e,large[0]);self.assertLess(c,large[1])
 
     def test_critical_only_can_support_high_with_independent_signal(self):
-        result=a.priority_model((.45,.92,.8,0,0),games=60,decisions=1000,critical=80,confidence='HIGH',deep_confirmed=True,partial=False)
+        result=a.priority_model((.45,.92,.8,0,0),games=60,decisions=1000,critical=80,confidence='HIGH',deep_confirmed=True,partial=False,baseline_anomaly=True,baseline_confirmed=True)
         self.assertEqual(result,'HIGH')
 
     def test_forced_timing_and_new_account_never_high(self):

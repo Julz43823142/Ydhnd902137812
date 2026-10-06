@@ -33,7 +33,7 @@ def public_text(value):
 def panel_embed():
     embed = discord.Embed(title=PANEL_TITLE, color=0x427CBA,
         description='Want to review a suspicious Chess.com account?\n\n'
-                    "Submit the Chess.com username. SharkBot prioritizes up to 100 recent rated standard games, with up to 500 eligible games of history for personal baselines and targeted review of unusual periods.\n\n"
+                    "Submit the Chess.com username. SharkBot analyzes up to 100 recent rated standard games, with up to 500 eligible rated games of history for personal baselines and targeted review of unusual periods.\n\n"
                     '**This is an automated screening tool — not proof of cheating.**')
     embed.set_footer(text=PANEL_MARKER)
     return embed
@@ -62,15 +62,14 @@ def result_embed(result: ReviewResult):
     totals = result.totals
     classes = ' • '.join(f'{kind.title()}: {data["games"]}' for kind,data in result.classes.items())
     coverage = result.coverage
-    sample = (f'Eligible history collected: **{coverage.get("collected",result.selected_games)}**\n'
+    sample = (f'Eligible rated history: **{coverage.get("collected",result.selected_games)}**\n'
               f'Full fast scans: **{coverage.get("fast_scanned",totals["games"])}** · used in scoring: **{coverage.get("used",totals["games"])}**\n'
               f'Deep-reviewed: **{coverage.get("deep_reviewed",result.deep_coverage["games"])}** · excluded after fast scan: **{coverage.get("excluded_after_fast",0)}**\n'
               f'Meaningful decisions: **{totals["decisions"]:,}**\n{classes}\n'
               f'Account age: {result.context["age_days"] if result.context["age_days"] is not None else "unavailable"} days')
     if coverage.get('primary_collected'):
-        sample += f'\nRecent primary scan: {coverage["primary_fast_scanned"]}/{coverage["primary_collected"]} · historical discovery probes: {coverage.get("history_probed",0)}'
-    if 'rated_primary' in coverage:
-        sample += f'\nPrimary selection: {coverage["rated_primary"]} rated · {coverage["casual_primary"]} casual · {coverage["unknown_primary"]} unknown'
+        sample += f'\nRecent rated primary sample: {coverage["primary_fast_scanned"]}/{coverage["primary_collected"]} · historical discovery probes: {coverage.get("history_probed",0)}'
+    sample += f'\nSkipped unrated games while collecting history: {result.skipped.get("unrated",0)} · unknown rated status: {result.skipped.get("rated_status_unknown",0)}'
     if coverage.get('history_probe_complete') is False:sample += '\nExtended-history discovery is incomplete; primary coverage is shown separately.'
     if result.skipped:sample += f'\nSkipped archive/game entries: {sum(result.skipped.values())}'
     if result.partial:sample += '\n⚠️ Partial scan / limited archive coverage. Missing data is not suspicious.'
@@ -110,17 +109,21 @@ def detail_embed(result, mode):
                       f'{m["games"]} games · {m["decisions"]} decisions · median CPL {number(m["median_cpl"])}\n'
                       f'Top-1 / top-3: {percentage(m["top1"])} / {percentage(m["top3"])}\n'
                       f'Critical: {percentage(m["critical_top1"])} / {m["critical"]} opportunities · unique hits {m["unique_hits"]}/{m["unique"]}\n'
-                      f'Persistence: {strongest["sustained_games"]}/{m["games"]} games · separate-period recurrence: {result.clusters.get("recurrence",False)}')
+                      f'Per-game strong evidence: {strongest["sustained_games"]}/{m["games"]} · pooled critical persistence: {strongest.get("pooled_critical_support",False)}\n'
+                      f'Separate-period recurrence: {result.clusters.get("recurrence",False)}')
         else:embed.add_field(name='Highest-signal period',value='No sufficiently persistent same-control period.',inline=False)
         deep = result.clusters.get('deep',{})
         embed.add_field(name='Cluster-specific deep confirmation',inline=False,
             value=f'Supported: {deep.get("confirmed",False)} · engine: {deep.get("engine",False)} · critical: {deep.get("critical",False)}\n'
                   f'{deep.get("games",0)} games · {deep.get("decisions",0)} decisions · {deep.get("critical_count",0)} critical opportunities\n'
                   f'Fast → deep evidence retention: {percentage(deep.get("stability"))}\n'
+                  f'Baseline anomaly confirmed: {deep.get("anomaly_confirmed",False)} · representative baseline games: {deep.get("baseline_games",0)}\n'
                   f'Core family: {deep.get("core","unavailable")} · engine / critical retention: {percentage(deep.get("engine_retention"))} / {percentage(deep.get("critical_retention"))}')
+        add_baseline_fields(embed,result)
+        add_gate_fields(embed,result)
         if result.history:
             embed.add_field(name='Extended history',inline=False,
-                value=f'{result.history.get("collected",0)} eligible games · {len(result.history.get("sessions",[]))} approximate sessions\n'
+                value=f'{result.history.get("collected",0)} eligible rated games · {len(result.history.get("sessions",[]))} approximate sessions\n'
                       f'{result.coverage.get("history_probed",0)} discovery probes · {result.coverage.get("history_fast_scanned",0)} targeted full historical scans\n'
                       'A large lower-anomaly baseline does not dilute a localized high-signal period.')
     elif mode=='Timing':
@@ -138,7 +141,7 @@ def detail_embed(result, mode):
         embed.add_field(name='Clock coverage',inline=False,
             value=f'Games with valid clocks: {coverage.get("games",0)} · post-opening moves: {coverage.get("usable_moves",0)}\n'
                   f'Linked engine decisions: {coverage.get("engine_linked_moves",0)} · excluded/unreliable clock estimates: {coverage.get("excluded_clocks",0)}\n'
-                  'Simple and already-won positions retain timing evidence. Rated, casual and unknown-status games are compared separately.')
+                  'Simple and already-won positions retain timing evidence. Only rated games contribute to analytical comparisons.')
         for key,row in sorted(result.timing.get('delay_floors',{}).items(),key=lambda pair:(pair[1]['elevated'],pair[1]['games']),reverse=True)[:3]:
             cats=row['samples']
             embed.add_field(name=f'Cross-category delay · {key}',inline=False,
@@ -210,7 +213,7 @@ def detail_embed(result, mode):
                       f'Gap–time correlation: {number(m.get("complexity_response"))} · within-game regime change: {bool(m.get("regime_shift"))}\n'
                       f'Critical-hit cadence: {percentage(m.get("critical_cadence",{}).get("cluster_fraction"))} · reliability: {m["reliability"]}',inline=False)
     elif mode=='Performance':
-        embed.description = 'Sustained changes compare adjacent 5/8/10-game windows with the same base time and increment, using robust CPL and MAD. One exceptional game is insufficient.'
+        embed.description = 'Sustained changes compare adjacent 5/8/10-game windows with the same base time and increment, using robust CPL and MAD. One exceptional game is insufficient. Engine-derived changes locate periods but do not count as independent corroboration.'
         extended=result.history.get('context',{}).get('classes',{})
         if extended:
             embed.add_field(name='Extended rating / result history',inline=False,
@@ -235,15 +238,7 @@ def detail_embed(result, mode):
                              'First 20 plies and genuinely forced/trivial decisions are excluded. Difficult check responses and nontrivial recaptures remain analyzable. Strongly won/lost positions are de-weighted. '
                              'Critical positions require several choices, a best–second gap and candidate spread; quiet unique choices receive the strongest evidence. '
                              'These heuristic measures have innocent explanations and do not establish misconduct.')
-        gates=result.diagnostics.get('gate_scores',{})
-        primary=gates.get('Engine Precision',0)>=.65 or gates.get('Critical Position Precision',0)>=.65
-        embed.add_field(name='Priority checks',inline=False,
-            value=f'Persistent comparison period: {bool(result.clusters.get("strongest"))}\n'
-                  f'Deep confirmation of that period: {result.deep_confirmed}\n'
-                  f'Engine/critical threshold met in that period: {primary}\n'
-                  f'Independent support in that same period: {result.diagnostics.get("same_period_support",False)}\n'
-                  f'Stable strong-play context: {result.diagnostics.get("stable_strong_play",False)}\n'
-                  'Raw precision and near-best rates describe skill. They do not independently determine review priority.')
+        add_gate_fields(embed,result)
         cluster = result.clusters.get('strongest')
         if cluster:
             m = cluster['metrics']
@@ -264,6 +259,53 @@ def detail_embed(result, mode):
         embed.remove_field(len(embed.fields)-1);trimmed=True
     if trimmed:embed.set_footer(text=DISCLAIMER+' Additional detail rows omitted to fit Discord’s card limit.')
     return embed
+
+
+def add_baseline_fields(embed,result):
+    comparison=result.clusters.get('personal',{})
+    if not comparison:return
+    for key,label in (('baseline','Same-control rated baseline'),('cluster','Highest-signal rated cluster')):
+        row=comparison[key]
+        embed.add_field(name=label,inline=False,
+            value=f'Games: {row["games"]} · meaningful decisions: {row["decisions"]}\n'
+                  f'Weighted top-1: {percentage(row["weighted_top1"])} · top-3: {percentage(row["top3"])}\n'
+                  f'Median / robust CPL: {number(row["median_cpl"])} / {number(row["robust_cpl"])}\n'
+                  f'Critical top-1: {percentage(row["critical_top1"])} ({row["critical"]} opportunities)')
+    delta=comparison['deltas']
+    embed.add_field(name='Leave-cluster-out difference',inline=False,
+        value=f'Personal engine anomaly: {comparison["state"]} · baseline sufficient: {comparison["sufficient"]}\n'
+              f'Weighted top-1: {number(None if delta["weighted_top1"] is None else delta["weighted_top1"]*100," pp")}\n'
+              f'Top-3: {number(None if delta["top3"] is None else delta["top3"]*100," pp")} · median / robust CPL: {number(delta["median_cpl"])} / {number(delta["robust_cpl"])}\n'
+              f'Critical top-1: {number(None if delta["critical_top1"] is None else delta["critical_top1"]*100," pp")}\n'
+              f'Mistake / blunder rate change: {number(None if delta["mistakes_rate"] is None else delta["mistakes_rate"]*100," pp")} / {number(None if delta["blunders_rate"] is None else delta["blunders_rate"]*100," pp")}\n'
+              f'Comparison games before / after: {comparison["before_games"]} / {comparison["after_games"]}\n'
+              'The selected period is excluded from its baseline. These are heuristic effect sizes, not cheating probabilities.')
+
+    timing=comparison.get('timing',{})
+    if timing:
+        a,b=timing['baseline']['comparison'],timing['cluster']['comparison']
+        embed.add_field(name='Leave-cluster-out timing comparison',inline=False,
+            value=f'Delayed MAD: {number(a["delayed_mad"])} → {number(b["delayed_mad"])} sec\n'
+                  f'IQR: {number(a["iqr"])} → {number(b["iqr"])} sec · entropy: {number(a["entropy"])} → {number(b["entropy"])}\n'
+                  f'Modal band share: {percentage(a["cluster_fraction"])} → {percentage(b["cluster_fraction"])}\n'
+                  'Clock coverage and same-control matching apply; changes are supporting evidence, not proof.')
+
+
+def add_gate_fields(embed,result):
+    d=result.diagnostics;g=d.get('gate_scores',{});c=result.clusters.get('strongest') or {};m=c.get('metrics',{})
+    embed.add_field(name='Priority Gate',inline=False,
+        value=f'Absolute engine / critical evidence: {g.get("Engine Precision",0):.2f} / {g.get("Critical Position Precision",0):.2f}\n'
+              f'Personal anomaly: {result.clusters.get("personal",{}).get("state","Unavailable")}\n'
+              f'Timing / result support: {g.get("Move-Time Pattern",0):.2f} / {g.get("Account / Results",0):.2f}\n'
+              f'Separate recurrence: {result.clusters.get("recurrence",False)}\n'
+              f'Qualifying persistent cluster: {d.get("qualifying_cluster",False)}\n'
+              f'Cluster games / decisions / critical opportunities: {m.get("games",0)} / {m.get("decisions",0)} / {m.get("critical",0)}\n'
+              f'Deep core / baseline anomaly confirmed: {result.deep_confirmed} / {d.get("baseline_anomaly_confirmed",False)}\n'
+              'Engine-derived performance change does not supply independent support.')
+    blocked=d.get('high_blocked',[])
+    embed.add_field(name='HIGH blocked because' if blocked else 'HIGH trigger',inline=False,
+                    value=('\n'.join('• '+v for v in blocked) if blocked else
+                           str(d.get('high_path') or 'Persistent, deep-confirmed anomaly with independent support.')+(' · small-sample exception' if d.get('small_sample_high') else ''))[:1024])
 
 
 async def channel_check(ctx):

@@ -153,7 +153,7 @@ def compare_groups(baseline, high, config=CONFIG):
 def personal_timing(games, config=CONFIG):
     buckets = defaultdict(list)
     for game in games:
-        if (game.time_control and engine_data(game).get('decisions',0)>=config.baseline_min_decisions
+        if (game.rated is True and game.time_control and engine_data(game).get('decisions',0)>=config.baseline_min_decisions
                 and sum(d.clock_valid for d in game.decisions)>=config.baseline_min_timing):
             buckets[(game.time_class,comparison_control(game))].append(game)
     ranks = {'Insufficient Data':-1,'Normal':0,'Slight':1,'Moderate':2,'Strong':3,'Very Strong':4}

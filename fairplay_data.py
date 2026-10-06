@@ -152,6 +152,8 @@ def parse_game(row: dict, target: str, config: ReviewConfig = CONFIG, *, exclusi
     if row.get('rules', 'chess') != 'chess':return reject('variant')
     if row.get('time_class') == 'daily':return reject('daily')
     if row.get('time_class') not in ('rapid', 'blitz', 'bullet'):return reject('unsupported_time_class')
+    if row.get('rated') is False:return reject('unrated')
+    if row.get('rated') is not True:return reject('rated_status_unknown')
     end = finite_number(row.get('end_time'))
     if end is None or end <= 0:
         return reject('other_invalid')

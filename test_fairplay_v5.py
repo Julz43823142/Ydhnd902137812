@@ -20,9 +20,11 @@ from test_fairplay_timing import timed_game
 
 class RatedComparisons(unittest.TestCase):
     def test_rated_flag_is_explicit_not_guessed(self):
-        for value,expected in [(True,True),(False,False),(None,None),('true',None),(1,None)]:
+        for value in (True,False,None,'true',1):
             row=sample_row();row['rated']=value
-            self.assertIs(data.parse_game(row,TARGET).rated,expected)
+            parsed=data.parse_game(row,TARGET)
+            if value is True:self.assertIs(parsed.rated,True)
+            else:self.assertIsNone(parsed)
 
     def test_all_three_rated_states_have_separate_comparison_groups(self):
         games=[game(i) for i in range(3)]
@@ -43,7 +45,7 @@ class RatedComparisons(unittest.TestCase):
         self.assertEqual(context['rated_games'],0)
         self.assertIsNone(context['rating_gain']);self.assertIsNone(context['excess_z'])
 
-    def test_primary_prioritizes_rated_but_preserves_remaining_casual_slots(self):
+    def test_primary_is_rated_only_without_casual_filling(self):
         games=[game(i,deep=False) for i in range(8)]
         for i,g in enumerate(games):g.rated=i<2
         calls=[]
@@ -56,10 +58,10 @@ class RatedComparisons(unittest.TestCase):
         config=replace(CONFIG,primary_engine_games=3,deep_games=0,historical_target_games=0)
         with patch.object(analysis,'collect_games',return_value=(games,{},False)),patch.object(analysis,'EngineScanner',Scanner):
             result=analysis.review(TARGET,lambda _:None,config,api_factory=lambda _:api)
-        self.assertEqual([row[0] for row in calls[:3]],[games[7].identity,games[1].identity,games[0].identity])
+        self.assertEqual([row[0] for row in calls],[games[1].identity,games[0].identity])
         self.assertEqual(result.coverage['rated_primary'],2)
-        self.assertEqual(result.coverage['casual_primary'],1)
-        self.assertEqual(result.coverage['history_probed'],5)
+        self.assertEqual(result.coverage['casual_primary'],0)
+        self.assertEqual(result.coverage['history_probed'],0)
 
 
 class ClockShapes(unittest.TestCase):
@@ -192,9 +194,9 @@ class EvidenceGates(unittest.TestCase):
         games[1].metrics.update(decisions=10,effective_decisions=10,weighted_top1=0)
         self.assertEqual(clusters.summary(games)['weighted_top1'],.5)
 
-    def test_persistence_does_not_require_three_critical_opportunities_every_game(self):
+    def test_persistence_requires_meaningful_critical_opportunities(self):
         games=[game(i) for i in range(6)]
-        for g in games:g.metrics.update(critical=2,critical_top1=1,weighted_top1=.5)
+        for g in games:g.metrics.update(critical=5,critical_top1=1,weighted_top1=.5)
         self.assertTrue(clusters.group_record(games,'chronological')['persistent'])
         for g in games[:3]:g.metrics.update(critical_top1=0)
         self.assertFalse(clusters.group_record(games,'chronological')['persistent'])
@@ -205,7 +207,7 @@ class EvidenceGates(unittest.TestCase):
         self.assertIn(games[0],selected);self.assertIn(games[-1],selected)
         self.assertLessEqual(len(selected),CONFIG.deep_games)
 
-    def test_post_engine_exclusions_do_not_erase_the_period_selected_for_deep_review(self):
+    def test_post_engine_exclusions_do_not_bridge_missing_analytical_games(self):
         games=[game(i,True) for i in range(40)]
         for i,g in enumerate(games):
             g.control_index=i
@@ -215,12 +217,12 @@ class EvidenceGates(unittest.TestCase):
                 analysis.summarize(g)
                 g.fast_metrics={k:v for k,v in g.metrics.items() if k!='timing'}
         discovered=clusters.find_clusters(games,fast=True)['strongest']
-        self.assertIsNotNone(discovered)
+        self.assertIsNone(discovered)
         result=report(games)
-        self.assertEqual(result.clusters['strongest']['ids'],discovered['ids'])
+        self.assertIsNone(result.clusters['strongest'])
         self.assertEqual(result.coverage['excluded_after_fast'],20)
-        self.assertEqual(len(result.games),40)
-        self.assertTrue(result.deep_confirmed)
+        self.assertEqual(len(result.games),20)
+        self.assertFalse(result.deep_confirmed)
 
     def test_title_does_not_exempt_repeated_delayed_trivial_and_critical_choices(self):
         result=report([game(i,True,rating=2700) for i in range(40)],{'title':'GM'})
@@ -290,7 +292,7 @@ class EngineAndReports(unittest.TestCase):
         timing_text=str(ui.detail_embed(result,'Timing').to_dict())
         self.assertIn('Clock coverage',timing_text)
         self.assertIn('Cross-category delay',timing_text)
-        self.assertIn('Priority checks',str(ui.detail_embed(result,'Engine Analysis').to_dict()))
+        self.assertIn('Priority Gate',str(ui.detail_embed(result,'Engine Analysis').to_dict()))
 
 
 if __name__=='__main__':unittest.main()
