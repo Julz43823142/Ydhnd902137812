@@ -86,6 +86,8 @@ def engine_metrics(decision, lines, actual_line, color, config=CONFIG):
 
 
 def summarize(game: GameSample, config=CONFIG):
+    from fairplay_positions import position_context, position_summary
+    position_context(game,config)
     moves = [d for d in game.decisions if d.metrics.get('useful')]
     critical = [d for d in moves if d.metrics['critical']]
     unique = [d for d in critical if d.metrics['unique']]
@@ -123,6 +125,7 @@ def summarize(game: GameSample, config=CONFIG):
                     'mistakes': sum(v >= config.mistake_cp for v in losses),
                     'blunders': sum(v >= config.blunder_cp for v in losses),
                     'critical_mistakes': sum(d.metrics['cpl'] >= config.mistake_cp for d in critical)}
+    game.metrics.update(position_summary(game))
     game.metrics['timing'] = timing_metrics(game,config)
     return game.metrics
 
@@ -361,6 +364,8 @@ class EngineScanner:
             if nodes==self.config.fast_nodes:decision.fast_engine=decision.metrics.copy()
         summarize(game,self.config)
         if nodes == self.config.fast_nodes:
+            for decision in game.decisions:
+                if decision.metrics:decision.fast_engine=decision.metrics.copy()
             game.fast_metrics = {k:v for k,v in game.metrics.items() if k!='timing'}
 
 

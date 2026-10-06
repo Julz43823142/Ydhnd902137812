@@ -37,14 +37,23 @@ def lower_bound(rate, count, z=CONFIG.rate_lower_bound_z):
 
 def comparable_baseline(cluster, games, config=CONFIG, *, fast=True):
     from fairplay_clusters import comparison_control, rows_for
+    from fairplay_positions import opponent_context
     if not cluster:return []
     members=[g for g in games if g.identity in set(cluster['ids'])]
     if not members:return []
     key=comparison_control(members[0]);ids=set(cluster['ids'])
-    return sorted([g for g in games if g.rated is True and g.identity not in ids
+    candidates=sorted([g for g in games if g.rated is True and g.identity not in ids
                    and g.time_class==cluster['time_class'] and comparison_control(g)==key
                    and rows_for([g],fast)[0].get('decisions',0)>=config.min_game_decisions],
                   key=lambda g:(g.ended,g.identity))
+    context=opponent_context(members)
+    if context['player_rating'] is None:return candidates
+    # Never fall back silently to mismatched opposition just to fill a baseline.
+    # Missing ratings cannot establish an opponent-matched personal anomaly.
+    return [g for g in candidates if g.rating is not None and g.opponent_rating is not None
+            and abs(g.rating-context['player_rating'])<=config.baseline_player_rating_tolerance
+            and abs(g.opponent_rating-context['opponent_rating'])<=config.baseline_opponent_rating_tolerance
+            and abs(g.rating-g.opponent_rating-context['elo_difference'])<=config.baseline_rating_gap_tolerance]
 
 
 def representative_controls(baseline, count=3):
@@ -58,6 +67,7 @@ def representative_controls(baseline, count=3):
 
 def baseline_comparison(cluster, games, config=CONFIG, *, fast=True, controls=None):
     from fairplay_clusters import summary, rows_for, med
+    from fairplay_positions import opponent_context
     members=[g for g in games if cluster and g.identity in set(cluster['ids']) and g.rated is True]
     baseline=comparable_baseline(cluster,games,config,fast=fast) if controls is None else controls
     a,b=summary(baseline,fast),summary(members,fast)
@@ -104,7 +114,9 @@ def baseline_comparison(cluster, games, config=CONFIG, *, fast=True, controls=No
             'baseline':a,'cluster':b,'deltas':deltas,'cpl_mad':mad,'effect_mad':effect,
             'before_games':sum(g.ended<cluster['start'] for g in baseline) if cluster else 0,
             'after_games':sum(g.ended>cluster['end'] for g in baseline) if cluster else 0,
-            'rate_delta_bounds':rate_delta_bounds,'baseline_ids':[g.identity for g in baseline]}
+            'rate_delta_bounds':rate_delta_bounds,'baseline_ids':[g.identity for g in baseline],
+            'opponent_context':{'baseline':opponent_context(baseline),'cluster':opponent_context(members)},
+            'opponent_matched':opponent_context(members)['player_rating'] is not None}
 
 
 def high_cluster_qualification(cluster, games, config=CONFIG):

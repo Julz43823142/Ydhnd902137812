@@ -271,6 +271,19 @@ def add_baseline_fields(embed,result):
                   f'Weighted top-1: {percentage(row["weighted_top1"])} · top-3: {percentage(row["top3"])}\n'
                   f'Median / robust CPL: {number(row["median_cpl"])} / {number(row["robust_cpl"])}\n'
                   f'Critical top-1: {percentage(row["critical_top1"])} ({row["critical"]} opportunities)')
+    opposition=comparison.get('opponent_context',{})
+    if opposition:
+        lines=[]
+        for key,label in (('baseline','Baseline'),('cluster','Cluster')):
+            row=opposition[key]
+            lines.append(f'{label}: player / opponent median Elo {number(row["player_rating"])} / {number(row["opponent_rating"])} · gap {number(row["elo_difference"])}\n'
+                         f'Expected / actual score: {percentage(row["expected_score"])} / {percentage(row["actual_score"])}')
+        row=comparison['cluster']
+        lines.append(f'Competitive decisions: {row.get("competitive_decisions",0)} · top-1: {percentage(row.get("competitive_top1"))} · CPL: {number(row.get("competitive_cpl"))}\n'
+                     f'Competitive critical top-1: {percentage(row.get("competitive_critical_top1"))} ({row.get("competitive_critical",0)})\n'
+                     f'Easy conversion decisions: {row.get("easy_conversion_decisions",0)} · opponent-error exposure: {row.get("opponent_blunder_exposure",0)}\n'
+                     f'Already winning fraction: {percentage(row.get("easy_winning_position_fraction"))}')
+        embed.add_field(name='Opponent strength & position ease',inline=False,value='\n'.join(lines)[:1024])
     delta=comparison['deltas']
     embed.add_field(name='Leave-cluster-out difference',inline=False,
         value=f'Personal engine anomaly: {comparison["state"]} · baseline sufficient: {comparison["sufficient"]}\n'

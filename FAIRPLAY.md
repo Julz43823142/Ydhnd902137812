@@ -1,4 +1,4 @@
-# Fair Play Review v6
+# Fair Play Review v7
 
 This is a moderator screening tool, not a cheating verdict or a calibrated probability. It performs no punishments, reports, wallet mutations or rewards. Missing evidence is never suspicious. False positives and missed cases remain possible; human review is mandatory.
 
@@ -8,6 +8,7 @@ This is a moderator screening tool, not a cheating verdict or a calibrated proba
 - `fairplay_analysis.py`: one low-priority, one-thread Stockfish process; fixed-node searches, same-root evaluation loss, pipeline and bounded process-local cache.
 - `fairplay_clusters.py`: strength-aware evidence, denominator-aware persistence, exact-control discovery and deep confirmation.
 - `fairplay_calibration.py`: expectation shrinkage, Wilson denominator checks, leave-cluster-out deltas and representative baseline selection.
+- `fairplay_positions.py`: opponent-matched context, adjacent same-budget opponent-error exposure, easy-conversion normalization and competitive-position metrics.
 - `fairplay_history.py`: cheap extended-history metadata, bounded engine discovery probes and adaptive historical candidates/control games.
 - `fairplay_baseline.py` / `fairplay_timing.py`: personal timing profiles, trivial-move delays, premoves, dispersion, complexity response and behavioral changes.
 - `fairplay_scoring.py`: conservative priority gates, confidence and report diagnostics.
@@ -91,7 +92,21 @@ The diagnostic weights .30/.30/.15/.15/.10 remain descriptive only. Gate rules:
 
 Core deep confirmation still needs ≥5 period games / 60 decisions, strength-aware core effect ≥.65, ≥20 deep critical opportunities for the critical route and ≥80% paired fast→deep effect retention. Confidence stays separate: HIGH requires ≥30 scoring games / 500 decisions / 60 deep decisions and complete core coverage; MEDIUM requires ≥10 / 150; otherwise LOW. Missing clocks have their own insufficient-data family label.
 
-Discord `Clusters & History` now shows same-control baseline, cluster, deltas and deep baseline confirmation. `Engine Analysis` and history details explain absolute scores, independent timing/results, recurrence, qualifying coverage and concrete HIGH-block reasons. No cheating probability is shown.
+Discord `Clusters & History` shows same-control baseline, cluster, deltas, opponent ratings/expected results, competitive versus easy decisions and deep baseline confirmation. `Engine Analysis` and history details explain absolute scores, independent timing/results, recurrence, qualifying coverage and concrete HIGH-block reasons. No cheating probability is shown.
+
+## Opposition and position ease
+
+Opponent Elo never directly reduces engine evidence. Leave-period-out controls preferentially match the exact time control, player rating within 200 Elo, opponent rating within 250 Elo and player-minus-opponent gap within 200 Elo of the cluster medians. If cluster ratings are known, mismatched or missing-rating controls do not silently fill missing coverage. A sparse matched baseline stays insufficient. These configurable tolerances are heuristic matching rules, not a fitted population model. Deep controls use the same matching rules.
+
+Expected and actual score are shown separately. Existing Elo-expected excess-score statistics continue to distinguish expected wins against weak opponents from surprising results against stronger opposition. Results remain supporting evidence only.
+
+Position ease uses the existing engine evaluations, not the opponent rating. Across adjacent subject decisions, subtract the earlier actual-move evaluation from the current pre-move evaluation in the same player POV. Require equal node budgets, adjacent plies, consistent search scores and non-mate evaluations. Missing or incomparable evaluations remain unknown. A swing of at least 150 cp is an approximate opponent-error exposure; short searches can still be noisy. This measures exposure, not a validated classification of the opponent's move. It adds no Stockfish searches.
+
+Obvious material-gaining captures after such an error or in an already winning position (at least +350 cp), with clear candidate separation, receive zero engine-matching evidence. Other straightforward winning captures receive 0.15 of their original weight and do not count as critical/unique opportunities. Large candidate gaps alone never mark quiet difficult moves as automatic, and a whole game is never discarded simply because the opposition is weak. Existing opening/forced exclusions remain in force; their clocks remain available to timing analysis. Context annotation is idempotent and recomputed after deep analysis.
+
+Competitive metrics cover useful decisions within ±200 cp, without an immediately measured large opponent error. Reports retain competitive decisions, top-1, median CPL and critical precision; already-winning fraction, easy-conversion count, opponent-error exposure, concrete material exposure and equal-to-winning transitions are also recorded in memory. These are explanatory breakdowns of the same engine family, not new independent corroboration for HIGH.
+
+`test_fairplay_positions.py` exercises opposition matching, sparse/missing controls, expected wins versus upsets, same-budget POV/error reconstruction, missing/mate/gap safeguards, idempotence, mixed-game preservation, easy-conversion false positives and a genuinely difficult cluster that can still reach HIGH with independent evidence.
 
 ## Timing features and explicit coverage
 

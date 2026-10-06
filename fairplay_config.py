@@ -5,7 +5,7 @@ CHANNEL_ID = 1311445685492781186
 NAMESPACE = 'shark:fairplay:'
 DISCLAIMER = ('Automated fair-play screening only. This result is not proof of cheating '
               'and must not be used as the sole basis for punishment. Human review is mandatory.')
-VERSION = 'fairplay-v6-rated-independent-evidence'
+VERSION = 'fairplay-v7-opposition-position-context'
 
 
 @dataclass(frozen=True)
@@ -63,6 +63,13 @@ class ReviewConfig:
     baseline_critical_delta: float = .20
     baseline_cpl_delta: float = 20.0
     baseline_effect_mad: float = 2.5
+    baseline_player_rating_tolerance: int = 200
+    baseline_opponent_rating_tolerance: int = 250
+    baseline_rating_gap_tolerance: int = 200
+    opponent_error_cp: int = 150
+    competitive_eval_cp: int = 200
+    easy_winning_cp: int = 350
+    easy_conversion_weight: float = .15
     rate_lower_bound_z: float = 1.645
     pooled_critical_games: int = 10
     pooled_critical_lower: float = .80

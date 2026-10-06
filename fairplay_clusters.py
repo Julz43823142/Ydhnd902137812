@@ -39,6 +39,15 @@ def summary(games, fast=False):
         denom = sum(m.get(count, 0) for m in rows if m.get(key) is not None)
         return sum(m[key]*m.get(count, 0) for m in rows if m.get(key) is not None)/denom if denom else None
     return {'games': len(games), 'decisions': n, 'critical': c, 'unique': u,
+            'competitive_decisions':sum(m.get('competitive_decisions',0) for m in rows),
+            'competitive_top1':rate('competitive_top1','competitive_decisions'),
+            'competitive_cpl':med([m.get('competitive_cpl') for m in rows]),
+            'competitive_critical':sum(m.get('competitive_critical',0) for m in rows),
+            'competitive_critical_top1':rate('competitive_critical_top1','competitive_critical'),
+            'easy_conversion_decisions':sum(m.get('easy_conversion_decisions',0) for m in rows),
+            'opponent_blunder_exposure':sum(m.get('opponent_blunder_exposure',0) for m in rows),
+            'post_opponent_error_decisions':sum(m.get('post_opponent_error_decisions',0) for m in rows),
+            'easy_winning_position_fraction':rate('easy_winning_position_fraction','position_context_decisions'),
             'top1': rate('top1', 'decisions'), 'weighted_top1':rate('weighted_top1','effective_decisions'),
             'effective_decisions':sum(m.get('effective_decisions',m.get('decisions',0)) for m in rows), 'top3': rate('top3', 'decisions'),
             'critical_top1': rate('critical_top1', 'critical'),
