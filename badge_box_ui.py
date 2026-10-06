@@ -67,18 +67,20 @@ class BadgeBoxPicker(discord.ui.View):
         daily = discord.ui.Button(label='Free Daily Mystery Box', emoji='🎁', style=discord.ButtonStyle.success, row=2)
         daily.callback = claim_mystery_box
         active = active_holidays()
-        for holiday in [None, *active]:
+        for holiday, quantity in [(None,1), *[(key,1) for key in active], (None,5)]:
             label = HOLIDAYS[holiday]["label"] if holiday else "Random Badge"
             cost = HOLIDAY_BOX_COST if holiday else BADGE_BOX_COST
+            cost *= quantity
             emoji = "🎊" if holiday else "🎁"
-            button = discord.ui.Button(label=f"{label} Box • {format_points(cost)} coins", style=discord.ButtonStyle.primary, emoji=emoji, row=1 if holiday else 0)
+            box_label=f'{label} Box' if quantity==1 else '5 Mystery Boxes'
+            button = discord.ui.Button(label=f"{box_label} • {format_points(cost)} coins", style=discord.ButtonStyle.primary, emoji=emoji, row=1 if holiday else 0)
 
-            async def select(interaction, holiday=holiday, label=label, cost=cost, emoji=emoji):
+            async def select(interaction, holiday=holiday, label=label, cost=cost, emoji=emoji, quantity=quantity, box_label=box_label):
                 if self.busy:
                     await interaction.response.send_message("Your box is already opening.", ephemeral=True)
                     return
                 self.clear_items()
-                confirm = discord.ui.Button(label=f"Open {label} Box", style=discord.ButtonStyle.success, emoji=emoji)
+                confirm = discord.ui.Button(label=f"Open {box_label}", style=discord.ButtonStyle.success, emoji=emoji)
 
                 async def purchase(interaction):
                     if self.busy:
@@ -90,14 +92,20 @@ class BadgeBoxPicker(discord.ui.View):
                         result = await asyncio.to_thread(
                             buy_badge_box, interaction.user.id, interaction.user.display_name,
                             f"badge-box:{interaction.id}:{interaction.user.id}", holiday=holiday,
+                            **({'quantity':quantity} if quantity!=1 else {}),
                         )
                     except Exception as error:
                         self.busy = False
                         await interaction.followup.send(f"❌ Could not open box: {str(error)[:700]}", ephemeral=True)
                         return
                     self.stop()
+                    if result.get('quantity',1)>1:
+                        rewards='\n'.join(f"{i}. {reward['badge']} — **{reward['rarity_label']}**" for i,reward in enumerate(result['rewards'],1))
+                        content=f"{emoji} **{result['quantity']} Mystery Boxes opened!**\n{rewards}\n🪙 Coins left: **{format_points(result['coins'])}**"
+                    else:
+                        content=f"{emoji} **{label} Box opened!** You got {result['badge']} — **{result['rarity_label']}**.\n🪙 Coins left: **{format_points(result['coins'])}**"
                     await interaction.edit_original_response(
-                        content=f"{emoji} **{label} Box opened!** You got {result['badge']} — **{result['rarity_label']}**.\n🪙 Coins left: **{format_points(result['coins'])}**",
+                        content=content,
                         embed=None, view=None,
                     )
 
@@ -113,8 +121,8 @@ class BadgeBoxPicker(discord.ui.View):
                 cancel.callback = cancel_purchase
                 self.add_item(cancel)
                 chance = 100 / len(HOLIDAYS[holiday]["badges"]) if holiday else None
-                extra = f" Guaranteed one badge from this holiday; each has a {chance:.2f}% chance. Duplicates are possible." if holiday else " One random badge; duplicates are possible."
-                await interaction.response.edit_message(content=f"Open one **{label} Box** for **{format_points(cost)} coins**?{extra}", embed=None, view=self)
+                extra = f" Guaranteed one badge from this holiday; each has a {chance:.2f}% chance. Duplicates are possible." if holiday else f" {quantity} random badge{'s' if quantity>1 else ''}; duplicates are possible."
+                await interaction.response.edit_message(content=f"Open **{box_label}** for **{format_points(cost)} coins**?{extra}", embed=None, view=self)
 
             button.callback = select
             self.add_item(button)

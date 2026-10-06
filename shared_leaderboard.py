@@ -2859,8 +2859,12 @@ def mystery_box_day(timestamp=None):
     return datetime.fromtimestamp(time.time() if timestamp is None else timestamp, ACTIVITY_TIME_ZONE).date().isoformat()
 
 
-def buy_badge_box(user_id, display_name, transaction_id, holiday=None, *, daily_free=False):
+def buy_badge_box(user_id, display_name, transaction_id, holiday=None, *, daily_free=False, quantity=1):
     from holiday_events import HOLIDAYS, HOLIDAY_BOX_COST, active_holidays
+    if type(quantity) is not int or quantity not in (1,5):
+        raise ValueError('Choose one or five boxes.')
+    if quantity != 1 and (daily_free or holiday is not None):
+        raise ValueError('Five-box bundles are only available for paid Mystery Boxes.')
     claim_day = None
     if daily_free:
         if holiday is not None:
@@ -2880,6 +2884,12 @@ def buy_badge_box(user_id, display_name, transaction_id, holiday=None, *, daily_
             raise ValueError("This holiday box is not available today. Reopen the shop.")
         rarity, cost = "holiday", HOLIDAY_BOX_COST
         badge = random.choice(HOLIDAYS[holiday]["badges"])
+    rewards=[{'badge':badge,'rarity':rarity,'rarity_label':RARITY_LABELS[rarity]}]
+    for _ in range(quantity-1):
+        extra_rarity=random.choices(rarity_names,weights=weights,k=1)[0]
+        rewards.append({'badge':random.choice(BADGE_POOLS[extra_rarity]),
+                        'rarity':extra_rarity,'rarity_label':RARITY_LABELS[extra_rarity]})
+    cost *= quantity
 
     def mutate(entry):
         if daily_free and mystery_box_day() != claim_day:
@@ -2892,7 +2902,7 @@ def buy_badge_box(user_id, display_name, transaction_id, holiday=None, *, daily_
                 f"Not enough coins. Need {format_points(cost)}, have {format_points(before)}."
             )
         entry["coins"] = round(before - cost, 3)
-        entry.setdefault("badges", []).append(badge)
+        entry.setdefault("badges", []).extend(reward['badge'] for reward in rewards)
         if not entry.get("active_badge"):
             entry["active_badge"] = badge
         return {
@@ -2902,6 +2912,8 @@ def buy_badge_box(user_id, display_name, transaction_id, holiday=None, *, daily_
             "rarity_label": RARITY_LABELS[rarity],
             "badge": badge,
             "claim_day": claim_day,
+            "quantity": quantity,
+            "rewards": rewards,
         }
 
     already_claimed = False
@@ -2921,6 +2933,9 @@ def buy_badge_box(user_id, display_name, transaction_id, holiday=None, *, daily_
         "profile": {"user_id": str(user_id), **entry},
         "already_claimed": already_claimed,
         "claim_day": claim_day,
+        "quantity": details.get('quantity',1),
+        "rewards": details.get('rewards',[{'badge':details.get('badge',badge),
+                       'rarity':details.get('rarity',rarity),'rarity_label':details.get('rarity_label',RARITY_LABELS[rarity])}]),
     }
 
 
