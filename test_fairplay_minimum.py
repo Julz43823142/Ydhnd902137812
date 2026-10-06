@@ -39,7 +39,7 @@ class MinimumSample(unittest.TestCase):
         self.assertEqual(result.priority, 'INSUFFICIENT DATA')
 
     def test_ten_games_allow_high_only_with_existing_evidence_gates(self):
-        args = dict(games=10, decisions=200, critical=40, confidence='MEDIUM',
+        args = dict(games=10, decisions=400, critical=40, confidence='MEDIUM',
                     deep_confirmed=True, partial=False)
         scores = (.9, .9, .8, 0, 0)
         self.assertEqual(analysis.priority_model(scores, **args), 'HIGH')

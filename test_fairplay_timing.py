@@ -111,7 +111,7 @@ class TrivialTiming(unittest.TestCase):
     def test_thresholds_are_configurable_and_runtime_cache_version_changes(self):
         game = timed_game()
         self.assertFalse(trivial_delay_metrics(game.decisions,replace(CONFIG,trivial_overlap_min=1.01))['elevated'])
-        self.assertIn('v5-evidence-calibration',analysis.VERSION)
+        self.assertIn('v7-opposition-position-context',analysis.VERSION)
 
 
 if __name__=='__main__':unittest.main()

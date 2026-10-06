@@ -37,6 +37,8 @@ def evaluate_cases(cases, analyze):
             'known_positive_completed':positive,
             'high_or_higher_recall':high/positive if positive else None,
             'moderate_or_higher_recall':moderate/positive if positive else None,
+            'trusted_normal_completed':sum(counts[LABELS[1]].values()),
+            'trusted_normal_moderate_or_higher':sum(counts[LABELS[1]][p] for p in ('MODERATE','HIGH','VERY HIGH')),
             'trusted_normal_high_or_higher':counts[LABELS[1]]['HIGH']+counts[LABELS[1]]['VERY HIGH'],
             'note':'External user labels, not certified ground truth. Failed scans excluded from recall denominators; insufficient data included. No empirical calibration claim.'}
 

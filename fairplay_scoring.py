@@ -1,31 +1,51 @@
 """Conservative multi-family priority gates, separate from HTTP/engine execution."""
 from fairplay_config import CONFIG
 from fairplay_clusters import clamp, evidence, find_clusters, regime_changes, confirm_cluster, summary, buckets, comparison_control
-from fairplay_baseline import personal_timing
+from fairplay_baseline import personal_timing, timing_profile
+from fairplay_calibration import baseline_comparison, stable_history
 from fairplay_timing import trivial_delay_summary, cadence_recurrence, delay_floor_periods, delay_floor_profile
 
 def priority_model(scores, *, games, decisions, critical, confidence, deep_confirmed, partial,
-                   config=CONFIG, persistent=True, recurrence=False, cluster_games=None, deep_cluster_games=None):
+                   config=CONFIG, persistent=True, recurrence=False, cluster_games=None, deep_cluster_games=None,
+                   cluster_decisions=None, cluster_qualified=True, baseline_anomaly=False,
+                   baseline_available=False, baseline_confirmed=False):
     # Priority coverage follows the per-game minimum; confidence remains separate.
     if games<config.min_games or decisions<config.min_games*config.min_game_decisions:return 'INSUFFICIENT DATA'
     engine, difficult, timing, shift, context = scores
     primary = engine>=config.high_engine_score or (difficult>=config.high_critical_score and critical>=config.min_deep_critical)
-    supporting = max(timing,shift,context)>=.5 or recurrence
+    # The fourth family is engine-derived structure, NOT independent support.
+    supporting = max(timing,context)>=.5 or recurrence
     strong = max(engine,difficult)>=config.very_high_score and min(engine,difficult)>=.65
-    if (strong and max(timing,shift,context)>=.75 and persistent and deep_confirmed
+    period_games=cluster_games if cluster_games is not None else games
+    period_decisions=cluster_decisions if cluster_decisions is not None else decisions
+    extreme=(min(engine,difficult)>=config.exceptional_evidence
+             and period_decisions>=config.small_high_decisions and critical>=config.small_high_critical)
+    small_exception=(extreme and period_games>=max(config.high_cluster_games,games*config.small_high_fraction)
+                     and max(timing,context)>=.75)
+    sample_ok=games>=config.normal_high_sample_games or small_exception
+    personal_path=baseline_anomaly and baseline_confirmed
+    # No-history cases remain reviewable, but need exceptional sustained absolute
+    # evidence and strong behavioral corroboration. A missing baseline is not a delta.
+    absolute_path=extreme and period_games>=10 and (not baseline_available or recurrence) and (timing>=.75 or recurrence)
+    high_ok=(primary and supporting and persistent and cluster_qualified and sample_ok
+             and deep_confirmed and confidence!='LOW' and (personal_path or absolute_path))
+    if (high_ok and strong and max(timing,context)>=.75 and (personal_path or recurrence)
             and confidence=='HIGH' and not partial and games>=config.very_high_games
             and decisions>=config.high_decisions and critical>=config.very_high_critical
-            and (cluster_games is None or cluster_games>=10) and (deep_cluster_games is None or deep_cluster_games>=8)):
+            and period_games>=10 and (deep_cluster_games is None or deep_cluster_games>=7)):
         return 'VERY HIGH'
-    if primary and supporting and persistent and deep_confirmed and confidence!='LOW':return 'HIGH'
+    if high_ok:return 'HIGH'
     # Critical hit rate is largely a skill/opportunity measure. It does not
     # establish an anomaly by itself, even when called 'High' descriptively.
-    moderate = (max(engine,difficult)>=.5 and max(timing,shift,context)>=.35) or min(engine,difficult)>=.65
+    moderate = (max(engine,difficult)>=.5 and max(timing,context)>=.35) or min(engine,difficult)>=.65
     return 'MODERATE' if moderate else 'LOW'
 
 
 def score_review(target, games, selected, skipped, partial, engine_name, profile, elapsed, config=CONFIG):
     from fairplay_analysis import aggregate, performance_metrics, context_metrics, median, family_label, ReviewResult
+    # Only rated games with usable equal-budget engine coverage enter ANY signal.
+    scanned_rated=[g for g in games if g.rated is True]
+    games=[g for g in games if g.rated is True and (g.fast_metrics or g.metrics).get('decisions',0)>=config.min_game_decisions]
     useful = sorted([g for g in games if g.metrics.get('decisions',0)>=config.min_game_decisions],key=lambda g:(g.ended,g.identity))
     totals = aggregate(useful)
     classes = {kind:aggregate([g for g in useful if g.time_class==kind]) for kind in ('rapid','blitz','bullet')}
@@ -68,9 +88,8 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
         engine_score=max(engine_score,e*weight);critical_score=max(critical_score,c*weight)
     for cluster in clusters['candidates']:
         if not cluster['persistent']:continue
-        nearby_change = any(set(cluster['ids']) & set(row['ids']) and row['class']==cluster['time_class'] for row in changes)
         members=[g for g in games if g.identity in cluster['ids']]
-        e,c = evidence(cluster['metrics'],rating=median([g.rating for g in members if g.rating is not None]),personal=nearby_change,config=config)
+        e,c = evidence(cluster['metrics'],rating=median([g.rating for g in members if g.rating is not None]),config=config)
         weight=.35 if cluster['time_class']=='bullet' else 1
         engine_score=max(engine_score,e*weight);critical_score=max(critical_score,c*weight)
     # A ranked subset is useful for detail/selection, never a persistence gate.
@@ -96,20 +115,28 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
                           and row['time_control']==strongest['time_control'] and row['rated']==strongest['rated']
                           and set(row['ids']) & set(strongest['ids']) for row in clusters['recurrence_groups'])
     recurrence = period_recurrence and len(comparable_baseline)>=config.cluster_min_games
-    if recurrence:perf_score=max(perf_score,.55)
+    # Recurrence is replication, reported separately from engine regime change.
     clusters['recurrence'] = recurrence
-    elite = bool(context['title']) or median([g.rating for g in useful if g.rating is not None],0)>=2200
+    comparison=baseline_comparison(strongest,games,config,fast=True)
+    clusters['personal']=comparison
+    # Absence of a qualifying period blocks HIGH, but must not erase large
+    # same-control aggregate signals from a descriptive MODERATE review.
+    fallback=max(buckets(games).values(),key=lambda group:descriptive_group_rank(group,profile,personal,config),default=[])
+    reference=[g for g in games if strongest and g.time_class==strongest['time_class'] and g.time_control==strongest['time_control']] if strongest else fallback
+    stable_strong=comparison['stable'] or stable_history(reference,config)
     independent_timing = any(row['state'] in ('Moderate','Strong','Very Strong') and row['time_class']!='bullet' for row in personal)
     within_shift=sum(g.metrics['timing'].get('regime_shift',False) and g.time_class!='bullet' for g in useful)>=5
     if within_shift:perf_score=max(perf_score,.55)
     # Supporting evidence must overlap the engine period and comparison group.
     # A rapid clock anomaly cannot confirm unrelated blitz precision.
-    scope=[g for g in games if strongest and g.identity in strongest['ids']]
+    scope=[g for g in games if strongest and g.identity in strongest['ids']] if strongest else fallback
+    controls=[g for g in games if g.identity in set(comparison['baseline_ids'])]
+    if controls and scope:
+        bp,hp=timing_profile(controls,config),timing_profile(scope,config)
+        comparison['timing']={'baseline':bp,'cluster':hp,'deltas':{k:(hp['comparison'][k]-bp['comparison'][k] if hp['comparison'][k] is not None and bp['comparison'][k] is not None else None) for k in bp['comparison']}}
     scope_ids={g.identity for g in scope}
     scope_key=comparison_control(scope[0]) if scope else None
     scope_class=scope[0].time_class if scope else None
-    matching_changes=[r for r in changes if r['class']==scope_class and r['control']==scope_key
-                      and len(scope_ids & set(r['ids']))>=min(config.cluster_min_games,len(scope)//2)]
     matching_personal=[]
     for row in personal:
         if row['time_class']!=scope_class or row['time_control']!=scope_key:continue
@@ -124,25 +151,25 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
     if scope_trivial['recurrent']:gate_timing=max(gate_timing,.7 if scope_trivial['same_cadence_games']>=10 else .55)
     gate_timing=max(gate_timing,scope_floor['score'])
     if scope_class=='bullet':gate_timing*=.35
-    gate_shift=max((min(.95,.5+.05*r['effect_mad'])*(.35 if scope_class=='bullet' else 1) for r in matching_changes),default=0)
-    if recurrence:gate_shift=max(gate_shift,.55*(.35 if scope_class=='bullet' else 1))
+    gate_shift=0.0  # Engine-derived change cannot independently corroborate engine precision.
+
     if sum(g.metrics['timing'].get('regime_shift',False) and g.time_class!='bullet' for g in scope)>=5:
-        gate_shift=max(gate_shift,.55)
+        gate_timing=max(gate_timing,.55)
     scope_context=context_metrics(scope,profile)['classes'].get(scope_class,{})
     gate_context=clamp(((scope_context.get('excess_z') or 0)-2)/4)*.65 if scope_class!='bullet' else 0
-    scope_behavior=bool(matching_changes or any(r['state'] in ('Moderate','Strong','Very Strong') for r in matching_personal)
+    scope_behavior=bool(any(r['state'] in ('Moderate','Strong','Very Strong') for r in matching_personal)
                         or recurrence or scope_floor['elevated'] or scope_trivial['recurrent'])
-    if elite and not scope_behavior:
+    if stable_strong and not scope_behavior:
         gate_timing=gate_context=0
     scores=(engine_score,critical_score,timing_score,perf_score,ctx_score)
     # Confirmation is about this particular period. Do not borrow higher scores
     # or clocks from an unrelated time-control/rated bucket.
-    scoped_e,scoped_c=evidence(summary(scope),rating=median([g.rating for g in scope if g.rating is not None]),personal=bool(matching_changes),config=config)
+    scoped_e,scoped_c=evidence(summary(scope),rating=median([g.rating for g in scope if g.rating is not None]),config=config)
     if scope_class=='bullet':scoped_e*=.35;scoped_c*=.35
-    deep_e,deep_c=evidence(deep_confirmation.get('metrics',{}),rating=median([g.rating for g in scope if g.rating is not None]),personal=bool(matching_changes),config=config,shrink=False)
+    deep_e,deep_c=evidence(deep_confirmation.get('metrics',{}),rating=median([g.rating for g in scope if g.rating is not None]),config=config,shrink=False)
     if scope_class=='bullet':deep_e*=.35;deep_c*=.35
     primary_e,primary_c=(min(scoped_e,deep_e),min(scoped_c,deep_c)) if deep_confirmed else (scoped_e,scoped_c)
-    if elite and not scope_behavior:
+    if stable_strong and not scope_behavior:
         # Stable expert precision without a behavioral discrepancy is reported
         # descriptively; it does not earn MODERATE from correlated hit rates.
         primary_e=primary_c=0
@@ -150,7 +177,10 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
     priority=priority_model(gate_scores,games=len(useful),decisions=totals['decisions'],critical=summary(scope)['critical'],
                            confidence=confidence,deep_confirmed=deep_confirmed,partial=partial,config=config,
                            persistent=bool(strongest and strongest['persistent']),recurrence=recurrence,
-                           cluster_games=strongest['metrics']['games'] if strongest else 0,deep_cluster_games=deep_confirmation['games'])
+                           cluster_games=strongest['metrics']['games'] if strongest else 0,deep_cluster_games=deep_confirmation['games'],
+                           cluster_decisions=summary(scope)['decisions'],cluster_qualified=bool(strongest and strongest.get('high_qualifying')),
+                           baseline_available=comparison['sufficient'],baseline_anomaly=comparison['established'],
+                           baseline_confirmed=deep_confirmation.get('anomaly_confirmed',False))
     # Deep evidence can lower a shallow anomaly; selecting unaffected games is
     # not permission to claim confirmation. Every gate uses the actual cluster.
     reasons=[]
@@ -161,9 +191,9 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
     elif any(row['elevated'] for key,row in delay_floors.items() if not key.startswith('bullet')):reasons.append('Trivial and critical decisions repeatedly have similar non-instant delays and timing spread; lag or input habits remain possible.')
     elif timing_score>=.5:reasons.append('Trivial and critical decisions repeatedly arrive in the same delayed cadence; input delay or habits remain alternatives.' if any(k.startswith(('rapid · ','blitz · ')) and v['recurrent'] for k,v in trivial_timing.items()) else 'Repeated delayed move-time cadence; timing alone cannot establish high review priority.')
     if within_shift:reasons.append('Repeated within-game quality and timing transitions were found; opening and forced moves are excluded from this comparison.')
-    if changes:reasons.append('A sustained same-control performance regime change was found; this is supporting evidence, not a verdict.')
+    if changes:reasons.append('Engine quality changed in a sustained same-control period; this describes engine structure, not independent corroboration.')
     if recurrence:reasons.append('Separate high-signal periods recur against a lower-anomaly personal baseline.')
-    if elite and not scope_behavior:reasons.append('Strong precision without an independent personal behavior change is compatible with stable expert play.')
+    if stable_strong and not scope_behavior:reasons.append('Strong precision without an independent personal behavior change is compatible with stable expert play.')
     if critical_score>=.5 and engine_score<.5 and max(gate_scores[2:])<.35:reasons.append('Critical-move agreement alone is insufficient to raise review priority.')
     if not any(g.metrics['timing']['count']>=config.min_timing_moves for g in games):reasons.append('Clock coverage is limited; missing timing evidence is not a normal-behavior finding.')
     if not reasons:reasons.append('No well-supported elevated signal combination was found; this does not establish fair play.')
@@ -181,15 +211,57 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
                         families,priority,confidence,reasons,
                         deep_confirmed,coverage,elapsed,timing={'trivial_delay':trivial_timing,'personal':personal,'cadence_groups':cadence_groups,'delay_floors':delay_floors},
                         clusters=clusters,
-                        coverage={'collected':selected,'fast_scanned':len(games),'used':len(useful),'deep_reviewed':len([g for g in games if g.deep]),
-                                  'excluded_after_fast':len(games)-len(useful)},
+                        coverage={'collected':selected,'fast_scanned':len(scanned_rated),'used':len(useful),'deep_reviewed':len([g for g in games if g.deep]),
+                                  'excluded_after_fast':len(scanned_rated)-len(useful)},
                         diagnostics={'scores':dict(zip(names,scores)),'weighted_review_score':sum(v*w for v,w in zip(scores,config.weights)),
-                                     'independent_support':max(gate_scores[2:])>=.5 or recurrence,
+                                     'independent_support':max(gate_timing,gate_context)>=.5 or recurrence,
                                      'engine_confidence':confidence,'timing_available':any(g.metrics['timing']['count']>=config.min_timing_moves for g in games),
-                                     'gate_scores':dict(zip(names,gate_scores)), 'stable_strong_play':elite and not scope_behavior,
-                                     'same_period_support':max(gate_scores[2:])>=.5 or recurrence,
+                                     'gate_scores':dict(zip(names,gate_scores)), 'stable_strong_play':stable_strong and not scope_behavior,
+                                     'same_period_support':max(gate_timing,gate_context)>=.5 or recurrence,
+                                     'descriptive_control_fallback':strongest is None and bool(scope),
+                                     'high_path':('Personal anomaly with independent support' if comparison['established'] and deep_confirmation.get('anomaly_confirmed') else 'Exceptional absolute evidence with behavioral support or recurrence') if priority in ('HIGH','VERY HIGH') else None,
+                                     'small_sample_high':len(useful)<config.normal_high_sample_games and priority=='HIGH',
+                                     'baseline_anomaly':comparison['established'],'baseline_anomaly_confirmed':deep_confirmation.get('anomaly_confirmed',False),
+                                     'qualifying_cluster':bool(strongest and strongest.get('high_qualifying')),
+                                     'high_blocked':high_block_reasons(priority,comparison,deep_confirmation,strongest,gate_timing,gate_context,recurrence,len(useful),config),
                                      'timing_coverage':{'games':sum(g.metrics['timing'].get('all_valid_clocks',0)>0 for g in games),
                                                         'usable_moves':sum(g.metrics['timing']['count'] for g in games),
                                                         'engine_linked_moves':sum(g.metrics['timing'].get('engine_clock_count',0) for g in games),
                                                         'clock_comments':sum(g.metrics['timing'].get('clock_comments',0) for g in games),
                                                         'excluded_clocks':sum(g.metrics['timing'].get('excluded_clocks',0) for g in games)}})
+
+
+def high_block_reasons(priority, comparison, deep, cluster, timing, context, recurrence, games, config=CONFIG):
+    if priority in ('HIGH','VERY HIGH'):return []
+    reasons=[]
+    if not cluster or not cluster.get('high_qualifying'):reasons.append('No qualifying persistent cluster with adequate decisions.')
+    if not deep.get('confirmed'):reasons.append('Core engine signal was not deep-confirmed.')
+    if max(timing,context)<.5 and not recurrence:reasons.append('No independent same-period timing, result or separate-recurrence support.')
+    if comparison['sufficient'] and not comparison['established']:reasons.append('Best period is not substantially different from its leave-cluster-out baseline.')
+    elif comparison['established'] and not deep.get('anomaly_confirmed'):reasons.append('Deep cluster-versus-baseline anomaly was not confirmed.')
+    if games<config.normal_high_sample_games:reasons.append('Small sample: exceptional whole-sample evidence is required.')
+    if not reasons:reasons.append('Primary evidence or absolute-exception coverage thresholds were not met.')
+    return reasons
+
+
+def descriptive_group_rank(group, profile, personal, config=CONFIG):
+    """Choose corroborated descriptive evidence within ONE exact-control group.
+
+    A tiny unsupported bucket must not hide a larger comparable-clock signal.
+    This selector is MODERATE-only: it cannot supply HIGH persistence or depth.
+    """
+    from fairplay_analysis import context_metrics, median
+    weight=.35 if group[0].time_class=='bullet' else 1
+    e,c=evidence(summary(group),rating=median([g.rating for g in group if g.rating is not None]),config=config)
+    e*=weight;c*=weight
+    cadence=cadence_recurrence(group,config)
+    timing=delay_floor_profile(group,config)['score']
+    if cadence['recurrent']:timing=max(timing,.75 if cadence['games']>=10 else .55)
+    key=comparison_control(group[0])
+    timing=max(timing,max(({'Slight':.25,'Moderate':.5,'Strong':.75,'Very Strong':.9}.get(r['state'],0)
+                          for r in personal if r['time_class']==group[0].time_class and r['time_control']==key),default=0))*weight
+    context=context_metrics(group,profile)['classes'][group[0].time_class]
+    support=max(timing,clamp(((context.get('excess_z') or 0)-2)/4)*.65*weight)
+    corroborated=max(e,c)>=.5 and support>=.35
+    moderate=corroborated or min(e,c)>=.65
+    return corroborated,moderate,max(e,c),len(group)

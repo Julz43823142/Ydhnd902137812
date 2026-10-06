@@ -5,7 +5,7 @@ CHANNEL_ID = 1311445685492781186
 NAMESPACE = 'shark:fairplay:'
 DISCLAIMER = ('Automated fair-play screening only. This result is not proof of cheating '
               'and must not be used as the sole basis for punishment. Human review is mandatory.')
-VERSION = 'fairplay-v5-evidence-calibration-minimum-ten'
+VERSION = 'fairplay-v7-opposition-position-context'
 
 
 @dataclass(frozen=True)
@@ -22,7 +22,7 @@ class ReviewConfig:
     cluster_min_games: int = 6
     persistence_fraction: float = 2 / 3
     persistence_critical_hits: float = .75
-    persistence_min_critical: int = 2
+    persistence_min_critical: int = 5
     engine_top1_floor: float = .62
     engine_top1_ceiling: float = .96
     engine_top3_floor: float = .82
@@ -46,6 +46,36 @@ class ReviewConfig:
     min_game_decisions: int = 8
     min_games: int = 10
     medium_confidence_decisions: int = 150
+    # Report coverage and HIGH coverage are intentionally separate.
+    normal_high_sample_games: int = 20
+    high_cluster_games: int = 8
+    high_cluster_decisions: int = 160
+    small_high_fraction: float = .8
+    small_high_decisions: int = 300
+    small_high_critical: int = 40
+    exceptional_evidence: float = .85
+    baseline_candidate_limit: int = 64
+    baseline_reference_games: int = 10
+    baseline_reference_decisions: int = 160
+    baseline_deep_games: int = 3
+    baseline_deep_critical: int = 6
+    baseline_top1_delta: float = .15
+    baseline_critical_delta: float = .20
+    baseline_cpl_delta: float = 20.0
+    baseline_effect_mad: float = 2.5
+    baseline_player_rating_tolerance: int = 200
+    baseline_opponent_rating_tolerance: int = 250
+    baseline_rating_gap_tolerance: int = 200
+    opponent_error_cp: int = 150
+    competitive_eval_cp: int = 200
+    easy_winning_cp: int = 350
+    easy_conversion_weight: float = .15
+    rate_lower_bound_z: float = 1.645
+    pooled_critical_games: int = 10
+    pooled_critical_lower: float = .80
+    pooled_critical_fraction: float = .8
+    persistence_top1_lower: float = .60
+    persistence_critical_lower: float = .60
     fast_nodes: int = 24_000
     deep_nodes: int = 320_000
     deep_games: int = 10

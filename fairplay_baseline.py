@@ -10,7 +10,7 @@ from collections import defaultdict
 
 from fairplay_config import CONFIG
 from fairplay_clusters import contiguous, comparison_control
-from fairplay_timing import cadence, distribution_overlap
+from fairplay_timing import cadence, distribution_overlap, decision_trivial_kind
 
 
 def median(values):
@@ -46,7 +46,7 @@ def timing_values(game, config=CONFIG):
             continue
         groups['overall'].append(d.think)
         if d.phase=='opening':groups['opening'].append(d.think)
-        elif d.trivial_kind:groups['trivial'].append(d.think)
+        elif decision_trivial_kind(d):groups['trivial'].append(d.think)
         else:
             groups['critical' if d.metrics.get('critical') else 'ordinary'].append(d.think)
             if d.phase=='middlegame':groups['middlegame'].append(d.think)
@@ -153,7 +153,7 @@ def compare_groups(baseline, high, config=CONFIG):
 def personal_timing(games, config=CONFIG):
     buckets = defaultdict(list)
     for game in games:
-        if (game.time_control and engine_data(game).get('decisions',0)>=config.baseline_min_decisions
+        if (game.rated is True and game.time_control and engine_data(game).get('decisions',0)>=config.baseline_min_decisions
                 and sum(d.clock_valid for d in game.decisions)>=config.baseline_min_timing):
             buckets[(game.time_class,comparison_control(game))].append(game)
     ranks = {'Insufficient Data':-1,'Normal':0,'Slight':1,'Moderate':2,'Strong':3,'Very Strong':4}

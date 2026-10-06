@@ -41,7 +41,7 @@ class AccountStatusIndependence(unittest.TestCase):
                 with patch.object(analysis.time,'time',return_value=1791273600):
                     return analysis.score_review(TARGET,games,30,{},False,'Synthetic',profile,1)
             expected=evaluate(self.profile())
-            self.assertEqual(expected.priority,'VERY HIGH' if high else 'LOW')
+            self.assertEqual(expected.priority,'HIGH' if high else 'LOW')
             for status in STATUSES:
                 with self.subTest(high=high,status=status):
                     actual=evaluate(self.profile(status,True))

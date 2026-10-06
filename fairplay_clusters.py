@@ -8,6 +8,8 @@ import math
 import statistics as stats
 from collections import defaultdict
 from fairplay_config import CONFIG
+from fairplay_calibration import (strength_expectations, posterior_rate, lower_bound,
+    baseline_comparison, comparable_baseline, representative_controls, high_cluster_qualification)
 
 
 def clamp(value):
@@ -37,6 +39,15 @@ def summary(games, fast=False):
         denom = sum(m.get(count, 0) for m in rows if m.get(key) is not None)
         return sum(m[key]*m.get(count, 0) for m in rows if m.get(key) is not None)/denom if denom else None
     return {'games': len(games), 'decisions': n, 'critical': c, 'unique': u,
+            'competitive_decisions':sum(m.get('competitive_decisions',0) for m in rows),
+            'competitive_top1':rate('competitive_top1','competitive_decisions'),
+            'competitive_cpl':med([m.get('competitive_cpl') for m in rows]),
+            'competitive_critical':sum(m.get('competitive_critical',0) for m in rows),
+            'competitive_critical_top1':rate('competitive_critical_top1','competitive_critical'),
+            'easy_conversion_decisions':sum(m.get('easy_conversion_decisions',0) for m in rows),
+            'opponent_blunder_exposure':sum(m.get('opponent_blunder_exposure',0) for m in rows),
+            'post_opponent_error_decisions':sum(m.get('post_opponent_error_decisions',0) for m in rows),
+            'easy_winning_position_fraction':rate('easy_winning_position_fraction','position_context_decisions'),
             'top1': rate('top1', 'decisions'), 'weighted_top1':rate('weighted_top1','effective_decisions'),
             'effective_decisions':sum(m.get('effective_decisions',m.get('decisions',0)) for m in rows), 'top3': rate('top3', 'decisions'),
             'critical_top1': rate('critical_top1', 'critical'),
@@ -51,28 +62,28 @@ def summary(games, fast=False):
 
 
 def evidence(metrics, rating=None, personal=False, config=CONFIG, *, shrink=True):
-    """Smooth agreement/CPL evidence with denominator shrinkage.
+    """Strength-aware absolute evidence; personal is a compatibility-only argument.
 
-    Broad strength priors are conservative heuristics, not calibrated population
-    norms. A demonstrated personal improvement uses the common baseline rather
-    than letting a title/rating erase it. No profile status or platform accuracy.
+    Personal differences are measured explicitly by baseline_comparison. Neither
+    discovery nor deep confirmation may bypass the rating expectation.
     """
-    band = 0 if personal or rating is None else min(4, max(0, (rating-1000)//400+1))
-    top_floor = config.engine_top1_floor + config.strength_top1_step*band
-    critical_floor = config.critical_hit_floor + config.strength_critical_step*band
+    top_floor, top3_floor, critical_floor = strength_expectations(rating,config)
     n, c = metrics.get('effective_decisions',metrics.get('decisions', 0)), metrics.get('critical', 0)
-    engine = (ramp(metrics.get('weighted_top1') if metrics.get('weighted_top1') is not None else metrics.get('top1'), top_floor, config.engine_top1_ceiling)*.65
-              + ramp(metrics.get('top3'), config.engine_top3_floor+config.strength_top3_step*band, 1.0)*.15
-              + (1-ramp(metrics.get('robust_cpl', metrics.get('median_cpl')), config.engine_cpl_good, config.engine_cpl_weak))*.20) if n else 0
-    # A median of zero alone is common in forced tactics and is never sufficient.
-    if shrink:engine *= n/(n+config.engine_shrink_decisions)
-    # Weight already reduces the usable sample. Multiplying by sqrt(weight/n)
-    # again imposed a permanent score ceiling even on arbitrarily large samples.
-    hits = metrics.get('critical_top1')
-    unique = metrics.get('unique_hits', 0)/metrics['unique'] if metrics.get('unique') else None
-    critical = (ramp(hits, critical_floor, config.critical_hit_ceiling)*.75
-                + ramp(unique, critical_floor, config.critical_hit_ceiling)*.25) if c else 0
-    if shrink:critical *= c/(c+config.critical_shrink_positions)
+    top=metrics.get('weighted_top1') if metrics.get('weighted_top1') is not None else metrics.get('top1')
+    top3=metrics.get('top3');hits=metrics.get('critical_top1')
+    u=metrics.get('unique',0);unique=metrics.get('unique_hits',0)/u if u else None
+    if shrink:
+        top=posterior_rate(top,n,top_floor,config.engine_shrink_decisions)
+        top3=posterior_rate(top3,n,top3_floor,config.engine_shrink_decisions)
+        hits=posterior_rate(hits,c,critical_floor,config.critical_shrink_positions)
+        unique=posterior_rate(unique,u,critical_floor,config.critical_shrink_positions)
+    cpl=metrics.get('robust_cpl',metrics.get('median_cpl'))
+    if shrink and cpl is not None:cpl=(n*cpl+config.engine_shrink_decisions*config.engine_cpl_weak)/(n+config.engine_shrink_decisions)
+    engine=(ramp(top,top_floor,config.engine_top1_ceiling)*.65
+            +ramp(top3,top3_floor,1.0)*.15
+            +((1-ramp(cpl,config.engine_cpl_good,config.engine_cpl_weak))*.20 if cpl is not None else 0)) if n else 0
+    critical=(ramp(hits,critical_floor,config.critical_hit_ceiling)*.75
+              +ramp(unique,critical_floor,config.critical_hit_ceiling)*.25) if c else 0
     return clamp(engine), clamp(critical)
 
 
@@ -101,20 +112,35 @@ def group_record(group, kind, config=CONFIG, fast=False):
     m = summary(group, fast)
     engine, critical = evidence(m, med([g.rating for g in group]),config=config)
     reliability = .35 if group[0].time_class == 'bullet' else 1.0
-    sustained = sum((rows_for([g], fast)[0].get('weighted_top1',rows_for([g], fast)[0].get('top1')) or 0)>=config.engine_top1_floor
-                    or (rows_for([g], fast)[0].get('critical', 0)>=config.persistence_min_critical
-                        and (rows_for([g], fast)[0].get('critical_top1') or 0)>=config.persistence_critical_hits) for g in group)
+    def sustained_game(g):
+        row=rows_for([g],fast)[0]
+        n=row.get('effective_decisions',row.get('decisions',0))
+        top=row.get('weighted_top1') if row.get('weighted_top1') is not None else row.get('top1')
+        critical_n=row.get('critical',0)
+        return (n>=config.min_game_decisions and lower_bound(top,n,config.rate_lower_bound_z)>=config.persistence_top1_lower
+                or critical_n>=config.persistence_min_critical
+                and lower_bound(row.get('critical_top1'),critical_n,config.rate_lower_bound_z)>=config.persistence_critical_lower)
+    sustained = sum(sustained_game(g) for g in group)
+    # Per-game 2/2 never becomes strong evidence. A much larger independently
+    # repeated opportunity pool can establish period-level persistence instead.
+    pool_games=sum(row.get('critical',0)>0 and (row.get('critical_top1') or 0)>=config.persistence_critical_hits
+                   for row in rows_for(group,fast))
+    pooled=(len(group)>=config.pooled_critical_games and m['decisions']>=config.high_cluster_decisions
+            and m['critical']>=config.min_critical
+            and lower_bound(m['critical_top1'],m['critical'],config.rate_lower_bound_z)>=config.pooled_critical_lower
+            and pool_games>=math.ceil(len(group)*config.pooled_critical_fraction))
     return {'kind': kind, 'time_class': group[0].time_class, 'time_control': group[0].time_control, 'rated':group[0].rated,
             'start': group[0].ended, 'end': group[-1].ended,
             'ids': [g.identity for g in group], 'metrics': m,
             'engine_score': engine*reliability, 'critical_score': critical*reliability,
             'strength': max(engine, critical)*reliability,
-            'sustained_games': sustained,
+            'sustained_games': sustained,'pooled_critical_support':bool(pooled),'pooled_critical_games':pool_games,
             'persistent': kind != 'ranked' and len(group)>=config.cluster_min_games
-                          and sustained>=math.ceil(len(group)*config.persistence_fraction)}
+                          and (sustained>=math.ceil(len(group)*config.persistence_fraction) or pooled)}
 
 
 def find_clusters(games, config=CONFIG, fast=False):
+    games=[g for g in games if g.rated is True and rows_for([g],fast)[0].get('decisions',0)>=config.min_game_decisions]
     candidates = []
     for _, group in sorted(buckets(games).items()):
         for width in config.cluster_windows:
@@ -147,22 +173,30 @@ def find_clusters(games, config=CONFIG, fast=False):
             lo,hi=sorted((left,right),key=lambda r:r['start'])
             between=[g for g in games if lo['end']<g.ended<hi['start']
                      and g.time_class==lo['time_class'] and g.time_control==lo['time_control'] and g.rated==lo['rated']]
-            if any((rows_for([g],fast)[0].get('top1') or 0)<.65 and (rows_for([g],fast)[0].get('critical_top1') or 0)<.65 for g in between):
+            if (len(between)>=config.cluster_min_games
+                    and min(lo['metrics']['decisions'],hi['metrics']['decisions'])>=config.high_cluster_decisions
+                    and min(lo['metrics']['critical'],hi['metrics']['critical'])>=config.min_critical
+                    and sum((rows_for([g],fast)[0].get('top1') or 0)<.65 and (rows_for([g],fast)[0].get('critical_top1') or 0)<.65 for g in between)>=config.cluster_min_games):
                 recurrence=True
                 if len(recurrence_groups)<40:
                     recurrence_groups.append({'time_class':lo['time_class'],'time_control':lo['time_control'],
                                               'rated':lo['rated'],'ids':lo['ids']+hi['ids']})
-    best = next((r for r in candidates if r['persistent']), None)
+    finalists=[r for r in candidates if r['persistent']][:config.baseline_candidate_limit]
+    for row in finalists:
+        row['personal']=baseline_comparison(row,games,config,fast=fast)
+        row['high_qualifying']=high_cluster_qualification(row,games,config)
+    finalists.sort(key=lambda r:(r['high_qualifying'],r['personal']['established'],r['strength'],r['end']),reverse=True)
+    best=finalists[0] if finalists else None
     return {'strongest': best, 'strongest_engine': max(candidates,key=lambda r:r['engine_score'],default=None),
             'strongest_critical': max(candidates,key=lambda r:r['critical_score'],default=None),
             'independent': independent, 'recurrence': recurrence, 'recurrence_groups':recurrence_groups,
-            'candidates': candidates[:12]}
+            'candidates': finalists[:12] if finalists else candidates[:12]}
 
 
 def regime_changes(games, config=CONFIG):
     """Adjacent 5/8/10-game robust shifts, exact time control, sustained quality."""
     changes = []
-    for (kind, control), group in buckets(games).items():
+    for (kind, control), group in buckets([g for g in games if g.rated is True]).items():
         for width in (5, 8, 10):
             for cut in range(width,len(group)-width+1):
                 before, after = group[cut-width:cut], group[cut:cut+width]
@@ -183,10 +217,12 @@ def regime_changes(games, config=CONFIG):
 
 
 def select_deep_games(games, config=CONFIG):
+    games=[g for g in games if g.rated is True and (g.fast_metrics or g.metrics).get('decisions',0)>=config.min_game_decisions]
     clusters = find_clusters(games,config,True)
     lookup = {g.identity:g for g in games}
     selected = []
     def add(group, count):
+        if count<=0:return
         for g in group:
             if len(selected)>=config.deep_games:return
             if not g.deep and g not in selected:
@@ -195,10 +231,22 @@ def select_deep_games(games, config=CONFIG):
     strongest = clusters['strongest']
     if strongest:
         members=[lookup[i] for i in strongest['ids']]
-        count=min(len(members),max(8,config.deep_games-2))
-        # Cover the whole period; taking its earliest eight games could leave
-        # the recent behavior entirely unconfirmed. No additional engine work.
-        add([members[round(i*(len(members)-1)/max(1,count-1))] for i in range(count)],count)
+        controls=representative_controls(comparable_baseline(strongest,games,config),config.baseline_deep_games)
+        reserve=min(len(controls),config.baseline_deep_games, max(0,config.deep_games-5))
+        count=min(len(members),config.deep_games-reserve)
+        period=[members[round(i*(len(members)-1)/max(1,count-1))] for i in range(count)]
+        if strongest['critical_score']>strongest['engine_score'] and count>=3:
+            # Improve opportunity coverage, never choose by hit rate. Preserve
+            # endpoint coverage and the ten-game budget including controls.
+            anchors={members[0].identity,members[-1].identity}
+            for candidate in sorted(members,key=lambda g:((g.fast_metrics or g.metrics).get('critical',0),g.ended),reverse=True):
+                if sum((g.fast_metrics or g.metrics).get('critical',0) for g in period)>=config.min_deep_critical:break
+                eligible=[g for g in period if g.identity not in anchors]
+                worst=min(eligible,key=lambda g:(g.fast_metrics or g.metrics).get('critical',0),default=None)
+                if worst and candidate not in period and (candidate.fast_metrics or candidate.metrics).get('critical',0)>(worst.fast_metrics or worst.metrics).get('critical',0):
+                    period[period.index(worst)]=candidate
+        add(period,count)
+        add(controls,reserve)
     add(sorted(games,key=lambda g:evidence(summary([g],True),config=config)[1],reverse=True),2)
     # A second independent period helps test recurrence instead of cherry-picking.
     for row in clusters['independent'][1:2]:add([lookup[i] for i in row['ids']],2)
@@ -210,7 +258,8 @@ def confirm_cluster(cluster, games, config=CONFIG):
     if cluster is None:return {'confirmed':False,'engine':False,'critical':False,'games':0,'decisions':0,'critical_count':0,'stability':None}
     subset = [g for g in games if g.identity in cluster['ids'] and g.deep]
     deep, fast = summary(subset), summary(subset,True)
-    de,dc = evidence(deep,personal=True,config=config,shrink=False);fe,fc = evidence(fast,personal=True,config=config,shrink=False)
+    rating=med([g.rating for g in subset])
+    de,dc = evidence(deep,rating=rating,config=config,shrink=False);fe,fc = evidence(fast,rating=rating,config=config,shrink=False)
     # Discovery already accounts for the full period's sample size. Test
     # paired fast/deep effect retention on this smaller confirmation subset;
     # shrinking it again introduced a second, stricter sample-size penalty.
@@ -220,7 +269,18 @@ def confirm_cluster(cluster, games, config=CONFIG):
     engine_retention=min(1.0,de/max(.001,fe));critical_retention=min(1.0,dc/max(.001,fc))
     engine = adequate and de>=config.high_engine_score and engine_retention>=.8
     critical = adequate and deep['critical']>=config.min_deep_critical and dc>=config.high_critical_score and critical_retention>=.8
+    baseline=comparable_baseline(cluster,games,config)
+    deep_controls=[g for g in representative_controls(baseline,config.baseline_deep_games) if g.deep]
+    fast_delta=baseline_comparison(cluster,games,config,fast=True)
+    # Paired deep comparisons use the same reviewed cluster subset.
+    paired={**cluster,'ids':[g.identity for g in subset]}
+    deep_delta=baseline_comparison(paired,subset+deep_controls,config,fast=False,controls=deep_controls)
+    paired_fast=baseline_comparison(paired,subset+deep_controls,config,fast=True,controls=deep_controls)
+    anomaly_confirmed=(fast_delta['engine'] and paired_fast['engine'] and deep_delta['engine']) or (fast_delta['critical'] and paired_fast['critical'] and deep_delta['critical'])
     core='critical' if cluster['critical_score']>cluster['engine_score'] else 'engine'
     return {'confirmed':bool(critical if core=='critical' else engine),'engine':bool(engine),'critical':bool(critical),
             'games':len(subset),'decisions':deep['decisions'],'critical_count':deep['critical'],
+            'anomaly_confirmed':bool(anomaly_confirmed),'baseline_games':len(deep_controls),
+            'fast_personal':fast_delta,'paired_fast_personal':paired_fast,'deep_personal':deep_delta,'absolute_engine':de,'absolute_critical':dc,
+            'fast_engine':fe,'fast_critical':fc,
             'stability':stability,'core':core,'engine_retention':engine_retention,'critical_retention':critical_retention,'metrics':deep,'fast_metrics':fast}

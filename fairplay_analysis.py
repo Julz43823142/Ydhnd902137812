@@ -86,6 +86,8 @@ def engine_metrics(decision, lines, actual_line, color, config=CONFIG):
 
 
 def summarize(game: GameSample, config=CONFIG):
+    from fairplay_positions import position_context, position_summary
+    position_context(game,config)
     moves = [d for d in game.decisions if d.metrics.get('useful')]
     critical = [d for d in moves if d.metrics['critical']]
     unique = [d for d in critical if d.metrics['unique']]
@@ -123,6 +125,7 @@ def summarize(game: GameSample, config=CONFIG):
                     'mistakes': sum(v >= config.mistake_cp for v in losses),
                     'blunders': sum(v >= config.blunder_cp for v in losses),
                     'critical_mistakes': sum(d.metrics['cpl'] >= config.mistake_cp for d in critical)}
+    game.metrics.update(position_summary(game))
     game.metrics['timing'] = timing_metrics(game,config)
     return game.metrics
 
@@ -361,6 +364,8 @@ class EngineScanner:
             if nodes==self.config.fast_nodes:decision.fast_engine=decision.metrics.copy()
         summarize(game,self.config)
         if nodes == self.config.fast_nodes:
+            for decision in game.decisions:
+                if decision.metrics:decision.fast_engine=decision.metrics.copy()
             game.fast_metrics = {k:v for k,v in game.metrics.items() if k!='timing'}
 
 
@@ -386,18 +391,16 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         if canonical!=target:raise ReviewError('The public profile does not match the requested account.')
         profile = neutral_profile_context(profile)
         history, skipped, archive_partial = collect_games(api,canonical,progress,config)
-        if not history:raise ReviewError('No eligible standard live games with enough meaningful moves were found.')
+        # Enforce eligibility even when a collector adapter is used.
+        history=sorted([g for g in history if g.rated is True],key=lambda g:(g.ended,g.identity))
+        if not history:raise ReviewError('No eligible rated standard live games with enough meaningful moves were found.')
         check_deadline(deadline)
         try:scanner = EngineScanner(deadline,config,engine_factory)
         except Exception as error:raise ReviewError('Stockfish is unavailable. Engine screening could not be performed; no review priority was assigned.') from error
         for group in buckets(history).values():
             for index,game in enumerate(group):game.control_index=index
-        # Prefer rated play within the bounded newest history. Casual and unknown
-        # games fill remaining capacity but never act as a rated baseline.
-        rated = [g for g in history if g.rated is True]
-        other = [g for g in history if g.rated is not True]
         limit = primary_limit(config)
-        primary = sorted(rated[-limit:]+(other[-(limit-len(rated)):] if len(rated)<limit else []),key=lambda g:(g.ended,g.identity))
+        primary = history[-limit:]
         analyzed,probes = [],{}
         partial = False
         def fast_scan(game):
