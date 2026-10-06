@@ -20,6 +20,7 @@ def probe_decisions(game, config=CONFIG):
 
 
 def historical_candidates(history, probes, config=CONFIG):
+    if config.historical_target_games<=0:return []
     ranked = []
     for _, group in buckets(history).items():
         width = 8

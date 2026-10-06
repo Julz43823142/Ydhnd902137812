@@ -33,7 +33,7 @@ def public_text(value):
 def panel_embed():
     embed = discord.Embed(title=PANEL_TITLE, color=0x427CBA,
         description='Want to review a suspicious Chess.com account?\n\n'
-                    "Submit the Chess.com username. SharkBot reviews the latest 100 eligible standard games, with up to 500 games of history for personal baselines and targeted review of unusual periods.\n\n"
+                    "Submit the Chess.com username. SharkBot prioritizes up to 100 recent rated standard games, with up to 500 eligible games of history for personal baselines and targeted review of unusual periods.\n\n"
                     '**This is an automated screening tool — not proof of cheating.**')
     embed.set_footer(text=PANEL_MARKER)
     return embed
@@ -69,6 +69,8 @@ def result_embed(result: ReviewResult):
               f'Account age: {result.context["age_days"] if result.context["age_days"] is not None else "unavailable"} days')
     if coverage.get('primary_collected'):
         sample += f'\nRecent primary scan: {coverage["primary_fast_scanned"]}/{coverage["primary_collected"]} · historical discovery probes: {coverage.get("history_probed",0)}'
+    if 'rated_primary' in coverage:
+        sample += f'\nPrimary selection: {coverage["rated_primary"]} rated · {coverage["casual_primary"]} casual · {coverage["unknown_primary"]} unknown'
     if coverage.get('history_probe_complete') is False:sample += '\nExtended-history discovery is incomplete; primary coverage is shown separately.'
     if result.skipped:sample += f'\nSkipped archive/game entries: {sum(result.skipped.values())}'
     if result.partial:sample += '\n⚠️ Partial scan / limited archive coverage. Missing data is not suspicious.'
@@ -132,6 +134,25 @@ def detail_embed(result, mode):
                              'Trivial decisions are timing-only structural proxies, never engine-match evidence. '
                              'Deliberate slow play, lag, rounding, increment, accessibility/input delay and habits are innocent alternatives. '
                              'Timing alone cannot produce HIGH or VERY HIGH priority.')
+        coverage=result.diagnostics.get('timing_coverage',{})
+        embed.add_field(name='Clock coverage',inline=False,
+            value=f'Games with valid clocks: {coverage.get("games",0)} · post-opening moves: {coverage.get("usable_moves",0)}\n'
+                  f'Linked engine decisions: {coverage.get("engine_linked_moves",0)} · excluded/unreliable clock estimates: {coverage.get("excluded_clocks",0)}\n'
+                  'Simple and already-won positions retain timing evidence. Rated, casual and unknown-status games are compared separately.')
+        for key,row in sorted(result.timing.get('delay_floors',{}).items(),key=lambda pair:(pair[1]['elevated'],pair[1]['games']),reverse=True)[:3]:
+            cats=row['samples']
+            embed.add_field(name=f'Cross-category delay · {key}',inline=False,
+                value=f'{"Elevated supporting pattern" if row["elevated"] else "Not established" if row["sufficient"] else "Insufficient comparable clocks"} · {row["games"]} games\n'
+                      f'Trivial / ordinary / critical medians: {number(cats["trivial"]["median"])} / {number(cats["normal"]["median"])} / {number(cats["critical"]["median"])} sec\n'
+                      f'Trivial near-instant fraction: {percentage(cats["trivial"]["near_instant"])}\n'
+                      f'Trivial–critical distribution overlap: {percentage(row["overlap"]["trivial_critical"])}\n'
+                      'Similar delayed timing across easy and hard moves is supporting evidence, not proof; input habits or lag can cause it.')
+        for key,row in sorted(result.timing.get('cadence_groups',{}).items(),key=lambda pair:pair[1]['games'],reverse=True)[:2]:
+            if row['games']<2:continue
+            embed.add_field(name=f'Repeated cadence · {key}',inline=False,
+                value=f'{row["games"]} games · {row["moves"]} clocks · {number(row["modal_seconds"])} ± {number(row["band_halfwidth"])} sec\n'
+                      f'Median per-game band share: {percentage(row["fraction"])} · recurring: {row["recurrent"]}\n'
+                      'Band width scales with the observed delay; occasional long pauses do not erase a repeated pattern.')
         for row in sorted(result.history.get('timing_baselines',[]),key=lambda r:r['profile']['games'],reverse=True)[:2]:
             p=row['profile'];cats=p['categories']
             embed.add_field(name=f'Extended timing reference · {row["class"]} · {row["control"]}',inline=False,
@@ -183,7 +204,7 @@ def detail_embed(result, mode):
         for game in sorted(eligible,key=lambda g:g.metrics['timing'].get('cluster_fraction',0),reverse=True)[:5]:
             m = game.metrics['timing']
             embed.add_field(name=f'{game.time_class.title()} · <t:{game.ended}:d>',
-                value=f'Modal band: {m.get("modal_seconds",0)} ± 1 sec · {percentage(m.get("cluster_fraction"))}\n'
+                value=f'Modal band: {m.get("modal_seconds",0)} ± {number(m.get("band_halfwidth"))} sec · {percentage(m.get("cluster_fraction"))}\n'
                       f'CV: {number(m.get("cv"))} · entropy: {number(m.get("entropy"))}\n'
                       f'Ordinary / critical median: {number(m.get("ordinary_median"))} / {number(m.get("critical_median"))} sec\n'
                       f'Gap–time correlation: {number(m.get("complexity_response"))} · within-game regime change: {bool(m.get("regime_shift"))}\n'
@@ -198,7 +219,7 @@ def detail_embed(result, mode):
             c = result.context['classes'][kind]
             shift = m['shift']
             text = f'W/L/D: {m["wins"]}/{m["losses"]}/{m["draws"]}\nWin / loss / draw robust CPL: {number(m["win_cpl"])} / {number(m["loss_cpl"])} / {number(m["draw_cpl"])}\n'
-            text += f'Expected / actual points: {c["expected"]:.1f} / {c["actual"]:.1f} in {c["rated_games"]} rated games\nRating change: {number(c["rating_gain"])} · volatility: {number(c["rating_volatility"])}\nLongest win streak: {c["longest_win_streak"]}'
+            text += f'Expected / actual points: {c["expected"]:.1f} / {c["actual"]:.1f} in {c["rated_games"]} explicitly rated games\nRating change: {number(c["rating_gain"])} · volatility: {number(c["rating_volatility"])}\nLongest win streak: {c["longest_win_streak"]}'
             if shift:text += f'\nStrongest window change: {number(shift["before_cpl"])} → {number(shift["after_cpl"])} CPL · sustained criteria met: {shift["elevated"]}'
             if len(m['rolling_cpl'])>=2:text += f'\nRolling 10-game CPL: {number(m["rolling_cpl"][0])} → {number(m["rolling_cpl"][-1])}'
             embed.add_field(name=kind.title(),value=text,inline=False)
@@ -206,6 +227,7 @@ def detail_embed(result, mode):
         a = result.totals
         embed.description = (f'Meaningful decisions: **{a["decisions"]:,}**\nMedian / 90th percentile CPL: {number(a["median_cpl"])} / {number(a["p90_cpl"])}\n'
                              f'Top-1 / top-3: {percentage(a["top1"])} / {percentage(a["top3"])}\n'
+                             f'Near-best (≤15 cp): {percentage(a.get("near_best"))} · contradictory searches excluded: {a.get("search_inconsistent",0)}\n'
                              f'Critical opportunities: {a["critical"]} · top-1 / top-3: {percentage(a["critical_top1"])} / {percentage(a["critical_top3"])}\n'
                              f'Critical median CPL: {number(a["critical_cpl"])} · unique-best hits: {a["unique_hits"]}/{a["unique"]}\n'
                              f'Mistake / blunder-like losses: {a["mistakes"]}/{a["blunders"]} · critical mistakes: {a["critical_mistakes"]}\n'
@@ -213,6 +235,15 @@ def detail_embed(result, mode):
                              'First 20 plies and genuinely forced/trivial decisions are excluded. Difficult check responses and nontrivial recaptures remain analyzable. Strongly won/lost positions are de-weighted. '
                              'Critical positions require several choices, a best–second gap and candidate spread; quiet unique choices receive the strongest evidence. '
                              'These heuristic measures have innocent explanations and do not establish misconduct.')
+        gates=result.diagnostics.get('gate_scores',{})
+        primary=gates.get('Engine Precision',0)>=.65 or gates.get('Critical Position Precision',0)>=.65
+        embed.add_field(name='Priority checks',inline=False,
+            value=f'Persistent comparison period: {bool(result.clusters.get("strongest"))}\n'
+                  f'Deep confirmation of that period: {result.deep_confirmed}\n'
+                  f'Engine/critical threshold met in that period: {primary}\n'
+                  f'Independent support in that same period: {result.diagnostics.get("same_period_support",False)}\n'
+                  f'Stable strong-play context: {result.diagnostics.get("stable_strong_play",False)}\n'
+                  'Raw precision and near-best rates describe skill. They do not independently determine review priority.')
         cluster = result.clusters.get('strongest')
         if cluster:
             m = cluster['metrics']

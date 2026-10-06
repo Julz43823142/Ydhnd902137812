@@ -81,7 +81,12 @@ class ClusterSafety(unittest.TestCase):
         self.assertNotIn(result.priority,('HIGH','VERY HIGH'))
 
     def test_stable_elite_has_no_automatic_high(self):
-        result=report([game(i,True,rating=2700) for i in range(40)],{'title':'GM'})
+        games=[game(i,True,rating=2700) for i in range(40)]
+        for g in games:
+            for d,reference in zip(g.decisions,game(0,False).decisions):
+                d.think=reference.think;d.clock_valid=reference.clock_valid;d.clock_reliable=reference.clock_reliable
+            a.summarize(g)
+        result=report(games,{'title':'GM'})
         self.assertNotIn(result.priority,('HIGH','VERY HIGH'))
         self.assertFalse(result.clusters['recurrence'])
 

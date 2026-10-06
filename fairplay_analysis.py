@@ -16,7 +16,7 @@ import chess.engine
 import chess_play
 
 from fairplay_config import CONFIG, VERSION, ReviewConfig
-from fairplay_timing import cadence, trivial_delay_metrics, trivial_delay_summary
+from fairplay_timing import cadence, clock_values, trivial_delay_metrics, trivial_delay_summary
 from fairplay_baseline import engine_data, timing_profile
 from fairplay_clusters import (clamp, evidence, find_clusters, regime_changes,
                                select_deep_games, confirm_cluster, summary, buckets)
@@ -58,14 +58,24 @@ def engine_metrics(decision, lines, actual_line, color, config=CONFIG):
         actual = score_cp(actual_line, color)
     gap = max(0, values[0]-values[1]) if len(values)>1 else None
     spread = max(0, values[0]-values[-1]) if len(values)>2 else None
+    inconsistent = actual > values[0]+config.inconsistent_eval_cp
+    # Root-restricted alternatives can search deeper than a MultiPV line. A
+    # contradictory better score is search uncertainty, never a zero-loss hit.
     # Only genuine forced/trivial decisions and openings are excluded. Decisive
     # won/lost positions are weak evidence: best-move CPL there is misleading.
     useful = (decision.useful and not decision.forced and not decision.trivial_kind
-              and decision.legal>1 and decision.phase!='opening' and abs(values[0]) <= 600)
+              and decision.legal>1 and decision.phase!='opening' and abs(values[0]) <= 600 and not inconsistent)
     critical = (useful and decision.legal >= config.critical_legal and gap is not None
                 and spread is not None and gap >= config.critical_gap
                 and spread >= config.critical_spread)
+    # A scaled evaluation-loss index accounts for the evaluation context. It
+    # is not a player cheating probability or a fitted win-probability model.
+    def scaled(cp):return 1/(1+math.exp(-.00368208*cp))
     return {'before_cp': values[0], 'actual_cp': actual, 'best': candidates[0],
+            'search_inconsistent':inconsistent,
+            'near_best':not inconsistent and values[0]-actual<=config.equivalent_cp,
+            'equivalent_candidates':sum(values[0]-value<=config.equivalent_cp for value in values),
+            'scaled_loss':max(0.0,scaled(values[0])-scaled(actual)),
             'top1': decision.move == candidates[0], 'top3': decision.move in candidates[:3],
             'cpl': min(1000, max(0, values[0]-actual)), 'gap': gap, 'spread': spread,
             'useful': useful, 'critical': bool(critical),
@@ -80,6 +90,9 @@ def summarize(game: GameSample, config=CONFIG):
     critical = [d for d in moves if d.metrics['critical']]
     unique = [d for d in critical if d.metrics['unique']]
     losses = [d.metrics['cpl'] for d in moves]
+    quiet = [d for d in moves if not (d.capture or d.check or d.gives_check)]
+    compared = [d for d in moves if getattr(d,'fast_engine',{})
+                and d.metrics.get('nodes',0)>d.fast_engine.get('nodes',0)]
     consecutive = run = 0
     for d in moves:
         # Count consecutive critical opportunities; a noncritical move is not
@@ -87,7 +100,14 @@ def summarize(game: GameSample, config=CONFIG):
         if d.metrics['critical']:
             run = run+1 if d.metrics['top1'] else 0
             consecutive = max(consecutive, run)
-    game.metrics = {'decisions': len(moves), 'median_cpl': median(losses),
+    game.metrics = {'decisions': len(moves),
+                    'search_inconsistent':sum(d.metrics.get('search_inconsistent',False) for d in game.decisions),
+                    'near_best':ratio(sum(d.metrics.get('near_best',d.metrics['cpl']<=config.equivalent_cp) for d in moves),len(moves)),
+                    'scaled_loss':median([d.metrics['scaled_loss'] for d in moves if 'scaled_loss' in d.metrics]),
+                    'quiet_top1':ratio(sum(d.metrics['top1'] for d in quiet),len(quiet)),
+                    'depth_compared':len(compared),
+                    'depth_best_stable':ratio(sum(d.fast_engine.get('best')==d.metrics.get('best') for d in compared),len(compared)),
+                    'median_cpl': median(losses),
                     'robust_cpl': stats.mean(sorted(losses)[:max(1, math.ceil(len(losses)*.9))]) if losses else None,
                     'p90_cpl': percentile(losses), 'top1': ratio(sum(d.metrics['top1'] for d in moves), len(moves)),
                     'top3': ratio(sum(d.metrics['top3'] for d in moves), len(moves)),
@@ -118,7 +138,12 @@ def correlation(xs, ys):
 def timing_metrics(game, config=CONFIG):
     moves = [d for d in game.decisions if d.metrics.get('useful') and d.clock_reliable]
     values = [d.think for d in moves]
-    result = {'count':len(values), **cadence(values,config)}
+    clocks = clock_values(game)
+    result = {'count':len(clocks), 'engine_clock_count':len(values),
+              'all_valid_clocks':sum(d.clock_valid for d in game.decisions),
+              'clock_comments':sum(d.clock_after is not None for d in game.decisions),
+              'excluded_clocks':sum(d.clock_after is not None and not d.clock_valid for d in game.decisions),
+              **cadence(clocks,config)}
     critical = [d.think for d in moves if d.metrics['critical']]
     easy = [d.think for d in moves if not d.metrics['critical']]
     result['critical_median'] = median(critical)
@@ -197,10 +222,10 @@ def context_metrics(games, profile):
     by_class = {}
     for kind in ('rapid','blitz','bullet'):
         group = [g for g in games if g.time_class==kind]
-        rated = [g for g in group if g.rating is not None and g.opponent_rating is not None]
+        rated = [g for g in group if g.rated is True and g.rating is not None and g.opponent_rating is not None]
         expected = [1/(1+10**((g.opponent_rating-g.rating)/400)) for g in rated]
         actual = [g.score for g in rated]
-        ratings = [g.rating for g in group if g.rating is not None]
+        ratings = [g.rating for g in group if g.rated is True and g.rating is not None]
         variance = sum(p*(1-p) for p in expected)
         excess = (sum(actual)-sum(expected))/math.sqrt(variance) if len(rated)>=20 and variance>0 else None
         by_class[kind] = {'games':len(group),'rated_games':len(rated),'expected':sum(expected),
@@ -233,6 +258,9 @@ def aggregate(games):
             'mistakes':sum(d.metrics['cpl']>=CONFIG.mistake_cp for d in decisions),
             'blunders':sum(d.metrics['cpl']>=CONFIG.blunder_cp for d in decisions),
             'critical_mistakes':sum(d.metrics['cpl']>=CONFIG.mistake_cp for d in critical),
+            'search_inconsistent':sum(g.metrics.get('search_inconsistent',0) for g in games),
+            'near_best':ratio(sum(d.metrics.get('near_best',d.metrics['cpl']<=CONFIG.equivalent_cp) for d in decisions),len(decisions)),
+            'scaled_loss':median([d.metrics['scaled_loss'] for d in decisions if 'scaled_loss' in d.metrics]),
             'quiet_critical':sum(d.metrics.get('critical_kind')=='quiet' for d in critical),
             'tactical_critical':sum(d.metrics.get('critical_kind')=='tactical' for d in critical)}
 
@@ -265,7 +293,7 @@ class ReviewResult:
 
 
 def family_label(value):
-    return 'Very High' if value>=.85 else 'High' if value>=.70 else 'Elevated' if value>=.5 else 'Slightly Elevated' if value>=.25 else 'Normal / limited evidence'
+    return 'Very High' if value>=.85 else 'High' if value>=.70 else 'Elevated' if value>=.5 else 'Slightly Elevated' if value>=.25 else 'Not elevated'
 
 
 from fairplay_scoring import priority_model, score_review
@@ -329,6 +357,8 @@ class EngineScanner:
                 # after-move horizon differences being mistaken for CPL.
                 actual = self.engine.analyse(board,chess.engine.Limit(nodes=nodes),root_moves=[move])
             decision.metrics = engine_metrics(decision,lines,actual,game.color,self.config)
+            decision.metrics['nodes']=nodes
+            if nodes==self.config.fast_nodes:decision.fast_engine=decision.metrics.copy()
         summarize(game,self.config)
         if nodes == self.config.fast_nodes:
             game.fast_metrics = {k:v for k,v in game.metrics.items() if k!='timing'}
@@ -362,7 +392,12 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         except Exception as error:raise ReviewError('Stockfish is unavailable. Engine screening could not be performed; no review priority was assigned.') from error
         for group in buckets(history).values():
             for index,game in enumerate(group):game.control_index=index
-        primary = history[-primary_limit(config):]
+        # Prefer rated play within the bounded newest history. Casual and unknown
+        # games fill remaining capacity but never act as a rated baseline.
+        rated = [g for g in history if g.rated is True]
+        other = [g for g in history if g.rated is not True]
+        limit = primary_limit(config)
+        primary = sorted(rated[-limit:]+(other[-(limit-len(rated)):] if len(rated)<limit else []),key=lambda g:(g.ended,g.identity))
         analyzed,probes = [],{}
         partial = False
         def fast_scan(game):
@@ -384,7 +419,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         historical_targets=[]
         probe_complete=True
         if primary_complete and len(history)>len(primary):
-            older=history[:-len(primary)]
+            primary_ids={g.identity for g in primary}
+            older=[g for g in history if g.identity not in primary_ids]
             probe_end=min(float(deadline),time.monotonic()+config.deadline_seconds*config.historical_probe_budget_fraction)
             for index,game in enumerate(older):
                 if time.monotonic()>=probe_end:probe_complete=False;break
@@ -427,7 +463,9 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         result.coverage.update(primary_collected=len(primary),primary_fast_scanned=min(len(analyzed),len(primary)) if not primary_complete else len(primary),
                                history_probed=len(probes),history_fast_scanned=sum(g not in primary for g in analyzed),
                                history_probe_complete=probe_complete,deep_incomplete=deep_incomplete,
-                               archive_partial=archive_partial,primary_complete=primary_complete)
+                               archive_partial=archive_partial,primary_complete=primary_complete,
+                               rated_primary=sum(g.rated is True for g in primary),casual_primary=sum(g.rated is False for g in primary),
+                               unknown_primary=sum(g.rated is None for g in primary))
         result.history={'collected':len(history),'historical_candidates':len(historical_targets),
                         'sessions':session_history(history,config),'engine_selected':len(analyzed),'context':context_metrics(history,profile),
                         'timing_baselines':[{'class':kind,'control':control,

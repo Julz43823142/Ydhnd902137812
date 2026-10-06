@@ -37,7 +37,7 @@ def summary(games, fast=False):
         denom = sum(m.get(count, 0) for m in rows if m.get(key) is not None)
         return sum(m[key]*m.get(count, 0) for m in rows if m.get(key) is not None)/denom if denom else None
     return {'games': len(games), 'decisions': n, 'critical': c, 'unique': u,
-            'top1': rate('top1', 'decisions'), 'weighted_top1':rate('weighted_top1','decisions'),
+            'top1': rate('top1', 'decisions'), 'weighted_top1':rate('weighted_top1','effective_decisions'),
             'effective_decisions':sum(m.get('effective_decisions',m.get('decisions',0)) for m in rows), 'top3': rate('top3', 'decisions'),
             'critical_top1': rate('critical_top1', 'critical'),
             'unique_hits': sum(m.get('unique_hits', 0) for m in rows),
@@ -50,7 +50,7 @@ def summary(games, fast=False):
             'tactical_critical': sum(m.get('tactical_critical', 0) for m in rows)}
 
 
-def evidence(metrics, rating=None, personal=False, config=CONFIG):
+def evidence(metrics, rating=None, personal=False, config=CONFIG, *, shrink=True):
     """Smooth agreement/CPL evidence with denominator shrinkage.
 
     Broad strength priors are conservative heuristics, not calibrated population
@@ -65,20 +65,28 @@ def evidence(metrics, rating=None, personal=False, config=CONFIG):
               + ramp(metrics.get('top3'), config.engine_top3_floor+config.strength_top3_step*band, 1.0)*.15
               + (1-ramp(metrics.get('robust_cpl', metrics.get('median_cpl')), config.engine_cpl_good, config.engine_cpl_weak))*.20) if n else 0
     # A median of zero alone is common in forced tactics and is never sufficient.
-    engine *= n/(n+config.engine_shrink_decisions) * math.sqrt(n/max(1,metrics.get('decisions',0)))
+    if shrink:engine *= n/(n+config.engine_shrink_decisions)
+    # Weight already reduces the usable sample. Multiplying by sqrt(weight/n)
+    # again imposed a permanent score ceiling even on arbitrarily large samples.
     hits = metrics.get('critical_top1')
     unique = metrics.get('unique_hits', 0)/metrics['unique'] if metrics.get('unique') else None
     critical = (ramp(hits, critical_floor, config.critical_hit_ceiling)*.75
                 + ramp(unique, critical_floor, config.critical_hit_ceiling)*.25) if c else 0
-    critical *= c/(c+config.critical_shrink_positions)
+    if shrink:critical *= c/(c+config.critical_shrink_positions)
     return clamp(engine), clamp(critical)
+
+
+def comparison_control(game):
+    """Never infer that a missing rated flag is rated, or mix casual baselines."""
+    mode = 'rated' if game.rated is True else 'casual' if game.rated is False else 'rated status unknown'
+    return (game.time_control or 'unknown:'+game.identity)+' · '+mode
 
 
 def buckets(games):
     result = defaultdict(list)
     for game in sorted(games, key=lambda g:(g.ended, g.identity)):
         # Unknown base/increment never combines disparate games into a baseline.
-        key = (game.time_class, game.time_control or 'unknown:'+game.identity)
+        key = (game.time_class, comparison_control(game))
         result[key].append(game)
     return result
 
@@ -93,17 +101,17 @@ def group_record(group, kind, config=CONFIG, fast=False):
     m = summary(group, fast)
     engine, critical = evidence(m, med([g.rating for g in group]),config=config)
     reliability = .35 if group[0].time_class == 'bullet' else 1.0
-    sustained = sum((rows_for([g], fast)[0].get('top1') or 0)>=.78
-                    or (rows_for([g], fast)[0].get('critical', 0)>=3
-                        and (rows_for([g], fast)[0].get('critical_top1') or 0)>=.8) for g in group)
-    return {'kind': kind, 'time_class': group[0].time_class, 'time_control': group[0].time_control,
+    sustained = sum((rows_for([g], fast)[0].get('weighted_top1',rows_for([g], fast)[0].get('top1')) or 0)>=config.engine_top1_floor
+                    or (rows_for([g], fast)[0].get('critical', 0)>=config.persistence_min_critical
+                        and (rows_for([g], fast)[0].get('critical_top1') or 0)>=config.persistence_critical_hits) for g in group)
+    return {'kind': kind, 'time_class': group[0].time_class, 'time_control': group[0].time_control, 'rated':group[0].rated,
             'start': group[0].ended, 'end': group[-1].ended,
             'ids': [g.identity for g in group], 'metrics': m,
             'engine_score': engine*reliability, 'critical_score': critical*reliability,
             'strength': max(engine, critical)*reliability,
             'sustained_games': sustained,
             'persistent': kind != 'ranked' and len(group)>=config.cluster_min_games
-                          and sustained>=math.ceil(len(group)*.8)}
+                          and sustained>=math.ceil(len(group)*config.persistence_fraction)}
 
 
 def find_clusters(games, config=CONFIG, fast=False):
@@ -132,18 +140,22 @@ def find_clusters(games, config=CONFIG, fast=False):
             independent.append(row);used.update(row['ids'])
     # Disjoint windows inside one long uninterrupted plateau are one period.
     recurrence=False
+    recurrence_groups=[]
     for i,left in enumerate(independent):
         for right in independent[i+1:]:
-            if (left['time_class'],left['time_control']) != (right['time_class'],right['time_control']):continue
+            if (left['time_class'],left['time_control'],left['rated']) != (right['time_class'],right['time_control'],right['rated']):continue
             lo,hi=sorted((left,right),key=lambda r:r['start'])
             between=[g for g in games if lo['end']<g.ended<hi['start']
-                     and g.time_class==lo['time_class'] and g.time_control==lo['time_control']]
+                     and g.time_class==lo['time_class'] and g.time_control==lo['time_control'] and g.rated==lo['rated']]
             if any((rows_for([g],fast)[0].get('top1') or 0)<.65 and (rows_for([g],fast)[0].get('critical_top1') or 0)<.65 for g in between):
                 recurrence=True
+                if len(recurrence_groups)<40:
+                    recurrence_groups.append({'time_class':lo['time_class'],'time_control':lo['time_control'],
+                                              'rated':lo['rated'],'ids':lo['ids']+hi['ids']})
     best = next((r for r in candidates if r['persistent']), None)
     return {'strongest': best, 'strongest_engine': max(candidates,key=lambda r:r['engine_score'],default=None),
             'strongest_critical': max(candidates,key=lambda r:r['critical_score'],default=None),
-            'independent': independent, 'recurrence': recurrence,
+            'independent': independent, 'recurrence': recurrence, 'recurrence_groups':recurrence_groups,
             'candidates': candidates[:12]}
 
 
@@ -182,7 +194,11 @@ def select_deep_games(games, config=CONFIG):
                 if count<=0:return
     strongest = clusters['strongest']
     if strongest:
-        add([lookup[i] for i in strongest['ids']], max(8,config.deep_games-2))
+        members=[lookup[i] for i in strongest['ids']]
+        count=min(len(members),max(8,config.deep_games-2))
+        # Cover the whole period; taking its earliest eight games could leave
+        # the recent behavior entirely unconfirmed. No additional engine work.
+        add([members[round(i*(len(members)-1)/max(1,count-1))] for i in range(count)],count)
     add(sorted(games,key=lambda g:evidence(summary([g],True),config=config)[1],reverse=True),2)
     # A second independent period helps test recurrence instead of cherry-picking.
     for row in clusters['independent'][1:2]:add([lookup[i] for i in row['ids']],2)
@@ -194,7 +210,11 @@ def confirm_cluster(cluster, games, config=CONFIG):
     if cluster is None:return {'confirmed':False,'engine':False,'critical':False,'games':0,'decisions':0,'critical_count':0,'stability':None}
     subset = [g for g in games if g.identity in cluster['ids'] and g.deep]
     deep, fast = summary(subset), summary(subset,True)
-    de,dc = evidence(deep,personal=True,config=config);fe,fc = evidence(fast,personal=True,config=config)
+    de,dc = evidence(deep,personal=True,config=config,shrink=False);fe,fc = evidence(fast,personal=True,config=config,shrink=False)
+    # Discovery already accounts for the full period's sample size. Test
+    # paired fast/deep effect retention on this smaller confirmation subset;
+    # shrinking it again introduced a second, stricter sample-size penalty.
+    # Explicit minimum games/decisions/critical opportunities still apply.
     stability = min(1.0,max(de,dc)/max(.001,max(fe,fc)))
     adequate = len(subset)>=5 and deep['decisions']>=config.min_deep_decisions
     engine_retention=min(1.0,de/max(.001,fe));critical_retention=min(1.0,dc/max(.001,fc))

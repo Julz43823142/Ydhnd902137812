@@ -115,6 +115,7 @@ class Decision:
     metrics: dict = field(default_factory=dict)
     trivial_kind: str | None = None
     clock_valid: bool = False
+    fast_engine: dict = field(default_factory=dict)
 
 
 @dataclass
@@ -135,6 +136,7 @@ class GameSample:
     time_control: str = ''
     fast_metrics: dict = field(default_factory=dict)
     control_index: int | None = None
+    rated: bool | None = None
 
 
 class QuietGameBuilder(chess.pgn.GameBuilder):
@@ -233,7 +235,8 @@ def parse_game(row: dict, target: str, config: ReviewConfig = CONFIG, *, exclusi
                       int(rating) if rating and 100 <= rating <= 4000 else None,
                       int(opponent) if opponent and 100 <= opponent <= 4000 else None,
                       result, score, accuracy, color, decisions,
-                      time_control=f'{base}+{increment}' if base is not None else '')
+                      time_control=f'{base}+{increment}' if base is not None else '',
+                      rated=row.get('rated') if isinstance(row.get('rated'),bool) else None)
 
 
 class PubAPI:

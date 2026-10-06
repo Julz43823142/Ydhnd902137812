@@ -5,7 +5,7 @@ CHANNEL_ID = 1311445685492781186
 NAMESPACE = 'shark:fairplay:'
 DISCLAIMER = ('Automated fair-play screening only. This result is not proof of cheating '
               'and must not be used as the sole basis for punishment. Human review is mandatory.')
-VERSION = 'fairplay-v4-clustered-history'
+VERSION = 'fairplay-v5-evidence-calibration'
 
 
 @dataclass(frozen=True)
@@ -20,6 +20,9 @@ class ReviewConfig:
     cluster_windows: tuple = (5, 6, 8, 10, 15)
     session_gap_seconds: int = 45 * 60
     cluster_min_games: int = 6
+    persistence_fraction: float = 2 / 3
+    persistence_critical_hits: float = .75
+    persistence_min_critical: int = 2
     engine_top1_floor: float = .62
     engine_top1_ceiling: float = .96
     engine_top3_floor: float = .82
@@ -42,8 +45,8 @@ class ReviewConfig:
     opening_plies: int = 20
     min_game_decisions: int = 8
     min_games: int = 15
-    fast_nodes: int = 12_000
-    deep_nodes: int = 160_000
+    fast_nodes: int = 24_000
+    deep_nodes: int = 320_000
     deep_games: int = 10
     deadline_seconds: int = 1800
     engine_timeout: int = 8
@@ -52,9 +55,25 @@ class ReviewConfig:
     critical_gap: int = 100
     critical_spread: int = 180
     unique_gap: int = 180
+    equivalent_cp: int = 15
+    inconsistent_eval_cp: int = 20
     mistake_cp: int = 100
     blunder_cp: int = 200
     min_timing_moves: int = 15
+    timing_min_delay: float = 1.0
+    delay_floor_min_games: int = 6
+    delay_floor_min_trivial: int = 12
+    delay_floor_min_critical: int = 12
+    delay_floor_min_normal: int = 48
+    delay_floor_max_instant: float = .10
+    delay_floor_median_ratio: float = 1.5
+    delay_floor_relative_mad: float = .45
+    delay_floor_overlap: float = .65
+    timing_relative_band: float = .20
+    timing_min_game_moves: int = 8
+    timing_recurrence_moves: int = 80
+    timing_recurrence_games: int = 5
+    timing_recurrence_fraction: float = .70
     premove_seconds: float = .5
     timing_band_halfwidth: float = 1.0
     timing_cluster_min: float = .80
@@ -70,7 +89,7 @@ class ReviewConfig:
     baseline_min_games: int = 6
     baseline_min_decisions: int = 12
     baseline_category_moves: int = 12
-    baseline_min_timing: int = 30
+    baseline_min_timing: int = 15
     baseline_cpl_gap: float = 15.0
     baseline_top1_gap: float = .15
     baseline_critical_gap: float = .15
