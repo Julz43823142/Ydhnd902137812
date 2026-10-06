@@ -156,7 +156,7 @@
     "player_color": "white",
     "player_move_count": 3,
     "posted_at": "2026-10-06T07:27:18.447247+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -178,7 +178,8 @@
     "board_attachment_filenames": {
       "1468320170891022417": "daily_puzzle.png"
     },
-    "chat_since_refresh": 0
+    "chat_since_refresh": 0,
+    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** g4 Nxc5 Rxd7"
   },
   "lichess_rating_used": {
     "2000": [
