@@ -2816,8 +2816,8 @@
         "url": "https://lichess.org/training/iMqpD",
         "title": "Lichess • 1524",
         "fen": "1r2kb1r/Q1pqpppp/5n2/8/2pn4/6PP/PP2PPB1/RNB1K2R b KQk - 0 11",
-        "current_fen": "1r2kb1r/Q1pqpppp/5n2/8/2pn4/6PP/PP2PPB1/RNB1K2R b KQk - 0 11",
-        "last_move_uci": "a4a7",
+        "current_fen": "1r2kb1r/Q1pqpppp/5n2/8/2p5/6PP/PPn1PPB1/RNB2K1R b k - 2 12",
+        "last_move_uci": "e1f1",
         "pgn": "Nc2+ Kf1 Qd1#",
         "all_moves": [
           {
@@ -2857,16 +2857,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_iMqpD_1791296599484",
         "rating": 1524,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1557035505307099237,
+      "message_id": 1557035534142930945,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1791296599.4803674,
-      "last_feedback": "✅ **Bxf7** — solved! Score: **7**."
+      "last_card_activity_at": 1791296605.783683,
+      "last_feedback": "✅ **Nc2+** • Opponent: **Kf1**"
     },
     "362606514764251137": {
       "active": false,
