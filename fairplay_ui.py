@@ -127,7 +127,7 @@ def detail_embed(result, mode):
                       f'{result.coverage.get("history_probed",0)} discovery probes · {result.coverage.get("history_fast_scanned",0)} targeted full historical scans\n'
                       'A large lower-anomaly baseline does not dilute a localized high-signal period.')
     elif mode=='Timing':
-        eligible = [g for g in result.games if g.metrics['timing']['count']>=15]
+        eligible = [g for g in (result.timeline or result.games) if g.metrics['timing']['count']>=15]
         regular = [g for g in eligible if g.metrics['timing'].get('elevated')]
         embed.description = (f'Games with ≥15 usable clock decisions: **{len(eligible)}**\n'
                              f'Repeated narrow-cadence games: **{len(regular)}**\n'
@@ -141,6 +141,7 @@ def detail_embed(result, mode):
         embed.add_field(name='Clock coverage',inline=False,
             value=f'Games with valid clocks: {coverage.get("games",0)} · post-opening moves: {coverage.get("usable_moves",0)}\n'
                   f'Linked engine decisions: {coverage.get("engine_linked_moves",0)} · excluded/unreliable clock estimates: {coverage.get("excluded_clocks",0)}\n'
+                  f'Games below engine opportunity minimum retaining clocks: {coverage.get("below_engine_minimum_games",0)}\n'
                   'Simple and already-won positions retain timing evidence. Only rated games contribute to analytical comparisons.')
         for key,row in sorted(result.timing.get('delay_floors',{}).items(),key=lambda pair:(pair[1]['elevated'],pair[1]['games']),reverse=True)[:3]:
             cats=row['samples']

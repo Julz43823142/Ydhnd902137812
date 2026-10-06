@@ -117,4 +117,48 @@ class ConservativeResults(unittest.TestCase):
         self.assertGreater(row['bound'],0)
 
 
+class IndependentClockCoverage(unittest.TestCase):
+    def sparse(self,index):
+        g=played(index,True)
+        for d in g.decisions:
+            d.metrics['useful']=False
+            d.think=5.0;d.clock_valid=True;d.clock_reliable=True
+        a.summarize(g);g.fast_metrics=copy.deepcopy(g.metrics)
+        return g
+
+    def test_clocks_survive_zero_engine_opportunities(self):
+        games=[self.sparse(i) for i in range(10)]
+        result=report(games)
+        self.assertEqual(result.coverage['used'],0)
+        self.assertEqual(result.diagnostics['timing_coverage']['games'],10)
+        self.assertEqual(result.diagnostics['timing_coverage']['below_engine_minimum_games'],10)
+        self.assertTrue(result.diagnostics['timing_available'])
+        self.assertNotEqual(result.families['Move-Time Pattern'],'Insufficient clock data')
+        self.assertEqual(result.priority,'INSUFFICIENT DATA')
+
+    def test_repeated_delays_in_sparse_games_remain_timing_only(self):
+        result=report([played(i) for i in range(20)]+[self.sparse(i+20) for i in range(10)])
+        row=next(iter(result.timing['cadence_groups'].values()))
+        self.assertTrue(row['recurrent']);self.assertGreaterEqual(row['games'],10)
+        self.assertNotIn(result.priority,('HIGH','VERY HIGH'))
+
+    def test_probe_and_unrated_clocks_cannot_fill_timing_coverage(self):
+        games=[self.sparse(i) for i in range(10)]
+        for i,g in enumerate(games):
+            if i%2:g.probe_only=True
+            else:g.rated=False
+        result=report(games)
+        self.assertEqual(result.diagnostics['timing_coverage']['games'],0)
+        self.assertEqual(result.families['Move-Time Pattern'],'Insufficient clock data')
+
+    def test_timing_detail_matches_retained_timeline(self):
+        from fairplay_ui import detail_embed
+        result=report([self.sparse(i) for i in range(10)])
+        embed=detail_embed(result,'Timing')
+        self.assertIn('**10**',embed.description)
+        field=next(f for f in embed.fields if f.name=='Clock coverage')
+        self.assertIn('minimum retaining clocks: 10',field.value)
+        self.assertLessEqual(len(embed),6000)
+
+
 if __name__=='__main__':unittest.main()

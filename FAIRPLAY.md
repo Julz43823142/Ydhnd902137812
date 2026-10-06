@@ -156,6 +156,17 @@ Labels are compared only after the analytical priority is frozen; the analyzer r
 `scripts/benchmark_fairplay.py` compares old/new search budgets on the same synthetic PGN with real Stockfish; it reports measured local timings and a four-position historical probe. It does not contact accounts or measure detection accuracy. `scripts/smoke_stockfish_reviews.py` exercises real two-pass screening plus the existing normal Game Review.
 
 
+## v9 independent clock coverage
+
+Clock comparisons now retain all fully scanned rated games, including games
+below the per-game engine opportunity minimum. Forced/easy decisions can supply
+clock observations without supplying engine agreement evidence. Historical
+probes and unscanned games remain excluded from these engine-linked comparisons.
+The Timing detail separately reports games retained for clocks below the engine
+minimum. Engine sample, persistence, deep confirmation and HIGH gates are unchanged;
+additional clocks never manufacture primary evidence. Local account checks are
+validation only: desired labels, identities and closure status do not enter scoring.
+
 ## v8 period discovery and results
 
 When no persistent period yet qualifies, deep discovery can still investigate the strongest chronological/session candidate with at least eight adequately covered games, 160 meaningful decisions and evidence strength at least 0.50. It is selected from all searched windows, not only the truncated twelve detail rows. It receives the same representative-control allocation; ranked nonchronological subsets cannot supply this fallback. Its deep results are shown separately and cannot bypass persistence, baseline or independent-support requirements for HIGH. Discovery must not require its own conclusion before investing in confirmation.
