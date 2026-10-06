@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 import discord
 
 from fairplay_analysis import ReviewResult, review, review_interest
-from fairplay_config import CHANNEL_ID, DISCLAIMER, NAMESPACE
+from fairplay_config import CHANNEL_ID, DISCLAIMER, NAMESPACE, CONFIG
 from fairplay_data import AccountNotFound, ReviewError, username
 
 RESERVED = '🛡️ This channel is reserved for Fair Play reviews.'
@@ -98,7 +98,7 @@ def detail_embed(result, mode):
             if game.url:text += f'\n[Open Game]({game.url})'
             embed.add_field(name=f'Game {index}',value=text,inline=False)
     elif mode=='Clusters & History':
-        embed.description = ('Chronological windows: 5 / 6 / 8 / 10 / 15 games. A 6-game bridge also captures recurrent short periods. Approximate sessions use a 45-minute inactivity gap. '
+        embed.description = ('Chronological windows: '+ ' / '.join(map(str,CONFIG.cluster_windows)) + ' games, plus complete continuously scanned periods. Approximate sessions use a 45-minute inactivity gap. '
                              'Only same-control persistent groups count; overlapping windows do not multiply evidence. '
                              'Historical probes select further analysis and never count as full engine-reviewed games.')
         strongest = result.clusters.get('strongest')
@@ -110,8 +110,17 @@ def detail_embed(result, mode):
                       f'Top-1 / top-3: {percentage(m["top1"])} / {percentage(m["top3"])}\n'
                       f'Critical: {percentage(m["critical_top1"])} / {m["critical"]} opportunities · unique hits {m["unique_hits"]}/{m["unique"]}\n'
                       f'Per-game strong evidence: {strongest["sustained_games"]}/{m["games"]} · pooled critical persistence: {strongest.get("pooled_critical_support",False)}\n'
+                      f'Games with critical opportunities: {strongest.get("critical_opportunity_games",0)}/{m["games"]}\n'
                       f'Separate-period recurrence: {result.clusters.get("recurrence",False)}')
-        else:embed.add_field(name='Highest-signal period',value='No sufficiently persistent same-control period.',inline=False)
+        else:
+            embed.add_field(name='Highest-signal period',value='No sufficiently persistent same-control period.',inline=False)
+            candidate=result.clusters.get('review_candidate')
+            candidate_deep=result.clusters.get('candidate_deep',{})
+            if candidate:
+                embed.add_field(name='Exploratory candidate — persistence not established',inline=False,
+                    value=f'{candidate["metrics"]["games"]} games · {candidate["time_class"]} · {candidate["time_control"]}\n'
+                          f'Candidate engine evidence deep-confirmed: {candidate_deep.get("confirmed",False)}\n'
+                          'Deep confirmation of selected moves does not establish a persistent period by itself.')
         deep = result.clusters.get('deep',{})
         embed.add_field(name='Cluster-specific deep confirmation',inline=False,
             value=f'Supported: {deep.get("confirmed",False)} · engine: {deep.get("engine",False)} · critical: {deep.get("critical",False)}\n'
@@ -169,7 +178,7 @@ def detail_embed(result, mode):
             embed.add_field(name='Personal Timing Behavior Shift',value='Insufficient Data — no comparable same-control timing groups.',inline=False)
         for row in sorted(personal,key=lambda r:(r['state'] not in ('Strong','Very Strong'),r['time_class'],r['time_control']))[:4]:
             b,h = row['baseline'],row['high_signal']
-            lines = [f'**{row["state"]}** · lower-anomaly / high-signal games: {b["games"]} / {h["games"]}',
+            lines = [f'Ranked-group comparison: **{row.get("ranked_state",row["state"])}** · lower-anomaly / high-signal games: {b["games"]} / {h["games"]}',
                      'Baseline → high-signal medians (seconds), with near-instant fraction:']
             for category,label in (('opening','Opening'),('middlegame','Middlegame'),('critical','Critical'),('trivial','Trivial')):
                 a,c = b['categories'].get(category,{}),h['categories'].get(category,{})

@@ -192,3 +192,29 @@ When no persistent period yet qualifies, deep discovery can still investigate th
 The previous result corroboration required twenty rated games, although ordinary searched periods contain eight to fifteen. The new supporting feature works from eight rated games with valid ratings/scores. Expected scores allow the player 150 Elo of underrating. For actual score A, conservative expected score E and n games, use the bounded-score tail bound exp(-2 × max(0,A-E)²/n). Support is zero when the bound is at least 0.005, grows linearly in negative-log-bound to 0.00001, and is capped at 0.65. Draws remain half-points rather than invented wins. This is a heuristic supporting feature under independent-game/reliable-rating assumptions, not an account cheating probability or a calibrated multiple-window significance test. Underrating, correlated sessions, legitimate improvement and smurfing can invalidate its assumptions. It never establishes HIGH alone. Existing Elo descriptive trajectories remain visible; HIGH still uses one same-control period and existing engine/deep/persistence/baseline gates.
 
 `test_fairplay_periods.py` covers known sparse-game continuity, missing engine gaps, retained weak decisions, qualified coverage, discovery outside truncated detail rows, probe exclusion, representative deep controls and conservative short-period results. `ReviewResult.timeline` retains full scanned games only in bounded runtime memory, without adding case persistence.
+# Repeatable evidence review (v11)
+
+Cold and warm scans now discover periods from the same fixed-budget fast
+measurements and use the same bounded deep-review plan. Cached deep results
+are reused only for games in that plan; repeatedly scanning an unchanged sample
+does not progressively add ten more deeply reviewed games.
+
+Critical-opportunity persistence retains all observed hits and misses. Games
+without a critical opportunity are not counted as missed critical decisions.
+The pool still needs at least 30 opportunities, the configured Wilson lower
+bound, meaningful engine coverage in at least two thirds of the period,
+the existing minimum contributing-game coverage, and opportunities in
+at least one third of the complete period. Complete continuously scanned runs
+are considered alongside short windows. Unknown intervening games still break
+the run, and overlapping windows never manufacture independent recurrence.
+
+Personal timing keeps the ranked-group state separate from any stronger
+chronological comparison. Only the state belonging to the overlapping game
+IDs can corroborate an engine period. Rolling performance uses the same
+canonical time-control key as its source groups. Report details distinguish an
+exploratory deep-confirmed candidate from a qualifying persistent period.
+
+The HIGH/VERY HIGH gates, engine node budgets, runtime limit, channel isolation,
+and ban-status exclusion are unchanged. These are measurement/reproducibility
+corrections, not evidence of calibrated detection accuracy. No outcome for a
+particular account is guaranteed, and a LOW result does not establish fair play.

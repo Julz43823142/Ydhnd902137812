@@ -152,7 +152,10 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
     matching_personal=[]
     for row in personal:
         if row['time_class']!=scope_class or row['time_control']!=scope_key:continue
-        for candidate in (row,row.get('chronological_shift')):
+        # The headline state can come from a different chronological group.
+        # Attribute it only to its own IDs, never to the ranked group by proxy.
+        ranked={**row,'state':row.get('ranked_state',row['state'])}
+        for candidate in (ranked,row.get('chronological_shift')):
             if candidate and len(scope_ids & set(candidate.get('high_ids',[])))>=min(config.cluster_min_games,len(scope)//2):
                 matching_personal.append(candidate)
     scope_cadence=cadence_recurrence(scope,config)

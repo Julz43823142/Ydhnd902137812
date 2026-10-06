@@ -176,5 +176,5 @@ def personal_timing(games, config=CONFIG):
                 best_change = {**change,'boundary':group[split].ended}
         state = max([comparison['state'],best_change['state'] if best_change else 'Insufficient Data'],key=ranks.get)
         results.append({'time_class':kind,'time_control':control,'games':len(group),
-                        **comparison,'state':state,'chronological_shift':best_change})
+                        **comparison,'ranked_state':comparison['state'],'state':state,'chronological_shift':best_change})
     return results

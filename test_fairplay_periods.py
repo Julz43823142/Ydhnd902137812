@@ -173,10 +173,12 @@ class LongPeriodDiscovery(unittest.TestCase):
             a.summarize(g);g.fast_metrics=copy.deepcopy(g.metrics)
         return games
 
-    def test_sustained_sparse_opportunities_need_more_than_fifteen_games(self):
+    def test_complete_period_survives_a_short_window_configuration(self):
         games=self.sparse_opportunities()
         short=replace(CONFIG,cluster_windows=(5,6,8,10,15))
-        self.assertIsNone(find_clusters(games,short,True)['strongest'])
+        complete=find_clusters(games,short,True)['strongest']
+        self.assertEqual(complete['kind'],'complete period')
+        self.assertEqual(complete['metrics']['games'],50)
         long=find_clusters(games,fast=True)['strongest']
         self.assertEqual(long['metrics']['games'],50)
         self.assertEqual(long['metrics']['critical'],50)
@@ -197,7 +199,8 @@ class LongPeriodDiscovery(unittest.TestCase):
 
     def test_overlapping_long_windows_do_not_create_recurrence(self):
         clusters=find_clusters(self.sparse_opportunities(100),fast=True)
-        self.assertGreater(len(clusters['independent']),1)
+        self.assertGreaterEqual(len(clusters['independent']),1)
+        self.assertEqual(clusters['strongest']['kind'],'complete period')
         self.assertFalse(clusters['recurrence'])
 
 
