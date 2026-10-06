@@ -5,7 +5,7 @@ CHANNEL_ID = 1311445685492781186
 NAMESPACE = 'shark:fairplay:'
 DISCLAIMER = ('Automated fair-play screening only. This result is not proof of cheating '
               'and must not be used as the sole basis for punishment. Human review is mandatory.')
-VERSION = 'fairplay-v9-independent-clock-coverage'
+VERSION = 'fairplay-v10-long-period-review'
 
 
 @dataclass(frozen=True)
@@ -17,7 +17,9 @@ class ReviewConfig:
     historical_probe_moves: int = 4
     historical_probe_budget_fraction: float = .12
     historical_target_games: int = 40
-    cluster_windows: tuple = (5, 6, 8, 10, 15)
+    # Long plateaus may expose few critical opportunities in each individual
+    # game. Keep bounded longer windows alongside short intermittent periods.
+    cluster_windows: tuple = (5, 6, 8, 10, 15, 20, 30, 50)
     session_gap_seconds: int = 45 * 60
     cluster_min_games: int = 6
     persistence_fraction: float = 2 / 3
