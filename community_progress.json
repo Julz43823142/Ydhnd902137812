@@ -90,7 +90,8 @@
         "pet_feed": 2,
         "pet_levels_gained": 4,
         "pet_puzzle": 2,
-        "puzzle_solve": 9
+        "puzzle_solve": 9,
+        "rush_complete": 1
       }
     }
   }
