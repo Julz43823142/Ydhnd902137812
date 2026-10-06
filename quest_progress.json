@@ -578,9 +578,9 @@
           ],
           "progress": {
             "daily:2026-10-06:challenge:rush-full-1": 1,
-            "daily:2026-10-06:puzzle:solve-8": 1
+            "daily:2026-10-06:puzzle:solve-8": 2
           },
-          "updated_at": 1791296831
+          "updated_at": 1791298391
         }
       }
     },
@@ -768,9 +768,9 @@
           "paid": [],
           "progress": {
             "weekly:2026-10-05:minigame:minigame-8": 3,
-            "weekly:2026-10-05:puzzle:solve-25": 9
+            "weekly:2026-10-05:puzzle:solve-25": 10
           },
-          "updated_at": 1791292262
+          "updated_at": 1791298391
         }
       }
     }
