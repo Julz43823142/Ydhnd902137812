@@ -5,7 +5,7 @@ CHANNEL_ID = 1311445685492781186
 NAMESPACE = 'shark:fairplay:'
 DISCLAIMER = ('Automated fair-play screening only. This result is not proof of cheating '
               'and must not be used as the sole basis for punishment. Human review is mandatory.')
-VERSION = 'fairplay-v5-evidence-calibration'
+VERSION = 'fairplay-v5-evidence-calibration-minimum-ten'
 
 
 @dataclass(frozen=True)
@@ -44,7 +44,8 @@ class ReviewConfig:
     min_plies: int = 24
     opening_plies: int = 20
     min_game_decisions: int = 8
-    min_games: int = 15
+    min_games: int = 10
+    medium_confidence_decisions: int = 150
     fast_nodes: int = 24_000
     deep_nodes: int = 320_000
     deep_games: int = 10
