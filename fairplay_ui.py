@@ -94,9 +94,43 @@ def detail_embed(result, mode):
         regular = [g for g in eligible if g.metrics['timing'].get('elevated')]
         embed.description = (f'Games with ≥15 usable clock decisions: **{len(eligible)}**\n'
                              f'Repeated narrow-cadence games: **{len(regular)}**\n'
-                             'First moves, missing clocks, ≤0.5-second premoves, opening autopilot and time trouble are excluded. '
+                             'Missing clocks, first moves and severe time trouble are excluded. '
+                             'Premoves are counted separately; openings contribute only to the personal timing profile, never engine evidence. '
                              'Clock estimates use previous remaining time + increment − new remaining time. '
-                             'Bullet, clock rounding and lag reduce reliability. Timing alone cannot produce HIGH priority.')
+                             'Trivial decisions are timing-only structural proxies, never engine-match evidence. '
+                             'Deliberate slow play, lag, rounding, increment, accessibility/input delay and habits are innocent alternatives. '
+                             'Timing alone cannot produce HIGH or VERY HIGH priority.')
+        personal = result.timing.get('personal',[])
+        if not personal:
+            embed.add_field(name='Personal Timing Behavior Shift',value='Insufficient Data — no comparable same-control timing groups.',inline=False)
+        for row in sorted(personal,key=lambda r:(r['state'] not in ('Strong','Very Strong'),r['time_class'],r['time_control']))[:4]:
+            b,h = row['baseline'],row['high_signal']
+            lines = [f'**{row["state"]}** · lower-anomaly / high-signal games: {b["games"]} / {h["games"]}',
+                     'Baseline → high-signal medians (seconds), with near-instant fraction:']
+            for category,label in (('opening','Opening'),('middlegame','Middlegame'),('critical','Critical'),('trivial','Trivial')):
+                a,c = b['categories'].get(category,{}),h['categories'].get(category,{})
+                lines.append(f'{label}: {number(a.get("median"))} → {number(c.get("median"))} · {percentage(a.get("near_instant_fraction"))} → {percentage(c.get("near_instant_fraction"))}')
+            bc,hc = b['comparison'],h['comparison']
+            lines += [f'Delayed MAD: {number(bc["delayed_mad"])} → {number(hc["delayed_mad"])} · IQR: {number(bc["iqr"])} → {number(hc["iqr"])}',
+                      f'CV: {number(bc["cv"])} → {number(hc["cv"])} · entropy: {number(bc["entropy"])} → {number(hc["entropy"])}',
+                      f'Modal band: {number(bc["modal_seconds"])} → {number(hc["modal_seconds"])} sec · concentration: {percentage(bc["cluster_fraction"])} → {percentage(hc["cluster_fraction"])}',
+                      f'Critical extra time: {number(b["critical_extra_seconds"])} → {number(h["critical_extra_seconds"])} sec',
+                      f'Median CPL: {number(row["baseline_quality"]["cpl"])} → {number(row["high_signal_quality"]["cpl"])}']
+            shift = row['chronological_shift']
+            if shift:lines.append(f'Sustained chronological change: {shift["state"]} near <t:{shift["boundary"]}:d>.')
+            if row['time_class']=='bullet':lines.append('Bullet timing has low reliability and reduced weight.')
+            embed.add_field(name=f'Personal Timing Behavior Shift · {row["time_class"].title()} · {row["time_control"]}',value='\n'.join(lines)[:1024],inline=False)
+        for kind,m in result.timing.get('trivial_delay',{}).items():
+            if not m['samples']['trivial']['count']:continue
+            samples = m['samples'];overlap = m['overlap'];trivial = samples['trivial']
+            embed.add_field(name=f'Trivial-Move Delay Anomaly · {kind.title()}',inline=False,
+                value=f'Trivial / normal / critical samples: {trivial["count"]} / {samples["normal"]["count"]} / {samples["critical"]["count"]}\n'
+                      f'Median seconds: {number(trivial["median"])} / {number(samples["normal"]["median"])} / {number(samples["critical"]["median"])}\n'
+                      f'Overlap T/N · T/C · N/C: {percentage(overlap["trivial_normal"])} · {percentage(overlap["trivial_critical"])} · {percentage(overlap["normal_critical"])}\n'
+                      f'Common band: {number(m["common_band_seconds"])} ± 1 sec\n'
+                      f'Delayed trivial (≥2 sec): {trivial["delayed"]} · near-instant (≤0.5 sec): {trivial["near_instant"]}\n'
+                      f'Same-cadence games: {m["same_cadence_games"]} · recurrent pattern: {m["recurrent"]}\n'
+                      f'Coverage: {"sufficient" if m["sufficient"] else "limited; no anomaly assigned"} · {"low Bullet reliability" if kind=="bullet" else "screening only"}')
         for game in sorted(eligible,key=lambda g:g.metrics['timing'].get('cluster_fraction',0),reverse=True)[:5]:
             m = game.metrics['timing']
             embed.add_field(name=f'{game.time_class.title()} · <t:{game.ended}:d>',
@@ -129,6 +163,11 @@ def detail_embed(result, mode):
         for kind,a in result.classes.items():
             embed.add_field(name=kind.title(),value=f'{a["games"]} games · {a["decisions"]} decisions · median CPL {number(a["median_cpl"])} · top-1 {percentage(a["top1"])} · critical top-1 {percentage(a["critical_top1"])}',inline=False)
     embed.set_footer(text=DISCLAIMER)
+    # Discord enforces 6000 characters across all embed components.
+    trimmed = False
+    while len(embed)>5800 and embed.fields:
+        embed.remove_field(len(embed.fields)-1);trimmed=True
+    if trimmed:embed.set_footer(text=DISCLAIMER+' Additional detail rows omitted to fit Discord’s card limit.')
     return embed
 
 

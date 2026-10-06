@@ -18,6 +18,7 @@ import chess.pgn
 import requests
 
 from fairplay_config import CONFIG, ReviewConfig
+from fairplay_timing import trivial_move_kind
 
 
 class ReviewError(Exception):
@@ -112,6 +113,8 @@ class Decision:
     clock_reliable: bool
     gives_check: bool
     metrics: dict = field(default_factory=dict)
+    trivial_kind: str | None = None
+    clock_valid: bool = False
 
 
 @dataclass
@@ -129,6 +132,8 @@ class GameSample:
     decisions: list[Decision]
     deep: bool = False
     metrics: dict = field(default_factory=dict)
+    time_control: str = ''
+    fast_metrics: dict = field(default_factory=dict)
 
 
 class QuietGameBuilder(chess.pgn.GameBuilder):
@@ -190,11 +195,14 @@ def parse_game(row: dict, target: str, config: ReviewConfig = CONFIG) -> GameSam
         phase = 'opening' if ply <= config.opening_plies else 'endgame' if material <= 20 else 'middlegame'
         forced = legal <= 2 or in_check or recapture
         if side == color:
-            reliable = (think is not None and .5 < think < 120 and before is not None
-                        and before > max(10, (base or 0) * .05) and phase != 'opening')
+            trivial = trivial_move_kind(board,node.move,legal,recapture) if phase!='opening' else None
+            clock_valid = (think is not None and 0 <= think < 120 and before is not None and after is not None
+                           and min(before,after)>max(10,(base or 0)*.05))
+            reliable = clock_valid and phase!='opening' and think>config.premove_seconds
             decisions.append(Decision(ply, board.fullmove_number, board.fen(), node.move.uci(),
                                       before, after, think, legal, in_check, capture, phase, forced,
-                                      phase != 'opening' and not forced, reliable, board.gives_check(node.move)))
+                                      phase != 'opening' and not forced and trivial is None, reliable, board.gives_check(node.move),
+                                      trivial_kind=trivial,clock_valid=clock_valid))
         previous[side] = after  # a missing clock breaks that side's chain; never span missing moves
         previous_capture_square = node.move.to_square if capture else None
         board.push(node.move)
@@ -219,7 +227,8 @@ def parse_game(row: dict, target: str, config: ReviewConfig = CONFIG) -> GameSam
     return GameSample(identity, safe_game_url(row.get('url', '')), int(end), row['time_class'],
                       int(rating) if rating and 100 <= rating <= 4000 else None,
                       int(opponent) if opponent and 100 <= opponent <= 4000 else None,
-                      result, score, accuracy, color, decisions)
+                      result, score, accuracy, color, decisions,
+                      time_control=f'{base}+{increment}' if base is not None else '')
 
 
 class PubAPI:

@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - '*.py'
+      - 'scripts/**'
       - 'assets/profile_themes/**'
       - 'minigames/**'
       - '.github/workflows/**'
@@ -34,3 +35,24 @@ jobs:
         env:
           PYTHONPYCACHEPREFIX: ${{ runner.temp }}/sharkbot-pycache
         run: python -m compileall -q -x '/\.git/' .
+
+  engine-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install engine review dependencies
+        run: python -m pip install python-chess requests
+      - uses: actions/cache@v4
+        with:
+          path: /tmp/stockfish19-official/Stockfish/src/stockfish
+          key: stockfish-${{ runner.os }}-${{ runner.arch }}-edb0d9db6731067ec50ce619ff372b463bc4dd5d-v1
+      - name: Prepare official Stockfish and export verified path
+        env:
+          STOCKFISH_PATH: /tmp/stockfish19-official/Stockfish/src/stockfish
+        run: python scripts/prepare_stockfish.py --github-env
+      - name: Run synthetic two-pass Fair Play and normal Game Review smoke tests
+        run: python scripts/smoke_stockfish_reviews.py

@@ -212,3 +212,110 @@ Async tests cover routing before side effects, persistent views, idle movement,
 duplicate/full queues, progress acknowledgement recovery, missing accounts,
 deleted messages, responsive Discord loop and shutdown. Existing root and
 minigame suites, Python compile, JSON/YAML and diff checks also run.
+
+
+## Engine deployment and preparation
+
+Fair Play intentionally uses `allow_install=False`: a live scan must not build
+Stockfish or wait behind an unbounded shared startup operation. The Daily
+Puzzle workflow now prepares Stockfish **before** starting Discord. It restores
+a runner-specific binary cache, or builds official `sf_19`, verifies source
+revision `edb0d9db6731067ec50ce619ff372b463bc4dd5d`, performs a real position
+search, and exports the verified `STOCKFISH_PATH` via `GITHUB_ENV`. A failed
+installation/smoke test exports no path; the worker continues without engine
+screening and Fair Play fails explicitly, keeping puzzles/pets/Twitch online.
+The existing discovery, isolated engine configuration and scan queue remain.
+The build requires x86-64 AVX2, git, make, g++, HTTPS access to official source
+and its NNUE assets. Runtime requires the compiled binary, not build tools.
+
+For local real-engine validation, supply a verified Stockfish 19+ path and run
+`python scripts/prepare_stockfish.py`. On GitHub Actions it can reuse the
+existing automatic source build. No Discord client is started by that script.
+
+## Trivial-Move Delay Anomaly
+
+`fairplay_timing.py` uses conservative structural proxies: one legal move,
+check with at most two replies, one equal/cheaper recapture, an equal-piece
+exchange with one immediate equal/cheaper recapture, or immediate mate on a
+sparse board. These decisions have **zero engine-matching evidence**. Complex
+checks and sacrifices are not called obvious based on shallow evaluation.
+
+Clock validity requires both pre/post clocks outside severe time trouble.
+Trivial near-instant moves (<=0.5 sec) stay in the denominator; delayed trivial
+moves (>=2 sec) are reported separately. A delayed shared cadence needs >=6
+trivial, >=8 ordinary, >=4 critical and >=24 total decisions; all median gaps
+<=1.5 sec; pairwise one-second smoothed histogram overlap >=0.75; each group
+>=80% within the same +/-1 sec band; and CV <0.30. Linear histogram membership
+avoids artificial differences between e.g. 4.99 and 5.01 sec. Recurrence needs
+five same-class games in the same band; ten games strengthens that evidence.
+The actual delay value is not a detector. Lag, rounding, increment, deliberate
+slow play, accessibility, input latency and player habits remain alternatives.
+
+## Player-specific timing baseline / behavior shift
+
+`fairplay_baseline.py` groups **Rapid / Blitz / Bullet AND exact base+increment**
+separately. Unsupported/missing controls and missing/time-trouble clocks are
+excluded. Openings are now retained as timing-only data, never engine evidence.
+The first recorded clock has no invented think time.
+
+At least six lower-anomaly and six high-signal games are needed; each eligible
+game needs >=12 engine decisions and >=30 reliable clock observations. The
+bottom half of games is compared with the highest third (minimum six), using
+disjoint groups selected by equal-budget **fast-pass** summaries: top-1,
+critical hits, unique hits and median CPL. Chess.com accuracy, results and
+clock behavior do not select those groups. Fast summaries travel with cached
+games, preventing deep-search budget differences from redefining a baseline.
+A lower-anomaly group is never described as unassisted or innocent.
+
+Each group records opening, middlegame, ordinary, critical, trivial and overall
+profiles: median, MAD, quartiles, near-instant fraction, delayed dispersion,
+modal band, CV and entropy. Group comparisons use medians of per-game summaries
+so one long game cannot dominate. Premoves remain visible but are excluded
+from delayed cadence/dispersion. Critical-versus-ordinary median response and
+histogram overlap are also reported.
+
+A behavior-shift label requires sustained quality improvement: median CPL
+falls >=15, at least 80% of high-signal games have lower CPL, and top-1 or
+critical/unique hit rate increases >=0.15, or mistake rate falls >=0.03.
+Missing metrics are never interpreted as improvements. Four descriptive
+changes contribute one point each:
+
+1. Delayed MAD and IQR fall to <=60% of baseline (MAD floor 1 sec), sustained
+   across >=80% of high-signal games.
+2. Band concentration increases >=0.25 to >=0.70, entropy falls >=0.50 bits,
+   delay is >=2 sec, and concentration recurs in >=80% of high-signal games.
+3. The baseline critical extra time (>=1.5 sec) decreases >=0.75 sec.
+4. Opening or trivial decisions switch from >=40% near-instant to <=10%, with
+   delayed median >=2 sec and >=12 observations per category in both groups.
+
+With coverage and quality improvement, 1/2/3/4 points map to
+**Slight / Moderate / Strong / Very Strong**. Otherwise the result is Normal
+or Insufficient Data. Adjacent chronological six-game blocks are also compared;
+only Moderate-or-higher sustained changes are reported as change points.
+These are reproducible heuristic effect thresholds, not statistical proof or
+calibrated likelihoods. Legitimate improvement and behavioral changes remain
+innocent explanations.
+
+Timing keeps the existing **0.15** family weight. Moderate/Strong/Very Strong
+personal shifts contribute 0.50/0.75/0.85 **within that family**, combined by
+maximum with cadence/trivial-delay evidence, never added as separate independent
+families. Bullet receives 0.35 weight. All existing primary-engine, sample,
+confidence and deep-confirmation gates remain: timing alone cannot yield HIGH
+or VERY HIGH. Nothing is persisted outside bounded process-local caches and
+Discord; no account history is committed to the public repository.
+
+## Normal Game Review corrections
+
+Move quality compares played and best moves from the same root; alternatives
+outside MultiPV receive a root-restricted search. The engine's best move has
+zero CPL even if adjacent-position searches drift. Displayed White-POV board
+evaluation still comes from the position after the move. Missing engine scores
+fail clearly rather than turning into perfect accuracy.
+
+Claimable but unclaimed draws no longer truncate reviews. Custom-FEN games
+keep real fullmove numbers and disable ordinary opening labels; mate distance
+and checkmate winner are displayed explicitly. Invalid/nonstandard positions
+and oversized PGNs are rejected, and PGN parsing runs off the Discord loop.
+Concurrent navigation is serialized; board/text/controls advance together, and
+failed renders/edits restore the previous position. Existing review estimates
+remain local Stockfish heuristics, not official Chess.com classifications.

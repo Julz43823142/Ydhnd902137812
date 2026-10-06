@@ -16,6 +16,8 @@ import chess.engine
 import chess_play
 
 from fairplay_config import CONFIG, VERSION, ReviewConfig
+from fairplay_timing import cadence, trivial_delay_metrics, trivial_delay_summary
+from fairplay_baseline import personal_timing
 from fairplay_data import (DeadlineReached, GameSample, PubAPI, ReviewError,
                            ScanDeadline, check_deadline, collect_games, finite_number, username)
 
@@ -67,7 +69,7 @@ def engine_metrics(decision, lines, actual_line, color, config=CONFIG):
             'unique': bool(critical and gap >= config.unique_gap)}
 
 
-def summarize(game: GameSample):
+def summarize(game: GameSample, config=CONFIG):
     moves = [d for d in game.decisions if d.metrics.get('useful')]
     critical = [d for d in moves if d.metrics['critical']]
     unique = [d for d in critical if d.metrics['unique']]
@@ -88,10 +90,10 @@ def summarize(game: GameSample):
                     'critical_cpl': median([d.metrics['cpl'] for d in critical]),
                     'unique': len(unique), 'unique_hits': sum(d.metrics['top1'] for d in unique),
                     'critical_sequence': consecutive,
-                    'mistakes': sum(v >= CONFIG.mistake_cp for v in losses),
-                    'blunders': sum(v >= CONFIG.blunder_cp for v in losses),
-                    'critical_mistakes': sum(d.metrics['cpl'] >= CONFIG.mistake_cp for d in critical)}
-    game.metrics['timing'] = timing_metrics(game)
+                    'mistakes': sum(v >= config.mistake_cp for v in losses),
+                    'blunders': sum(v >= config.blunder_cp for v in losses),
+                    'critical_mistakes': sum(d.metrics['cpl'] >= config.mistake_cp for d in critical)}
+    game.metrics['timing'] = timing_metrics(game,config)
     return game.metrics
 
 
@@ -103,40 +105,27 @@ def correlation(xs, ys):
     return sum((x-mean_x)*(y-mean_y) for x,y in zip(xs,ys))/math.sqrt(a*b)
 
 
-def cadence(values):
-    if not values:return {}
-    center = max(sorted(set(round(v) for v in values)),
-                 key=lambda c: (sum(abs(v-c)<=1 for v in values), -c))
-    deviation = stats.pstdev(values)
-    bins = {}
-    for value in values:bins[int(value//2)] = bins.get(int(value//2),0)+1
-    entropy = -sum((count/len(values))*math.log2(count/len(values)) for count in bins.values())
-    return {'modal_seconds': center, 'cluster_fraction': sum(abs(v-center)<=1 for v in values)/len(values),
-            'cv': deviation/stats.mean(values), 'entropy': entropy,
-            'elevated': len(values)>=CONFIG.min_timing_moves and sum(abs(v-center)<=1 for v in values)/len(values)>=.80
-                        and deviation/stats.mean(values)<.30}
-
-
-def timing_metrics(game):
+def timing_metrics(game, config=CONFIG):
     moves = [d for d in game.decisions if d.metrics.get('useful') and d.clock_reliable]
     values = [d.think for d in moves]
-    result = {'count':len(values), **cadence(values)}
+    result = {'count':len(values), **cadence(values,config)}
     critical = [d.think for d in moves if d.metrics['critical']]
     easy = [d.think for d in moves if not d.metrics['critical']]
     result['critical_median'] = median(critical)
     result['ordinary_median'] = median(easy)
     result['complexity_response'] = correlation([d.metrics.get('gap') or 0 for d in moves], values)
     hit_times = [d.think for d in moves if d.metrics['critical'] and d.metrics['top1']]
-    result['critical_cadence'] = cadence(hit_times)
+    result['critical_cadence'] = cadence(hit_times,config)
     midpoint = len(moves)//2
     first, last = moves[:midpoint], moves[midpoint:]
-    prior, later = cadence([d.think for d in first]), cadence([d.think for d in last])
-    result['regime_shift'] = bool(len(last)>=CONFIG.min_timing_moves and later.get('elevated')
+    prior, later = cadence([d.think for d in first],config), cadence([d.think for d in last],config)
+    result['regime_shift'] = bool(len(last)>=config.min_timing_moves and later.get('elevated')
                                  and not prior.get('elevated') and prior.get('cv',0)>.5
                                  and median([d.metrics['cpl'] for d in first],0)>40
                                  and median([d.metrics['cpl'] for d in last],100)<15)
     # Bullet rounding, premoves and lag make these measures much less reliable.
     result['reliability'] = 'LOW' if game.time_class=='bullet' else 'MEDIUM' if len(values)>=15 else 'LOW'
+    result['trivial_delay'] = trivial_delay_metrics(game.decisions,config)
     return result
 
 
@@ -250,6 +239,7 @@ class ReviewResult:
     deep_coverage: dict
     elapsed: float
     version: str = VERSION
+    timing: dict = field(default_factory=dict)
 
 
 def family_label(value):
@@ -285,10 +275,18 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
     # Per-class weighting prevents Bullet from promoting mixed-control evidence.
     engine_score = critical_score = timing_score = 0.0
     recurrent = []
+    trivial_timing = {}
+    personal = personal_timing(useful,config)
+    for row in personal:
+        level = {'Moderate':.5,'Strong':.75,'Very Strong':.85}.get(row['state'],0)
+        timing_score = max(timing_score,level*(.35 if row['time_class']=='bullet' else 1))
     for kind in classes:
         group = [g for g in useful if g.time_class==kind]
         a = classes[kind]
         weight = .35 if kind=='bullet' else 1.0
+        delay = trivial_timing[kind] = trivial_delay_summary(group,config)
+        if delay['recurrent']:
+            timing_score = max(timing_score,weight*(.75 if delay['same_cadence_games']>=10 else .5))
         if a['games']>=10 and a['decisions']>=200:
             exceptional = (a['top1'] or 0)>=.90 and (a['top3'] or 0)>=.98 and (a['p90_cpl'] or 0)<=30
             elevated = (a['top1'] or 0)>=.80 and (a['median_cpl'] or 0)<=15
@@ -316,7 +314,13 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
     reasons = []
     if engine_score>=.5:reasons.append('Sustained high engine agreement on non-opening, non-forced decisions.')
     if critical_score>=.65:reasons.append('Strong precision across difficult, quiet unique-choice positions in several games.')
-    if timing_score>=.5:reasons.append('A narrow move-time cadence recurs in several games; lag or clock rounding remain alternatives.')
+    if timing_score>=.5:
+        if any(row['state'] in ('Moderate','Strong','Very Strong') and row['time_class']!='bullet' for row in personal):
+            reasons.append('The player’s timing style changed alongside sustained engine-quality improvement within the same base time and increment; habits, lag and legitimate improvement remain alternatives.')
+        delayed = next((row for kind,row in trivial_timing.items() if kind!='bullet' and row['recurrent']),None)
+        if delayed:
+            reasons.append(f'Trivial and critical decisions repeatedly arrive in the same ~{delayed["common_band_seconds"]}-second cadence across {delayed["same_cadence_games"]} games; input delay, slow play or lag remain alternatives.')
+        elif recurrent:reasons.append('A narrow move-time cadence recurs in several games; lag or clock rounding remain alternatives.')
     if perf_score>=.5:reasons.append('Sustained same-time-control performance change or a repeated win/loss quality contrast.')
     if ctx_score>=.5:reasons.append('Recorded results substantially exceed rating-based expectations; underrating is an alternative.')
     if not reasons:reasons.append('No well-supported elevated signal combination was found in this sample; this does not establish fair play.')
@@ -324,7 +328,8 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
                         dict(zip(names,(family_label(s) for s in scores))),
                         priority_model(scores,games=len(useful),decisions=totals['decisions'],critical=totals['critical'],
                                        confidence=confidence,deep_confirmed=deep_confirmed,partial=partial,config=config),
-                        confidence,reasons,deep_confirmed,coverage,elapsed)
+                        confidence,reasons,deep_confirmed,coverage,elapsed,
+                        timing={'trivial_delay':trivial_timing,'personal':personal})
 
 
 class BoundedNodeEngine(chess.engine.SimpleEngine):
@@ -380,7 +385,9 @@ class EngineScanner:
                 # after-move horizon differences being mistaken for CPL.
                 actual = self.engine.analyse(board,chess.engine.Limit(nodes=nodes),root_moves=[move])
             decision.metrics = engine_metrics(decision,lines,actual,game.color,self.config)
-        summarize(game)
+        summarize(game,self.config)
+        if nodes == self.config.fast_nodes:
+            game.fast_metrics = {k:v for k,v in game.metrics.items() if k!='timing'}
 
 
 # Bounded process-local successful game cache, not an account/case ledger.
@@ -391,8 +398,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
     started = time.monotonic()
     deadline = ScanDeadline(started+config.deadline_seconds,cancel)
     target = username(target)
-    for key,(at,_,_) in list(_game_cache.items()):
-        if started-at>=3600:_game_cache.pop(key,None)
+    for key,cached in list(_game_cache.items()):
+        if started-cached[0]>=3600:_game_cache.pop(key,None)
     api = api_factory(deadline)
     scanner = None
     try:
@@ -416,7 +423,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 cached = _game_cache.get(key)
                 if cached and time.monotonic()-cached[0]<3600:
                     import copy
-                    game.decisions = copy.deepcopy(cached[1]);game.deep = cached[2];summarize(game)
+                    game.decisions = copy.deepcopy(cached[1]);game.deep = cached[2]
+                    game.fast_metrics = copy.deepcopy(cached[3]);summarize(game,config)
                 else:scanner.analyse(game,config.fast_nodes)
                 analyzed.append(game)
             except DeadlineReached:
@@ -439,7 +447,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         for game in analyzed:
             if game.deep:
                 key = (game.identity,game.color,scanner.name,VERSION,config)
-                _game_cache[key] = (time.monotonic(),copy.deepcopy(game.decisions),True)
+                _game_cache[key] = (time.monotonic(),copy.deepcopy(game.decisions),True,copy.deepcopy(game.fast_metrics))
                 _game_cache.move_to_end(key)
         while len(_game_cache)>200:_game_cache.popitem(last=False)
         progress('Building report…')
