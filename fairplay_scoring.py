@@ -6,7 +6,8 @@ from fairplay_timing import trivial_delay_summary, cadence_recurrence, delay_flo
 
 def priority_model(scores, *, games, decisions, critical, confidence, deep_confirmed, partial,
                    config=CONFIG, persistent=True, recurrence=False, cluster_games=None, deep_cluster_games=None):
-    if games<config.min_games or decisions<150:return 'INSUFFICIENT DATA'
+    # Priority coverage follows the per-game minimum; confidence remains separate.
+    if games<config.min_games or decisions<config.min_games*config.min_game_decisions:return 'INSUFFICIENT DATA'
     engine, difficult, timing, shift, context = scores
     primary = engine>=config.high_engine_score or (difficult>=config.high_critical_score and critical>=config.min_deep_critical)
     supporting = max(timing,shift,context)>=.5 or recurrence
@@ -78,7 +79,7 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
     coverage = aggregate([g for g in games if g.deep])
     deep_confirmed = deep_confirmation['confirmed']
     confidence = ('HIGH' if len(useful)>=30 and totals['decisions']>=500 and coverage['decisions']>=60 and not partial
-                  else 'MEDIUM' if len(useful)>=config.min_games and totals['decisions']>=150 else 'LOW')
+                  else 'MEDIUM' if len(useful)>=config.min_games and totals['decisions']>=config.medium_confidence_decisions else 'LOW')
     perf_score = max((min(.95,.5+.05*row['effect_mad'])*(.35 if row['class']=='bullet' else 1) for row in changes),default=0)
     if performance['contrasts']:perf_score=max(perf_score,.55 if any(k!='bullet' for k in performance['contrasts']) else .2)
     ctx_score = .1 if context['age_days'] is not None and context['age_days']<30 else 0
@@ -172,7 +173,7 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
     clock_moves=sum(g.metrics['timing']['count'] for g in games)
     if clock_games<config.timing_recurrence_games or clock_moves<config.timing_recurrence_moves:
         families['Move-Time Pattern']='Insufficient clock data'
-    if totals['decisions']<150:families['Engine Precision']='Insufficient meaningful decisions'
+    if totals['decisions']<config.min_games*config.min_game_decisions:families['Engine Precision']='Insufficient meaningful decisions'
     if totals['critical']<config.min_deep_critical:families['Critical Position Precision']='Insufficient critical positions'
     if not any(len(group)>=2*config.baseline_min_games for group in buckets(useful).values()):
         families['Performance Shift']='Insufficient comparable games'
