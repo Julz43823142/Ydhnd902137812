@@ -1,12 +1,87 @@
-# Fair Play Review v8
+# Fair Play Review v12
 
 This is a moderator screening tool, not a cheating verdict or a calibrated probability. It performs no punishments, reports, wallet mutations or rewards. Missing evidence is never suspicious. False positives and missed cases remain possible; human review is mandatory.
+
+## Complete-period corroboration (v12)
+
+The existing personal-change route can miss a sustained pattern when there is
+no contrasting baseline in the available history. A separate **HIGH-only**
+route now asks whether three different observations agree over a complete
+period: critical-decision precision, comparable delayed easy/hard decisions,
+and results beyond conservative Elo expectations. Stable engine strength or
+stable timing alone cannot qualify. The legacy gates below remain unchanged
+for their existing routes; this additional route never establishes VERY HIGH.
+
+Discovery uses equal-budget fast measurements from complete, contiguous,
+exact-control **rated Rapid or Blitz** runs. Unknown control indices, unscanned
+gaps, probes, casual games and Bullet cannot enter. Repeated game identities
+cannot multiply observations. There is no ranked subset or sliding-window
+search in this route. A run needs at least 20 games, 300 meaningful decisions,
+40 critical opportunities and critical opportunities in at least
+`max(12, ceil(games / 3))` different games. All actual critical misses remain
+in the denominator; games with zero critical opportunities add no invented
+misses or hits.
+
+Critical agreement's Wilson lower bound must exceed both 0.70 and the existing
+rating-based critical expectation plus 0.10. Each chronological half must
+independently clear a lower-bound floor of 0.60 (and the same strength margin),
+at least 12 critical opportunities, and `max(6, ceil(half_games / 3))`
+contributing games. The existing Wilson parameter is reused. These are
+centralized configurable screening thresholds, not fitted population norms.
+
+Both halves and the full run must also pass the existing cross-category delay
+profile: valid nonopening clocks, preserved near-instant moves, minimum category
+coverage, delayed medians, robust spread and distribution overlap. In addition,
+trivial, ordinary and critical clock observations must coexist within at least
+`max(6, ceil(games / 3))` of the same games. This prevents borrowing easy clocks
+from one set of games and critical clocks from another. Clock validity already
+excludes severe time trouble and unreliable reconstruction. A habitual pace,
+lag, accessibility/input delay or deliberate slow play can still explain this
+pattern innocently.
+
+For each full run, result support uses the existing 150-Elo underrating
+allowance and bounded-score expression `exp(-2 * max(0, actual-expected)^2/n)`.
+Multiply this bound by the number of **all eligible complete runs examined**,
+including rejected runs; the adjusted value must be at most 0.005. Expected
+wins against much weaker opposition do not provide this support. This search
+adjustment does not make the statistic a calibrated test: games, moves and
+outcomes are correlated, ratings can be inaccurate, and the expectation prior
+is heuristic. It is never presented as a probability of misconduct.
+
+Deep review must corroborate the same period with at least six games, 60
+meaningful decisions, 20 critical opportunities and five critical-contributing
+games. Measured useful decisions must carry the configured deep node budget
+and paired fast measurements. Deep and paired-fast critical Wilson lower
+bounds must both reach 0.70, and the critical hit-rate retention must be at
+least 0.85. Each chronological half needs at least two deep games, six critical
+opportunities and a lower bound of 0.50. The clock pattern must survive deeper
+opportunity classification too. Missing deep measurements, LOW confidence,
+an incomplete scan or an insufficient meaningful-game sample block this route.
+
+The ten-game deep limit, node budgets, 500/100 history configuration and scan
+deadline are unchanged. A demonstrated personal-change candidate retains
+selection precedence; otherwise a corroborated complete period gets priority
+over an isolated precision peak. Reports show the actual qualifying period,
+both-half support, observed timing medians, Elo-adjusted results and deep
+coverage rather than contradictory legacy gate failures. The runtime cache
+version changes so old report conclusions are not reused.
+
+`test_fairplay_convergence.py` exercises combined evidence and counterfactuals:
+each missing family, weak opposition, premoves, missing clocks, category
+borrowing, failed replication, retained misses, sparse contributors, control
+isolation, gaps, duplicate rows, searched-period correction, missing/collapsed
+deep evidence, confidence limits, selection precedence and Discord limits.
+Private replays use frozen real engine measurements only when the new deep
+plan requires no unmeasured games. They are exploratory comparisons on a small
+convenience sample, not a held-out accuracy benchmark. No case names, labels,
+closure status, PGNs or results are stored in this repository.
 
 ## Architecture and runtime
 
 - `fairplay_data.py`: validated usernames, fixed-host serial Chess.com PubAPI requests, PGN/clock extraction and eligibility.
 - `fairplay_analysis.py`: one low-priority, one-thread Stockfish process; fixed-node searches, same-root evaluation loss, pipeline and bounded process-local cache.
 - `fairplay_clusters.py`: strength-aware evidence, denominator-aware persistence, exact-control discovery and deep confirmation.
+- `fairplay_convergence.py`: complete-period corroboration across critical decisions, move clocks and opponent-adjusted results, with mandatory deep replication.
 - `fairplay_calibration.py`: expectation shrinkage, Wilson denominator checks, leave-cluster-out deltas and representative baseline selection.
 - `fairplay_positions.py`: opponent-matched context, adjacent same-budget opponent-error exposure, easy-conversion normalization and competitive-position metrics.
 - `fairplay_history.py`: cheap extended-history metadata, bounded engine discovery probes and adaptive historical candidates/control games.

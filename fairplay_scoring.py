@@ -222,7 +222,7 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
     if totals['critical']<config.min_deep_critical:families['Critical Position Precision']='Insufficient critical positions'
     if not any(len(group)>=2*config.baseline_min_games for group in buckets(useful).values()):
         families['Performance Shift']='Insufficient comparable games'
-    return ReviewResult(target,games,selected,skipped,partial,engine_name,totals,classes,performance,context,
+    result=ReviewResult(target,games,selected,skipped,partial,engine_name,totals,classes,performance,context,
                         families,priority,confidence,reasons,
                         deep_confirmed,coverage,elapsed,timing={'trivial_delay':trivial_timing,'personal':personal,'cadence_groups':cadence_groups,'delay_floors':delay_floors},
                         clusters=clusters,
@@ -246,6 +246,8 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
                                                         'engine_linked_moves':sum(g.metrics['timing'].get('engine_clock_count',0) for g in timeline),
                                                         'clock_comments':sum(g.metrics['timing'].get('clock_comments',0) for g in timeline),
                                                         'excluded_clocks':sum(g.metrics['timing'].get('excluded_clocks',0) for g in timeline)}},timeline=timeline)
+    from fairplay_convergence import integrate_review
+    return integrate_review(result,timeline,config)
 
 
 def high_block_reasons(priority, comparison, deep, cluster, timing, context, recurrence, games, config=CONFIG):

@@ -83,8 +83,12 @@ def result_embed(result: ReviewResult):
 
 def detail_embed(result, mode):
     embed = discord.Embed(title=f'{mode} — {result.username}',color=0x427CBA)
+    if mode!='Highest-Signal Games':add_convergence_fields(embed,result)
     if mode=='Highest-Signal Games':
-        games = sorted(result.games,key=review_interest,reverse=True)[:10]
+        joint=result.clusters.get('convergence',{})
+        period_ids=set((joint.get('candidate') or {}).get('ids',[])) if joint.get('raised_priority') else set()
+        if period_ids:embed.description='Games from the complete period supporting this review are shown first.'
+        games = sorted(result.games,key=lambda g:(g.identity in period_ids,review_interest(g)),reverse=True)[:10]
         for index,game in enumerate(games,1):
             metrics = game.metrics
             rate = percentage(metrics['critical_top1'])
@@ -265,10 +269,36 @@ def detail_embed(result, mode):
     embed.set_footer(text=DISCLAIMER)
     # Discord enforces 6000 characters across all embed components.
     trimmed = False
-    while len(embed)>5800 and embed.fields:
+    while (len(embed)>5800 or len(embed.fields)>25) and embed.fields:
         embed.remove_field(len(embed.fields)-1);trimmed=True
     if trimmed:embed.set_footer(text=DISCLAIMER+' Additional detail rows omitted to fit Discord’s card limit.')
     return embed
+
+
+def add_convergence_fields(embed,result):
+    joint=result.clusters.get('convergence',{})
+    candidate=joint.get('candidate')
+    if not candidate:return
+    proof=candidate['convergence'];deep=joint.get('confirmation',{})
+    m=candidate['metrics'];clock=proof['clocks']['profile']['samples']
+    outcomes=proof['results']
+    embed.add_field(name='HIGH trigger — convergent period' if joint.get('raised_priority') else 'Convergent period review',inline=False,
+        value=f'<t:{candidate["start"]}:d> → <t:{candidate["end"]}:d> · {candidate["time_class"]} · {candidate["time_control"]}\n'
+              f'Complete period: {m["games"]} games · {m["decisions"]} meaningful decisions\n'
+              f'Critical top-1: {percentage(m["critical_top1"])} / {m["critical"]} opportunities\n'
+              f'Engine / clock replication in both halves: {all(r["supported"] for r in proof["engine_halves"])} / {all(r["supported"] for r in proof["clock_halves"])}\n'
+              f'Games containing all three clock categories: {proof["clocks"]["shared_games"]}\n'
+              f'Median easy / ordinary / critical delay: {number(clock["trivial"]["median"])} / {number(clock["normal"]["median"])} / {number(clock["critical"]["median"])} sec')
+    dm=deep.get('metrics',{})
+    blockers=deep.get('blockers',[])
+    text=(f'Deep confirmation: {deep.get("deep_confirmed",False)} · qualified: {deep.get("qualified",False)}\n'
+          f'{deep.get("games",0)} games · critical top-1 {percentage(dm.get("critical_top1"))} / {dm.get("critical",0)} opportunities\n'
+          f'Actual / expected score with {outcomes.get("rating_margin",CONFIG.result_rating_margin)} Elo allowance: '
+          f'{number(outcomes.get("actual"))} / {number(outcomes.get("expected_with_margin"))}\n'
+          f'Outcome screen accounts for {proof["examined_periods"]} examined complete periods.\n'
+          'No personal regime change is required. Habit, lag, underrating and improvement remain possible. This route is capped at HIGH.')
+    if blockers:text+='\n'+'\n'.join('• '+v for v in blockers)
+    embed.add_field(name='Deep corroboration & outcomes',value=text[:1024],inline=False)
 
 
 def add_baseline_fields(embed,result):
@@ -315,6 +345,9 @@ def add_baseline_fields(embed,result):
 
 
 def add_gate_fields(embed,result):
+    # The convergent route has its own explicitly displayed period and gates;
+    # unrelated legacy-cluster failures must not contradict its HIGH trigger.
+    if result.clusters.get('convergence',{}).get('raised_priority'):return
     d=result.diagnostics;g=d.get('gate_scores',{});c=result.clusters.get('strongest') or {};m=c.get('metrics',{})
     embed.add_field(name='Priority Gate',inline=False,
         value=f'Absolute engine / critical evidence: {g.get("Engine Precision",0):.2f} / {g.get("Critical Position Precision",0):.2f}\n'

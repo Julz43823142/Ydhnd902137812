@@ -5,7 +5,7 @@ CHANNEL_ID = 1311445685492781186
 NAMESPACE = 'shark:fairplay:'
 DISCLAIMER = ('Automated fair-play screening only. This result is not proof of cheating '
               'and must not be used as the sole basis for punishment. Human review is mandatory.')
-VERSION = 'fairplay-v11-repeatable-evidence'
+VERSION = 'fairplay-v12-convergent-periods'
 
 
 @dataclass(frozen=True)
@@ -142,6 +142,25 @@ class ReviewConfig:
     very_high_critical: int = 60
     min_deep_decisions: int = 60
     min_deep_critical: int = 20
+    # Complete-period corroboration; this additional route is capped at HIGH.
+    convergence_games: int = 20
+    convergence_decisions: int = 300
+    convergence_critical: int = 40
+    convergence_contributors: int = 12
+    convergence_half_critical: int = 12
+    convergence_half_contributors: int = 6
+    convergence_critical_lower: float = 0.7
+    convergence_half_lower: float = 0.6
+    convergence_strength_excess: float = 0.1
+    convergence_shared_games: int = 6
+    convergence_result_bound: float = 0.005
+    convergence_deep_games: int = 6
+    convergence_deep_contributors: int = 5
+    convergence_deep_lower: float = 0.7
+    convergence_deep_retention: float = 0.85
+    convergence_deep_half_games: int = 2
+    convergence_deep_half_critical: int = 6
+    convergence_deep_half_lower: float = .50
     weights: tuple = (.30, .30, .15, .15, .10)
 
 
