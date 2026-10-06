@@ -44,17 +44,17 @@
     ],
     "active": "a694b65e5fd547a48c21a63fe10808a2",
     "expedition": {
-      "end": 1791283926.313751,
+      "end": 1791336431.0756464,
       "hours": 12,
-      "id": "pet-tools:1556801182717190187:442597396195704832",
+      "id": "pet-tools:1557021396326940732:442597396195704832",
       "pet_id": "a694b65e5fd547a48c21a63fe10808a2",
       "reward": {
         "accessory": null,
         "coins": 6,
         "xp": 50
       },
-      "start": 1791240726.313751,
-      "status": "claimed"
+      "start": 1791293231.0756464,
+      "status": "running"
     },
     "pets": [
       {
