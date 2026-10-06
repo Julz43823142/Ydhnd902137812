@@ -161,4 +161,44 @@ class IndependentClockCoverage(unittest.TestCase):
         self.assertLessEqual(len(embed),6000)
 
 
+class LongPeriodDiscovery(unittest.TestCase):
+    def sparse_opportunities(self,n=50):
+        games=[played(i) for i in range(n)]
+        for i,g in enumerate(games):
+            g.deep=False;g.control_index=i
+            for d in g.decisions:
+                d.metrics.update(critical=False,unique=False,top1=False,top3=False,cpl=80)
+            opportunity=next(d for d in g.decisions if d.metrics.get('useful'))
+            opportunity.metrics.update(critical=True,unique=True,top1=True,top3=True,cpl=0)
+            a.summarize(g);g.fast_metrics=copy.deepcopy(g.metrics)
+        return games
+
+    def test_sustained_sparse_opportunities_need_more_than_fifteen_games(self):
+        games=self.sparse_opportunities()
+        short=replace(CONFIG,cluster_windows=(5,6,8,10,15))
+        self.assertIsNone(find_clusters(games,short,True)['strongest'])
+        long=find_clusters(games,fast=True)['strongest']
+        self.assertEqual(long['metrics']['games'],50)
+        self.assertEqual(long['metrics']['critical'],50)
+        self.assertTrue(long['persistent'])
+
+    def test_unscanned_gap_still_breaks_long_periods(self):
+        games=self.sparse_opportunities()
+        for g in games[25:]:g.control_index+=1
+        self.assertIsNone(find_clusters(games,fast=True)['strongest'])
+
+    def test_long_period_does_not_create_deep_or_behavioral_confirmation(self):
+        result=report(self.sparse_opportunities())
+        self.assertIsNotNone(result.clusters['strongest'])
+        self.assertFalse(result.deep_confirmed)
+        self.assertNotIn(result.priority,('HIGH','VERY HIGH'))
+        selected=select_deep_games(result.timeline)
+        self.assertLessEqual(len(selected),CONFIG.deep_games)
+
+    def test_overlapping_long_windows_do_not_create_recurrence(self):
+        clusters=find_clusters(self.sparse_opportunities(100),fast=True)
+        self.assertGreater(len(clusters['independent']),1)
+        self.assertFalse(clusters['recurrence'])
+
+
 if __name__=='__main__':unittest.main()

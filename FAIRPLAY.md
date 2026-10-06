@@ -156,6 +156,24 @@ Labels are compared only after the analytical priority is frozen; the analyzer r
 `scripts/benchmark_fairplay.py` compares old/new search budgets on the same synthetic PGN with real Stockfish; it reports measured local timings and a four-position historical probe. It does not contact accounts or measure detection accuracy. `scripts/smoke_stockfish_reviews.py` exercises real two-pass screening plus the existing normal Game Review.
 
 
+## v10 long-period discovery
+
+Chronological discovery now also searches 20-, 30- and 50-game exact-control
+windows, alongside the existing 5/6/8/10/15-game windows and session groups.
+This improves opportunity coverage for sustained periods with only a few
+critical decisions in each game. Unknown/unscanned gaps still break periods;
+overlapping windows still count as one period, not independent corroboration.
+The primary 100-game scan, historical targeting limits, ten-game deep budget,
+Stockfish node budgets, persistence and priority gates are unchanged. Longer
+windows allocate the existing deep budget; they never convert a missing signal
+into evidence. Runtime caches are versioned for the changed search allocation.
+
+An exploratory private replay at unchanged search budgets improved deep core
+confirmation in one of two owner-labelled positive cases, while the requested
+HIGH-or-higher outcome was still not established. This is a discovery improvement,
+not empirical proof of detection sensitivity. Identifying details stay outside
+the checkout and desired outcomes do not enter scoring.
+
 ## v9 independent clock coverage
 
 Clock comparisons now retain all fully scanned rated games, including games
