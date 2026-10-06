@@ -9,7 +9,7 @@ import statistics as stats
 from collections import defaultdict
 
 from fairplay_config import CONFIG
-from fairplay_clusters import contiguous
+from fairplay_clusters import contiguous, comparison_control
 from fairplay_timing import cadence, distribution_overlap
 
 
@@ -30,14 +30,13 @@ def profile_stats(values, config=CONFIG):
     center = median(values)
     delayed = [v for v in values if v>config.premove_seconds]
     delayed_center = median(delayed)
-    return {'count':len(values), 'median':center,
+    return {**cadence(delayed,config), 'count':len(values), 'median':center,
             'mad':median([abs(v-center) for v in values]) if values else None,
             'q25':quantile(values,.25), 'q75':quantile(values,.75),
             'near_instant_fraction':sum(v<=config.premove_seconds for v in values)/len(values) if values else None,
             'delayed_median':delayed_center,
             'delayed_mad':median([abs(v-delayed_center) for v in delayed]) if delayed else None,
-            'iqr':quantile(delayed,.75)-quantile(delayed,.25) if delayed else None,
-            **cadence(delayed,config)}
+            'iqr':quantile(delayed,.75)-quantile(delayed,.25) if delayed else None}
 
 
 def timing_values(game, config=CONFIG):
@@ -48,7 +47,7 @@ def timing_values(game, config=CONFIG):
         groups['overall'].append(d.think)
         if d.phase=='opening':groups['opening'].append(d.think)
         elif d.trivial_kind:groups['trivial'].append(d.think)
-        elif d.metrics.get('useful',d.useful):
+        else:
             groups['critical' if d.metrics.get('critical') else 'ordinary'].append(d.think)
             if d.phase=='middlegame':groups['middlegame'].append(d.think)
     return groups
@@ -88,7 +87,7 @@ def engine_interest(game):
 
 def quality_profile(games):
     rows = [engine_data(g) for g in games]
-    return {'cpl':median([m.get('median_cpl') for m in rows]),
+    return {'cpl':median([m.get('robust_cpl',m.get('median_cpl')) for m in rows]),
             'top1':median([m.get('top1') for m in rows]),
             'critical':median([m.get('critical_top1') for m in rows if m.get('critical',0)>=3]),
             'mistake_rate':median([m['mistakes']/m['decisions'] for m in rows if m.get('decisions',0) and m.get('mistakes') is not None]),
@@ -109,7 +108,7 @@ def compare_groups(baseline, high, config=CONFIG):
              'unique_hits':increase(bq['unique'],hq['unique'],config.baseline_critical_gap),
              'fewer_mistakes':increase(hq['mistake_rate'],bq['mistake_rate'],.03)}
     lower_cpl = (bq['cpl'] is not None and hq['cpl'] is not None and bq['cpl']-hq['cpl']>=config.baseline_cpl_gap)
-    consistently_better = (lower_cpl and sum(engine_data(g).get('median_cpl') is not None and engine_data(g)['median_cpl']<=bq['cpl']-config.baseline_cpl_gap/2
+    consistently_better = (lower_cpl and sum(engine_data(g).get('robust_cpl') is not None and engine_data(g)['robust_cpl']<=bq['cpl']-config.baseline_cpl_gap/2
                                             for g in high)>=math.ceil(len(high)*.8))
     quality_gain = sufficient and consistently_better and any(gains.values())
     bc,hc = before['comparison'],after['comparison']
@@ -146,7 +145,7 @@ def compare_groups(baseline, high, config=CONFIG):
     if response_lost:reasons.append('The player’s usual extra time on critical decisions decreased.')
     if category_delays:reasons.append('Previously near-instant '+ '/'.join(category_delays)+' decisions became delayed.')
     if not quality_gain:reasons=[]
-    return {'state':state,'sufficient':sufficient,'baseline':before,'high_signal':after,
+    return {'state':state,'sufficient':sufficient,'baseline_ids':[g.identity for g in baseline],'high_ids':[g.identity for g in high],'baseline':before,'high_signal':after,
             'baseline_quality':bq,'high_signal_quality':hq,'quality_gain':quality_gain,
             'quality_changes':gains,'reasons':reasons}
 
@@ -156,7 +155,7 @@ def personal_timing(games, config=CONFIG):
     for game in games:
         if (game.time_control and engine_data(game).get('decisions',0)>=config.baseline_min_decisions
                 and sum(d.clock_valid for d in game.decisions)>=config.baseline_min_timing):
-            buckets[(game.time_class,game.time_control)].append(game)
+            buckets[(game.time_class,comparison_control(game))].append(game)
     ranks = {'Insufficient Data':-1,'Normal':0,'Slight':1,'Moderate':2,'Strong':3,'Very Strong':4}
     results = []
     for (kind,control),group in sorted(buckets.items()):

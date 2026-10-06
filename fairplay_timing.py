@@ -44,18 +44,68 @@ def trivial_move_kind(board, move, legal_count, recapture=False):
 
 
 def cadence(values, config=CONFIG):
-    values = [v for v in values if v is not None and math.isfinite(v) and v >= 0]
+    """Robust delayed-band shape, not a test against a magic five-second value.
+
+    A 1.5-second mode gets a narrower band than a 5-second mode. Occasional
+    long pauses no longer destroy an otherwise repeated cadence through CV.
+    Raw CV stays descriptive; median/MAD and band coverage drive the flag.
+    Premoves remain in the denominator and cannot become delayed evidence.
+    """
+    from bisect import bisect_left, bisect_right
+    values = sorted(v for v in values if v is not None and math.isfinite(v) and v >= 0)
     if not values:return {}
-    center = max(sorted(set(round(v) for v in values)),
-                 key=lambda c:(sum(abs(v-c)<=config.timing_band_halfwidth for v in values),-c))
+    middle = stats.median(values)
+    def width(center):return min(config.timing_band_halfwidth,max(.1,center*config.timing_relative_band))
+    def count(center):return bisect_right(values,center+width(center))-bisect_left(values,center-width(center))
+    center = max(sorted(set(round(v,1) for v in values)),key=lambda c:(count(c),-abs(c-middle),-c))
     mean, deviation = stats.mean(values), stats.pstdev(values)
+    mad = stats.median(abs(v-middle) for v in values)
     bins = Counter(int(v//2) for v in values)
-    fraction = sum(abs(v-center)<=config.timing_band_halfwidth for v in values)/len(values)
+    fraction = count(center)/len(values)
     cv = deviation/mean if mean>0 else None
-    return {'modal_seconds':center,'cluster_fraction':fraction,'cv':cv,
+    robust_cv = 1.4826*mad/middle if middle>0 else None
+    return {'modal_seconds':center,'band_halfwidth':width(center),'cluster_fraction':fraction,
+            'median':middle,'mad':mad,'cv':cv,'robust_cv':robust_cv,
+            'near_instant_fraction':sum(v<=config.premove_seconds for v in values)/len(values),
             'entropy':-sum((n/len(values))*math.log2(n/len(values)) for n in bins.values()),
-            'elevated':len(values)>=config.min_timing_moves and fraction>=config.timing_cluster_min
-                       and cv is not None and cv<config.timing_cv_max}
+            'elevated':len(values)>=config.min_timing_moves and center>=config.timing_min_delay
+                       and fraction>=config.timing_cluster_min
+                       and robust_cv is not None and robust_cv<config.timing_cv_max}
+
+
+def clock_values(game):
+    """Clock evidence does not disappear when the position is already won."""
+    return [d.think for d in game.decisions if d.phase!='opening' and d.clock_valid
+            and d.think is not None and math.isfinite(d.think) and d.think>=0]
+
+
+def cadence_recurrence(games, config=CONFIG):
+    """Recurrence within a caller-supplied exact-control/rated bucket.
+
+    Individual short games need eight clocks; the group needs five games and
+    eighty clocks. A minority period stays visible against a variable baseline.
+    These are descriptive screening gates, not population-calibrated p-values.
+    """
+    rows=[]
+    for game in games:
+        values=clock_values(game);shape=cadence(values,config)
+        if (len(values)>=config.timing_min_game_moves and shape.get('modal_seconds',0)>=config.timing_min_delay
+                and shape.get('cluster_fraction',0)>=config.timing_recurrence_fraction
+                and shape.get('robust_cv') is not None and shape['robust_cv']<config.timing_cv_max):
+            rows.append((game,values,shape))
+    candidates=[]
+    for _,_,shape in rows:
+        center=shape['modal_seconds'];width=shape['band_halfwidth']
+        matched=[(g,v,m) for g,v,m in rows if abs(m['modal_seconds']-center)<=width
+                 and sum(abs(t-center)<=width for t in v)/len(v)>=config.timing_recurrence_fraction]
+        if not matched:continue  # guard floating-point band-edge disagreement
+        count=sum(len(v) for _,v,_ in matched)
+        candidates.append({'games':len(matched),'moves':count,'ids':[g.identity for g,_,_ in matched],
+                           'modal_seconds':center,'band_halfwidth':width,
+                           'fraction':stats.median([sum(abs(t-center)<=width for t in v)/len(v) for _,v,_ in matched]),
+                           'recurrent':len(matched)>=config.timing_recurrence_games and count>=config.timing_recurrence_moves})
+    best=max(candidates,key=lambda r:(r['recurrent'],r['games'],r['fraction']),default=None)
+    return best or {'games':0,'moves':0,'ids':[],'modal_seconds':None,'band_halfwidth':None,'fraction':None,'recurrent':False}
 
 
 def distribution_overlap(left, right):
@@ -86,7 +136,7 @@ def trivial_delay_metrics(decisions, config=CONFIG):
         # Opening, missing/unsupported clocks and time trouble stay excluded.
         if decision.trivial_kind and (decision.clock_valid or decision.clock_reliable):
             groups['trivial'].append(decision.think);kinds[decision.trivial_kind] += 1
-        elif decision.clock_reliable and decision.metrics.get('useful'):
+        elif decision.clock_valid and decision.phase!='opening':
             groups['critical' if decision.metrics.get('critical') else 'normal'].append(decision.think)
     samples = {}
     for kind,values in groups.items():
@@ -109,17 +159,78 @@ def trivial_delay_metrics(decisions, config=CONFIG):
                     and max(medians)-min(medians)<=config.trivial_median_max_gap
                     and all(v is not None and v>=config.trivial_overlap_min for v in overlap.values())
                     and all(v is not None and v>=config.timing_cluster_min for v in fractions.values())
-                    and all(row.get('cv') is not None and row['cv']<config.timing_cv_max for row in samples.values()))
+                    and all(row.get('robust_cv') is not None and row['robust_cv']<config.timing_cv_max for row in samples.values()))
     return {'samples':samples,'overlap':overlap,'common_band_seconds':center,
             'cluster_by_category':fractions,'kinds':dict(kinds),'sufficient':sufficient,'elevated':elevated}
 
 
 def trivial_delay_summary(games, config=CONFIG):
-    pooled = trivial_delay_metrics([d for game in games for d in game.decisions],config)
+    # Pool only a recurrent same-cadence period. Requiring six trivial and four
+    # critical decisions in EACH game discarded most real, shorter games.
+    recurrence=cadence_recurrence(games,config)
+    matched=[g for g in games if g.identity in recurrence['ids']]
+    subset=matched if len(matched)>=config.trivial_recurrence_games else games
+    pooled = trivial_delay_metrics([d for game in subset for d in game.decisions],config)
     center = pooled['common_band_seconds']
-    matches = [game for game in games if game.metrics.get('timing',{}).get('trivial_delay',{}).get('elevated')
-               and center is not None and abs(game.metrics['timing']['trivial_delay']['common_band_seconds']-center)<=config.timing_band_halfwidth]
+    matches=[]
+    for game in matched:
+        m=trivial_delay_metrics(game.decisions,config)
+        # Every counted game must contribute to all three categories; one game
+        # cannot supply all of the critical clocks for unrelated trivial games.
+        if (all(m['samples'][k]['count'] for k in ('trivial','normal','critical'))
+                and center is not None and abs((m['common_band_seconds'] or 0)-center)<=config.timing_band_halfwidth):
+            matches.append(game)
     pooled['same_cadence_games'] = len(matches)
-    pooled['games_with_trivial_data'] = sum(bool(game.metrics.get('timing',{}).get('trivial_delay',{}).get('samples',{}).get('trivial',{}).get('count')) for game in games)
+    pooled['games_with_trivial_data'] = sum(any(d.trivial_kind and d.clock_valid for d in g.decisions) for g in games)
     pooled['recurrent'] = pooled['elevated'] and len(matches)>=config.trivial_recurrence_games
     return pooled
+
+
+def delay_floor_profile(games, config=CONFIG):
+    """Repeated comparable non-instant delays, even with occasional long pauses.
+
+    This differs from an 80%-in-one-band cadence: the lower spread and typical
+    times of easy and hard decisions can match without every move being fixed.
+    It is a timing-only supporting feature, never an independent verdict.
+    No category may borrow clocks from another control or rated/casual group.
+    """
+    groups={k:[] for k in ('trivial','normal','critical')}
+    contributors={k:set() for k in groups}
+    for game in games:
+        for d in game.decisions:
+            if not d.clock_valid or d.think is None or not math.isfinite(d.think) or d.think<0 or d.phase=='opening':continue
+            category='trivial' if d.trivial_kind else 'critical' if d.metrics.get('critical') else 'normal'
+            groups[category].append(d.think);contributors[category].add(game.identity)
+    profiles={}
+    for key,values in groups.items():
+        center=stats.median(values) if values else None
+        profiles[key]={'count':len(values),'games':len(contributors[key]),'median':center,
+                       'mad':stats.median(abs(v-center) for v in values) if values else None,
+                       'near_instant':sum(v<=config.premove_seconds for v in values)/len(values) if values else None}
+    sufficient=(len(games)>=config.delay_floor_min_games and len(groups['trivial'])>=config.delay_floor_min_trivial
+                and len(groups['normal'])>=config.delay_floor_min_normal and len(groups['critical'])>=config.delay_floor_min_critical
+                and min(len(v) for v in contributors.values())>=max(3,math.ceil(len(games)/3)))
+    overlaps={f'{a}_{b}':distribution_overlap(groups[a],groups[b]) for a,b in (('trivial','normal'),('trivial','critical'),('normal','critical'))}
+    delayed=bool(sufficient and all(r['median']>=config.timing_min_delay and r['near_instant']<=config.delay_floor_max_instant for r in profiles.values()))
+    similar=bool(delayed and max(r['median'] for r in profiles.values())/min(r['median'] for r in profiles.values())<=config.delay_floor_median_ratio
+                 and all(r['mad']/r['median']<=config.delay_floor_relative_mad for r in profiles.values())
+                 and min(overlaps.values())>=config.delay_floor_overlap)
+    return {'sufficient':sufficient,'elevated':similar,'games':len(games),'samples':profiles,'overlap':overlaps,
+            'score':(.75 if len(games)>=12 else .55) if similar else 0.0}
+
+
+def delay_floor_periods(games, config=CONFIG):
+    """Bounded chronological search; descriptive, no multiple-testing p-value."""
+    from fairplay_clusters import contiguous
+    best=delay_floor_profile(games,config)
+    best['ids']=[g.identity for g in games]
+    # One full group plus non-overlapping and half-overlapping periods. Many
+    # neighboring windows must not become many 'independent' timing signals.
+    for width in (6,12,20):
+        for start in range(0,len(games)-width+1,max(1,width//2)):
+            group=games[start:start+width]
+            if not contiguous(group):continue
+            row=delay_floor_profile(group,config)
+            if (row['score'],row['games'])>(best['score'],best['games']):
+                best={**row,'ids':[g.identity for g in group]}
+    return best

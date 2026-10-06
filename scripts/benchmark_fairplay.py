@@ -19,7 +19,7 @@ from scripts.smoke_stockfish_reviews import fixture,TARGET
 
 def benchmark():
     results=[]
-    for name,config in [('v3 search budget',replace(CONFIG,fast_nodes=8000,deep_nodes=64000,deep_multipv=3)),('v4 search budget',CONFIG)]:
+    for name,config in [('v4 search budget',replace(CONFIG,fast_nodes=12000,deep_nodes=160000,deep_multipv=5)),('v5 search budget',CONFIG)]:
         sample=parse_game(fixture(),TARGET,config)
         scanner=EngineScanner(time.monotonic()+180,config)
         try:
@@ -36,7 +36,7 @@ def benchmark():
                             'meaningful_decisions':sample.metrics['decisions'],
                             'eligible_decisions':sum(d.useful for d in sample.decisions)})
         finally:scanner.close()
-    print(json.dumps({'fixture':'synthetic random standard game, seed 51','results':results,
+    print(json.dumps({'fixture':'fixed balanced synthetic standard game','results':results,
                       'note':'Same structural filtering in both profiles; a budget comparison, not account validation.'},indent=2))
 
 
