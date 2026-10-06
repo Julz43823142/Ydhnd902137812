@@ -219,6 +219,8 @@ _STOCKFISH_ENGINE = None
 _STOCKFISH_PATH = None
 _STOCKFISH_INSTALL_ATTEMPTED = False
 _STOCKFISH_LAST_INSTALL_ERROR = None
+# Official sf_19 release: pin the source revision as well as its human label.
+STOCKFISH_SOURCE_REVISION = "edb0d9db6731067ec50ce619ff372b463bc4dd5d"
 
 
 def _positive_int_env(name, default, minimum=1, maximum=None):
@@ -355,6 +357,12 @@ def _try_install_stockfish_on_github_actions():
             _STOCKFISH_LAST_INSTALL_ERROR = (
                 detail[-1] if detail else "could not clone official Stockfish sf_19 tag"
             )
+            return
+
+        revision = subprocess.run([git, "-C", source_root, "rev-parse", "HEAD"],
+                                  capture_output=True, text=True, timeout=10)
+        if revision.returncode != 0 or revision.stdout.strip() != STOCKFISH_SOURCE_REVISION:
+            _STOCKFISH_LAST_INSTALL_ERROR = "official sf_19 source revision did not match the pinned release"
             return
 
         build = subprocess.run(
@@ -907,6 +915,10 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
     except Exception as error:
         raise ValueError(f"Invalid PGN start FEN: {error}") from error
 
+    if not board.is_valid() or board.is_game_over(claim_draw=False):
+        raise ValueError("The review needs a valid, playable starting position.")
+    allow_book = not bool(chess960) and board.fen() == chess.STARTING_FEN
+
     side_losses_cp = {chess.WHITE: [], chess.BLACK: []}
     side_counts = {
         chess.WHITE: {"brilliant": 0, "great": 0, "best": 0, "book": 0, "excellent": 0, "good": 0, "inaccuracy": 0, "mistake": 0, "miss": 0, "blunder": 0},
@@ -916,9 +928,11 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
     position_white_win_pcts = []
 
     def _as_lines(result):
-        if isinstance(result, list):
-            return [item for item in result if isinstance(item, dict)]
-        return [result] if isinstance(result, dict) else []
+        lines = ([item for item in result if isinstance(item, dict)] if isinstance(result, list)
+                 else [result] if isinstance(result, dict) else [])
+        if any(item.get('score') is None or item['score'].pov(chess.WHITE).score(mate_score=100000) is None for item in lines):
+            raise RuntimeError('Stockfish returned incomplete evaluation data.')
+        return lines
 
     with _STOCKFISH_ANALYSIS_LOCK:
         engine = _get_analysis_engine()
@@ -934,6 +948,7 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
 
         for ply_index, san in enumerate(moves):
             mover = board.turn
+            move_number = board.fullmove_number
             before_info = before_lines[0]
             best_score = _engine_score_cp(before_info, mover)
             second_best_score = _engine_score_cp(before_lines[1], mover) if len(before_lines) > 1 else None
@@ -954,17 +969,30 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
 
             captured_cp = _captured_material_cp(board, played_move)
             is_best = best_move is not None and played_move == best_move
+            # Compare alternatives at the same root. After-position search
+            # drift must not lower the accuracy of the engine's own best move.
+            candidate = next((line for line in before_lines
+                              if line.get("pv") and line["pv"][0] == played_move), None)
+            if candidate is not None:
+                quality_score = _engine_score_cp(candidate, mover)
+            else:
+                actual_lines = _as_lines(engine.analyse(board, analysis_limit, root_moves=[played_move]))
+                if not actual_lines:
+                    raise RuntimeError("Stockfish returned no evaluation for the played move.")
+                quality_score = _engine_score_cp(actual_lines[0], mover)
             board.push(played_move)
             sacrifice_cp = _offered_material_cp(board, played_move, mover, captured_cp) if is_best else 0
 
-            if board.is_game_over(claim_draw=True):
-                outcome = board.outcome(claim_draw=True)
+            eval_white_mate = None
+            if board.is_game_over(claim_draw=False):
+                outcome = board.outcome(claim_draw=False)
                 if outcome is None or outcome.winner is None:
                     actual_score = 0
                     eval_white_cp = 0
                 else:
                     actual_score = 100000 if outcome.winner == mover else -100000
                     eval_white_cp = 100000 if outcome.winner == chess.WHITE else -100000
+                    eval_white_mate = 0
                 after_lines = []
             else:
                 after_lines = _as_lines(engine.analyse(board, analysis_limit, multipv=2))
@@ -972,6 +1000,13 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
                     raise RuntimeError(f"Stockfish returned no analysis after move {ply_index + 1}.")
                 actual_score = _engine_score_cp(after_lines[0], mover)
                 eval_white_cp = _engine_score_cp(after_lines[0], chess.WHITE)
+                score = after_lines[0].get("score")
+                eval_white_mate = score.pov(chess.WHITE).mate() if score is not None else None
+
+            if after_lines:
+                actual_score = quality_score
+            if is_best:
+                actual_score = best_score
 
             loss_cp = max(0, min(10000, best_score - actual_score))
             best_wp = _win_percent_from_cp(best_score)
@@ -988,11 +1023,10 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
                 second_best_score,
                 best_score=best_score,
                 ply_index=ply_index,
-                allow_book=not bool(chess960),
+                allow_book=allow_book,
             )
             side_counts[mover][classification] += 1
 
-            move_number = ply_index // 2 + 1
             move_label = f"{move_number}." if mover == chess.WHITE else f"{move_number}..."
             moments.append({
                 "ply": ply_index + 1,
@@ -1009,6 +1043,7 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
                 "is_best": bool(is_best),
                 "sacrifice_cp": int(sacrifice_cp),
                 "eval_white_cp": int(eval_white_cp),
+                "eval_white_mate": eval_white_mate,
                 "fen": board.fen(),
                 "comment": _move_review_comment(
                     classification,
@@ -1054,7 +1089,7 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
         "turning_points": important[:3],
         "truncated": bool(truncated),
         "analysis_time_per_position": STOCKFISH_ANALYSIS_TIME,
-        "accuracy_model": "stockfish-winprob-v3-lichess-game-curve",
+        "accuracy_model": "stockfish-winprob-v4-same-root-game-curve",
         "classification_model": "expected-points-v3-book-great-miss",
         "brilliant_model": "local-net-sacrifice-v2",
     }

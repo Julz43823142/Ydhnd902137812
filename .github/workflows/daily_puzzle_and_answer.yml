@@ -5,6 +5,11 @@ on:
     branches: [main]
     paths:
       - 'bot.py'
+      - 'chess_play.py'
+      - 'fairplay*.py'
+      - 'scripts/prepare_stockfish.py'
+      - 'scripts/smoke_stockfish_reviews.py'
+      - '.github/workflows/daily_puzzle_and_answer.yml'
       - 'pet_ui.py'
       - 'showcase_cards.py'
       - 'profile_theme_art.py'
@@ -58,6 +63,29 @@ jobs:
 
       - name: Install requirements
         run: pip install -r requirements.txt
+
+      - name: Restore official Stockfish 19 binary
+        continue-on-error: true
+        uses: actions/cache@v4
+        with:
+          path: /tmp/stockfish19-official/Stockfish/src/stockfish
+          key: stockfish-${{ runner.os }}-${{ runner.arch }}-edb0d9db6731067ec50ce619ff372b463bc4dd5d-v1
+
+      - name: Prepare and smoke-test Stockfish before Discord starts
+        id: stockfish
+        # Engine setup failure must not take puzzles, pets or Twitch offline.
+        # Fair Play will return its explicit engine-unavailable failure instead.
+        continue-on-error: true
+        timeout-minutes: 10
+        env:
+          STOCKFISH_PATH: /tmp/stockfish19-official/Stockfish/src/stockfish
+        run: python scripts/prepare_stockfish.py --github-env
+
+      - name: Verify both real engine review paths using synthetic data
+        if: steps.stockfish.outcome == 'success'
+        continue-on-error: true
+        timeout-minutes: 2
+        run: python scripts/smoke_stockfish_reviews.py
 
       - name: Verify Daily Puzzle build and offline RP pool
         run: |

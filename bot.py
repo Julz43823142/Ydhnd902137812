@@ -5991,7 +5991,11 @@ def _review_button_style(classification, current=False):
     return discord.ButtonStyle.secondary
 
 
-def _format_review_eval(eval_white_cp):
+def _format_review_eval(eval_white_cp, mate=None):
+    if mate is not None:
+        if mate == 0:
+            return "Checkmate · White wins" if eval_white_cp >= 0 else "Checkmate · Black wins"
+        return f'{"White" if mate > 0 else "Black"} mates in {abs(mate)}'
     value = int(eval_white_cp or 0)
     if value >= 90000:
         return "White winning / mate"
@@ -6074,6 +6078,8 @@ def _parse_review_pgn(pgn_text, reviewer):
     raw = _clean_review_pgn_text(pgn_text)
     if not raw:
         raise ValueError("Paste a PGN or attach a .pgn/.txt file.")
+    if len(raw.encode('utf-8')) > 128_000:
+        raise ValueError("That PGN is too large. Use a single game under 128 KB.")
 
     try:
         parsed = chess.pgn.read_game(StringIO(raw))
@@ -6087,6 +6093,8 @@ def _parse_review_pgn(pgn_text, reviewer):
         raise ValueError(f"PGN contains an invalid move: {parse_errors[0]}")
 
     board = parsed.board()
+    if getattr(board,'uci_variant','chess') != 'chess' or not board.is_valid():
+        raise ValueError("Game Review supports valid standard chess and Chess960 positions only.")
     start_fen = board.fen()
     review_chess960 = bool(getattr(board, "chess960", False))
     san_moves = []
@@ -6131,7 +6139,7 @@ def _parse_review_pgn(pgn_text, reviewer):
 
 async def _run_pasted_pgn_review(message, pgn_text):
     try:
-        game, san_moves = _parse_review_pgn(pgn_text, message.author)
+        game, san_moves = await asyncio.to_thread(_parse_review_pgn,pgn_text,message.author)
     except ValueError as error:
         await message.channel.send(f"❌ **{error}**")
         return
@@ -6228,6 +6236,7 @@ class ChessGameReviewView(discord.ui.View):
         self.analysis = dict(analysis or {})
         self.moves = list(self.analysis.get("moves") or [])
         self.index = 0
+        self._refresh_lock = asyncio.Lock()
         self._rebuild()
 
     def _current(self):
@@ -6255,7 +6264,7 @@ class ChessGameReviewView(discord.ui.View):
             played = str(item.get("played") or "")
             if best and best != played:
                 lines.append(f"🎯 **Best:** {best}")
-        lines.append(f"📈 **Eval:** {_format_review_eval(item.get('eval_white_cp', 0))}")
+        lines.append(f"📈 **Eval:** {_format_review_eval(item.get('eval_white_cp', 0),item.get('eval_white_mate'))}")
         lines.append(f"🎯 **Move accuracy:** {float(item.get('move_accuracy', 0.0)):.1f}%")
         lines.append(f"📖 **Ply {self.index + 1}/{len(self.moves)}**")
         lines.append("🧭 Use the numbered move buttons below; every button carries that move's review emoji.")
@@ -6265,18 +6274,32 @@ class ChessGameReviewView(discord.ui.View):
             color=0x2F3136,
         )
         embed.set_image(url="attachment://chess_review.png")
+        embed.set_footer(text="Local Stockfish estimates; opening labels and accuracy are not official Chess.com ratings.")
         return embed
 
-    async def _refresh(self, interaction):
+    async def _refresh(self, interaction, *, target=None, delta=0, indices=None):
         await interaction.response.defer()
         try:
-            file = await _make_chess_review_file(self.game, self.index)
-            self._rebuild()
-            await interaction.message.edit(
-                embed=self.render_embed(),
-                attachments=[file],
-                view=self,
-            )
+            async with self._refresh_lock:
+                if indices:
+                    later = [index for index in indices if index > self.index]
+                    target = later[0] if later else indices[0]
+                previous = self.index
+                proposed = max(0,min(len(self.moves)-1,self.index+delta if target is None else target))
+                file = await _make_chess_review_file(self.game, proposed)
+                try:
+                    self.index = proposed
+                    self._rebuild()
+                    await interaction.message.edit(
+                        embed=self.render_embed(), attachments=[file], view=self,
+                    )
+                except BaseException:
+                    self.index = previous
+                    self._rebuild()
+                    raise
+                finally:
+                    close = getattr(file, 'close', None)
+                    if callable(close):close()
         except Exception as error:
             await interaction.followup.send(
                 f"❌ Could not open this review position: `{str(error)[:800]}`",
@@ -6290,9 +6313,7 @@ class ChessGameReviewView(discord.ui.View):
                 ephemeral=True,
             )
             return
-        later = [index for index in indices if index > self.index]
-        self.index = later[0] if later else indices[0]
-        await self._refresh(interaction)
+        await self._refresh(interaction,indices=indices)
 
     def _classification_indices(self, classification):
         return [
@@ -6311,20 +6332,16 @@ class ChessGameReviewView(discord.ui.View):
         last = discord.ui.Button(label="⏭", style=discord.ButtonStyle.secondary, row=0, disabled=not total or self.index >= total - 1)
 
         async def first_cb(interaction):
-            self.index = 0
-            await self._refresh(interaction)
+            await self._refresh(interaction,target=0)
 
         async def previous_cb(interaction):
-            self.index = max(0, self.index - 1)
-            await self._refresh(interaction)
+            await self._refresh(interaction,delta=-1)
 
         async def next_cb(interaction):
-            self.index = min(max(0, total - 1), self.index + 1)
-            await self._refresh(interaction)
+            await self._refresh(interaction,delta=1)
 
         async def last_cb(interaction):
-            self.index = max(0, total - 1)
-            await self._refresh(interaction)
+            await self._refresh(interaction,target=max(0,total-1))
 
         first.callback = first_cb
         previous.callback = previous_cb
@@ -6350,8 +6367,7 @@ class ChessGameReviewView(discord.ui.View):
                 )
 
                 async def move_cb(interaction, target=absolute_index):
-                    self.index = target
-                    await self._refresh(interaction)
+                    await self._refresh(interaction,target=target)
 
                 button.callback = move_cb
                 self.add_item(button)

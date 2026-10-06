@@ -5,7 +5,7 @@ CHANNEL_ID = 1311445685492781186
 NAMESPACE = 'shark:fairplay:'
 DISCLAIMER = ('Automated fair-play screening only. This result is not proof of cheating '
               'and must not be used as the sole basis for punishment. Human review is mandatory.')
-VERSION = 'fairplay-v1'
+VERSION = 'fairplay-v3-personal-trivial-timing'
 
 
 @dataclass(frozen=True)
@@ -30,6 +30,32 @@ class ReviewConfig:
     mistake_cp: int = 100
     blunder_cp: int = 200
     min_timing_moves: int = 15
+    premove_seconds: float = .5
+    timing_band_halfwidth: float = 1.0
+    timing_cluster_min: float = .80
+    timing_cv_max: float = .30
+    trivial_delay_seconds: float = 2.0
+    trivial_min_moves: int = 6
+    normal_min_moves: int = 8
+    critical_min_moves: int = 4
+    trivial_total_min: int = 24
+    trivial_overlap_min: float = .75
+    trivial_median_max_gap: float = 1.5
+    trivial_recurrence_games: int = 5
+    baseline_min_games: int = 6
+    baseline_min_decisions: int = 12
+    baseline_category_moves: int = 12
+    baseline_min_timing: int = 30
+    baseline_cpl_gap: float = 15.0
+    baseline_top1_gap: float = .15
+    baseline_critical_gap: float = .15
+    baseline_spread_ratio: float = .60
+    baseline_cluster_gain: float = .25
+    baseline_entropy_drop: float = .50
+    baseline_response_drop: float = .75
+    baseline_band_min: float = .70
+    baseline_window: int = 6
+    baseline_consistency: float = .80
     min_critical: int = 30
     high_decisions: int = 500
     very_high_games: int = 30
