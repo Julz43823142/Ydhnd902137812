@@ -133,6 +133,7 @@ def group_record(group, kind, config=CONFIG, fast=False):
     # across the original minimum contributing-game count and at least a third
     # of the complete chronological period. No observed misses are removed.
     pooled=(len(group)>=config.pooled_critical_games
+            and m['eligible_games']>=math.ceil(len(group)*config.persistence_fraction)
             and opportunity_games>=math.ceil(config.pooled_critical_games*config.pooled_critical_fraction)
             and opportunity_games>=math.ceil(len(group)*config.pooled_opportunity_fraction)
             and m['decisions']>=config.high_cluster_decisions

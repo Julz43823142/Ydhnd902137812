@@ -202,7 +202,8 @@ does not progressively add ten more deeply reviewed games.
 Critical-opportunity persistence retains all observed hits and misses. Games
 without a critical opportunity are not counted as missed critical decisions.
 The pool still needs at least 30 opportunities, the configured Wilson lower
-bound, the existing minimum contributing-game coverage, and opportunities in
+bound, meaningful engine coverage in at least two thirds of the period,
+the existing minimum contributing-game coverage, and opportunities in
 at least one third of the complete period. Complete continuously scanned runs
 are considered alongside short windows. Unknown intervening games still break
 the run, and overlapping windows never manufacture independent recurrence.
