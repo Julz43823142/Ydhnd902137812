@@ -64,7 +64,7 @@ def result_embed(result: ReviewResult):
     coverage = result.coverage
     sample = (f'Eligible rated history: **{coverage.get("collected",result.selected_games)}**\n'
               f'Full fast scans: **{coverage.get("fast_scanned",totals["games"])}** · used in scoring: **{coverage.get("used",totals["games"])}**\n'
-              f'Deep-reviewed: **{coverage.get("deep_reviewed",result.deep_coverage["games"])}** · excluded after fast scan: **{coverage.get("excluded_after_fast",0)}**\n'
+              f'Deep-reviewed: **{coverage.get("deep_reviewed",result.deep_coverage["games"])}** · below per-game coverage: **{coverage.get("excluded_after_fast",0)}**\n'
               f'Meaningful decisions: **{totals["decisions"]:,}**\n{classes}\n'
               f'Account age: {result.context["age_days"] if result.context["age_days"] is not None else "unavailable"} days')
     if coverage.get('primary_collected'):
