@@ -2816,8 +2816,8 @@
         "url": "https://lichess.org/training/kEHdU",
         "title": "Lichess • 1633",
         "fen": "8/3K4/3p4/p1k1p3/2BpP3/1P1P4/r7/8 w - - 18 58",
-        "current_fen": "8/3K4/3p4/p3p3/3pP3/2kP4/B7/8 w - - 1 60",
-        "last_move_uci": "b4c3",
+        "current_fen": "8/3K4/8/p2pp3/2BpP3/2kP4/8/8 w - - 0 61",
+        "last_move_uci": "d6d5",
         "pgn": "b4+ Kxb4 Bxa2 Kc3 Bc4 d5 exd5",
         "all_moves": [
           {
@@ -2887,16 +2887,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_kEHdU_1791296677275",
         "rating": 1633,
-        "next_solution_index": 4,
+        "next_solution_index": 6,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1557035899664080997,
+      "message_id": 1557035909935792149,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1791296689.1290684,
-      "last_feedback": "✅ **Bxa2** • Opponent: **Kc3**"
+      "last_card_activity_at": 1791296698.2219741,
+      "last_feedback": "✅ **Bc4** • Opponent: **d5**"
     },
     "362606514764251137": {
       "active": false,
