@@ -1045,6 +1045,9 @@ class Arcade(discord.Client):
         except discord.HTTPException:pass
 
     async def on_interaction(self,interaction):
+        # Daily's gateway guard owns all responses in this isolated channel.
+        from fairplay_config import CHANNEL_ID as fairplay_channel
+        if interaction.channel_id==fairplay_channel:return
         data=interaction.data or {};custom=data.get('custom_id','')
         if interaction.type==discord.InteractionType.application_command and data.get('name')=='usage':
             if interaction.channel_id==CHANNEL_ID:
