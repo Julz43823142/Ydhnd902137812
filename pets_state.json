@@ -54,7 +54,7 @@
         "xp": 50
       },
       "start": 1791240726.313751,
-      "status": "running"
+      "status": "claimed"
     },
     "pets": [
       {
@@ -395,7 +395,7 @@
         "puzzle_day": "2026-10-05",
         "rarity": "uncommon",
         "species": "Penguin",
-        "xp": 225,
+        "xp": 275,
         "xp_day": "2026-10-06"
       }
     ]
