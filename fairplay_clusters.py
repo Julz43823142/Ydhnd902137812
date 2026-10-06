@@ -152,6 +152,7 @@ def group_record(group, kind, config=CONFIG, fast=False):
 
 
 def find_clusters(games, config=CONFIG, fast=False):
+    from fairplay_convergence import discover_convergence
     # Retain known fully analyzed short/easy games in the timeline. Their actual
     # losses and missed critical moves remain in the period denominator. Missing
     # engine games still break chronology through control_index; no gap bridging.
@@ -221,7 +222,8 @@ def find_clusters(games, config=CONFIG, fast=False):
     return {'strongest': best, 'strongest_engine': max(candidates,key=lambda r:r['engine_score'],default=None),
             'strongest_critical': max(candidates,key=lambda r:r['critical_score'],default=None),
             'independent': independent, 'recurrence': recurrence, 'recurrence_groups':recurrence_groups,
-            'candidates': finalists[:12] if finalists else candidates[:12], 'discovery':discovery}
+            'candidates': finalists[:12] if finalists else candidates[:12], 'discovery':discovery,
+            'convergence':discover_convergence(games,config)}
 
 
 def regime_changes(games, config=CONFIG):
@@ -248,6 +250,11 @@ def regime_changes(games, config=CONFIG):
 
 
 def review_candidate(clusters, config=CONFIG):
+    # Keep a demonstrated personal change; otherwise prioritize a whole period
+    # with corroboration over an isolated precision peak. The deep budget stays fixed.
+    strongest=clusters['strongest']
+    joint=clusters.get('convergence',{}).get('candidate')
+    if joint and not (strongest and strongest.get('personal',{}).get('established')):return joint
     if clusters['strongest'] is not None:return clusters['strongest']
     if clusters.get('discovery') is not None:return clusters['discovery']
     return max((r for r in clusters['candidates'] if r['kind']!='ranked'
