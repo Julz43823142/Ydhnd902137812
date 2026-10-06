@@ -136,7 +136,7 @@ class BoxUITests(unittest.IsolatedAsyncioTestCase):
     async def test_only_active_boxes_show_and_selection_requires_confirmation(self):
         with patch.object(badge_box_ui, "active_holidays", return_value=["christmas"]):
             view = badge_box_ui.BadgeBoxPicker(42)
-        self.assertEqual([item.label for item in view.children], ["Random Badge Box • 20 coins", "Christmas Box • 25 coins", "Free Daily Mystery Box"])
+        self.assertEqual([item.label for item in view.children], ["Random Badge Box • 20 coins", "Christmas Box • 25 coins", "5 Mystery Boxes • 100 coins", "Free Daily Mystery Box"])
         self.assertFalse(view.children[1].disabled)
         self.assertEqual(str(view.children[1].emoji), "🎊")
         with patch.object(badge_box_ui, "buy_badge_box") as purchase:
@@ -148,12 +148,12 @@ class BoxUITests(unittest.IsolatedAsyncioTestCase):
     async def test_off_season_has_disabled_holiday_box_below_normal(self):
         with patch.object(badge_box_ui, "active_holidays", return_value=[]):
             view = badge_box_ui.BadgeBoxPicker(42)
-        self.assertEqual(len(view.children), 3)
+        self.assertEqual(len(view.children), 4)
         self.assertFalse(view.children[0].disabled)
-        self.assertEqual(view.children[1].label, "Holiday Box • 25 coins")
-        self.assertTrue(view.children[1].disabled)
-        self.assertEqual(view.children[1].row, 1)
-        self.assertEqual(str(view.children[1].emoji), "🎊")
+        self.assertEqual(view.children[2].label, "Holiday Box • 25 coins")
+        self.assertTrue(view.children[2].disabled)
+        self.assertEqual(view.children[2].row, 1)
+        self.assertEqual(str(view.children[2].emoji), "🎊")
         view.stop()
 
     async def test_confirm_purchases_once_and_acknowledges_before_wallet_work(self):
