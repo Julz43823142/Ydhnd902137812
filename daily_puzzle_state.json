@@ -88,86 +88,74 @@
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
-    "url": "https://www.chess.com/daily/2026-10-05",
-    "title": "Nowhere Square",
-    "fen": "8/5p2/4p1p1/4Bq2/4kP2/4p3/2KbB1PP/8 w - - 0 1",
-    "current_fen": "8/5p2/4p1p1/4Bq2/4kP2/4pB2/2Kb2PP/8 b - - 1 1",
-    "last_move_uci": "e2f3",
-    "pgn": "[Result \"*\"]\n[FEN \"8/5p2/4p1p1/4Bq2/4kP2/4p3/2KbB1PP/8 w - - 0 1\"]\n\n1. Bf3# *",
+    "url": "https://www.chess.com/daily/2026-10-06",
+    "title": "Get Outta Here!",
+    "fen": "6k1/1p1q3p/2ppp1p1/p1b2r2/P1P1N3/4P3/2Q2PPP/3R2K1 w - - 0 1",
+    "current_fen": "6k1/1p1q3p/2ppp1p1/p1b2r2/P1P1N3/4P3/2Q2PPP/3R2K1 w - - 0 1",
+    "last_move_uci": null,
+    "pgn": "[Result \"*\"]\n[FEN \"6k1/1p1q3p/2ppp1p1/p1b2r2/P1P1N3/4P3/2Q2PPP/3R2K1 w - - 0 1\"]\n\n1. g4 Rf7 2. Nxc5 dxc5 3. Rxd7 *",
     "all_moves": [
       {
-        "uci": "e2f3",
-        "san": "Bf3#",
+        "uci": "g2g4",
+        "san": "g4",
+        "color": "white"
+      },
+      {
+        "uci": "f5f7",
+        "san": "Rf7",
+        "color": "black"
+      },
+      {
+        "uci": "e4c5",
+        "san": "Nxc5",
+        "color": "white"
+      },
+      {
+        "uci": "d6c5",
+        "san": "dxc5",
+        "color": "black"
+      },
+      {
+        "uci": "d1d7",
+        "san": "Rxd7",
         "color": "white"
       }
     ],
     "player_moves": [
       {
-        "uci": "e2f3",
-        "san": "Bf3#",
+        "uci": "g2g4",
+        "san": "g4",
+        "color": "white"
+      },
+      {
+        "uci": "e4c5",
+        "san": "Nxc5",
+        "color": "white"
+      },
+      {
+        "uci": "d1d7",
+        "san": "Rxd7",
         "color": "white"
       }
     ],
     "player_color": "white",
-    "player_move_count": 1,
-    "posted_at": "2026-10-05T07:21:44.371576+00:00",
-    "answer_posted": true,
+    "player_move_count": 3,
+    "posted_at": "2026-10-06T07:27:18.447247+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "daily_1791184904371",
-    "next_solution_index": 1,
-    "next_player_index": 1,
-    "solved": true,
-    "message_id": 1556687007286034525,
-    "attempted_users": {
-      "442597396195704832": {
-        "name": "Thice",
-        "move": "Bf3",
-        "correct": true,
-        "timestamp": "2026-10-05T15:18:20.509225+00:00"
-      }
-    },
-    "first_move_user_id": "442597396195704832",
-    "first_move_user_name": "Thice",
-    "first_move_awarded": true,
+    "puzzle_id": "daily_1791271638447",
+    "next_solution_index": 0,
+    "next_player_index": 0,
+    "solved": false,
+    "message_id": null,
+    "attempted_users": {},
+    "first_move_user_id": null,
+    "first_move_user_name": null,
+    "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "message_ids": {
-      "1468320170891022417": 1556687007286034525
-    },
-    "channel_id": 1468320170891022417,
-    "board_attachment_filenames": {
-      "1468320170891022417": "random_puzzle.png",
-      "1546557493038284840": "random_puzzle.png"
-    },
-    "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-10-05T15:18:20.508844+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1791213500.5092332,
-        "fen_before": "8/5p2/4p1p1/4Bq2/4kP2/4p3/2KbB1PP/8 w - - 0 1",
-        "expected": {
-          "uci": "e2f3",
-          "san": "Bf3#",
-          "color": "white"
-        },
-        "accepted_uci": "e2f3"
-      }
-    ],
-    "accepted_solution_moves": [
-      {
-        "san": "Bf3#",
-        "uci": "e2f3",
-        "principal": true
-      }
-    ],
-    "last_feedback": "✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1753 points.**\n🔥 **Daily Activity Bonus: +10 coins**\n\nPuzzle Elo: **2545**\n\n💡 **Solution:** Bf3#\n\n🏆 **Your ranking**\n**#1 🐶 Thice — 1753 points ← you**\n**#2 🍅 TheMakina — 1552 points**",
-    "completion_solver_id": "442597396195704832",
-    "completion_solver_name": "Thice",
-    "activity_bonus_users": [
-      "442597396195704832"
-    ]
+    "helper_candidate_users": []
   },
   "lichess_rating_used": {
     "2000": [
