@@ -2816,8 +2816,8 @@
         "url": "https://lichess.org/training/WWl5T",
         "title": "Lichess • 1235",
         "fen": "r4r1k/p2qNppp/8/4Pp2/3Pb3/2Q4R/P5PP/R5K1 w - - 3 26",
-        "current_fen": "r4r1k/p2qNppp/8/4Pp2/3Pb3/2Q4R/P5PP/R5K1 w - - 3 26",
-        "last_move_uci": "a4d7",
+        "current_fen": "r4r2/p2qNppk/8/4Pp2/3Pb3/2Q5/P5PP/R5K1 w - - 0 27",
+        "last_move_uci": "h8h7",
         "pgn": "Rxh7+ Kxh7 Qh3#",
         "all_moves": [
           {
@@ -2857,16 +2857,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_WWl5T_1791296535313",
         "rating": 1235,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1557035247382695986,
+      "message_id": 1557035266798260328,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1791296535.3097465,
-      "last_feedback": "✅ **Rxf8#** — solved! Score: **2**."
+      "last_card_activity_at": 1791296541.863861,
+      "last_feedback": "✅ **Rxh7+** • Opponent: **Kxh7**"
     },
     "362606514764251137": {
       "active": false,
