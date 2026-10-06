@@ -48,10 +48,13 @@ class EnginePreparation(unittest.TestCase):
         self.assertIn(chess_play.STOCKFISH_SOURCE_REVISION,source)
 
     def test_failed_optional_engine_preparation_does_not_stop_discord(self):
-        import yaml
-        workflow=yaml.safe_load(Path('.github/workflows/daily_puzzle_and_answer.yml').read_text())
-        setup=next(step for step in workflow['jobs']['run']['steps'] if step.get('run')=='python scripts/prepare_stockfish.py --github-env')
-        self.assertIs(setup['continue-on-error'],True)
+        import re
+        source=Path('.github/workflows/daily_puzzle_and_answer.yml').read_text()
+        # Bound to the actual preparation step: a flag on a different step
+        # must not satisfy this availability contract. No YAML runtime dep.
+        block=re.search(r'(?ms)^      - name: Prepare and smoke-test Stockfish before Discord starts\n(.*?)(?=^      - |\Z)',source)
+        self.assertIsNotNone(block)
+        self.assertRegex(block.group(1),r'(?m)^        continue-on-error: true$')
 
 
 if __name__=='__main__':unittest.main()
