@@ -175,7 +175,17 @@ def performance_metrics(games):
     return {'classes':by_class,'shifts':shifts,'contrasts':contrasts}
 
 
+def neutral_profile_context(profile):
+    """External closure/ban labels are ground truth, never analytical input.
+
+    Use an allowlist instead of interpreting or even reading `status`. Keep
+    this boundary for direct score_review callers as well as the API pipeline.
+    """
+    return {key:profile[key] for key in ('joined','title') if key in profile}
+
+
 def context_metrics(games, profile):
+    profile = neutral_profile_context(profile)
     joined = finite_number(profile.get('joined'))
     age = max(0, int((time.time()-joined)/86400)) if joined and 0<joined<=time.time() else None
     by_class = {}
@@ -409,6 +419,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         if not isinstance(profile.get('username'),str):raise ReviewError('Chess.com returned incomplete profile data.')
         canonical = username(profile['username'])
         if canonical!=target:raise ReviewError('The public profile does not match the requested account.')
+        profile = neutral_profile_context(profile)
         games, skipped, partial = collect_games(api,canonical,progress,config)
         if not games:raise ReviewError('No eligible standard live games with enough meaningful moves were found.')
         check_deadline(deadline)

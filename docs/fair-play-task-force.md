@@ -125,6 +125,18 @@ Account age, win streaks, results against ≥200-point stronger opponents and
 rolling expected-score excess are context. Missing ratings do not create zeros
 that are then interpreted as anomalies.
 
+### Closure / ban status independence
+
+Chess.com profile `status` is never read by the analysis. The API boundary and
+direct context/scoring path allow only `joined` and `title` as neutral profile
+context; canonical username is validated separately for account identity.
+Closure labels, including `closed:fair_play_violations`, are external ground
+truth, not evidence. They cannot influence priority, confidence, any signal,
+coverage threshold or heuristic. Synthetic regression tests require identical
+complete results and report/detail cards with status hidden, open or closed,
+and fail if the analyzer attempts to read that field. Public data availability
+and HTTP errors remain operational concerns, never suspicion signals.
+
 ## Exact priority model and protections
 
 Families use heuristic 0–1 scores, **not cheating probabilities**:
