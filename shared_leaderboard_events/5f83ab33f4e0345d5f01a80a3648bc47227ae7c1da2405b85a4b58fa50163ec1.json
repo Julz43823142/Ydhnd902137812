@@ -1,0 +1,18 @@
+{
+  "after_coins": 124.16,
+  "before_coins": 114.16,
+  "created_at": 1791292262,
+  "created_at_ns": 1791292262935904120,
+  "details": {
+    "activity_day": "2026-10-06",
+    "credited": 10.0,
+    "reset_hour": 5,
+    "source": "daily-activity-bonus",
+    "timezone": "Europe/Amsterdam"
+  },
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "daily-activity-bonus",
+  "transaction_id": "activity-bonus:2026-10-06:442597396195704832",
+  "user_id": "442597396195704832"
+}
