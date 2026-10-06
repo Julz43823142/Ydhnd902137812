@@ -21,7 +21,7 @@ def trivial_move_kind(board, move, legal_count, recapture=False):
         return 'near-forced check response'
     moving, captured = board.piece_at(move.from_square), board.piece_at(move.to_square)
     values = {chess.PAWN:1, chess.KNIGHT:3, chess.BISHOP:3, chess.ROOK:5, chess.QUEEN:9, chess.KING:100}
-    if recapture and moving and captured and values[moving.piece_type] <= values[captured.piece_type]:
+    if recapture and not board.is_check() and not board.gives_check(move) and moving and captured and values[moving.piece_type] <= values[captured.piece_type]:
         choices = [m for m in board.legal_moves if m.to_square == move.to_square and board.is_capture(m)]
         if len(choices) == 1:
             return 'obvious recapture'

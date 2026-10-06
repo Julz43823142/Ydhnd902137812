@@ -33,7 +33,7 @@ def public_text(value):
 def panel_embed():
     embed = discord.Embed(title=PANEL_TITLE, color=0x427CBA,
         description='Want to review a suspicious Chess.com account?\n\n'
-                    "Submit the Chess.com username and SharkBot will analyze up to the player's latest 100 eligible games for unusual engine, performance and move-time patterns.\n\n"
+                    "Submit the Chess.com username. SharkBot reviews the latest 100 eligible standard games, with up to 500 games of history for personal baselines and targeted review of unusual periods.\n\n"
                     '**This is an automated screening tool — not proof of cheating.**')
     embed.set_footer(text=PANEL_MARKER)
     return embed
@@ -61,9 +61,15 @@ def result_embed(result: ReviewResult):
     embed.add_field(name='Data Confidence',value=result.confidence)
     totals = result.totals
     classes = ' • '.join(f'{kind.title()}: {data["games"]}' for kind,data in result.classes.items())
-    sample = (f'Games reviewed: **{totals["games"]}** / {result.selected_games} collected\n'
+    coverage = result.coverage
+    sample = (f'Eligible history collected: **{coverage.get("collected",result.selected_games)}**\n'
+              f'Full fast scans: **{coverage.get("fast_scanned",totals["games"])}** · used in scoring: **{coverage.get("used",totals["games"])}**\n'
+              f'Deep-reviewed: **{coverage.get("deep_reviewed",result.deep_coverage["games"])}** · excluded after fast scan: **{coverage.get("excluded_after_fast",0)}**\n'
               f'Meaningful decisions: **{totals["decisions"]:,}**\n{classes}\n'
               f'Account age: {result.context["age_days"] if result.context["age_days"] is not None else "unavailable"} days')
+    if coverage.get('primary_collected'):
+        sample += f'\nRecent primary scan: {coverage["primary_fast_scanned"]}/{coverage["primary_collected"]} · historical discovery probes: {coverage.get("history_probed",0)}'
+    if coverage.get('history_probe_complete') is False:sample += '\nExtended-history discovery is incomplete; primary coverage is shown separately.'
     if result.skipped:sample += f'\nSkipped archive/game entries: {sum(result.skipped.values())}'
     if result.partial:sample += '\n⚠️ Partial scan / limited archive coverage. Missing data is not suspicious.'
     embed.add_field(name='Sample',value=sample,inline=False)
@@ -81,14 +87,40 @@ def detail_embed(result, mode):
         for index,game in enumerate(games,1):
             metrics = game.metrics
             rate = percentage(metrics['critical_top1'])
-            text = (f'{game.time_class.title()} · {game.result} · <t:{game.ended}:d>\n'
+            text = (f'{game.time_class.title()} · {game.time_control} · {game.result} · <t:{game.ended}:d>\n'
                     f'Rating: {game.rating or "unavailable"} vs {game.opponent_rating or "unavailable"}\n'
+                    f'Decisions: {metrics["decisions"]} · Top-1: {percentage(metrics["top1"])} · Unique hits: {metrics["unique_hits"]}/{metrics["unique"]}\n'
                     f'Critical top-1: {rate} / {metrics["critical"]} opportunities · '
                     f'Median CPL: {number(metrics["median_cpl"])}\n'
                     f'Timing: {"Elevated" if metrics["timing"].get("elevated") else "Not established"} · '
                     f'{"Deep reviewed" if game.deep else "Fast scan"}')
             if game.url:text += f'\n[Open Game]({game.url})'
             embed.add_field(name=f'Game {index}',value=text,inline=False)
+    elif mode=='Clusters & History':
+        embed.description = ('Chronological windows: 5 / 6 / 8 / 10 / 15 games. A 6-game bridge also captures recurrent short periods. Approximate sessions use a 45-minute inactivity gap. '
+                             'Only same-control persistent groups count; overlapping windows do not multiply evidence. '
+                             'Historical probes select further analysis and never count as full engine-reviewed games.')
+        strongest = result.clusters.get('strongest')
+        if strongest:
+            m = strongest['metrics']
+            embed.add_field(name='Highest-signal chronological period',inline=False,
+                value=f'<t:{strongest["start"]}:d> → <t:{strongest["end"]}:d> · {strongest["time_class"]} · {strongest["time_control"]}\n'
+                      f'{m["games"]} games · {m["decisions"]} decisions · median CPL {number(m["median_cpl"])}\n'
+                      f'Top-1 / top-3: {percentage(m["top1"])} / {percentage(m["top3"])}\n'
+                      f'Critical: {percentage(m["critical_top1"])} / {m["critical"]} opportunities · unique hits {m["unique_hits"]}/{m["unique"]}\n'
+                      f'Persistence: {strongest["sustained_games"]}/{m["games"]} games · separate-period recurrence: {result.clusters.get("recurrence",False)}')
+        else:embed.add_field(name='Highest-signal period',value='No sufficiently persistent same-control period.',inline=False)
+        deep = result.clusters.get('deep',{})
+        embed.add_field(name='Cluster-specific deep confirmation',inline=False,
+            value=f'Supported: {deep.get("confirmed",False)} · engine: {deep.get("engine",False)} · critical: {deep.get("critical",False)}\n'
+                  f'{deep.get("games",0)} games · {deep.get("decisions",0)} decisions · {deep.get("critical_count",0)} critical opportunities\n'
+                  f'Fast → deep evidence retention: {percentage(deep.get("stability"))}\n'
+                  f'Core family: {deep.get("core","unavailable")} · engine / critical retention: {percentage(deep.get("engine_retention"))} / {percentage(deep.get("critical_retention"))}')
+        if result.history:
+            embed.add_field(name='Extended history',inline=False,
+                value=f'{result.history.get("collected",0)} eligible games · {len(result.history.get("sessions",[]))} approximate sessions\n'
+                      f'{result.coverage.get("history_probed",0)} discovery probes · {result.coverage.get("history_fast_scanned",0)} targeted full historical scans\n'
+                      'A large lower-anomaly baseline does not dilute a localized high-signal period.')
     elif mode=='Timing':
         eligible = [g for g in result.games if g.metrics['timing']['count']>=15]
         regular = [g for g in eligible if g.metrics['timing'].get('elevated')]
@@ -100,6 +132,13 @@ def detail_embed(result, mode):
                              'Trivial decisions are timing-only structural proxies, never engine-match evidence. '
                              'Deliberate slow play, lag, rounding, increment, accessibility/input delay and habits are innocent alternatives. '
                              'Timing alone cannot produce HIGH or VERY HIGH priority.')
+        for row in sorted(result.history.get('timing_baselines',[]),key=lambda r:r['profile']['games'],reverse=True)[:2]:
+            p=row['profile'];cats=p['categories']
+            embed.add_field(name=f'Extended timing reference · {row["class"]} · {row["control"]}',inline=False,
+                value=f'{p["games"]} historical games; includes unselected games, not a claim of fair play.\n'
+                      f'Opening / trivial / ordinary medians: {number(cats.get("opening",{}).get("median"))} / {number(cats.get("trivial",{}).get("median"))} / {number(cats.get("ordinary",{}).get("median"))} sec\n'
+                      f'Per-game delayed MAD: {number(p["comparison"].get("delayed_mad"))} · entropy: {number(p["comparison"].get("entropy"))}\n'
+                      'Critical timing requires actual engine classification; unscanned historical decisions are not labelled critical.')
         personal = result.timing.get('personal',[])
         if not personal:
             embed.add_field(name='Personal Timing Behavior Shift',value='Insufficient Data — no comparable same-control timing groups.',inline=False)
@@ -121,6 +160,7 @@ def detail_embed(result, mode):
             if row['time_class']=='bullet':lines.append('Bullet timing has low reliability and reduced weight.')
             embed.add_field(name=f'Personal Timing Behavior Shift · {row["time_class"].title()} · {row["time_control"]}',value='\n'.join(lines)[:1024],inline=False)
         for kind,m in result.timing.get('trivial_delay',{}).items():
+            if ' · ' not in kind and any(' · ' in k for k in result.timing.get('trivial_delay',{})):continue
             if not m['samples']['trivial']['count']:continue
             samples = m['samples'];overlap = m['overlap'];trivial = samples['trivial']
             embed.add_field(name=f'Trivial-Move Delay Anomaly · {kind.title()}',inline=False,
@@ -130,7 +170,16 @@ def detail_embed(result, mode):
                       f'Common band: {number(m["common_band_seconds"])} ± 1 sec\n'
                       f'Delayed trivial (≥2 sec): {trivial["delayed"]} · near-instant (≤0.5 sec): {trivial["near_instant"]}\n'
                       f'Same-cadence games: {m["same_cadence_games"]} · recurrent pattern: {m["recurrent"]}\n'
-                      f'Coverage: {"sufficient" if m["sufficient"] else "limited; no anomaly assigned"} · {"low Bullet reliability" if kind=="bullet" else "screening only"}')
+                      f'Coverage: {"sufficient" if m["sufficient"] else "limited; no anomaly assigned"} · {"low Bullet reliability" if kind.startswith("bullet") else "screening only"}')
+        shifts=[g for g in eligible if g.metrics['timing'].get('regime_shift')]
+        for game in shifts[:2]:
+            segments=game.metrics['timing'].get('segments',{})
+            b,h=segments.get('earlier',{}),segments.get('later',{})
+            embed.add_field(name=f'Within-game transition · <t:{game.ended}:d>',inline=False,
+                value=f'Earlier / later usable decisions: {b.get("decisions",0)} / {h.get("decisions",0)}\n'
+                      f'Median CPL: {number(b.get("median_cpl"))} → {number(h.get("median_cpl"))} · top-1: {percentage(b.get("top1"))} → {percentage(h.get("top1"))}\n'
+                      f'Cadence concentration: {percentage(b.get("cadence",{}).get("cluster_fraction"))} → {percentage(h.get("cadence",{}).get("cluster_fraction"))}\n'
+                      'A supporting behavioral transition, not proof.')
         for game in sorted(eligible,key=lambda g:g.metrics['timing'].get('cluster_fraction',0),reverse=True)[:5]:
             m = game.metrics['timing']
             embed.add_field(name=f'{game.time_class.title()} · <t:{game.ended}:d>',
@@ -140,7 +189,11 @@ def detail_embed(result, mode):
                       f'Gap–time correlation: {number(m.get("complexity_response"))} · within-game regime change: {bool(m.get("regime_shift"))}\n'
                       f'Critical-hit cadence: {percentage(m.get("critical_cadence",{}).get("cluster_fraction"))} · reliability: {m["reliability"]}',inline=False)
     elif mode=='Performance':
-        embed.description = 'Sustained changes compare adjacent 10-game windows within the same time class using robust CPL and MAD. One exceptional game is insufficient.'
+        embed.description = 'Sustained changes compare adjacent 5/8/10-game windows with the same base time and increment, using robust CPL and MAD. One exceptional game is insufficient.'
+        extended=result.history.get('context',{}).get('classes',{})
+        if extended:
+            embed.add_field(name='Extended rating / result history',inline=False,
+                value='\n'.join(f'{kind.title()}: {m["games"]} games · rating change {number(m["rating_gain"])} · expected / actual score {number(m["expected"])} / {number(m["actual"])}' for kind,m in extended.items() if m['games']))
         for kind,m in result.performance['classes'].items():
             c = result.context['classes'][kind]
             shift = m['shift']
@@ -157,9 +210,20 @@ def detail_embed(result, mode):
                              f'Critical median CPL: {number(a["critical_cpl"])} · unique-best hits: {a["unique_hits"]}/{a["unique"]}\n'
                              f'Mistake / blunder-like losses: {a["mistakes"]}/{a["blunders"]} · critical mistakes: {a["critical_mistakes"]}\n'
                              f'Deep confirmation: {result.deep_confirmed} · {result.deep_coverage["games"]} games / {result.deep_coverage["decisions"]} decisions\n\n'
-                             'First 20 plies, checks/near-forced moves and recaptures are excluded. Strongly won/lost positions are de-weighted. '
+                             'First 20 plies and genuinely forced/trivial decisions are excluded. Difficult check responses and nontrivial recaptures remain analyzable. Strongly won/lost positions are de-weighted. '
                              'Critical positions require several choices, a best–second gap and candidate spread; quiet unique choices receive the strongest evidence. '
                              'These heuristic measures have innocent explanations and do not establish misconduct.')
+        cluster = result.clusters.get('strongest')
+        if cluster:
+            m = cluster['metrics']
+            embed.add_field(name='Highest-signal period (fast discovery)',inline=False,
+                value=f'{m["games"]} games · top-1 {percentage(m["top1"])} · median CPL {number(m["median_cpl"])}\n'
+                      f'Critical top-1 {percentage(m["critical_top1"])} / {m["critical"]} positions · quiet / tactical {m["quiet_critical"]}/{m["tactical_critical"]}')
+        deep = result.clusters.get('deep',{}).get('metrics')
+        if deep:
+            embed.add_field(name='Same-period deep results',inline=False,
+                value=f'{deep["games"]} games · top-1 {percentage(deep["top1"])} · median CPL {number(deep["median_cpl"])}\n'
+                      f'Critical top-1 {percentage(deep["critical_top1"])} / {deep["critical"]} positions')
         for kind,a in result.classes.items():
             embed.add_field(name=kind.title(),value=f'{a["games"]} games · {a["decisions"]} decisions · median CPL {number(a["median_cpl"])} · top-1 {percentage(a["top1"])} · critical top-1 {percentage(a["critical_top1"])}',inline=False)
     embed.set_footer(text=DISCLAIMER)
@@ -208,7 +272,7 @@ class ReportView(SubmitView):
         super().__init__()
         self.clear_items()
         for label,emoji,action in [('Highest-Signal Games','🎯','games'),('Timing','⏱️','timing'),
-                                   ('Performance','📈','performance'),('Engine Analysis','♟️','engine'),('Re-scan','🔄','rescan')]:
+                                   ('Performance','📈','performance'),('Clusters & History','🔬','clusters'),('Engine Analysis','♟️','engine'),('Re-scan','🔄','rescan')]:
             button = discord.ui.Button(label=label,emoji=emoji,custom_id=NAMESPACE+action)
             async def show(ctx,action=action,label=label):
                 if _service is None:

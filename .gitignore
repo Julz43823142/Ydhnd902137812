@@ -1,0 +1,5 @@
+# Private local Fair Play validation inputs/caches must never enter the public repo.
+validation_cases.local.json
+fairplay_validation*.local.json
+fairplay_validation.local/
+fairplay_cases*.local.json

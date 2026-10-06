@@ -134,6 +134,7 @@ class GameSample:
     metrics: dict = field(default_factory=dict)
     time_control: str = ''
     fast_metrics: dict = field(default_factory=dict)
+    control_index: int | None = None
 
 
 class QuietGameBuilder(chess.pgn.GameBuilder):
@@ -142,36 +143,40 @@ class QuietGameBuilder(chess.pgn.GameBuilder):
         self.game.errors.append(error)
 
 
-def parse_game(row: dict, target: str, config: ReviewConfig = CONFIG) -> GameSample | None:
-    if row.get('rules', 'chess') != 'chess' or row.get('time_class') not in ('rapid', 'blitz', 'bullet'):
+def parse_game(row: dict, target: str, config: ReviewConfig = CONFIG, *, exclusions=None) -> GameSample | None:
+    def reject(reason):
+        if exclusions is not None:exclusions[reason] += 1
         return None
+    if row.get('rules', 'chess') != 'chess':return reject('variant')
+    if row.get('time_class') == 'daily':return reject('daily')
+    if row.get('time_class') not in ('rapid', 'blitz', 'bullet'):return reject('unsupported_time_class')
     end = finite_number(row.get('end_time'))
     if end is None or end <= 0:
-        return None
+        return reject('other_invalid')
     sides = row.get('white', {}), row.get('black', {})
     if not all(isinstance(side, dict) for side in sides):
-        return None
+        return reject('other_invalid')
     matches = [str(side.get('username', '')).casefold() == target for side in sides]
     if matches.count(True) != 1:
-        return None
+        return reject('other_invalid')
     color = chess.WHITE if matches[0] else chess.BLACK
     own, other = (sides if color else sides[::-1])
-    if not own.get('result') or not other.get('result') or own['result'] == 'abandoned' or other['result'] == 'abandoned':
-        return None
+    if own.get('result') == 'abandoned' or other.get('result') == 'abandoned':return reject('abandoned')
+    if not own.get('result') or not other.get('result'):return reject('other_invalid')
     text = row.get('pgn')
     if not isinstance(text, str) or len(text) > 128_000:
-        return None
+        return reject('invalid_pgn')
     # Bound variations/comments before python-chess allocates a full tree.
     if text.count('(') > 100 or text.count('{') > 1200:
-        return None
+        return reject('invalid_pgn')
     game = chess.pgn.read_game(io.StringIO(text), Visitor=QuietGameBuilder)
     if game is None or game.errors or game.headers.get('Result') not in ('1-0', '0-1', '1/2-1/2'):
-        return None
+        return reject('invalid_pgn')
     if str(game.headers.get('White' if color else 'Black', '')).casefold() != target:
-        return None
+        return reject('other_invalid')
     board = game.board()
     if board.chess960 or not board.is_valid() or board.fen() != chess.STARTING_FEN:
-        return None  # variants/custom starts are incomparable to the default screen
+        return reject('custom_start')  # variants/custom starts are incomparable
     base, increment = clock_control(row.get('time_control', ''))
     previous = {chess.WHITE: None, chess.BLACK: None}
     decisions = []
@@ -180,7 +185,7 @@ def parse_game(row: dict, target: str, config: ReviewConfig = CONFIG) -> GameSam
     for node in game.mainline():
         ply += 1
         if ply > config.max_plies or node.move not in board.legal_moves:
-            return None
+            return reject('other_invalid')
         side = board.turn
         after = node.clock()
         if after is not None and (not math.isfinite(after) or after < 0):
@@ -193,7 +198,7 @@ def parse_game(row: dict, target: str, config: ReviewConfig = CONFIG) -> GameSam
         material = sum(len(board.pieces(piece, side_)) * weight for side_ in (True, False)
                        for piece, weight in ((chess.QUEEN, 9), (chess.ROOK, 5), (chess.BISHOP, 3), (chess.KNIGHT, 3)))
         phase = 'opening' if ply <= config.opening_plies else 'endgame' if material <= 20 else 'middlegame'
-        forced = legal <= 2 or in_check or recapture
+        forced = legal == 1 or (in_check and legal <= 2)
         if side == color:
             trivial = trivial_move_kind(board,node.move,legal,recapture) if phase!='opening' else None
             clock_valid = (think is not None and 0 <= think < 120 and before is not None and after is not None
@@ -206,12 +211,12 @@ def parse_game(row: dict, target: str, config: ReviewConfig = CONFIG) -> GameSam
         previous[side] = after  # a missing clock breaks that side's chain; never span missing moves
         previous_capture_square = node.move.to_square if capture else None
         board.push(node.move)
-    if ply < config.min_plies or sum(d.useful for d in decisions) < config.min_game_decisions:
-        return None
+    if ply < config.min_plies:return reject('too_short')
+    if sum(d.useful for d in decisions) < config.min_game_decisions:return reject('insufficient_decisions')
     won = game.headers['Result'] == ('1-0' if color else '0-1')
     lost = game.headers['Result'] == ('0-1' if color else '1-0')
     if (own['result'] == 'win') != won or (other['result'] == 'win') != lost:
-        return None
+        return reject('other_invalid')
     result = 'Win' if won else 'Loss' if lost else 'Draw'
     score = 1.0 if result == 'Win' else 0.0 if result == 'Loss' else .5
     accuracies = row.get('accuracies', {})
@@ -289,6 +294,7 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG):
         if match:months.add((int(match[1]), int(match[2])))
     ordered = sorted(months, reverse=True)
     samples, seen, skipped = [], set(), Counter()
+    limit = collection_limit(config)
     partial = len(ordered) > config.max_archives
     try:
         for year, month in ordered[:config.max_archives]:
@@ -296,23 +302,34 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG):
             progress('Collecting games…')
             data = api.get(target, f'/games/{year:04d}/{month:02d}')
             if data is None:
-                skipped['unavailable archive'] += 1;partial = True;continue
+                skipped['unavailable_archive'] += 1;partial = True;continue
             rows = data.get('games', [])
-            if not isinstance(rows, list):partial = True;continue
+            if not isinstance(rows, list):skipped['unavailable_archive'] += 1;partial = True;continue
             rows = sorted(rows, key=lambda r: finite_number(r.get('end_time')) or 0 if isinstance(r, dict) else 0, reverse=True)
             for row in rows:
                 check_deadline(api.deadline)
-                if not isinstance(row, dict):skipped['malformed/ineligible'] += 1;continue
-                try:sample = parse_game(row, target, config)
-                except (ValueError, TypeError, KeyError, IndexError, RecursionError):sample = None
-                if sample is None:skipped['malformed/ineligible'] += 1;continue
+                if not isinstance(row, dict):skipped['other_invalid'] += 1;continue
+                try:sample = parse_game(row, target, config, exclusions=skipped)
+                except (ValueError, TypeError, KeyError, IndexError, RecursionError):
+                    skipped['invalid_pgn'] += 1;sample = None
+                if sample is None:continue
                 if sample.identity not in seen:
                     samples.append(sample);seen.add(sample.identity)
-                if len(samples) >= config.max_games:break
-            if len(samples) >= config.max_games:
-                partial = False
+                else:skipped['duplicate'] += 1
+                if len(samples) >= limit:break
+            if len(samples) >= limit:
+                partial = bool(skipped.get('unavailable_archive'))
                 break
     except DeadlineReached:
         partial = True
-    newest = sorted(samples, key=lambda g: (g.ended, g.identity), reverse=True)[:config.max_games]
+    newest = sorted(samples, key=lambda g: (g.ended, g.identity), reverse=True)[:limit]
     return sorted(newest, key=lambda g: (g.ended, g.identity)), dict(skipped), partial
+
+
+def collection_limit(config=CONFIG):
+    # Older callers/tests use max_games as a small explicit fixture limit.
+    return max(1, min(500, config.history_games if config.max_games == 100 else config.max_games))
+
+
+def primary_limit(config=CONFIG):
+    return max(1, min(100, config.primary_engine_games, config.max_games))

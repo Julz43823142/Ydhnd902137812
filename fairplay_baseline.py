@@ -9,6 +9,7 @@ import statistics as stats
 from collections import defaultdict
 
 from fairplay_config import CONFIG
+from fairplay_clusters import contiguous
 from fairplay_timing import cadence, distribution_overlap
 
 
@@ -47,7 +48,7 @@ def timing_values(game, config=CONFIG):
         groups['overall'].append(d.think)
         if d.phase=='opening':groups['opening'].append(d.think)
         elif d.trivial_kind:groups['trivial'].append(d.think)
-        elif d.metrics.get('useful'):
+        elif d.metrics.get('useful',d.useful):
             groups['critical' if d.metrics.get('critical') else 'ordinary'].append(d.think)
             if d.phase=='middlegame':groups['middlegame'].append(d.think)
     return groups
@@ -170,6 +171,7 @@ def personal_timing(games, config=CONFIG):
         window = max(config.baseline_window,config.baseline_min_games)
         # Compare complete adjacent blocks, never two isolated games.
         for split in range(window,len(group)-window+1):
+            if not contiguous(group[split-window:split+window]):continue
             change = compare_groups(group[split-window:split],group[split:split+window],config)
             if ranks[change['state']]>=2 and (best_change is None or ranks[change['state']]>ranks[best_change['state']]):
                 best_change = {**change,'boundary':group[split].ended}
