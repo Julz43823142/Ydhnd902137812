@@ -2816,8 +2816,8 @@
         "url": "https://lichess.org/training/ch2ul",
         "title": "Lichess • 1807",
         "fen": "2b3k1/6pp/p3P1n1/3P1R2/6q1/2P5/1r4PP/5QK1 w - - 3 31",
-        "current_fen": "2b3k1/6pp/p3P1n1/3P1R2/6q1/2P5/1r4PP/5QK1 w - - 3 31",
-        "last_move_uci": "f8g6",
+        "current_fen": "2b2nk1/6pp/p3P3/3P4/6q1/2P5/1r4PP/5QK1 w - - 0 32",
+        "last_move_uci": "g6f8",
         "pgn": "Rf8+ Nxf8 Qf7+ Kh8 Qxf8#",
         "all_moves": [
           {
@@ -2872,16 +2872,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_ch2ul_1791296764566",
         "rating": 1807,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1557036204178804847,
+      "message_id": 1557036227121905765,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1791296764.5625763,
-      "last_feedback": "✅ **Nxc5** — solved! Score: **16**."
+      "last_card_activity_at": 1791296774.5639534,
+      "last_feedback": "✅ **Rf8+** • Opponent: **Nxf8**"
     },
     "362606514764251137": {
       "active": false,
