@@ -2816,8 +2816,8 @@
         "url": "https://lichess.org/training/qvEmm",
         "title": "Lichess • 1424",
         "fen": "8/1p3p2/2k1pP1p/1p1pP3/2pP3P/PbP2B2/1K6/8 w - - 0 35",
-        "current_fen": "8/1p3p2/2k1pP1p/1p1pP3/2pP3P/PbP2B2/1K6/8 w - - 0 35",
-        "last_move_uci": "h7h6",
+        "current_fen": "8/1p1k1p2/4pP1p/1p1pP2B/2pP3P/PbP5/1K6/8 w - - 2 36",
+        "last_move_uci": "c6d7",
         "pgn": "Bh5 Kd7 Bxf7",
         "all_moves": [
           {
@@ -2857,16 +2857,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_qvEmm_1791296583880",
         "rating": 1424,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1557035443659214898,
+      "message_id": 1557035468971843615,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1791296583.8764613,
-      "last_feedback": "✅ **Qxa6** — solved! Score: **6**."
+      "last_card_activity_at": 1791296592.3688762,
+      "last_feedback": "✅ **Bh5** • Opponent: **Kd7**"
     },
     "362606514764251137": {
       "active": false,
