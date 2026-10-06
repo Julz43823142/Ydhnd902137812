@@ -19,7 +19,7 @@ from fairplay_config import CONFIG, VERSION, ReviewConfig
 from fairplay_timing import cadence, clock_values, trivial_delay_metrics, trivial_delay_summary
 from fairplay_baseline import engine_data, timing_profile
 from fairplay_clusters import (clamp, evidence, find_clusters, regime_changes,
-                               select_deep_games, confirm_cluster, summary, buckets)
+                               select_deep_games, confirm_cluster, summary, buckets, comparison_control)
 from fairplay_history import probe_decisions, historical_candidates, session_history
 from fairplay_data import (DeadlineReached, GameSample, PubAPI, ReviewError,
                            ScanDeadline, check_deadline, collect_games, finite_number, username, primary_limit)
@@ -199,7 +199,7 @@ def performance_metrics(games):
         bycontrol=[r for r in control_rows if r['class']==kind]
         change=next((r for r in shifts if r['class']==kind),None)
         dominant=max(bycontrol,key=lambda r:r['games'],default=None)
-        rolling=[g for g in group if dominant and g.time_control==dominant['control']]
+        rolling=[g for g in group if dominant and comparison_control(g)==dominant['control']]
         classes[kind]={'games':len(group),'wins':len(wins),'losses':len(losses),'draws':len(draws),
                        'win_cpl':median([engine_data(g)['robust_cpl'] for g in wins]),'loss_cpl':median([engine_data(g)['robust_cpl'] for g in losses]),
                        'draw_cpl':median([engine_data(g)['robust_cpl'] for g in draws]),'shift':change,
@@ -403,13 +403,20 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         limit = primary_limit(config)
         primary = history[-limit:]
         analyzed,probes = [],{}
+        cached_deep = {}
         partial = False
         def fast_scan(game):
             check_deadline(deadline)
             key=(game.identity,game.color,scanner.name,VERSION,config)
             cached=_game_cache.get(key)
             if cached and time.monotonic()-cached[0]<3600:
-                game.decisions=copy.deepcopy(cached[1]);game.deep=cached[2]
+                if cached[2]:cached_deep[game.identity]=cached[1]
+                game.decisions=copy.deepcopy(cached[1])
+                # Discovery always sees equal-budget fast evidence. A warm
+                # cache must not add another ten deep games on every re-scan.
+                for decision in game.decisions:
+                    decision.metrics=copy.deepcopy(decision.fast_engine)
+                game.deep=False
                 game.fast_metrics=copy.deepcopy(cached[3]);summarize(game,config)
             else:scanner.analyse(game,config.fast_nodes)
             analyzed.append(game)
@@ -451,7 +458,11 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             progress(f'Deep-reviewing high-signal periods: {index} / {len(candidates)}')
             try:
                 confirmed=copy.deepcopy(game)
-                scanner.analyse(confirmed,config.deep_nodes)
+                if game.identity in cached_deep:
+                    confirmed.decisions=copy.deepcopy(cached_deep[game.identity])
+                    summarize(confirmed,config)
+                else:
+                    scanner.analyse(confirmed,config.deep_nodes)
                 game.decisions,game.metrics,game.deep=confirmed.decisions,confirmed.metrics,True
             except DeadlineReached:
                 deep_incomplete=True;break

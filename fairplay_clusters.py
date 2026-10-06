@@ -125,18 +125,27 @@ def group_record(group, kind, config=CONFIG, fast=False):
     sustained = sum(sustained_game(g) for g in group)
     # Per-game 2/2 never becomes strong evidence. A much larger independently
     # repeated opportunity pool can establish period-level persistence instead.
+    opportunity_games=sum(row.get('critical',0)>0 for row in rows_for(group,fast))
     pool_games=sum(row.get('critical',0)>0 and (row.get('critical_top1') or 0)>=config.persistence_critical_hits
                    for row in rows_for(group,fast))
-    pooled=(len(group)>=config.pooled_critical_games and m['decisions']>=config.high_cluster_decisions
+    # A game without a critical opportunity is neither a hit nor a miss. Keep
+    # every observed miss in the pooled rate and require opportunities spread
+    # across the original minimum contributing-game count and at least a third
+    # of the complete chronological period. No observed misses are removed.
+    pooled=(len(group)>=config.pooled_critical_games
+            and opportunity_games>=math.ceil(config.pooled_critical_games*config.pooled_critical_fraction)
+            and opportunity_games>=math.ceil(len(group)*config.pooled_opportunity_fraction)
+            and m['decisions']>=config.high_cluster_decisions
             and m['critical']>=config.min_critical
             and lower_bound(m['critical_top1'],m['critical'],config.rate_lower_bound_z)>=config.pooled_critical_lower
-            and pool_games>=math.ceil(len(group)*config.pooled_critical_fraction))
+            and pool_games>=math.ceil(opportunity_games*config.pooled_critical_fraction))
     return {'kind': kind, 'time_class': group[0].time_class, 'time_control': group[0].time_control, 'rated':group[0].rated,
             'start': group[0].ended, 'end': group[-1].ended,
             'ids': [g.identity for g in group], 'metrics': m,
             'engine_score': engine*reliability, 'critical_score': critical*reliability,
             'strength': max(engine, critical)*reliability,
             'sustained_games': sustained,'pooled_critical_support':bool(pooled),'pooled_critical_games':pool_games,
+            'critical_opportunity_games':opportunity_games,
             'persistent': kind != 'ranked' and len(group)>=config.cluster_min_games
                           and (sustained>=math.ceil(len(group)*config.persistence_fraction) or pooled)}
 
@@ -148,6 +157,18 @@ def find_clusters(games, config=CONFIG, fast=False):
     games=[g for g in games if g.rated is True and not g.probe_only and 'decisions' in rows_for([g],fast)[0]]
     candidates = []
     for _, group in sorted(buckets(games).items()):
+        # Also assess each complete scanned run. Fixed windows are useful for
+        # intermittent changes, but must not hide a long, opportunity-sparse
+        # pattern. An unscanned intervening game still terminates the run.
+        run = []
+        for game in group:
+            if run and not contiguous([run[-1],game]):
+                if len(run)>=config.cluster_min_games:
+                    candidates.append(group_record(run,'complete period',config,fast))
+                run=[]
+            run.append(game)
+        if len(run)>=config.cluster_min_games:
+            candidates.append(group_record(run,'complete period',config,fast))
         for width in config.cluster_windows:
             for start in range(len(group)-width+1):
                 window=group[start:start+width]
