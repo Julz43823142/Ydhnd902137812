@@ -497,8 +497,8 @@
           },
           "Jessebrawlstars": {
             "correct": 4,
-            "total": 5,
-            "wrong": 1
+            "total": 6,
+            "wrong": 2
           },
           "Kurupt": {
             "correct": 0,
@@ -634,9 +634,9 @@
           }
         }
       },
-      "total": 376,
-      "updated_at": 1790977576,
-      "wrong": 128
+      "total": 377,
+      "updated_at": 1791299087,
+      "wrong": 129
     },
     "550338389535227926": {
       "best_streak": 0,
