@@ -13,12 +13,39 @@ from fairplay_data import username
 
 LABELS = ('known_fair_play_closed', 'trusted_normal', 'positive', 'holdout_positive', 'holdout_normal')
 PRIORITIES = ('LOW', 'MODERATE', 'HIGH', 'VERY HIGH', 'INSUFFICIENT DATA')
+POSITIVE_LABELS = ('known_fair_play_closed', 'positive', 'holdout_positive')
+NORMAL_LABELS = ('trusted_normal', 'holdout_normal')
+
+
+def positive_low_bucket(result):
+    """Post-hoc miss taxonomy. Never called before analytical priority freezes.
+
+    Near-miss means the production distributed-MODERATE route is blocked by
+    exactly one remaining gate. More than one blocker (or no usable candidate)
+    is treated as a weak-window/multi-blocked miss. This classification is for
+    aggregate validation only and never feeds thresholds or production scoring.
+    """
+    priority=str(getattr(result,'priority',''))
+    if priority!='LOW':return None,()
+    diagnostics=getattr(result,'diagnostics',{})
+    gameplay=diagnostics.get('gameplay',{}) if isinstance(diagnostics,dict) else {}
+    moderate=gameplay.get('distributed_moderate',{}) if isinstance(gameplay,dict) else {}
+    if moderate.get('passed'):
+        return 'diagnostic_inconsistency',()
+    blockers=tuple(str(value) for value in moderate.get('blockers',()) if value)
+    candidate_games=moderate.get('candidate_games',0)
+    try:candidate_games=int(candidate_games)
+    except (TypeError,ValueError):candidate_games=0
+    if candidate_games>0 and len(blockers)==1:return 'near_miss',blockers
+    return 'weak_window',blockers
 
 
 def evaluate_cases(cases, analyze):
     counts = {label:Counter() for label in LABELS}
     failures = Counter()
     indices={label:[] for label in LABELS}
+    positive_low_buckets=Counter();positive_low_blockers=Counter()
+    positive_low_by_label={label:Counter() for label in POSITIVE_LABELS}
     for case in cases:
         if not isinstance(case,dict) or case.get('label') not in LABELS:
             raise ValueError('Use explicit known_fair_play_closed or trusted_normal labels.')
@@ -34,14 +61,18 @@ def evaluate_cases(cases, analyze):
         diagnostics=getattr(result,'diagnostics',{})
         index=diagnostics.get('gameplay',{}).get('research_evidence_index') if isinstance(diagnostics,dict) else None
         if isinstance(index,(int,float)):indices[case['label']].append(index)
-    positive_labels=('known_fair_play_closed','positive','holdout_positive')
-    normal_labels=('trusted_normal','holdout_normal')
-    positive=sum(sum(counts[label].values()) for label in positive_labels)
-    normal=sum(sum(counts[label].values()) for label in normal_labels)
-    high_positive=sum(counts[label]['HIGH']+counts[label]['VERY HIGH'] for label in positive_labels)
-    moderate_positive=high_positive+sum(counts[label]['MODERATE'] for label in positive_labels)
-    high_normal=sum(counts[label]['HIGH']+counts[label]['VERY HIGH'] for label in normal_labels)
-    moderate_normal=high_normal+sum(counts[label]['MODERATE'] for label in normal_labels)
+        # Labels are consulted only after the analyzer returned a frozen result.
+        if case['label'] in POSITIVE_LABELS and frozen_priority=='LOW':
+            bucket,blockers=positive_low_bucket(result)
+            positive_low_buckets[bucket or 'unclassified']+=1
+            positive_low_by_label[case['label']][bucket or 'unclassified']+=1
+            positive_low_blockers.update(blockers)
+    positive=sum(sum(counts[label].values()) for label in POSITIVE_LABELS)
+    normal=sum(sum(counts[label].values()) for label in NORMAL_LABELS)
+    high_positive=sum(counts[label]['HIGH']+counts[label]['VERY HIGH'] for label in POSITIVE_LABELS)
+    moderate_positive=high_positive+sum(counts[label]['MODERATE'] for label in POSITIVE_LABELS)
+    high_normal=sum(counts[label]['HIGH']+counts[label]['VERY HIGH'] for label in NORMAL_LABELS)
+    moderate_normal=high_normal+sum(counts[label]['MODERATE'] for label in NORMAL_LABELS)
     high_total=high_positive+high_normal
     high_tpr=high_positive/positive if positive else None
     high_fpr=high_normal/normal if normal else None
@@ -68,6 +99,13 @@ def evaluate_cases(cases, analyze):
                 'positive_completed':positive,'normal_completed':normal,
                 'recall_tpr':moderate_positive/positive if positive else None,
                 'false_positive_rate':moderate_normal/normal if normal else None},
+            'positive_low_miss_analysis':{
+                'completed':sum(positive_low_buckets.values()),
+                'buckets':{name:positive_low_buckets[name] for name in ('near_miss','weak_window','diagnostic_inconsistency')},
+                'by_label':{label:{name:positive_low_by_label[label][name] for name in ('near_miss','weak_window','diagnostic_inconsistency')}
+                            for label in POSITIVE_LABELS},
+                'distributed_moderate_blockers':dict(sorted(positive_low_blockers.items())),
+                'definition':'Post-hoc only: near_miss = one remaining distributed-MODERATE blocker with a candidate; weak_window = multiple blockers or no candidate. Never used by production scoring.'},
             'ranking':{'median_research_index':{label:statistics.median(v) if v else None for label,v in indices.items()},
                        'note':'Compare development and holdout distributions before changing categories; this index is not a probability.'},
             'note':'External user labels, not certified ground truth. Failed scans excluded from denominators; insufficient data remains negative. Accuracy is reported only with recall/FPR/specificity/precision because class balance can make accuracy misleading.'}
