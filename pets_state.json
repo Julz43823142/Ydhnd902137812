@@ -383,9 +383,9 @@
         ],
         "puzzle": {
           "day": "2026-10-07",
-          "fen": "8/7p/2n2k2/3R1p2/1r3p1P/5B2/1P3KP1/8 w - - 1 36",
+          "fen": "8/4k2p/2nR4/5p2/1r3p1P/5B2/1P3KP1/8 w - - 3 37",
           "id": "ipA7E",
-          "index": 2,
+          "index": 4,
           "moves": [
             "h2h4",
             "g5f6",
