@@ -103,7 +103,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_HDV5r_1791360792419",
-    "last_activity_at": "2026-10-07T08:14:12.911612+00:00",
+    "last_activity_at": "2026-10-07T08:14:25.855713+00:00",
     "rating": 2405,
     "rp_band": 4,
     "boss": false,
@@ -114,17 +114,17 @@
     "next_player_index": 5,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1557305032909791242
+      "1468320170891022417": 1557305087389339658
     },
-    "message_id": 1557305032909791242,
+    "message_id": 1557305087389339658,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "601406103712170014": {
         "name": "TheMakina",
-        "move": "h8=Q",
-        "correct": true,
-        "timestamp": "2026-10-07T08:14:12.911782+00:00"
+        "move": "Qe8",
+        "correct": false,
+        "timestamp": "2026-10-07T08:14:25.855972+00:00"
       }
     },
     "first_move_user_id": "601406103712170014",
@@ -135,19 +135,8 @@
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
-    "last_card_activity_at": "2026-10-07T08:14:12.911612+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1791360852.9117885,
-        "fen_before": "8/7P/8/8/6P1/4k1K1/5p2/8 w - - 0 55",
-        "expected": {
-          "uci": "h7h8q",
-          "san": "h8=Q",
-          "color": "white"
-        },
-        "accepted_uci": "h7h8q"
-      }
-    ],
+    "last_card_activity_at": "2026-10-07T08:14:25.855713+00:00",
+    "recent_accepted_moves": [],
     "accepted_solution_moves": [
       {
         "san": "Kxh4",
@@ -175,9 +164,9 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** f1=Q",
+    "last_feedback": "❌ **That move had way more confidence than substance.**\n↪️ **Move played:** `Qe8`",
     "wrong_attempt_counts": {
-      "601406103712170014": 1
+      "601406103712170014": 2
     }
   },
   "latest_puzzle_type": "random",
