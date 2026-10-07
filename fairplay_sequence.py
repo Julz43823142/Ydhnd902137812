@@ -165,7 +165,13 @@ def adaptive_deep_games(games,config=CONFIG):
     controls=representative_controls(baseline,config.baseline_deep_games)
     second=next((p for p in independent if not set(p['ids'])&set(candidate['ids'])),None)
     others=[lookup[i] for i in second['ids']] if second else []
-    second_count=min(5,len(others));reserve=len(controls);count=min(len(members),target-reserve-second_count)
+    second_count=min(5,len(others));reserve=len(controls)
+    # Reserve real confirmation capacity for a different evidence geometry.
+    # Previously primary+controls(+second period) filled the target first, so
+    # the later human-ranked loop was normally unreachable.
+    diversify_count=0 if candidate.get('acute') else min(
+        2, max(0,target-reserve-second_count-config.human_deep_games))
+    count=min(len(members),target-reserve-second_count-diversify_count)
     if candidate.get('acute'):
         target=min(len(games),config.deep_max_games,max(target,len(members)+reserve+second_count))
         count=len(members)
@@ -182,17 +188,20 @@ def adaptive_deep_games(games,config=CONFIG):
     # anomalous specifically under the human/difficulty layer, not only under
     # the legacy engine-cluster score. This is allocation only; final HIGH gates
     # are unchanged and every miss inside selected games is deep-reviewed.
+    outside=set(candidate['ids'])
     human_ranked=sorted(
         [g for g in games if not g.deep],
         key=lambda g:(
+            g.identity not in outside,
             (g.fast_metrics or g.metrics).get('human',{}).get('anomaly_strength',0),
             (g.fast_metrics or g.metrics).get('human',{}).get('information',0),
             (g.fast_metrics or g.metrics).get('human',{}).get('difficulty_inversion_strength',0),
             (g.fast_metrics or g.metrics).get('human',{}).get('opportunities',0)),
         reverse=True)
+    added=0
     for game in human_ranked:
-        if len(selected)>=target:break
-        if game not in selected:selected.append(game)
+        if added>=diversify_count:break
+        if game not in selected:selected.append(game);added+=1
     for game in select_deep_games(games,replace(config,deep_games=target)):
         if len(selected)>=target:break
         if game not in selected:selected.append(game)
