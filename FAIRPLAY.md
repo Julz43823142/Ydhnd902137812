@@ -38,7 +38,9 @@ accessibility aid or variable lag can explain these patterns innocently.
 Timing details show absolute seconds separately from relative easy/ordinary/
 critical medians, anchor range, premove fraction and same-game coverage. Data
 remains in bounded runtime memory; the cache version changes for the new
-feature. `test_fairplay_local_timing.py` covers variable absolute pace, ordinary
+feature. The main card also shows the dates of fully scanned games; a result
+does not describe an account's unobserved lifetime or omitted game modes.
+`test_fairplay_local_timing.py` covers variable absolute pace, ordinary
 human complexity response, retained premoves, subsecond clocks, missing/shared
 category coverage, exact-control isolation, robust anchors, deep collapse and
 timing-only safety gates.

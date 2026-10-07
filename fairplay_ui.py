@@ -73,6 +73,8 @@ def result_embed(result: ReviewResult):
     if coverage.get('history_probe_complete') is False:sample += '\nExtended-history discovery is incomplete; primary coverage is shown separately.'
     if result.skipped:sample += f'\nSkipped archive/game entries: {sum(result.skipped.values())}'
     if result.partial:sample += '\n⚠️ Partial scan / limited archive coverage. Missing data is not suspicious.'
+    dates=[g.ended for g in (result.timeline or result.games) if g.ended>0]
+    if dates:sample += f'\nFull-scan date range: <t:{min(dates)}:d> → <t:{max(dates)}:d>'
     embed.add_field(name='Sample',value=sample,inline=False)
     embed.add_field(name='Signals',value='\n'.join(f'**{key}:** {value}' for key,value in result.families.items()),inline=False)
     embed.add_field(name='Review notes',value='\n'.join('• '+value for value in result.reasons)[:1024],inline=False)
