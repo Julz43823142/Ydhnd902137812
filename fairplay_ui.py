@@ -426,7 +426,8 @@ def add_gameplay_fields(embed,result):
     embed.add_field(name='Human / difficulty evidence — heuristic',inline=False,
         value=f'High-information decisions: {s.get("hits",0)} / {s.get("opportunities",0)} capped opportunities\n'
               f'Contributor games: {s.get("contributors",0)} / {s.get("games",0)} · rating reference: {s.get("rating_reference") or "unavailable"}\n'
-              f'Opportunity-bearing games: {s.get("opportunity_games",0)} · bounded information: {number(s.get("information"))}\n'
+              f'Opportunity-bearing games: {s.get("opportunity_games",0)} · hit-bearing games: {s.get("hit_games",0)} · single-hit games: {s.get("single_hit_games",0)}\n'
+              f'Bounded information: {number(s.get("information"))}\n'
               f'Expected / observed quality: {number(s.get("quality_reference"))} / {number(s.get("observed_quality"))}\n'
               f'Raw quality excess / headroom anomaly: {number(s.get("quality_excess"))} / {number(s.get("anomaly_strength"))}\n'
               f'Descriptive move accuracy: {number(s.get("accuracy_index"))} · selective-assistance games: {s.get("selective_games",0)}\n'
@@ -436,6 +437,13 @@ def add_gameplay_fields(embed,result):
     embed.add_field(name='Gameplay HIGH route gates',inline=False,
         value='\n'.join(f'{key.replace("_"," ").title()}: {"PASS" if value else "FAIL"}' for key,value in d['gates'].items())+
               '\nTiming/results are optional for this route. Legacy gates are separate.')
+    moderate=d.get('distributed_moderate',{})
+    if moderate:
+        status='PASS' if moderate.get('passed') else 'FAIL'
+        detail=(f'Candidate games: {moderate.get("candidate_games",0)} · deep-reviewed: {moderate.get("deep_games",0)}'
+                if moderate.get('passed') else '\n'.join('• '+v for v in moderate.get('blockers',[])))
+        embed.add_field(name='Distributed gameplay MODERATE — '+status,inline=False,
+            value=(detail or 'Required distributed evidence established.')[:1024])
     f=d['funnel'];flow=f.get('_flow',{})
     overlap={key:value for key,value in f.items() if key!='_flow'}
     embed.add_field(name='Evidence coverage — overlapping categories',inline=False,
