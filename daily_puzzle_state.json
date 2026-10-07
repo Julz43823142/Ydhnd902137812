@@ -3966,7 +3966,7 @@
         "winner_name": null,
         "latest_attempts": {},
         "puzzle_id": "random_4JrDY_1791349592419",
-        "last_activity_at": "2026-10-07T05:07:53.059972+00:00",
+        "last_activity_at": "2026-10-07T05:08:05.130327+00:00",
         "rating": 2768,
         "rp_band": 5,
         "boss": true,
@@ -3977,15 +3977,15 @@
         "next_player_index": 2,
         "solved": false,
         "message_ids": {
-          "1546557493038284840": 1557258141538848858
+          "1546557493038284840": 1557258191857913896
         },
         "chat_since_refresh": 0,
         "attempted_users": {
           "442597396195704832": {
             "name": "Thice",
-            "move": "Gxf2",
-            "correct": true,
-            "timestamp": "2026-10-07T05:07:53.060442+00:00"
+            "move": "E3",
+            "correct": false,
+            "timestamp": "2026-10-07T05:08:05.130904+00:00"
           }
         },
         "first_move_user_id": "442597396195704832",
@@ -3997,19 +3997,8 @@
         "board_attachment_filenames": {
           "1546557493038284840": "random_puzzle.png"
         },
-        "last_card_activity_at": "2026-10-07T05:07:53.059972+00:00",
-        "recent_accepted_moves": [
-          {
-            "accepted_at": 1791349673.0604491,
-            "fen_before": "8/1PB5/b7/5k2/1P2pp2/6p1/3K1P2/8 b - - 0 46",
-            "expected": {
-              "uci": "g3f2",
-              "san": "gxf2",
-              "color": "black"
-            },
-            "accepted_uci": "g3f2"
-          }
-        ],
+        "last_card_activity_at": "2026-10-07T05:08:05.130327+00:00",
+        "recent_accepted_moves": [],
         "accepted_solution_moves": [
           {
             "san": "g3",
@@ -4022,9 +4011,9 @@
             "principal": true
           }
         ],
-        "last_feedback": "**✅ Correct! 3 moves remaining.**\n↩️ **Opponent replies:** b8=Q",
+        "last_feedback": "❌ **Thice, congratulations: the puzzle asked for precision and you answered with pure ego.**\n↪️ **Move played:** `E3`",
         "wrong_attempt_counts": {
-          "442597396195704832": 2
+          "442597396195704832": 3
         }
       }
     }
