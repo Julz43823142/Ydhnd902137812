@@ -5,7 +5,7 @@ CHANNEL_ID = 1311445685492781186
 NAMESPACE = 'shark:fairplay:'
 DISCLAIMER = ('Automated fair-play screening only. This result is not proof of cheating '
               'and must not be used as the sole basis for punishment. Human review is mandatory.')
-VERSION = 'fairplay-v15-quality-excess-100'
+VERSION = 'fairplay-v16-selective-residual-100'
 
 
 @dataclass(frozen=True)
@@ -93,14 +93,24 @@ class ReviewConfig:
     opening_max_plies: int = 60
     human_absolute_information_floor: float = .15
     human_expectation_margin: float = .05  # legacy diagnostics only
+    # Raw quality excess remains diagnostic. HIGH gates use a headroom-aware
+    # anomaly strength so strong players are not mathematically unable to
+    # generate evidence merely because their expected-quality baseline is high.
     human_quality_excess: float = .12
     human_period_excess: float = .18
+    human_residual_headroom_floor: float = .04
+    human_residual_power: float = .50
+    human_residual_weight: float = .55
+    human_elite_threshold_start: float = .75
+    human_elite_threshold_scale: float = .08
     human_contributor_fraction: float = .60
     acute_windows: tuple = (2, 3, 4, 5, 6, 8)
     acute_min_opportunities: int = 16
     acute_min_game_opportunities: int = 6
     acute_information_floor: float = .35
-    acute_quality_excess: float = .40
+    acute_quality_excess: float = .40  # retained for v15 diagnostic compatibility
+    acute_quality_residual: float = .38
+    acute_min_raw_excess: float = .04
     acute_hit_lower: float = .78
     acute_hit_fraction: float = .90
     acute_stability_fraction: float = .85
@@ -129,6 +139,7 @@ class ReviewConfig:
     human_game_cap: int = 12
     human_period_windows: tuple = (10, 15, 20, 30, 50, 100, 200)
     human_period_stride: int = 5
+    intro_panel_seconds: int = 10 * 60
     disabled_features: tuple = ()  # explicit local research only; no labels/files read
     engine_timeout: int = 8
     hash_mb: int = 64
