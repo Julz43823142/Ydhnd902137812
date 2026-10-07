@@ -64,8 +64,9 @@ def class_periods(games, config=CONFIG):
         for mode,part in options:
             ids=tuple(g.identity for g in part)
             acute = mode=='acute_candidate';replication_half = mode=='replication_half'
-            if (not acute and len(part)<config.min_games) or ids in identities:continue
-            identities.add(ids);s=period_summary(part,config,fast=True)
+            identity_key=(ids,replication_half)
+            if (not acute and len(part)<config.min_games) or identity_key in identities:continue
+            identities.add(identity_key);s=period_summary(part,config,fast=True)
             opponents=[g.opponent_rating for g in part if g.opponent_rating is not None]
             opponent_reference=statistics.median(opponents) if opponents else None
             baseline=[g for g in group if g.identity not in ids and g.rating is not None and
