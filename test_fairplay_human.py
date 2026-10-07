@@ -271,6 +271,17 @@ class HumanEvidence(unittest.TestCase):
         annotate_game(g);self.assertTrue(g.metrics['human']['difficulty_inversion'])
         self.assertEqual(integrate_gameplay(result_stub([g]),[g]).priority,'LOW')
 
+    def test_period_summary_tracks_hit_bearing_distribution(self):
+        games=[informative(i) for i in range(6)]
+        for i,g in enumerate(games):
+            row=g.metrics['human']
+            row['hits']=0 if i==0 else 1 if i<4 else 2
+            g.fast_metrics['human']=copy.deepcopy(row)
+        summary=period_summary(games,fast=True)
+        self.assertEqual(summary['hit_games'],5)
+        self.assertEqual(summary['single_hit_games'],3)
+        self.assertEqual(summary['contributors'],2)
+
     def test_distributed_sparse_evidence_is_moderate_only_after_deep_retention(self):
         games=[informative(i,rating=2300) for i in range(30)]
         summary=period_summary(games)
