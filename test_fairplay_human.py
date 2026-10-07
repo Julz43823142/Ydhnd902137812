@@ -260,6 +260,23 @@ class HumanEvidence(unittest.TestCase):
         self.assertLessEqual(len(first),CONFIG.deep_max_games)
         self.assertEqual([g.identity for g in first],[g.identity for g in second])
 
+    def test_adaptive_selection_reserves_human_anomaly_slots(self):
+        games=[informative(i,deep=False) for i in range(30)]
+        candidate={'qualified':True,'acute':False,'absolute':True,'personal':False,
+                   'class':'blitz','ids':[g.identity for g in games[:10]]}
+        controls=games[10:13]
+        standout=games[20]
+        standout.fast_metrics['human']['anomaly_strength']=.99
+        standout.fast_metrics['human']['information']=.99
+        standout.fast_metrics['human']['difficulty_inversion_strength']=.8
+        with patch('fairplay_sequence.class_periods',return_value=[candidate]), \
+             patch('fairplay_clusters.representative_controls',return_value=controls), \
+             patch('fairplay_clusters.select_deep_games',return_value=[]):
+            chosen=adaptive_deep_games(games)
+        self.assertEqual(len(chosen),CONFIG.deep_normal_games)
+        self.assertIn(standout,chosen)
+        self.assertGreaterEqual(sum(g.identity in candidate['ids'] for g in chosen),CONFIG.human_deep_games)
+
 
 class OpeningAndCoverage(unittest.TestCase):
     def test_reference_is_offline_and_theory_protected_past_twenty_plies(self):
