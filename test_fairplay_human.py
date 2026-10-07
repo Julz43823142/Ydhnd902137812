@@ -173,10 +173,16 @@ class HumanEvidence(unittest.TestCase):
         self.assertEqual(s['opportunities'],CONFIG.human_game_cap)
         self.assertLess(s['hits'],s['opportunities'])
 
-    def test_one_or_three_perfect_games_never_high(self):
-        for count in [1,3]:
-            games=[informative(i) for i in range(count)]+[informative(i,rating=2850) for i in range(count,20)]
-            self.assertEqual(integrate_gameplay(result_stub(games),games).priority,'LOW')
+    def test_one_perfect_game_never_high(self):
+        games=[informative(0)]+[informative(i,rating=2850) for i in range(1,20)]
+        self.assertEqual(integrate_gameplay(result_stub(games),games).priority,'LOW')
+
+    def test_three_exceptional_games_are_detected_outside_latest_ten(self):
+        games=[informative(i,misses=45) for i in range(100)]
+        for i in (30,31,32):games[i]=informative(i,rating=1000)
+        result=integrate_gameplay(result_stub(games),games)
+        self.assertEqual(result.priority,'HIGH')
+        self.assertIn('Acute',result.diagnostics['high_path'])
 
     def test_easy_conversion_and_opponent_error_offer_no_human_evidence(self):
         g=informative(0)

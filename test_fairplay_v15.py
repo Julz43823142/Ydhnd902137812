@@ -45,6 +45,11 @@ class AcuteGameplay(unittest.TestCase):
                       [informative(0,rating=500),informative(1,rating=500,misses=45)]):
             self.assertEqual(self.evaluate(games).priority,'LOW')
 
+    def test_high_rating_two_perfect_games_are_not_mathematically_blocked(self):
+        games=[informative(i,rating=2300) for i in range(2)]
+        self.assertFalse(acute_blockers(games))
+        self.assertEqual(self.evaluate(games).priority,'HIGH')
+
     def test_elite_two_perfect_games_not_acute_high(self):
         games=[informative(i,rating=2700) for i in range(2)]
         self.assertTrue(acute_blockers(games))
