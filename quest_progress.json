@@ -571,6 +571,14 @@
             "daily:2026-10-07:puzzle:solve-10": 4
           },
           "updated_at": 1791354101
+        },
+        "601406103712170014": {
+          "name": "TheMakina",
+          "paid": [],
+          "progress": {
+            "daily:2026-10-07:puzzle:solve-10": 1
+          },
+          "updated_at": 1791360156
         }
       }
     },
@@ -761,6 +769,14 @@
             "weekly:2026-10-05:puzzle:solve-25": 17
           },
           "updated_at": 1791354093
+        },
+        "601406103712170014": {
+          "name": "TheMakina",
+          "paid": [],
+          "progress": {
+            "weekly:2026-10-05:puzzle:solve-25": 1
+          },
+          "updated_at": 1791360156
         }
       }
     }
