@@ -193,13 +193,16 @@ def best_sparse_period(periods,config=CONFIG):
     broad=[p for p in periods if not p.get('acute')]
     if not broad:return None
     def rank(period):
-        s=period.get('summary') or {}
+        s=period.get('summary') or {};spread=sparse_distribution(period,s)
+        single_fraction=s.get('single_hit_games',0)/max(1,s.get('hit_games',0))
         return (
             not sparse_review_blockers(period,config),
-            s.get('hit_games',0),
-            s.get('hits',0),
-            s.get('single_hit_games',0),
+            min(spread['left_contributors'],spread['right_contributors']),
+            s.get('contributors',0),
+            min(spread['left_hits'],spread['right_hits']),
+            s.get('hit_lower',0),
             s.get('information',0)*s.get('anomaly_strength',0),
+            -single_fraction,
             s.get('opportunities',0))
     return max(broad,key=rank)
 
