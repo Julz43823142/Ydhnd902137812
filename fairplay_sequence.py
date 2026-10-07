@@ -126,17 +126,36 @@ def deep_confirmation(period,games,config=CONFIG):
                 'deep headroom-aware anomaly':deep.get('anomaly_strength',0)>=config.human_period_excess}.items() if not ok] if not (absolute or personal) else []}
 
 
+def sparse_distribution(period,summary):
+    """Chronological breadth of hit-bearing and multi-hit contributor games."""
+    ids=list(period.get('ids') or [])
+    if not ids:return {'left_hits':0,'right_hits':0,'left_contributors':0,'right_contributors':0}
+    cut=max(1,len(ids)//2)
+    left,right=set(ids[:cut]),set(ids[cut:])
+    hits=set(summary.get('hit_game_ids') or [])
+    contributors=set(summary.get('contributor_ids') or [])
+    return {
+        'left_hits':len(left&hits),'right_hits':len(right&hits),
+        'left_contributors':len(left&contributors),'right_contributors':len(right&contributors)}
+
+
 def sparse_review_blockers(period,config=CONFIG):
-    """MODERATE-only screen for intermittent evidence spread across many games."""
-    s=period.get('summary',{})
+    """MODERATE-only screen for genuinely broad intermittent evidence."""
+    s=period.get('summary',{});spread=sparse_distribution(period,s)
+    hit_games=s.get('hit_games',0)
+    single_fraction=s.get('single_hit_games',0)/max(1,hit_games)
     tests={
         'non-bullet gameplay':period.get('class')!='bullet',
         'broad chronological sample':s.get('games',0)>=config.human_sparse_min_games,
         'known rating coverage':s.get('rating_coverage',0)>=.8,
         'distributed opportunity coverage':s.get('opportunities',0)>=config.human_sparse_min_opportunities,
         'distributed high-information decisions':s.get('hits',0)>=config.human_sparse_min_hits,
-        'high-information games':s.get('hit_games',0)>=config.human_sparse_min_hit_games,
-        'intermittent single-hit games':s.get('single_hit_games',0)>=config.human_sparse_min_single_hit_games,
+        'high-information games':hit_games>=config.human_sparse_min_hit_games,
+        'multi-hit contributor breadth':s.get('contributors',0)>=config.human_sparse_min_contributors,
+        'high-information games in both period halves':min(spread['left_hits'],spread['right_hits'])>=config.human_sparse_min_half_hit_games,
+        'contributors in both period halves':min(spread['left_contributors'],spread['right_contributors'])>=config.human_sparse_min_half_contributors,
+        'single-hit games are not dominant':single_fraction<=config.human_sparse_max_single_hit_fraction,
+        'anomaly hit lower bound':s.get('hit_lower',0)>=config.human_sparse_hit_lower,
         'rating-adjusted information':s.get('information',0)>=config.human_sparse_information_floor,
         'raw quality separation':s.get('quality_excess',0)>=config.human_sparse_min_raw_excess,
         'headroom-aware anomaly strength':s.get('anomaly_strength',0)>=config.human_sparse_anomaly_strength,
@@ -149,13 +168,20 @@ def sparse_deep_blockers(period,proof,config=CONFIG):
     if not proof:return ['paired deep review unavailable']
     s=proof.get('summary',{});paired=proof.get('paired_fast',{})
     n=s.get('opportunities',0);retention=s.get('hits',0)/max(1,paired.get('hits',0))
+    hit_game_retention=s.get('hit_games',0)/max(1,paired.get('hit_games',0))
+    spread=sparse_distribution(period,s)
     tests={
         'deep reviewed games':proof.get('games',0)>=config.human_sparse_deep_games,
         'deep opportunity coverage':n>=config.human_sparse_deep_opportunities,
+        'deep high-information decisions':s.get('hits',0)>=config.human_sparse_deep_hits,
         'deep high-information games':s.get('hit_games',0)>=config.human_sparse_deep_hit_games,
+        'deep multi-hit contributor breadth':s.get('contributors',0)>=config.human_sparse_deep_contributors,
+        'deep hit-bearing games in both period halves':min(spread['left_hits'],spread['right_hits'])>=config.human_sparse_deep_min_half_hit_games,
+        'deep anomaly hit lower bound':s.get('hit_lower',0)>=config.human_sparse_deep_hit_lower,
         'deep stable high-information decisions':s.get('stable_hits',0)>=config.human_sparse_deep_stable_hits,
         'deep semantic-quality stability':s.get('stable_opportunities',0)/max(1,n)>=config.human_sparse_deep_stability,
-        'fast to deep retention':retention>=config.human_sparse_deep_retention,
+        'fast to deep hit retention':retention>=config.human_sparse_deep_retention,
+        'fast to deep hit-game retention':hit_game_retention>=config.human_sparse_deep_hit_game_retention,
         'deep rating-adjusted information':s.get('information',0)>=config.human_sparse_information_floor,
         'deep raw quality separation':s.get('quality_excess',0)>=config.human_sparse_min_raw_excess,
         'deep headroom-aware anomaly':s.get('anomaly_strength',0)>=config.human_sparse_anomaly_strength,
@@ -167,13 +193,16 @@ def best_sparse_period(periods,config=CONFIG):
     broad=[p for p in periods if not p.get('acute')]
     if not broad:return None
     def rank(period):
-        s=period.get('summary') or {}
+        s=period.get('summary') or {};spread=sparse_distribution(period,s)
+        single_fraction=s.get('single_hit_games',0)/max(1,s.get('hit_games',0))
         return (
             not sparse_review_blockers(period,config),
-            s.get('hit_games',0),
-            s.get('hits',0),
-            s.get('single_hit_games',0),
+            min(spread['left_contributors'],spread['right_contributors']),
+            s.get('contributors',0),
+            min(spread['left_hits'],spread['right_hits']),
+            s.get('hit_lower',0),
             s.get('information',0)*s.get('anomaly_strength',0),
+            -single_fraction,
             s.get('opportunities',0))
     return max(broad,key=rank)
 
@@ -388,7 +417,13 @@ def integrate_gameplay(result,games,config=CONFIG):
         'confirmed_periods':len(confirmed),'replicated_disjoint_periods':replicated,'funnel':evidence_funnel(games,config),
         'distributed_moderate':{'passed':sparse_allowed,'blockers':[] if sparse_allowed else list(dict.fromkeys(sparse_blockers)),
             'candidate_games':len(sparse_review['ids']) if sparse_review else 0,
-            'deep_games':sparse_review.get('deep',{}).get('games',0) if sparse_review else 0},
+            'deep_games':sparse_review.get('deep',{}).get('games',0) if sparse_review else 0,
+            'fast':({key:sparse_review.get('summary',{}).get(key,0) for key in
+                ('opportunities','hits','hit_games','contributors','single_hit_games','hit_lower','quality_excess','anomaly_strength')}
+                if sparse_review else {}),
+            'deep':({key:sparse_review.get('deep',{}).get('summary',{}).get(key,0) for key in
+                ('opportunities','hits','hit_games','contributors','stable_hits','hit_lower','quality_excess','anomaly_strength')}
+                if sparse_review else {})},
         'structure':{'change_games':sum(bool(s['change']) for s in structural),
                      'rescue_games':sum(s['rescue_windows']>0 for s in structural)},
         'repertoire':{} if 'opening' in config.disabled_features else repertoire(games),

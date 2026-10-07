@@ -283,22 +283,27 @@ class HumanEvidence(unittest.TestCase):
         self.assertEqual(summary['contributors'],2)
 
     def test_distributed_sparse_evidence_is_moderate_only_after_deep_retention(self):
-        games=[informative(i,rating=2300) for i in range(30)]
+        games=[informative(i,rating=2300) for i in range(40)]
+        ids=[g.identity for g in games]
         summary=period_summary(games)
-        summary.update(games=30,opportunities=40,hits=16,hit_games=12,single_hit_games=8,
-                       opportunity_games=20,rating_coverage=1.0,information=.20,
-                       quality_excess=.09,anomaly_strength=.25)
+        summary.update(games=40,opportunities=36,hits=22,hit_games=12,single_hit_games=6,
+                       contributors=6,contributor_ids=[ids[i] for i in (0,2,4,20,22,24)],
+                       hit_game_ids=[ids[i] for i in (0,1,2,3,4,5,20,21,22,23,24,25)],
+                       hit_lower=.52,opportunity_games=20,rating_coverage=1.0,information=.22,
+                       quality_excess=.10,anomaly_strength=.27)
         period={'qualified':False,'acute':False,'absolute':False,'personal':False,
-                'class':'blitz','kind':'class','ids':[g.identity for g in games],
+                'class':'blitz','kind':'class','ids':ids,
                 'start':games[0].ended,'end':games[-1].ended,'controls':['180+0'],
                 'summary':summary,'blockers':['distributed contributor games'],'baseline_ids':[]}
         deep_summary=dict(summary)
-        deep_summary.update(games=5,opportunities=15,hits=6,hit_games=4,single_hit_games=3,
-                            stable_opportunities=12,stable_hits=5,information=.20,
-                            quality_excess=.09,anomaly_strength=.25)
-        proof={'qualified':False,'absolute':False,'personal':False,'games':5,
-               'summary':deep_summary,'paired_fast':{'hits':8},'retention':.75,
-               'stability_fraction':.8,'blockers':['deep contributor games']}
+        deep_summary.update(games=6,opportunities=16,hits=11,hit_games=6,single_hit_games=2,
+                            contributors=4,contributor_ids=[ids[i] for i in (0,2,22,24)],
+                            hit_game_ids=[ids[i] for i in (0,1,2,22,23,24)],
+                            hit_lower=.50,stable_opportunities=13,stable_hits=8,information=.22,
+                            quality_excess=.10,anomaly_strength=.27)
+        proof={'qualified':False,'absolute':False,'personal':False,'games':6,
+               'summary':deep_summary,'paired_fast':{'hits':14,'hit_games':8},'retention':11/14,
+               'stability_fraction':13/16,'blockers':['deep contributor games']}
         self.assertEqual(sparse_review_blockers(period),[])
         self.assertEqual(sparse_deep_blockers(period,proof),[])
         with patch('fairplay_sequence.class_periods',return_value=[period]), \
@@ -307,6 +312,47 @@ class HumanEvidence(unittest.TestCase):
         self.assertEqual(result.priority,'MODERATE')
         self.assertTrue(result.diagnostics['gameplay']['distributed_moderate']['passed'])
         self.assertNotIn('HIGH',result.diagnostics.get('moderate_path',''))
+
+    def test_single_hit_variance_cannot_create_distributed_moderate(self):
+        games=[informative(i,rating=2300) for i in range(40)];ids=[g.identity for g in games]
+        summary=period_summary(games)
+        summary.update(games=40,opportunities=36,hits=20,hit_games=14,single_hit_games=12,
+                       contributors=2,contributor_ids=[ids[2],ids[22]],
+                       hit_game_ids=[ids[i] for i in (0,1,2,3,4,5,6,20,21,22,23,24,25,26)],
+                       hit_lower=.48,opportunity_games=22,rating_coverage=1.0,information=.22,
+                       quality_excess=.10,anomaly_strength=.27)
+        period={'class':'blitz','ids':ids,'summary':summary}
+        blockers=sparse_review_blockers(period)
+        self.assertIn('multi-hit contributor breadth',blockers)
+        self.assertIn('single-hit games are not dominant',blockers)
+
+    def test_sparse_moderate_requires_contributors_in_both_period_halves(self):
+        games=[informative(i,rating=2300) for i in range(40)];ids=[g.identity for g in games]
+        summary=period_summary(games)
+        summary.update(games=40,opportunities=36,hits=22,hit_games=12,single_hit_games=6,
+                       contributors=6,contributor_ids=[ids[i] for i in (0,2,4,6,8,10)],
+                       hit_game_ids=[ids[i] for i in (0,1,2,3,4,5,20,21,22,23,24,25)],
+                       hit_lower=.52,opportunity_games=20,rating_coverage=1.0,information=.22,
+                       quality_excess=.10,anomaly_strength=.27)
+        period={'class':'blitz','ids':ids,'summary':summary}
+        self.assertIn('contributors in both period halves',sparse_review_blockers(period))
+
+    def test_sparse_deep_confirmation_must_span_both_period_halves(self):
+        games=[informative(i,rating=2300) for i in range(40)];ids=[g.identity for g in games]
+        summary=period_summary(games)
+        summary.update(games=40,opportunities=36,hits=22,hit_games=12,single_hit_games=6,
+                       contributors=6,contributor_ids=[ids[i] for i in (0,2,4,20,22,24)],
+                       hit_game_ids=[ids[i] for i in (0,1,2,3,4,5,20,21,22,23,24,25)],
+                       hit_lower=.52,opportunity_games=20,rating_coverage=1.0,information=.22,
+                       quality_excess=.10,anomaly_strength=.27)
+        period={'class':'blitz','ids':ids,'summary':summary}
+        deep=dict(summary)
+        deep.update(opportunities=16,hits=11,hit_games=6,contributors=4,
+                    contributor_ids=[ids[i] for i in (0,2,4,6)],
+                    hit_game_ids=[ids[i] for i in (0,1,2,3,4,5)],
+                    hit_lower=.50,stable_opportunities=13,stable_hits=8)
+        proof={'games':6,'summary':deep,'paired_fast':{'hits':14,'hit_games':8}}
+        self.assertIn('deep hit-bearing games in both period halves',sparse_deep_blockers(period,proof))
 
     def test_short_concentrated_cluster_cannot_use_distributed_moderate_route(self):
         games=[informative(i,rating=2300) for i in range(10)]
@@ -319,12 +365,14 @@ class HumanEvidence(unittest.TestCase):
 
     def test_sparse_broad_candidate_gets_unbiased_deep_coverage_without_high_prequalification(self):
         games=[informative(i,rating=2300,deep=False) for i in range(30)]
-        summary=period_summary(games,fast=True)
-        summary.update(games=30,opportunities=40,hits=16,hit_games=12,single_hit_games=8,
-                       opportunity_games=20,rating_coverage=1.0,information=.20,
-                       quality_excess=.09,anomaly_strength=.25)
+        summary=period_summary(games,fast=True);ids=[g.identity for g in games]
+        summary.update(games=30,opportunities=36,hits=20,hit_games=10,single_hit_games=4,
+                       contributors=6,contributor_ids=[ids[i] for i in (0,2,4,15,17,19)],
+                       hit_game_ids=[ids[i] for i in (0,1,2,3,4,15,16,17,18,19)],
+                       hit_lower=.50,opportunity_games=18,rating_coverage=1.0,information=.20,
+                       quality_excess=.10,anomaly_strength=.25)
         candidate={'qualified':False,'acute':False,'absolute':False,'personal':False,
-                   'class':'blitz','kind':'class','ids':[g.identity for g in games],
+                   'class':'blitz','kind':'class','ids':ids,
                    'summary':summary,'baseline_ids':[]}
         with patch('fairplay_sequence.class_periods',return_value=[candidate]), \
              patch('fairplay_clusters.representative_controls',return_value=[]), \

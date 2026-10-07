@@ -439,9 +439,15 @@ def add_gameplay_fields(embed,result):
               '\nTiming/results are optional for this route. Legacy gates are separate.')
     moderate=d.get('distributed_moderate',{})
     if moderate:
-        status='PASS' if moderate.get('passed') else 'FAIL'
-        detail=(f'Candidate games: {moderate.get("candidate_games",0)} · deep-reviewed: {moderate.get("deep_games",0)}'
-                if moderate.get('passed') else '\n'.join('• '+v for v in moderate.get('blockers',[])))
+        status='PASS' if moderate.get('passed') else 'FAIL';fast=moderate.get('fast',{});mdeep=moderate.get('deep',{})
+        if moderate.get('passed'):
+            detail=(f'Candidate games: {moderate.get("candidate_games",0)} · deep-reviewed: {moderate.get("deep_games",0)}\n'
+                    f'Fast hits / opportunities: {fast.get("hits",0)} / {fast.get("opportunities",0)} · '
+                    f'hit games / contributors / single-hit: {fast.get("hit_games",0)} / {fast.get("contributors",0)} / {fast.get("single_hit_games",0)}\n'
+                    f'Deep hits / opportunities: {mdeep.get("hits",0)} / {mdeep.get("opportunities",0)} · '
+                    f'hit games / contributors / stable hits: {mdeep.get("hit_games",0)} / {mdeep.get("contributors",0)} / {mdeep.get("stable_hits",0)}')
+        else:
+            detail='\n'.join('• '+v for v in moderate.get('blockers',[]))
         embed.add_field(name='Distributed gameplay MODERATE — '+status,inline=False,
             value=(detail or 'Required distributed evidence established.')[:1024])
     f=d['funnel'];flow=f.get('_flow',{})
