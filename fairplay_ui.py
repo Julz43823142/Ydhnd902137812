@@ -256,7 +256,7 @@ def detail_embed(result, mode):
                              f'Critical median CPL: {number(a["critical_cpl"])} · unique-best hits: {a["unique_hits"]}/{a["unique"]}\n'
                              f'Mistake / blunder-like losses: {a["mistakes"]}/{a["blunders"]} · critical mistakes: {a["critical_mistakes"]}\n'
                              f'Deep confirmation: {result.deep_confirmed} · {result.deep_coverage["games"]} games / {result.deep_coverage["decisions"]} decisions\n\n'
-                             'First 20 plies and genuinely forced/trivial decisions are excluded. Difficult check responses and nontrivial recaptures remain analyzable. Strongly won/lost positions are de-weighted. '
+                             'Known opening-reference moves and genuinely forced/trivial decisions are de-weighted; early off-book decisions can contribute. Difficult check responses and nontrivial recaptures remain analyzable. Strongly won/lost positions are de-weighted. '
                              'Critical positions require several choices, a best–second gap and candidate spread; quiet unique choices receive the strongest evidence. '
                              'These heuristic measures have innocent explanations and do not establish misconduct.')
         add_gate_fields(embed,result)
@@ -409,6 +409,8 @@ def add_gameplay_fields(embed,result):
     embed.add_field(name='Human / difficulty evidence — heuristic',inline=False,
         value=f'High-information decisions: {s.get("hits",0)} / {s.get("opportunities",0)} capped opportunities\n'
               f'Contributor games: {s.get("contributors",0)} / {s.get("games",0)} · rating reference: {s.get("rating_reference") or "unavailable"}\n'
+              f'Opportunity-bearing games: {s.get("opportunity_games",0)} · bounded information: {number(s.get("information"))}\n'
+              f'Strength-conditioned reference: {number(s.get("quality_reference"))} (heuristic, not probability)\n'
               f'Deep-stable high-information decisions: {deep.get("stable_hits",0)}\n'
               f'Gameplay class: {best.get("class","unavailable")} · controls: {", ".join(best.get("controls",[])) or "unavailable"}\n'
               'Related rank, loss and difficulty measurements form one gameplay family, not independent probabilities.')

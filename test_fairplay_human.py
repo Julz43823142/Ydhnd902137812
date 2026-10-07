@@ -95,6 +95,24 @@ class HumanEvidence(unittest.TestCase):
         games=[g]+[informative(i,rating=2850) for i in range(1,20)]
         self.assertFalse(absolute_qualified(period_summary(games)))
 
+    def test_no_opportunity_games_do_not_dilute_information_or_create_hits(self):
+        games=[informative(i) for i in range(10)]
+        informative_summary=period_summary(games)
+        filler=[informative(i) for i in range(10,30)]
+        for g in filler:
+            for d in g.decisions:d.metrics['easy_conversion']=True
+            annotate_game(g)
+        combined=period_summary(games+filler)
+        self.assertEqual(combined['information'],informative_summary['information'])
+        self.assertEqual(combined['hits'],informative_summary['hits'])
+        self.assertEqual(combined['contributors'],10)
+        self.assertEqual(combined['opportunity_games'],10)
+        self.assertTrue(absolute_qualified(combined))
+
+    def test_three_perfect_games_after_seven_weak_games_do_not_high(self):
+        games=[informative(i,misses=45 if i<7 else 0) for i in range(10)]
+        self.assertEqual(integrate_gameplay(result_stub(games),games).priority,'LOW')
+
     def test_misses_stay_in_capped_denominator(self):
         g=informative(0,misses=20);s=g.metrics['human']
         self.assertEqual(s['opportunities'],CONFIG.human_game_cap)

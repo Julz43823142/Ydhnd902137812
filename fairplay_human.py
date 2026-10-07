@@ -101,7 +101,9 @@ def period_summary(games, config=CONFIG, *, fast=False):
     return {'games':len(games),'opportunities':n,'hits':hits,
         'hit_lower':lower_bound(hits/n if n else None,n,config.rate_lower_bound_z),
         'contributors':len(contributors),'contributor_ids':[g.identity for g in contributors],
-        'information':statistics.mean(m.get('information',0) for g,m in rows) if rows else 0,
+        'information':statistics.mean(m.get('information',0) for g,m in rows if m.get('hard_opportunities',0))
+            if any(m.get('hard_opportunities',0) for g,m in rows) else 0,
+        'opportunity_games':sum(m.get('opportunities',0)>0 for g,m in rows),
         'stable_opportunities':sum(m.get('stable_opportunities',0) for g,m in rows),
         'stable_hits':sum(m.get('stable_hits',0) for g,m in rows),
         'hard_opportunities':hard_n,'hard_hits':hard_hits,
@@ -120,7 +122,7 @@ def absolute_qualified(summary, config=CONFIG):
     # an impossible fixed 300-move minimum. One perfect game cannot qualify.
     return bool(summary['games']>=config.min_games and summary['rating_coverage']>=.8
         and summary['opportunities']>=config.human_min_opportunities
-        and summary['contributors']>=max(config.human_min_contributors,summary['games']*.5)
+        and summary['contributors']>=max(config.human_min_contributors,summary['opportunity_games']*.5)
         and summary['information']>=config.human_absolute_information_floor
         and summary['quality_reference'] is not None
         and summary['hit_lower']>=max(config.human_hit_lower,summary['quality_reference']+config.human_expectation_margin))
