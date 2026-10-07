@@ -55,6 +55,25 @@ class HumanEvidence(unittest.TestCase):
         games=[informative(i,rating=2850) for i in range(40)]
         self.assertEqual(integrate_gameplay(result_stub(games),games).priority,'LOW')
 
+    def test_ceiling_residual_alone_cannot_establish_absolute_high(self):
+        games=[informative(i,rating=2300) for i in range(20)]
+        summary=period_summary(games)
+        self.assertTrue(absolute_qualified(summary))
+        compressed=dict(summary)
+        compressed.update(quality_reference=.90,quality_excess=.10,anomaly_strength=.50)
+        self.assertFalse(absolute_qualified(compressed))
+
+    def test_deep_confirmation_rechecks_ceiling_raw_excess(self):
+        games=[informative(i,rating=1000) for i in range(20)]
+        period=next(p for p in class_periods(games) if p.get('absolute'))
+        for g in games:
+            g.metrics['human']['quality_reference']=.90
+            g.metrics['human']['quality_excess']=.10
+            g.metrics['human']['anomaly_strength']=.50
+        proof=deep_confirmation(period,games)
+        self.assertFalse(proof['absolute'])
+        self.assertIn('deep raw quality excess beyond ceiling guard',proof['blockers'])
+
     def test_opportunities_do_not_disappear_above_2050_rating(self):
         for rating in (2100,2300,2850):
             g=informative(0,rating=rating)
