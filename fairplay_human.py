@@ -55,7 +55,8 @@ def quality_components(observed, expected, rating, config=CONFIG):
     hit_threshold=config.human_quality_excess+max(
         0.0, rating_strength-config.human_elite_threshold_start
     )*config.human_elite_threshold_scale
-    return excess,residual,strength,hit_threshold
+    raw_threshold=config.human_min_raw_excess_base+config.human_min_raw_excess_rating*rating_strength
+    return excess,residual,strength,hit_threshold,raw_threshold
 
 
 def accuracy_index(scaled_loss):
@@ -95,16 +96,17 @@ def annotate_game(game, config=CONFIG, model=None):
         # Rank is diagnostic, not a penalty when objective quality is equivalent.
         observed = min(clamp(1-m.get('cpl', 1000)/150),
                        clamp(1-m.get('scaled_loss', m.get('cpl', 1000)/1000)/.20))
-        excess,residual,anomaly,hit_threshold=quality_components(
+        excess,residual,anomaly,hit_threshold,raw_threshold=quality_components(
             observed,expected,game.rating,config)
         uniqueness = 1/max(1, m.get('plausible_good_moves', 1))**.25
         information = m.get('difficulty', 0)*anomaly*uniqueness if opportunity else 0.0
-        hit = (opportunity and observed>=.85 and excess>=config.human_residual_headroom_floor
+        hit = (opportunity and observed>=.85 and excess>=raw_threshold
                and anomaly>=hit_threshold)
         quiet = not (d.capture or d.check or d.gives_check)
         m.update(expected_human_quality=expected, observed_move_quality=observed,
                  quality_excess=excess, quality_residual=residual,
                  anomaly_strength=anomaly, anomaly_hit_threshold=hit_threshold,
+                 raw_excess_threshold=raw_threshold,
                  move_accuracy=accuracy_index(m.get('scaled_loss')),
                  human_anomaly_information=information,
                  human_expectedness=expected, human_information=information,
@@ -153,7 +155,8 @@ def annotate_game(game, config=CONFIG, model=None):
         'quality_excess':statistics.mean(m['quality_excess'] for m in capped) if capped else 0,
         'quality_residual':statistics.mean(m['quality_residual'] for m in capped) if capped else 0,
         'anomaly_strength':statistics.mean(m['anomaly_strength'] for m in capped) if capped else 0,
-        'accuracy_index':statistics.mean([m['move_accuracy'] for m in capped if m.get('move_accuracy') is not None]) if capped else None,
+        'accuracy_index':statistics.mean([m['move_accuracy'] for m in capped if m.get('move_accuracy') is not None])
+            if any(m.get('move_accuracy') is not None for m in capped) else None,
         'observed_quality':statistics.mean(m['observed_move_quality'] for m in capped) if capped else None,
         'quality_reference':statistics.mean(m['expected_human_quality'] for m in capped) if capped else None,
         'difficulty_curve':curve, 'difficulty_inversion':bool(inversion),

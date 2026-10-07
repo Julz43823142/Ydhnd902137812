@@ -103,6 +103,8 @@ class ReviewConfig:
     human_residual_weight: float = .55
     human_elite_threshold_start: float = .75
     human_elite_threshold_scale: float = .08
+    human_min_raw_excess_base: float = .04
+    human_min_raw_excess_rating: float = .05
     human_contributor_fraction: float = .60
     acute_windows: tuple = (2, 3, 4, 5, 6, 8)
     acute_min_opportunities: int = 16
