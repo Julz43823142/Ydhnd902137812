@@ -33,7 +33,7 @@ def public_text(value):
 def panel_embed():
     embed = discord.Embed(title=PANEL_TITLE, color=0x427CBA,
         description='Want to review a suspicious Chess.com account?\n\n'
-                    "Submit the Chess.com username. SharkBot analyzes up to 100 recent rated standard games, with up to 500 eligible rated games of history for personal baselines and targeted review of unusual periods.\n\n"
+                    "Submit the Chess.com username. SharkBot fully screens up to the latest 200 eligible rated standard games, then deeply reviews selected games for human decision, engine and timing evidence.\n\n"
                     '**This is an automated screening tool — not proof of cheating.**')
     embed.set_footer(text=PANEL_MARKER)
     return embed
