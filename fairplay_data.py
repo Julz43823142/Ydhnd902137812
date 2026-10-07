@@ -116,6 +116,7 @@ class Decision:
     trivial_kind: str | None = None
     clock_valid: bool = False
     fast_engine: dict = field(default_factory=dict)
+    opening: dict = field(default_factory=dict)
 
 
 @dataclass
@@ -202,7 +203,9 @@ def parse_game(row: dict, target: str, config: ReviewConfig = CONFIG, *, exclusi
         recapture = capture and node.move.to_square == previous_capture_square
         material = sum(len(board.pieces(piece, side_)) * weight for side_ in (True, False)
                        for piece, weight in ((chess.QUEEN, 9), (chess.ROOK, 5), (chess.BISHOP, 3), (chess.KNIGHT, 3)))
-        phase = 'opening' if ply <= config.opening_plies else 'endgame' if material <= 20 else 'middlegame'
+        from fairplay_opening import book_status
+        opening = book_status(board, node.move, ply, config)
+        phase = 'opening' if opening['book'] else 'endgame' if material <= 20 else 'middlegame'
         forced = legal == 1 or (in_check and legal <= 2)
         if side == color:
             trivial = trivial_move_kind(board,node.move,legal,recapture) if phase!='opening' else None
@@ -212,7 +215,7 @@ def parse_game(row: dict, target: str, config: ReviewConfig = CONFIG, *, exclusi
             decisions.append(Decision(ply, board.fullmove_number, board.fen(), node.move.uci(),
                                       before, after, think, legal, in_check, capture, phase, forced,
                                       phase != 'opening' and not forced and trivial is None, reliable, board.gives_check(node.move),
-                                      trivial_kind=trivial,clock_valid=clock_valid))
+                                      trivial_kind=trivial,clock_valid=clock_valid,opening=opening))
         previous[side] = after  # a missing clock breaks that side's chain; never span missing moves
         previous_capture_square = node.move.to_square if capture else None
         board.push(node.move)
@@ -305,7 +308,7 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG):
     try:
         for year, month in ordered[:config.max_archives]:
             check_deadline(api.deadline)
-            progress('Collecting games…')
+            progress('Collecting rated games…')
             data = api.get(target, f'/games/{year:04d}/{month:02d}')
             if data is None:
                 skipped['unavailable_archive'] += 1;partial = True;continue
@@ -334,8 +337,8 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG):
 
 def collection_limit(config=CONFIG):
     # Older callers/tests use max_games as a small explicit fixture limit.
-    return max(1, min(500, config.history_games if config.max_games == 100 else config.max_games))
+    return max(1, min(500, config.history_games if config.max_games in (100, 200) else config.max_games))
 
 
 def primary_limit(config=CONFIG):
-    return max(1, min(100, config.primary_engine_games, config.max_games))
+    return max(1, min(200, config.primary_engine_games, config.max_games))

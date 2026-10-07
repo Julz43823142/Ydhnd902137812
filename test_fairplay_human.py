@@ -1,0 +1,200 @@
+"""Synthetic gameplay, difficulty, sample and book regressions; no case labels."""
+import copy
+import unittest
+from dataclasses import replace
+from types import SimpleNamespace
+from unittest.mock import patch
+import chess
+from fairplay_config import CONFIG
+from fairplay_human import annotate_game, period_summary, absolute_qualified
+from fairplay_sequence import class_periods, deep_confirmation, integrate_gameplay, game_structure, adaptive_deep_games
+from fairplay_opening import book_status, opening_reference, repertoire
+from test_fairplay_v4 import game
+from test_fairplay import sample_row, TARGET
+import fairplay_analysis as analysis
+import fairplay_data as data
+
+
+def informative(index,rating=1000,rank=1,deep=True,control='180+0',misses=0):
+    g=game(index,True,rating=rating,deep=deep,control=control,clocks=False)
+    g.time_class='blitz'
+    for i,d in enumerate(g.decisions):
+        d.phase='middlegame';d.useful=True;d.forced=False;d.trivial_kind=None
+        d.legal=30;d.capture=d.check=d.gives_check=False
+        m={'useful':True,'before_cp':0,'actual_cp':0,'competitive':True,'critical':True,'unique':True,
+           'rank':rank,'candidate_count':5,'candidate_cp':[0,-200,-450,-600,-800] if rank==1 else [0,-5,-450,-600,-800],
+           'cpl':0 if i>=misses else 200,'scaled_loss':0 if i>=misses else .2,
+           'gap':200 if rank==1 else 5,'spread':800,'best':'synthetic-best','near_best':i>=misses,
+           'nodes':CONFIG.fast_nodes,'weight':1,'top1':rank==1 and i>=misses,'top3':i>=misses,'critical_kind':'quiet'}
+        d.metrics=copy.deepcopy(m)
+    annotate_game(g);g.fast_metrics={'decisions':len(g.decisions),'human':copy.deepcopy(g.metrics['human'])}
+    for d in g.decisions:
+        d.fast_engine=copy.deepcopy(d.metrics)
+        if deep:d.metrics['nodes']=CONFIG.deep_nodes
+    annotate_game(g)
+    return g
+
+
+def result_stub(games):
+    return SimpleNamespace(games=games,totals={'decisions':sum(len(g.decisions) for g in games)},
+        partial=False,confidence='HIGH',priority='LOW',deep_confirmed=False,diagnostics={},families={},reasons=[])
+
+
+class HumanEvidence(unittest.TestCase):
+    def test_overwhelming_gameplay_can_high_with_no_clocks_or_personal_shift(self):
+        games=[informative(i) for i in range(20)]
+        result=integrate_gameplay(result_stub(games),games)
+        self.assertEqual(result.priority,'HIGH');self.assertTrue(result.deep_confirmed)
+
+    def test_whole_ten_game_sample_with_distributed_opportunities_can_high(self):
+        games=[informative(i) for i in range(10)]
+        self.assertEqual(integrate_gameplay(result_stub(games),games).priority,'HIGH')
+
+    def test_stable_elite_precision_is_not_absolute_human_anomaly(self):
+        games=[informative(i,rating=2850) for i in range(40)]
+        self.assertEqual(integrate_gameplay(result_stub(games),games).priority,'LOW')
+
+    def test_second_rank_equivalent_best_set_does_not_evade_gameplay_layer(self):
+        games=[informative(i,rank=2) for i in range(20)]
+        self.assertTrue(class_periods(games)[0]['qualified'])
+        self.assertEqual(integrate_gameplay(result_stub(games),games).priority,'HIGH')
+
+    def test_one_huge_perfect_game_cannot_dominate(self):
+        g=informative(0);g.decisions*=8;annotate_game(g)
+        self.assertEqual(g.metrics['human']['opportunities'],CONFIG.human_game_cap)
+        games=[g]+[informative(i,rating=2850) for i in range(1,20)]
+        self.assertFalse(absolute_qualified(period_summary(games)))
+
+    def test_misses_stay_in_capped_denominator(self):
+        g=informative(0,misses=20);s=g.metrics['human']
+        self.assertEqual(s['opportunities'],CONFIG.human_game_cap)
+        self.assertLess(s['hits'],s['opportunities'])
+
+    def test_one_or_three_perfect_games_never_high(self):
+        for count in [1,3]:
+            games=[informative(i) for i in range(count)]+[informative(i,rating=2850) for i in range(count,20)]
+            self.assertEqual(integrate_gameplay(result_stub(games),games).priority,'LOW')
+
+    def test_easy_conversion_and_opponent_error_offer_no_human_evidence(self):
+        g=informative(0)
+        for d in g.decisions:d.metrics['easy_conversion']=True
+        annotate_game(g);self.assertEqual(g.metrics['human']['opportunities'],0)
+        for d in g.decisions:d.metrics['easy_conversion']=False;d.metrics['post_opponent_error']=True
+        annotate_game(g);self.assertEqual(g.metrics['human']['opportunities'],0)
+
+    def test_many_equivalent_moves_reduce_information(self):
+        g=informative(0)
+        for d in g.decisions:d.metrics['candidate_cp']=[0,-1,-2,-3,-4]
+        annotate_game(g);self.assertEqual(g.metrics['human']['opportunities'],0)
+
+    def test_deep_rank_instability_blocks_confirmation(self):
+        games=[informative(i) for i in range(20)];period=class_periods(games)[0]
+        for g in games:
+            for d in g.decisions:d.metrics['rank']=4;d.metrics['best']='different'
+            annotate_game(g)
+        self.assertFalse(deep_confirmation(period,games)['qualified'])
+
+    def test_missing_deep_and_partial_scans_cannot_high(self):
+        games=[informative(i,deep=False) for i in range(20)]
+        self.assertEqual(integrate_gameplay(result_stub(games),games).priority,'LOW')
+        games=[informative(i) for i in range(20)];r=result_stub(games);r.partial=True
+        self.assertEqual(integrate_gameplay(r,games).priority,'LOW')
+
+    def test_class_period_combines_blitz_controls_without_clock_pooling(self):
+        games=[informative(i,control=['180+0','180+2','300+0'][i%3]) for i in range(12)]
+        p=class_periods(games)[0];self.assertEqual(len(p['controls']),3)
+        self.assertEqual(integrate_gameplay(result_stub(games),games).priority,'HIGH')
+
+    def test_casual_duplicate_and_probe_games_cannot_inflate_period(self):
+        games=[informative(i) for i in range(9)];extra=informative(10);extra.rated=False
+        probe=informative(11);probe.probe_only=True
+        self.assertFalse(class_periods(games+games+[extra,probe]))
+
+    def test_bullet_does_not_supply_absolute_high(self):
+        games=[informative(i) for i in range(20)]
+        for g in games:g.time_class='bullet'
+        self.assertEqual(integrate_gameplay(result_stub(games),games).priority,'LOW')
+
+    def test_missing_rating_cannot_be_absolute_anomaly(self):
+        games=[informative(i) for i in range(20)]
+        for g in games:g.rating=None;annotate_game(g)
+        self.assertFalse(absolute_qualified(period_summary(games)))
+
+    def test_model_failure_gracefully_uses_deterministic_fallback(self):
+        class Broken:
+            name='unavailable'
+            def expectedness(self,*args):raise RuntimeError('unavailable')
+        g=informative(0);expected=copy.deepcopy(g.metrics['human']);actual=annotate_game(g,model=Broken())
+        self.assertEqual(actual['hits'],expected['hits']);self.assertGreater(actual['model_failures'],0)
+
+    def test_within_game_change_requires_two_adequate_segments(self):
+        g=informative(0)
+        for d in g.decisions[:15]:d.metrics['human_information']=0
+        self.assertIsNotNone(game_structure(g)['change'])
+        g.decisions=g.decisions[:10];self.assertIsNone(game_structure(g)['change'])
+
+    def test_difficulty_inversion_is_support_not_independent_high(self):
+        g=informative(0)
+        for d in g.decisions[:10]:d.metrics.update(candidate_cp=[0,-1,-2],gap=1,spread=2,cpl=150,near_best=False)
+        annotate_game(g);self.assertTrue(g.metrics['human']['difficulty_inversion'])
+        self.assertEqual(integrate_gameplay(result_stub([g]),[g]).priority,'LOW')
+
+    def test_adaptive_selection_is_bounded_and_reproducible(self):
+        games=[informative(i) for i in range(40)]
+        # Real legacy summaries are intentionally not required for a qualified
+        # whole-class candidate: it reserves a deterministic chronological plan.
+        with patch('fairplay_clusters.select_deep_games',return_value=[]):
+            first=adaptive_deep_games(games);second=adaptive_deep_games(copy.deepcopy(games))
+        self.assertLessEqual(len(first),CONFIG.deep_max_games)
+        self.assertEqual([g.identity for g in first],[g.identity for g in second])
+
+
+class OpeningAndCoverage(unittest.TestCase):
+    def test_reference_is_offline_and_theory_protected_past_twenty_plies(self):
+        self.assertGreater(len(opening_reference()),1000)
+        import json
+        from pathlib import Path
+        lines=json.loads(Path('assets/fairplay/opening-lines.json').read_text())['lines']
+        longest=max(lines,key=lambda x:len(x.split()));board=chess.Board()
+        for ply,text in enumerate(longest.split(),1):
+            move=chess.Move.from_uci(text);self.assertTrue(book_status(board,move,ply)['book']);board.push(move)
+        self.assertGreater(len(longest.split()),20)
+
+    def test_known_twenty_five_move_line_remains_protected(self):
+        parsed=data.parse_game(sample_row(),TARGET)
+        reference={}
+        # A synthetic supplied reference proves there is no fixed 20-ply cap;
+        # the curated production reference is explicitly not exhaustive theory.
+        for d in parsed.decisions:reference.setdefault(' '.join(d.fen.split()[:4]),set()).add(d.move)
+        with patch('fairplay_opening.opening_reference',return_value=reference):
+            for d in parsed.decisions:
+                if d.ply<=50:self.assertTrue(book_status(chess.Board(d.fen),chess.Move.from_uci(d.move),d.ply)['book'])
+
+    def test_early_off_book_moves_are_no_longer_blindly_excluded(self):
+        board=chess.Board();sequence='a2a3 a7a6 h2h3 h7h6 b2b3 b7b6 g2g3 g7g6 c2c3 c7c6 f2f3 f7f6'.split()
+        for ply,text in enumerate(sequence,1):
+            move=chess.Move.from_uci(text)
+            if ply>6:self.assertFalse(book_status(board,move,ply)['book'])
+            board.push(move)
+
+    def test_repertoire_novelty_is_context_only(self):
+        games=[informative(i) for i in range(20)];p=repertoire(games)
+        self.assertTrue(p['White']['sufficient'] or p['Black']['sufficient'])
+        self.assertIn('off_book_moves',p['White'])
+
+    def test_newest_two_hundred_eligible_games_and_no_probe_substitute(self):
+        self.assertEqual(data.collection_limit(),200);self.assertEqual(data.primary_limit(),200)
+        rows=[sample_row(i) for i in range(240)]
+        for i in range(20):rows.append({**sample_row(300+i),'rules':'chess960'})
+        for i in range(20):rows.append({**sample_row(400+i),'rated':False})
+        import time
+        class API:
+            deadline=time.monotonic()+120
+            def get(self,name,suffix):return {'archives':[f'https://api.chess.com/pub/player/{name}/games/2026/10']} if suffix.endswith('archives') else {'games':rows}
+        found,skipped,partial=data.collect_games(API(),TARGET,lambda _:None)
+        self.assertEqual(len(found),200);self.assertEqual(found[0].identity,'synthetic-40')
+        self.assertEqual(found[-1].identity,'synthetic-239');self.assertEqual(skipped['unrated'],20);self.assertEqual(skipped['variant'],20)
+        self.assertFalse(partial)
+
+
+if __name__=='__main__':unittest.main()

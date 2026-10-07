@@ -248,7 +248,9 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
                                                         'clock_comments':sum(g.metrics['timing'].get('clock_comments',0) for g in timeline),
                                                         'excluded_clocks':sum(g.metrics['timing'].get('excluded_clocks',0) for g in timeline)}},timeline=timeline)
     from fairplay_convergence import integrate_review
-    return integrate_review(result,timeline,config)
+    result=integrate_review(result,timeline,config)
+    from fairplay_sequence import integrate_gameplay
+    return integrate_gameplay(result,timeline,config)
 
 
 def high_block_reasons(priority, comparison, deep, cluster, timing, context, recurrence, games, config=CONFIG):

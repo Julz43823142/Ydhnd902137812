@@ -105,7 +105,7 @@ class RepeatableEngineCache(unittest.TestCase):
         with patch.object(analysis,'collect_games',side_effect=collect),patch.object(analysis,'EngineScanner',Scanner):
             cold=analysis.review(TARGET,lambda _:None,config,api_factory=lambda _:api)
             cold_ids={g.identity for g in cold.timeline if g.deep}
-            self.assertEqual(len(cold_ids),config.deep_games)
+            self.assertEqual(len(cold_ids),config.deep_normal_games)
             calls.clear()
             warm=analysis.review(TARGET,lambda _:None,config,api_factory=lambda _:api)
             self.assertEqual({g.identity for g in warm.timeline if g.deep},cold_ids)

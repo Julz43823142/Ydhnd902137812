@@ -73,7 +73,7 @@ class Parsing(unittest.TestCase):
         game = data.parse_game(sample_row(),TARGET)
         self.assertTrue(any(d.useful for d in game.decisions))
         for d in game.decisions:
-            if d.ply<=CONFIG.opening_plies or d.forced:self.assertFalse(d.useful)
+            if d.phase=='opening' or d.forced:self.assertFalse(d.useful)
 
     def test_clocks_and_increment_no_first_move_guess(self):
         for inc in (0,3):

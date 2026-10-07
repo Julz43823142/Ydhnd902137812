@@ -1,3 +1,51 @@
+# Fair Play v14 — human evidence and 200 full rated games
+
+The production sample is now the latest **up to 200 eligible rated standard live games**. All collected games receive the normal 24,000-node fast search before adaptive deep confirmation. Defaults are history=200 and primary=200; the four-position historical probe is never a substitute inside this sample. Legacy explicitly configured extended-history experiments remain separate. The deadline is 3,600 seconds; a partial scan cannot establish a new HIGH route. One background worker and one low-priority Stockfish process remain in use.
+
+## Decision → game → period → deep confirmation
+
+`fairplay_difficulty.py` derives continuous evidential difficulty from engine candidate separation/spread, legal choices, equivalence, quiet/tactical status and competitive position. Many legal moves alone are not difficulty. Opponent errors, forced/trivial decisions and easy conversion remain protected. Fast searches observe three candidates; deep searches observe up to five. Rank outside three is **unknown beyond observed candidates**, never falsely labelled outside five.
+
+`fairplay_human.py` supplies a replaceable local model interface and a deterministic fallback. Its expectedness reference is `0.45 + 0.40 * clip((rating-400)/2400) + 0.12*(1-difficulty)`. This is an **uncalibrated heuristic, not a human probability**. Information potential is bounded `2*(1-reference)*difficulty`; realised information also reflects CPL. Missing ratings cannot establish an absolute anomaly. Near-equivalent alternatives reduce evidential value; #2/#3 choices can still count when they belong to a small good-move set separated from worse plausible choices. All misses remain in denominators. Each game contributes at most twelve uniformly sampled opportunity observations, never its twelve best hits.
+
+`fairplay_sequence.py` adds real chronological time-class periods and sessions while all timing comparisons remain exact-control. Windows are bounded; overlapping periods are not independent recurrence. Whole-history stability or an existing personal baseline does not veto rating-conditioned absolute evidence. White/Black profiles, difficulty-response inversion, within-game transitions and rescue structure are descriptive/supporting; none creates HIGH alone.
+
+### New HIGH routes alongside v13
+
+**Absolute gameplay:** at least ten games, 40 eligible high-information opportunities, at least eight contributor games and at least half the period contributing, rating coverage >=80%, and a one-sided Wilson hit-rate lower bound >=0.65. Opportunities require difficulty >=0.55, information potential >=0.55 and competitive positions; successes require CPL <=15. Confirm at least five contributor games with twenty opportunities, lower bound >=0.60, fast/deep hit retention >=0.80, and >=75% rank/CPL/candidate-gap search stability. At least twelve successes must themselves be stable. This route normally caps at HIGH; timing and results are optional.
+
+**Personal gameplay change:** at least ten reference games matched on class, player rating and opponent rating, substantial hard-opportunity coverage on both sides, hard near-best rate rise >=0.25 and bounded information rise >=0.10. Deep review must preserve the same difference against at least three representative deep baseline controls. This also permits HIGH without mandatory clock/result anomalies.
+
+**Replicated periods:** disjoint deep-confirmed periods must have at least three lower-anomaly games between them. Tiny samples cannot produce VERY HIGH. New VERY HIGH additionally requires >=30 scoring games, HIGH confidence, >=80 opportunities and >=12 contributors in the established period. Existing v13 routes/diagnostics remain visible; correlated rank/CPL/critical/expectedness measurements form one gameplay family.
+
+Adaptive deep review normally selects fourteen games, can use twenty for separate qualifying periods, and preserves representative baseline controls. Chronological anchors and opportunity coverage guide selection, not exclusively successful moves. Warm caches reproduce the same frozen fast evidence and deterministic deep plan.
+
+## Opening handling
+
+A pinned, offline CC0 Lichess named-opening reference replaces the blanket twenty-ply exclusion where reference data exists. Known reference moves are protected through up to sixty plies; only the first six plies receive universal protection. Earlier unrecognized moves can enter ordinary difficulty analysis. The reference is **not exhaustive theory**, so unrecognized does not prove off-book. Personal repertoire is tracked separately by color using leave-one-game-out familiarity, and is contextual only: repeated assisted openings must not become assumed clean. No Lichess network dependency or network tablebase call is added.
+
+## Diagnostics and private research
+
+The main card explicitly distinguishes collected rated games, full fast scans, gameplay-scoring games, context-only games, deep coverage and engine-covered dates. Engine details show bounded human-information opportunities/contributors, deep stability, route gates and an overlapping-category evidence funnel. This is not an additive accounting ledger. Scaled loss includes median, upper percentile and trimmed mean. Original v13 engine/CPL/timing diagnostics are retained.
+
+`fairplay_forensics.py` provides explicit local-only exports without FENs and an ablation helper; production routing does not import it. Private validation permits development/holdout categories and compares a continuous `research_evidence_index`, not a cheating percentage. The index and labels are absent from public Discord cards. Closure/ban metadata remains excluded by the neutral profile allowlist. Never commit cases or forensic output.
+
+`diagnostics.runtime` measures collection/startup, fast search, deep search, final profile/report work and peak Python-process memory (Linux RSS; excludes the separately bounded Stockfish process). Benchmark 50/100/200 cold full scans independently; cache replays are not runtime benchmarks. Engine Hash remains 64 MB, Threads=1.
+
+## Human-model research and choice
+
+Inspected current official [Maia-3](https://github.com/CSSLab/maia3): 5M/23M/79M models, PyTorch/Hugging Face local inference, `SelfElo`/`OppoElo`, CPU mode and deterministic argmax options. The inference source exposes legal-move policy logits/probabilities; UCI WDL and compatibility centipawns are outcome-head values, **not move likelihood or Stockfish evaluations**. Code is AGPL-3.0; checkpoint licensing and an application-compatible integration need independent review. Maia is not installed/downloaded by SharkBot in this release. A measured CPU/checkpoint deployment has not been validated in this process-limited cloud. The deterministic fallback therefore remains the explicit production model, not a claimed Maia integration.
+
+Inspected [Lichess Opening Explorer](https://github.com/lichess-org/lila-openingexplorer): `/masters`, `/lichess`, `/player` are the public fixed endpoints. Chose the offline [CC0 named-opening reference](https://github.com/lichess-org/chess-openings) instead of a live service dependency. The located [ChessMimic style prototype](https://github.com/Wolfecode/ChessMimic) is MIT, but does not document a deployable rating-conditioned move/think-time API; no unverified dependency is added. Regan/FIDE-inspired equivalence and scaled-loss ideas are conceptual guidance, not external certification.
+
+## Limits
+
+These heuristics are not trained population distributions or calibrated accusation probabilities. Underrated humans, incomplete opening theory and engine horizon uncertainty remain important false-positive risks. Bullet is descriptive in the new absolute route. Sparse time-class/baseline opportunities remain a limitation. Rescue, repertoire and timing residual ideas need held-out calibration before becoming stronger scoring factors. A handful of owner-labelled accounts is a convenience validation set, not a blind held-out accuracy benchmark.
+
+---
+
+## Legacy v13/v12 methodology retained for comparison
+
 # Fair Play Review v13
 
 This is a moderator screening tool, not a cheating verdict or a calibrated probability. It performs no punishments, reports, wallet mutations or rewards. Missing evidence is never suspicious. False positives and missed cases remain possible; human review is mandatory.
