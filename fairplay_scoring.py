@@ -234,7 +234,7 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
                         families,priority,confidence,reasons,
                         deep_confirmed,coverage,elapsed,timing={'trivial_delay':trivial_timing,'personal':personal,'cadence_groups':cadence_groups,'delay_floors':delay_floors},
                         clusters=clusters,
-                        coverage={'collected':selected,'fast_scanned':len(scanned_rated),'used':len(useful),'deep_reviewed':len([g for g in games if g.deep]),
+                        coverage={'collected':selected,'fast_scanned':len(scanned_rated),'used':len(useful),'deep_reviewed':len([g for g in timeline if g.deep]),
                                   'excluded_after_fast':len(scanned_rated)-len(useful),**(coverage_state or {})},
                         diagnostics={'scores':dict(zip(names,scores)),'weighted_review_score':sum(v*w for v,w in zip(scores,config.weights)),
                                      'independent_support':max(gate_timing,gate_context)>=.5 or recurrence,

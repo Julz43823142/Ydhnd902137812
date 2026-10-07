@@ -310,7 +310,9 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG):
         for year, month in ordered[:config.max_archives]:
             check_deadline(api.deadline)
             progress('Collecting rated games…')
-            data = api.get(target, f'/games/{year:04d}/{month:02d}')
+            try:data = api.get(target, f'/games/{year:04d}/{month:02d}')
+            except DeadlineReached:raise
+            except ReviewError:data = None  # archive failure is explicit missing coverage, never suspicion
             if data is None:
                 skipped['unavailable_archive'] += 1;partial = True
                 primary_archive_partial |= len(samples)<primary_limit(config)
@@ -338,6 +340,7 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG):
     except DeadlineReached:
         partial = True
         primary_archive_partial |= len(samples)<primary_limit(config)
+    if partial and len(samples)<primary_limit(config):primary_archive_partial=True
     api.fairplay_collection_coverage = {'primary_archive_partial':primary_archive_partial,
         'context_history_complete':not partial}
     newest = sorted(samples, key=lambda g: (g.ended, g.identity), reverse=True)[:limit]

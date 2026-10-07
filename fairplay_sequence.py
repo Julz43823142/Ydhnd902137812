@@ -227,6 +227,8 @@ def integrate_gameplay(result,games,config=CONFIG):
     sufficient=len(result.games)>=config.min_games and result.totals['decisions']>=config.min_games*config.min_game_decisions
     broad_allowed=bool(broad_confirmed and sufficient and primary_complete and result.confidence!='LOW')
     acute_allowed=bool(acute_confirmed and primary_complete)
+    if broad_allowed:best=broad_confirmed[0]
+    elif acute_allowed:best=acute_confirmed
     allowed=bool((broad_allowed or acute_allowed) and not {'human','difficulty'}&set(config.disabled_features))
     # These correlated gameplay features form ONE family. Other families retain
     # their own legacy scope. Baseline presence/stability is not a veto here.
@@ -278,6 +280,10 @@ def integrate_gameplay(result,games,config=CONFIG):
                     and not {'human','difficulty'}&set(config.disabled_features))
         if field and candidate and (not candidate.get(field) or not candidate['deep'].get(field)):passed=False
         blockers=[]
+        if field and candidate and not candidate.get(field):
+            blockers.extend(candidate.get('blockers') or [field.title()+' candidate requirements are not established.'])
+        if field and candidate and not candidate['deep'].get(field):
+            blockers.extend(candidate['deep'].get('blockers') or [field.title()+' paired deep confirmation is not established.'])
         if not candidate:blockers.append('No eligible chronological candidate.')
         elif not candidate['qualified']:blockers.extend(candidate.get('blockers') or ['Personal/gameplay period not exceptional.'])
         if candidate and not candidate['deep']['qualified']:blockers.extend(candidate['deep'].get('blockers') or ['Required paired deep confirmation not established.'])

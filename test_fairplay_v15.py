@@ -209,6 +209,32 @@ class Coverage(unittest.TestCase):
             self.assertEqual(len(found),100);self.assertTrue(partial)
             self.assertEqual(api.fairplay_collection_coverage['primary_archive_partial'],missing_newer)
 
+    def test_transient_older_archive_error_keeps_complete_primary(self):
+        rows=[sample_row(i) for i in range(100)]
+        class API:
+            deadline=time.monotonic()+120
+            def get(self,name,suffix):
+                if suffix.endswith('archives'):return {'archives':[
+                    f'https://api.chess.com/pub/player/{name}/games/2026/09',
+                    f'https://api.chess.com/pub/player/{name}/games/2026/10']}
+                if suffix.endswith('10'):return {'games':rows}
+                raise data.ReviewError('Temporarily unavailable')
+        api=API();found,skipped,partial=data.collect_games(api,TARGET,lambda _:None)
+        self.assertEqual(len(found),100);self.assertTrue(partial)
+        self.assertFalse(api.fairplay_collection_coverage['primary_archive_partial'])
+
+    def test_archive_cap_below_primary_quota_is_incomplete_primary(self):
+        class API:
+            deadline=time.monotonic()+120
+            def get(self,name,suffix):
+                if suffix.endswith('archives'):return {'archives':[
+                    f'https://api.chess.com/pub/player/{name}/games/2026/09',
+                    f'https://api.chess.com/pub/player/{name}/games/2026/10']}
+                return {'games':[sample_row(i) for i in range(52)]}
+        api=API();found,skipped,partial=data.collect_games(api,TARGET,lambda _:None,replace(CONFIG,max_archives=1))
+        self.assertTrue(partial);self.assertEqual(len(found),52)
+        self.assertTrue(api.fairplay_collection_coverage['primary_archive_partial'])
+
     def test_partial_primary_scan_has_low_confidence(self):
         from fairplay_scoring import score_review
         games=[game(i) for i in range(52)]
