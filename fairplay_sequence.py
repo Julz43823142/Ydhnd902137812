@@ -40,6 +40,13 @@ def class_periods(games, config=CONFIG):
         # Bounded chronological rolling windows prevent arbitrary block edges
         # from hiding a ten-game cluster. Overlap is never independent replication.
         options=[('class',group)]+[('session',v) for v in sessions]
+        # Fixed halves are a deliberately non-searched replication view. They
+        # never qualify the ordinary absolute/personal HIGH routes themselves;
+        # only both halves together may establish the replicated route below.
+        if len(group)>=2*config.human_sparse_min_games:
+            middle=len(group)//2
+            if middle>=config.human_sparse_min_games and len(group)-middle>=config.human_sparse_min_games:
+                options += [('replication_half',group[:middle]),('replication_half',group[middle:])]
         for width in config.human_period_windows:
             if width>=len(group):continue
             stride=1 if width==config.min_games else max(1,config.human_period_stride)
@@ -56,7 +63,7 @@ def class_periods(games, config=CONFIG):
         identities=set()
         for mode,part in options:
             ids=tuple(g.identity for g in part)
-            acute = mode=='acute_candidate'
+            acute = mode=='acute_candidate';replication_half = mode=='replication_half'
             if (not acute and len(part)<config.min_games) or ids in identities:continue
             identities.add(ids);s=period_summary(part,config,fast=True)
             opponents=[g.opponent_rating for g in part if g.opponent_rating is not None]
@@ -67,16 +74,17 @@ def class_periods(games, config=CONFIG):
                 and abs(g.opponent_rating-opponent_reference)<=config.baseline_opponent_rating_tolerance]
             b=period_summary(baseline,config,fast=True)
             personal=('personal' not in config.disabled_features and kind!='bullet' and len(baseline)>=config.baseline_reference_games and b['hard_opportunities']>=40
-                and not acute and s['hard_opportunities']>=40 and s['hard_contributors']>=config.human_min_contributors and s['hard_lower']>=.65
+                and not acute and not replication_half and s['hard_opportunities']>=40 and s['hard_contributors']>=config.human_min_contributors and s['hard_lower']>=.65
                 and s['hard_hits']/max(1,s['hard_opportunities'])-b['hard_hits']/max(1,b['hard_opportunities'])>=.25
                 and (s.get('observed_quality') or 0)-(b.get('observed_quality') or 0)>=.18)
             periods.append({'ids':list(ids),'class':kind,'kind':mode,'start':part[0].ended,'end':part[-1].ended,
                 'controls':sorted(set(g.time_control for g in part)), 'summary':s,
-                'absolute':not acute and class_absolute(s,kind,config),
-                'acute':acute,
+                'absolute':not acute and not replication_half and class_absolute(s,kind,config),
+                'acute':acute,'replication_half':replication_half,
                 'blockers':acute_blockers(part,config) if acute else absolute_blockers(s,config),
                 'personal':bool(personal),'baseline_ids':[g.identity for g in baseline],
-                'qualified':not acute_blockers(part,config) if acute else (class_absolute(s,kind,config) or bool(personal))})
+                'qualified':(not acute_blockers(part,config) if acute else
+                    (False if replication_half else (class_absolute(s,kind,config) or bool(personal))))})
     return sorted(periods,key=lambda p:(p['qualified'],p['summary']['information']*p['summary']['hit_lower'],p['summary']['contributors']),reverse=True)
 
 
@@ -205,6 +213,34 @@ def best_sparse_period(periods,config=CONFIG):
             -single_fraction,
             s.get('opportunities',0))
     return max(broad,key=rank)
+
+
+def fixed_replication_status(periods,config=CONFIG,*,require_deep=False):
+    """Evaluate two deterministic chronological halves, never searched windows.
+
+    The two halves reuse the conservative distributed-MODERATE fast/deep gates.
+    Requiring both halves is temporal replication inside one gameplay family,
+    not two independent probabilities.
+    """
+    groups={}
+    for period in periods:
+        if period.get('replication_half'):
+            groups.setdefault(period.get('class'),[]).append(period)
+    candidates=[]
+    for kind,halves in groups.items():
+        halves=sorted(halves,key=lambda p:(p.get('start',0),p.get('end',0)))
+        if len(halves)!=2:continue
+        blockers=[]
+        for index,period in enumerate(halves,1):
+            blockers.extend(f'half {index}: {value}' for value in sparse_review_blockers(period,config))
+            if require_deep:
+                blockers.extend(f'half {index}: {value}' for value in sparse_deep_blockers(period,period.get('deep'),config))
+        score=sum((p.get('summary') or {}).get('information',0)*(p.get('summary') or {}).get('hit_lower',0) for p in halves)
+        candidates.append({'class':kind,'halves':halves,'passed':not blockers,'blockers':list(dict.fromkeys(blockers)),'score':score})
+    if not candidates:
+        return {'class':None,'halves':[],'passed':False,
+                'blockers':['two fixed chronological halves of at least thirty games'],'score':0}
+    return max(candidates,key=lambda row:(row['passed'],row['score']))
 
 
 def coverage_members(members,count):
