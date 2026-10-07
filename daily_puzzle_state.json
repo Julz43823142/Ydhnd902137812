@@ -3881,8 +3881,8 @@
         "url": "https://lichess.org/training/4JrDY",
         "title": "Lichess • 2768",
         "fen": "8/2B5/bP6/5k2/1P2ppp1/8/3K1P2/8 b - - 3 45",
-        "current_fen": "8/2B3Q1/b7/8/1P2ppk1/8/3K4/5q2 b - - 3 49",
-        "last_move_uci": "f8g7",
+        "current_fen": "8/2B3Q1/b7/8/1P2pp2/5k2/3K4/5q2 w - - 4 50",
+        "last_move_uci": "g4f3",
         "pgn": "g3 b7 gxf2 b8=Q f1=Q Qf8+ Kg4 Qg7+ Kf3",
         "all_moves": [
           {
@@ -3961,54 +3961,44 @@
         "player_color": "black",
         "player_move_count": 5,
         "posted_at": "2026-10-07T05:06:32.419815+00:00",
-        "answer_posted": false,
+        "answer_posted": true,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
         "puzzle_id": "random_4JrDY_1791349592419",
-        "last_activity_at": "2026-10-07T05:08:18.080763+00:00",
+        "last_activity_at": "2026-10-07T05:08:22.824469+00:00",
         "rating": 2768,
         "rp_band": 5,
         "boss": true,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink",
-        "next_solution_index": 8,
-        "next_player_index": 4,
-        "solved": false,
+        "next_solution_index": 9,
+        "next_player_index": 5,
+        "solved": true,
         "message_ids": {
-          "1546557493038284840": 1557258246404710420
+          "1546557493038284840": 1557258266235371531
         },
         "chat_since_refresh": 0,
         "attempted_users": {
           "442597396195704832": {
             "name": "Thice",
-            "move": "Kg4",
+            "move": "Kf3",
             "correct": true,
-            "timestamp": "2026-10-07T05:08:18.081002+00:00"
+            "timestamp": "2026-10-07T05:08:22.824940+00:00"
           }
         },
         "first_move_user_id": "442597396195704832",
         "first_move_user_name": "Thice",
-        "first_move_awarded": false,
+        "first_move_awarded": true,
         "helper_awarded_users": [],
         "helper_candidate_users": [],
         "channel_id": 1546557493038284840,
         "board_attachment_filenames": {
           "1546557493038284840": "random_puzzle.png"
         },
-        "last_card_activity_at": "2026-10-07T05:08:18.080763+00:00",
+        "last_card_activity_at": "2026-10-07T05:08:22.824469+00:00",
         "recent_accepted_moves": [
-          {
-            "accepted_at": 1791349692.3209672,
-            "fen_before": "1Q6/2B5/b7/5k2/1P2pp2/8/3K1p2/8 b - - 0 47",
-            "expected": {
-              "uci": "f2f1q",
-              "san": "f1=Q",
-              "color": "black"
-            },
-            "accepted_uci": "f2f1q"
-          },
           {
             "accepted_at": 1791349698.0810099,
             "fen_before": "5Q2/2B5/b7/5k2/1P2pp2/8/3K4/5q2 b - - 1 48",
@@ -4018,6 +4008,16 @@
               "color": "black"
             },
             "accepted_uci": "f5g4"
+          },
+          {
+            "accepted_at": 1791349702.82495,
+            "fen_before": "8/2B3Q1/b7/8/1P2ppk1/8/3K4/5q2 b - - 3 49",
+            "expected": {
+              "uci": "g4f3",
+              "san": "Kf3",
+              "color": "black"
+            },
+            "accepted_uci": "g4f3"
           }
         ],
         "accepted_solution_moves": [
@@ -4040,12 +4040,21 @@
             "san": "Kg4",
             "uci": "f5g4",
             "principal": true
+          },
+          {
+            "san": "Kf3",
+            "uci": "g4f3",
+            "principal": true
           }
         ],
-        "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Qg7+",
+        "last_feedback": "✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+2 points** — you now have **1769 points.**\n\nPuzzle Elo: **2577**\n\n💡 **Solution:** g3 gxf2 f1=Q Kg4 Kf3\n\n🏆 **Your ranking**\n**#1 🐶 Thice — 1769 points ← you**\n**#2 🍅 TheMakina — 1552 points**",
         "wrong_attempt_counts": {
           "442597396195704832": 3
-        }
+        },
+        "completion_solver_id": "442597396195704832",
+        "completion_solver_name": "Thice",
+        "activity_bonus_users": [],
+        "auto_next_started": true
       }
     }
   },
