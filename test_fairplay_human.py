@@ -7,7 +7,8 @@ from unittest.mock import patch
 import chess
 from fairplay_config import CONFIG
 from fairplay_human import annotate_game, period_summary, absolute_qualified
-from fairplay_sequence import class_periods, deep_confirmation, integrate_gameplay, game_structure, adaptive_deep_games, coverage_members
+from fairplay_sequence import (class_periods, deep_confirmation, integrate_gameplay, game_structure,
+    adaptive_deep_games, coverage_members, sparse_review_blockers, sparse_deep_blockers)
 from fairplay_opening import book_status, opening_reference, repertoire
 from test_fairplay_v4 import game
 from test_fairplay import sample_row, TARGET
@@ -269,6 +270,89 @@ class HumanEvidence(unittest.TestCase):
         for d in g.decisions[:10]:d.metrics.update(candidate_cp=[0,-1,-2],gap=1,spread=2,cpl=150,near_best=False)
         annotate_game(g);self.assertTrue(g.metrics['human']['difficulty_inversion'])
         self.assertEqual(integrate_gameplay(result_stub([g]),[g]).priority,'LOW')
+
+    def test_period_summary_tracks_hit_bearing_distribution(self):
+        games=[informative(i) for i in range(6)]
+        for i,g in enumerate(games):
+            row=g.metrics['human']
+            row['hits']=0 if i==0 else 1 if i<4 else 2
+            g.fast_metrics['human']=copy.deepcopy(row)
+        summary=period_summary(games,fast=True)
+        self.assertEqual(summary['hit_games'],5)
+        self.assertEqual(summary['single_hit_games'],3)
+        self.assertEqual(summary['contributors'],2)
+
+    def test_distributed_sparse_evidence_is_moderate_only_after_deep_retention(self):
+        games=[informative(i,rating=2300) for i in range(30)]
+        summary=period_summary(games)
+        summary.update(games=30,opportunities=40,hits=16,hit_games=12,single_hit_games=8,
+                       opportunity_games=20,rating_coverage=1.0,information=.20,
+                       quality_excess=.09,anomaly_strength=.25)
+        period={'qualified':False,'acute':False,'absolute':False,'personal':False,
+                'class':'blitz','kind':'class','ids':[g.identity for g in games],
+                'start':games[0].ended,'end':games[-1].ended,'controls':['180+0'],
+                'summary':summary,'blockers':['distributed contributor games'],'baseline_ids':[]}
+        deep_summary=dict(summary)
+        deep_summary.update(games=5,opportunities=15,hits=6,hit_games=4,single_hit_games=3,
+                            stable_opportunities=12,stable_hits=5,information=.20,
+                            quality_excess=.09,anomaly_strength=.25)
+        proof={'qualified':False,'absolute':False,'personal':False,'games':5,
+               'summary':deep_summary,'paired_fast':{'hits':8},'retention':.75,
+               'stability_fraction':.8,'blockers':['deep contributor games']}
+        self.assertEqual(sparse_review_blockers(period),[])
+        self.assertEqual(sparse_deep_blockers(period,proof),[])
+        with patch('fairplay_sequence.class_periods',return_value=[period]), \
+             patch('fairplay_sequence.deep_confirmation',return_value=proof):
+            result=integrate_gameplay(result_stub(games),games)
+        self.assertEqual(result.priority,'MODERATE')
+        self.assertTrue(result.diagnostics['gameplay']['distributed_moderate']['passed'])
+        self.assertNotIn('HIGH',result.diagnostics.get('moderate_path',''))
+
+    def test_short_concentrated_cluster_cannot_use_distributed_moderate_route(self):
+        games=[informative(i,rating=2300) for i in range(10)]
+        summary=period_summary(games)
+        summary.update(games=10,opportunities=40,hits=20,hit_games=10,single_hit_games=8,
+                       opportunity_games=10,rating_coverage=1.0,information=.30,
+                       quality_excess=.12,anomaly_strength=.40)
+        period={'class':'blitz','summary':summary}
+        self.assertIn('broad chronological sample',sparse_review_blockers(period))
+
+    def test_sparse_broad_candidate_gets_unbiased_deep_coverage_without_high_prequalification(self):
+        games=[informative(i,rating=2300,deep=False) for i in range(30)]
+        summary=period_summary(games,fast=True)
+        summary.update(games=30,opportunities=40,hits=16,hit_games=12,single_hit_games=8,
+                       opportunity_games=20,rating_coverage=1.0,information=.20,
+                       quality_excess=.09,anomaly_strength=.25)
+        candidate={'qualified':False,'acute':False,'absolute':False,'personal':False,
+                   'class':'blitz','kind':'class','ids':[g.identity for g in games],
+                   'summary':summary,'baseline_ids':[]}
+        with patch('fairplay_sequence.class_periods',return_value=[candidate]), \
+             patch('fairplay_clusters.representative_controls',return_value=[]), \
+             patch('fairplay_clusters.select_deep_games',return_value=[]):
+            chosen=adaptive_deep_games(games)
+        self.assertEqual(len(chosen),CONFIG.deep_normal_games)
+        self.assertTrue(all(g.identity in candidate['ids'] for g in chosen))
+
+    def test_failed_high_report_prefers_broad_candidate_over_tiny_acute_window(self):
+        games=[informative(i,rating=2300) for i in range(30)]
+        broad_summary=period_summary(games)
+        broad_summary.update(games=30,opportunities=20,hits=4,hit_games=4,single_hit_games=4,
+                             opportunity_games=12,information=.08,quality_excess=.06,anomaly_strength=.12)
+        acute_summary=dict(broad_summary)
+        acute_summary.update(games=2,opportunities=5,hits=5,hit_games=1,single_hit_games=0,
+                             opportunity_games=1,information=.40,quality_excess=.10,anomaly_strength=.60)
+        broad={'qualified':False,'acute':False,'absolute':False,'personal':False,'class':'blitz',
+               'kind':'class','ids':[g.identity for g in games],'start':games[0].ended,'end':games[-1].ended,
+               'controls':['180+0'],'summary':broad_summary,'blockers':['distributed opportunity coverage'],'baseline_ids':[]}
+        acute={'qualified':False,'acute':True,'absolute':False,'personal':False,'class':'blitz',
+               'kind':'acute_candidate','ids':[g.identity for g in games[:2]],'start':games[0].ended,'end':games[1].ended,
+               'controls':['180+0'],'summary':acute_summary,'blockers':['hard opportunity denominator'],'baseline_ids':[]}
+        proof={'qualified':False,'absolute':False,'personal':False,'games':0,'summary':{},
+               'paired_fast':{},'retention':0,'stability_fraction':0,'blockers':['deep contributor games']}
+        with patch('fairplay_sequence.class_periods',return_value=[acute,broad]), \
+             patch('fairplay_sequence.deep_confirmation',return_value=proof):
+            result=integrate_gameplay(result_stub(games),games)
+        self.assertEqual(result.diagnostics['gameplay']['best']['kind'],'class')
 
     def test_adaptive_selection_is_bounded_and_reproducible(self):
         games=[informative(i) for i in range(40)]
