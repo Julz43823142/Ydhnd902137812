@@ -135,7 +135,7 @@ def evidence_funnel(games, config=CONFIG):
         for d in game.decisions:
             m=d.metrics;counts['parsed']+=1
             counts['book']+=d.phase=='opening';counts['forced']+=d.forced
-            counts['trivial']+=bool(d.trivial_kind);counts['easy_conversion']+=bool(m.get('easy_conversion') or m.get('automatic_material_gain'))
+            counts['trivial']+=bool(d.trivial_kind or m.get('simple_threat_response'));counts['easy_conversion']+=bool(m.get('easy_conversion') or m.get('automatic_material_gain'))
             counts['search_unstable']+=bool(m.get('search_inconsistent') or
                 (m.get('search_stability',{}).get('compared') and not m['search_stability']['stable']))
             for key,flag in [('engine_useful',m.get('useful')),('competitive',m.get('competitive')),

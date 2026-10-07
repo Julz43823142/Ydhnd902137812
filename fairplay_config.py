@@ -94,6 +94,7 @@ class ReviewConfig:
     human_absolute_information_floor: float = .30
     human_expectation_margin: float = .05
     human_equivalence_power: float = .30
+    human_threat_response_factor: float = .5
     human_difficulty_floor: float = .55
     human_min_opportunities: int = 40
     human_min_contributors: int = 8

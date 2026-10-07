@@ -83,6 +83,25 @@ def deep_confirmation(period,games,config=CONFIG):
             'stability_fraction':stable/max(1,n)}
 
 
+def coverage_members(members,count):
+    """Chronological anchors plus geometry coverage; never rank by hits.
+    
+    Opportunity-poor uniformly spaced selections can fail the deep denominator
+    even when the complete period is informative. Within chronological bins,
+    prefer more measurable positions, including all their misses.
+    """
+    members=sorted(members,key=lambda g:(g.ended,g.identity))
+    if count>=len(members):return members
+    if count<=2:return members[:1]+members[-1:] if count==2 else members[:count]
+    selected=[members[0],members[-1]]
+    interior=members[1:-1];bins=count-2
+    for index in range(bins):
+        start=index*len(interior)//bins;end=(index+1)*len(interior)//bins
+        part=interior[start:end]
+        selected.append(max(part,key=lambda g:((g.fast_metrics or g.metrics).get('human',{}).get('opportunities',0),-g.ended)))
+    return sorted(selected,key=lambda g:(g.ended,g.identity))
+
+
 def adaptive_deep_games(games,config=CONFIG):
     if config.deep_games==0:return []  # explicit local/fixture deep-disable override
     from fairplay_clusters import select_deep_games, representative_controls
@@ -102,8 +121,14 @@ def adaptive_deep_games(games,config=CONFIG):
     second=next((p for p in independent if not set(p['ids'])&set(candidate['ids'])),None)
     others=[lookup[i] for i in second['ids']] if second else []
     second_count=min(5,len(others));reserve=len(controls);count=min(len(members),target-reserve-second_count)
-    selected=[members[round(i*(len(members)-1)/max(1,count-1))] for i in range(count)]+controls
-    if others:selected+=[others[round(i*(len(others)-1)/max(1,second_count-1))] for i in range(second_count)]
+    primary=coverage_members(members,count)
+    coverage=sum((g.fast_metrics or g.metrics).get('human',{}).get('opportunities',0) for g in primary)
+    if coverage<config.human_deep_opportunities and target<config.deep_max_games:
+        target=min(len(games),config.deep_max_games)
+        count=min(len(members),target-reserve-second_count)
+        primary=coverage_members(members,count)
+    selected=primary+controls
+    if others:selected+=coverage_members(others,second_count)
     for game in select_deep_games(games,replace(config,deep_games=target)):
         if len(selected)>=target:break
         if game not in selected:selected.append(game)

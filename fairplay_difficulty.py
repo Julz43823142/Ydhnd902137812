@@ -1,10 +1,29 @@
 """Continuous position value; legal-count alone never establishes difficulty."""
 import math
 import statistics
+import chess
 from fairplay_config import CONFIG
 
 
 def clamp(value):return max(0.0,min(1.0,value))
+
+
+def simple_threat_response(decision):
+    """Straightforward flight of an attacked piece is not a quiet discovery."""
+    if decision.capture or decision.check or decision.gives_check:return False
+    try:
+        board=chess.Board(decision.fen);move=chess.Move.from_uci(decision.move)
+        piece=board.piece_at(move.from_square)
+        values={chess.PAWN:1,chess.KNIGHT:3,chess.BISHOP:3,chess.ROOK:5,chess.QUEEN:9,chess.KING:0}
+        if not piece or piece.color!=board.turn or values[piece.piece_type]<3 or not board.is_legal(move):return False
+        enemy=not board.turn;opponent=board.copy(stack=False);opponent.turn=enemy
+        threatened=any(values[board.piece_at(square).piece_type]<=values[piece.piece_type]
+                       and opponent.is_legal(chess.Move(square,move.from_square))
+                       for square in board.attackers(enemy,move.from_square))
+        if not threatened:return False
+        board.push(move)
+        return not bool(board.attackers(enemy,move.to_square))
+    except (ValueError,TypeError):return False
 
 
 def annotate(decision, config=CONFIG):
@@ -19,13 +38,19 @@ def annotate(decision, config=CONFIG):
     boundary=max((values[i]-values[i+1] for i in range(len(values)-1)
                   if values[0]-values[i]<=50),default=m.get('gap') or 0)
     choices=clamp(math.log(max(2,decision.legal))/math.log(35))
-    separation=clamp(boundary/200)
-    spread=clamp((m.get('spread') or 0)/400)
+    # Normalize against the established critical-position frontier. Requiring
+    # twice that gap/spread here silently discarded quiet unique decisions
+    # already considered meaningful by the legacy evidence model.
+    separation=clamp(boundary/max(1,config.critical_gap))
+    spread=clamp((m.get('spread') or 0)/max(1,config.critical_spread))
     quiet=not (decision.capture or decision.check or decision.gives_check)
     difficulty=choices*(.55*separation+.45*spread)*(1 if quiet else .75)
     # Many equivalent candidates make an engine match uninformative.
     difficulty*=1/max(1,good)**config.human_equivalence_power
     difficulty*=1 if m.get('competitive') else .5
+    obvious_response=simple_threat_response(decision)
+    if obvious_response:difficulty*=config.human_threat_response_factor
+    m['simple_threat_response']=obvious_response
     m.update(difficulty=clamp(difficulty),plausible_good_moves=good,played_boundary_cp=boundary)
 
 

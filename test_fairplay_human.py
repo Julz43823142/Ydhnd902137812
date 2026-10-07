@@ -7,7 +7,7 @@ from unittest.mock import patch
 import chess
 from fairplay_config import CONFIG
 from fairplay_human import annotate_game, period_summary, absolute_qualified
-from fairplay_sequence import class_periods, deep_confirmation, integrate_gameplay, game_structure, adaptive_deep_games
+from fairplay_sequence import class_periods, deep_confirmation, integrate_gameplay, game_structure, adaptive_deep_games, coverage_members
 from fairplay_opening import book_status, opening_reference, repertoire
 from test_fairplay_v4 import game
 from test_fairplay import sample_row, TARGET
@@ -112,6 +112,43 @@ class HumanEvidence(unittest.TestCase):
     def test_three_perfect_games_after_seven_weak_games_do_not_high(self):
         games=[informative(i,misses=45 if i<7 else 0) for i in range(10)]
         self.assertEqual(integrate_gameplay(result_stub(games),games).priority,'LOW')
+
+    def test_deep_selection_covers_opportunities_not_only_uniform_easy_games(self):
+        games=[informative(i) for i in range(50)]
+        for i,g in enumerate(games):
+            if i%3:
+                for d in g.decisions:d.metrics['easy_conversion']=True
+                annotate_game(g);g.fast_metrics['human']=copy.deepcopy(g.metrics['human'])
+        chosen=coverage_members(games,11)
+        self.assertIn(games[0],chosen);self.assertIn(games[-1],chosen)
+        self.assertGreaterEqual(sum(g.fast_metrics['human']['opportunities'] for g in chosen),20)
+        # Selection uses opportunity geometry, not whether those moves succeed.
+        before=[g.identity for g in chosen]
+        for g in games:g.fast_metrics['human']['hits']=0
+        self.assertEqual(before,[g.identity for g in coverage_members(games,11)])
+
+    def test_quiet_unique_move_example_has_high_evidential_difficulty(self):
+        g=informative(0,rating=1800)
+        for d in g.decisions:
+            d.legal=22
+            d.metrics.update(candidate_cp=[65,-30,-75,-120],candidate_count=4,
+                             before_cp=65,actual_cp=65,gap=95,spread=185)
+        annotate_game(g)
+        self.assertGreater(g.decisions[0].metrics['difficulty'],CONFIG.human_difficulty_floor)
+        self.assertTrue(g.decisions[0].metrics['high_information'])
+        # Nearly equivalent alternatives remain uninformative.
+        for d in g.decisions:d.metrics.update(candidate_cp=[121,119,117,114],gap=2,spread=7)
+        annotate_game(g)
+        self.assertFalse(g.decisions[0].metrics['high_information'])
+
+    def test_obvious_quiet_piece_escape_is_deweighted(self):
+        g=informative(0)
+        for d in g.decisions:
+            d.fen='6k1/8/8/8/8/8/3rQ3/6K1 w - - 0 1'
+            d.move='e2e3'
+        annotate_game(g)
+        self.assertTrue(g.decisions[0].metrics['simple_threat_response'])
+        self.assertFalse(g.decisions[0].metrics['high_information'])
 
     def test_misses_stay_in_capped_denominator(self):
         g=informative(0,misses=20);s=g.metrics['human']
