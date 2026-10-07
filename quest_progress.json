@@ -576,9 +576,9 @@
           "name": "TheMakina",
           "paid": [],
           "progress": {
-            "daily:2026-10-07:puzzle:solve-10": 3
+            "daily:2026-10-07:puzzle:solve-10": 4
           },
-          "updated_at": 1791360207
+          "updated_at": 1791360240
         }
       }
     },
@@ -774,9 +774,9 @@
           "name": "TheMakina",
           "paid": [],
           "progress": {
-            "weekly:2026-10-05:puzzle:solve-25": 3
+            "weekly:2026-10-05:puzzle:solve-25": 4
           },
-          "updated_at": 1791360207
+          "updated_at": 1791360240
         }
       }
     }

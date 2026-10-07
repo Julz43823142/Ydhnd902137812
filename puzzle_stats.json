@@ -378,14 +378,14 @@
       "current_wrong_streak": 1,
       "elo": 2426.8519771303877,
       "elo_games": 173,
-      "first_solves": 131,
+      "first_solves": 132,
       "max_rating_solved": 2962,
       "name": "TheMakina",
       "peak_elo": 2484.275767037379,
       "rated_correct_count": 128,
       "rated_correct_rating_sum": 252708,
       "total": 181,
-      "updated_at": 1791360226,
+      "updated_at": 1791360240,
       "wrong": 47
     }
   },
