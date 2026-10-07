@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/HDV5r",
     "title": "Lichess • 2405",
     "fen": "8/8/8/4k2P/5pPn/6K1/8/8 w - - 0 51",
-    "current_fen": "8/7P/8/8/6P1/4k1K1/5p2/8 w - - 0 55",
-    "last_move_uci": "f3f2",
+    "current_fen": "7Q/8/8/8/6P1/4k1K1/8/5q2 w - - 0 56",
+    "last_move_uci": "f2f1q",
     "pgn": "Kxh4 Ke4 h6 f3 Kg3 Ke3 h7 f2 h8=Q f1=Q Qe5+",
     "all_moves": [
       {
@@ -103,28 +103,28 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_HDV5r_1791360792419",
-    "last_activity_at": "2026-10-07T08:14:03.089198+00:00",
+    "last_activity_at": "2026-10-07T08:14:12.911612+00:00",
     "rating": 2405,
     "rp_band": 4,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 8,
-    "next_player_index": 4,
+    "next_solution_index": 10,
+    "next_player_index": 5,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1557304991075672135
+      "1468320170891022417": 1557305032909791242
     },
-    "message_id": 1557304991075672135,
+    "message_id": 1557305032909791242,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "601406103712170014": {
         "name": "TheMakina",
-        "move": "h7",
+        "move": "h8=Q",
         "correct": true,
-        "timestamp": "2026-10-07T08:14:03.089362+00:00"
+        "timestamp": "2026-10-07T08:14:12.911782+00:00"
       }
     },
     "first_move_user_id": "601406103712170014",
@@ -135,17 +135,17 @@
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
-    "last_card_activity_at": "2026-10-07T08:14:03.089198+00:00",
+    "last_card_activity_at": "2026-10-07T08:14:12.911612+00:00",
     "recent_accepted_moves": [
       {
-        "accepted_at": 1791360843.0893698,
-        "fen_before": "8/8/7P/8/6P1/4kpK1/8/8 w - - 2 54",
+        "accepted_at": 1791360852.9117885,
+        "fen_before": "8/7P/8/8/6P1/4k1K1/5p2/8 w - - 0 55",
         "expected": {
-          "uci": "h6h7",
-          "san": "h7",
+          "uci": "h7h8q",
+          "san": "h8=Q",
           "color": "white"
         },
-        "accepted_uci": "h6h7"
+        "accepted_uci": "h7h8q"
       }
     ],
     "accepted_solution_moves": [
@@ -168,9 +168,14 @@
         "san": "h7",
         "uci": "h6h7",
         "principal": true
+      },
+      {
+        "san": "h8=Q",
+        "uci": "h7h8q",
+        "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** f2",
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** f1=Q",
     "wrong_attempt_counts": {
       "601406103712170014": 1
     }
