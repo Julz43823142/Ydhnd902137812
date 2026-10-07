@@ -45,9 +45,13 @@ def class_periods(games, config=CONFIG):
             stride=1 if width==config.min_games else max(1,config.human_period_stride)
             starts=set(range(0,len(group)-width+1,stride));starts.add(len(group)-width)
             for start in sorted(starts):options.append(('window',group[start:start+width]))
+        # Acute discovery spans the complete engine-reviewed class sample.
+        # The windows are contiguous and overlapping windows never count as
+        # independent recurrence. Strict per-game/deep gates control the
+        # look-elsewhere risk; no ranked noncontiguous strongest-game set exists.
         for width in config.acute_windows:
             if width>len(group):continue
-            for start in range(max(0,len(group)-10-width+1),len(group)-width+1):
+            for start in range(0,len(group)-width+1):
                 options.append(('acute_candidate',group[start:start+width]))
         identities=set()
         for mode,part in options:
@@ -89,7 +93,7 @@ def deep_confirmation(period,games,config=CONFIG):
     qualified=qualified and deep['stable_hits']>=config.human_deep_opportunities*.6
     absolute=bool(qualified and period.get('absolute',True)
         and deep['information']>=config.human_absolute_information_floor
-        and deep.get('quality_excess',0)>=config.human_period_excess)
+        and deep.get('anomaly_strength',0)>=config.human_period_excess)
     if period['class']=='bullet':
         absolute=bool(absolute and len(members)>=config.bullet_human_deep_games
             and deep['contributors']>=config.bullet_human_deep_games
@@ -117,7 +121,7 @@ def deep_confirmation(period,games,config=CONFIG):
                 'deep semantic-quality stability':stable/max(1,n)>=config.human_stability_fraction,
                 'fast to deep retention':retention>=config.human_retention,
                 'deep rating-adjusted information':deep['information']>=config.human_absolute_information_floor,
-                'deep rating-adjusted excess':deep.get('quality_excess',0)>=config.human_period_excess}.items() if not ok] if not (absolute or personal) else []}
+                'deep headroom-aware anomaly':deep.get('anomaly_strength',0)>=config.human_period_excess}.items() if not ok] if not (absolute or personal) else []}
 
 
 def coverage_members(members,count):
@@ -194,7 +198,7 @@ def confirmation_extension(games,config=CONFIG):
         if (proof['retention']<config.human_retention
             or summary['hit_lower']<config.human_deep_hit_lower
             or summary['information']<config.human_absolute_information_floor
-            or summary.get('quality_excess',0)<config.human_period_excess):
+            or summary.get('anomaly_strength',0)<config.human_period_excess):
             continue
         pending=[g for g in games if g.identity in period['ids'] and not g.deep
                  and (g.fast_metrics or g.metrics).get('human',{}).get('opportunities',0)]
@@ -328,6 +332,10 @@ def integrate_gameplay(result,games,config=CONFIG):
         'Acute exceptional HIGH':route_row(lambda p:p.get('acute',False),'acute'),
         'Recurrence HIGH':{'passed':bool(broad_allowed and replicated),
             'blockers':[] if broad_allowed and replicated else ['Separated, deep-confirmed periods with intervening lower-anomaly play not established.']},
+        'Gameplay+timing HIGH':{'passed':bool(
+                broad_allowed and result.diagnostics.get('gate_scores',{}).get('Move-Time Pattern',0)>=.5),
+            'blockers':[] if broad_allowed and result.diagnostics.get('gate_scores',{}).get('Move-Time Pattern',0)>=.5
+                else ['Deep-confirmed broad gameplay plus same-period timing support not jointly established.']},
         'Convergence HIGH':{'passed':bool(convergence.get('raised_priority')),
             'blockers':[] if convergence.get('raised_priority') else (convergence.get('confirmation',{}).get('blockers') or ['Complete-period convergence not established.'])}}
     result.families['Human / Difficulty Evidence']='Elevated' if allowed else 'Limited / not established'
