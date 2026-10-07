@@ -166,13 +166,16 @@ def sparse_deep_blockers(period,proof,config=CONFIG):
 def best_sparse_period(periods,config=CONFIG):
     broad=[p for p in periods if not p.get('acute')]
     if not broad:return None
-    return max(broad,key=lambda p:(
-        not sparse_review_blockers(p,config),
-        p['summary'].get('hit_games',0),
-        p['summary'].get('hits',0),
-        p['summary'].get('single_hit_games',0),
-        p['summary'].get('information',0)*p['summary'].get('anomaly_strength',0),
-        p['summary'].get('opportunities',0)))
+    def rank(period):
+        s=period.get('summary') or {}
+        return (
+            not sparse_review_blockers(period,config),
+            s.get('hit_games',0),
+            s.get('hits',0),
+            s.get('single_hit_games',0),
+            s.get('information',0)*s.get('anomaly_strength',0),
+            s.get('opportunities',0))
+    return max(broad,key=rank)
 
 
 def coverage_members(members,count):
