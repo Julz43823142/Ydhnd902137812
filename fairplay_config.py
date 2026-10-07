@@ -112,7 +112,8 @@ class ReviewConfig:
     acute_information_floor: float = .35
     acute_quality_excess: float = .40  # retained for v15 diagnostic compatibility
     acute_quality_residual: float = .38
-    acute_min_raw_excess: float = .04
+    acute_anomaly_strength: float = .40
+    acute_min_raw_excess: float = .10
     acute_hit_lower: float = .78
     acute_hit_fraction: float = .90
     acute_stability_fraction: float = .85

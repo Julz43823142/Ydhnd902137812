@@ -20,9 +20,13 @@ def acute_blockers(games, config=CONFIG, *, fast=True):
         'every game is exceptional':all(
             m.get('hits', 0)/max(1, m.get('opportunities', 0))>=config.acute_hit_fraction
             and m.get('information', 0)>=config.acute_information_floor
-            and m.get('quality_excess', 0)>=config.acute_quality_excess
+            and m.get('anomaly_strength', 0)>=config.acute_anomaly_strength
+            and m.get('quality_residual', 0)>=config.acute_quality_residual
+            and m.get('quality_excess', 0)>=config.acute_min_raw_excess
             and m.get('quiet_hits', 0)>=config.acute_quiet_hits_per_game for m in rows),
-        'exceptional aggregate lower bound':s['hit_lower']>=config.acute_hit_lower}
+        'exceptional aggregate lower bound':s['hit_lower']>=config.acute_hit_lower,
+        'aggregate headroom anomaly':s.get('anomaly_strength',0)>=config.acute_anomaly_strength,
+        'aggregate raw quality excess':s.get('quality_excess',0)>=config.acute_min_raw_excess}
     return [label for label, passed in tests.items() if not passed]
 
 
