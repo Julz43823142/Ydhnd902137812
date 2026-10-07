@@ -38,6 +38,34 @@ HumanMoveModel = HumanReferenceModel
 FALLBACK = HeuristicHumanModel()
 
 
+def quality_components(observed, expected, rating, config=CONFIG):
+    """Raw excess plus remaining-headroom-normalized anomaly strength.
+
+    This is deliberately not a probability. Fixed raw-excess gates become
+    mathematically unreachable as expected quality approaches 1.0; normalizing
+    by the remaining headroom fixes that geometry. A raw-excess floor and a
+    small continuous elite adjustment keep ordinary strong play from becoming
+    exceptional merely because the player has a high rating.
+    """
+    excess=max(0.0, observed-expected)
+    headroom=max(config.human_residual_headroom_floor, 1-expected)
+    residual=min(1.0, excess/headroom)
+    strength=max(excess, config.human_residual_weight*residual)
+    rating_strength=clamp(((rating if rating is not None else 2800)-400)/2400)
+    hit_threshold=config.human_quality_excess+max(
+        0.0, rating_strength-config.human_elite_threshold_start
+    )*config.human_elite_threshold_scale
+    raw_threshold=config.human_min_raw_excess_base+config.human_min_raw_excess_rating*rating_strength
+    return excess,residual,strength,hit_threshold,raw_threshold
+
+
+def accuracy_index(scaled_loss):
+    """Descriptive move-accuracy transform from win-percentage loss."""
+    if scaled_loss is None:return None
+    loss_percent=max(0.0,min(100.0,100*float(scaled_loss)))
+    return max(0.0,min(100.0,103.1668*math.exp(-.04354*loss_percent)-3.1669))
+
+
 def annotate_game(game, config=CONFIG, model=None):
     model = model or FALLBACK
     failures = 0
@@ -68,13 +96,19 @@ def annotate_game(game, config=CONFIG, model=None):
         # Rank is diagnostic, not a penalty when objective quality is equivalent.
         observed = min(clamp(1-m.get('cpl', 1000)/150),
                        clamp(1-m.get('scaled_loss', m.get('cpl', 1000)/1000)/.20))
-        excess = max(0.0, observed-expected)
+        excess,residual,anomaly,hit_threshold,raw_threshold=quality_components(
+            observed,expected,game.rating,config)
         uniqueness = 1/max(1, m.get('plausible_good_moves', 1))**.25
-        information = m.get('difficulty', 0)*excess*uniqueness if opportunity else 0.0
-        hit = opportunity and observed>=.85 and excess>=config.human_quality_excess
+        information = m.get('difficulty', 0)*anomaly*uniqueness if opportunity else 0.0
+        hit = (opportunity and observed>=.85 and excess>=raw_threshold
+               and anomaly>=hit_threshold)
         quiet = not (d.capture or d.check or d.gives_check)
         m.update(expected_human_quality=expected, observed_move_quality=observed,
-                 quality_excess=excess, human_anomaly_information=information,
+                 quality_excess=excess, quality_residual=residual,
+                 anomaly_strength=anomaly, anomaly_hit_threshold=hit_threshold,
+                 raw_excess_threshold=raw_threshold,
+                 move_accuracy=accuracy_index(m.get('scaled_loss')),
+                 human_anomaly_information=information,
                  human_expectedness=expected, human_information=information,
                  human_opportunity=opportunity, high_information=bool(hit),
                  informative_quiet_hit=bool(hit and quiet and m.get('plausible_good_moves', 1)<=3
@@ -93,10 +127,21 @@ def annotate_game(game, config=CONFIG, model=None):
     buckets = {name:[m for m in rows if lo<=m.get('difficulty', 0)<hi]
                for name, lo, hi in [('easy', 0, .3), ('medium', .3, .55), ('hard', .55, 1.01)]}
     curve = {name:{'count':len(v),
-                  'near_best':sum(m.get('near_best', False) for m in v)/len(v) if v else None}
+                  'near_best':sum(m.get('near_best', False) for m in v)/len(v) if v else None,
+                  'observed_quality':statistics.mean(m.get('observed_move_quality',0) for m in v) if v else None,
+                  'anomaly_strength':statistics.mean(m.get('anomaly_strength',0) for m in v) if v else None}
              for name, v in buckets.items()}
     inversion = (len(buckets['easy'])>=6 and len(buckets['hard'])>=6 and
                  curve['hard']['near_best']-curve['easy']['near_best']>=.25)
+    quality_inversion = ((curve['hard']['observed_quality'] or 0)-(curve['easy']['observed_quality'] or 0)
+                         if len(buckets['easy'])>=6 and len(buckets['hard'])>=6 else 0.0)
+    inversion_strength=max(
+        0.0,
+        (curve['hard']['near_best'] or 0)-(curve['easy']['near_best'] or 0)
+            if len(buckets['easy'])>=6 and len(buckets['hard'])>=6 else 0.0,
+        quality_inversion)
+    selective_signal=bool(inversion_strength>=.20 and
+                          (curve['hard']['anomaly_strength'] or 0)>=config.human_period_excess)
     stable = [m for m in capped if m.get('search_stability', {}).get('stable')]
     result = {
         'model':FALLBACK.name if failures else model.name, 'model_failures':failures, 'rank':ranks,
@@ -108,9 +153,14 @@ def annotate_game(game, config=CONFIG, model=None):
         'hard_stable':len(stable),
         'information':statistics.mean(m['human_information'] for m in capped) if capped else 0,
         'quality_excess':statistics.mean(m['quality_excess'] for m in capped) if capped else 0,
+        'quality_residual':statistics.mean(m['quality_residual'] for m in capped) if capped else 0,
+        'anomaly_strength':statistics.mean(m['anomaly_strength'] for m in capped) if capped else 0,
+        'accuracy_index':statistics.mean([m['move_accuracy'] for m in capped if m.get('move_accuracy') is not None])
+            if any(m.get('move_accuracy') is not None for m in capped) else None,
         'observed_quality':statistics.mean(m['observed_move_quality'] for m in capped) if capped else None,
         'quality_reference':statistics.mean(m['expected_human_quality'] for m in capped) if capped else None,
         'difficulty_curve':curve, 'difficulty_inversion':bool(inversion),
+        'difficulty_inversion_strength':inversion_strength, 'selective_signal':selective_signal,
         'competitive_scaled_loss':loss_summary([m for m in rows if m.get('competitive')]),
         'scaled_loss':loss_summary(rows), 'critical_scaled_loss':loss_summary([m for m in rows if m.get('critical')])}
     game.metrics['human'] = result
@@ -135,6 +185,8 @@ def period_summary(games, config=CONFIG, *, fast=False):
         'hit_lower':lower_bound(hits/n if n else None, n, config.rate_lower_bound_z),
         'contributors':len(contributors), 'contributor_ids':[g.identity for g in contributors],
         'information':average('information') or 0, 'quality_excess':average('quality_excess') or 0,
+        'quality_residual':average('quality_residual') or 0, 'anomaly_strength':average('anomaly_strength') or 0,
+        'accuracy_index':average('accuracy_index'),
         'observed_quality':average('observed_quality'), 'quality_reference':average('quality_reference'),
         'quiet_hits':sum(m.get('quiet_hits', 0) for g, m in rows),
         'opportunity_games':len(eligible),
@@ -146,7 +198,9 @@ def period_summary(games, config=CONFIG, *, fast=False):
         'hard_stable':sum(m.get('hard_stable', 0) for g, m in rows),
         'rating_coverage':len(rated)/len(games) if games else 0,
         'rating_reference':statistics.median(g.rating for g in rated) if rated else None,
-        'inversion_games':sum(m.get('difficulty_inversion', False) for g, m in rows)}
+        'inversion_games':sum(m.get('difficulty_inversion', False) for g, m in rows),
+        'selective_games':sum(m.get('selective_signal', False) for g, m in rows),
+        'inversion_strength':average('difficulty_inversion_strength') or 0}
 
 
 def absolute_blockers(s, config=CONFIG):
@@ -161,7 +215,7 @@ def absolute_blockers(s, config=CONFIG):
         'distributed opportunity coverage':s['opportunities']>=required_opportunities,
         'distributed contributor games':s['contributors']>=required_contributors,
         'rating-adjusted information':s['information']>=config.human_absolute_information_floor,
-        'rating-adjusted quality excess':s.get('quality_excess', 0)>=config.human_period_excess,
+        'headroom-aware anomaly strength':s.get('anomaly_strength', 0)>=config.human_period_excess,
         'anomaly hit lower bound':s['hit_lower']>=config.human_hit_lower}
     return [label for label, passed in tests.items() if not passed]
 
@@ -171,21 +225,41 @@ def absolute_qualified(summary, config=CONFIG):
 
 
 def evidence_funnel(games, config=CONFIG):
+    """Return overlapping category counts and true sequential survivor counts."""
+    decisions=[d for game in games for d in game.decisions]
     counts = {key:0 for key in ['parsed', 'book', 'forced', 'trivial', 'easy_conversion', 'search_unstable',
                                'engine_useful', 'competitive', 'high_difficulty', 'critical', 'unique', 'high_information']}
-    for game in games:
-        for d in game.decisions:
-            m = d.metrics
-            counts['parsed'] += 1
-            counts['book'] += d.phase=='opening'
-            counts['forced'] += d.forced
-            counts['trivial'] += bool(d.trivial_kind or m.get('simple_threat_response'))
-            counts['easy_conversion'] += bool(m.get('easy_conversion') or m.get('automatic_material_gain'))
-            counts['search_unstable'] += bool(m.get('search_inconsistent') or
-                (m.get('search_stability', {}).get('compared') and not m['search_stability']['stable']))
-            for key, flag in [('engine_useful', m.get('useful')), ('competitive', m.get('competitive')),
-                              ('high_difficulty', m.get('difficulty', 0)>=config.human_difficulty_floor),
-                              ('critical', m.get('critical')), ('unique', m.get('unique')),
-                              ('high_information', m.get('high_information'))]:
-                counts[key] += bool(flag)
+    for d in decisions:
+        m=d.metrics
+        counts['parsed']+=1
+        counts['book']+=d.phase=='opening'
+        counts['forced']+=d.forced
+        counts['trivial']+=bool(d.trivial_kind or m.get('simple_threat_response'))
+        counts['easy_conversion']+=bool(m.get('easy_conversion') or m.get('automatic_material_gain'))
+        counts['search_unstable']+=bool(m.get('search_inconsistent') or
+            (m.get('search_stability',{}).get('compared') and not m.get('search_stability',{}).get('stable')))
+        for key,flag in [('engine_useful',m.get('useful')),('competitive',m.get('competitive')),
+                         ('high_difficulty',m.get('difficulty',0)>=config.human_difficulty_floor),
+                         ('critical',m.get('critical')),('unique',m.get('unique')),
+                         ('high_information',m.get('high_information'))]:
+            counts[key]+=bool(flag)
+    remaining=list(decisions);flow={'parsed':len(remaining)}
+    stages=[
+        ('off_book',lambda d:d.phase!='opening'),
+        ('not_forced',lambda d:not d.forced),
+        ('not_trivial',lambda d:not (d.trivial_kind or d.metrics.get('simple_threat_response'))),
+        ('not_easy_conversion',lambda d:not (d.metrics.get('easy_conversion') or d.metrics.get('automatic_material_gain'))),
+        ('search_stable',lambda d:not d.metrics.get('search_inconsistent') and not (
+            d.metrics.get('search_stability',{}).get('compared') and not d.metrics.get('search_stability',{}).get('stable'))),
+        ('engine_useful',lambda d:bool(d.metrics.get('useful'))),
+        ('competitive',lambda d:bool(d.metrics.get('competitive'))),
+        ('high_difficulty',lambda d:d.metrics.get('difficulty',0)>=config.human_difficulty_floor),
+        ('critical',lambda d:bool(d.metrics.get('critical'))),
+        ('unique',lambda d:bool(d.metrics.get('unique'))),
+        ('high_information',lambda d:bool(d.metrics.get('high_information'))),
+    ]
+    for name,predicate in stages:
+        remaining=[d for d in remaining if predicate(d)]
+        flow[name]=len(remaining)
+    counts['_flow']=flow
     return counts

@@ -22,7 +22,7 @@ from fairplay_progress import estimate, bar, label
 RESERVED = '🛡️ This channel is reserved for Fair Play reviews.'
 PANEL_TITLE = '🛡️ Fair Play Task Force'
 REPORT_PREFIX = '🛡️ Fair Play Review — '
-IDLE_SECONDS = 60*60
+IDLE_SECONDS = CONFIG.intro_panel_seconds
 PANEL_MARKER = 'shark:fairplay:panel:v1'
 _service = None
 
@@ -428,16 +428,21 @@ def add_gameplay_fields(embed,result):
               f'Contributor games: {s.get("contributors",0)} / {s.get("games",0)} · rating reference: {s.get("rating_reference") or "unavailable"}\n'
               f'Opportunity-bearing games: {s.get("opportunity_games",0)} · bounded information: {number(s.get("information"))}\n'
               f'Expected / observed quality: {number(s.get("quality_reference"))} / {number(s.get("observed_quality"))}\n'
-              f'Rating-adjusted quality excess: {number(s.get("quality_excess"))} (heuristic, not probability)\n'
-              f'Deep-stable high-information decisions: {deep.get("stable_hits",0)}\n'
+              f'Raw quality excess / headroom anomaly: {number(s.get("quality_excess"))} / {number(s.get("anomaly_strength"))}\n'
+              f'Descriptive move accuracy: {number(s.get("accuracy_index"))} · selective-assistance games: {s.get("selective_games",0)}\n'
+              f'Difficulty inversion strength: {number(s.get("inversion_strength"))} · deep-stable high-information decisions: {deep.get("stable_hits",0)}\n'
               f'Gameplay class: {best.get("class","unavailable")} · controls: {", ".join(best.get("controls",[])) or "unavailable"}\n'
               'Related rank, loss and difficulty measurements form one gameplay family, not independent probabilities.')
     embed.add_field(name='Gameplay HIGH route gates',inline=False,
         value='\n'.join(f'{key.replace("_"," ").title()}: {"PASS" if value else "FAIL"}' for key,value in d['gates'].items())+
               '\nTiming/results are optional for this route. Legacy gates are separate.')
-    f=d['funnel']
+    f=d['funnel'];flow=f.get('_flow',{})
+    overlap={key:value for key,value in f.items() if key!='_flow'}
     embed.add_field(name='Evidence coverage — overlapping categories',inline=False,
-        value=' · '.join(f'{key.replace("_"," ").title()}: {value}' for key,value in f.items())[:1024])
+        value=' · '.join(f'{key.replace("_"," ").title()}: {value}' for key,value in overlap.items())[:1024])
+    if flow:
+        embed.add_field(name='Evidence survivor funnel',inline=False,
+            value=' → '.join(f'{key.replace("_"," ")} {value}' for key,value in flow.items())[:1024])
 
 
 async def channel_check(ctx):
