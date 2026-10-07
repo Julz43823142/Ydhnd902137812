@@ -6,7 +6,7 @@ Ranked best-game sets cannot establish a period or independent recurrence.
 import statistics
 from dataclasses import replace
 from fairplay_config import CONFIG
-from fairplay_human import period_summary, absolute_qualified, absolute_blockers
+from fairplay_human import period_summary, absolute_qualified, absolute_blockers, period_raw_excess_floor
 from fairplay_acute import acute_blockers, acute_deep_confirmation
 
 
@@ -93,6 +93,7 @@ def deep_confirmation(period,games,config=CONFIG):
     qualified=qualified and deep['stable_hits']>=config.human_deep_opportunities*.6
     absolute=bool(qualified and period.get('absolute',True)
         and deep['information']>=config.human_absolute_information_floor
+        and deep.get('quality_excess',0)>=period_raw_excess_floor(deep,config)
         and deep.get('anomaly_strength',0)>=config.human_period_excess)
     if period['class']=='bullet':
         absolute=bool(absolute and len(members)>=config.bullet_human_deep_games
@@ -121,6 +122,7 @@ def deep_confirmation(period,games,config=CONFIG):
                 'deep semantic-quality stability':stable/max(1,n)>=config.human_stability_fraction,
                 'fast to deep retention':retention>=config.human_retention,
                 'deep rating-adjusted information':deep['information']>=config.human_absolute_information_floor,
+                'deep raw quality excess beyond ceiling guard':deep.get('quality_excess',0)>=period_raw_excess_floor(deep,config),
                 'deep headroom-aware anomaly':deep.get('anomaly_strength',0)>=config.human_period_excess}.items() if not ok] if not (absolute or personal) else []}
 
 

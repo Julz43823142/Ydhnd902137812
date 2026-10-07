@@ -203,9 +203,18 @@ def period_summary(games, config=CONFIG, *, fast=False):
         'inversion_strength':average('difficulty_inversion_strength') or 0}
 
 
+def period_raw_excess_floor(s, config=CONFIG):
+    """Minimum period-level raw separation required beside residual strength."""
+    reference=s.get('quality_reference')
+    ceiling=max(0.0,(reference if reference is not None else 1.0)-config.human_period_ceiling_reference)
+    return config.human_period_min_raw_excess+ceiling*config.human_period_ceiling_raw_scale
+
+
 def absolute_blockers(s, config=CONFIG):
     # Wilson bounds describe the sampled anomaly-hit fraction, NOT an expected
-    # human-quality probability. Quality excess has its own continuous gate.
+    # human-quality probability. Residual strength is paired with a raw-excess
+    # floor so tiny differences near the expected-quality ceiling cannot alone
+    # create an absolute HIGH route.
     required_contributors = max(config.human_min_contributors,
                                 math.ceil(s['opportunity_games']*config.human_contributor_fraction))
     required_opportunities = max(config.human_min_opportunities, 2*s['opportunity_games'])
@@ -215,6 +224,7 @@ def absolute_blockers(s, config=CONFIG):
         'distributed opportunity coverage':s['opportunities']>=required_opportunities,
         'distributed contributor games':s['contributors']>=required_contributors,
         'rating-adjusted information':s['information']>=config.human_absolute_information_floor,
+        'raw quality excess beyond ceiling guard':s.get('quality_excess', 0)>=period_raw_excess_floor(s,config),
         'headroom-aware anomaly strength':s.get('anomaly_strength', 0)>=config.human_period_excess,
         'anomaly hit lower bound':s['hit_lower']>=config.human_hit_lower}
     return [label for label, passed in tests.items() if not passed]
