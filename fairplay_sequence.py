@@ -270,6 +270,23 @@ def adaptive_deep_games(games,config=CONFIG):
     # Broad periods remain available as independent secondary coverage.
     acute_candidate=next((p for p in periods if p['qualified'] and p.get('acute')),None)
     high_candidate=next((p for p in periods if p['qualified']),None)
+    replication=fixed_replication_status(periods,config)
+    # If no ordinary HIGH candidate exists, spend the bounded deep budget
+    # symmetrically across two fixed chronological halves. This avoids tuning
+    # confirmation to the single most flattering searched window.
+    if not acute_candidate and not high_candidate and replication['passed']:
+        lookup={g.identity:g for g in games}
+        per_half=max(config.human_sparse_deep_games,config.deep_max_games//2)
+        selected=[]
+        for period in replication['halves']:
+            members=[lookup[i] for i in period['ids'] if i in lookup]
+            for game in coverage_members(members,min(per_half,len(members))):
+                if game not in selected:selected.append(game)
+        target=min(len(games),config.deep_max_games)
+        for game in select_deep_games(games,replace(config,deep_games=target)):
+            if len(selected)>=target:break
+            if game not in selected:selected.append(game)
+        return selected[:target]
     sparse_candidate=best_sparse_period(periods,config)
     if sparse_candidate and sparse_review_blockers(sparse_candidate,config):sparse_candidate=None
     candidate=acute_candidate or high_candidate or sparse_candidate
