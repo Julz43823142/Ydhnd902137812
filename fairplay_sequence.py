@@ -199,7 +199,7 @@ def sparse_deep_blockers(period,proof,config=CONFIG):
 
 
 def best_sparse_period(periods,config=CONFIG):
-    broad=[p for p in periods if not p.get('acute')]
+    broad=[p for p in periods if not p.get('acute') and not p.get('replication_half')]
     if not broad:return None
     def rank(period):
         s=period.get('summary') or {};spread=sparse_distribution(period,s)
@@ -407,8 +407,8 @@ def integrate_gameplay(result,games,config=CONFIG):
         proof=deep_confirmation(p,games,config)
         p['deep']=proof
         if p['qualified'] and proof['qualified']:confirmed.append(p)
-    best=confirmed[0] if confirmed else periods[0] if periods else None
-    best_broad=next((p for p in periods if not p.get('acute')),None)
+    best=confirmed[0] if confirmed else next((p for p in periods if not p.get('replication_half')),periods[0] if periods else None)
+    best_broad=next((p for p in periods if not p.get('acute') and not p.get('replication_half')),None)
     sparse_candidate=best_sparse_period(periods,config)
     sparse_confirmed=[p for p in periods if not p.get('acute')
         and not sparse_review_blockers(p,config) and not sparse_deep_blockers(p,p.get('deep'),config)]
@@ -543,7 +543,7 @@ def integrate_gameplay(result,games,config=CONFIG):
     result.diagnostics['high_paths']={
         'Legacy cluster HIGH':{'passed':legacy_priority in ('HIGH','VERY HIGH') and not convergence.get('raised_priority'),
             'blockers':legacy_blockers if legacy_priority not in ('HIGH','VERY HIGH') else []},
-        'Absolute gameplay HIGH':route_row(lambda p:p['kind']!='acute_candidate','absolute'),
+        'Absolute gameplay HIGH':route_row(lambda p:p['kind']!='acute_candidate' and not p.get('replication_half'),'absolute'),
         'Personal-change HIGH':route_row(lambda p:p.get('personal',False),'personal'),
         'Acute exceptional HIGH':route_row(lambda p:p.get('acute',False),'acute'),
         'Replicated fixed-half HIGH':{'passed':fixed_replication_allowed,
