@@ -18,7 +18,7 @@ The production sample is now the latest **up to 200 eligible rated standard live
 
 **Replicated periods:** disjoint deep-confirmed periods must have at least three lower-anomaly games between them. Tiny samples cannot produce VERY HIGH. New VERY HIGH additionally requires >=30 scoring games, HIGH confidence, >=80 opportunities and >=12 distinct contributors across the replicated disjoint periods. Existing v13 routes/diagnostics remain visible; correlated rank/CPL/critical/expectedness measurements form one gameplay family.
 
-Adaptive deep review normally selects fourteen games, can use twenty for separate qualifying periods, and preserves representative baseline controls. Chronological anchors and maximum opportunity coverage inside chronological bins guide selection, never successful-hit counts. If fourteen slots cannot cover twenty fast opportunities, the plan can expand to twenty while retaining controls. Warm caches reproduce the same frozen fast evidence and deterministic deep plan.
+Adaptive deep review normally selects fourteen games, can use twenty for separate qualifying periods, and preserves representative baseline controls. Bounded rolling chronological windows avoid arbitrary partition-edge blind spots; overlapping windows never count as independent recurrence. Chronological anchors and maximum opportunity coverage inside chronological bins guide selection, never successful-hit counts. If fourteen slots cannot cover twenty fast opportunities, the plan can expand to twenty while retaining controls. Warm caches reproduce the same frozen fast evidence and deterministic deep plan.
 
 ## Opening handling
 
@@ -40,7 +40,7 @@ Inspected [Lichess Opening Explorer](https://github.com/lichess-org/lila-opening
 
 ## Limits
 
-These heuristics are not trained population distributions or calibrated accusation probabilities. Underrated humans, incomplete opening theory and engine horizon uncertainty remain important false-positive risks. Bullet is descriptive in the new absolute route. Sparse time-class/baseline opportunities remain a limitation. Rescue, repertoire and timing residual ideas need held-out calibration before becoming stronger scoring factors. A handful of owner-labelled accounts is a convenience validation set, not a blind held-out accuracy benchmark.
+These heuristics are not trained population distributions or calibrated accusation probabilities. Underrated humans, incomplete opening theory and engine horizon uncertainty remain important false-positive risks. Bullet uses a substantially stricter new gameplay route: >=30 games, 100 opportunities, twenty contributors, hit lower bound >=0.90 and information >=0.40; deep confirmation needs eight games, sixty opportunities, lower bound >=0.85 and >=85% stability. Ordinary or small Bullet samples cannot establish this route. Bullet personal-change evidence remains descriptive; clock reliability remains down-weighted. Sparse time-class/baseline opportunities remain a limitation. Rescue, repertoire and timing residual ideas need held-out calibration before becoming stronger scoring factors. A handful of owner-labelled accounts is a convenience validation set, not a blind held-out accuracy benchmark.
 
 ---
 

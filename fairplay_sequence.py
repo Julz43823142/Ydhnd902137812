@@ -9,6 +9,18 @@ from fairplay_config import CONFIG
 from fairplay_human import period_summary, absolute_qualified
 
 
+def class_absolute(summary,kind,config=CONFIG):
+    if not absolute_qualified(summary,config):return False
+    if kind!='bullet':return True
+    # Bullet precision is less reliable, not categorically unusable. Require
+    # substantially broader, more extreme gameplay evidence before deep review.
+    return bool(summary['games']>=config.bullet_human_games
+        and summary['opportunities']>=config.bullet_human_opportunities
+        and summary['contributors']>=config.bullet_human_contributors
+        and summary['hit_lower']>=config.bullet_human_hit_lower
+        and summary['information']>=config.bullet_human_information)
+
+
 def class_periods(games, config=CONFIG):
     groups={kind:[] for kind in ('rapid','blitz','bullet')}
     seen=set()
@@ -24,12 +36,14 @@ def class_periods(games, config=CONFIG):
                 sessions.append(session);session=[]
             session.append(game)
         if session:sessions.append(session)
-        # Bound search to non-overlapping blocks for each size, plus actual
-        # sessions and the complete class. Overlap is not independent replication.
+        # Bounded chronological rolling windows prevent arbitrary block edges
+        # from hiding a ten-game cluster. Overlap is never independent replication.
         options=[('class',group)]+[('session',v) for v in sessions]
         for width in config.human_period_windows:
             if width>=len(group):continue
-            for start in range(0,len(group)-width+1,width):options.append(('block',group[start:start+width]))
+            stride=1 if width==config.min_games else max(1,config.human_period_stride)
+            starts=set(range(0,len(group)-width+1,stride));starts.add(len(group)-width)
+            for start in sorted(starts):options.append(('window',group[start:start+width]))
         identities=set()
         for mode,part in options:
             ids=tuple(g.identity for g in part)
@@ -48,9 +62,9 @@ def class_periods(games, config=CONFIG):
                 and s['information']-b['information']>=.10)
             periods.append({'ids':list(ids),'class':kind,'kind':mode,'start':part[0].ended,'end':part[-1].ended,
                 'controls':sorted(set(g.time_control for g in part)), 'summary':s,
-                'absolute':kind!='bullet' and absolute_qualified(s,config),
+                'absolute':class_absolute(s,kind,config),
                 'personal':bool(personal),'baseline_ids':[g.identity for g in baseline],
-                'qualified':(kind!='bullet' and absolute_qualified(s,config)) or bool(personal)})
+                'qualified':(class_absolute(s,kind,config)) or bool(personal)})
     return sorted(periods,key=lambda p:(p['qualified'],p['summary']['hit_lower'],p['summary']['contributors']),reverse=True)
 
 
@@ -68,6 +82,13 @@ def deep_confirmation(period,games,config=CONFIG):
         and deep['information']>=config.human_absolute_information_floor
         and deep['quality_reference'] is not None
         and deep['hit_lower']>=deep['quality_reference']+config.human_expectation_margin)
+    if period['class']=='bullet':
+        absolute=bool(absolute and len(members)>=config.bullet_human_deep_games
+            and deep['contributors']>=config.bullet_human_deep_games
+            and n>=config.bullet_human_deep_opportunities
+            and deep['hit_lower']>=config.bullet_human_deep_hit_lower
+            and deep['information']>=config.bullet_human_information
+            and stable/max(1,n)>=config.bullet_human_stability)
     controls=[g for g in games if g.identity in period.get('baseline_ids',[]) and g.deep]
     baseline=period_summary(controls,config)
     hard_n=deep['hard_opportunities'];hard_retention=deep['hard_hits']/max(1,paired['hard_hits'])
@@ -123,7 +144,8 @@ def adaptive_deep_games(games,config=CONFIG):
     second_count=min(5,len(others));reserve=len(controls);count=min(len(members),target-reserve-second_count)
     primary=coverage_members(members,count)
     coverage=sum((g.fast_metrics or g.metrics).get('human',{}).get('opportunities',0) for g in primary)
-    if coverage<config.human_deep_opportunities and target<config.deep_max_games:
+    required_coverage=config.bullet_human_deep_opportunities if candidate['class']=='bullet' else config.human_deep_opportunities
+    if coverage<required_coverage and target<config.deep_max_games:
         target=min(len(games),config.deep_max_games)
         count=min(len(members),target-reserve-second_count)
         primary=coverage_members(members,count)

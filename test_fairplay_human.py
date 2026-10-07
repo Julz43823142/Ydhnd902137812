@@ -150,6 +150,22 @@ class HumanEvidence(unittest.TestCase):
         self.assertTrue(g.decisions[0].metrics['simple_threat_response'])
         self.assertFalse(g.decisions[0].metrics['high_information'])
 
+    def test_extreme_distributed_bullet_gameplay_is_not_categorically_blocked(self):
+        games=[informative(i) for i in range(60)]
+        for g in games:g.time_class='bullet'
+        result=integrate_gameplay(result_stub(games),games)
+        self.assertEqual(result.priority,'HIGH')
+        self.assertTrue(result.deep_confirmed)
+
+    def test_contiguous_cluster_is_not_hidden_by_arbitrary_block_edges(self):
+        games=[informative(i,misses=0 if 7<=i<17 else 45) for i in range(30)]
+        periods=class_periods(games)
+        expected=[g.identity for g in games[7:17]]
+        aligned=[p for p in periods if p['ids']==expected]
+        self.assertEqual(len(aligned),1)
+        self.assertTrue(aligned[0]['qualified'])
+        self.assertEqual(integrate_gameplay(result_stub(games),games).priority,'HIGH')
+
     def test_misses_stay_in_capped_denominator(self):
         g=informative(0,misses=20);s=g.metrics['human']
         self.assertEqual(s['opportunities'],CONFIG.human_game_cap)
@@ -195,7 +211,7 @@ class HumanEvidence(unittest.TestCase):
         probe=informative(11);probe.probe_only=True
         self.assertFalse(class_periods(games+games+[extra,probe]))
 
-    def test_bullet_does_not_supply_absolute_high(self):
+    def test_small_bullet_sample_does_not_supply_absolute_high(self):
         games=[informative(i) for i in range(20)]
         for g in games:g.time_class='bullet'
         self.assertEqual(integrate_gameplay(result_stub(games),games).priority,'LOW')
