@@ -126,6 +126,55 @@ def deep_confirmation(period,games,config=CONFIG):
                 'deep headroom-aware anomaly':deep.get('anomaly_strength',0)>=config.human_period_excess}.items() if not ok] if not (absolute or personal) else []}
 
 
+def sparse_review_blockers(period,config=CONFIG):
+    """MODERATE-only screen for intermittent evidence spread across many games."""
+    s=period.get('summary',{})
+    tests={
+        'non-bullet gameplay':period.get('class')!='bullet',
+        'broad chronological sample':s.get('games',0)>=config.human_sparse_min_games,
+        'known rating coverage':s.get('rating_coverage',0)>=.8,
+        'distributed opportunity coverage':s.get('opportunities',0)>=config.human_sparse_min_opportunities,
+        'distributed high-information decisions':s.get('hits',0)>=config.human_sparse_min_hits,
+        'high-information games':s.get('hit_games',0)>=config.human_sparse_min_hit_games,
+        'intermittent single-hit games':s.get('single_hit_games',0)>=config.human_sparse_min_single_hit_games,
+        'rating-adjusted information':s.get('information',0)>=config.human_sparse_information_floor,
+        'raw quality separation':s.get('quality_excess',0)>=config.human_sparse_min_raw_excess,
+        'headroom-aware anomaly strength':s.get('anomaly_strength',0)>=config.human_sparse_anomaly_strength,
+    }
+    return [label for label,passed in tests.items() if not passed]
+
+
+def sparse_deep_blockers(period,proof,config=CONFIG):
+    """Paired deep retention for the distributed MODERATE route."""
+    if not proof:return ['paired deep review unavailable']
+    s=proof.get('summary',{});paired=proof.get('paired_fast',{})
+    n=s.get('opportunities',0);retention=s.get('hits',0)/max(1,paired.get('hits',0))
+    tests={
+        'deep reviewed games':proof.get('games',0)>=config.human_sparse_deep_games,
+        'deep opportunity coverage':n>=config.human_sparse_deep_opportunities,
+        'deep high-information games':s.get('hit_games',0)>=config.human_sparse_deep_hit_games,
+        'deep stable high-information decisions':s.get('stable_hits',0)>=config.human_sparse_deep_stable_hits,
+        'deep semantic-quality stability':s.get('stable_opportunities',0)/max(1,n)>=config.human_sparse_deep_stability,
+        'fast to deep retention':retention>=config.human_sparse_deep_retention,
+        'deep rating-adjusted information':s.get('information',0)>=config.human_sparse_information_floor,
+        'deep raw quality separation':s.get('quality_excess',0)>=config.human_sparse_min_raw_excess,
+        'deep headroom-aware anomaly':s.get('anomaly_strength',0)>=config.human_sparse_anomaly_strength,
+    }
+    return [label for label,passed in tests.items() if not passed]
+
+
+def best_sparse_period(periods,config=CONFIG):
+    broad=[p for p in periods if not p.get('acute')]
+    if not broad:return None
+    return max(broad,key=lambda p:(
+        not sparse_review_blockers(p,config),
+        p['summary'].get('hit_games',0),
+        p['summary'].get('hits',0),
+        p['summary'].get('single_hit_games',0),
+        p['summary'].get('information',0)*p['summary'].get('anomaly_strength',0),
+        p['summary'].get('opportunities',0)))
+
+
 def coverage_members(members,count):
     """Chronological anchors plus geometry coverage; never rank by hits.
 
@@ -152,7 +201,10 @@ def adaptive_deep_games(games,config=CONFIG):
     # A strict acute candidate is expensive to miss: deep-review it first.
     # Broad periods remain available as independent secondary coverage.
     acute_candidate=next((p for p in periods if p['qualified'] and p.get('acute')),None)
-    candidate=acute_candidate or next((p for p in periods if p['qualified']),None)
+    high_candidate=next((p for p in periods if p['qualified']),None)
+    sparse_candidate=best_sparse_period(periods,config)
+    if sparse_candidate and sparse_review_blockers(sparse_candidate,config):sparse_candidate=None
+    candidate=acute_candidate or high_candidate or sparse_candidate
     target=min(len(games),config.deep_normal_games)
     independent=[]
     for p in sorted([p for p in periods if p['qualified']],key=lambda p:len(p['ids'])):
@@ -161,6 +213,7 @@ def adaptive_deep_games(games,config=CONFIG):
     target=max(min(len(games),config.deep_min_games),target)
     if not candidate:return select_deep_games(games,replace(config,deep_games=target))
     lookup={g.identity:g for g in games};members=[lookup[i] for i in candidate['ids']]
+    sparse_allocation=not candidate.get('qualified') and not sparse_review_blockers(candidate,config)
     baseline=[g for g in games if g.identity not in candidate['ids'] and g.time_class==candidate['class']
               and (not candidate.get('personal') or g.identity in candidate.get('baseline_ids',[]))]
     # Controls are representative quality quartiles, never exclusively poor play.
@@ -171,7 +224,7 @@ def adaptive_deep_games(games,config=CONFIG):
     # Reserve real confirmation capacity for a different evidence geometry.
     # Previously primary+controls(+second period) filled the target first, so
     # the later human-ranked loop was normally unreachable.
-    diversify_count=0 if candidate.get('acute') else min(
+    diversify_count=0 if candidate.get('acute') or sparse_allocation else min(
         2, max(0,target-reserve-second_count-config.human_deep_games))
     count=min(len(members),target-reserve-second_count-diversify_count)
     if candidate.get('acute'):
@@ -269,6 +322,10 @@ def integrate_gameplay(result,games,config=CONFIG):
         p['deep']=proof
         if p['qualified'] and proof['qualified']:confirmed.append(p)
     best=confirmed[0] if confirmed else periods[0] if periods else None
+    best_broad=next((p for p in periods if not p.get('acute')),None)
+    sparse_candidate=best_sparse_period(periods,config)
+    sparse_confirmed=[p for p in periods if not p.get('acute')
+        and not sparse_review_blockers(p,config) and not sparse_deep_blockers(p,p.get('deep'),config)]
     recurrent=[]
     for p in sorted([p for p in confirmed if not p.get('acute')],key=lambda p:(len(p['ids']),p['start'])):
         if not any(set(p['ids'])&set(q['ids']) for q in recurrent):recurrent.append(p)
@@ -290,6 +347,8 @@ def integrate_gameplay(result,games,config=CONFIG):
     if broad_allowed:best=broad_confirmed[0]
     elif acute_allowed:best=acute_confirmed
     allowed=bool((broad_allowed or acute_allowed) and not {'human','difficulty'}&set(config.disabled_features))
+    sparse_allowed=bool(sparse_confirmed and sufficient and primary_complete and result.confidence!='LOW'
+        and not {'human','difficulty'}&set(config.disabled_features))
     # These correlated gameplay features form ONE family. Other families retain
     # their own legacy scope. Baseline presence/stability is not a veto here.
     if allowed and result.priority in ('LOW','MODERATE','INSUFFICIENT DATA'):
@@ -303,6 +362,12 @@ def integrate_gameplay(result,games,config=CONFIG):
             'with paired deep-search confirmation across several games.',
             'Timing or result anomalies are not required for this gameplay route. '
             'Human expectedness is an uncalibrated heuristic; human review remains mandatory.']
+    if not allowed and sparse_allowed and result.priority in ('LOW','INSUFFICIENT DATA'):
+        result.priority='MODERATE'
+        result.diagnostics['moderate_path']='Distributed intermittent gameplay evidence with paired deep retention'
+        result.reasons=[
+            'High-information decisions were distributed across many games and retained under paired deep review.',
+            'This is a MODERATE review-priority signal only; it is not an independent evidence family and does not establish misconduct.']
     if allowed and acute_allowed and not broad_allowed and str(result.diagnostics.get('high_path','')).startswith('Acute'):
         result.reasons=['An exceptionally concentrated gameplay anomaly was deep-confirmed across multiple recent games. The sample is small, so this result requires manual review and cannot establish misconduct.']
     if (broad_allowed and allowed and replicated and 'recurrence' not in config.disabled_features and len(result.games)>=config.very_high_games and result.confidence=='HIGH'
@@ -310,19 +375,27 @@ def integrate_gameplay(result,games,config=CONFIG):
         result.priority='VERY HIGH'
         result.reasons.append('Disjoint deep-confirmed periods repeat, separated by adequately sampled lower-anomaly play.')
     structural=[game_structure(g) for g in games]
+    display_best=best if allowed else (sparse_confirmed[0] if sparse_allowed else best_broad or best)
+    sparse_review=sparse_candidate
+    sparse_blockers=(sparse_review_blockers(sparse_review,config) if sparse_review else ['No eligible broad chronological candidate.'])
+    if sparse_review and not sparse_blockers:
+        sparse_blockers=sparse_deep_blockers(sparse_review,sparse_review.get('deep'),config)
     result.diagnostics['gameplay']={'model':'rating-conditioned heuristic (not probability)',
-        'best':best,'qualified':allowed,'periods_examined':len(periods),
+        'best':display_best,'best_high':best,'best_broad':best_broad,'qualified':allowed,'periods_examined':len(periods),
         'confirmed_periods':len(confirmed),'replicated_disjoint_periods':replicated,'funnel':evidence_funnel(games,config),
+        'distributed_moderate':{'passed':sparse_allowed,'blockers':[] if sparse_allowed else list(dict.fromkeys(sparse_blockers)),
+            'candidate_games':len(sparse_review['ids']) if sparse_review else 0,
+            'deep_games':sparse_review.get('deep',{}).get('games',0) if sparse_review else 0},
         'structure':{'change_games':sum(bool(s['change']) for s in structural),
                      'rescue_games':sum(s['rescue_windows']>0 for s in structural)},
         'repertoire':{} if 'opening' in config.disabled_features else repertoire(games),
         'color_profiles':{name:period_summary([g for g in games if g.color==color],config)
                           for name,color in [('White',True),('Black',False)]},
-        'gates':{'sample':sufficient,'gameplay_period':bool(best and best['qualified']),
-            'human_expectedness':bool(best and best['qualified']),
-            'absolute_gameplay':bool(best and best.get('absolute')),
-            'personal_gameplay':bool(best and best.get('personal')),
-            'difficulty_opportunities':bool(best and best['summary']['hard_opportunities']>=40),
+        'gates':{'sample':sufficient,'gameplay_period':bool((best if allowed else best_broad) and (best if allowed else best_broad)['qualified']),
+            'human_expectedness':bool((best if allowed else best_broad) and (best if allowed else best_broad)['qualified']),
+            'absolute_gameplay':bool((best if allowed else best_broad) and (best if allowed else best_broad).get('absolute')),
+            'personal_gameplay':bool((best if allowed else best_broad) and (best if allowed else best_broad).get('personal')),
+            'difficulty_opportunities':bool((best if allowed else best_broad) and (best if allowed else best_broad)['summary']['hard_opportunities']>=40),
             'deep_confirmation':bool(confirmed),'complete_analysis':bool(primary_complete),
             'confidence':result.confidence!='LOW',
             'timing_support_optional':result.diagnostics.get('gate_scores',{}).get('Move-Time Pattern',0)>=.5,
@@ -368,5 +441,5 @@ def integrate_gameplay(result,games,config=CONFIG):
                 else ['Deep-confirmed broad gameplay plus same-period timing support not jointly established.']},
         'Convergence HIGH':{'passed':bool(convergence.get('raised_priority')),
             'blockers':[] if convergence.get('raised_priority') else (convergence.get('confirmation',{}).get('blockers') or ['Complete-period convergence not established.'])}}
-    result.families['Human / Difficulty Evidence']='Elevated' if allowed else 'Limited / not established'
+    result.families['Human / Difficulty Evidence']='Elevated' if (allowed or sparse_allowed) else 'Limited / not established'
     return result
