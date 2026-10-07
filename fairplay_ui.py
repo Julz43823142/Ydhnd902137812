@@ -653,6 +653,10 @@ class FairPlayService:
                 if messages and self.is_panel(messages[0]):
                     self.panel_id = messages[0].id
                     for old in panels[1:]:await old.delete()
+                    current=panel_embed()
+                    if messages[0].embeds[0].description!=current.description:
+                        await messages[0].edit(embed=current,view=SubmitView(),
+                                               allowed_mentions=discord.AllowedMentions.none())
                     return False
                 # Refuse to add another panel if deleting an old one fails.
                 for old in panels:await old.delete()
