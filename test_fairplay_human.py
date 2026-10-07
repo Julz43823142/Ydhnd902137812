@@ -22,7 +22,8 @@ def informative(index,rating=1000,rank=1,deep=True,control='180+0',misses=0):
         d.phase='middlegame';d.useful=True;d.forced=False;d.trivial_kind=None
         d.legal=30;d.capture=d.check=d.gives_check=False
         m={'useful':True,'before_cp':0,'actual_cp':0,'competitive':True,'critical':True,'unique':True,
-           'rank':rank,'candidate_count':5,'candidate_cp':[0,-200,-450,-600,-800] if rank==1 else [0,-5,-450,-600,-800],
+           'rank':rank,'candidate_count':5,'candidate_cp':([0,-200,-450,-600,-800] if rank==1 else
+               [0,-5,-450,-600,-800] if rank==2 else [0,-5,-10,-450,-800]),
            'cpl':0 if i>=misses else 200,'scaled_loss':0 if i>=misses else .2,
            'gap':200 if rank==1 else 5,'spread':800,'best':'synthetic-best','near_best':i>=misses,
            'nodes':CONFIG.fast_nodes,'weight':1,'top1':rank==1 and i>=misses,'top3':i>=misses,'critical_kind':'quiet'}
@@ -54,10 +55,32 @@ class HumanEvidence(unittest.TestCase):
         games=[informative(i,rating=2850) for i in range(40)]
         self.assertEqual(integrate_gameplay(result_stub(games),games).priority,'LOW')
 
+    def test_deep_personal_gameplay_change_can_high_without_clocks(self):
+        games=[informative(i,rating=2850,misses=25 if i<30 else 0) for i in range(40)]
+        r=integrate_gameplay(result_stub(games),games)
+        self.assertEqual(r.priority,'HIGH')
+        self.assertIn('personal',r.diagnostics['high_path'])
+
+    def test_disjoint_confirmed_periods_need_lower_anomaly_games_between(self):
+        games=[informative(i,misses=45 if 10<=i<20 else 0) for i in range(30)]
+        r=integrate_gameplay(result_stub(games),games)
+        self.assertTrue(r.diagnostics['gameplay']['replicated_disjoint_periods'])
+        self.assertEqual(r.priority,'VERY HIGH')
+        continuous=[informative(i) for i in range(30)]
+        r=integrate_gameplay(result_stub(continuous),continuous)
+        self.assertFalse(r.diagnostics['gameplay']['replicated_disjoint_periods'])
+        self.assertEqual(r.priority,'HIGH')
+
+    def test_research_ablation_can_disable_new_gameplay_without_changing_inputs(self):
+        games=[informative(i) for i in range(20)]
+        config=replace(CONFIG,disabled_features=('human',))
+        self.assertEqual(integrate_gameplay(result_stub(games),games,config).priority,'LOW')
+
     def test_second_rank_equivalent_best_set_does_not_evade_gameplay_layer(self):
-        games=[informative(i,rank=2) for i in range(20)]
-        self.assertTrue(class_periods(games)[0]['qualified'])
-        self.assertEqual(integrate_gameplay(result_stub(games),games).priority,'HIGH')
+        for rank in (2,3):
+            games=[informative(i,rank=rank) for i in range(20)]
+            self.assertTrue(class_periods(games)[0]['qualified'])
+            self.assertEqual(integrate_gameplay(result_stub(games),games).priority,'HIGH')
 
     def test_one_huge_perfect_game_cannot_dominate(self):
         g=informative(0);g.decisions*=8;annotate_game(g)

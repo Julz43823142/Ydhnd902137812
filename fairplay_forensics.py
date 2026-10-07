@@ -28,15 +28,20 @@ def ablate(result,profile,remove,config=None):
     """Research-only sensitivity analysis; removal groups overlap by design."""
     from fairplay_config import CONFIG
     from fairplay_scoring import score_review
-    config=config or CONFIG;games=copy.deepcopy(result.timeline)
+    from dataclasses import replace
+    remove=set(remove)
+    if not remove<=set(['human','timing','results','personal','opening','difficulty','recurrence']):
+        raise ValueError('Unknown ablation family')
+    config=replace(config or CONFIG,disabled_features=tuple(sorted(remove)))
+    games=copy.deepcopy(result.timeline)
     for game in games:
         if 'timing' in remove:
             for d in game.decisions:d.clock_valid=d.clock_reliable=False;d.think=None
-        if 'results' in remove:game.rating=game.opponent_rating=None
         if 'human' in remove or 'difficulty' in remove:
             for d in game.decisions:
                 for m in [d.metrics,d.fast_engine]:m.update(human_information=0,human_opportunity=False,high_information=False)
             for m in [game.metrics,game.fast_metrics]:m['human']={}
     output=score_review('local-research',games,result.selected_games,result.skipped,result.partial,result.engine,profile,0,config)
     return {'priority':output.priority,'research_evidence_index':output.diagnostics.get('gameplay',{}).get('research_evidence_index'),
-            'high_path':output.diagnostics.get('high_path'),'removed':sorted(remove)}
+            'high_path':output.diagnostics.get('high_path'),'removed':sorted(remove),
+            'limitations':'Opening removal disables contextual repertoire only; unsearched book moves cannot be reconstructed without a new engine scan.'}

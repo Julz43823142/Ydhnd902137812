@@ -24,7 +24,7 @@ def annotate(decision, config=CONFIG):
     quiet=not (decision.capture or decision.check or decision.gives_check)
     difficulty=choices*(.55*separation+.45*spread)*(1 if quiet else .75)
     # Many equivalent candidates make an engine match uninformative.
-    difficulty*=1/max(1,good)**.5
+    difficulty*=1/max(1,good)**config.human_equivalence_power
     difficulty*=1 if m.get('competitive') else .5
     m.update(difficulty=clamp(difficulty),plausible_good_moves=good,played_boundary_cp=boundary)
 

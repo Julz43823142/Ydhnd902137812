@@ -42,7 +42,7 @@ def class_periods(games, config=CONFIG):
                 and g.opponent_rating is not None and opponent_reference is not None
                 and abs(g.opponent_rating-opponent_reference)<=config.baseline_opponent_rating_tolerance]
             b=period_summary(baseline,config,fast=True)
-            personal=(kind!='bullet' and len(baseline)>=config.baseline_reference_games and b['hard_opportunities']>=40
+            personal=('personal' not in config.disabled_features and kind!='bullet' and len(baseline)>=config.baseline_reference_games and b['hard_opportunities']>=40
                 and s['hard_opportunities']>=40 and s['hard_contributors']>=8 and s['hard_lower']>=.65
                 and s['hard_hits']/max(1,s['hard_opportunities'])-b['hard_hits']/max(1,b['hard_opportunities'])>=.25
                 and s['information']-b['information']>=.10)
@@ -141,14 +141,17 @@ def integrate_gameplay(result,games,config=CONFIG):
     recurrent=[]
     for p in sorted(confirmed,key=lambda p:(len(p['ids']),p['start'])):
         if not any(set(p['ids'])&set(q['ids']) for q in recurrent):recurrent.append(p)
-    replicated=False
+    replicated=False;replicated_ids=set();replicated_opportunities=0
     for left in recurrent:
         for right in recurrent:
             between=[g for g in games if left['end']<g.ended<right['start'] and g.time_class==left['class']==right['class']]
             if len(between)>=3 and period_summary(between,config,fast=True)['information']<min(left['summary']['information'],right['summary']['information'])*.5:
                 replicated=True
+                replicated_ids.update(left['summary']['contributor_ids']);replicated_ids.update(right['summary']['contributor_ids'])
+    if replicated:replicated_opportunities=sum(p['summary']['opportunities'] for p in recurrent)
     sufficient=len(result.games)>=config.min_games and result.totals['decisions']>=config.min_games*config.min_game_decisions
-    allowed=bool(confirmed and sufficient and not result.partial and result.confidence!='LOW')
+    allowed=bool(confirmed and sufficient and not result.partial and result.confidence!='LOW'
+                 and not {'human','difficulty'}&set(config.disabled_features))
     # These correlated gameplay features form ONE family. Other families retain
     # their own legacy scope. Baseline presence/stability is not a veto here.
     if allowed and result.priority in ('LOW','MODERATE'):
@@ -160,8 +163,8 @@ def integrate_gameplay(result,games,config=CONFIG):
             'with paired deep-search confirmation across several games.',
             'Timing or result anomalies are not required for this gameplay route. '
             'Human expectedness is an uncalibrated heuristic; human review remains mandatory.']
-    if (allowed and replicated and len(result.games)>=config.very_high_games and result.confidence=='HIGH'
-            and best['summary']['opportunities']>=80 and best['summary']['contributors']>=12):
+    if (allowed and replicated and 'recurrence' not in config.disabled_features and len(result.games)>=config.very_high_games and result.confidence=='HIGH'
+            and replicated_opportunities>=80 and len(replicated_ids)>=12):
         result.priority='VERY HIGH'
         result.reasons.append('Disjoint deep-confirmed periods repeat, separated by adequately sampled lower-anomaly play.')
     structural=[game_structure(g) for g in games]
@@ -170,16 +173,23 @@ def integrate_gameplay(result,games,config=CONFIG):
         'confirmed_periods':len(confirmed),'replicated_disjoint_periods':replicated,'funnel':evidence_funnel(games,config),
         'structure':{'change_games':sum(bool(s['change']) for s in structural),
                      'rescue_games':sum(s['rescue_windows']>0 for s in structural)},
-        'repertoire':repertoire(games),
+        'repertoire':{} if 'opening' in config.disabled_features else repertoire(games),
         'color_profiles':{name:period_summary([g for g in games if g.color==color],config)
                           for name,color in [('White',True),('Black',False)]},
         'gates':{'sample':sufficient,'gameplay_period':bool(best and best['qualified']),
             'human_expectedness':bool(best and best['qualified']),
+            'absolute_gameplay':bool(best and best.get('absolute')),
+            'personal_gameplay':bool(best and best.get('personal')),
+            'difficulty_opportunities':bool(best and best['summary']['hard_opportunities']>=40),
             'deep_confirmation':bool(confirmed),'complete_analysis':not result.partial,
-            'confidence':result.confidence!='LOW'},
+            'confidence':result.confidence!='LOW',
+            'timing_support_optional':result.diagnostics.get('gate_scores',{}).get('Move-Time Pattern',0)>=.5,
+            'result_support_optional':result.diagnostics.get('gate_scores',{}).get('Account / Results',0)>=.5,
+            'recurrence_optional':replicated},
         'research_evidence_index':round(100*max((p['summary']['information']*p['summary']['hit_lower'] for p in periods),default=0),2)}
     if not allowed and result.priority not in ('HIGH','VERY HIGH'):
         gates=result.diagnostics['gameplay']['gates']
-        result.diagnostics['gameplay']['blocked']=[k.replace('_',' ') for k,v in gates.items() if not v]
+        required=('sample','gameplay_period','deep_confirmation','complete_analysis','confidence')
+        result.diagnostics['gameplay']['blocked']=[k.replace('_',' ') for k in required if not gates[k]]
     result.families['Human / Difficulty Evidence']='Elevated' if allowed else 'Limited / not established'
     return result

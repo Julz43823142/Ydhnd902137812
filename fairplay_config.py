@@ -91,6 +91,7 @@ class ReviewConfig:
     opening_min_plies: int = 6
     opening_max_plies: int = 60
     human_information_floor: float = .55
+    human_equivalence_power: float = .30
     human_difficulty_floor: float = .55
     human_min_opportunities: int = 40
     human_min_contributors: int = 8
@@ -102,6 +103,7 @@ class ReviewConfig:
     human_stability_fraction: float = .75
     human_game_cap: int = 12
     human_period_windows: tuple = (10, 15, 20, 30, 50, 100, 200)
+    disabled_features: tuple = ()  # explicit local research only; no labels/files read
     engine_timeout: int = 8
     hash_mb: int = 64
     critical_legal: int = 6
