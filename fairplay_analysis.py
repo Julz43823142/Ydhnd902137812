@@ -7,6 +7,7 @@ import math
 import os
 import statistics as stats
 import time
+import threading
 from collections import OrderedDict
 from dataclasses import dataclass, field
 from typing import Callable
@@ -385,7 +386,10 @@ class EngineScanner:
 
 
 # Bounded process-local successful game cache, not an account/case ledger.
+# Three review workers may access it concurrently, so every structural read/
+# write is protected. Cached payloads are immutable-by-convention deep copies.
 _game_cache = OrderedDict()
+_game_cache_lock = threading.RLock()
 
 
 def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI, engine_factory=None, cancel=None):
@@ -393,8 +397,9 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
     started = time.monotonic()
     deadline = ScanDeadline(started+config.deadline_seconds,cancel)
     target = username(target)
-    for key,cached in list(_game_cache.items()):
-        if started-cached[0]>=3600:_game_cache.pop(key,None)
+    with _game_cache_lock:
+        for key,cached in list(_game_cache.items()):
+            if started-cached[0]>=3600:_game_cache.pop(key,None)
     api = api_factory(deadline)
     scanner = None
     try:
@@ -423,16 +428,21 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         def fast_scan(game):
             check_deadline(deadline)
             key=(game.identity,game.color,scanner.name,VERSION,config)
-            cached=_game_cache.get(key)
-            if cached and time.monotonic()-cached[0]<3600:
-                if cached[2]:cached_deep[game.identity]=cached[1]
-                game.decisions=copy.deepcopy(cached[1])
+            with _game_cache_lock:
+                cached=_game_cache.get(key)
+                if cached and time.monotonic()-cached[0]<3600:
+                    cached=(cached[0],copy.deepcopy(cached[1]),cached[2],copy.deepcopy(cached[3]))
+                else:
+                    cached=None
+            if cached:
+                if cached[2]:cached_deep[game.identity]=copy.deepcopy(cached[1])
+                game.decisions=cached[1]
                 # Discovery always sees equal-budget fast evidence. A warm
                 # cache must not add another ten deep games on every re-scan.
                 for decision in game.decisions:
                     decision.metrics=copy.deepcopy(decision.fast_engine)
                 game.deep=False
-                game.fast_metrics=copy.deepcopy(cached[3]);summarize(game,config)
+                game.fast_metrics=cached[3];summarize(game,config)
             else:scanner.analyse(game,config.fast_nodes)
             analyzed.append(game)
         # Full primary fast pass ALWAYS precedes historical probes/deep searches.
@@ -476,12 +486,13 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 candidates.extend(g for g in extra if g not in candidates)
         deep_finished=time.monotonic()
         progress(f'Deep confirmation: {sum(g.deep for g in candidates)} / {len(candidates)}')
-        for game in analyzed:
-            if game.fast_metrics:
-                key=(game.identity,game.color,scanner.name,VERSION,config)
-                _game_cache[key]=(time.monotonic(),copy.deepcopy(game.decisions),game.deep,copy.deepcopy(game.fast_metrics))
-                _game_cache.move_to_end(key)
-        while len(_game_cache)>200:_game_cache.popitem(last=False)
+        with _game_cache_lock:
+            for game in analyzed:
+                if game.fast_metrics:
+                    key=(game.identity,game.color,scanner.name,VERSION,config)
+                    _game_cache[key]=(time.monotonic(),copy.deepcopy(game.decisions),game.deep,copy.deepcopy(game.fast_metrics))
+                    _game_cache.move_to_end(key)
+            while len(_game_cache)>200:_game_cache.popitem(last=False)
         progress('Comparing personal timing baselines…')
         collection_coverage = getattr(api, 'fairplay_collection_coverage', {})
         if not isinstance(collection_coverage,dict):collection_coverage={}

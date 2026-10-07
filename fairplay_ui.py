@@ -1,7 +1,7 @@
 """Discord is the case history. Runtime review data stays in bounded memory.
 
-One dedicated executor/queue keeps engine work off Discord's loop and outside
-the normal chess engine locks. No Discord token, ledger, wallet or punishments.
+A bounded three-worker executor/queue keeps engine work off Discord's loop and
+outside the normal chess engine locks. No Discord token, ledger, wallet or punishments.
 """
 import asyncio
 import threading
@@ -24,6 +24,9 @@ PANEL_TITLE = '🛡️ Fair Play Task Force'
 REPORT_PREFIX = '🛡️ Fair Play Review — '
 IDLE_SECONDS = CONFIG.intro_panel_seconds
 PANEL_MARKER = 'shark:fairplay:panel:v1'
+MAX_CONCURRENT_SCANS = 3
+MAX_WAITING_SCANS = 3
+MAX_JOBS = MAX_CONCURRENT_SCANS + MAX_WAITING_SCANS
 _service = None
 
 
@@ -530,8 +533,8 @@ class Job:
 class FairPlayService:
     def __init__(self,client,channel,analyzer=review):
         self.client,self.channel,self.analyzer = client,channel,analyzer
-        self.executor = ThreadPoolExecutor(max_workers=1,thread_name_prefix='fairplay')
-        self.queue = asyncio.Queue(maxsize=2)
+        self.executor = ThreadPoolExecutor(max_workers=MAX_CONCURRENT_SCANS,thread_name_prefix='fairplay')
+        self.queue = asyncio.Queue(maxsize=MAX_JOBS)
         self.jobs = {}
         self.results = OrderedDict()
         self.cache = OrderedDict()
@@ -539,7 +542,8 @@ class FairPlayService:
         self.restore_grace = time.time()+60
         self.panel_id = None
         self.panel_lock = asyncio.Lock()
-        self.worker = None
+        self.worker = None  # compatibility alias for the first queue worker
+        self.workers = []
         self.idle_task = None
         self.closed = False
 
@@ -571,14 +575,19 @@ class FairPlayService:
         if target in self.cache:
             _,result,message = self.cache[target]
             await ctx.followup.send(f'A recent review is cached. [View review]({message.jump_url}). Re-scan becomes available after 30 minutes.',ephemeral=True);return
-        if len(self.jobs)>=2:
-            await ctx.followup.send('The Fair Play queue is full (one scan and one waiting review). Please try again later.',ephemeral=True);return
+        if len(self.jobs)>=MAX_JOBS:
+            await ctx.followup.send(
+                f'The Fair Play queue is full ({MAX_CONCURRENT_SCANS} active + {MAX_WAITING_SCANS} waiting). Please try again later.',
+                ephemeral=True);return
         job = Job(target,ctx)
         self.jobs[target] = job
         self.queue.put_nowait(job)
         import feature_usage
         feature_usage.note('use:fairplay-scan',ctx.user.id)
-        await ctx.followup.send('Review queued. Public progress appears after the account is validated. One heavy scan runs at a time.',ephemeral=True)
+        await ctx.followup.send(
+            f'Review accepted. Up to {MAX_CONCURRENT_SCANS} heavy scans run in parallel; additional reviews wait in queue. '
+            'Public progress appears after the account is validated.',
+            ephemeral=True)
 
     async def safe_progress(self,job,stage,*,view=None,embed=None):
         if job.message_deleted:return False
@@ -646,14 +655,13 @@ class FairPlayService:
                 except discord.HTTPException:pass
 
     async def run_queue(self):
-        try:
-            while not self.closed and not self.client.is_closed():
-                job = await self.queue.get()
-                try:await self.process(job)
-                finally:self.jobs.pop(job.target,None);self.queue.task_done()
-        finally:
-            for job in self.jobs.values():job.stop.set()
-            self.executor.shutdown(wait=False,cancel_futures=True)
+        while not self.closed and not self.client.is_closed():
+            job = await self.queue.get()
+            try:
+                await self.process(job)
+            finally:
+                self.jobs.pop(job.target,None)
+                self.queue.task_done()
 
     def is_panel(self,message):
         return (message.author.id==self.client.user.id and bool(message.embeds)
@@ -716,9 +724,12 @@ class FairPlayService:
     async def close(self):
         self.closed = True
         for job in self.jobs.values():job.stop.set()
-        for task in (self.idle_task,self.worker):
-            if task and not task.done():task.cancel()
-        await asyncio.gather(*(task for task in (self.idle_task,self.worker) if task),return_exceptions=True)
+        tasks=[]
+        for task in [self.idle_task,*self.workers,self.worker]:
+            if task and task not in tasks:tasks.append(task)
+        for task in tasks:
+            if not task.done():task.cancel()
+        if tasks:await asyncio.gather(*tasks,return_exceptions=True)
         self.executor.shutdown(wait=False,cancel_futures=True)
 
 
@@ -752,7 +763,11 @@ async def startup(client):
     except discord.HTTPException:
         print('Fair Play channel unavailable; normal SharkBot startup continues.',flush=True);return
     _service = FairPlayService(client,channel)
-    _service.worker = asyncio.create_task(_service.run_queue(),name='fairplay-queue')
+    _service.workers = [
+        asyncio.create_task(_service.run_queue(),name=f'fairplay-queue-{index+1}')
+        for index in range(MAX_CONCURRENT_SCANS)
+    ]
+    _service.worker = _service.workers[0]
     async def restore_and_idle():
         await _service.restore_history()
         await _service.idle_loop()
