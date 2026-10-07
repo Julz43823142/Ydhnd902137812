@@ -17,6 +17,7 @@ import discord
 from fairplay_analysis import ReviewResult, review, review_interest
 from fairplay_config import CHANNEL_ID, DISCLAIMER, NAMESPACE, CONFIG
 from fairplay_data import AccountNotFound, ReviewError, username
+from fairplay_progress import estimate, bar, label
 
 RESERVED = '🛡️ This channel is reserved for Fair Play reviews.'
 PANEL_TITLE = '🛡️ Fair Play Task Force'
@@ -33,14 +34,16 @@ def public_text(value):
 def panel_embed():
     embed = discord.Embed(title=PANEL_TITLE, color=0x427CBA,
         description='Want to review a suspicious Chess.com account?\n\n'
-                    "Submit the Chess.com username. SharkBot fully screens up to the latest 200 eligible rated standard games, then deeply reviews selected games for human decision, engine and timing evidence.\n\n"
+                    "Submit the Chess.com username. SharkBot collects up to 200 eligible rated standard games, fully engine-screens the latest 100, then deeply reviews selected games for human decision, engine and timing evidence.\n\n"
                     '**This is an automated screening tool — not proof of cheating.**')
     embed.set_footer(text=PANEL_MARKER)
     return embed
 
 
-def progress_embed(target, stage):
-    embed = discord.Embed(title=REPORT_PREFIX+target, description=stage, color=0x427CBA)
+def progress_embed(target, stage, value=None):
+    value=estimate(stage) if value is None else value
+    embed = discord.Embed(title=REPORT_PREFIX+target, description=bar(value)+"\n\n"+label(stage), color=0x427CBA)
+    embed.set_footer(text="Overall analysis progress · stage-weighted, not a time estimate")
     embed.add_field(name='⚠️ Automated screening only', value=DISCLAIMER, inline=False)
     return embed
 
@@ -57,14 +60,15 @@ def result_embed(result: ReviewResult):
     icons = {'LOW':'🟢','MODERATE':'🟡','HIGH':'🟠','VERY HIGH':'🔴','INSUFFICIENT DATA':'⚪'}
     colors = {'LOW':0x2E9E65,'MODERATE':0xE9B44C,'HIGH':0xEA8537,'VERY HIGH':0xD94F55,'INSUFFICIENT DATA':0x788491}
     embed = discord.Embed(title=REPORT_PREFIX+result.username,color=colors[result.priority])
+    embed.description=bar(100)+'\nReview complete.'
     embed.add_field(name='Fair Play Review Priority',value=f'{icons[result.priority]} **{result.priority}**')
     embed.add_field(name='Data Confidence',value=result.confidence)
     totals = result.totals
     classes = ' • '.join(f'{kind.title()}: {data["games"]}' for kind,data in result.classes.items())
     coverage = result.coverage
-    sample = (f'Eligible rated games collected: **{coverage.get("collected",result.selected_games)}**\n'
-              f'Full fast-scanned: **{coverage.get("fast_scanned",totals["games"])}** · gameplay-scoring games: **{coverage.get("used",totals["games"])}**\n'
-              f'Deep-reviewed: **{coverage.get("deep_reviewed",result.deep_coverage["games"])}** · context-only / insufficient opportunities: **{coverage.get("excluded_after_fast",0)}**\n'
+    sample = (f'Rated context games: **{coverage.get("collected",result.selected_games)}**\n'
+              f'Full engine-reviewed: **{coverage.get("fast_scanned",totals["games"])}** · gameplay-scoring games: **{coverage.get("used",totals["games"])}**\n'
+              f'Deep-reviewed: **{coverage.get("deep_reviewed",result.deep_coverage["games"])}** · older context-only: **{coverage.get("context_only",max(0,result.selected_games-coverage.get("fast_scanned",totals["games"])))}**\n'
               f'Meaningful decisions: **{totals["decisions"]:,}**\n{classes}\n'
               f'Account age: {result.context["age_days"] if result.context["age_days"] is not None else "unavailable"} days')
     funnel=result.diagnostics.get('gameplay',{}).get('funnel',{})
@@ -74,7 +78,8 @@ def result_embed(result: ReviewResult):
     sample += f'\nSkipped unrated games while collecting history: {result.skipped.get("unrated",0)} · unknown rated status: {result.skipped.get("rated_status_unknown",0)}'
     if coverage.get('history_probe_complete') is False:sample += '\nExtended-history discovery is incomplete; primary coverage is shown separately.'
     if result.skipped:sample += f'\nSkipped archive/game entries: {sum(result.skipped.values())}'
-    if result.partial:sample += '\n⚠️ Partial scan / limited archive coverage. Missing data is not suspicious.'
+    if coverage.get('optional_context_partial'):sample += '\n⚠️ Older context is incomplete; primary engine coverage is complete.'
+    elif result.partial:sample += '\n⚠️ Partial scan / limited archive coverage. Missing data is not suspicious.'
     dates=[g.ended for g in (result.timeline or result.games) if g.ended>0]
     if dates:sample += f'\nEngine-covered dates: <t:{min(dates)}:d> → <t:{max(dates)}:d>'
     embed.add_field(name='Sample',value=sample,inline=False)
@@ -108,7 +113,7 @@ def detail_embed(result, mode):
     elif mode=='Clusters & History':
         embed.description = ('Legacy gameplay/timing periods remain exact-control. The new gameplay layer also compares real chronological Rapid/Blitz periods across controls. '
                              'Clock comparisons stay exact-control. Sessions use a 45-minute inactivity gap. '
-                             'Overlapping windows do not multiply evidence. The standard sample receives full fast scans.')
+                             'Overlapping windows do not multiply evidence. Only the full engine-reviewed sample supplies gameplay evidence; older games remain context.')
         strongest = result.clusters.get('strongest')
         if strongest:
             m = strongest['metrics']
@@ -367,6 +372,13 @@ def add_baseline_fields(embed,result):
 
 def add_gate_fields(embed,result):
     add_gameplay_fields(embed,result)
+    if result.diagnostics.get('high_paths'):
+        if result.priority in ('HIGH','VERY HIGH'):
+            embed.add_field(name='HIGH trigger',value=result.diagnostics.get('high_path') or 'Required evidence established.',inline=False)
+        for name,row in result.diagnostics['high_paths'].items():
+            status='PASS' if row['passed'] else 'FAIL'
+            embed.add_field(name=name+' — '+status,value=('\n'.join('• '+v for v in row['blockers']) or 'Required evidence established.')[:1024],inline=False)
+        return
     if result.diagnostics.get('gameplay',{}).get('qualified'):
         embed.add_field(name='HIGH trigger',value=result.diagnostics['high_path'],inline=False)
         return
@@ -410,7 +422,8 @@ def add_gameplay_fields(embed,result):
         value=f'High-information decisions: {s.get("hits",0)} / {s.get("opportunities",0)} capped opportunities\n'
               f'Contributor games: {s.get("contributors",0)} / {s.get("games",0)} · rating reference: {s.get("rating_reference") or "unavailable"}\n'
               f'Opportunity-bearing games: {s.get("opportunity_games",0)} · bounded information: {number(s.get("information"))}\n'
-              f'Strength-conditioned reference: {number(s.get("quality_reference"))} (heuristic, not probability)\n'
+              f'Expected / observed quality: {number(s.get("quality_reference"))} / {number(s.get("observed_quality"))}\n'
+              f'Rating-adjusted quality excess: {number(s.get("quality_excess"))} (heuristic, not probability)\n'
               f'Deep-stable high-information decisions: {deep.get("stable_hits",0)}\n'
               f'Gameplay class: {best.get("class","unavailable")} · controls: {", ".join(best.get("controls",[])) or "unavailable"}\n'
               'Related rank, loss and difficulty measurements form one gameplay family, not independent probabilities.')
@@ -482,6 +495,7 @@ class Job:
     target: str
     ctx: object
     stage: str = 'Fetching profile…'
+    progress_percent: int = 0
     message: object = None
     stop: threading.Event = field(default_factory=threading.Event)
     message_deleted: bool = False
@@ -550,7 +564,8 @@ class FairPlayService:
                     if candidate.author.id==self.client.user.id and candidate.embeds and f'Review ID: {job.token}' in str(candidate.embeds[0].footer.text):
                         job.message = candidate;job.delivery_unknown = False;break
                 if job.message is None:return False  # an uncertain ACK is not permission to repost
-            card = (embed.copy() if embed is not None else progress_embed(job.target,stage))
+            job.progress_percent=max(job.progress_percent,estimate(stage))
+            card = (embed.copy() if embed is not None else progress_embed(job.target,stage,job.progress_percent))
             card.set_footer(text=(card.footer.text or '')+f' · Review ID: {job.token}')
             if job.message is None:
                 job.delivery_unknown = True

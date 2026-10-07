@@ -15,7 +15,11 @@ def export_decisions(result,path,limit=100):
             rows.append({'game':game.identity,'date':game.ended,'move_number':d.fullmove,'move':d.move,
                 'rank':m.get('rank'),'best':m.get('best'),'cpl':m.get('cpl'),'scaled_loss':m.get('scaled_loss'),
                 'gap':m.get('gap'),'spread':m.get('spread'),'difficulty':m.get('difficulty'),
-                'human_information':m.get('human_information',0),'expectedness':m.get('human_expectedness'),
+                'rating':game.rating,'candidate_scores':m.get('candidate_cp'),
+                'expected_human_quality':m.get('expected_human_quality'),'observed_move_quality':m.get('observed_move_quality'),
+                'quality_excess':m.get('quality_excess'),'human_information':m.get('human_information',0),
+                'competitive':m.get('competitive'),'easy_conversion':m.get('easy_conversion'),
+                'fast':{key:d.fast_engine.get(key) for key in ('rank','cpl','scaled_loss','difficulty','quality_excess')},
                 'think_time':d.think,'stability':m.get('search_stability'),'book':d.opening,
                 'opponent_error':m.get('post_opponent_error'),'deep':game.deep,
                 'information_explanation':('Difficult competitive choice with few equivalent alternatives.' if m.get('human_opportunity') else

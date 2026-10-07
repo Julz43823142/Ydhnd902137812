@@ -1,3 +1,49 @@
+# Fair Play v15 — quality excess, 200 context / 100 engine games
+
+Production collects up to 200 eligible rated completed standard Rapid/Blitz/Bullet games. Only the latest 100 receive full 24,000-node MultiPV-5 Stockfish scans. Older games supply raw clock, rating/result/session and offline repertoire context only. They never supply CPL, critical, human or engine baseline evidence. The old four-position probe is not executed. Selected games receive 320,000-node MultiPV-5 deep review: normally ten, six minimum when useful, at most fourteen. One background worker/process and the 3,600s deadline remain.
+
+## Quality is compared with a human reference, not a probability
+
+The replaceable `HumanReferenceModel.expected_quality(decision,rating,time_class)` contract has a deterministic fallback. Maia-3 was researched in v14 but is not installed or downloaded at runtime. Its future adapter can operate on selected positions; v15 does not depend on a neural runtime.
+
+Heuristic expected quality is `min(.97, .32 + .62*clip((rating-400)/2400) + .16*(1-difficulty) + time_allowance)`, with .015 Rapid, .03 Bullet, zero Blitz. Missing ratings use 2800 and cannot qualify absolute/acute routes. These are explicit, uncalibrated reference indices, **not probabilities or empirically estimated Elo performance**.
+
+Observed quality is `min(clip(1-CPL/150), clip(1-scaled_loss/.20))`, with the same-budget actual-root evaluation retained. Quality excess is `max(0,observed-expected)`. A human anomaly hit requires a competitive, non-book/non-forced/nontrivial/non-conversion/non-opponent-error opportunity with difficulty >=.55, observed quality >=.85 and excess >=.12. Bounded information is `difficulty*excess/(good_equivalent_moves**.25)`. Equivalent alternatives therefore reduce information; a #2/#3 near-equivalent choice is not penalized merely for its rank.
+
+The existing difficulty geometry and protections remain, including obvious piece flights. A flight requires at least three geometrically safe simple alternatives; a unique defensive resource is not automatically classified as an obvious escape. Exact candidate rank is separate from semantic search stability: near-best in both passes, CPL difference <=30, scaled-loss difference <=.035 and hard competitive geometry retained in both passes can preserve quality despite an equivalent rank change. Deeper quality collapse or easy geometry cannot.
+
+Each game contributes at most twelve uniformly spaced opportunity observations, including misses. Games and actual contiguous periods are the aggregation levels. All gameplay-derived measurements are one correlated family.
+
+## Broad HIGH routes
+
+Absolute gameplay requires >=10 games, >=80% rating availability, opportunities >=max(40,2*opportunity_games), contributors >=max(6,ceil(.60*opportunity_games)), information >=.15, quality excess >=.18 and the one-sided Wilson anomaly-hit lower bound >=.65. A contributor needs >=2 hits and information >=.15. The Wilson hit bound is not compared to the expected-quality index: those quantities are not the same statistical object.
+
+Deep broad evidence needs >=5 contributor games, >=20 opportunities, hit lower bound >=.60, >=.80 hit retention, >=.75 search stability and >=12 stable hits, with information >=.15 and excess >=.18. Representative baseline controls remain. A personal route requires matched leave-period-out controls and a substantial observed-quality/near-best shift; stable history or baseline availability does not veto the absolute route. Timing/results are optional for these gameplay routes. Bullet retains stricter broad/deep requirements.
+
+## Acute exceptional HIGH, never VERY HIGH
+
+Contiguous 2/3/4/5/6/8-game windows ending within the latest ten games of each class are separate acute candidates. Nonadjacent strongest-game sets are forbidden. All ratings must exist; Bullet is excluded. Require >=max(16,6*games) hard opportunities, >=6 in **every** game, >=90% hits in every game, information >=.35, quality excess >=.40 and >=3 quiet low-equivalence separated-choice hits in every game; aggregate hit lower bound >=.78.
+
+Deep-review **every** candidate game, including all its misses. All acute criteria must survive deep search, stability >=.85, hit retention >=.90 and stable successes >=90% of deep opportunities. One game can never qualify; one exceptional plus one normal game fails. Timing/result anomalies are optional. The acute route may override INSUFFICIENT DATA with HIGH and explicitly LOW confidence for 2–3 games / MEDIUM for 4–8. It never creates VERY HIGH; acute windows are excluded from independent replicated-period VERY HIGH evidence.
+
+These strict geometry/excess conditions distinguish this exception from two ordinary excellent games. They are safeguards, not validated sensitivity or a misconduct finding.
+
+## Coverage, progress, privacy and diagnosis
+
+Primary engine/archive coverage, optional context coverage and deep completion have separate flags. Missing older archives do not veto a completely supported current-period HIGH. Missing recent archives or incomplete primary engines do. Required deep evidence remains enforced per path even if an unrelated deep/control operation fails. Incomplete primary scans receive LOW confidence. LOW remains absence of established signals, not proof of fair play.
+
+Discord shows context, engine and deep counts separately. One stage-weighted monotonic 0–100 work bar covers collection (0–15), fast screening (15–75), profiles (77–79), deep confirmation (80–97), timing/report (98–99), complete (100). The bar is not time remaining or suspicion. Failed/cancelled work does not reach 100.
+
+Moderator details show each HIGH path and its exact blockers: legacy, absolute, personal, acute, recurrence, convergence. Local-only forensics include candidate scores, expected/observed quality, excess, difficulty, clocks and paired stability. No cases/labels/positions in public commits or ordinary logs. Account status/closure/ban metadata remains excluded; Discord isolation and all unrelated economy/game behavior are unchanged.
+
+`fairplay_benchmark.benchmark_candidates` compares MultiPV 3 versus 5 at equal budgets on uniformly selected decisions, reporting aggregate changes and search/root costs only. Production stays MultiPV 5 unless ranking and feature retention are demonstrated. Successful fast-only games are now cached as well as deep games; configuration/version/engine identity remain part of the bounded in-memory key.
+
+Validation must include normal/elite controls and holdouts. The existing owner-supplied development cases are a convenience set, not independent holdouts. Synthetic tests and desired private labels do not demonstrate real-world sensitivity/specificity. Human review remains mandatory.
+
+---
+
+## Historical v14 notes (superseded defaults/formulas below)
+
 # Fair Play v14 — human evidence and 200 full rated games
 
 The production sample is now the latest **up to 200 eligible rated standard live games**. All collected games receive the normal 24,000-node fast search before adaptive deep confirmation. Defaults are history=200 and primary=200; the four-position historical probe is never a substitute inside this sample. Legacy explicitly configured extended-history experiments remain separate. The deadline is 3,600 seconds; a partial scan cannot establish a new HIGH route. One background worker and one low-priority Stockfish process remain in use.

@@ -21,8 +21,15 @@ def simple_threat_response(decision):
                        and opponent.is_legal(chess.Move(square,move.from_square))
                        for square in board.attackers(enemy,move.from_square))
         if not threatened:return False
+        safe_destinations = set()
+        for alternative in list(board.legal_moves):
+            if alternative.from_square != move.from_square or board.is_capture(alternative):continue
+            trial = board.copy(stack=False);trial.push(alternative)
+            if not trial.is_check() and not trial.attackers(enemy,alternative.to_square):
+                safe_destinations.add(alternative.to_square)
         board.push(move)
-        return not bool(board.attackers(enemy,move.to_square))
+        # A unique defensive resource is not an automatic piece flight.
+        return len(safe_destinations)>=3 and not bool(board.attackers(enemy,move.to_square))
     except (ValueError,TypeError):return False
 
 
@@ -55,17 +62,32 @@ def annotate(decision, config=CONFIG):
 
 
 def stability(decision, config=CONFIG):
-    fast=decision.fast_engine;m=decision.metrics
-    compared=m.get('nodes',0)>=config.deep_nodes and fast.get('nodes',0)==config.fast_nodes
-    rank=m.get('rank');old=fast.get('rank')
-    best=compared and m.get('best')==fast.get('best')
-    rank_ok=compared and rank is not None and old is not None and abs(rank-old)<=1
-    cpl_ok=compared and abs(m.get('cpl',1000)-fast.get('cpl',1000))<=30
-    gap_ok=compared and abs((m.get('played_boundary_cp') or 0)-(fast.get('played_boundary_cp') or 0))<=max(50,(fast.get('played_boundary_cp') or 0)*.5)
-    stable=bool(compared and rank_ok and cpl_ok and gap_ok and
-                (best or (m.get('near_best') and fast.get('near_best'))))
-    m.update(search_stability={'compared':bool(compared),'best':bool(best),'rank':bool(rank_ok),
-        'cpl':bool(cpl_ok),'gap':bool(gap_ok),'stable':stable})
+    fast = decision.fast_engine
+    m = decision.metrics
+    compared = m.get('nodes', 0)>=config.deep_nodes and fast.get('nodes', 0)==config.fast_nodes
+    rank, old = m.get('rank'), fast.get('rank')
+    best = compared and m.get('best')==fast.get('best')
+    rank_ok = compared and rank is not None and old is not None and abs(rank-old)<=1
+    cpl_ok = compared and abs(m.get('cpl', 1000)-fast.get('cpl', 1000))<=30
+    # Exact candidate identity is diagnostic. Equivalent #1/#2/#3 permutations
+    # preserve semantic quality, including an actual move evaluated at the root.
+    near = (compared and m.get('cpl', 1000)<=config.equivalent_cp
+            and fast.get('cpl', 1000)<=config.equivalent_cp
+            and not m.get('search_inconsistent') and not fast.get('search_inconsistent'))
+    scaled_ok = (compared and m.get('scaled_loss') is not None and fast.get('scaled_loss') is not None
+                 and abs(m['scaled_loss']-fast['scaled_loss'])<=.035)
+    gap_ok = (compared and abs((m.get('played_boundary_cp') or 0)-(fast.get('played_boundary_cp') or 0))
+              <=max(50, (fast.get('played_boundary_cp') or 0)*.5))
+    # Both passes must retain evidential geometry; equivalent best choices do
+    # not rescue a position that becomes easy at deeper search.
+    geometry = (compared and m.get('difficulty', 0)>=config.human_difficulty_floor
+                and fast.get('difficulty', 0)>=config.human_difficulty_floor
+                and m.get('competitive') and fast.get('competitive'))
+    semantic = bool(near and cpl_ok and scaled_ok and geometry)
+    exact = bool(compared and rank_ok and cpl_ok and gap_ok and (best or near) and geometry)
+    stable = semantic or exact
+    m['search_stability'] = {'compared':bool(compared), 'best':bool(best), 'rank':bool(rank_ok),
+        'cpl':bool(cpl_ok), 'gap':bool(gap_ok), 'semantic_quality':semantic, 'stable':stable}
     return stable
 
 

@@ -6,7 +6,8 @@ Ranked best-game sets cannot establish a period or independent recurrence.
 import statistics
 from dataclasses import replace
 from fairplay_config import CONFIG
-from fairplay_human import period_summary, absolute_qualified
+from fairplay_human import period_summary, absolute_qualified, absolute_blockers
+from fairplay_acute import acute_blockers, acute_deep_confirmation
 
 
 def class_absolute(summary,kind,config=CONFIG):
@@ -44,10 +45,15 @@ def class_periods(games, config=CONFIG):
             stride=1 if width==config.min_games else max(1,config.human_period_stride)
             starts=set(range(0,len(group)-width+1,stride));starts.add(len(group)-width)
             for start in sorted(starts):options.append(('window',group[start:start+width]))
+        for width in config.acute_windows:
+            if width>len(group):continue
+            for start in range(max(0,len(group)-10-width+1),len(group)-width+1):
+                options.append(('acute_candidate',group[start:start+width]))
         identities=set()
         for mode,part in options:
             ids=tuple(g.identity for g in part)
-            if len(part)<config.min_games or ids in identities:continue
+            acute = mode=='acute_candidate'
+            if (not acute and len(part)<config.min_games) or ids in identities:continue
             identities.add(ids);s=period_summary(part,config,fast=True)
             opponents=[g.opponent_rating for g in part if g.opponent_rating is not None]
             opponent_reference=statistics.median(opponents) if opponents else None
@@ -57,18 +63,21 @@ def class_periods(games, config=CONFIG):
                 and abs(g.opponent_rating-opponent_reference)<=config.baseline_opponent_rating_tolerance]
             b=period_summary(baseline,config,fast=True)
             personal=('personal' not in config.disabled_features and kind!='bullet' and len(baseline)>=config.baseline_reference_games and b['hard_opportunities']>=40
-                and s['hard_opportunities']>=40 and s['hard_contributors']>=8 and s['hard_lower']>=.65
+                and not acute and s['hard_opportunities']>=40 and s['hard_contributors']>=config.human_min_contributors and s['hard_lower']>=.65
                 and s['hard_hits']/max(1,s['hard_opportunities'])-b['hard_hits']/max(1,b['hard_opportunities'])>=.25
-                and s['information']-b['information']>=.10)
+                and (s.get('observed_quality') or 0)-(b.get('observed_quality') or 0)>=.18)
             periods.append({'ids':list(ids),'class':kind,'kind':mode,'start':part[0].ended,'end':part[-1].ended,
                 'controls':sorted(set(g.time_control for g in part)), 'summary':s,
-                'absolute':class_absolute(s,kind,config),
+                'absolute':not acute and class_absolute(s,kind,config),
+                'acute':acute,
+                'blockers':acute_blockers(part,config) if acute else absolute_blockers(s,config),
                 'personal':bool(personal),'baseline_ids':[g.identity for g in baseline],
-                'qualified':(class_absolute(s,kind,config)) or bool(personal)})
-    return sorted(periods,key=lambda p:(p['qualified'],p['summary']['hit_lower'],p['summary']['contributors']),reverse=True)
+                'qualified':not acute_blockers(part,config) if acute else (class_absolute(s,kind,config) or bool(personal))})
+    return sorted(periods,key=lambda p:(p['qualified'],p['summary']['information']*p['summary']['hit_lower'],p['summary']['contributors']),reverse=True)
 
 
 def deep_confirmation(period,games,config=CONFIG):
+    if period.get('acute'):return acute_deep_confirmation(period,games,config)
     members=[g for g in games if g.identity in period['ids'] and g.deep]
     paired=period_summary(members,config,fast=True);deep=period_summary(members,config)
     n=deep['opportunities'];stable=deep['stable_opportunities']
@@ -80,8 +89,7 @@ def deep_confirmation(period,games,config=CONFIG):
     qualified=qualified and deep['stable_hits']>=config.human_deep_opportunities*.6
     absolute=bool(qualified and period.get('absolute',True)
         and deep['information']>=config.human_absolute_information_floor
-        and deep['quality_reference'] is not None
-        and deep['hit_lower']>=deep['quality_reference']+config.human_expectation_margin)
+        and deep.get('quality_excess',0)>=config.human_period_excess)
     if period['class']=='bullet':
         absolute=bool(absolute and len(members)>=config.bullet_human_deep_games
             and deep['contributors']>=config.bullet_human_deep_games
@@ -97,11 +105,19 @@ def deep_confirmation(period,games,config=CONFIG):
         and hard_n>=config.human_deep_opportunities and baseline['hard_opportunities']>=12
         and deep['hard_lower']>=config.human_deep_hit_lower
         and deep['hard_hits']/max(1,hard_n)-baseline['hard_hits']/max(1,baseline['hard_opportunities'])>=.25
-        and deep['information']-baseline['information']>=.10
+        and (deep.get('observed_quality') or 0)-(baseline.get('observed_quality') or 0)>=.18
         and hard_retention>=config.human_retention and deep['hard_stable']/max(1,hard_n)>=config.human_stability_fraction)
     return {'qualified':bool(absolute or personal),'absolute':absolute,'personal':bool(personal),
             'games':len(members),'summary':deep,'paired_fast':paired,'retention':retention,
-            'stability_fraction':stable/max(1,n)}
+            'stability_fraction':stable/max(1,n),
+            'blockers':[label for label,ok in {
+                'deep contributor games':len(members)>=config.human_deep_games and deep['contributors']>=config.human_deep_games,
+                'deep opportunity coverage':n>=config.human_deep_opportunities,
+                'deep anomaly hit lower bound':deep['hit_lower']>=config.human_deep_hit_lower,
+                'deep semantic-quality stability':stable/max(1,n)>=config.human_stability_fraction,
+                'fast to deep retention':retention>=config.human_retention,
+                'deep rating-adjusted information':deep['information']>=config.human_absolute_information_floor,
+                'deep rating-adjusted excess':deep.get('quality_excess',0)>=config.human_period_excess}.items() if not ok] if not (absolute or personal) else []}
 
 
 def coverage_members(members,count):
@@ -142,6 +158,9 @@ def adaptive_deep_games(games,config=CONFIG):
     second=next((p for p in independent if not set(p['ids'])&set(candidate['ids'])),None)
     others=[lookup[i] for i in second['ids']] if second else []
     second_count=min(5,len(others));reserve=len(controls);count=min(len(members),target-reserve-second_count)
+    if candidate.get('acute'):
+        target=min(len(games),config.deep_max_games,max(target,len(members)+reserve+second_count))
+        count=len(members)
     primary=coverage_members(members,count)
     coverage=sum((g.fast_metrics or g.metrics).get('human',{}).get('opportunities',0) for g in primary)
     required_coverage=config.bullet_human_deep_opportunities if candidate['class']=='bullet' else config.human_deep_opportunities
@@ -182,15 +201,16 @@ def game_structure(game):
 def integrate_gameplay(result,games,config=CONFIG):
     from fairplay_opening import repertoire
     from fairplay_human import evidence_funnel
+    legacy_priority=result.priority
+    legacy_blockers=list(result.diagnostics.get("high_blocked",[]))
     periods=class_periods(games,config);confirmed=[]
     for p in periods:
-        if p['qualified']:
-            proof=deep_confirmation(p,games,config)
-            p['deep']=proof
-            if proof['qualified']:confirmed.append(p)
+        proof=deep_confirmation(p,games,config)
+        p['deep']=proof
+        if p['qualified'] and proof['qualified']:confirmed.append(p)
     best=confirmed[0] if confirmed else periods[0] if periods else None
     recurrent=[]
-    for p in sorted(confirmed,key=lambda p:(len(p['ids']),p['start'])):
+    for p in sorted([p for p in confirmed if not p.get('acute')],key=lambda p:(len(p['ids']),p['start'])):
         if not any(set(p['ids'])&set(q['ids']) for q in recurrent):recurrent.append(p)
     replicated=False;replicated_ids=set();replicated_opportunities=0
     for left in recurrent:
@@ -200,21 +220,30 @@ def integrate_gameplay(result,games,config=CONFIG):
                 replicated=True
                 replicated_ids.update(left['summary']['contributor_ids']);replicated_ids.update(right['summary']['contributor_ids'])
     if replicated:replicated_opportunities=sum(p['summary']['opportunities'] for p in recurrent)
+    acute_confirmed=next((p for p in confirmed if p.get('acute')),None)
+    broad_confirmed=[p for p in confirmed if not p.get('acute')]
+    coverage=getattr(result,'coverage',{})
+    primary_complete=coverage.get('primary_engine_complete',not result.partial)
     sufficient=len(result.games)>=config.min_games and result.totals['decisions']>=config.min_games*config.min_game_decisions
-    allowed=bool(confirmed and sufficient and not result.partial and result.confidence!='LOW'
-                 and not {'human','difficulty'}&set(config.disabled_features))
+    broad_allowed=bool(broad_confirmed and sufficient and primary_complete and result.confidence!='LOW')
+    acute_allowed=bool(acute_confirmed and primary_complete)
+    allowed=bool((broad_allowed or acute_allowed) and not {'human','difficulty'}&set(config.disabled_features))
     # These correlated gameplay features form ONE family. Other families retain
     # their own legacy scope. Baseline presence/stability is not a veto here.
-    if allowed and result.priority in ('LOW','MODERATE'):
+    if allowed and result.priority in ('LOW','MODERATE','INSUFFICIENT DATA'):
         result.priority='HIGH';result.deep_confirmed=True
-        path='Deep-confirmed personal gameplay change' if best.get('personal') and best.get('deep',{}).get('personal') else 'Distributed rating-conditioned gameplay (timing not required)'
+        path='Acute exceptional gameplay — limited sample' if acute_allowed and not broad_allowed else 'Deep-confirmed personal gameplay change' if best.get('personal') and best.get('deep',{}).get('personal') else 'Distributed rating-conditioned gameplay (timing not required)'
         result.diagnostics.update(high_path=path,high_blocked=[])
+        if acute_allowed and not broad_allowed:
+            result.confidence='LOW' if len(acute_confirmed['ids'])<4 else 'MEDIUM'
         result.reasons=[
             'Distributed difficult, competitive decisions were unusually precise for the rating reference, '
             'with paired deep-search confirmation across several games.',
             'Timing or result anomalies are not required for this gameplay route. '
             'Human expectedness is an uncalibrated heuristic; human review remains mandatory.']
-    if (allowed and replicated and 'recurrence' not in config.disabled_features and len(result.games)>=config.very_high_games and result.confidence=='HIGH'
+    if allowed and acute_allowed and not broad_allowed and str(result.diagnostics.get('high_path','')).startswith('Acute'):
+        result.reasons=['An exceptionally concentrated gameplay anomaly was deep-confirmed across multiple recent games. The sample is small, so this result requires manual review and cannot establish misconduct.']
+    if (broad_allowed and allowed and replicated and 'recurrence' not in config.disabled_features and len(result.games)>=config.very_high_games and result.confidence=='HIGH'
             and replicated_opportunities>=80 and len(replicated_ids)>=12):
         result.priority='VERY HIGH'
         result.reasons.append('Disjoint deep-confirmed periods repeat, separated by adequately sampled lower-anomaly play.')
@@ -232,7 +261,7 @@ def integrate_gameplay(result,games,config=CONFIG):
             'absolute_gameplay':bool(best and best.get('absolute')),
             'personal_gameplay':bool(best and best.get('personal')),
             'difficulty_opportunities':bool(best and best['summary']['hard_opportunities']>=40),
-            'deep_confirmation':bool(confirmed),'complete_analysis':not result.partial,
+            'deep_confirmation':bool(confirmed),'complete_analysis':bool(primary_complete),
             'confidence':result.confidence!='LOW',
             'timing_support_optional':result.diagnostics.get('gate_scores',{}).get('Move-Time Pattern',0)>=.5,
             'result_support_optional':result.diagnostics.get('gate_scores',{}).get('Account / Results',0)>=.5,
@@ -240,7 +269,34 @@ def integrate_gameplay(result,games,config=CONFIG):
         'research_evidence_index':round(100*max((p['summary']['information']*p['summary']['hit_lower'] for p in periods),default=0),2)}
     if not allowed and result.priority not in ('HIGH','VERY HIGH'):
         gates=result.diagnostics['gameplay']['gates']
-        required=('sample','gameplay_period','deep_confirmation','complete_analysis','confidence')
+        required=('gameplay_period','deep_confirmation','complete_analysis')
         result.diagnostics['gameplay']['blocked']=[k.replace('_',' ') for k in required if not gates[k]]
+    def route_row(predicate,field=None):
+        options=[p for p in periods if predicate(p)]
+        candidate=next((p for p in options if p['qualified'] and p['deep']['qualified'] and (not field or (p.get(field) and p['deep'].get(field)))),options[0] if options else None)
+        passed=bool(candidate and candidate['qualified'] and candidate['deep']['qualified'] and primary_complete
+                    and not {'human','difficulty'}&set(config.disabled_features))
+        if field and candidate and (not candidate.get(field) or not candidate['deep'].get(field)):passed=False
+        blockers=[]
+        if not candidate:blockers.append('No eligible chronological candidate.')
+        elif not candidate['qualified']:blockers.extend(candidate.get('blockers') or ['Personal/gameplay period not exceptional.'])
+        if candidate and not candidate['deep']['qualified']:blockers.extend(candidate['deep'].get('blockers') or ['Required paired deep confirmation not established.'])
+        if not primary_complete:blockers.append('Required primary engine coverage is incomplete.')
+        if candidate and not candidate.get('acute') and (not sufficient or result.confidence=='LOW'):
+            passed=False;blockers.append('Broad-sample coverage or confidence is insufficient.')
+        if {'human','difficulty'}&set(config.disabled_features):blockers.append('Gameplay family disabled in local ablation.')
+        return {'passed':passed,'blockers':[] if passed else list(dict.fromkeys(blockers)),
+                'candidate_games':len(candidate['ids']) if candidate else 0}
+    convergence=getattr(result,'clusters',{}).get('convergence',{})
+    result.diagnostics['high_paths']={
+        'Legacy cluster HIGH':{'passed':legacy_priority in ('HIGH','VERY HIGH') and not convergence.get('raised_priority'),
+            'blockers':legacy_blockers if legacy_priority not in ('HIGH','VERY HIGH') else []},
+        'Absolute gameplay HIGH':route_row(lambda p:p['kind']!='acute_candidate','absolute'),
+        'Personal-change HIGH':route_row(lambda p:p.get('personal',False),'personal'),
+        'Acute exceptional HIGH':route_row(lambda p:p.get('acute',False),'acute'),
+        'Recurrence HIGH':{'passed':bool(broad_allowed and replicated),
+            'blockers':[] if broad_allowed and replicated else ['Separated, deep-confirmed periods with intervening lower-anomaly play not established.']},
+        'Convergence HIGH':{'passed':bool(convergence.get('raised_priority')),
+            'blockers':[] if convergence.get('raised_priority') else (convergence.get('confirmation',{}).get('blockers') or ['Complete-period convergence not established.'])}}
     result.families['Human / Difficulty Evidence']='Elevated' if allowed else 'Limited / not established'
     return result

@@ -44,7 +44,7 @@ def priority_model(scores, *, games, decisions, critical, confidence, deep_confi
     return 'MODERATE' if moderate else 'LOW'
 
 
-def score_review(target, games, selected, skipped, partial, engine_name, profile, elapsed, config=CONFIG):
+def score_review(target, games, selected, skipped, partial, engine_name, profile, elapsed, config=CONFIG, *, coverage_state=None, context_games=None):
     from fairplay_analysis import aggregate, performance_metrics, context_metrics, median, family_label, ReviewResult
     # Only rated games with usable equal-budget engine coverage enter ANY signal.
     scanned_rated=[g for g in games if g.rated is True and not g.probe_only]
@@ -235,7 +235,7 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
                         deep_confirmed,coverage,elapsed,timing={'trivial_delay':trivial_timing,'personal':personal,'cadence_groups':cadence_groups,'delay_floors':delay_floors},
                         clusters=clusters,
                         coverage={'collected':selected,'fast_scanned':len(scanned_rated),'used':len(useful),'deep_reviewed':len([g for g in games if g.deep]),
-                                  'excluded_after_fast':len(scanned_rated)-len(useful)},
+                                  'excluded_after_fast':len(scanned_rated)-len(useful),**(coverage_state or {})},
                         diagnostics={'scores':dict(zip(names,scores)),'weighted_review_score':sum(v*w for v,w in zip(scores,config.weights)),
                                      'independent_support':max(gate_timing,gate_context)>=.5 or recurrence,
                                      'engine_confidence':confidence,'timing_available':any(g.metrics['timing']['count']>=config.min_timing_moves for g in timeline),
@@ -256,8 +256,13 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
                                                         'excluded_clocks':sum(g.metrics['timing'].get('excluded_clocks',0) for g in timeline)}},timeline=timeline)
     from fairplay_convergence import integrate_review
     if not {'timing','results'}&disabled:result=integrate_review(result,timeline,config)
+    if coverage_state and not coverage_state.get('primary_engine_complete',True):result.confidence='LOW'
     from fairplay_sequence import integrate_gameplay
-    return integrate_gameplay(result,timeline,config)
+    result=integrate_gameplay(result,timeline,config)
+    if context_games is not None:
+        from fairplay_opening import repertoire
+        result.diagnostics['gameplay']['repertoire']=repertoire(context_games)
+    return result
 
 
 def high_block_reasons(priority, comparison, deep, cluster, timing, context, recurrence, games, config=CONFIG):

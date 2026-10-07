@@ -59,7 +59,7 @@ class RatedOnly(unittest.TestCase):
         self.assertEqual(len(history),80);self.assertEqual(skipped['unrated'],120)
         self.assertTrue(all(g.rated is True for g in history));self.assertFalse(partial)
 
-    def test_pipeline_scans_all_120_eligible_rated_without_casual_fill(self):
+    def test_pipeline_retains_120_context_but_scans_latest_100_rated(self):
         history=[played(i) for i in range(180)]
         for i,g in enumerate(history):g.rated=i%3!=0
         calls=[]
@@ -72,9 +72,9 @@ class RatedOnly(unittest.TestCase):
         config=replace(CONFIG,deep_games=0,historical_target_games=0,historical_probe_budget_fraction=0)
         with patch.object(analysis,'collect_games',return_value=(list(reversed(history)),{},False)),patch.object(analysis,'EngineScanner',Scanner):
             result=analysis.review(TARGET,lambda _:None,config,api_factory=lambda _:api)
-        expected=[g.identity for g in history if g.rated is True][-200:]
+        expected=[g.identity for g in history if g.rated is True][-100:]
         self.assertEqual([row[0] for row in calls],list(reversed(expected)))
-        self.assertEqual(result.coverage['primary_collected'],120)
+        self.assertEqual(result.coverage['primary_collected'],100)
         self.assertEqual(result.history['collected'],120)
         self.assertTrue(all(g.rated is True for g in result.games))
 
@@ -200,10 +200,10 @@ class PersonalCalibration(unittest.TestCase):
     def test_ui_explains_rated_sample_baseline_and_blocked_gate(self):
         result=report([quality(i,.8,15) for i in range(40)])
         text=str(ui.result_embed(result).to_dict())
-        self.assertIn('Eligible rated games collected',text)
+        self.assertIn('Rated context games',text)
         for mode in ('Engine Analysis','Clusters & History'):
             embed=ui.detail_embed(result,mode)
-            self.assertIn('HIGH blocked because',str(embed.to_dict()))
+            self.assertIn('Absolute gameplay HIGH — FAIL',str(embed.to_dict()))
             self.assertLessEqual(len(embed),6000)
             self.assertTrue(all(len(f.value)<=1024 for f in embed.fields))
         self.assertIn('Same-control rated baseline',str(ui.detail_embed(result,'Clusters & History').to_dict()))
