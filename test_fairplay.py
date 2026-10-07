@@ -429,12 +429,50 @@ class DiscordRules(unittest.IsolatedAsyncioTestCase):
         submit.stop();report.stop()
 
     async def test_queue_limit_duplicates_and_no_target_in_analytics(self):
+        names=(TARGET,TARGET,'synthetic-two','synthetic-three','synthetic-four',
+               'synthetic-five','synthetic-six','synthetic-seven')
+        events=[ctx() for _ in names]
         with patch('feature_usage.note') as note:
-            for name in (TARGET,TARGET,'synthetic-second','synthetic-third'):
-                await self.service.enqueue(ctx(),name)
-            self.assertEqual(len(self.service.jobs),2)
-            self.assertEqual(note.call_count,2)
+            for event,name in zip(events,names):
+                await self.service.enqueue(event,name)
+            self.assertEqual(len(self.service.jobs),ui.MAX_JOBS)
+            self.assertEqual(note.call_count,ui.MAX_JOBS)
             self.assertTrue(all(call.args==('use:fairplay-scan',42) for call in note.call_args_list))
+            self.assertIn('queue is full',events[-1].followup.send.call_args.args[0])
+
+    async def test_three_reviews_run_in_parallel_and_fourth_waits(self):
+        release=threading.Event();three_started=threading.Event();started=[];lock=threading.Lock()
+        def blocking(target,progress,*,cancel):
+            with lock:
+                started.append(target)
+                if len(started)>=ui.MAX_CONCURRENT_SCANS:three_started.set()
+            while not release.wait(.01):
+                if cancel.is_set():raise data.ReviewError('Stopped')
+            raise data.ReviewError('Synthetic complete')
+
+        self.service.analyzer=blocking
+        names=('parallel-one','parallel-two','parallel-three','parallel-four')
+        with patch('feature_usage.note'):
+            for name in names:await self.service.enqueue(ctx(),name)
+        self.service.workers=[
+            asyncio.create_task(self.service.run_queue())
+            for _ in range(ui.MAX_CONCURRENT_SCANS)
+        ]
+        self.service.worker=self.service.workers[0]
+        for _ in range(100):
+            if three_started.is_set():break
+            await asyncio.sleep(.01)
+        self.assertTrue(three_started.is_set())
+        await asyncio.sleep(.05)
+        self.assertEqual(len(started),ui.MAX_CONCURRENT_SCANS)
+        self.assertNotIn('parallel-four',started)
+        self.assertTrue(all(not self.service.jobs[name].stop.is_set() for name in names))
+        release.set()
+        for _ in range(100):
+            if len(started)==4:break
+            await asyncio.sleep(.01)
+        self.assertEqual(len(started),4)
+        await asyncio.wait_for(self.service.queue.join(),2)
 
     async def test_progress_reuses_card_and_handles_deleted_message(self):
         job = ui.Job(TARGET,ctx())
@@ -493,6 +531,7 @@ class DiscordRules(unittest.IsolatedAsyncioTestCase):
             await ui.startup(client)
             self.assertIs(ui._service,created)
             self.assertEqual(client.add_view.call_count,2)
+            self.assertEqual(len(created.workers),ui.MAX_CONCURRENT_SCANS)
             self.assertTrue(all(call.args[0].is_persistent() for call in client.add_view.call_args_list))
         finally:
             if ui._service:await ui._service.close()
