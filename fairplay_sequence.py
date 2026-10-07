@@ -106,7 +106,7 @@ def deep_confirmation(period,games,config=CONFIG):
 
 def coverage_members(members,count):
     """Chronological anchors plus geometry coverage; never rank by hits.
-    
+
     Opportunity-poor uniformly spaced selections can fail the deep denominator
     even when the complete period is informative. Within chronological bins,
     prefer more measurable positions, including all their misses.
