@@ -5,7 +5,7 @@ CHANNEL_ID = 1311445685492781186
 NAMESPACE = 'shark:fairplay:'
 DISCLAIMER = ('Automated fair-play screening only. This result is not proof of cheating '
               'and must not be used as the sole basis for punishment. Human review is mandatory.')
-VERSION = 'fairplay-v12-convergent-periods'
+VERSION = 'fairplay-v13-local-clock-patterns'
 
 
 @dataclass(frozen=True)
@@ -105,6 +105,8 @@ class ReviewConfig:
     delay_floor_median_ratio: float = 1.5
     delay_floor_relative_mad: float = .45
     delay_floor_overlap: float = .65
+    local_timing_anchor_moves: int = 8
+    local_timing_bin: float = .20
     timing_relative_band: float = .20
     timing_min_game_moves: int = 8
     timing_recurrence_moves: int = 80

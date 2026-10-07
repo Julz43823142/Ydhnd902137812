@@ -1,6 +1,58 @@
-# Fair Play Review v12
+# Fair Play Review v13
 
 This is a moderator screening tool, not a cheating verdict or a calibrated probability. It performs no punishments, reports, wallet mutations or rewards. Missing evidence is never suspicious. False positives and missed cases remain possible; human review is mandatory.
+
+## Within-game clock relationships (v13)
+
+Repeated easy/hard delay relationships can be missed when one game's ordinary
+pace is three seconds and another's is six. `fairplay_local_timing.py` adds a
+comparison relative to **each game's ordinary-move median**, while retaining
+the absolute-delay analysis. No engine searches or trained model are added.
+
+The comparison is confined to one exact known rated Rapid/Blitz control.
+Opening clocks, invalid estimates, severe time trouble and historical engine
+probes remain excluded. Each game needs at least eight ordinary clocks and an
+ordinary median of at least one second to supply a scale. All observed clocks
+then enter their category; games are not selected for suspicious-looking pace.
+Duplicate identities cannot multiply coverage.
+
+Use original seconds to count premoves and verify genuinely delayed medians;
+normalizing a fast move never turns it into delayed evidence. Require the
+existing minimums of six anchor games, 12 trivial / 48 ordinary / 12 critical
+clocks, distributed category contributors, and all three categories within
+`max(6, ceil(games/3))` of the same games. Relative category medians must have
+a maximum ratio of 1.5, relative MAD at most 0.45, and all pairwise histogram
+overlaps at least 0.65. Histogram bins are 0.20 of that game's ordinary median;
+near-instant fractions still use the original 0.5-second cutoff and must be
+at most 0.10. These centralized thresholds are screening heuristics, not a
+population-calibrated significance test.
+
+The complete-period HIGH route must use the **same comparison method** in the
+full period, both chronological halves and the deep confirmation. A passing
+absolute profile in one half cannot borrow a different passing normalized
+profile from the other. Existing engine opportunities, deep node budgets,
+result corroboration, confidence and minimum-game gates are unchanged. Timing
+alone still cannot establish HIGH or VERY HIGH. A deliberate pace, input habit,
+accessibility aid or variable lag can explain these patterns innocently.
+
+Timing details show absolute seconds separately from relative easy/ordinary/
+critical medians, anchor range, premove fraction and same-game coverage. Data
+remains in bounded runtime memory; the cache version changes for the new
+feature. `test_fairplay_local_timing.py` covers variable absolute pace, ordinary
+human complexity response, retained premoves, subsecond clocks, missing/shared
+category coverage, exact-control isolation, robust anchors, deep collapse and
+timing-only safety gates.
+
+Public research reviewed for this change includes [Kaladin's feature
+preparation](https://github.com/lichess-org/kaladin/blob/master/src/data_preparation/insights_generation.py),
+which includes move time by phase, evaluation and centipawn loss, and
+[Irwin's documentation](https://github.com/clarkerubber/irwin), which requires a
+training database and assesses principal variations. Their trained classifiers
+are not imported or reproduced. [Lichess's accuracy explanation](https://lichess.org/page/accuracy)
+explicitly warns that strong accuracy depends on position context and is not
+proof of misconduct. The new normalization is our transparent heuristic,
+not a claim to implement their models. PubAPI lacks private browser/focus
+telemetry; no such data is inferred or collected.
 
 ## Complete-period corroboration (v12)
 

@@ -18,7 +18,8 @@ import statistics
 from fairplay_config import CONFIG
 from fairplay_calibration import lower_bound, strength_expectations
 from fairplay_results import result_support
-from fairplay_timing import delay_floor_profile, decision_trivial_kind
+from fairplay_timing import decision_trivial_kind
+from fairplay_local_timing import clock_delay_evidence
 
 
 def _clock_copy(game, *, fast):
@@ -50,9 +51,12 @@ def clock_replication(games, config=CONFIG, *, fast=True):
             categories.add('trivial' if decision_trivial_kind(decision)
                            else 'critical' if decision.metrics.get('critical') else 'normal')
         if len(categories)==3:shared.append(game.identity)
-    profile=delay_floor_profile(copies,config)
+    profile=clock_delay_evidence(copies,config)
     required=max(config.convergence_shared_games,math.ceil(len(games)*config.pooled_opportunity_fraction))
-    return {'supported':bool(profile['elevated'] and len(shared)>=required),
+    absolute=bool(profile['raw_elevated'] and len(shared)>=required)
+    local=profile['normalized']['elevated']
+    return {'supported':absolute or local,
+            'methods':(['absolute'] if absolute else [])+(['within-game'] if local else []),
             'shared_games':len(shared),'required_shared_games':required,
             'profile':profile}
 
@@ -133,7 +137,9 @@ def discover_convergence(games, config=CONFIG):
         result_ok=adjusted is not None and adjusted<=config.convergence_result_bound
         coverage_ok=len(group)>=config.convergence_games and m['decisions']>=config.convergence_decisions
         engine_ok=whole['supported'] and all(row['supported'] for row in engine_halves)
-        timing_ok=clocks['supported'] and all(row['supported'] for row in clock_halves)
+        common_methods=set(clocks['methods']).intersection(*(set(row['methods']) for row in clock_halves))
+        timing_method='absolute' if 'absolute' in common_methods else 'within-game' if 'within-game' in common_methods else None
+        timing_ok=timing_method is not None
         blockers=[]
         if not coverage_ok:blockers.append('Insufficient complete-period game/decision coverage.')
         if not engine_ok:blockers.append('Critical precision is not adequately repeated in both chronological halves.')
@@ -142,7 +148,7 @@ def discover_convergence(games, config=CONFIG):
         record=group_record(group,'complete period',config,fast=True)
         record['convergence']={'candidate':not blockers,'examined_periods':examined,
             'opportunities':whole,'engine_halves':engine_halves,
-            'clocks':clocks,'clock_halves':clock_halves,'results':outcomes,
+            'clocks':clocks,'clock_halves':clock_halves,'timing_method':timing_method,'results':outcomes,
             'adjusted_result_bound':adjusted,'blockers':blockers}
         candidates.append(record)
     candidates.sort(key=lambda row:(row['convergence']['candidate'],
@@ -196,10 +202,12 @@ def confirm_convergence(candidate, games, config=CONFIG, *, partial=False, confi
     blockers=list(candidate['convergence']['blockers'])
     if not candidate['convergence']['candidate']:blockers.append('Discovery did not establish convergent evidence.')
     if not engine_ok:blockers.append('The same-period critical signal lacks adequate paired deep confirmation.')
-    if not clocks['supported']:blockers.append('The delayed easy/hard pattern did not survive deep opportunity classification.')
+    method=candidate['convergence'].get('timing_method','absolute')
+    clock_confirmed=method in clocks['methods']
+    if not clock_confirmed:blockers.append('The same delayed easy/hard comparison method did not survive deep opportunity classification.')
     if partial:blockers.append('Incomplete analysis cannot establish this convergent HIGH route.')
     if confidence=='LOW':blockers.append('Low data confidence cannot establish this convergent HIGH route.')
-    return {'qualified':not blockers,'deep_confirmed':bool(engine_ok and clocks['supported']),
+    return {'qualified':not blockers,'deep_confirmed':bool(engine_ok and clock_confirmed),
             'games':len(selected),'metrics':deep,'paired_fast':fast,'critical_contributors':critical_contributors,
             'lower_bound':lower,'paired_fast_lower':fast_lower,'retention':retention,
             'clocks':clocks,'deep_halves':deep_halves,'measured':measured,'blockers':blockers}

@@ -159,11 +159,14 @@ def detail_embed(result, mode):
         for key,row in sorted(result.timing.get('delay_floors',{}).items(),key=lambda pair:(pair[1]['elevated'],pair[1]['games']),reverse=True)[:3]:
             cats=row['samples']
             embed.add_field(name=f'Cross-category delay · {key}',inline=False,
-                value=f'{"Elevated supporting pattern" if row["elevated"] else "Not established" if row["sufficient"] else "Insufficient comparable clocks"} · {row["games"]} games\n'
+                value=f'{"Elevated absolute-delay pattern" if row.get("raw_elevated",row["elevated"]) else "Absolute-delay pattern not established" if row["sufficient"] else "Insufficient absolute-delay clocks"} · {row["games"]} games\n'
                       f'Trivial / ordinary / critical medians: {number(cats["trivial"]["median"])} / {number(cats["normal"]["median"])} / {number(cats["critical"]["median"])} sec\n'
                       f'Trivial near-instant fraction: {percentage(cats["trivial"]["near_instant"])}\n'
                       f'Trivial–critical distribution overlap: {percentage(row["overlap"]["trivial_critical"])}\n'
                       'Similar delayed timing across easy and hard moves is supporting evidence, not proof; input habits or lag can cause it.')
+            local=row.get('normalized',{})
+            if local.get('sufficient'):
+                add_local_clock_field(embed,local,key)
         for key,row in sorted(result.timing.get('cadence_groups',{}).items(),key=lambda pair:pair[1]['games'],reverse=True)[:2]:
             if row['games']<2:continue
             embed.add_field(name=f'Repeated cadence · {key}',inline=False,
@@ -288,6 +291,7 @@ def add_convergence_fields(embed,result):
               f'Critical top-1: {percentage(m["critical_top1"])} / {m["critical"]} opportunities\n'
               f'Engine / clock replication in both halves: {all(r["supported"] for r in proof["engine_halves"])} / {all(r["supported"] for r in proof["clock_halves"])}\n'
               f'Games containing all three clock categories: {proof["clocks"]["shared_games"]}\n'
+              f'Confirmed clock comparison: {proof.get("timing_method","absolute")}\n'
               f'Median easy / ordinary / critical delay: {number(clock["trivial"]["median"])} / {number(clock["normal"]["median"])} / {number(clock["critical"]["median"])} sec')
     dm=deep.get('metrics',{})
     blockers=deep.get('blockers',[])
@@ -299,6 +303,19 @@ def add_convergence_fields(embed,result):
           'No personal regime change is required. Habit, lag, underrating and improvement remain possible. This route is capped at HIGH.')
     if blockers:text+='\n'+'\n'.join('• '+v for v in blockers)
     embed.add_field(name='Deep corroboration & outcomes',value=text[:1024],inline=False)
+    if proof.get('timing_method')=='within-game':
+        add_local_clock_field(embed,proof['clocks']['profile']['normalized'],candidate['time_control'])
+
+
+def add_local_clock_field(embed,local,label):
+    samples=local['samples'];anchors=local['anchor_range']
+    embed.add_field(name=f'Within-game delay comparison · {label}',inline=False,
+        value=f'{"Elevated supporting pattern" if local["elevated"] else "Not elevated"} · {local["anchor_games"]} adequately timed games\n'
+              f'Ordinary pace between games: {number(anchors[0])}–{number(anchors[1])} sec\n'
+              f'Trivial / ordinary / critical relative medians: {number(samples["trivial"]["median"])} / {number(samples["normal"]["median"])} / {number(samples["critical"]["median"])}\n'
+              f'Trivial near-instant fraction: {percentage(samples["trivial"]["near_instant"])} · shared-category games: {local["shared_games"]}\n'
+              f'Relative trivial–critical distribution overlap: {percentage(local["overlap"]["trivial_critical"])}\n'
+              '1.0 is that game’s ordinary-move median. Premoves remain counted. Changing absolute pace between games can retain a repeated easy/hard relationship. Habits or lag can explain this; timing alone cannot establish HIGH.')
 
 
 def add_baseline_fields(embed,result):
