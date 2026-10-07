@@ -5,7 +5,7 @@ CHANNEL_ID = 1311445685492781186
 NAMESPACE = 'shark:fairplay:'
 DISCLAIMER = ('Automated fair-play screening only. This result is not proof of cheating '
               'and must not be used as the sole basis for punishment. Human review is mandatory.')
-VERSION = 'fairplay-v16.2-distributed-moderate-100'
+VERSION = 'fairplay-v16.3-moderate-breadth-100'
 
 
 @dataclass(frozen=True)
@@ -114,21 +114,32 @@ class ReviewConfig:
     human_min_raw_excess_rating: float = .05
     human_contributor_fraction: float = .60
     # Separate MODERATE-only path for intermittent evidence distributed across
-    # many games. It never weakens absolute/acute HIGH gates.
-    human_sparse_min_games: int = 20
-    human_sparse_min_opportunities: int = 20
-    human_sparse_min_hits: int = 12
-    human_sparse_min_hit_games: int = 8
-    human_sparse_min_single_hit_games: int = 5
-    human_sparse_information_floor: float = .15
-    human_sparse_anomaly_strength: float = .18
-    human_sparse_min_raw_excess: float = .08
-    human_sparse_deep_games: int = 5
-    human_sparse_deep_opportunities: int = 10
-    human_sparse_deep_hit_games: int = 3
-    human_sparse_deep_stable_hits: int = 4
-    human_sparse_deep_retention: float = .60
-    human_sparse_deep_stability: float = .60
+    # many games. It never weakens absolute/acute HIGH gates. v16.3 requires
+    # breadth and paired-deep retention rather than rewarding isolated one-hit
+    # games, which are too easy to obtain from ordinary variance.
+    human_sparse_min_games: int = 30
+    human_sparse_min_opportunities: int = 30
+    human_sparse_min_hits: int = 16
+    human_sparse_min_hit_games: int = 10
+    human_sparse_min_contributors: int = 5
+    human_sparse_min_half_hit_games: int = 3
+    human_sparse_min_half_contributors: int = 2
+    human_sparse_max_single_hit_fraction: float = .60
+    human_sparse_hit_lower: float = .45
+    human_sparse_information_floor: float = .18
+    human_sparse_anomaly_strength: float = .22
+    human_sparse_min_raw_excess: float = .09
+    human_sparse_deep_games: int = 6
+    human_sparse_deep_opportunities: int = 14
+    human_sparse_deep_hits: int = 8
+    human_sparse_deep_hit_games: int = 5
+    human_sparse_deep_contributors: int = 3
+    human_sparse_deep_min_half_hit_games: int = 2
+    human_sparse_deep_hit_lower: float = .45
+    human_sparse_deep_stable_hits: int = 6
+    human_sparse_deep_retention: float = .70
+    human_sparse_deep_hit_game_retention: float = .65
+    human_sparse_deep_stability: float = .70
     acute_windows: tuple = (2, 3, 4, 5, 6, 8)
     acute_min_opportunities: int = 16
     acute_min_game_opportunities: int = 6
