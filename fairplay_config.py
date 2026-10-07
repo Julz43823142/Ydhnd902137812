@@ -5,14 +5,14 @@ CHANNEL_ID = 1311445685492781186
 NAMESPACE = 'shark:fairplay:'
 DISCLAIMER = ('Automated fair-play screening only. This result is not proof of cheating '
               'and must not be used as the sole basis for punishment. Human review is mandatory.')
-VERSION = 'fairplay-v14-human-evidence-200'
+VERSION = 'fairplay-v15-quality-excess-100'
 
 
 @dataclass(frozen=True)
 class ReviewConfig:
     max_games: int = 200  # explicit small fixture/benchmark override remains supported
     history_games: int = 200
-    primary_engine_games: int = 200
+    primary_engine_games: int = 100
     historical_probe_nodes: int = 2_000
     historical_probe_moves: int = 4
     historical_probe_budget_fraction: float = .12
@@ -86,18 +86,31 @@ class ReviewConfig:
     deep_nodes: int = 320_000
     deep_games: int = 10
     deadline_seconds: int = 3600
-    deep_min_games: int = 8
-    deep_normal_games: int = 14
-    deep_max_games: int = 20
+    deep_min_games: int = 6
+    deep_normal_games: int = 10
+    deep_max_games: int = 14
     opening_min_plies: int = 6
     opening_max_plies: int = 60
-    human_absolute_information_floor: float = .30
-    human_expectation_margin: float = .05
+    human_absolute_information_floor: float = .15
+    human_expectation_margin: float = .05  # legacy diagnostics only
+    human_quality_excess: float = .12
+    human_period_excess: float = .18
+    human_contributor_fraction: float = .60
+    acute_windows: tuple = (2, 3, 4, 5, 6, 8)
+    acute_min_opportunities: int = 16
+    acute_min_game_opportunities: int = 6
+    acute_information_floor: float = .35
+    acute_quality_excess: float = .40
+    acute_hit_lower: float = .78
+    acute_hit_fraction: float = .90
+    acute_stability_fraction: float = .85
+    acute_retention: float = .90
+    acute_quiet_hits_per_game: int = 3
     human_equivalence_power: float = .30
     human_threat_response_factor: float = .5
     human_difficulty_floor: float = .55
     human_min_opportunities: int = 40
-    human_min_contributors: int = 8
+    human_min_contributors: int = 6
     human_hit_lower: float = .65
     human_deep_games: int = 5
     human_deep_opportunities: int = 20

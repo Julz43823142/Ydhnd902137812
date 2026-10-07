@@ -292,7 +292,7 @@ class EngineAndReports(unittest.TestCase):
         timing_text=str(ui.detail_embed(result,'Timing').to_dict())
         self.assertIn('Clock coverage',timing_text)
         self.assertIn('Cross-category delay',timing_text)
-        self.assertIn('Priority Gate',str(ui.detail_embed(result,'Engine Analysis').to_dict()))
+        self.assertIn('Legacy cluster HIGH',str(ui.detail_embed(result,'Engine Analysis').to_dict()))
 
 
 if __name__=='__main__':unittest.main()

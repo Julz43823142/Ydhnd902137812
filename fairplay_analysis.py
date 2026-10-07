@@ -20,7 +20,7 @@ from fairplay_timing import cadence, clock_values, trivial_delay_metrics, trivia
 from fairplay_baseline import engine_data, timing_profile
 from fairplay_clusters import (clamp, evidence, find_clusters, regime_changes,
                                select_deep_games, confirm_cluster, summary, buckets, comparison_control)
-from fairplay_history import probe_decisions, historical_candidates, session_history
+from fairplay_history import session_history
 from fairplay_data import (DeadlineReached, GameSample, PubAPI, ReviewError,
                            ScanDeadline, check_deadline, collect_games, finite_number, username, primary_limit, collection_limit)
 
@@ -318,6 +318,8 @@ class EngineScanner:
     """One independent low-priority Stockfish process per scan; no shared lock."""
     def __init__(self, deadline, config=CONFIG, factory=None):
         self.deadline, self.config = deadline, config
+        self.profile = {'multipv_seconds':0.0, 'root_seconds':0.0, 'multipv_searches':0, 'root_searches':0,
+                        'fast_multipv_seconds':0.0, 'fast_root_seconds':0.0, 'deep_multipv_seconds':0.0, 'deep_root_seconds':0.0}
         self.engine = (factory or (lambda:chess_play._create_stockfish_engine(allow_install=False,engine_class=BoundedNodeEngine)))()
         self.engine.timeout = config.engine_timeout
         try:
@@ -354,7 +356,11 @@ class EngineScanner:
             richer = (decision.metrics.get('critical') or (decision.metrics.get('gap') is not None
                        and decision.metrics['gap']<25 and decision.metrics.get('cpl',100)<=25))
             multipv=self.config.deep_multipv if nodes==self.config.deep_nodes else self.config.fast_multipv
+            search_started=time.monotonic()
             lines = self.engine.analyse(board,chess.engine.Limit(nodes=nodes),multipv=multipv)
+            spent=time.monotonic()-search_started
+            self.profile['multipv_seconds']+=spent;self.profile['multipv_searches']+=1
+            self.profile['deep_multipv_seconds' if nodes==self.config.deep_nodes else 'fast_multipv_seconds']+=spent
             check_deadline(self.deadline)
             if isinstance(lines,dict):lines = [lines]
             move = chess.Move.from_uci(decision.move)
@@ -363,7 +369,11 @@ class EngineScanner:
                 if 'Clear Hash' in self.engine.options:self.engine.configure({'Clear Hash':None})
                 # Restrict the root to the actual move: same POV/budget, avoiding
                 # after-move horizon differences being mistaken for CPL.
+                search_started=time.monotonic()
                 actual = self.engine.analyse(board,chess.engine.Limit(nodes=nodes),root_moves=[move])
+                spent=time.monotonic()-search_started
+                self.profile['root_seconds']+=spent;self.profile['root_searches']+=1
+                self.profile['deep_root_seconds' if nodes==self.config.deep_nodes else 'fast_root_seconds']+=spent
             decision.metrics = engine_metrics(decision,lines,actual,game.color,self.config)
             decision.metrics['nodes']=nodes
             if nodes==self.config.fast_nodes:decision.fast_engine=decision.metrics.copy()
@@ -435,35 +445,19 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         fast_finished=time.monotonic()
         historical_targets=[]
         probe_complete=True
-        if primary_complete and len(history)>len(primary):
-            primary_ids={g.identity for g in primary}
-            older=[g for g in history if g.identity not in primary_ids]
-            probe_end=min(float(deadline),time.monotonic()+config.deadline_seconds*config.historical_probe_budget_fraction)
-            for index,game in enumerate(older):
-                if time.monotonic()>=probe_end:probe_complete=False;break
-                progress(f'Lightweight history screen: {index} / {len(older)}')
-                probe=copy.deepcopy(game);probe.decisions=probe_decisions(probe,config);probe.probe_only=True
-                try:
-                    scanner.analyse(probe,config.historical_probe_nodes)
-                    probes[game.identity]=probe.metrics
-                except DeadlineReached:probe_complete=False;break
-            progress('Identifying high-signal historical periods…')
-            historical_targets=historical_candidates(older,probes,config)
-            for index,game in enumerate(historical_targets):
-                # Preserve ample runtime for the expensive confirmatory pass.
-                if float(deadline)-time.monotonic()<config.deadline_seconds*.15:
-                    probe_complete=False;break
-                progress(f'Targeted historical engine scan: {index} / {len(historical_targets)}')
-                try:fast_scan(game)
-                except DeadlineReached:probe_complete=False;break
+        # Older rated games remain raw context only: never fabricate engine
+        # baselines from sparse probes or from unscanned decisions.
+        context_only = [g for g in history if g.identity not in {x.identity for x in analyzed}]
         analyzed.sort(key=lambda g:(g.ended,g.identity))
         progress('Building human-move profile…')
         progress('Analyzing sessions and repertoire…')
-        from fairplay_sequence import adaptive_deep_games
+        from fairplay_sequence import adaptive_deep_games, confirmation_extension
         candidates=adaptive_deep_games(analyzed,config)
         deep_started=time.monotonic()
         deep_incomplete=False
-        for index,game in enumerate(candidates):
+        index=0
+        while index<len(candidates):
+            game=candidates[index]
             progress(f'Deep confirmation: {index} / {len(candidates)}')
             try:
                 confirmed=copy.deepcopy(game)
@@ -475,17 +469,33 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 game.decisions,game.metrics,game.deep=confirmed.decisions,confirmed.metrics,True
             except DeadlineReached:
                 deep_incomplete=True;break
+            index+=1
+            if index==len(candidates):
+                # One bounded extension; completed games are never rerun.
+                extra=confirmation_extension(analyzed,config)
+                candidates.extend(g for g in extra if g not in candidates)
         deep_finished=time.monotonic()
         progress(f'Deep confirmation: {sum(g.deep for g in candidates)} / {len(candidates)}')
         for game in analyzed:
-            if game.deep:
+            if game.fast_metrics:
                 key=(game.identity,game.color,scanner.name,VERSION,config)
-                _game_cache[key]=(time.monotonic(),copy.deepcopy(game.decisions),True,copy.deepcopy(game.fast_metrics))
+                _game_cache[key]=(time.monotonic(),copy.deepcopy(game.decisions),game.deep,copy.deepcopy(game.fast_metrics))
                 _game_cache.move_to_end(key)
         while len(_game_cache)>200:_game_cache.popitem(last=False)
         progress('Comparing personal timing baselines…')
+        collection_coverage = getattr(api, 'fairplay_collection_coverage', {})
+        if not isinstance(collection_coverage,dict):collection_coverage={}
+        primary_archive_partial = collection_coverage.get('primary_archive_partial', archive_partial)
+        coverage_state = {
+            'primary_engine_complete':primary_complete and not primary_archive_partial,
+            'required_deep_complete':not deep_incomplete,
+            'context_history_complete':not archive_partial,
+            'optional_context_partial':archive_partial and not primary_archive_partial,
+            'context_only':len(context_only),
+        }
         result=score_review(canonical,analyzed,len(history),skipped,partial or archive_partial or deep_incomplete,
-                            scanner.name,profile,time.monotonic()-started,config)
+                            scanner.name,profile,time.monotonic()-started,config,
+                            coverage_state=coverage_state,context_games=history)
         result.coverage.update(primary_collected=len(primary),primary_fast_scanned=min(len(analyzed),len(primary)) if not primary_complete else len(primary),
                                history_probed=len(probes),history_fast_scanned=sum(g not in primary for g in analyzed),
                                history_probe_complete=probe_complete,deep_incomplete=deep_incomplete,
@@ -494,6 +504,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                                unknown_primary=sum(g.rated is None for g in primary))
         result.history={'collected':len(history),'historical_candidates':len(historical_targets),
                         'sessions':session_history(history,config),'engine_selected':len(analyzed),'context':context_metrics(history,profile),
+                        'repertoire':__import__('fairplay_opening').repertoire(history),
                         'timing_baselines':[{'class':kind,'control':control,
                             'profile':timing_profile(group,config)}
                             for (kind,control),group in buckets(history).items()]}
@@ -506,7 +517,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         result.diagnostics['runtime']={'collection_seconds':collected_at-started,
             'fast_seconds':fast_finished-collected_at,'deep_seconds':deep_finished-deep_started,
             'profile_seconds':time.monotonic()-deep_finished,'elapsed_seconds':result.elapsed,
-            'peak_process_memory_mb':memory_mb,'full_fast_games':len(analyzed),'deep_games':sum(g.deep for g in analyzed)}
+            'peak_process_memory_mb':memory_mb,'full_fast_games':len(analyzed),'deep_games':sum(g.deep for g in analyzed),
+            'engine_searches':dict(getattr(scanner,'profile',{}))}
         return result
     except (chess.engine.EngineError,TimeoutError) as error:
         raise ReviewError('Stockfish stopped responding. The scan was stopped safely; please try again later.') from error

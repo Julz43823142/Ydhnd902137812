@@ -109,9 +109,11 @@ class HumanEvidence(unittest.TestCase):
         self.assertEqual(combined['opportunity_games'],10)
         self.assertTrue(absolute_qualified(combined))
 
-    def test_three_perfect_games_after_seven_weak_games_do_not_high(self):
+    def test_three_exceptional_games_after_seven_weak_can_acute_high(self):
         games=[informative(i,misses=45 if i<7 else 0) for i in range(10)]
-        self.assertEqual(integrate_gameplay(result_stub(games),games).priority,'LOW')
+        result=integrate_gameplay(result_stub(games),games)
+        self.assertEqual(result.priority,'HIGH')
+        self.assertIn('Acute',result.diagnostics['high_path'])
 
     def test_deep_selection_covers_opportunities_not_only_uniform_easy_games(self):
         games=[informative(i) for i in range(50)]
@@ -191,7 +193,7 @@ class HumanEvidence(unittest.TestCase):
     def test_deep_rank_instability_blocks_confirmation(self):
         games=[informative(i) for i in range(20)];period=class_periods(games)[0]
         for g in games:
-            for d in g.decisions:d.metrics['rank']=4;d.metrics['best']='different'
+            for d in g.decisions:d.metrics.update(rank=4,best='different',cpl=150,scaled_loss=.2,near_best=False)
             annotate_game(g)
         self.assertFalse(deep_confirmation(period,games)['qualified'])
 
@@ -209,7 +211,10 @@ class HumanEvidence(unittest.TestCase):
     def test_casual_duplicate_and_probe_games_cannot_inflate_period(self):
         games=[informative(i) for i in range(9)];extra=informative(10);extra.rated=False
         probe=informative(11);probe.probe_only=True
-        self.assertFalse(class_periods(games+games+[extra,probe]))
+        periods=class_periods(games+games+[extra,probe])
+        self.assertTrue(all(p['kind']=='acute_candidate' for p in periods))
+        self.assertTrue(all(len(p['ids'])==len(set(p['ids'])) for p in periods))
+        self.assertTrue(all(extra.identity not in p['ids'] and probe.identity not in p['ids'] for p in periods))
 
     def test_small_bullet_sample_does_not_supply_absolute_high(self):
         games=[informative(i) for i in range(20)]
@@ -283,8 +288,8 @@ class OpeningAndCoverage(unittest.TestCase):
         self.assertTrue(p['White']['sufficient'] or p['Black']['sufficient'])
         self.assertIn('off_book_moves',p['White'])
 
-    def test_newest_two_hundred_eligible_games_and_no_probe_substitute(self):
-        self.assertEqual(data.collection_limit(),200);self.assertEqual(data.primary_limit(),200)
+    def test_newest_200_context_games_with_latest_100_engine_quota(self):
+        self.assertEqual(data.collection_limit(),200);self.assertEqual(data.primary_limit(),100)
         rows=[sample_row(i) for i in range(240)]
         for i in range(20):rows.append({**sample_row(300+i),'rules':'chess960'})
         for i in range(20):rows.append({**sample_row(400+i),'rated':False})
