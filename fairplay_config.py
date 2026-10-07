@@ -5,7 +5,7 @@ CHANNEL_ID = 1311445685492781186
 NAMESPACE = 'shark:fairplay:'
 DISCLAIMER = ('Automated fair-play screening only. This result is not proof of cheating '
               'and must not be used as the sole basis for punishment. Human review is mandatory.')
-VERSION = 'fairplay-v16-selective-residual-100'
+VERSION = 'fairplay-v16.1-ceiling-guard-100'
 
 
 @dataclass(frozen=True)
@@ -98,6 +98,13 @@ class ReviewConfig:
     # generate evidence merely because their expected-quality baseline is high.
     human_quality_excess: float = .12
     human_period_excess: float = .18
+    # Residual normalization can magnify tiny raw differences near the quality
+    # ceiling. Absolute HIGH therefore also needs meaningful raw separation;
+    # the required floor rises continuously once the expected-quality reference
+    # is already elite/high.
+    human_period_min_raw_excess: float = .11
+    human_period_ceiling_reference: float = .84
+    human_period_ceiling_raw_scale: float = .50
     human_residual_headroom_floor: float = .04
     human_residual_power: float = .50
     human_residual_weight: float = .55
