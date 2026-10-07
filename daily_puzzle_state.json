@@ -3966,7 +3966,7 @@
         "winner_name": null,
         "latest_attempts": {},
         "puzzle_id": "random_4JrDY_1791349592419",
-        "last_activity_at": "2026-10-07T05:07:18.005759+00:00",
+        "last_activity_at": "2026-10-07T05:07:32.817391+00:00",
         "rating": 2768,
         "rp_band": 5,
         "boss": true,
@@ -3977,15 +3977,15 @@
         "next_player_index": 1,
         "solved": false,
         "message_ids": {
-          "1546557493038284840": 1557258004129386546
+          "1546557493038284840": 1557258056012796004
         },
         "chat_since_refresh": 0,
         "attempted_users": {
           "442597396195704832": {
             "name": "Thice",
-            "move": "Bxb7",
+            "move": "E3",
             "correct": false,
-            "timestamp": "2026-10-07T05:07:18.006103+00:00"
+            "timestamp": "2026-10-07T05:07:32.817927+00:00"
           }
         },
         "first_move_user_id": "442597396195704832",
@@ -3997,19 +3997,8 @@
         "board_attachment_filenames": {
           "1546557493038284840": "random_puzzle.png"
         },
-        "last_card_activity_at": "2026-10-07T05:07:18.005759+00:00",
-        "recent_accepted_moves": [
-          {
-            "accepted_at": 1791349630.0334513,
-            "fen_before": "8/2B5/bP6/5k2/1P2ppp1/8/3K1P2/8 b - - 3 45",
-            "expected": {
-              "uci": "g4g3",
-              "san": "g3",
-              "color": "black"
-            },
-            "accepted_uci": "g4g3"
-          }
-        ],
+        "last_card_activity_at": "2026-10-07T05:07:32.817391+00:00",
+        "recent_accepted_moves": [],
         "accepted_solution_moves": [
           {
             "san": "g3",
@@ -4017,9 +4006,9 @@
             "principal": true
           }
         ],
-        "last_feedback": "❌ **Another one for the collection, Thice: you played that like the engine owed you an apology.**\n↪️ **Move played:** `Bxb7`",
+        "last_feedback": "❌ **Thice, congratulations: your calculation had confidence, style and a missing conclusion.**\n↪️ **Move played:** `E3`",
         "wrong_attempt_counts": {
-          "442597396195704832": 1
+          "442597396195704832": 2
         }
       }
     }
