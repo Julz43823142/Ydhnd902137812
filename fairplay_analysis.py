@@ -353,7 +353,7 @@ class EngineScanner:
             if 'Clear Hash' in self.engine.options:self.engine.configure({'Clear Hash':None})
             richer = (decision.metrics.get('critical') or (decision.metrics.get('gap') is not None
                        and decision.metrics['gap']<25 and decision.metrics.get('cpl',100)<=25))
-            multipv=self.config.deep_multipv if nodes==self.config.deep_nodes else 3
+            multipv=self.config.deep_multipv if nodes==self.config.deep_nodes else self.config.fast_multipv
             lines = self.engine.analyse(board,chess.engine.Limit(nodes=nodes),multipv=multipv)
             check_deadline(self.deadline)
             if isinstance(lines,dict):lines = [lines]

@@ -82,6 +82,7 @@ class ReviewConfig:
     persistence_top1_lower: float = .60
     persistence_critical_lower: float = .60
     fast_nodes: int = 24_000
+    fast_multipv: int = 5
     deep_nodes: int = 320_000
     deep_games: int = 10
     deadline_seconds: int = 3600
