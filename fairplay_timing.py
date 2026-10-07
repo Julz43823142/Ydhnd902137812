@@ -227,7 +227,8 @@ def delay_floor_profile(games, config=CONFIG):
 def delay_floor_periods(games, config=CONFIG):
     """Bounded chronological search; descriptive, no multiple-testing p-value."""
     from fairplay_clusters import contiguous
-    best=delay_floor_profile(games,config)
+    from fairplay_local_timing import clock_delay_evidence
+    best=clock_delay_evidence(games,config)
     best['ids']=[g.identity for g in games]
     # One full group plus non-overlapping and half-overlapping periods. Many
     # neighboring windows must not become many 'independent' timing signals.
@@ -235,7 +236,7 @@ def delay_floor_periods(games, config=CONFIG):
         for start in range(0,len(games)-width+1,max(1,width//2)):
             group=games[start:start+width]
             if not contiguous(group):continue
-            row=delay_floor_profile(group,config)
+            row=clock_delay_evidence(group,config)
             if (row['score'],row['games'])>(best['score'],best['games']):
                 best={**row,'ids':[g.identity for g in group]}
     return best

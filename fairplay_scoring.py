@@ -5,6 +5,7 @@ from fairplay_baseline import personal_timing, timing_profile
 from fairplay_calibration import baseline_comparison, stable_history
 from fairplay_timing import trivial_delay_summary, cadence_recurrence, delay_floor_periods, delay_floor_profile
 from fairplay_results import result_support
+from fairplay_local_timing import clock_delay_evidence
 from fairplay_clusters import review_candidate
 
 def priority_model(scores, *, games, decisions, critical, confidence, deep_confirmed, partial,
@@ -160,7 +161,7 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
                 matching_personal.append(candidate)
     scope_cadence=cadence_recurrence(scope,config)
     scope_trivial=trivial_delay_summary(scope,config)
-    scope_floor=delay_floor_profile(scope,config)
+    scope_floor=clock_delay_evidence(scope,config)
     gate_timing=max(({'Slight':.25,'Moderate':.5,'Strong':.75,'Very Strong':.9}.get(r['state'],0) for r in matching_personal),default=0)
     if scope_cadence['recurrent']:gate_timing=max(gate_timing,.75 if scope_cadence['games']>=10 else .55)
     if scope_trivial['recurrent']:gate_timing=max(gate_timing,.7 if scope_trivial['same_cadence_games']>=10 else .55)
