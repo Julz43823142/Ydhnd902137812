@@ -146,7 +146,11 @@ def coverage_members(members,count):
 def adaptive_deep_games(games,config=CONFIG):
     if config.deep_games==0:return []  # explicit local/fixture deep-disable override
     from fairplay_clusters import select_deep_games, representative_controls
-    periods=class_periods(games,config);candidate=next((p for p in periods if p['qualified']),None)
+    periods=class_periods(games,config)
+    # A strict acute candidate is expensive to miss: deep-review it first.
+    # Broad periods remain available as independent secondary coverage.
+    acute_candidate=next((p for p in periods if p['qualified'] and p.get('acute')),None)
+    candidate=acute_candidate or next((p for p in periods if p['qualified']),None)
     target=min(len(games),config.deep_normal_games)
     independent=[]
     for p in sorted([p for p in periods if p['qualified']],key=lambda p:len(p['ids'])):
@@ -174,6 +178,21 @@ def adaptive_deep_games(games,config=CONFIG):
         primary=coverage_members(members,count)
     selected=primary+controls
     if others:selected+=coverage_members(others,second_count)
+    # Diversify confirmation: reserve remaining capacity for games that are
+    # anomalous specifically under the human/difficulty layer, not only under
+    # the legacy engine-cluster score. This is allocation only; final HIGH gates
+    # are unchanged and every miss inside selected games is deep-reviewed.
+    human_ranked=sorted(
+        [g for g in games if not g.deep],
+        key=lambda g:(
+            (g.fast_metrics or g.metrics).get('human',{}).get('anomaly_strength',0),
+            (g.fast_metrics or g.metrics).get('human',{}).get('information',0),
+            (g.fast_metrics or g.metrics).get('human',{}).get('difficulty_inversion_strength',0),
+            (g.fast_metrics or g.metrics).get('human',{}).get('opportunities',0)),
+        reverse=True)
+    for game in human_ranked:
+        if len(selected)>=target:break
+        if game not in selected:selected.append(game)
     for game in select_deep_games(games,replace(config,deep_games=target)):
         if len(selected)>=target:break
         if game not in selected:selected.append(game)
