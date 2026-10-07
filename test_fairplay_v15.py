@@ -259,7 +259,7 @@ class AdaptiveConfirmation(unittest.TestCase):
         games=[informative(i,rating=1500,deep=i<10) for i in range(20)]
         period={'qualified':True,'acute':False,'ids':[g.identity for g in games[5:18]]}
         proof={'qualified':False,'retention':1.0,'summary':{
-            'hit_lower':.75,'information':.25,'quality_excess':.30}}
+            'hit_lower':.75,'information':.25,'quality_excess':.30,'anomaly_strength':.30}}
         return games,period,proof
 
     def test_unresolved_retained_evidence_extends_whole_games_within_cap(self):

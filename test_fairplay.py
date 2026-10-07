@@ -385,9 +385,9 @@ class DiscordRules(unittest.IsolatedAsyncioTestCase):
         await self.service.close();ui._service = self.old_service
 
     async def test_idle_boundary_one_panel_and_move_only_when_needed(self):
-        self.service.last_human = time.time()-3599
+        self.service.last_human = time.time()-599
         self.assertFalse(await self.service.ensure_panel())
-        self.service.last_human = time.time()-3601
+        self.service.last_human = time.time()-601
         self.assertTrue(await self.service.ensure_panel())
         self.assertFalse(await self.service.ensure_panel());self.assertEqual(self.channel.sends,1)
         self.channel.messages.append(FakeMessage(self.channel,200,ui.progress_embed(TARGET,'Complete'),created=time.time()-3700))

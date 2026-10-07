@@ -21,7 +21,8 @@ class V16ResidualEvidence(unittest.TestCase):
         row=game.metrics['human']
         self.assertGreaterEqual(row['accuracy_index'],0)
         self.assertLessEqual(row['accuracy_index'],100)
-        self.assertNotIn('probability',str(row).lower())
+        self.assertNotIn('cheating_probability',row)
+        self.assertIn('not probability',row['model'])
 
     def test_validation_reports_false_positive_metrics(self):
         cases=[
