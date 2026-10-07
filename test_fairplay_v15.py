@@ -248,6 +248,42 @@ class Coverage(unittest.TestCase):
         self.assertEqual(CONFIG.deep_max_games,14)
 
 
+
+class AdaptiveConfirmation(unittest.TestCase):
+    def setup_candidate(self):
+        games=[informative(i,rating=1500,deep=i<10) for i in range(20)]
+        period={'qualified':True,'acute':False,'ids':[g.identity for g in games[5:18]]}
+        proof={'qualified':False,'retention':1.0,'summary':{
+            'hit_lower':.75,'information':.25,'quality_excess':.30}}
+        return games,period,proof
+
+    def test_unresolved_retained_evidence_extends_whole_games_within_cap(self):
+        from fairplay_sequence import confirmation_extension
+        games,period,proof=self.setup_candidate()
+        with patch('fairplay_sequence.class_periods',return_value=[period]),patch('fairplay_sequence.deep_confirmation',return_value=proof):
+            extra=confirmation_extension(games)
+        self.assertEqual(len(extra),4)
+        self.assertTrue(all(not g.deep and g.identity in period['ids'] for g in extra))
+        self.assertTrue(all(g.decisions for g in extra))
+        self.assertEqual(sum(g.deep for g in games)+len(extra),CONFIG.deep_max_games)
+
+    def test_no_extension_after_confirmation_or_quality_collapse(self):
+        from fairplay_sequence import confirmation_extension
+        games,period,proof=self.setup_candidate()
+        for change in ({'qualified':True},{'retention':.2}):
+            trial=dict(proof,**change)
+            with patch('fairplay_sequence.class_periods',return_value=[period]),patch('fairplay_sequence.deep_confirmation',return_value=trial):
+                self.assertEqual(confirmation_extension(games),[])
+
+    def test_no_extension_when_budget_disabled_exhausted_or_candidate_absent(self):
+        from fairplay_sequence import confirmation_extension
+        games,period,proof=self.setup_candidate()
+        self.assertEqual(confirmation_extension(games,replace(CONFIG,deep_games=0)),[])
+        self.assertEqual(confirmation_extension(games,replace(CONFIG,deep_max_games=10)),[])
+        with patch('fairplay_sequence.class_periods',return_value=[]):
+            self.assertEqual(confirmation_extension(games),[])
+
+
 class Progress(unittest.IsolatedAsyncioTestCase):
     async def test_progress_is_monotonic_with_one_message(self):
         service=ui.FairPlayService.__new__(ui.FairPlayService)

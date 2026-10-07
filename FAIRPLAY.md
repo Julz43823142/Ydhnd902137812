@@ -1,6 +1,6 @@
 # Fair Play v15 — quality excess, 200 context / 100 engine games
 
-Production collects up to 200 eligible rated completed standard Rapid/Blitz/Bullet games. Only the latest 100 receive full 24,000-node MultiPV-5 Stockfish scans. Older games supply raw clock, rating/result/session and offline repertoire context only. They never supply CPL, critical, human or engine baseline evidence. The old four-position probe is not executed. Selected games receive 320,000-node MultiPV-5 deep review: normally ten, six minimum when useful, at most fourteen. One background worker/process and the 3,600s deadline remain.
+Production collects up to 200 eligible rated completed standard Rapid/Blitz/Bullet games. Only the latest 100 receive full 24,000-node MultiPV-5 Stockfish scans. Older games supply raw clock, rating/result/session and offline repertoire context only. They never supply CPL, critical, human or engine baseline evidence. The old four-position probe is not executed. Selected games receive 320,000-node MultiPV-5 deep review: normally ten, six minimum when useful, at most fourteen. One background worker/process and the 3,600s deadline remain. After the initial deep plan, a qualified broad period whose quality remains strong but confirmation is unresolved can use remaining budget up to fourteen complete games. Selection uses chronological opportunity coverage, includes misses, and never relaxes the HIGH gates or reruns completed games.
 
 ## Quality is compared with a human reference, not a probability
 

@@ -176,6 +176,32 @@ def adaptive_deep_games(games,config=CONFIG):
     return selected[:target]
 
 
+
+def confirmation_extension(games,config=CONFIG):
+    """Spend remaining deep budget on unresolved, retained gameplay evidence.
+
+    This is allocation, not a relaxed HIGH gate. Whole games are chosen by
+    chronological opportunity coverage, not by successful moves. Already
+    confirmed candidates and deep quality collapses receive no extra budget.
+    """
+    if config.deep_games==0:return []
+    budget=max(0,config.deep_max_games-sum(g.deep for g in games))
+    if not budget:return []
+    for period in class_periods(games,config):
+        if not period['qualified'] or period.get('acute'):continue
+        proof=deep_confirmation(period,games,config);summary=proof['summary']
+        if proof['qualified']:continue
+        if (proof['retention']<config.human_retention
+            or summary['hit_lower']<config.human_deep_hit_lower
+            or summary['information']<config.human_absolute_information_floor
+            or summary.get('quality_excess',0)<config.human_period_excess):
+            continue
+        pending=[g for g in games if g.identity in period['ids'] and not g.deep
+                 and (g.fast_metrics or g.metrics).get('human',{}).get('opportunities',0)]
+        if pending:return coverage_members(pending,min(budget,len(pending)))
+    return []
+
+
 def game_structure(game):
     rows=[d for d in game.decisions if d.metrics.get('useful')]
     changes=[];rescues=0

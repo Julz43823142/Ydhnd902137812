@@ -451,11 +451,13 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         analyzed.sort(key=lambda g:(g.ended,g.identity))
         progress('Building human-move profile…')
         progress('Analyzing sessions and repertoire…')
-        from fairplay_sequence import adaptive_deep_games
+        from fairplay_sequence import adaptive_deep_games, confirmation_extension
         candidates=adaptive_deep_games(analyzed,config)
         deep_started=time.monotonic()
         deep_incomplete=False
-        for index,game in enumerate(candidates):
+        index=0
+        while index<len(candidates):
+            game=candidates[index]
             progress(f'Deep confirmation: {index} / {len(candidates)}')
             try:
                 confirmed=copy.deepcopy(game)
@@ -467,6 +469,11 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 game.decisions,game.metrics,game.deep=confirmed.decisions,confirmed.metrics,True
             except DeadlineReached:
                 deep_incomplete=True;break
+            index+=1
+            if index==len(candidates):
+                # One bounded extension; completed games are never rerun.
+                extra=confirmation_extension(analyzed,config)
+                candidates.extend(g for g in extra if g not in candidates)
         deep_finished=time.monotonic()
         progress(f'Deep confirmation: {sum(g.deep for g in candidates)} / {len(candidates)}')
         for game in analyzed:
