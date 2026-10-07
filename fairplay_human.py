@@ -173,6 +173,8 @@ def period_summary(games, config=CONFIG, *, fast=False):
     hits = sum(m.get('hits', 0) for g, m in rows)
     contributors = [g for g, m in rows if m.get('hits', 0)>=2
                     and m.get('information', 0)>=config.human_absolute_information_floor]
+    hit_games = [g for g, m in rows if m.get('hits', 0)>=1]
+    single_hit_games = [g for g, m in rows if m.get('hits', 0)==1]
     hard_n = sum(m.get('hard_opportunities', 0) for g, m in rows)
     hard_hits = sum(m.get('hard_hits', 0) for g, m in rows)
     rated = [g for g in games if g.rating is not None]
@@ -184,6 +186,8 @@ def period_summary(games, config=CONFIG, *, fast=False):
         'games':len(games), 'opportunities':n, 'hits':hits,
         'hit_lower':lower_bound(hits/n if n else None, n, config.rate_lower_bound_z),
         'contributors':len(contributors), 'contributor_ids':[g.identity for g in contributors],
+        'hit_games':len(hit_games), 'hit_game_ids':[g.identity for g in hit_games],
+        'single_hit_games':len(single_hit_games),
         'information':average('information') or 0, 'quality_excess':average('quality_excess') or 0,
         'quality_residual':average('quality_residual') or 0, 'anomaly_strength':average('anomaly_strength') or 0,
         'accuracy_index':average('accuracy_index'),
