@@ -341,10 +341,17 @@ class HumanEvidence(unittest.TestCase):
 
     def test_fixed_halves_are_deterministic_and_do_not_individually_bypass_high(self):
         games=[informative(i,rating=2300) for i in range(60)]
-        halves=[p for p in class_periods(games) if p.get('replication_half')]
+        periods=class_periods(games)
+        halves=[p for p in periods if p.get('replication_half')]
         self.assertEqual(len(halves),2)
-        self.assertEqual([len(p['ids']) for p in sorted(halves,key=lambda p:p['start'])],[30,30])
+        halves=sorted(halves,key=lambda p:p['start'])
+        self.assertEqual([len(p['ids']) for p in halves],[30,30])
         self.assertTrue(all(not p['qualified'] and not p['absolute'] for p in halves))
+        # The exact same IDs remain available to the ordinary rolling-window
+        # route, so replication cannot suppress an existing HIGH candidate.
+        ordinary=[p for p in periods if not p.get('replication_half')]
+        self.assertTrue(any(p['ids']==halves[0]['ids'] for p in ordinary))
+        self.assertTrue(any(p['ids']==halves[1]['ids'] for p in ordinary))
 
     def test_two_fixed_sparse_halves_can_high_only_after_both_deep_confirm(self):
         games=[informative(i,rating=2300) for i in range(60)]
