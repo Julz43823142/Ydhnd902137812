@@ -64,7 +64,10 @@ def deep_confirmation(period,games,config=CONFIG):
         and stable/max(1,n)>=config.human_stability_fraction and retention>=config.human_retention)
     # Stable opportunities must include successes, not merely stable misses.
     qualified=qualified and deep['stable_hits']>=config.human_deep_opportunities*.6
-    absolute=bool(qualified and period.get('absolute',True))
+    absolute=bool(qualified and period.get('absolute',True)
+        and deep['information']>=config.human_absolute_information_floor
+        and deep['quality_reference'] is not None
+        and deep['hit_lower']>=deep['quality_reference']+config.human_expectation_margin)
     controls=[g for g in games if g.identity in period.get('baseline_ids',[]) and g.deep]
     baseline=period_summary(controls,config)
     hard_n=deep['hard_opportunities'];hard_retention=deep['hard_hits']/max(1,paired['hard_hits'])
@@ -92,7 +95,8 @@ def adaptive_deep_games(games,config=CONFIG):
     target=max(min(len(games),config.deep_min_games),target)
     if not candidate:return select_deep_games(games,replace(config,deep_games=target))
     lookup={g.identity:g for g in games};members=[lookup[i] for i in candidate['ids']]
-    baseline=[g for g in games if g.identity not in candidate['ids'] and g.time_class==candidate['class']]
+    baseline=[g for g in games if g.identity not in candidate['ids'] and g.time_class==candidate['class']
+              and (not candidate.get('personal') or g.identity in candidate.get('baseline_ids',[]))]
     # Controls are representative quality quartiles, never exclusively poor play.
     controls=representative_controls(baseline,config.baseline_deep_games)
     second=next((p for p in independent if not set(p['ids'])&set(candidate['ids'])),None)

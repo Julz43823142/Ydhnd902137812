@@ -91,7 +91,8 @@ class ReviewConfig:
     deep_max_games: int = 20
     opening_min_plies: int = 6
     opening_max_plies: int = 60
-    human_information_floor: float = .55
+    human_absolute_information_floor: float = .30
+    human_expectation_margin: float = .05
     human_equivalence_power: float = .30
     human_difficulty_floor: float = .55
     human_min_opportunities: int = 40

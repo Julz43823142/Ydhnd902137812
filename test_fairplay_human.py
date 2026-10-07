@@ -55,6 +55,13 @@ class HumanEvidence(unittest.TestCase):
         games=[informative(i,rating=2850) for i in range(40)]
         self.assertEqual(integrate_gameplay(result_stub(games),games).priority,'LOW')
 
+    def test_opportunities_do_not_disappear_above_2050_rating(self):
+        for rating in (2100,2300,2850):
+            g=informative(0,rating=rating)
+            self.assertGreater(g.metrics['human']['opportunities'],0)
+        games=[informative(i,rating=2300) for i in range(20)]
+        self.assertEqual(integrate_gameplay(result_stub(games),games).priority,'HIGH')
+
     def test_deep_personal_gameplay_change_can_high_without_clocks(self):
         games=[informative(i,rating=2850,misses=25 if i<30 else 0) for i in range(40)]
         r=integrate_gameplay(result_stub(games),games)

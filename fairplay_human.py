@@ -43,8 +43,12 @@ def annotate_game(game, config=CONFIG, model=None):
             failures+=1;expected=FALLBACK.expectedness(d,game.rating)
         potential=clamp(2*(1-expected)*m['difficulty'])
         quality=clamp(1-m.get('cpl',1000)/100)
+        # Opportunity geometry must not depend on a rating-dependent score
+        # ceiling. The former potential>=.55 filter made absolute evidence
+        # mathematically unavailable above roughly 2050 even with perfect play.
+        # Strength is assessed at period level, not used to erase positions.
         opportunity=(m.get('competitive',False) and m['difficulty']>=config.human_difficulty_floor
-                     and potential>=config.human_information_floor and not m.get('search_inconsistent'))
+                     and not m.get('search_inconsistent'))
         m.update(human_expectedness=expected,human_information=potential*quality,
             human_opportunity=bool(opportunity),high_information=bool(opportunity and quality>=.85),
             human_model=FALLBACK.name if failures else model.name)
@@ -77,6 +81,7 @@ def annotate_game(game, config=CONFIG, model=None):
         'hard_opportunities':len(hard),'hard_hits':sum(m.get('cpl',1000)<=15 for m in hard),
         'hard_stable':sum(m.get('search_stability',{}).get('stable',False) for m in hard),
         'information':statistics.mean(m.get('human_information',0) for m in hard) if hard else 0,
+        'quality_reference':statistics.mean(m['human_expectedness'] for m in hard) if hard else None,
         'difficulty_curve':curve,'difficulty_inversion':bool(inversion),
         'competitive_scaled_loss':loss_summary([m for m in rows if m.get('competitive')]),
         'scaled_loss':loss_summary(rows),'critical_scaled_loss':loss_summary([m for m in rows if m.get('critical')])}
@@ -87,7 +92,8 @@ def annotate_game(game, config=CONFIG, model=None):
 def period_summary(games, config=CONFIG, *, fast=False):
     rows=[(g,(g.fast_metrics or g.metrics if fast else g.metrics).get('human',{})) for g in games]
     n=sum(m.get('opportunities',0) for g,m in rows);hits=sum(m.get('hits',0) for g,m in rows)
-    contributors=[g for g,m in rows if m.get('hits',0)>=2]
+    contributors=[g for g,m in rows if m.get('hits',0)>=1
+                  and m.get('information',0)>=config.human_absolute_information_floor]
     hard_n=sum(m.get('hard_opportunities',0) for g,m in rows)
     hard_hits=sum(m.get('hard_hits',0) for g,m in rows)
     rated=[g for g in games if g.rating is not None]
@@ -100,10 +106,12 @@ def period_summary(games, config=CONFIG, *, fast=False):
         'stable_hits':sum(m.get('stable_hits',0) for g,m in rows),
         'hard_opportunities':hard_n,'hard_hits':hard_hits,
         'hard_lower':lower_bound(hard_hits/hard_n if hard_n else None,hard_n,config.rate_lower_bound_z),
-        'hard_contributors':sum(m.get('hard_hits',0)>=2 for g,m in rows),
+        'hard_contributors':sum(m.get('hard_hits',0)>=1 for g,m in rows),
         'hard_stable':sum(m.get('hard_stable',0) for g,m in rows),
         'rating_coverage':len(rated)/len(games) if games else 0,
         'rating_reference':statistics.median(g.rating for g in rated) if rated else None,
+        'quality_reference':statistics.mean(m['quality_reference'] for g,m in rows if m.get('quality_reference') is not None)
+            if any(m.get('quality_reference') is not None for g,m in rows) else None,
         'inversion_games':sum(m.get('difficulty_inversion',False) for g,m in rows)}
 
 
@@ -113,7 +121,9 @@ def absolute_qualified(summary, config=CONFIG):
     return bool(summary['games']>=config.min_games and summary['rating_coverage']>=.8
         and summary['opportunities']>=config.human_min_opportunities
         and summary['contributors']>=max(config.human_min_contributors,summary['games']*.5)
-        and summary['hit_lower']>=config.human_hit_lower)
+        and summary['information']>=config.human_absolute_information_floor
+        and summary['quality_reference'] is not None
+        and summary['hit_lower']>=max(config.human_hit_lower,summary['quality_reference']+config.human_expectation_margin))
 
 
 def evidence_funnel(games, config=CONFIG):
