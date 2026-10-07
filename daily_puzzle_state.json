@@ -128,7 +128,7 @@
     "player_color": "white",
     "player_move_count": 8,
     "posted_at": "2026-10-07T08:06:46.851217+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -191,7 +191,7 @@
     "wrong_attempt_counts": {
       "601406103712170014": 1
     },
-    "last_feedback": "**✅ Correct! 3 moves remaining.**\n↩️ **Opponent replies:** Kf3",
+    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Bxd3 hxg5 Kf4 Kf5 g6 Ke6 Kf7 Kxg7",
     "accepted_solution_moves": [
       {
         "san": "Bxd3",
@@ -220,7 +220,7 @@
       }
     ]
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-07",
