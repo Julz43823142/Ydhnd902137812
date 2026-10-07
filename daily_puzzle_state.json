@@ -43,7 +43,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_TBv8O_1791360242444",
-    "last_activity_at": "2026-10-07T08:04:14.202037+00:00",
+    "last_activity_at": "2026-10-07T08:04:22.313392+00:00",
     "rating": 2001,
     "rp_band": 2,
     "boss": false,
@@ -54,17 +54,17 @@
     "next_player_index": 1,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1557302521721266306
+      "1468320170891022417": 1557302556261093386
     },
-    "message_id": 1557302521721266306,
+    "message_id": 1557302556261093386,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "601406103712170014": {
         "name": "TheMakina",
-        "move": "Qe7",
-        "correct": true,
-        "timestamp": "2026-10-07T08:04:14.202247+00:00"
+        "move": "D8=Q",
+        "correct": false,
+        "timestamp": "2026-10-07T08:04:22.314595+00:00"
       }
     },
     "first_move_user_id": "601406103712170014",
@@ -75,19 +75,8 @@
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
-    "last_card_activity_at": "2026-10-07T08:04:14.202037+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1791360254.2022545,
-        "fen_before": "8/3P2kp/1qB2r2/4Q1p1/8/7P/P5K1/8 w - - 11 52",
-        "expected": {
-          "uci": "e5e7",
-          "san": "Qe7+",
-          "color": "white"
-        },
-        "accepted_uci": "e5e7"
-      }
-    ],
+    "last_card_activity_at": "2026-10-07T08:04:22.313392+00:00",
+    "recent_accepted_moves": [],
     "accepted_solution_moves": [
       {
         "san": "Qe7+",
@@ -95,7 +84,10 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kg6"
+    "last_feedback": "❌ **TheMakina, confidence is not a chess strategy.**\n↪️ **Move played:** `D8=Q`",
+    "wrong_attempt_counts": {
+      "601406103712170014": 1
+    }
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
