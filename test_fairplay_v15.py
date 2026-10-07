@@ -264,6 +264,17 @@ class Progress(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(service.channel.send.await_count,1)
         self.assertEqual(message.edit.await_count,4)
 
+    async def test_dedicated_gate_card_shows_every_path_and_persistent_button(self):
+        games=[informative(i,rating=500) for i in range(2)]
+        result=integrate_gameplay(result_stub(games),games)
+        result.username=TARGET
+        card=ui.detail_embed(result,'Review Gates')
+        text=str(card.to_dict())
+        for name in result.diagnostics['high_paths']:self.assertIn(name,text)
+        self.assertLessEqual(len(card),6000)
+        self.assertTrue(all(len(field.value)<=1024 for field in card.fields))
+        self.assertTrue(any(child.custom_id=='shark:fairplay:gates' for child in ui.ReportView().children))
+
     async def test_progress_100_only_complete_and_no_counter_reset_in_ui(self):
         self.assertEqual(estimate('Complete'),100)
         self.assertLess(estimate('Deep confirmation: 10 / 10'),100)

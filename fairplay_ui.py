@@ -92,6 +92,11 @@ def result_embed(result: ReviewResult):
 
 def detail_embed(result, mode):
     embed = discord.Embed(title=f'{mode} — {result.username}',color=0x427CBA)
+    if mode=='Review Gates':
+        embed.description='Each HIGH route has its own requirements. Timing/results are optional for the absolute and acute gameplay routes. PASS is review evidence, not a misconduct verdict.'
+        add_gate_fields(embed,result)
+        embed.set_footer(text=DISCLAIMER)
+        return embed
     if mode!='Highest-Signal Games':add_convergence_fields(embed,result)
     if mode=='Highest-Signal Games':
         joint=result.clusters.get('convergence',{})
@@ -472,7 +477,7 @@ class ReportView(SubmitView):
         super().__init__()
         self.clear_items()
         for label,emoji,action in [('Highest-Signal Games','🎯','games'),('Timing','⏱️','timing'),
-                                   ('Performance','📈','performance'),('Clusters & History','🔬','clusters'),('Engine Analysis','♟️','engine'),('Re-scan','🔄','rescan')]:
+                                   ('Performance','📈','performance'),('Clusters & History','🔬','clusters'),('Engine Analysis','♟️','engine'),('Review Gates','🛡️','gates'),('Re-scan','🔄','rescan')]:
             button = discord.ui.Button(label=label,emoji=emoji,custom_id=NAMESPACE+action)
             async def show(ctx,action=action,label=label):
                 if _service is None:
