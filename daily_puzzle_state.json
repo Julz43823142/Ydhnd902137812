@@ -106,8 +106,8 @@
     "url": "https://www.chess.com/daily/2026-10-07",
     "title": "Double Hop Drop",
     "fen": "6rk/6p1/p2nq2p/1p1p3P/1P3PQN/1NP3R1/4r1PK/8 w - - 0 32",
-    "current_fen": "6r1/6pk/p2nq1Np/1p1p3P/1P3PQ1/1NP3R1/4r1PK/8 w - - 2 33",
-    "last_move_uci": "h8h7",
+    "current_fen": "5r2/6pk/p2nq2p/1p1p3P/1P3PQ1/1NP3R1/4r1PK/8 w - - 0 34",
+    "last_move_uci": "g8f8",
     "pgn": "[Result \"1-0\"]\n[FEN \"6rk/6p1/p2nq2p/1p1p3P/1P3PQN/1NP3R1/4r1PK/8 w - - 0 32\"]\n\n32. Ng6+ Kh7 33. Nf8+ Rxf8 34. Qxg7# 1-0",
     "all_moves": [
       {
@@ -161,16 +161,16 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1791358370707",
-    "next_solution_index": 2,
-    "next_player_index": 1,
+    "next_solution_index": 4,
+    "next_player_index": 2,
     "solved": false,
-    "message_id": 1557302066903384125,
+    "message_id": 1557302090533961728,
     "attempted_users": {
       "601406103712170014": {
         "name": "TheMakina",
-        "move": "Ng6",
+        "move": "Nf8",
         "correct": true,
-        "timestamp": "2026-10-07T08:02:25.688203+00:00"
+        "timestamp": "2026-10-07T08:02:31.345727+00:00"
       }
     },
     "first_move_user_id": "601406103712170014",
@@ -179,14 +179,14 @@
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1557302066903384125
+      "1468320170891022417": 1557302090533961728
     },
     "channel_id": 1468320170891022417,
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
     "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-10-07T08:02:25.687774+00:00",
+    "last_card_activity_at": "2026-10-07T08:02:31.345428+00:00",
     "recent_accepted_moves": [
       {
         "accepted_at": 1791360145.688211,
@@ -197,6 +197,16 @@
           "color": "white"
         },
         "accepted_uci": "h4g6"
+      },
+      {
+        "accepted_at": 1791360151.3457367,
+        "fen_before": "6r1/6pk/p2nq1Np/1p1p3P/1P3PQ1/1NP3R1/4r1PK/8 w - - 2 33",
+        "expected": {
+          "uci": "g6f8",
+          "san": "Nf8+",
+          "color": "white"
+        },
+        "accepted_uci": "g6f8"
       }
     ],
     "accepted_solution_moves": [
@@ -204,9 +214,14 @@
         "san": "Ng6+",
         "uci": "h4g6",
         "principal": true
+      },
+      {
+        "san": "Nf8+",
+        "uci": "g6f8",
+        "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Kh7"
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Rxf8"
   },
   "lichess_rating_used": {
     "2000": [
