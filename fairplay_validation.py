@@ -34,20 +34,43 @@ def evaluate_cases(cases, analyze):
         diagnostics=getattr(result,'diagnostics',{})
         index=diagnostics.get('gameplay',{}).get('research_evidence_index') if isinstance(diagnostics,dict) else None
         if isinstance(index,(int,float)):indices[case['label']].append(index)
-    positive = sum(counts[LABELS[0]].values())
-    high = counts[LABELS[0]]['HIGH']+counts[LABELS[0]]['VERY HIGH']
-    moderate = high+counts[LABELS[0]]['MODERATE']
+    positive_labels=('known_fair_play_closed','positive','holdout_positive')
+    normal_labels=('trusted_normal','holdout_normal')
+    positive=sum(sum(counts[label].values()) for label in positive_labels)
+    normal=sum(sum(counts[label].values()) for label in normal_labels)
+    high_positive=sum(counts[label]['HIGH']+counts[label]['VERY HIGH'] for label in positive_labels)
+    moderate_positive=high_positive+sum(counts[label]['MODERATE'] for label in positive_labels)
+    high_normal=sum(counts[label]['HIGH']+counts[label]['VERY HIGH'] for label in normal_labels)
+    moderate_normal=high_normal+sum(counts[label]['MODERATE'] for label in normal_labels)
+    high_total=high_positive+high_normal
+    high_tpr=high_positive/positive if positive else None
+    high_fpr=high_normal/normal if normal else None
+    high_specificity=1-high_fpr if high_fpr is not None else None
+    high_precision=high_positive/high_total if high_total else None
+    high_accuracy=(high_positive+(normal-high_normal))/(positive+normal) if positive+normal else None
     return {'cases':{label:{p:counts[label][p] for p in PRIORITIES} for label in LABELS},
             'failed':{label:failures[label] for label in LABELS},
-            'known_positive_completed':positive,
-            'high_or_higher_recall':high/positive if positive else None,
-            'moderate_or_higher_recall':moderate/positive if positive else None,
+            'known_positive_completed':sum(counts[LABELS[0]].values()),
+            'high_or_higher_recall':(
+                counts[LABELS[0]]['HIGH']+counts[LABELS[0]]['VERY HIGH'])/sum(counts[LABELS[0]].values())
+                if sum(counts[LABELS[0]].values()) else None,
+            'moderate_or_higher_recall':(
+                counts[LABELS[0]]['HIGH']+counts[LABELS[0]]['VERY HIGH']+counts[LABELS[0]]['MODERATE'])/
+                sum(counts[LABELS[0]].values()) if sum(counts[LABELS[0]].values()) else None,
             'trusted_normal_completed':sum(counts[LABELS[1]].values()),
             'trusted_normal_moderate_or_higher':sum(counts[LABELS[1]][p] for p in ('MODERATE','HIGH','VERY HIGH')),
             'trusted_normal_high_or_higher':counts[LABELS[1]]['HIGH']+counts[LABELS[1]]['VERY HIGH'],
+            'binary_high_cutoff':{
+                'positive_completed':positive,'normal_completed':normal,
+                'recall_tpr':high_tpr,'false_positive_rate':high_fpr,
+                'specificity':high_specificity,'precision':high_precision,'accuracy':high_accuracy},
+            'binary_moderate_cutoff':{
+                'positive_completed':positive,'normal_completed':normal,
+                'recall_tpr':moderate_positive/positive if positive else None,
+                'false_positive_rate':moderate_normal/normal if normal else None},
             'ranking':{'median_research_index':{label:statistics.median(v) if v else None for label,v in indices.items()},
                        'note':'Compare development and holdout distributions before changing categories; this index is not a probability.'},
-            'note':'External user labels, not certified ground truth. Failed scans excluded from recall denominators; insufficient data included. No empirical calibration claim.'}
+            'note':'External user labels, not certified ground truth. Failed scans excluded from denominators; insufficient data remains negative. Accuracy is reported only with recall/FPR/specificity/precision because class balance can make accuracy misleading.'}
 
 
 
