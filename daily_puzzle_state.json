@@ -103,83 +103,74 @@
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
-    "url": "https://www.chess.com/daily/2026-10-06",
-    "title": "Get Outta Here!",
-    "fen": "6k1/1p1q3p/2ppp1p1/p1b2r2/P1P1N3/4P3/2Q2PPP/3R2K1 w - - 0 1",
-    "current_fen": "6k1/1p1q3p/2ppp1p1/p1b2r2/P1P1N3/4P3/2Q2PPP/3R2K1 w - - 0 1",
+    "url": "https://www.chess.com/daily/2026-10-07",
+    "title": "Double Hop Drop",
+    "fen": "6rk/6p1/p2nq2p/1p1p3P/1P3PQN/1NP3R1/4r1PK/8 w - - 0 32",
+    "current_fen": "6rk/6p1/p2nq2p/1p1p3P/1P3PQN/1NP3R1/4r1PK/8 w - - 0 32",
     "last_move_uci": null,
-    "pgn": "[Result \"*\"]\n[FEN \"6k1/1p1q3p/2ppp1p1/p1b2r2/P1P1N3/4P3/2Q2PPP/3R2K1 w - - 0 1\"]\n\n1. g4 Rf7 2. Nxc5 dxc5 3. Rxd7 *",
+    "pgn": "[Result \"1-0\"]\n[FEN \"6rk/6p1/p2nq2p/1p1p3P/1P3PQN/1NP3R1/4r1PK/8 w - - 0 32\"]\n\n32. Ng6+ Kh7 33. Nf8+ Rxf8 34. Qxg7# 1-0",
     "all_moves": [
       {
-        "uci": "g2g4",
-        "san": "g4",
+        "uci": "h4g6",
+        "san": "Ng6+",
         "color": "white"
       },
       {
-        "uci": "f5f7",
-        "san": "Rf7",
+        "uci": "h8h7",
+        "san": "Kh7",
         "color": "black"
       },
       {
-        "uci": "e4c5",
-        "san": "Nxc5",
+        "uci": "g6f8",
+        "san": "Nf8+",
         "color": "white"
       },
       {
-        "uci": "d6c5",
-        "san": "dxc5",
+        "uci": "g8f8",
+        "san": "Rxf8",
         "color": "black"
       },
       {
-        "uci": "d1d7",
-        "san": "Rxd7",
+        "uci": "g4g7",
+        "san": "Qxg7#",
         "color": "white"
       }
     ],
     "player_moves": [
       {
-        "uci": "g2g4",
-        "san": "g4",
+        "uci": "h4g6",
+        "san": "Ng6+",
         "color": "white"
       },
       {
-        "uci": "e4c5",
-        "san": "Nxc5",
+        "uci": "g6f8",
+        "san": "Nf8+",
         "color": "white"
       },
       {
-        "uci": "d1d7",
-        "san": "Rxd7",
+        "uci": "g4g7",
+        "san": "Qxg7#",
         "color": "white"
       }
     ],
     "player_color": "white",
     "player_move_count": 3,
-    "posted_at": "2026-10-06T07:27:18.447247+00:00",
-    "answer_posted": true,
+    "posted_at": "2026-10-07T07:32:50.707874+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "daily_1791271638447",
+    "puzzle_id": "daily_1791358370707",
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_id": 1556930840339021834,
+    "message_id": null,
     "attempted_users": {},
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "message_ids": {
-      "1468320170891022417": 1556930840339021834
-    },
-    "channel_id": 1468320170891022417,
-    "board_attachment_filenames": {
-      "1468320170891022417": "daily_puzzle.png"
-    },
-    "chat_since_refresh": 0,
-    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** g4 Nxc5 Rxd7"
+    "helper_candidate_users": []
   },
   "lichess_rating_used": {
     "2000": [
