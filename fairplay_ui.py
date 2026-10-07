@@ -33,7 +33,7 @@ def public_text(value):
 def panel_embed():
     embed = discord.Embed(title=PANEL_TITLE, color=0x427CBA,
         description='Want to review a suspicious Chess.com account?\n\n'
-                    "Submit the Chess.com username. SharkBot analyzes up to 100 recent rated standard games, with up to 500 eligible rated games of history for personal baselines and targeted review of unusual periods.\n\n"
+                    "Submit the Chess.com username. SharkBot fully screens up to the latest 200 eligible rated standard games, then deeply reviews selected games for human decision, engine and timing evidence.\n\n"
                     '**This is an automated screening tool — not proof of cheating.**')
     embed.set_footer(text=PANEL_MARKER)
     return embed
@@ -62,12 +62,14 @@ def result_embed(result: ReviewResult):
     totals = result.totals
     classes = ' • '.join(f'{kind.title()}: {data["games"]}' for kind,data in result.classes.items())
     coverage = result.coverage
-    sample = (f'Eligible rated history: **{coverage.get("collected",result.selected_games)}**\n'
-              f'Full fast scans: **{coverage.get("fast_scanned",totals["games"])}** · used in scoring: **{coverage.get("used",totals["games"])}**\n'
-              f'Deep-reviewed: **{coverage.get("deep_reviewed",result.deep_coverage["games"])}** · below per-game coverage: **{coverage.get("excluded_after_fast",0)}**\n'
+    sample = (f'Eligible rated games collected: **{coverage.get("collected",result.selected_games)}**\n'
+              f'Full fast-scanned: **{coverage.get("fast_scanned",totals["games"])}** · gameplay-scoring games: **{coverage.get("used",totals["games"])}**\n'
+              f'Deep-reviewed: **{coverage.get("deep_reviewed",result.deep_coverage["games"])}** · context-only / insufficient opportunities: **{coverage.get("excluded_after_fast",0)}**\n'
               f'Meaningful decisions: **{totals["decisions"]:,}**\n{classes}\n'
               f'Account age: {result.context["age_days"] if result.context["age_days"] is not None else "unavailable"} days')
-    if coverage.get('primary_collected'):
+    funnel=result.diagnostics.get('gameplay',{}).get('funnel',{})
+    if funnel:sample+=f'\nCompetitive decisions: {funnel["competitive"]} · high-difficulty: {funnel["high_difficulty"]}'
+    if coverage.get('history_probed'):
         sample += f'\nRecent rated primary sample: {coverage["primary_fast_scanned"]}/{coverage["primary_collected"]} · historical discovery probes: {coverage.get("history_probed",0)}'
     sample += f'\nSkipped unrated games while collecting history: {result.skipped.get("unrated",0)} · unknown rated status: {result.skipped.get("rated_status_unknown",0)}'
     if coverage.get('history_probe_complete') is False:sample += '\nExtended-history discovery is incomplete; primary coverage is shown separately.'
@@ -104,9 +106,9 @@ def detail_embed(result, mode):
             if game.url:text += f'\n[Open Game]({game.url})'
             embed.add_field(name=f'Game {index}',value=text,inline=False)
     elif mode=='Clusters & History':
-        embed.description = ('Chronological windows: '+ ' / '.join(map(str,CONFIG.cluster_windows)) + ' games, plus complete continuously scanned periods. Approximate sessions use a 45-minute inactivity gap. '
-                             'Only same-control persistent groups count; overlapping windows do not multiply evidence. '
-                             'Historical probes select further analysis and never count as full engine-reviewed games.')
+        embed.description = ('Legacy gameplay/timing periods remain exact-control. The new gameplay layer also compares real chronological Rapid/Blitz periods across controls. '
+                             'Clock comparisons stay exact-control. Sessions use a 45-minute inactivity gap. '
+                             'Overlapping windows do not multiply evidence. The standard sample receives full fast scans.')
         strongest = result.clusters.get('strongest')
         if strongest:
             m = strongest['metrics']
@@ -254,7 +256,7 @@ def detail_embed(result, mode):
                              f'Critical median CPL: {number(a["critical_cpl"])} · unique-best hits: {a["unique_hits"]}/{a["unique"]}\n'
                              f'Mistake / blunder-like losses: {a["mistakes"]}/{a["blunders"]} · critical mistakes: {a["critical_mistakes"]}\n'
                              f'Deep confirmation: {result.deep_confirmed} · {result.deep_coverage["games"]} games / {result.deep_coverage["decisions"]} decisions\n\n'
-                             'First 20 plies and genuinely forced/trivial decisions are excluded. Difficult check responses and nontrivial recaptures remain analyzable. Strongly won/lost positions are de-weighted. '
+                             'Known opening-reference moves and genuinely forced/trivial decisions are de-weighted; early off-book decisions can contribute. Difficult check responses and nontrivial recaptures remain analyzable. Strongly won/lost positions are de-weighted. '
                              'Critical positions require several choices, a best–second gap and candidate spread; quiet unique choices receive the strongest evidence. '
                              'These heuristic measures have innocent explanations and do not establish misconduct.')
         add_gate_fields(embed,result)
@@ -364,6 +366,10 @@ def add_baseline_fields(embed,result):
 
 
 def add_gate_fields(embed,result):
+    add_gameplay_fields(embed,result)
+    if result.diagnostics.get('gameplay',{}).get('qualified'):
+        embed.add_field(name='HIGH trigger',value=result.diagnostics['high_path'],inline=False)
+        return
     # The convergent route has its own explicitly displayed period and gates;
     # unrelated legacy-cluster failures must not contradict its HIGH trigger.
     if result.clusters.get('convergence',{}).get('raised_priority'):return
@@ -394,6 +400,26 @@ def add_gate_fields(embed,result):
             value=f'{support["games"]} rated games · actual score {number(support["actual"])} / expected {number(support["expected_with_margin"])}\n'
                   f'Expected score allows {support["rating_margin"]} Elo of underrating. Conservative bounded-score support: {support["score"]:.2f}.\n'
                   'Supporting result context only. Underrating, improvement and correlated games remain alternatives.')
+
+
+def add_gameplay_fields(embed,result):
+    d=result.diagnostics.get('gameplay')
+    if not d:return
+    best=d.get('best') or {};s=best.get('summary',{});deep=best.get('deep',{}).get('summary',{})
+    embed.add_field(name='Human / difficulty evidence — heuristic',inline=False,
+        value=f'High-information decisions: {s.get("hits",0)} / {s.get("opportunities",0)} capped opportunities\n'
+              f'Contributor games: {s.get("contributors",0)} / {s.get("games",0)} · rating reference: {s.get("rating_reference") or "unavailable"}\n'
+              f'Opportunity-bearing games: {s.get("opportunity_games",0)} · bounded information: {number(s.get("information"))}\n'
+              f'Strength-conditioned reference: {number(s.get("quality_reference"))} (heuristic, not probability)\n'
+              f'Deep-stable high-information decisions: {deep.get("stable_hits",0)}\n'
+              f'Gameplay class: {best.get("class","unavailable")} · controls: {", ".join(best.get("controls",[])) or "unavailable"}\n'
+              'Related rank, loss and difficulty measurements form one gameplay family, not independent probabilities.')
+    embed.add_field(name='Gameplay HIGH route gates',inline=False,
+        value='\n'.join(f'{key.replace("_"," ").title()}: {"PASS" if value else "FAIL"}' for key,value in d['gates'].items())+
+              '\nTiming/results are optional for this route. Legacy gates are separate.')
+    f=d['funnel']
+    embed.add_field(name='Evidence coverage — overlapping categories',inline=False,
+        value=' · '.join(f'{key.replace("_"," ").title()}: {value}' for key,value in f.items())[:1024])
 
 
 async def channel_check(ctx):
@@ -627,6 +653,10 @@ class FairPlayService:
                 if messages and self.is_panel(messages[0]):
                     self.panel_id = messages[0].id
                     for old in panels[1:]:await old.delete()
+                    current=panel_embed()
+                    if messages[0].embeds[0].description!=current.description:
+                        await messages[0].edit(embed=current,view=SubmitView(),
+                                               allowed_mentions=discord.AllowedMentions.none())
                     return False
                 # Refuse to add another panel if deleting an old one fails.
                 for old in panels:await old.delete()

@@ -22,7 +22,7 @@ from fairplay_clusters import (clamp, evidence, find_clusters, regime_changes,
                                select_deep_games, confirm_cluster, summary, buckets, comparison_control)
 from fairplay_history import probe_decisions, historical_candidates, session_history
 from fairplay_data import (DeadlineReached, GameSample, PubAPI, ReviewError,
-                           ScanDeadline, check_deadline, collect_games, finite_number, username, primary_limit)
+                           ScanDeadline, check_deadline, collect_games, finite_number, username, primary_limit, collection_limit)
 
 
 def median(values, default=None):
@@ -72,6 +72,8 @@ def engine_metrics(decision, lines, actual_line, color, config=CONFIG):
     # is not a player cheating probability or a fitted win-probability model.
     def scaled(cp):return 1/(1+math.exp(-.00368208*cp))
     return {'before_cp': values[0], 'actual_cp': actual, 'best': candidates[0],
+            'rank':candidates.index(decision.move)+1 if decision.move in candidates else None,
+            'candidate_count':len(candidates),'candidate_cp':values,'candidates':candidates,
             'search_inconsistent':inconsistent,
             'near_best':not inconsistent and values[0]-actual<=config.equivalent_cp,
             'equivalent_candidates':sum(values[0]-value<=config.equivalent_cp for value in values),
@@ -126,6 +128,8 @@ def summarize(game: GameSample, config=CONFIG):
                     'blunders': sum(v >= config.blunder_cp for v in losses),
                     'critical_mistakes': sum(d.metrics['cpl'] >= config.mistake_cp for d in critical)}
     game.metrics.update(position_summary(game))
+    from fairplay_human import annotate_game
+    annotate_game(game,config)
     game.metrics['timing'] = timing_metrics(game,config)
     return game.metrics
 
@@ -349,7 +353,7 @@ class EngineScanner:
             if 'Clear Hash' in self.engine.options:self.engine.configure({'Clear Hash':None})
             richer = (decision.metrics.get('critical') or (decision.metrics.get('gap') is not None
                        and decision.metrics['gap']<25 and decision.metrics.get('cpl',100)<=25))
-            multipv=self.config.deep_multipv if nodes==self.config.deep_nodes and richer else 3
+            multipv=self.config.deep_multipv if nodes==self.config.deep_nodes else self.config.fast_multipv
             lines = self.engine.analyse(board,chess.engine.Limit(nodes=nodes),multipv=multipv)
             check_deadline(self.deadline)
             if isinstance(lines,dict):lines = [lines]
@@ -393,13 +397,14 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         profile = neutral_profile_context(profile)
         history, skipped, archive_partial = collect_games(api,canonical,progress,config)
         # Enforce eligibility even when a collector adapter is used.
-        history=sorted([g for g in history if g.rated is True],key=lambda g:(g.ended,g.identity))
+        history=sorted([g for g in history if g.rated is True],key=lambda g:(g.ended,g.identity))[-collection_limit(config):]
         if not history:raise ReviewError('No eligible rated standard live games with enough meaningful moves were found.')
         check_deadline(deadline)
         try:scanner = EngineScanner(deadline,config,engine_factory)
         except Exception as error:raise ReviewError('Stockfish is unavailable. Engine screening could not be performed; no review priority was assigned.') from error
         for group in buckets(history).values():
             for index,game in enumerate(group):game.control_index=index
+        collected_at=time.monotonic()
         limit = primary_limit(config)
         primary = history[-limit:]
         analyzed,probes = [],{}
@@ -427,6 +432,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             except DeadlineReached:partial=True;break
         primary_complete=len(analyzed)==len(primary)
         progress(f'Fast engine scan: {len(analyzed)} / {len(primary)}')
+        fast_finished=time.monotonic()
         historical_targets=[]
         probe_complete=True
         if primary_complete and len(history)>len(primary):
@@ -451,11 +457,14 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 try:fast_scan(game)
                 except DeadlineReached:probe_complete=False;break
         analyzed.sort(key=lambda g:(g.ended,g.identity))
-        progress('Identifying high-signal clusters…')
-        candidates=select_deep_games(analyzed,config)
+        progress('Building human-move profile…')
+        progress('Analyzing sessions and repertoire…')
+        from fairplay_sequence import adaptive_deep_games
+        candidates=adaptive_deep_games(analyzed,config)
+        deep_started=time.monotonic()
         deep_incomplete=False
         for index,game in enumerate(candidates):
-            progress(f'Deep-reviewing high-signal periods: {index} / {len(candidates)}')
+            progress(f'Deep confirmation: {index} / {len(candidates)}')
             try:
                 confirmed=copy.deepcopy(game)
                 if game.identity in cached_deep:
@@ -466,6 +475,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 game.decisions,game.metrics,game.deep=confirmed.decisions,confirmed.metrics,True
             except DeadlineReached:
                 deep_incomplete=True;break
+        deep_finished=time.monotonic()
+        progress(f'Deep confirmation: {sum(g.deep for g in candidates)} / {len(candidates)}')
         for game in analyzed:
             if game.deep:
                 key=(game.identity,game.color,scanner.name,VERSION,config)
@@ -488,6 +499,14 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                             for (kind,control),group in buckets(history).items()]}
         progress('Building report…')
         result.elapsed=time.monotonic()-started
+        try:
+            import resource
+            memory_mb=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024
+        except (ImportError,AttributeError):memory_mb=None
+        result.diagnostics['runtime']={'collection_seconds':collected_at-started,
+            'fast_seconds':fast_finished-collected_at,'deep_seconds':deep_finished-deep_started,
+            'profile_seconds':time.monotonic()-deep_finished,'elapsed_seconds':result.elapsed,
+            'peak_process_memory_mb':memory_mb,'full_fast_games':len(analyzed),'deep_games':sum(g.deep for g in analyzed)}
         return result
     except (chess.engine.EngineError,TimeoutError) as error:
         raise ReviewError('Stockfish stopped responding. The scan was stopped safely; please try again later.') from error

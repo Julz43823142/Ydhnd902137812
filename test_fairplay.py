@@ -73,7 +73,7 @@ class Parsing(unittest.TestCase):
         game = data.parse_game(sample_row(),TARGET)
         self.assertTrue(any(d.useful for d in game.decisions))
         for d in game.decisions:
-            if d.ply<=CONFIG.opening_plies or d.forced:self.assertFalse(d.useful)
+            if d.phase=='opening' or d.forced:self.assertFalse(d.useful)
 
     def test_clocks_and_increment_no_first_move_guess(self):
         for inc in (0,3):
@@ -394,6 +394,16 @@ class DiscordRules(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(await self.service.ensure_panel())
         self.assertEqual(sum(self.service.is_panel(m) for m in self.channel.messages),1)
         self.assertTrue(self.service.is_panel(self.channel.messages[-1]))
+
+    async def test_latest_legacy_panel_updates_capacity_without_reposting(self):
+        old=ui.panel_embed();old.description='Review up to 100 games with 500-game history.'
+        message=FakeMessage(self.channel,1,old,created=time.time()-3700)
+        self.channel.messages.append(message)
+        self.assertFalse(await self.service.ensure_panel())
+        self.assertIn('200',message.embeds[0].description)
+        self.assertEqual(message.edits,1);self.assertEqual(self.channel.sends,0)
+        self.assertFalse(await self.service.ensure_panel())
+        self.assertEqual(message.edits,1)
 
     async def test_human_activity_resets_and_restore_does_not_spam(self):
         message = FakeMessage(self.channel,1,human=True)

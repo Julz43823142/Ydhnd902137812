@@ -6,17 +6,19 @@ Use explicitly labelled trusted normal accounts; 'not banned' is not a label.
 """
 import argparse
 import json
+import statistics
 from collections import Counter
 from pathlib import Path
 from fairplay_data import username
 
-LABELS = ('known_fair_play_closed', 'trusted_normal')
+LABELS = ('known_fair_play_closed', 'trusted_normal', 'positive', 'holdout_positive', 'holdout_normal')
 PRIORITIES = ('LOW', 'MODERATE', 'HIGH', 'VERY HIGH', 'INSUFFICIENT DATA')
 
 
 def evaluate_cases(cases, analyze):
     counts = {label:Counter() for label in LABELS}
     failures = Counter()
+    indices={label:[] for label in LABELS}
     for case in cases:
         if not isinstance(case,dict) or case.get('label') not in LABELS:
             raise ValueError('Use explicit known_fair_play_closed or trusted_normal labels.')
@@ -29,6 +31,9 @@ def evaluate_cases(cases, analyze):
             failures[case['label']] += 1
             continue  # no private target/error detail reaches stdout/public logs
         counts[case['label']][frozen_priority] += 1
+        diagnostics=getattr(result,'diagnostics',{})
+        index=diagnostics.get('gameplay',{}).get('research_evidence_index') if isinstance(diagnostics,dict) else None
+        if isinstance(index,(int,float)):indices[case['label']].append(index)
     positive = sum(counts[LABELS[0]].values())
     high = counts[LABELS[0]]['HIGH']+counts[LABELS[0]]['VERY HIGH']
     moderate = high+counts[LABELS[0]]['MODERATE']
@@ -40,6 +45,8 @@ def evaluate_cases(cases, analyze):
             'trusted_normal_completed':sum(counts[LABELS[1]].values()),
             'trusted_normal_moderate_or_higher':sum(counts[LABELS[1]][p] for p in ('MODERATE','HIGH','VERY HIGH')),
             'trusted_normal_high_or_higher':counts[LABELS[1]]['HIGH']+counts[LABELS[1]]['VERY HIGH'],
+            'ranking':{'median_research_index':{label:statistics.median(v) if v else None for label,v in indices.items()},
+                       'note':'Compare development and holdout distributions before changing categories; this index is not a probability.'},
             'note':'External user labels, not certified ground truth. Failed scans excluded from recall denominators; insufficient data included. No empirical calibration claim.'}
 
 
@@ -61,7 +68,7 @@ def main():
     source=parser.add_mutually_exclusive_group(required=True)
     source.add_argument('--offline-dir',type=Path,help='Private ignored directory with per-account JSON {profile, games}.')
     source.add_argument('--live',action='store_true',help='Explicitly permit serial PubAPI scans. No Discord activity.')
-    parser.add_argument('--history-games',type=int,default=500)
+    parser.add_argument('--history-games',type=int,default=200)
     args=parser.parse_args()
     from dataclasses import replace
     from fairplay_analysis import review

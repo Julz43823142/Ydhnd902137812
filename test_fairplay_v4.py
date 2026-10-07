@@ -183,7 +183,7 @@ class ExtendedHistory(unittest.TestCase):
         self.assertTrue(any(g.identity in selected for g in games[24:30]))
         self.assertLessEqual(len(targets),CONFIG.historical_target_games)
 
-    def test_flat_five_hundred_game_pipeline_keeps_primary_hundred_and_bounded_deep(self):
+    def test_adapter_five_hundred_games_is_capped_to_full_primary_two_hundred(self):
         games=[game(i,deep=False) for i in range(500)]
         calls=[]
         class Scanner:
@@ -198,12 +198,12 @@ class ExtendedHistory(unittest.TestCase):
         try:
             with patch.object(a,'collect_games',return_value=(games,{},False)),patch.object(a,'EngineScanner',Scanner):
                 result=a.review(TARGET,lambda _:None,api_factory=lambda _:api)
-            self.assertEqual(calls.count(CONFIG.fast_nodes),100)
-            self.assertEqual(calls.count(CONFIG.historical_probe_nodes),400)
-            self.assertLessEqual(calls.count(CONFIG.deep_nodes),CONFIG.deep_games)
+            self.assertEqual(calls.count(CONFIG.fast_nodes),200)
+            self.assertEqual(calls.count(CONFIG.historical_probe_nodes),0)
+            self.assertLessEqual(calls.count(CONFIG.deep_nodes),CONFIG.deep_max_games)
             self.assertEqual(result.coverage['history_fast_scanned'],0)
-            self.assertEqual(result.coverage['collected'],500)
-            self.assertEqual(result.coverage['used'],100)
+            self.assertEqual(result.coverage['collected'],200)
+            self.assertEqual(result.coverage['used'],200)
             self.assertEqual(result.priority,'LOW')
         finally:a._game_cache.clear()
 
@@ -230,7 +230,7 @@ class ExtendedHistory(unittest.TestCase):
         self.assertFalse(partial)
 
     def test_configurable_collection_limit_and_primary_limit(self):
-        self.assertEqual(data.collection_limit(CONFIG),500);self.assertEqual(data.primary_limit(CONFIG),100)
+        self.assertEqual(data.collection_limit(CONFIG),200);self.assertEqual(data.primary_limit(CONFIG),200)
         self.assertEqual(data.collection_limit(replace(CONFIG,history_games=250)),250)
         self.assertEqual(data.collection_limit(replace(CONFIG,max_games=2)),2)
         self.assertEqual(data.collection_limit(replace(CONFIG,history_games=900)),500)
@@ -388,7 +388,7 @@ class ValidationPrivacy(unittest.TestCase):
         analyze=Mock(return_value=SimpleNamespace(priority='LOW'))
         cases=[{'username':TARGET,'label':label} for label in validation.LABELS]
         summary=validation.evaluate_cases(cases,analyze)
-        self.assertEqual(analyze.call_args_list,[unittest.mock.call(TARGET),unittest.mock.call(TARGET)])
+        self.assertEqual(analyze.call_args_list,[unittest.mock.call(TARGET) for _ in validation.LABELS])
         self.assertNotIn(TARGET,json.dumps(summary));self.assertEqual(summary['high_or_higher_recall'],0)
 
     def test_only_explicit_external_labels_accepted(self):

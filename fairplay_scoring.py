@@ -190,6 +190,13 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
         # descriptively; it does not earn MODERATE from correlated hit rates.
         primary_e=primary_c=0
     gate_scores=(primary_e,primary_c,gate_timing,gate_shift,gate_context)
+    disabled=set(config.disabled_features)
+    if 'timing' in disabled:gate_timing=0.0
+    if 'results' in disabled:gate_context=0.0
+    if 'recurrence' in disabled:recurrence=False
+    if 'personal' in disabled:
+        comparison={**comparison,'sufficient':False,'established':False}
+    gate_scores=(primary_e,primary_c,gate_timing,gate_shift,gate_context)
     priority=priority_model(gate_scores,games=len(useful),decisions=totals['decisions'],critical=summary(scope)['critical'],
                            confidence=confidence,deep_confirmed=deep_confirmed,partial=partial,config=config,
                            persistent=bool(strongest and strongest['persistent']),recurrence=recurrence,
@@ -248,7 +255,9 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
                                                         'clock_comments':sum(g.metrics['timing'].get('clock_comments',0) for g in timeline),
                                                         'excluded_clocks':sum(g.metrics['timing'].get('excluded_clocks',0) for g in timeline)}},timeline=timeline)
     from fairplay_convergence import integrate_review
-    return integrate_review(result,timeline,config)
+    if not {'timing','results'}&disabled:result=integrate_review(result,timeline,config)
+    from fairplay_sequence import integrate_gameplay
+    return integrate_gameplay(result,timeline,config)
 
 
 def high_block_reasons(priority, comparison, deep, cluster, timing, context, recurrence, games, config=CONFIG):
