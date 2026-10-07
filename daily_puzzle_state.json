@@ -106,8 +106,8 @@
     "url": "https://www.chess.com/daily/2026-10-07",
     "title": "Double Hop Drop",
     "fen": "6rk/6p1/p2nq2p/1p1p3P/1P3PQN/1NP3R1/4r1PK/8 w - - 0 32",
-    "current_fen": "5r2/6pk/p2nq2p/1p1p3P/1P3PQ1/1NP3R1/4r1PK/8 w - - 0 34",
-    "last_move_uci": "g8f8",
+    "current_fen": "5r2/6Qk/p2nq2p/1p1p3P/1P3P2/1NP3R1/4r1PK/8 b - - 0 34",
+    "last_move_uci": "g4g7",
     "pgn": "[Result \"1-0\"]\n[FEN \"6rk/6p1/p2nq2p/1p1p3P/1P3PQN/1NP3R1/4r1PK/8 w - - 0 32\"]\n\n32. Ng6+ Kh7 33. Nf8+ Rxf8 34. Qxg7# 1-0",
     "all_moves": [
       {
@@ -156,48 +156,38 @@
     "player_color": "white",
     "player_move_count": 3,
     "posted_at": "2026-10-07T07:32:50.707874+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1791358370707",
-    "next_solution_index": 4,
-    "next_player_index": 2,
-    "solved": false,
-    "message_id": 1557302090533961728,
+    "next_solution_index": 5,
+    "next_player_index": 3,
+    "solved": true,
+    "message_id": 1557302109379104829,
     "attempted_users": {
       "601406103712170014": {
         "name": "TheMakina",
-        "move": "Nf8",
+        "move": "Qxg7",
         "correct": true,
-        "timestamp": "2026-10-07T08:02:31.345727+00:00"
+        "timestamp": "2026-10-07T08:02:35.903443+00:00"
       }
     },
     "first_move_user_id": "601406103712170014",
     "first_move_user_name": "TheMakina",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1557302090533961728
+      "1468320170891022417": 1557302109379104829
     },
     "channel_id": 1468320170891022417,
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
     "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-10-07T08:02:31.345428+00:00",
+    "last_card_activity_at": "2026-10-07T08:02:35.903171+00:00",
     "recent_accepted_moves": [
-      {
-        "accepted_at": 1791360145.688211,
-        "fen_before": "6rk/6p1/p2nq2p/1p1p3P/1P3PQN/1NP3R1/4r1PK/8 w - - 0 32",
-        "expected": {
-          "uci": "h4g6",
-          "san": "Ng6+",
-          "color": "white"
-        },
-        "accepted_uci": "h4g6"
-      },
       {
         "accepted_at": 1791360151.3457367,
         "fen_before": "6r1/6pk/p2nq1Np/1p1p3P/1P3PQ1/1NP3R1/4r1PK/8 w - - 2 33",
@@ -207,6 +197,16 @@
           "color": "white"
         },
         "accepted_uci": "g6f8"
+      },
+      {
+        "accepted_at": 1791360155.9034507,
+        "fen_before": "5r2/6pk/p2nq2p/1p1p3P/1P3PQ1/1NP3R1/4r1PK/8 w - - 0 34",
+        "expected": {
+          "uci": "g4g7",
+          "san": "Qxg7#",
+          "color": "white"
+        },
+        "accepted_uci": "g4g7"
       }
     ],
     "accepted_solution_moves": [
@@ -219,9 +219,20 @@
         "san": "Nf8+",
         "uci": "g6f8",
         "principal": true
+      },
+      {
+        "san": "Qxg7#",
+        "uci": "g4g7",
+        "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Rxf8"
+    "last_feedback": "✅ **Correct, TheMakina!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1553 points.**\n🔥 **Daily Activity Bonus: +10 coins**\n\nPuzzle Elo: **2432**\n\n💡 **Solution:** Ng6+ Nf8+ Qxg7#\n\n🏆 **Your ranking**\n**#1 🐶 Thice — 1770 points**\n**#2 🍅 TheMakina — 1553 points ← you**\n**#3 👾 Sharkmeister — 79.5 points**",
+    "completion_solver_id": "601406103712170014",
+    "completion_solver_name": "TheMakina",
+    "activity_bonus_users": [
+      "601406103712170014"
+    ],
+    "auto_next_started": true
   },
   "lichess_rating_used": {
     "2000": [
