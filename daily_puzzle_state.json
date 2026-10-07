@@ -3961,7 +3961,7 @@
         "player_color": "black",
         "player_move_count": 5,
         "posted_at": "2026-10-07T05:09:04.595335+00:00",
-        "answer_posted": false,
+        "answer_posted": true,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
@@ -3976,7 +3976,9 @@
         "next_solution_index": 0,
         "next_player_index": 0,
         "solved": false,
-        "message_ids": {},
+        "message_ids": {
+          "1546557493038284840": 1557258447739953192
+        },
         "chat_since_refresh": 0,
         "attempted_users": {},
         "first_move_user_id": null,
@@ -3984,7 +3986,11 @@
         "first_move_awarded": false,
         "helper_awarded_users": [],
         "helper_candidate_users": [],
-        "channel_id": 1546557493038284840
+        "channel_id": 1546557493038284840,
+        "board_attachment_filenames": {
+          "1546557493038284840": "random_puzzle.png"
+        },
+        "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Rxf3 h6 Rf8 Kg7 Kxh6"
       }
     }
   },
