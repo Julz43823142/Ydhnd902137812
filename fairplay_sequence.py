@@ -40,6 +40,13 @@ def class_periods(games, config=CONFIG):
         # Bounded chronological rolling windows prevent arbitrary block edges
         # from hiding a ten-game cluster. Overlap is never independent replication.
         options=[('class',group)]+[('session',v) for v in sessions]
+        # Fixed halves are a deliberately non-searched replication view. They
+        # never qualify the ordinary absolute/personal HIGH routes themselves;
+        # only both halves together may establish the replicated route below.
+        if len(group)>=2*config.human_sparse_min_games:
+            middle=len(group)//2
+            if middle>=config.human_sparse_min_games and len(group)-middle>=config.human_sparse_min_games:
+                options += [('replication_half',group[:middle]),('replication_half',group[middle:])]
         for width in config.human_period_windows:
             if width>=len(group):continue
             stride=1 if width==config.min_games else max(1,config.human_period_stride)
@@ -56,9 +63,10 @@ def class_periods(games, config=CONFIG):
         identities=set()
         for mode,part in options:
             ids=tuple(g.identity for g in part)
-            acute = mode=='acute_candidate'
-            if (not acute and len(part)<config.min_games) or ids in identities:continue
-            identities.add(ids);s=period_summary(part,config,fast=True)
+            acute = mode=='acute_candidate';replication_half = mode=='replication_half'
+            identity_key=(ids,replication_half)
+            if (not acute and len(part)<config.min_games) or identity_key in identities:continue
+            identities.add(identity_key);s=period_summary(part,config,fast=True)
             opponents=[g.opponent_rating for g in part if g.opponent_rating is not None]
             opponent_reference=statistics.median(opponents) if opponents else None
             baseline=[g for g in group if g.identity not in ids and g.rating is not None and
@@ -67,16 +75,17 @@ def class_periods(games, config=CONFIG):
                 and abs(g.opponent_rating-opponent_reference)<=config.baseline_opponent_rating_tolerance]
             b=period_summary(baseline,config,fast=True)
             personal=('personal' not in config.disabled_features and kind!='bullet' and len(baseline)>=config.baseline_reference_games and b['hard_opportunities']>=40
-                and not acute and s['hard_opportunities']>=40 and s['hard_contributors']>=config.human_min_contributors and s['hard_lower']>=.65
+                and not acute and not replication_half and s['hard_opportunities']>=40 and s['hard_contributors']>=config.human_min_contributors and s['hard_lower']>=.65
                 and s['hard_hits']/max(1,s['hard_opportunities'])-b['hard_hits']/max(1,b['hard_opportunities'])>=.25
                 and (s.get('observed_quality') or 0)-(b.get('observed_quality') or 0)>=.18)
             periods.append({'ids':list(ids),'class':kind,'kind':mode,'start':part[0].ended,'end':part[-1].ended,
                 'controls':sorted(set(g.time_control for g in part)), 'summary':s,
-                'absolute':not acute and class_absolute(s,kind,config),
-                'acute':acute,
+                'absolute':not acute and not replication_half and class_absolute(s,kind,config),
+                'acute':acute,'replication_half':replication_half,
                 'blockers':acute_blockers(part,config) if acute else absolute_blockers(s,config),
                 'personal':bool(personal),'baseline_ids':[g.identity for g in baseline],
-                'qualified':not acute_blockers(part,config) if acute else (class_absolute(s,kind,config) or bool(personal))})
+                'qualified':(not acute_blockers(part,config) if acute else
+                    (False if replication_half else (class_absolute(s,kind,config) or bool(personal))))})
     return sorted(periods,key=lambda p:(p['qualified'],p['summary']['information']*p['summary']['hit_lower'],p['summary']['contributors']),reverse=True)
 
 
@@ -190,7 +199,7 @@ def sparse_deep_blockers(period,proof,config=CONFIG):
 
 
 def best_sparse_period(periods,config=CONFIG):
-    broad=[p for p in periods if not p.get('acute')]
+    broad=[p for p in periods if not p.get('acute') and not p.get('replication_half')]
     if not broad:return None
     def rank(period):
         s=period.get('summary') or {};spread=sparse_distribution(period,s)
@@ -205,6 +214,34 @@ def best_sparse_period(periods,config=CONFIG):
             -single_fraction,
             s.get('opportunities',0))
     return max(broad,key=rank)
+
+
+def fixed_replication_status(periods,config=CONFIG,*,require_deep=False):
+    """Evaluate two deterministic chronological halves, never searched windows.
+
+    The two halves reuse the conservative distributed-MODERATE fast/deep gates.
+    Requiring both halves is temporal replication inside one gameplay family,
+    not two independent probabilities.
+    """
+    groups={}
+    for period in periods:
+        if period.get('replication_half'):
+            groups.setdefault(period.get('class'),[]).append(period)
+    candidates=[]
+    for kind,halves in groups.items():
+        halves=sorted(halves,key=lambda p:(p.get('start',0),p.get('end',0)))
+        if len(halves)!=2:continue
+        blockers=[]
+        for index,period in enumerate(halves,1):
+            blockers.extend(f'half {index}: {value}' for value in sparse_review_blockers(period,config))
+            if require_deep:
+                blockers.extend(f'half {index}: {value}' for value in sparse_deep_blockers(period,period.get('deep'),config))
+        score=sum((p.get('summary') or {}).get('information',0)*(p.get('summary') or {}).get('hit_lower',0) for p in halves)
+        candidates.append({'class':kind,'halves':halves,'passed':not blockers,'blockers':list(dict.fromkeys(blockers)),'score':score})
+    if not candidates:
+        return {'class':None,'halves':[],'passed':False,
+                'blockers':['two fixed chronological halves of at least thirty games'],'score':0}
+    return max(candidates,key=lambda row:(row['passed'],row['score']))
 
 
 def coverage_members(members,count):
@@ -234,6 +271,23 @@ def adaptive_deep_games(games,config=CONFIG):
     # Broad periods remain available as independent secondary coverage.
     acute_candidate=next((p for p in periods if p['qualified'] and p.get('acute')),None)
     high_candidate=next((p for p in periods if p['qualified']),None)
+    replication=fixed_replication_status(periods,config)
+    # If no ordinary HIGH candidate exists, spend the bounded deep budget
+    # symmetrically across two fixed chronological halves. This avoids tuning
+    # confirmation to the single most flattering searched window.
+    if not acute_candidate and not high_candidate and replication['passed']:
+        lookup={g.identity:g for g in games}
+        per_half=max(config.human_sparse_deep_games,config.deep_max_games//2)
+        selected=[]
+        for period in replication['halves']:
+            members=[lookup[i] for i in period['ids'] if i in lookup]
+            for game in coverage_members(members,min(per_half,len(members))):
+                if game not in selected:selected.append(game)
+        target=min(len(games),config.deep_max_games)
+        for game in select_deep_games(games,replace(config,deep_games=target)):
+            if len(selected)>=target:break
+            if game not in selected:selected.append(game)
+        return selected[:target]
     sparse_candidate=best_sparse_period(periods,config)
     if sparse_candidate and sparse_review_blockers(sparse_candidate,config):sparse_candidate=None
     candidate=acute_candidate or high_candidate or sparse_candidate
@@ -353,11 +407,12 @@ def integrate_gameplay(result,games,config=CONFIG):
         proof=deep_confirmation(p,games,config)
         p['deep']=proof
         if p['qualified'] and proof['qualified']:confirmed.append(p)
-    best=confirmed[0] if confirmed else periods[0] if periods else None
-    best_broad=next((p for p in periods if not p.get('acute')),None)
+    best=confirmed[0] if confirmed else next((p for p in periods if not p.get('replication_half')),periods[0] if periods else None)
+    best_broad=next((p for p in periods if not p.get('acute') and not p.get('replication_half')),None)
     sparse_candidate=best_sparse_period(periods,config)
     sparse_confirmed=[p for p in periods if not p.get('acute')
         and not sparse_review_blockers(p,config) and not sparse_deep_blockers(p,p.get('deep'),config)]
+    fixed_replication=fixed_replication_status(periods,config,require_deep=True)
     recurrent=[]
     for p in sorted([p for p in confirmed if not p.get('acute')],key=lambda p:(len(p['ids']),p['start'])):
         if not any(set(p['ids'])&set(q['ids']) for q in recurrent):recurrent.append(p)
@@ -378,9 +433,12 @@ def integrate_gameplay(result,games,config=CONFIG):
     acute_allowed=bool(acute_confirmed and primary_complete)
     if broad_allowed:best=broad_confirmed[0]
     elif acute_allowed:best=acute_confirmed
-    allowed=bool((broad_allowed or acute_allowed) and not {'human','difficulty'}&set(config.disabled_features))
+    feature_enabled=not {'human','difficulty'}&set(config.disabled_features)
+    allowed=bool((broad_allowed or acute_allowed) and feature_enabled)
+    fixed_replication_allowed=bool(fixed_replication['passed'] and sufficient and primary_complete
+        and result.confidence=='HIGH' and feature_enabled)
     sparse_allowed=bool(sparse_confirmed and sufficient and primary_complete and result.confidence!='LOW'
-        and not {'human','difficulty'}&set(config.disabled_features))
+        and feature_enabled)
     # These correlated gameplay features form ONE family. Other families retain
     # their own legacy scope. Baseline presence/stability is not a veto here.
     if allowed and result.priority in ('LOW','MODERATE','INSUFFICIENT DATA'):
@@ -394,7 +452,15 @@ def integrate_gameplay(result,games,config=CONFIG):
             'with paired deep-search confirmation across several games.',
             'Timing or result anomalies are not required for this gameplay route. '
             'Human expectedness is an uncalibrated heuristic; human review remains mandatory.']
-    if not allowed and sparse_allowed and result.priority in ('LOW','INSUFFICIENT DATA'):
+    if not allowed and fixed_replication_allowed and result.priority in ('LOW','MODERATE','INSUFFICIENT DATA'):
+        result.priority='HIGH';result.deep_confirmed=True
+        result.diagnostics.update(high_path='Replicated fixed-half gameplay (timing not required)',high_blocked=[])
+        result.reasons=[
+            'Two pre-defined chronological halves independently showed broad high-information gameplay evidence '
+            'and both retained it under paired deep review.',
+            'The halves are temporal replication inside one correlated gameplay family, not independent probabilities. '
+            'Timing or result anomalies are not required; human review remains mandatory.']
+    if not allowed and not fixed_replication_allowed and sparse_allowed and result.priority in ('LOW','INSUFFICIENT DATA'):
         result.priority='MODERATE'
         result.diagnostics['moderate_path']='Distributed intermittent gameplay evidence with paired deep retention'
         result.reasons=[
@@ -407,14 +473,23 @@ def integrate_gameplay(result,games,config=CONFIG):
         result.priority='VERY HIGH'
         result.reasons.append('Disjoint deep-confirmed periods repeat, separated by adequately sampled lower-anomaly play.')
     structural=[game_structure(g) for g in games]
-    display_best=best if allowed else (sparse_confirmed[0] if sparse_allowed else best_broad or best)
+    display_best=(best if allowed else fixed_replication['halves'][0] if fixed_replication_allowed
+                  else sparse_confirmed[0] if sparse_allowed else best_broad or best)
     sparse_review=sparse_candidate
     sparse_blockers=(sparse_review_blockers(sparse_review,config) if sparse_review else ['No eligible broad chronological candidate.'])
     if sparse_review and not sparse_blockers:
         sparse_blockers=sparse_deep_blockers(sparse_review,sparse_review.get('deep'),config)
+    replication_blockers=list(fixed_replication['blockers'])
+    if not sufficient:replication_blockers.append('minimum broad sample coverage')
+    if not primary_complete:replication_blockers.append('required primary engine coverage is incomplete')
+    if result.confidence!='HIGH':replication_blockers.append('HIGH data confidence')
+    if not feature_enabled:replication_blockers.append('gameplay family enabled')
     result.diagnostics['gameplay']={'model':'rating-conditioned heuristic (not probability)',
-        'best':display_best,'best_high':best,'best_broad':best_broad,'qualified':allowed,'periods_examined':len(periods),
+        'best':display_best,'best_high':best,'best_broad':best_broad,'qualified':bool(allowed or fixed_replication_allowed),'periods_examined':len(periods),
         'confirmed_periods':len(confirmed),'replicated_disjoint_periods':replicated,'funnel':evidence_funnel(games,config),
+        'fixed_half_replication':{'passed':fixed_replication_allowed,
+            'class':fixed_replication.get('class'),'half_games':[len(p.get('ids',[])) for p in fixed_replication.get('halves',[])],
+            'blockers':[] if fixed_replication_allowed else list(dict.fromkeys(replication_blockers))},
         'distributed_moderate':{'passed':sparse_allowed,'blockers':[] if sparse_allowed else list(dict.fromkeys(sparse_blockers)),
             'candidate_games':len(sparse_review['ids']) if sparse_review else 0,
             'deep_games':sparse_review.get('deep',{}).get('games',0) if sparse_review else 0,
@@ -429,12 +504,12 @@ def integrate_gameplay(result,games,config=CONFIG):
         'repertoire':{} if 'opening' in config.disabled_features else repertoire(games),
         'color_profiles':{name:period_summary([g for g in games if g.color==color],config)
                           for name,color in [('White',True),('Black',False)]},
-        'gates':{'sample':sufficient,'gameplay_period':bool((best if allowed else best_broad) and (best if allowed else best_broad)['qualified']),
-            'human_expectedness':bool((best if allowed else best_broad) and (best if allowed else best_broad)['qualified']),
+        'gates':{'sample':sufficient,'gameplay_period':bool(fixed_replication_allowed or ((best if allowed else best_broad) and (best if allowed else best_broad)['qualified'])),
+            'human_expectedness':bool(fixed_replication_allowed or ((best if allowed else best_broad) and (best if allowed else best_broad)['qualified'])),
             'absolute_gameplay':bool((best if allowed else best_broad) and (best if allowed else best_broad).get('absolute')),
             'personal_gameplay':bool((best if allowed else best_broad) and (best if allowed else best_broad).get('personal')),
-            'difficulty_opportunities':bool((best if allowed else best_broad) and (best if allowed else best_broad)['summary']['hard_opportunities']>=40),
-            'deep_confirmation':bool(confirmed),'complete_analysis':bool(primary_complete),
+            'difficulty_opportunities':bool(fixed_replication_allowed or ((best if allowed else best_broad) and (best if allowed else best_broad)['summary']['hard_opportunities']>=40)),
+            'deep_confirmation':bool(confirmed or fixed_replication_allowed),'complete_analysis':bool(primary_complete),
             'confidence':result.confidence!='LOW',
             'timing_support_optional':result.diagnostics.get('gate_scores',{}).get('Move-Time Pattern',0)>=.5,
             'result_support_optional':result.diagnostics.get('gate_scores',{}).get('Account / Results',0)>=.5,
@@ -468,9 +543,12 @@ def integrate_gameplay(result,games,config=CONFIG):
     result.diagnostics['high_paths']={
         'Legacy cluster HIGH':{'passed':legacy_priority in ('HIGH','VERY HIGH') and not convergence.get('raised_priority'),
             'blockers':legacy_blockers if legacy_priority not in ('HIGH','VERY HIGH') else []},
-        'Absolute gameplay HIGH':route_row(lambda p:p['kind']!='acute_candidate','absolute'),
+        'Absolute gameplay HIGH':route_row(lambda p:p['kind']!='acute_candidate' and not p.get('replication_half'),'absolute'),
         'Personal-change HIGH':route_row(lambda p:p.get('personal',False),'personal'),
         'Acute exceptional HIGH':route_row(lambda p:p.get('acute',False),'acute'),
+        'Replicated fixed-half HIGH':{'passed':fixed_replication_allowed,
+            'blockers':[] if fixed_replication_allowed else list(dict.fromkeys(replication_blockers)),
+            'candidate_games':sum(len(p.get('ids',[])) for p in fixed_replication.get('halves',[]))},
         'Recurrence HIGH':{'passed':bool(broad_allowed and replicated),
             'blockers':[] if broad_allowed and replicated else ['Separated, deep-confirmed periods with intervening lower-anomaly play not established.']},
         'Gameplay+timing HIGH':{'passed':bool(
@@ -479,5 +557,5 @@ def integrate_gameplay(result,games,config=CONFIG):
                 else ['Deep-confirmed broad gameplay plus same-period timing support not jointly established.']},
         'Convergence HIGH':{'passed':bool(convergence.get('raised_priority')),
             'blockers':[] if convergence.get('raised_priority') else (convergence.get('confirmation',{}).get('blockers') or ['Complete-period convergence not established.'])}}
-    result.families['Human / Difficulty Evidence']='Elevated' if (allowed or sparse_allowed) else 'Limited / not established'
+    result.families['Human / Difficulty Evidence']='Elevated' if (allowed or fixed_replication_allowed or sparse_allowed) else 'Limited / not established'
     return result

@@ -8,7 +8,8 @@ import chess
 from fairplay_config import CONFIG
 from fairplay_human import annotate_game, period_summary, absolute_qualified
 from fairplay_sequence import (class_periods, deep_confirmation, integrate_gameplay, game_structure,
-    adaptive_deep_games, coverage_members, sparse_review_blockers, sparse_deep_blockers)
+    adaptive_deep_games, coverage_members, sparse_review_blockers, sparse_deep_blockers,
+    fixed_replication_status)
 from fairplay_opening import book_status, opening_reference, repertoire
 from test_fairplay_v4 import game
 from test_fairplay import sample_row, TARGET
@@ -312,6 +313,100 @@ class HumanEvidence(unittest.TestCase):
         self.assertEqual(result.priority,'MODERATE')
         self.assertTrue(result.diagnostics['gameplay']['distributed_moderate']['passed'])
         self.assertNotIn('HIGH',result.diagnostics.get('moderate_path',''))
+
+    def replication_period(self,games):
+        ids=[g.identity for g in games]
+        summary=period_summary(games)
+        summary.update(games=len(games),opportunities=36,hits=22,hit_games=12,single_hit_games=6,
+                       contributors=6,contributor_ids=[ids[i] for i in (0,2,4,15,17,19)],
+                       hit_game_ids=[ids[i] for i in (0,1,2,3,4,5,15,16,17,18,19,20)],
+                       hit_lower=.52,opportunity_games=20,rating_coverage=1.0,information=.22,
+                       quality_excess=.10,anomaly_strength=.27,hard_opportunities=36)
+        return {'qualified':False,'acute':False,'absolute':False,'personal':False,
+                'replication_half':True,'class':'blitz','kind':'replication_half','ids':ids,
+                'start':games[0].ended,'end':games[-1].ended,'controls':['180+0'],
+                'summary':summary,'blockers':['raw quality excess beyond ceiling guard'],'baseline_ids':[]}
+
+    def replication_proof(self,period,stable=True):
+        ids=period['ids'];summary=dict(period['summary'])
+        summary.update(games=7,opportunities=16,hits=11,hit_games=6,single_hit_games=2,
+                       contributors=4,contributor_ids=[ids[i] for i in (0,2,17,19)],
+                       hit_game_ids=[ids[i] for i in (0,1,2,17,18,19)],
+                       hit_lower=.50,stable_opportunities=13 if stable else 9,
+                       stable_hits=8,information=.22,quality_excess=.10,anomaly_strength=.27)
+        return {'qualified':False,'absolute':False,'personal':False,'games':7,
+                'summary':summary,'paired_fast':{'hits':14,'hit_games':8},
+                'retention':11/14,'stability_fraction':summary['stable_opportunities']/16,
+                'blockers':['deep raw quality excess beyond ceiling guard']}
+
+    def test_fixed_halves_are_deterministic_and_do_not_individually_bypass_high(self):
+        games=[informative(i,rating=2300) for i in range(60)]
+        periods=class_periods(games)
+        halves=[p for p in periods if p.get('replication_half')]
+        self.assertEqual(len(halves),2)
+        halves=sorted(halves,key=lambda p:p['start'])
+        self.assertEqual([len(p['ids']) for p in halves],[30,30])
+        self.assertTrue(all(not p['qualified'] and not p['absolute'] for p in halves))
+        # The exact same IDs remain available to the ordinary rolling-window
+        # route, so replication cannot suppress an existing HIGH candidate.
+        ordinary=[p for p in periods if not p.get('replication_half')]
+        self.assertTrue(any(p['ids']==halves[0]['ids'] for p in ordinary))
+        self.assertTrue(any(p['ids']==halves[1]['ids'] for p in ordinary))
+
+    def test_two_fixed_sparse_halves_can_high_only_after_both_deep_confirm(self):
+        games=[informative(i,rating=2300) for i in range(60)]
+        periods=[self.replication_period(games[:30]),self.replication_period(games[30:])]
+        proofs={id(p):self.replication_proof(p) for p in periods}
+        self.assertTrue(fixed_replication_status(periods)['passed'])
+        with patch('fairplay_sequence.class_periods',return_value=periods), \
+             patch('fairplay_sequence.deep_confirmation',side_effect=lambda p,g,c=CONFIG:proofs[id(p)]):
+            result=integrate_gameplay(result_stub(games),games)
+        self.assertEqual(result.priority,'HIGH')
+        self.assertTrue(result.deep_confirmed)
+        self.assertEqual(result.diagnostics['high_path'],'Replicated fixed-half gameplay (timing not required)')
+        self.assertTrue(result.diagnostics['high_paths']['Replicated fixed-half HIGH']['passed'])
+
+    def test_one_failed_fixed_half_cannot_high(self):
+        games=[informative(i,rating=2300) for i in range(60)]
+        periods=[self.replication_period(games[:30]),self.replication_period(games[30:])]
+        proofs={id(periods[0]):self.replication_proof(periods[0]),
+                id(periods[1]):self.replication_proof(periods[1],stable=False)}
+        with patch('fairplay_sequence.class_periods',return_value=periods), \
+             patch('fairplay_sequence.deep_confirmation',side_effect=lambda p,g,c=CONFIG:proofs[id(p)]):
+            result=integrate_gameplay(result_stub(games),games)
+        self.assertNotIn(result.priority,('HIGH','VERY HIGH'))
+        self.assertFalse(result.diagnostics['high_paths']['Replicated fixed-half HIGH']['passed'])
+        self.assertTrue(any('half 2: deep semantic-quality stability' in x
+                            for x in result.diagnostics['high_paths']['Replicated fixed-half HIGH']['blockers']))
+
+    def test_sliding_windows_never_count_as_fixed_replication(self):
+        games=[informative(i,rating=2300) for i in range(60)]
+        periods=[self.replication_period(games[:30]),self.replication_period(games[30:])]
+        for p in periods:
+            p['replication_half']=False;p['kind']='window'
+        self.assertFalse(fixed_replication_status(periods)['passed'])
+
+    def test_fixed_replication_requires_high_data_confidence(self):
+        games=[informative(i,rating=2300) for i in range(60)]
+        periods=[self.replication_period(games[:30]),self.replication_period(games[30:])]
+        proofs={id(p):self.replication_proof(p) for p in periods}
+        result=result_stub(games);result.confidence='MEDIUM'
+        with patch('fairplay_sequence.class_periods',return_value=periods), \
+             patch('fairplay_sequence.deep_confirmation',side_effect=lambda p,g,c=CONFIG:proofs[id(p)]):
+            result=integrate_gameplay(result,games)
+        self.assertNotIn(result.priority,('HIGH','VERY HIGH'))
+        self.assertIn('HIGH data confidence',result.diagnostics['high_paths']['Replicated fixed-half HIGH']['blockers'])
+
+    def test_adaptive_selection_splits_deep_budget_across_fixed_halves(self):
+        games=[informative(i,rating=2300,deep=False) for i in range(60)]
+        periods=[self.replication_period(games[:30]),self.replication_period(games[30:])]
+        with patch('fairplay_sequence.class_periods',return_value=periods), \
+             patch('fairplay_clusters.select_deep_games',return_value=[]):
+            chosen=adaptive_deep_games(games)
+        left=set(periods[0]['ids']);right=set(periods[1]['ids'])
+        self.assertEqual(len(chosen),CONFIG.deep_max_games)
+        self.assertGreaterEqual(sum(g.identity in left for g in chosen),CONFIG.human_sparse_deep_games)
+        self.assertGreaterEqual(sum(g.identity in right for g in chosen),CONFIG.human_sparse_deep_games)
 
     def test_single_hit_variance_cannot_create_distributed_moderate(self):
         games=[informative(i,rating=2300) for i in range(40)];ids=[g.identity for g in games]
