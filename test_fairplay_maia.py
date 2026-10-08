@@ -86,6 +86,20 @@ class PolicyMath(unittest.TestCase):
         self.assertEqual(confirmed.human_reference,{})
 
 
+    def test_extra_confirmation_needs_adjacent_replicated_evidence(self):
+        def game(index,strong=True,kind='blitz'):
+            return SimpleNamespace(identity=str(index),ended=index,time_class=kind,
+                human_reference={'eligible':3,'low_policy_strong_moves':2 if strong else 0,
+                                 'information':.2 if strong else 0})
+        first,middle,last=game(1),game(2,False),game(3)
+        self.assertEqual(maia.confirmation_pair([first,middle,last]),[])
+        self.assertEqual(maia.confirmation_pair([first,game(2,kind='rapid')]),[])
+        middle.human_reference.update(low_policy_strong_moves=2,information=.2)
+        self.assertEqual(maia.confirmation_pair([first,middle,last]),[middle,last])
+        middle.human_reference['eligible']=2
+        self.assertEqual(maia.confirmation_pair([first,middle,last]),[])
+
+
 
 class CausalSelection(unittest.TestCase):
     def setUp(self):

@@ -108,3 +108,23 @@ One-minute completion is a performance target, not an unconditional guarantee.
 Network latency, game length, CPU allocation and deep-review demand vary.
 A small validation set cannot establish general detection accuracy. Thresholds
 were not adjusted to force named accounts into requested categories.
+
+## Completed runtime comparison
+
+A serial four-core runner replayed eight frozen, previously collected PubAPI
+inputs. All eight completed their planned fast/deep coverage with actual Maia
+inference enabled: 778 full fast games and 92 deep games in total.
+
+- Cold review wall time: **82.0–134.2 seconds**, median **99.6 seconds**.
+- Local model startup/inference/annotation: **4.3–5.4 seconds** per review.
+- Three paired original/current runs on the same runner and exact inputs:
+  **96.3 → 90.1 s**, **124.8 → 114.6 s**, **117.1 → 107.4 s**.
+- Combined paired wall-time reduction: **7.7%**, including the added model.
+- Both fast and final decision metrics and coverage matched exactly in all
+  paired runs. No engine-quality budget was reduced.
+
+These times include PGN collection/parsing from frozen API responses, but
+exclude live Chess.com network latency. They are measured examples, not a
+one-minute SLA. Cases, labels, inputs and outputs remain private; only aggregate
+timings are documented here. The comparison establishes runtime/coverage and
+engine equivalence, **not improved classification accuracy**.
