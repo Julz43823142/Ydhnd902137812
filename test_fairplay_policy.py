@@ -147,6 +147,72 @@ class DistributedEvidence(unittest.TestCase):
                     d.fast_policy=policy_evidence(d,d.human_policy)
             self.assertNotEqual(policy.integrate(result(),games).priority,'HIGH')
 
+class OpportunityWeighting(unittest.TestCase):
+    def test_equal_evidence_distributed_over_short_games_can_qualify(self):
+        for games,count in ((6,4),(8,3),(12,2)):
+            group=[sample(i,count=count) for i in range(games)]
+            with self.subTest(games=games):
+                summary=policy.summarize(group,fast=True)
+                self.assertEqual(summary['contributor_weight'],6)
+                self.assertEqual(summary['effective_positions'],24)
+                self.assertEqual(policy.integrate(result(),group).priority,'HIGH')
+
+    def test_no_credit_created_by_partitioning_or_padding(self):
+        for games,count in ((6,2),(11,2),(23,1)):
+            group=[sample(i,count=count) for i in range(games)]
+            self.assertEqual(policy.integrate(result(),group).priority,'LOW')
+        group=[sample(0,count=100)]+[sample(i,count=1) for i in range(1,12)]
+        self.assertEqual(policy.integrate(result(),group).priority,'LOW')
+
+    def test_sparse_deep_requires_same_total_evidence(self):
+        for reviewed in (4,7,8):
+            group=[sample(i,count=2,deep=i<reviewed) for i in range(12)]
+            self.assertEqual(policy.integrate(result(),group).priority,
+                             'HIGH' if reviewed==8 else 'LOW')
+
+    def test_sparse_misses_cannot_be_filtered_out(self):
+        group=[sample(i,count=2,strong=i%2==0) for i in range(24)]
+        self.assertEqual(policy.integrate(result(),group).priority,'LOW')
+
+    def test_single_decision_noise_gets_only_fractional_weight(self):
+        group=[sample(0,count=4),sample(1,count=1,strong=False)]
+        a,b=[policy.game_summary(g) for g in group]
+        s=policy.summarize(group)
+        self.assertEqual(s['opportunity_weight'],1.25)
+        self.assertAlmostEqual(s['signed_excess'],(a['signed_excess']+.25*b['signed_excess'])/1.25)
+
+    def test_sparse_policy_draws_do_not_manufacture_high(self):
+        # Aggregation null only, not an estimate of real-world specificity.
+        rng=random.Random(18101)
+        for count in (2,3):
+            for trial in range(40):
+                group=[sample(i,count=count) for i in range(24)]
+                for g in group:
+                    for d in g.decisions:
+                        d.move=rng.choices(list(d.human_policy),list(d.human_policy.values()))[0]
+                        scores=dict(zip(d.metrics['candidates'],d.metrics['candidate_cp']))
+                        d.metrics['actual_cp']=scores.get(d.move,0)
+                        d.fast_policy=policy_evidence(d,d.human_policy)
+                self.assertEqual(policy.integrate(result(),group).priority,'LOW')
+
+    def test_deep_coverage_keeps_early_and_late_anchors(self):
+        group=[sample(i,count=4) for i in range(20)]
+        controls=[sample(100),sample(101)]
+        # Force one full-period candidate so its temporal anchors are tested.
+        with patch('fairplay_policy.periods',return_value=[{'ids':tuple(g.identity for g in group),'blockers':[]}]):
+            plan=policy.allocate(group,controls)
+        self.assertIn(group[0],plan)
+        self.assertIn(group[-1],plan)
+        self.assertEqual(len(plan),8)
+
+    def test_deep_allocation_counts_opportunities_and_keeps_controls(self):
+        group=[sample(i,count=2) for i in range(12)]
+        controls=[sample(100),sample(101)]
+        plan=policy.allocate(group,controls)
+        self.assertEqual(plan[:2],controls)
+        self.assertEqual(len(plan),14)
+        self.assertEqual({g.identity for g in plan[2:]},{g.identity for g in group})
+
 class Lifecycle(unittest.TestCase):
     def test_optional_failure_clears_stale_priority_evidence(self):
         games=[sample(0)]

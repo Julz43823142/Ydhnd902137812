@@ -116,6 +116,7 @@ def detail_embed(result, mode):
             proof=comparison.get('deep',{})
             embed.add_field(name='Paired human-reference review',value=
                 f"Deep contributor games: {proof.get('contributors',0)} · comparable decisions: {proof.get('positions',0)}\n"
+                + f"Game-capped evidence: {proof.get('effective_positions',0):g} decisions · contributor equivalents: {proof.get('contributor_weight',0):g}\n"
                 + ('Distributed gameplay route established; manual review required.' if comparison.get('passed') else
                    'Not established: '+ '; '.join(comparison.get('blockers',[])[:3])),inline=False)
             informative=[]

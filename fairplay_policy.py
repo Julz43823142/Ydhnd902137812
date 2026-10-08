@@ -18,7 +18,8 @@ class PolicyConfig:
     known_mass: float = .65
     quality_margin: float = .10  # domain/model uncertainty, not a calibrated CI
     move_excess: float = .20
-    game_decisions: int = 4
+    game_decisions: int = 4  # one full game-equivalent of evidence
+    minimum_game_decisions: int = 2
     game_hits: int = 2
     game_signed_excess: float = .18
     game_information: float = .12
@@ -124,7 +125,7 @@ def game_summary(game,*,fast=False):
     hits=sum(r['observed_quality']>=.85 and r['quality_excess_lower_bound']>=POLICY.move_excess for r in rows)
     signed=statistics.mean(r['signed_quality_excess'] for r in rows) if rows else 0
     info=statistics.mean(r['information'] for r in rows) if rows else 0
-    contributor=(len(rows)>=POLICY.game_decisions and hits>=POLICY.game_hits
+    contributor=(len(rows)>=POLICY.minimum_game_decisions and hits>=POLICY.game_hits
                  and signed>=POLICY.game_signed_excess and info>=POLICY.game_information)
     return {'positions':len(rows),'hits':hits,'signed_excess':signed,
             'information':info,'contributor':contributor,'stable':stable}
@@ -133,25 +134,34 @@ def summarize(games,*,fast=False):
     return combine([(g,game_summary(g,fast=fast)) for g in games])
 
 def combine(rows):
-    games=[g for g,_ in rows]
-    usable=[r for _,r in rows if r['positions']]
-    return {'games':len(games),'opportunity_games':len(usable),
+    # A game contributes at most one equivalent. Sparse games contribute only
+    # their measured fraction; dividing a sample into more games creates no
+    # extra evidence. Signed misses remain in both weighted averages.
+    usable=[(r,min(r['positions'],POLICY.game_decisions)/POLICY.game_decisions)
+            for _,r in rows if r['positions']]
+    weight=sum(w for _,w in usable)
+    return {'games':len(rows),'opportunity_games':len(usable),
         'positions':sum(r['positions'] for _,r in rows),
+        'effective_positions':weight*POLICY.game_decisions,
+        'opportunity_weight':weight,
+        'contributor_weight':sum(w for r,w in usable if r['contributor']),
         'contributors':sum(r['contributor'] for _,r in rows),
         'contributor_ids':[g.identity for g,r in rows if r['contributor']],
-        # Equal game influence: a 100-move game cannot dominate.
-        'signed_excess':statistics.mean(r['signed_excess'] for r in usable) if usable else 0,
-        'information':statistics.mean(r['information'] for r in usable) if usable else 0,
+        'signed_excess':sum(r['signed_excess']*w for r,w in usable)/weight if weight else 0,
+        'information':sum(r['information']*w for r,w in usable)/weight if weight else 0,
         'stable':sum(r['stable'] for _,r in rows)}
+
 
 def blockers(s):
     required=max(POLICY.contributor_games,math.ceil(s['games']*POLICY.contributor_fraction))
     tests={
-        'six replicated contributor games':s['contributors']>=required,
-        'at least 24 comparable decisions':s['positions']>=max(POLICY.decisions,3*s['games']),
+        'six replicated contributor games and 60% of the period':s['contributors']>=required,
+        'six full contributor equivalents':s['contributor_weight']>=POLICY.contributor_games,
+        'at least 24 game-capped comparable decisions':s['effective_positions']>=POLICY.decisions,
         'signed quality excess includes mistakes':s['signed_excess']>=POLICY.game_signed_excess,
         'bounded game-level information':s['information']>=POLICY.game_information}
     return [name for name,passed in tests.items() if not passed]
+
 
 def periods(games):
     """Fixed chronological blocks plus latest window; never ranked game sets."""
@@ -178,9 +188,18 @@ def allocate(games,plan,config=CONFIG):
     if candidate is None:return plan
     selected=list(plan);members=[g for g in games if g.identity in candidate['ids']]
     from fairplay_sequence import coverage_members
-    for game in coverage_members(members,min(POLICY.contributor_games,len(members))):
-        if len(selected)>=config.deep_max_games:break
-        if game not in selected:selected.append(game)
+    # Allocate by opportunity coverage, not successful moves. Six ordinary
+    # games or twelve two-opportunity games request the same evidence budget.
+    exposure=lambda g:min(game_summary(g,fast=True)['positions'],POLICY.game_decisions)/POLICY.game_decisions
+    covered=sum(exposure(g) for g in selected if g in members)
+    mean_exposure=sum(exposure(g) for g in members)/len(members)
+    slots=min(len(members),math.ceil(POLICY.contributor_games/max(mean_exposure,.01)))
+    anchors=coverage_members(members,slots)
+    remaining=[g for g in coverage_members(members,len(members)) if g not in anchors]
+    for game in anchors+remaining:
+        if covered>=POLICY.contributor_games or len(selected)>=config.deep_max_games:break
+        if game not in selected:
+            selected.append(game);covered+=exposure(game)
     return selected
 
 def integrate(result,games,config=CONFIG):
@@ -192,8 +211,8 @@ def integrate(result,games,config=CONFIG):
         deep=combine([(g,deep_rows[id(g)]) for g in members]);paired=combine([(g,fast_rows[id(g)]) for g in members])
         reasons=list(candidate['blockers'])
         tests={
-            'four deep-confirmed contributor games':deep['contributors']>=POLICY.deep_games,
-            'sixteen deep opportunities':deep['positions']>=POLICY.deep_decisions,
+            'four full deep-confirmed contributor equivalents':deep['contributors']>=POLICY.deep_games and deep['contributor_weight']>=POLICY.deep_games,
+            'sixteen game-capped deep opportunities':deep['effective_positions']>=POLICY.deep_decisions,
             'deep information retained':deep['information']>=max(POLICY.game_information,POLICY.retention*paired['information']),
             'deep signed excess retained':deep['signed_excess']>=POLICY.game_signed_excess,
             'stable paired quality and human alternatives':deep['stable']>=POLICY.deep_stability*deep['positions'],
