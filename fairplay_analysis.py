@@ -357,6 +357,7 @@ class EngineScanner:
     def analyse_decision(self, game, decision, nodes):
         check_deadline(self.deadline)
         if not decision.useful:return False
+        depth_search=isinstance(nodes,chess.engine.Limit) and nodes.depth is not None
         if nodes==self.config.deep_nodes and not decision.metrics.get('useful',True) and abs(decision.metrics.get('before_cp',0))>=800:
             return False  # unambiguously decisive fast positions offer negligible evidence
         board = chess.Board(decision.fen)
@@ -365,12 +366,13 @@ class EngineScanner:
         if 'Clear Hash' in self.engine.options:self.engine.configure({'Clear Hash':None})
         richer = (decision.metrics.get('critical') or (decision.metrics.get('gap') is not None
                    and decision.metrics['gap']<25 and decision.metrics.get('cpl',100)<=25))
-        multipv=self.config.deep_multipv if nodes==self.config.deep_nodes else self.config.fast_multipv
+        multipv=self.config.deep_multipv if depth_search or nodes==self.config.deep_nodes else self.config.fast_multipv
+        limit=nodes if depth_search else chess.engine.Limit(nodes=nodes)
         search_started=time.monotonic()
-        lines = self.engine.analyse(board,chess.engine.Limit(nodes=nodes),multipv=multipv)
+        lines = self.engine.analyse(board,limit,multipv=multipv)
         spent=time.monotonic()-search_started
         self.profile['multipv_seconds']+=spent;self.profile['multipv_searches']+=1
-        self.profile['deep_multipv_seconds' if nodes==self.config.deep_nodes else 'fast_multipv_seconds']+=spent
+        self.profile['deep_multipv_seconds' if depth_search or nodes==self.config.deep_nodes else 'fast_multipv_seconds']+=spent
         check_deadline(self.deadline)
         if isinstance(lines,dict):lines = [lines]
         move = chess.Move.from_uci(decision.move)
@@ -380,12 +382,14 @@ class EngineScanner:
             # Restrict the root to the actual move: same POV/budget, avoiding
             # after-move horizon differences being mistaken for CPL.
             search_started=time.monotonic()
-            actual = self.engine.analyse(board,chess.engine.Limit(nodes=nodes),root_moves=[move])
+            actual = self.engine.analyse(board,limit,root_moves=[move])
             spent=time.monotonic()-search_started
             self.profile['root_seconds']+=spent;self.profile['root_searches']+=1
-            self.profile['deep_root_seconds' if nodes==self.config.deep_nodes else 'fast_root_seconds']+=spent
+            self.profile['deep_root_seconds' if depth_search or nodes==self.config.deep_nodes else 'fast_root_seconds']+=spent
         decision.metrics = engine_metrics(decision,lines,actual,game.color,self.config)
-        decision.metrics['nodes']=nodes
+        decision.metrics['nodes']=(max(int(x.get('nodes',0) or 0) for x in lines) if depth_search else nodes)
+        if depth_search:
+            decision.metrics['search_depth']=min(int(x.get('depth',0) or 0) for x in lines)
         if nodes==self.config.fast_nodes:decision.fast_engine=decision.metrics.copy()
         return True
 
@@ -620,7 +624,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
            cancel=None, engine_workers=None, engine_pool=None):
     import copy
     started = time.monotonic()
-    deadline = ScanDeadline(started+config.deadline_seconds,cancel)
+    full_depth_mode=(os.getenv('FAIRPLAY_FULL_DEPTH18')=='1' and config==CONFIG)
+    deadline = ScanDeadline(started+(4*60*60 if full_depth_mode else config.deadline_seconds),cancel)
     target = username(target)
     with _game_cache_lock:
         for key,cached in list(_game_cache.items()):
@@ -668,6 +673,10 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             for item in scanners:item.close()
             scanners.clear()
             raise ReviewError('Stockfish is unavailable. Engine screening could not be performed; no review priority was assigned.') from error
+        if full_depth_mode:
+            # A fixed depth has no guaranteed bound on elapsed search time.
+            for worker in (shared_pool.scanners if use_shared else scanners):
+                worker.engine.timeout=180
         for group in buckets(history).values():
             for index,game in enumerate(group):game.control_index=index
         collected_at=time.monotonic()
@@ -679,7 +688,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         def fast_scan(game,worker=None,*,prepare_only=False):
             worker=worker or scanner
             check_deadline(deadline)
-            key=(game.identity,game.color,engine_name,VERSION,config)
+            key=(game.identity,game.color,engine_name,VERSION,config,full_depth_mode)
             with _game_cache_lock:
                 cached=_game_cache.get(key)
                 if cached and time.monotonic()-cached[0]<_GAME_CACHE_TTL:
@@ -774,7 +783,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         analyzed.sort(key=lambda g:(g.ended,g.identity))
         progress('Building human-move profile…')
         neural_reference=(
-            __import__('fairplay_maia').annotate_history(analyzed)
+            __import__('fairplay_maia').annotate_history(analyzed,full_coverage=full_depth_mode)
             if (primary_complete and time.monotonic()<deadline
                 and not (deadline.cancel is not None and deadline.cancel.is_set()))
             else {'available':False,'positions':0,
@@ -788,7 +797,9 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         progress('Analyzing sessions and repertoire…')
         from fairplay_sequence import class_periods, adaptive_deep_games, confirmation_extension
         gameplay_periods=class_periods(analyzed,config)
-        candidates=allocate_policy(analyzed,adaptive_deep_games(analyzed,config,periods=gameplay_periods),config)
+        candidates=(list(analyzed) if full_depth_mode else
+                    allocate_policy(analyzed,adaptive_deep_games(analyzed,config,periods=gameplay_periods),config))
+        deep_budget=chess.engine.Limit(depth=18) if full_depth_mode else config.deep_nodes
         deep_started=time.monotonic()
         deep_incomplete=False
         index=0
@@ -802,8 +813,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 else:
                     summarize(confirmed,config)
             else:
-                if shared_pool is not None and use_shared:shared_pool.run(confirmed,config.deep_nodes,deadline)
-                else:worker.analyse(confirmed,config.deep_nodes)
+                if shared_pool is not None and use_shared:shared_pool.run(confirmed,deep_budget,deadline)
+                else:worker.analyse(confirmed,deep_budget)
             return confirmed
         while index<len(candidates):
             # Extension candidates are still selected only after the original
@@ -829,7 +840,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                             work.append((confirmed,decision))
                     deep_position_tasks+=len(work)
                     complete_ids,interrupted=run_position_batch(
-                        engine_executor,shared_pool,work,config.deep_nodes,deadline,progress,'Deep confirmation')
+                        engine_executor,shared_pool,work,deep_budget,deadline,progress,
+                        'Full depth-18 engine scan' if full_depth_mode else 'Deep confirmation')
                     if interrupted:
                         deep_incomplete=True
                         complete_pairs=[(game,confirmed) for game,confirmed in zip(batch,confirmed_batch)
@@ -855,7 +867,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                     game.human_reference=confirmed.human_reference
                 index+=len(batch)
                 if deep_incomplete:break
-                if index==len(candidates):
+                if index==len(candidates) and not full_depth_mode:
                     # One bounded extension; completed games are never rerun.
                     extra=confirmation_extension(analyzed,config,periods=gameplay_periods)
                     candidates.extend(g for g in extra if g not in candidates)
@@ -863,14 +875,14 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 deep_incomplete=True;break
         if neural_reference.get('available'):
             neural_reference['deep_counterfactual']=complete_policy(
-                [g for g in analyzed if g.deep],config.deep_nodes,deadline,
+                [g for g in analyzed if g.deep],deep_budget,deadline,
                 executor=engine_executor,pool=shared_pool if use_shared else None,scanner=scanner)
         deep_finished=time.monotonic()
         progress(f'Deep confirmation: {sum(g.deep for g in candidates)} / {len(candidates)}')
         with _game_cache_lock:
             for game in analyzed:
                 if game.fast_metrics:
-                    key=(game.identity,game.color,engine_name,VERSION,config)
+                    key=(game.identity,game.color,engine_name,VERSION,config,full_depth_mode)
                     _game_cache[key]=(time.monotonic(),copy.deepcopy(game.decisions),game.deep,
                                       copy.deepcopy(game.fast_metrics),copy.deepcopy(game.metrics) if game.deep else None)
                     _game_cache.move_to_end(key)
@@ -924,6 +936,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             'human_reference_seconds':neural_reference.get('seconds',0),
             'fast_position_tasks':fast_position_tasks,'deep_position_tasks':deep_position_tasks,
             'engine_workers':requested_workers,'shared_engine_pool':bool(use_shared),
+            'full_depth18_mode':full_depth_mode,
+            'full_depth18_games_completed':sum(g.deep for g in analyzed) if full_depth_mode else None,
             'effective_cpu_capacity':available_engine_cpus(),
             'effective_memory_limit_mb':available_engine_memory_mb(),
             'engine_pool_max':_ENGINE_POOL_MAX,
