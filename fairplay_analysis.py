@@ -445,7 +445,7 @@ def shared_engine_pool_size(config=CONFIG):
         memory_cap=12
     else:
         per_engine=max(96,config.hash_mb+32)
-        memory_cap=max(1,int(max(0,memory-320)//per_engine))
+        memory_cap=max(1,int(max(0,memory-256)//per_engine))
     return max(1,min(12,cpus,memory_cap))
 
 
