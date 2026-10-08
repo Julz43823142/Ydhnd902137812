@@ -249,7 +249,10 @@ STOCKFISH_THREADS = _positive_int_env("STOCKFISH_THREADS", 1, 1, 4)
 STOCKFISH_HASH_MB = _positive_int_env("STOCKFISH_HASH_MB", 64, 16, 512)
 STOCKFISH_MOVE_TIME = _positive_float_env("STOCKFISH_MOVE_TIME", 1.0, 0.1, 10.0)
 STOCKFISH_ANALYSIS_TIME = _positive_float_env("STOCKFISH_ANALYSIS_TIME", 0.15, 0.05, 2.0)
-STOCKFISH_ANALYSIS_MAX_PLIES = _positive_int_env("STOCKFISH_ANALYSIS_MAX_PLIES", 200, 20, 400)
+# Normal bot/PvP/manual Game Review uses a real fixed UCI depth, independently
+# of the Fair Play detector's search budgets.
+STOCKFISH_GAME_REVIEW_DEPTH = 18
+STOCKFISH_ANALYSIS_MAX_PLIES = _positive_int_env("STOCKFISH_ANALYSIS_MAX_PLIES", 600, 20, 600)
 
 
 def _stockfish_candidates():
@@ -940,7 +943,11 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
         if bool(getattr(board, "chess960", False)) and "UCI_Chess960" not in engine.options:
             raise StockfishUnavailableError("This Stockfish build does not expose UCI_Chess960.")
         engine.configure(_full_strength_config(engine))
-        analysis_limit = chess.engine.Limit(time=STOCKFISH_ANALYSIS_TIME)
+        # A depth-only search has no natural time bound: extend the python-chess
+        # transport timeout so tactical positions do not fail at its 15s default.
+        if hasattr(engine, 'timeout'):
+            engine.timeout = max(float(engine.timeout), 180.0)
+        analysis_limit = chess.engine.Limit(depth=STOCKFISH_GAME_REVIEW_DEPTH)
         before_lines = _as_lines(engine.analyse(board, analysis_limit, multipv=2))
         if not before_lines:
             raise RuntimeError("Stockfish returned no analysis for the starting position.")
@@ -1089,7 +1096,8 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
         "moves": moments,
         "turning_points": important[:3],
         "truncated": bool(truncated),
-        "analysis_time_per_position": STOCKFISH_ANALYSIS_TIME,
+        "analysis_depth": STOCKFISH_GAME_REVIEW_DEPTH,
+        "analysis_time_per_position": None,
         "accuracy_model": "stockfish-winprob-v4-same-root-game-curve",
         "classification_model": "expected-points-v3-book-great-miss",
         "brilliant_model": "local-net-sacrifice-v2",
