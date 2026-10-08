@@ -79,38 +79,56 @@ def search_alternatives(scanner,d,nodes):
     return ({'depth':nodes.depth,'scores':values,'search_contract':contract} if depth_search else
             {'nodes':nodes,'scores':values,'search_contract':contract})
 
-def complete(games,nodes,deadline,*,executor=None,pool=None,scanner=None,fast=False):
+def complete(games,nodes,deadline,*,executor=None,pool=None,scanner=None,fast=False,
+             checkpoint=None,target=None):
     """Reuse the bounded pool. Drain all tasks; incomplete optional data cannot score."""
     from fairplay_maia import refresh_game,policy_evidence
-    work=[d for g in games for d in g.decisions if d.human_policy]
+    work=[(g,d) for g in games for d in g.decisions if d.human_policy]
     started=time.monotonic();completed=0;interrupted=False
-    for d in work:d.metrics.pop('policy_search',None)
+    pending=[]
+    for game,d in work:
+        d.metrics.pop('policy_search',None)
+        saved=(checkpoint.restore_counterfactual(target,game,d,
+               'policy-fast' if fast else 'policy-deep',nodes)
+               if checkpoint is not None else None)
+        if saved is None:pending.append((game,d))
+        else:
+            d.metrics['policy_search']=saved
+            completed+=1
     try:
         if executor is not None and pool is not None:
             futures={}
             try:
-                for d in work:
+                for game,d in pending:
                     futures[executor.submit(pool._run_with_scanner,deadline,
-                        lambda worker,d=d:search_alternatives(worker,d,nodes))]=d
+                        lambda worker,d=d:search_alternatives(worker,d,nodes))]=(game,d)
             except Exception:
                 interrupted=True
                 for pending in futures:pending.cancel()
             for future in as_completed(futures):
                 try:
-                    futures[future].metrics['policy_search']=future.result();completed+=1
+                    game,d=futures[future]
+                    result=future.result()
+                    d.metrics['policy_search']=result;completed+=1
+                    if checkpoint is not None:
+                        checkpoint.record_counterfactual(target,game,d,
+                            'policy-fast' if fast else 'policy-deep',result)
                 except Exception:
                     if not interrupted:
                         interrupted=True
                         for pending in futures:pending.cancel()
         else:
-            for d in work:
+            for game,d in pending:
                 check_deadline(deadline)
                 result=(pool._run_with_scanner(deadline,lambda worker:search_alternatives(worker,d,nodes))
                         if pool is not None else search_alternatives(scanner,d,nodes))
                 d.metrics['policy_search']=result;completed+=1
+                if checkpoint is not None:
+                    checkpoint.record_counterfactual(target,game,d,
+                        'policy-fast' if fast else 'policy-deep',result)
     except Exception:interrupted=True
     if interrupted:
-        for d in work:
+        for _,d in work:
             d.metrics.pop('policy_search',None);d.fast_policy={}
     for game in games:
         refresh_game(game)

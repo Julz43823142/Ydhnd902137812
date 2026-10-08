@@ -238,11 +238,11 @@ def warm_worker():
     checkpoint=os.environ.get('FAIRPLAY_MAIA_CHECKPOINT')
     if not checkpoint or not Path(checkpoint).is_file():return False
     with _lock:
-        if _worker is None:_worker=LocalPolicyWorker(checkpoint)
+        if _worker is None:_worker=LocalPolicyWorker(model_path)
     return True
 
 
-def annotate_history(games,predictor=None,*,full_coverage=False):
+def annotate_history(games,predictor=None,*,full_coverage=False,checkpoint=None,target=None):
     global _worker
     start=time.monotonic()
     for game in games:
@@ -250,17 +250,22 @@ def annotate_history(games,predictor=None,*,full_coverage=False):
         for decision in game.decisions:
             decision.human_policy={};decision.fast_policy={}
             decision.metrics.pop('policy_search',None)
-    checkpoint=os.environ.get('FAIRPLAY_MAIA_CHECKPOINT')
-    if predictor is None and (not checkpoint or not Path(checkpoint).is_file()):
+    model_path=os.environ.get('FAIRPLAY_MAIA_CHECKPOINT')
+    if predictor is None and (not model_path or not Path(model_path).is_file()):
         return {'available':False,'positions':0,'reason':'Local Maia checkpoint is not installed; Stockfish and the explicit heuristic remain active.'}
     chosen=selection(games,full_coverage=full_coverage)
     if not chosen:return {'available':False,'positions':0,'reason':'No positions with verified causal history and both ratings.'}
     try:
         with _lock:
             if predictor is None:
-                if _worker is None:_worker=LocalPolicyWorker(checkpoint)
+                if _worker is None:_worker=LocalPolicyWorker(model_path)
                 predictor=_worker.predict
             keys=[hashlib.sha256((MODEL_SHA256+json.dumps(item,sort_keys=True)).encode()).hexdigest() for _,_,item in chosen]
+            if checkpoint is not None:
+                for (game,decision,_),key in zip(chosen,keys):
+                    saved=checkpoint.policy(target,game,decision)
+                    if saved is not None and valid_policy(decision,saved):
+                        _cache[key]=saved
             missing=[i for i,key in enumerate(keys) if key not in _cache]
             if missing:
                 # Bound each CPU-inference request and IPC payload. A full
@@ -273,8 +278,13 @@ def annotate_history(games,predictor=None,*,full_coverage=False):
                         if not valid_policy(chosen[i][1],policy):
                             raise ValueError('Invalid local policy distribution')
                         _cache[keys[i]]=policy
+                    if checkpoint is not None:
+                        for i in group:chosen[i][1].human_policy=dict(_cache[keys[i]])
+                        checkpoint.record_policies(target,[(chosen[i][0],chosen[i][1]) for i in group])
             for (game,decision,_),key in zip(chosen,keys):
                 decision.human_policy=dict(_cache[key]);_cache.move_to_end(key)
+            if checkpoint is not None:
+                checkpoint.record_policies(target,[(game,decision) for game,decision,_ in chosen])
             while len(_cache)>2400:_cache.popitem(last=False)
         for game in games:refresh_game(game)
         return {'available':True,'model':MODEL_NAME,'positions':len(chosen),

@@ -46,7 +46,10 @@ permissions:
 
 concurrency:
   group: daily-puzzle
-  cancel-in-progress: true
+  # Do not kill an active depth-18 scan when cron or a deployment arrives.
+  # The current runner rotates itself after persisting work; the replacement
+  # run stays pending until then.
+  cancel-in-progress: false
 
 jobs:
   run:

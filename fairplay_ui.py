@@ -1,4 +1,4 @@
-"""Discord is the case history. Runtime review data stays in bounded memory.
+"""Discord is the case history. Runtime review data uses encrypted checkpoints.
 
 A bounded single-review executor/queue keeps engine work off Discord's loop and
 gives the active review exclusive access to the shared Stockfish pool. No Discord
@@ -21,6 +21,7 @@ from fairplay_analysis import (ReviewResult, review, review_interest,
 from fairplay_config import CHANNEL_ID, DISCLAIMER, NAMESPACE, CONFIG
 from fairplay_data import AccountNotFound, ReviewError, username
 from fairplay_progress import estimate, bar, label
+from fairplay_checkpoint import CheckpointStore
 
 RESERVED = '🛡️ This channel is reserved for Fair Play reviews.'
 PANEL_TITLE = '🛡️ Fair Play Task Force'
@@ -606,8 +607,9 @@ class Job:
 
 
 class FairPlayService:
-    def __init__(self,client,channel,analyzer=review):
+    def __init__(self,client,channel,analyzer=review,checkpoints=None):
         self.client,self.channel,self.analyzer = client,channel,analyzer
+        self.checkpoints = checkpoints
         self.executor = ThreadPoolExecutor(max_workers=MAX_CONCURRENT_SCANS,thread_name_prefix='fairplay')
         self.queue = asyncio.Queue(maxsize=MAX_JOBS)
         self.jobs = {}
@@ -658,11 +660,15 @@ class FairPlayService:
         job = Job(target,ctx)
         self.jobs[target] = job
         self.queue.put_nowait(job)
+        saved = (await asyncio.to_thread(self.checkpoints.note,target,token=job.token)
+                 if getattr(self,'checkpoints',None) is not None else False)
         import feature_usage
         feature_usage.note('use:fairplay-scan',ctx.user.id)
         await ctx.followup.send(
             f'Review accepted. Up to {MAX_CONCURRENT_SCANS} heavy scans run in parallel; additional reviews wait in queue. '
-            'Public progress appears after the account is validated.',
+            'Public progress appears after the account is validated.'
+            + ('' if saved or self.checkpoints is None else
+               ' Durable checkpoint storage is unavailable; recovery after a worker crash is not guaranteed.'),
             ephemeral=True)
 
     async def safe_progress(self,job,stage,*,view=None,embed=None):
@@ -682,6 +688,12 @@ class FairPlayService:
                                                       allowed_mentions=discord.AllowedMentions.none())
                 job.delivery_unknown = False
             else:await job.message.edit(embed=card,view=view)
+            if getattr(self,'checkpoints',None) is not None:
+                # Persist Discord message identity, so startup resumes by
+                # editing the existing card rather than posting a fresh panel.
+                await asyncio.to_thread(
+                    self.checkpoints.note,job.target,message_id=job.message.id,
+                    token=job.token,stage=stage,force=False)
             return True
         except discord.NotFound:job.message_deleted = True
         except discord.HTTPException:pass  # retry later; never create a second progress card
@@ -694,7 +706,12 @@ class FairPlayService:
         future = None
         last = None
         try:
-            future = loop.run_in_executor(self.executor,lambda:self.analyzer(job.target,progress,cancel=job.stop))
+            def run_review():
+                kwargs={'cancel':job.stop}
+                if self.analyzer is review and self.checkpoints is not None:
+                    kwargs['checkpoint']=self.checkpoints
+                return self.analyzer(job.target,progress,**kwargs)
+            future = loop.run_in_executor(self.executor,run_review)
             while not future.done():
                 if job.stage!='Fetching profile…' and job.stage!=last:
                     if await self.safe_progress(job,job.stage):last = job.stage
@@ -707,13 +724,23 @@ class FairPlayService:
                 self.results[job.message.id] = (time.time(),result)
                 self.cache[job.target] = (time.time(),result,job.message)
                 self.expire_cache()
+                if getattr(self,'checkpoints',None) is not None:
+                    await asyncio.to_thread(self.checkpoints.finish,job.target)
         except AccountNotFound:
-            try:await job.ctx.followup.send('❌ **Chess.com account not found**\nCheck the username and try again.',ephemeral=True)
+            if getattr(self,'checkpoints',None) is not None:
+                await asyncio.to_thread(self.checkpoints.suspend,job.target)
+            try:
+                if job.ctx is not None:
+                    await job.ctx.followup.send('❌ **Chess.com account not found**\nCheck the username and try again.',ephemeral=True)
             except discord.HTTPException:pass
         except ReviewError as error:
+            if getattr(self,'checkpoints',None) is not None:
+                await asyncio.to_thread(self.checkpoints.suspend,job.target)
             if job.message is not None:await self.safe_progress(job,'❌ '+str(error))
             else:
-                try:await job.ctx.followup.send('❌ '+str(error),ephemeral=True)
+                try:
+                    if job.ctx is not None:
+                        await job.ctx.followup.send('❌ '+str(error),ephemeral=True)
                 except discord.HTTPException:pass
         except asyncio.CancelledError:
             job.stop.set()
@@ -724,10 +751,14 @@ class FairPlayService:
             except Exception:pass
             raise
         except Exception:
+            if getattr(self,'checkpoints',None) is not None:
+                await asyncio.to_thread(self.checkpoints.suspend,job.target)
             # Deliberately do not log exception values/targets/reports.
             if job.message is not None:await self.safe_progress(job,'❌ Analysis could not finish safely. Please try again later.')
             else:
-                try:await job.ctx.followup.send('Analysis could not finish safely. Please try again later.',ephemeral=True)
+                try:
+                    if job.ctx is not None:
+                        await job.ctx.followup.send('Analysis could not finish safely. Please try again later.',ephemeral=True)
                 except discord.HTTPException:pass
 
     async def run_queue(self):
@@ -807,6 +838,8 @@ class FairPlayService:
             if not task.done():task.cancel()
         if tasks:await asyncio.gather(*tasks,return_exceptions=True)
         self.executor.shutdown(wait=False,cancel_futures=True)
+        if getattr(self,'checkpoints',None) is not None:
+            await asyncio.to_thread(self.checkpoints.flush)
         await asyncio.to_thread(close_shared_engine_pool)
 
 
@@ -839,7 +872,23 @@ async def startup(client):
     try:channel = client.get_channel(CHANNEL_ID) or await client.fetch_channel(CHANNEL_ID)
     except discord.HTTPException:
         print('Fair Play channel unavailable; normal SharkBot startup continues.',flush=True);return
-    _service = FairPlayService(client,channel)
+    checkpoints = await asyncio.to_thread(CheckpointStore)
+    _service = FairPlayService(client,channel,checkpoints=checkpoints)
+    if checkpoints.enabled:
+        for item in checkpoints.pending()[:MAX_JOBS]:
+            target = item['target']
+            try:target=username(target)
+            except ReviewError:continue
+            if target in _service.jobs:continue
+            job = Job(target,None,stage='Resuming interrupted scan…',
+                      token=item.get('token') or uuid.uuid4().hex[:12])
+            if item.get('message_id'):
+                job.message = channel.get_partial_message(int(item['message_id']))
+            _service.jobs[target]=job
+            _service.queue.put_nowait(job)
+        # No account names or case details in the deployment logs.
+        if _service.jobs:
+            print(f'Fair Play: restoring {len(_service.jobs)} encrypted scan checkpoint(s).',flush=True)
     async def warm_engine_pool():
         try:
             pool=await asyncio.to_thread(get_shared_engine_pool)
