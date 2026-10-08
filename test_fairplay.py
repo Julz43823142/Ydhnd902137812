@@ -347,10 +347,13 @@ class Pipeline(unittest.TestCase):
 
     def test_successful_game_cache_is_versioned_and_runtime_only(self):
         first = FakeEngine()
-        analysis.review(TARGET,lambda _:None,api_factory=lambda _:self.fake_api(),engine_factory=lambda:first)
+        first_result=analysis.review(TARGET,lambda _:None,api_factory=lambda _:self.fake_api(),engine_factory=lambda:first)
         second = FakeEngine()
-        analysis.review(TARGET,lambda _:None,api_factory=lambda _:self.fake_api(),engine_factory=lambda:second)
+        second_result=analysis.review(TARGET,lambda _:None,api_factory=lambda _:self.fake_api(),engine_factory=lambda:second)
         self.assertEqual(second.calls,[])
+        self.assertEqual(second_result.priority,first_result.priority)
+        self.assertEqual(second_result.totals,first_result.totals)
+        self.assertEqual(second_result.deep_coverage,first_result.deep_coverage)
         changed = FakeEngine()
         analysis.review(TARGET,lambda _:None,replace(CONFIG,fast_nodes=CONFIG.fast_nodes+1),api_factory=lambda _:self.fake_api(),engine_factory=lambda:changed)
         self.assertTrue(changed.calls)
