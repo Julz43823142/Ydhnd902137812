@@ -2,6 +2,10 @@
 
 Runs only in CI with the pinned engine and a synthetic game: no account data.
 """
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from fairplay_analysis import SharedEnginePool, _game_cache, review
 from scripts.smoke_stockfish_reviews import FixtureAPI, TARGET
 
