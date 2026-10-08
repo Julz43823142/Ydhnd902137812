@@ -939,7 +939,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         # Astra evidence accounting is strictly observational. Production
         # eligibility, confidence and classifications were already frozen.
         from fairplay_evidence_audit import audit_engine_sample
-        result.diagnostics['evidence_audit']=audit_engine_sample(analyzed,config)
+        result.diagnostics['evidence_audit']=audit_engine_sample(
+            analyzed,config,period_ids=(result.diagnostics.get('gameplay',{}).get('best') or {}).get('ids',()))
         result.coverage.update(primary_collected=len(primary),primary_fast_scanned=min(len(analyzed),len(primary)) if not primary_complete else len(primary),
                                history_probed=len(probes),history_fast_scanned=sum(g not in primary for g in analyzed),
                                history_probe_complete=probe_complete,deep_incomplete=deep_incomplete,
