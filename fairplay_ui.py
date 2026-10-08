@@ -30,6 +30,12 @@ PANEL_MARKER = 'shark:fairplay:panel:v1'
 MAX_CONCURRENT_SCANS = 1
 MAX_WAITING_SCANS = 5
 MAX_JOBS = MAX_CONCURRENT_SCANS + MAX_WAITING_SCANS
+# The Actions runner stops at 350 min; one full-depth scan may need 240 min.
+# Leave 20 min for setup, cleanup and state handoff. Protect users from
+# launching a review that cannot finish before the runner expires.
+_ACTION_RUN_MAX_SECONDS = 350 * 60
+_MAX_FULL_REVIEW_SECONDS = 4 * 60 * 60
+_ACTION_HANDOFF_MARGIN_SECONDS = 20 * 60
 _service = None
 
 
@@ -622,6 +628,14 @@ class FairPlayService:
         self.idle_task = None
         self.pool_warm_task = None
         self.closed = False
+        self.draining = False
+        self.started_monotonic = time.monotonic()
+
+    def _safe_to_accept_full_review(self):
+        if os.getenv('GITHUB_ACTIONS') != 'true' or os.getenv('FAIRPLAY_FULL_DEPTH18') != '1':
+            return True
+        remaining = _ACTION_RUN_MAX_SECONDS - (time.monotonic() - self.started_monotonic)
+        return remaining >= _MAX_FULL_REVIEW_SECONDS + _ACTION_HANDOFF_MARGIN_SECONDS
 
     def note_human(self):self.last_human = time.time()
 
@@ -641,8 +655,8 @@ class FairPlayService:
 
     async def enqueue(self,ctx,target):
         self.expire_cache()
-        if self.closed:
-            await ctx.followup.send('Fair Play is restarting. Please try again shortly.',ephemeral=True);return
+        if self.closed or self.draining:
+            await ctx.followup.send('Fair Play is changing workers. Please submit after the new bot is online.',ephemeral=True);return
         if target in self.jobs:
             job = self.jobs[target]
             text = 'This account already has a queued or running review. The existing scan is reused.'
@@ -651,6 +665,20 @@ class FairPlayService:
         if target in self.cache:
             _,result,message = self.cache[target]
             await ctx.followup.send(f'A recent review is cached. [View review]({message.jump_url}). Re-scan becomes available after 30 minutes.',ephemeral=True);return
+        if not self._safe_to_accept_full_review():
+            await ctx.followup.send(
+                'A full-depth review could exceed the remaining GitHub runner lifetime. '
+                'Wait for the next bot rotation and submit then; no incomplete scan was started.',
+                ephemeral=True);return
+        # An hours-long queued scan cannot be guaranteed a full 4h budget if
+        # another one is already running. Never silently discard such requests
+        # during an Actions rotation.
+        if (os.getenv('GITHUB_ACTIONS') == 'true'
+                and os.getenv('FAIRPLAY_FULL_DEPTH18') == '1' and self.jobs):
+            await ctx.followup.send(
+                'A full-depth review is already running. Submit this account after it finishes; '
+                'a queued 4-hour scan might otherwise be interrupted by worker rotation.',
+                ephemeral=True);return
         if len(self.jobs)>=MAX_JOBS:
             await ctx.followup.send(
                 f'The Fair Play queue is full ({MAX_CONCURRENT_SCANS} active + {MAX_WAITING_SCANS} waiting). Please try again later.',
