@@ -58,3 +58,5 @@ jobs:
         run: python scripts/smoke_stockfish_reviews.py
       - name: Verify real Stockfish position-queue evidence matches sequential search
         run: python scripts/smoke_fairplay_equivalence.py
+      - name: Compare compact and standard fixed-node transports
+        run: python scripts/benchmark_fairplay_transport.py

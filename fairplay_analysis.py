@@ -318,12 +318,12 @@ class BoundedNodeEngine(chess.engine.SimpleEngine):
 
 
 class EngineScanner:
-    """One independent low-priority Stockfish process per scan; no shared lock."""
+    """One independent fixed-node Stockfish process per pool worker."""
     def __init__(self, deadline, config=CONFIG, factory=None):
         self.deadline, self.config = deadline, config
         self.profile = {'multipv_seconds':0.0, 'root_seconds':0.0, 'multipv_searches':0, 'root_searches':0,
                         'fast_multipv_seconds':0.0, 'fast_root_seconds':0.0, 'deep_multipv_seconds':0.0, 'deep_root_seconds':0.0}
-        self.engine = (factory or (lambda:chess_play._create_stockfish_engine(allow_install=False,engine_class=BoundedNodeEngine)))()
+        self.engine = (factory or (lambda:chess_play._create_stockfish_engine(allow_install=False,engine_class=(__import__('fairplay_engine').CompactNodeEngine if os.name=='posix' else BoundedNodeEngine))))()
         self.engine.timeout = config.engine_timeout
         try:
             options = self.engine.options
@@ -336,11 +336,10 @@ class EngineScanner:
         except Exception:
             self.close()
             raise
-        # Fixed-node searches are deterministic at Threads=1. Do not lower
-        # Stockfish CPU priority: Discord work is mostly I/O and the engine is
-        # the dominant scan-latency component.
+        # Fixed nodes and one search thread preserve reproducibility. Yield
+        # CPU scheduling priority to interactive bot work under contention.
         try:
-            os.setpriority(os.PRIO_PROCESS,self.engine.transport.get_pid(),0)
+            os.setpriority(os.PRIO_PROCESS,self.engine.transport.get_pid(),5)
         except (AttributeError, OSError):pass
 
     def close(self):
@@ -453,8 +452,8 @@ def shared_engine_pool_size(config=CONFIG):
     if memory is None:
         memory_cap=_ENGINE_POOL_MAX
     else:
-        per_engine=max(96,config.hash_mb+32)
-        memory_cap=max(1,int(max(0,memory-256)//per_engine))
+        per_engine=max(256,config.hash_mb+192)
+        memory_cap=max(1,int(max(0,memory-768)//per_engine))
     # Sixteen is useful for the 100-game fast pass while remaining bounded;
     # the deep pass itself tops out below this. CPU affinity/quota and RAM can
     # only reduce this value, never inflate it.
@@ -483,6 +482,7 @@ class SharedEnginePool:
         self.available=queue.LifoQueue()
         self.scanners=[]
         self.closed=False
+        self.failed=threading.Event()
         try:
             for _ in range(self.size):
                 scanner=EngineScanner(None,config,factory)
@@ -497,8 +497,16 @@ class SharedEnginePool:
         self.supports_decision_tasks=all(callable(getattr(scanner,'analyse_decision',None)) for scanner in self.scanners)
 
     def _run_with_scanner(self,deadline,action):
-        if self.closed:raise ReviewError('Stockfish pool is unavailable.')
-        scanner=self.available.get()
+        # Never wait indefinitely after an engine dies and its replacement
+        # fails. Every borrower observes the scan deadline/cancellation too.
+        while True:
+            if self.closed or self.failed.is_set():
+                raise ReviewError('Stockfish pool is unavailable; please retry the review.')
+            check_deadline(deadline)
+            try:
+                scanner=self.available.get(timeout=.1)
+                break
+            except queue.Empty:continue
         reusable=True
         try:
             scanner.deadline=deadline
@@ -509,10 +517,14 @@ class SharedEnginePool:
             except Exception:pass
             try:
                 replacement=EngineScanner(None,self.config,self.factory)
+                if replacement.name!=self.name:
+                    replacement.close()
+                    raise ReviewError('Stockfish worker version changed.')
                 self.scanners[self.scanners.index(scanner)]=replacement
-                self.available.put(replacement)
+                if self.closed:replacement.close()
+                else:self.available.put(replacement)
             except Exception:
-                pass
+                self.failed.set()
             raise
         finally:
             scanner.deadline=None
@@ -543,7 +555,9 @@ _shared_engine_pool_lock=threading.Lock()
 def get_shared_engine_pool(config=CONFIG):
     global _shared_engine_pool
     with _shared_engine_pool_lock:
-        if _shared_engine_pool is None or _shared_engine_pool.closed:
+        if (_shared_engine_pool is None or _shared_engine_pool.closed
+                or _shared_engine_pool.failed.is_set()):
+            if _shared_engine_pool is not None:_shared_engine_pool.close()
             _shared_engine_pool=SharedEnginePool(config)
         return _shared_engine_pool
 
