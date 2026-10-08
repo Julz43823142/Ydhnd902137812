@@ -56,3 +56,5 @@ jobs:
         run: python scripts/prepare_stockfish.py --github-env
       - name: Run synthetic two-pass Fair Play and normal Game Review smoke tests
         run: python scripts/smoke_stockfish_reviews.py
+      - name: Verify real Stockfish position-queue evidence matches sequential search
+        run: python scripts/smoke_fairplay_equivalence.py
