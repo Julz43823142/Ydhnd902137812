@@ -2866,12 +2866,11 @@
       "last_move": "d4",
       "started_at": 1791485500.919501,
       "draw_offer": null,
-      "message_id": null,
+      "message_id": 1557827852681089119,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
       "theme_owner_id": "442597396195704832",
       "theme_owner_name": "Thice",
-      "start_note": "♜ **Rated game started!** Your Chess Elo: **1591** • Stockfish 19: **1530 Elo**\n🏆 **Win:** +13 Elo → **1604**\n🤝 **Draw:** -3 Elo → **1588**\n❌ **Loss:** -19 Elo → **1572**\nPlay moves like `e4` or `Nf3`. Use `!resign` to resign.",
       "last_move_at": 1791485502.771607
     }
   },
