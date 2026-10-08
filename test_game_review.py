@@ -1,11 +1,13 @@
 """Deterministic fake-engine quality checks and concurrent Discord navigation."""
 import asyncio
+from io import StringIO
 from types import SimpleNamespace
 import unittest
 from unittest.mock import AsyncMock,Mock,patch
 
 import chess
 import chess.engine
+import chess.pgn
 import bot
 import chess_play
 
@@ -13,9 +15,10 @@ import chess_play
 class ReviewEngine:
     def __init__(self,moves,actual_is_best=True):
         self.moves=moves;self.actual_is_best=actual_is_best
-        self.id={'name':'Stockfish 19 synthetic'};self.options={};self.configure=Mock();self.root_queries=[]
+        self.id={'name':'Stockfish 19 synthetic'};self.options={};self.configure=Mock();self.root_queries=[];self.limits=[]
 
     def analyse(self,board,limit,multipv=None,root_moves=None):
+        self.limits.append(limit)
         index=len(board.move_stack)
         legal=list(board.legal_moves)
         played=board.parse_san(self.moves[index]) if index<len(self.moves) else legal[0]
@@ -37,6 +40,13 @@ class GameReviewMath(unittest.TestCase):
         with patch.object(chess_play,'_get_analysis_engine',return_value=engine):
             result=chess_play.analyse_game_moves(moves,**kwargs)
         return result,engine
+
+    def test_every_engine_search_uses_real_depth_18(self):
+        result,engine=self.analyse(['e4','e5','Nf3','Nc6'],actual_is_best=False)
+        self.assertEqual(result['analysis_depth'],18)
+        self.assertTrue(engine.limits)
+        self.assertTrue(all(limit.depth==18 and limit.time is None and limit.nodes is None
+                            for limit in engine.limits))
 
     def test_best_moves_have_zero_loss_despite_search_drift(self):
         result,engine=self.analyse(['e4','e5','Nf3'])
@@ -82,6 +92,76 @@ class GameReviewMath(unittest.TestCase):
         with patch.object(chess_play,'_get_analysis_engine',return_value=engine):
             with self.assertRaisesRegex(RuntimeError,'incomplete evaluation'):
                 chess_play.analyse_game_moves(['e4'])
+
+
+class CleanGamePgn(unittest.TestCase):
+    @staticmethod
+    def game(moves=None):
+        return {
+            'game_id':'synthetic-123', 'variant':bot.CHESS_VARIANT_STANDARD,
+            'white_name':'White', 'black_name':'Black', 'result':'1-0',
+            'moves':moves or ['e4','e5','Nf3','Nc6','Bb5','a6'],
+        }
+
+    def test_short_pgn_contains_only_moves_and_result_and_roundtrips(self):
+        game=self.game()
+        annotations={'moves':[{'classification':'blunder','comment':'Do not export this'}]}
+        raw=bot._build_chess_pgn_text(game,analysis=annotations)
+        self.assertNotIn('Do not export',raw)
+        self.assertNotIn('{',raw)
+        self.assertNotIn('[Event',raw)
+        self.assertNotIn('[Annotator',raw)
+        self.assertEqual(len(raw.strip().splitlines()),1)
+        parsed=chess.pgn.read_game(StringIO(raw))
+        self.assertIsNotNone(parsed)
+        self.assertEqual(parsed.headers['Result'],'1-0')
+        board=parsed.board()
+        actual=[]
+        for move in parsed.mainline_moves():
+            actual.append(board.san(move))
+            board.push(move)
+        self.assertEqual(actual,game['moves'])
+
+    def test_nonstandard_start_keeps_required_fen(self):
+        start='4k3/4p3/8/8/8/8/4P3/4K3 b - - 0 37'
+        game=self.game(['Kd7','Kf2'])
+        game['initial_fen']=start
+        raw=bot._build_chess_pgn_text(game)
+        self.assertIn('[FEN "',raw)
+        self.assertNotIn('{',raw)
+        parsed=chess.pgn.read_game(StringIO(raw))
+        self.assertEqual(parsed.board().fen(),chess.Board(start).fen())
+        self.assertEqual(len(list(parsed.mainline_moves())),2)
+
+    def test_full_pgn_not_truncated_when_review_is_limited(self):
+        moves=['Nf3','Nf6','Ng1','Ng8']*110
+        raw=bot._build_chess_pgn_text(self.game(moves))
+        self.assertIn('220.',raw)
+        self.assertNotIn('{',raw)
+        self.assertGreater(len(raw),1950)
+
+
+class PgnDelivery(unittest.IsolatedAsyncioTestCase):
+    async def test_short_game_sends_one_copyable_message_and_one_file(self):
+        channel=SimpleNamespace(send=AsyncMock())
+        game=CleanGamePgn.game()
+        await bot._send_pgn_thread(channel,game,result_message=SimpleNamespace())
+        channel.send.assert_awaited_once()
+        args,kwargs=channel.send.await_args
+        self.assertIn('```pgn',args[0])
+        self.assertIn('1. e4 e5',args[0])
+        self.assertIn('file',kwargs)
+        self.assertTrue(kwargs['file'].filename.endswith('.pgn'))
+
+    async def test_long_game_sends_only_one_attachment_message(self):
+        channel=SimpleNamespace(send=AsyncMock())
+        game=CleanGamePgn.game(['Nf3','Nf6','Ng1','Ng8']*110)
+        await bot._send_pgn_thread(channel,game)
+        channel.send.assert_awaited_once()
+        args,kwargs=channel.send.await_args
+        self.assertNotIn('```pgn',args[0])
+        self.assertIn('.pgn',args[0])
+        self.assertIn('file',kwargs)
 
 
 class ReviewNavigation(unittest.IsolatedAsyncioTestCase):
