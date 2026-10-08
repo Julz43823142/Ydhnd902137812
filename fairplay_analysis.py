@@ -893,6 +893,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                     and not neural_reference['deep_counterfactual']['complete']):
                 raise ReviewError('The complete depth-18 Maia comparison did not finish; no review was issued.')
         deep_finished=time.monotonic()
+        if full_depth_mode and (deep_incomplete or not primary_complete or any(not g.deep for g in analyzed)):
+            raise ReviewError('All 100 available primary games must complete depth 18 before a priority can be issued.')
         progress(f'Deep confirmation: {sum(g.deep for g in candidates)} / {len(candidates)}')
         with _game_cache_lock:
             for game in analyzed:
