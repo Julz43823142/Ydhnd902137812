@@ -72,3 +72,16 @@ Official implementation: https://github.com/CSSLab/maia3
 Pinned model: https://huggingface.co/UofTCSSLab/Maia3-5M
 Model probabilities predict moves, not cheating; platform/time-control calibration
 remains incomplete. See fairplay-v17.md for pinned revisions and deployment.
+
+## Fixed-node candidate integrity
+
+Live validation exposed mixed-depth MultiPV output at node-budget exhaustion.
+The compact transport now selects the last complete exact iteration (all requested
+candidates at the same depth, distinct roots, descending scores). It never mixes
+an unfinished new iteration with older alternatives and never treats score bounds
+as exact evaluations. The node budgets do not change. This can correctly change
+legacy CPL/rank/gap/critical metrics; old and new values are not claimed identical.
+A separate python-chess streaming reference verifies the completed-round parser.
+
+Valid neural distributions are validated independently of engine comparability.
+One unusable engine position is skipped rather than disabling an entire Maia batch.

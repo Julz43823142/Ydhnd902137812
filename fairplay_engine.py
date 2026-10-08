@@ -16,6 +16,30 @@ import chess
 import chess.engine
 
 
+class CoherentCandidates:
+    """Last complete exact MultiPV round, never a mixture of search depths."""
+    def __init__(self,count):
+        self.count=count;self.depths={};self.complete=None;self.depth=-1
+    def add(self,index,row):
+        depth=row.get('depth')
+        if (depth is None or 'pv' not in row or 'score' not in row
+                or row.get('lowerbound') or row.get('upperbound')):return
+        if index==1:self.depths[depth]={}
+        group=self.depths.setdefault(depth,{})
+        group[index]=dict(row)
+        if index==self.count and all(i in group for i in range(1,self.count+1)):
+            rows=[group[i] for i in range(1,self.count+1)]
+            scores=[r['score'].relative.score(mate_score=10000) for r in rows]
+            if (depth>=self.depth and len({r['pv'][0] for r in rows})==self.count
+                    and all(a>=b for a,b in zip(scores,scores[1:]))):
+                self.complete=rows;self.depth=depth
+        for old in sorted(self.depths)[:-4]:self.depths.pop(old,None)
+    def result(self):
+        if self.complete is None:
+            raise chess.engine.EngineError('No complete exact MultiPV iteration')
+        return self.complete
+
+
 class CompactNodeEngine:
     """Synchronous, bounded POSIX transport; owned by exactly one pool worker."""
     def __init__(self, command, timeout=15.0):
@@ -115,6 +139,7 @@ class CompactNodeEngine:
             command+=' searchmoves '+' '.join(move.uci() for move in moves)
         self._send(command)
         rows={}
+        coherent=CoherentCandidates(min(multipv or 1,len(moves) if root_moves is not None else board.legal_moves.count()))
         while True:
             line=self._read(deadline)
             if line.startswith('bestmove '):break
@@ -122,7 +147,8 @@ class CompactNodeEngine:
             if parsed is not None:
                 index,values=parsed
                 rows.setdefault(index,{}).update(values)
-        values=[rows[i] for i in sorted(rows) if 'score' in rows[i] and 'pv' in rows[i]]
+                if coherent is not None:coherent.add(index,values)
+        values=coherent.result() if coherent is not None else [rows[i] for i in sorted(rows) if 'score' in rows[i] and 'pv' in rows[i]]
         if not values:raise chess.engine.EngineError('Stockfish returned no scored candidates')
         return values if multipv is not None else values[0]
 
@@ -130,7 +156,7 @@ class CompactNodeEngine:
     def parse_info(line, turn):
         if not line.startswith('info ') or line.startswith('info string '):return None
         # Score and first PV move are all downstream metrics use. Bounds are
-        # retained just as python-chess retains its latest analysis info.
+        # retained so incomplete or bounded rounds cannot become exact evidence.
         tokens=line.split()
         def value(key):
             try:return tokens[tokens.index(key)+1]
@@ -146,7 +172,11 @@ class CompactNodeEngine:
                 row['score']=chess.engine.PovScore(score,turn)
             move=value('pv')
             if move:row['pv']=[chess.Move.from_uci(move)]
-            return (index,row) if row else None
+            if not row:return None
+            if value('depth') is not None:row['depth']=int(value('depth'))
+            if 'lowerbound' in tokens:row['lowerbound']=True
+            if 'upperbound' in tokens:row['upperbound']=True
+            return (index,row)
         except (ValueError,IndexError):return None
 
     def quit(self):

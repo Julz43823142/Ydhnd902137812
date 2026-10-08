@@ -61,7 +61,11 @@ def engine_metrics(decision, lines, actual_line, color, config=CONFIG):
         actual = score_cp(actual_line, color)
     gap = max(0, values[0]-values[1]) if len(values)>1 else None
     spread = max(0, values[0]-values[-1]) if len(values)>2 else None
-    inconsistent = actual > values[0]+config.inconsistent_eval_cp
+    inconsistent = (actual > values[0]+config.inconsistent_eval_cp
+                    or any(a<b for a,b in zip(values,values[1:]))
+                    or any(line.get('lowerbound') or line.get('upperbound') for line in lines)
+                    or (actual_line or {}).get('lowerbound') or (actual_line or {}).get('upperbound'))
+    inconsistent=bool(inconsistent)
     # Root-restricted alternatives can search deeper than a MultiPV line. A
     # contradictory better score is search uncertainty, never a zero-loss hit.
     # Only genuine forced/trivial decisions and openings are excluded. Decisive

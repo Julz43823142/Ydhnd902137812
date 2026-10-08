@@ -15,6 +15,19 @@ from fairplay_data import ScanDeadline, collect_games
 from scripts.smoke_stockfish_reviews import FixtureAPI, TARGET
 
 
+class CoherentReference(BoundedNodeEngine):
+    # Independent python-chess protocol parser; select the same complete round.
+    # CI has an outer job deadline; production retains its bounded transport.
+    def analyse(self,board,limit,*,multipv=None,root_moves=None):
+        from fairplay_engine import CoherentCandidates
+        count=min(multipv or 1,len(root_moves) if root_moves is not None else board.legal_moves.count())
+        collector=CoherentCandidates(count)
+        with self.analysis(board,limit,multipv=multipv,root_moves=root_moves) as stream:
+            for info in stream:collector.add(info.get('multipv',1),info)
+        values=collector.result()
+        return values if multipv is not None else values[0]
+
+
 def main():
     deadline=ScanDeadline(time.monotonic()+240)
     api=FixtureAPI(deadline)
@@ -25,8 +38,8 @@ def main():
     for compact in (False,True):
         baseline_path=os.environ.get('BASELINE_STOCKFISH_PATH')
         factory=(None if compact else
-            (lambda:BoundedNodeEngine.popen_uci(baseline_path,timeout=15)) if baseline_path else
-            (lambda:chess_play._create_stockfish_engine(allow_install=False,engine_class=BoundedNodeEngine)))
+            (lambda:CoherentReference.popen_uci(baseline_path,timeout=15)) if baseline_path else
+            (lambda:chess_play._create_stockfish_engine(allow_install=False,engine_class=CoherentReference)))
         engine=EngineScanner(deadline,CONFIG,factory)
         rows=[]
         started=time.monotonic()
@@ -40,7 +53,7 @@ def main():
         outputs.append(rows)
         measurements.append({'transport':'compact' if compact else 'python-chess',
             'seconds':round(time.monotonic()-started,4),'positions':len(rows),'profile_guided':bool(compact and baseline_path)})
-    assert outputs[0]==outputs[1], 'Compact transport changed fixed-node evidence'
+    assert outputs[0]==outputs[1], 'Complete-round parsers disagree on fixed-node evidence'
     print(json.dumps({'equivalent':True,'measurements':measurements}))
 
 if __name__=='__main__':main()

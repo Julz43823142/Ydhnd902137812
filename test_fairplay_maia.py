@@ -159,6 +159,17 @@ class CausalSelection(unittest.TestCase):
         self.assertIn('Stockfish',row['reason'])
 
 
+    def test_one_unusable_engine_row_does_not_disable_valid_model_batch(self):
+        for g,d,item in maia.selection(self.games)[:1]:
+            d.metrics['candidate_cp']=[0,150,-250,-350,-450]
+        def predict(items):
+            return [{m.uci():1/chess.Board(i['history'][-1]).legal_moves.count()
+                     for m in chess.Board(i['history'][-1]).legal_moves} for i in items]
+        row=maia.annotate_history(self.games,predictor=predict)
+        self.assertTrue(row['available'])
+        self.assertGreater(row['positions'],0)
+
+
 class HumanDetails(unittest.TestCase):
     def test_missing_model_is_explicit_in_private_details(self):
         result=SimpleNamespace(username='synthetic-player',diagnostics={'human_reference':

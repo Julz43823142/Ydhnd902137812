@@ -34,13 +34,17 @@ def quality(loss_cp, scaled_loss):
     return max(0.0, min(1.0, 1-max(0,loss_cp)/150, 1-max(0,scaled_loss)/.20))
 
 
+def valid_policy(decision, probabilities):
+    if not isinstance(probabilities,dict):return False
+    legal={m.uci() for m in chess.Board(decision.fen).legal_moves}
+    return (set(probabilities)==legal
+            and all(isinstance(v,(int,float)) and math.isfinite(v) and v>=0 for v in probabilities.values())
+            and .999<=sum(probabilities.values())<=1.001)
+
+
 def policy_evidence(decision, probabilities):
-    board=chess.Board(decision.fen)
-    legal={m.uci() for m in board.legal_moves}
-    if set(probabilities)!=legal:return None
-    if any(not isinstance(v,(int,float)) or not math.isfinite(v) or v<0 for v in probabilities.values()):return None
-    total=sum(probabilities.values())
-    if not .999<=total<=1.001:return None
+    if not valid_policy(decision,probabilities):return None
+    legal=set(probabilities);total=sum(probabilities.values())
     probs={move:value/total for move,value in probabilities.items()}
     m=decision.metrics
     candidates=m.get('candidates',[])
@@ -240,7 +244,7 @@ def annotate_history(games,predictor=None):
                 policies=predictor([chosen[i][2] for i in missing])
                 if len(policies)!=len(missing):raise ValueError('Incomplete local policies')
                 for i,policy in zip(missing,policies):
-                    if not isinstance(policy,dict) or policy_evidence(chosen[i][1],policy) is None:
+                    if not valid_policy(chosen[i][1],policy):
                         raise ValueError('Invalid local policy distribution')
                     _cache[keys[i]]=policy
             for (game,decision,_),key in zip(chosen,keys):
@@ -251,9 +255,9 @@ def annotate_history(games,predictor=None):
             'games':sum(bool(g.human_reference.get('positions')) for g in games),
             'cache_hits':len(chosen)-len(missing),'seconds':time.monotonic()-start,
             'role':'Learned human-policy comparison with Stockfish counterfactuals and paired deep confirmation; not a calibrated misconduct probability.'}
-    except Exception:
+    except Exception as error:
         if predictor is not None and _worker is not None:close_worker()
-        return {'available':False,'positions':0,'seconds':time.monotonic()-start,
+        return {'available':False,'positions':0,'seconds':time.monotonic()-start,'failure_kind':type(error).__name__,
                 'reason':'Local human reference unavailable; Stockfish review completed without invented model results.'}
 
 
