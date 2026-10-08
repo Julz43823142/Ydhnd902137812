@@ -455,6 +455,51 @@ class Pipeline(unittest.TestCase):
         print(f'Fair Play shared-pool benchmark: 2 slots {two:.3f}s; 8 slots {eight:.3f}s; reduction {(1-eight/two)*100:.1f}%')
         self.assertLess(eight,two*.40)
 
+    def test_fast_position_queue_preserves_full_evidence_and_cache(self):
+        # Compare complete decisions, including fast baselines, with the
+        # previous whole-game scheduler under identical synthetic searches.
+        def run(pool=None):
+            analysis._game_cache.clear()
+            engine=FakeEngine()
+            result=analysis.review(
+                TARGET,lambda _:None,api_factory=lambda _:self.fake_api(6),
+                **({'engine_pool':pool} if pool else
+                   {'engine_factory':lambda:engine,'engine_workers':1}))
+            return result
+
+        baseline=run()
+        pool=analysis.SharedEnginePool(
+            size=4,factory=Mock(side_effect=[FakeEngine() for _ in range(4)]))
+        try:
+            queued=run(pool)
+            self.assertGreater(queued.diagnostics['runtime']['fast_position_tasks'],0)
+            self.assertEqual(queued.priority,baseline.priority)
+            self.assertEqual(queued.classes,baseline.classes)
+            self.assertEqual(queued.totals,baseline.totals)
+            self.assertEqual(queued.deep_coverage,baseline.deep_coverage)
+            self.assertEqual(queued.diagnostics['gate_scores'],baseline.diagnostics['gate_scores'])
+            self.assertEqual(
+                [(g.identity,g.fast_metrics,g.metrics,
+                  [(d.move,d.metrics,d.fast_engine) for d in g.decisions])
+                 for g in queued.games],
+                [(g.identity,g.fast_metrics,g.metrics,
+                  [(d.move,d.metrics,d.fast_engine) for d in g.decisions])
+                 for g in baseline.games])
+            self.assertEqual(
+                queued.diagnostics['runtime']['engine_searches']['multipv_searches'],
+                sum(len([d for d in g.decisions if d.useful]) for g in queued.games)
+                + queued.diagnostics['runtime']['deep_position_tasks']
+                - sum(not d.useful for g in queued.games if g.deep for d in g.decisions))
+            warm=analysis.review(
+                TARGET,lambda _:None,api_factory=lambda _:self.fake_api(6),
+                engine_pool=pool)
+            self.assertEqual(warm.priority,queued.priority)
+            self.assertEqual(warm.totals,queued.totals)
+            self.assertEqual(warm.diagnostics['gate_scores'],queued.diagnostics['gate_scores'])
+            self.assertEqual(warm.diagnostics['runtime']['fast_position_tasks'],0)
+        finally:
+            pool.close()
+
     def test_engine_unavailable_is_clear_failure_and_api_closes(self):
         with self.assertRaisesRegex(data.ReviewError,'Stockfish is unavailable'):
             analysis.review(TARGET,lambda _:None,api_factory=lambda _:self.fake_api(),engine_factory=Mock(side_effect=FileNotFoundError()))
