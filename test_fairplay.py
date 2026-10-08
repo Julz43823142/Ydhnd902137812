@@ -292,16 +292,16 @@ class Pipeline(unittest.TestCase):
         self.assertTrue(any(call.args[0].get('Threads')==1 for call in engine.configure.call_args_list))
 
     def test_cpu_aware_engine_parallelism_is_conservative(self):
-        with patch.object(analysis,'available_engine_cpus',return_value=5):
-            self.assertEqual(analysis.automatic_engine_workers(),1)
-        with patch.object(analysis,'available_engine_cpus',return_value=6):
-            self.assertEqual(analysis.automatic_engine_workers(),2)
+        expected={2:1,5:1,6:2,8:2,9:3,11:3,12:4,24:4}
+        for cpus,workers in expected.items():
+            with self.subTest(cpus=cpus),patch.object(analysis,'available_engine_cpus',return_value=cpus):
+                self.assertEqual(analysis.automatic_engine_workers(),workers)
 
     def test_engine_priority_is_only_slightly_lowered(self):
         engine=FakeEngine();engine.transport=SimpleNamespace(get_pid=lambda:123)
         with patch.object(analysis.os,'setpriority') as setpriority:
             scanner=analysis.EngineScanner(time.monotonic()+10,factory=lambda:engine)
-            try:setpriority.assert_called_once_with(analysis.os.PRIO_PROCESS,123,2)
+            try:setpriority.assert_called_once_with(analysis.os.PRIO_PROCESS,123,0)
             finally:scanner.close()
 
     def test_two_engine_workers_overlap_and_preserve_review_output(self):
@@ -333,6 +333,50 @@ class Pipeline(unittest.TestCase):
         self.assertEqual(parallel.deep_coverage,sequential.deep_coverage)
         self.assertEqual(parallel.classes,sequential.classes)
         for engine in engines:engine.quit.assert_called_once()
+
+    def test_four_engine_workers_preserve_review_output(self):
+        baseline_engine=FakeEngine()
+        baseline=analysis.review(
+            TARGET,lambda _:None,api_factory=lambda _:self.fake_api(4),
+            engine_factory=lambda:baseline_engine,engine_workers=1)
+        analysis._game_cache.clear()
+        engines=[FakeEngine() for _ in range(4)]
+        parallel=analysis.review(
+            TARGET,lambda _:None,api_factory=lambda _:self.fake_api(4),
+            engine_factory=Mock(side_effect=engines),engine_workers=4)
+        self.assertEqual(parallel.priority,baseline.priority)
+        self.assertEqual(parallel.totals,baseline.totals)
+        self.assertEqual(parallel.deep_coverage,baseline.deep_coverage)
+        self.assertEqual(parallel.classes,baseline.classes)
+
+    def test_review_builds_gameplay_periods_once(self):
+        engine=FakeEngine()
+        import fairplay_sequence
+        original=fairplay_sequence.class_periods
+        calls=[]
+        def counted(games,config=CONFIG):
+            calls.append(len(games))
+            return original(games,config)
+        with patch.object(fairplay_sequence,'class_periods',side_effect=counted):
+            analysis.review(TARGET,lambda _:None,api_factory=lambda _:self.fake_api(4),
+                            engine_factory=lambda:engine,engine_workers=1)
+        self.assertEqual(len(calls),1)
+
+    def test_scheduler_four_workers_is_materially_faster_for_parallel_work(self):
+        class SlowEngine(FakeEngine):
+            def analyse(self,board,limit,multipv=None,root_moves=None):
+                time.sleep(.006)
+                return super().analyse(board,limit,multipv=multipv,root_moves=root_moves)
+        def run(workers):
+            analysis._game_cache.clear()
+            engines=[SlowEngine() for _ in range(workers)]
+            started=time.monotonic()
+            analysis.review(TARGET,lambda _:None,api_factory=lambda _:self.fake_api(8),
+                            engine_factory=Mock(side_effect=engines),engine_workers=workers)
+            return time.monotonic()-started
+        two=run(2);four=run(4)
+        print(f'Fair Play scheduler benchmark: 2 workers {two:.3f}s; 4 workers {four:.3f}s; reduction {(1-four/two)*100:.1f}%')
+        self.assertLess(four,two*.72)
 
     def test_engine_unavailable_is_clear_failure_and_api_closes(self):
         with self.assertRaisesRegex(data.ReviewError,'Stockfish is unavailable'):

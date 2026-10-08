@@ -73,19 +73,24 @@ def class_periods(games, config=CONFIG):
                 s['rating_reference'] is not None and abs(g.rating-s['rating_reference'])<=config.baseline_player_rating_tolerance
                 and g.opponent_rating is not None and opponent_reference is not None
                 and abs(g.opponent_rating-opponent_reference)<=config.baseline_opponent_rating_tolerance]
-            b=period_summary(baseline,config,fast=True)
-            personal=('personal' not in config.disabled_features and kind!='bullet' and len(baseline)>=config.baseline_reference_games and b['hard_opportunities']>=40
-                and not acute and not replication_half and s['hard_opportunities']>=40 and s['hard_contributors']>=config.human_min_contributors and s['hard_lower']>=.65
+            personal_eligible=('personal' not in config.disabled_features and kind!='bullet'
+                               and not acute and not replication_half)
+            b=period_summary(baseline,config,fast=True) if personal_eligible else {}
+            personal=(personal_eligible and len(baseline)>=config.baseline_reference_games and b['hard_opportunities']>=40
+                and s['hard_opportunities']>=40 and s['hard_contributors']>=config.human_min_contributors and s['hard_lower']>=.65
                 and s['hard_hits']/max(1,s['hard_opportunities'])-b['hard_hits']/max(1,b['hard_opportunities'])>=.25
                 and (s.get('observed_quality') or 0)-(b.get('observed_quality') or 0)>=.18)
+            if acute:
+                blockers=acute_blockers(part,config);absolute=False;qualified=not blockers
+            else:
+                blockers=absolute_blockers(s,config)
+                absolute=bool(not replication_half and class_absolute(s,kind,config))
+                qualified=False if replication_half else bool(absolute or personal)
             periods.append({'ids':list(ids),'class':kind,'kind':mode,'start':part[0].ended,'end':part[-1].ended,
                 'controls':sorted(set(g.time_control for g in part)), 'summary':s,
-                'absolute':not acute and not replication_half and class_absolute(s,kind,config),
-                'acute':acute,'replication_half':replication_half,
-                'blockers':acute_blockers(part,config) if acute else absolute_blockers(s,config),
-                'personal':bool(personal),'baseline_ids':[g.identity for g in baseline],
-                'qualified':(not acute_blockers(part,config) if acute else
-                    (False if replication_half else (class_absolute(s,kind,config) or bool(personal))))})
+                'absolute':absolute,'acute':acute,'replication_half':replication_half,
+                'blockers':blockers,'personal':bool(personal),'baseline_ids':[g.identity for g in baseline],
+                'qualified':qualified})
     return sorted(periods,key=lambda p:(p['qualified'],p['summary']['information']*p['summary']['hit_lower'],p['summary']['contributors']),reverse=True)
 
 
@@ -263,10 +268,10 @@ def coverage_members(members,count):
     return sorted(selected,key=lambda g:(g.ended,g.identity))
 
 
-def adaptive_deep_games(games,config=CONFIG):
+def adaptive_deep_games(games,config=CONFIG,*,periods=None):
     if config.deep_games==0:return []  # explicit local/fixture deep-disable override
     from fairplay_clusters import select_deep_games, representative_controls
-    periods=class_periods(games,config)
+    periods=class_periods(games,config) if periods is None else periods
     # A strict acute candidate is expensive to miss: deep-review it first.
     # Broad periods remain available as independent secondary coverage.
     acute_candidate=next((p for p in periods if p['qualified'] and p.get('acute')),None)
@@ -350,7 +355,7 @@ def adaptive_deep_games(games,config=CONFIG):
 
 
 
-def confirmation_extension(games,config=CONFIG):
+def confirmation_extension(games,config=CONFIG,*,periods=None):
     """Spend remaining deep budget on unresolved, retained gameplay evidence.
 
     This is allocation, not a relaxed HIGH gate. Whole games are chosen by
@@ -360,7 +365,8 @@ def confirmation_extension(games,config=CONFIG):
     if config.deep_games==0:return []
     budget=max(0,config.deep_max_games-sum(g.deep for g in games))
     if not budget:return []
-    for period in class_periods(games,config):
+    periods=class_periods(games,config) if periods is None else periods
+    for period in periods:
         if not period['qualified'] or period.get('acute'):continue
         proof=deep_confirmation(period,games,config);summary=proof['summary']
         if proof['qualified']:continue
@@ -397,12 +403,12 @@ def game_structure(game):
             if any(d.metrics.get('before_cp',0)<-100 for d in rows) else None}
 
 
-def integrate_gameplay(result,games,config=CONFIG):
+def integrate_gameplay(result,games,config=CONFIG,*,periods=None):
     from fairplay_opening import repertoire
     from fairplay_human import evidence_funnel
     legacy_priority=result.priority
     legacy_blockers=list(result.diagnostics.get("high_blocked",[]))
-    periods=class_periods(games,config);confirmed=[]
+    periods=class_periods(games,config) if periods is None else periods;confirmed=[]
     for p in periods:
         proof=deep_confirmation(p,games,config)
         p['deep']=proof
