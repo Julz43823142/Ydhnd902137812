@@ -55,7 +55,8 @@ def policy_evidence(decision, probabilities):
     searched=dict(zip(candidates,values))
     if 'actual_cp' in m:searched.setdefault(decision.move,m['actual_cp'])
     extra=m.get('policy_search',{})
-    complete=extra.get('nodes')==m.get('nodes') and 'nodes' in m
+    complete=(extra.get('depth')==m.get('search_depth') if m.get('search_depth') else
+              extra.get('nodes')==m.get('nodes') and 'nodes' in m)
     if complete:searched.update(extra.get('scores',{}))
     if any(move not in legal or not isinstance(value,(int,float)) or not math.isfinite(value)
            for move,value in searched.items()):return None
@@ -124,18 +125,19 @@ def carry_policy_after_deep(source, confirmed):
     else:confirmed.human_reference={}
 
 
-def selection(games):
+def selection(games,*,full_coverage=False):
     # Compare successes and misses: selection uses position geometry, never
     # CPL, top-1, high-information hits, account names or validation labels.
     eligible=[g for g in games if g.moves and g.rating is not None and g.opponent_rating is not None]
-    quota=max(1,min(8,MAX_POSITIONS//max(1,len(eligible))))
+    quota=(None if full_coverage else max(1,min(8,MAX_POSITIONS//max(1,len(eligible)))))
     selected=[]
     for game in eligible:
-        choices=[d for d in game.decisions if d.metrics.get('useful') and d.metrics.get('competitive')
-                 and not d.metrics.get('post_opponent_error') and not d.metrics.get('easy_conversion') and d.phase!='opening']
+        choices=(list(game.decisions) if full_coverage else
+                 [d for d in game.decisions if d.metrics.get('useful') and d.metrics.get('competitive')
+                  and not d.metrics.get('post_opponent_error') and not d.metrics.get('easy_conversion') and d.phase!='opening'])
         # Position geometry only: no played-move rank, CPL or success selection.
         ordered=sorted(choices,key=lambda d:(d.metrics.get('spread') or 0,d.ply))
-        if len(ordered)>quota:
+        if quota is not None and len(ordered)>quota:
             ordered=[ordered[round(i*(len(ordered)-1)/(quota-1))] for i in range(quota)] if quota>1 else ordered[-1:]
         wanted={d.ply:d for d in ordered}
         board=chess.Board();history=deque([board.fen()],maxlen=8)
@@ -147,7 +149,7 @@ def selection(games):
             move=chess.Move.from_uci(uci)
             if move not in board.legal_moves:break
             board.push(move);history.append(board.fen())
-    return selected[:MAX_POSITIONS]
+    return selected if full_coverage else selected[:MAX_POSITIONS]
 
 
 class LocalPolicyWorker:
@@ -220,7 +222,7 @@ def warm_worker():
     return True
 
 
-def annotate_history(games,predictor=None):
+def annotate_history(games,predictor=None,*,full_coverage=False):
     global _worker
     start=time.monotonic()
     for game in games:
@@ -231,7 +233,7 @@ def annotate_history(games,predictor=None):
     checkpoint=os.environ.get('FAIRPLAY_MAIA_CHECKPOINT')
     if predictor is None and (not checkpoint or not Path(checkpoint).is_file()):
         return {'available':False,'positions':0,'reason':'Local Maia checkpoint is not installed; Stockfish and the explicit heuristic remain active.'}
-    chosen=selection(games)
+    chosen=selection(games,full_coverage=full_coverage)
     if not chosen:return {'available':False,'positions':0,'reason':'No positions with verified causal history and both ratings.'}
     try:
         with _lock:
@@ -241,12 +243,16 @@ def annotate_history(games,predictor=None):
             keys=[hashlib.sha256((MODEL_SHA256+json.dumps(item,sort_keys=True)).encode()).hexdigest() for _,_,item in chosen]
             missing=[i for i,key in enumerate(keys) if key not in _cache]
             if missing:
-                policies=predictor([chosen[i][2] for i in missing])
-                if len(policies)!=len(missing):raise ValueError('Incomplete local policies')
-                for i,policy in zip(missing,policies):
-                    if not valid_policy(chosen[i][1],policy):
-                        raise ValueError('Invalid local policy distribution')
-                    _cache[keys[i]]=policy
+                # Bound each CPU-inference request and IPC payload. A full
+                # 100-game review may contain thousands of useful positions.
+                for offset in range(0,len(missing),64):
+                    group=missing[offset:offset+64]
+                    policies=predictor([chosen[i][2] for i in group])
+                    if len(policies)!=len(group):raise ValueError('Incomplete local policies')
+                    for i,policy in zip(group,policies):
+                        if not valid_policy(chosen[i][1],policy):
+                            raise ValueError('Invalid local policy distribution')
+                        _cache[keys[i]]=policy
             for (game,decision,_),key in zip(chosen,keys):
                 decision.human_policy=dict(_cache[key]);_cache.move_to_end(key)
             while len(_cache)>2400:_cache.popitem(last=False)

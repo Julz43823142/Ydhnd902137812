@@ -118,8 +118,10 @@ class CompactNodeEngine:
             self._settings[name]=value
 
     def analyse(self, board, limit, *, multipv=None, root_moves=None):
-        if board.chess960 or board.move_stack or not limit.nodes or limit.nodes<=0:
-            raise chess.engine.EngineError('Compact analysis requires an independent standard fixed-node position')
+        if (board.chess960 or board.move_stack or
+            not ((limit.nodes is not None and limit.nodes>0) or
+                 (limit.depth is not None and limit.depth>0))):
+            raise chess.engine.EngineError('Compact analysis requires an independent standard position with nodes or depth')
         options={'MultiPV':multipv or 1}
         for key,value in [('Ponder',False),('UCI_AnalyseMode',True),('UCI_Chess960',False)]:
             if key in self.options:options[key]=value
@@ -131,7 +133,8 @@ class CompactNodeEngine:
             while self._read(deadline)!='readyok':pass
             self._first=False
         self._send('position fen '+board.fen(en_passant='fen'))
-        command='go nodes '+str(int(limit.nodes))
+        command=('go depth '+str(int(limit.depth)) if limit.depth is not None else
+                 'go nodes '+str(int(limit.nodes)))
         if root_moves is not None:
             moves=list(root_moves)
             if not moves or any(move not in board.legal_moves for move in moves):
@@ -174,6 +177,7 @@ class CompactNodeEngine:
             if move:row['pv']=[chess.Move.from_uci(move)]
             if not row:return None
             if value('depth') is not None:row['depth']=int(value('depth'))
+            if value('nodes') is not None:row['nodes']=int(value('nodes'))
             if 'lowerbound' in tokens:row['lowerbound']=True
             if 'upperbound' in tokens:row['upperbound']=True
             return (index,row)
