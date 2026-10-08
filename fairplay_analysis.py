@@ -405,13 +405,16 @@ def available_engine_cpus():
     # expose all host CPUs on some platforms.
     quotas=[]
     try:
-        text=open('/sys/fs/cgroup/cpu.max',encoding='utf-8').read().strip().split()
+        with open('/sys/fs/cgroup/cpu.max',encoding='utf-8') as handle:
+            text=handle.read().strip().split()
         if len(text)==2 and text[0]!='max':
             quotas.append(max(1,int(int(text[0])/int(text[1]))))
     except (OSError,ValueError,ZeroDivisionError):pass
     try:
-        quota=int(open('/sys/fs/cgroup/cpu/cpu.cfs_quota_us',encoding='utf-8').read().strip())
-        period=int(open('/sys/fs/cgroup/cpu/cpu.cfs_period_us',encoding='utf-8').read().strip())
+        with open('/sys/fs/cgroup/cpu/cpu.cfs_quota_us',encoding='utf-8') as handle:
+            quota=int(handle.read().strip())
+        with open('/sys/fs/cgroup/cpu/cpu.cfs_period_us',encoding='utf-8') as handle:
+            period=int(handle.read().strip())
         if quota>0 and period>0:quotas.append(max(1,int(quota/period)))
     except (OSError,ValueError,ZeroDivisionError):pass
     return max(1,min([count,*quotas])) if quotas else max(1,count)
