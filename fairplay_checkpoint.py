@@ -299,6 +299,18 @@ class CheckpointStore:
         with self.lock:
             return self._write(force=True) if self.enabled else False
 
+    def suspend(self, target):
+        """Keep reusable work, but do not restart a known failed scan forever."""
+        if not self.enabled:
+            return False
+        with self.lock:
+            job = self.state["jobs"].get(target)
+            if job is None:
+                return False
+            job["status"] = "suspended"
+            job["updated"] = time.time()
+            return self._write(force=True)
+
     def finish(self, target):
         if not self.enabled:
             return False
