@@ -127,6 +127,70 @@ class CheckpointTests(unittest.TestCase):
                 review("safeaccount", lambda _:None, api_factory=api_factory)
         self.assertAlmostEqual(captured[1]-time.monotonic(), 14400, delta=5)
 
+    def test_maia_predictions_resume_without_second_inference(self):
+        import fairplay_maia
+        first = self.store()
+        self.bind(first)
+        game = game_with_positions(1)
+        game.human_reference = {}
+        seen = []
+        def predict(batch):
+            seen.append(len(batch))
+            return [{"e2e4": 1.0} for _ in batch]
+        def select(games, *, full_coverage=False):
+            return [(games[0], games[0].decisions[0], {"position": 1})]
+        def refresh(game):
+            game.human_reference = {"positions": 1}
+        with patch.object(fairplay_maia,"selection",side_effect=select), \
+             patch.object(fairplay_maia,"valid_policy",return_value=True), \
+             patch.object(fairplay_maia,"refresh_game",side_effect=refresh):
+            fairplay_maia._cache.clear()
+            first_result = fairplay_maia.annotate_history(
+                [game],predictor=predict,checkpoint=first,target="privateaccount")
+            self.assertTrue(first_result["available"])
+            self.assertEqual(seen,[1])
+            first.flush()
+            second = self.store()
+            new = game_with_positions(1)
+            new.human_reference = {}
+            fairplay_maia._cache.clear()
+            def should_not_recompute(_):
+                self.fail("Maia inference must use the durable model-matched snapshot")
+            second_result = fairplay_maia.annotate_history(
+                [new],predictor=should_not_recompute,
+                checkpoint=second,target="privateaccount")
+            self.assertTrue(second_result["available"])
+            self.assertEqual(new.decisions[0].human_policy,{"e2e4":1.0})
+            fairplay_maia._cache.clear()
+
+    def test_counterfactual_reuses_completed_search(self):
+        import fairplay_policy
+        first=self.store()
+        self.bind(first)
+        game=game_with_positions(1)
+        game.decisions[0].human_policy={"e2e4":1.0}
+        seen=[]
+        def search(scanner, decision, nodes):
+            seen.append(nodes)
+            return {"nodes":nodes,"scores":{},"search_contract":{
+                "mode":"nodes","requested":nodes,"completed":True,"exact":True}}
+        with patch.object(fairplay_policy,"search_alternatives",side_effect=search), \
+             patch("fairplay_maia.refresh_game"), \
+             patch("fairplay_maia.policy_evidence",return_value={}):
+            one=fairplay_policy.complete([game],CONFIG.fast_nodes,
+                ScanDeadline(time.monotonic()+60),scanner=object(),
+                fast=True,checkpoint=first,target="privateaccount")
+            self.assertTrue(one["complete"])
+            first.flush()
+            new=game_with_positions(1)
+            new.decisions[0].human_policy={"e2e4":1.0}
+            second=self.store()
+            two=fairplay_policy.complete([new],CONFIG.fast_nodes,
+                ScanDeadline(time.monotonic()+60),scanner=object(),
+                fast=True,checkpoint=second,target="privateaccount")
+            self.assertTrue(two["complete"])
+            self.assertEqual(len(seen),1)
+
     def test_remote_branch_survives_ephemeral_worker(self):
         bare = Path(self.temp.name) / "remote.git"
         work = Path(self.temp.name) / "runner"
