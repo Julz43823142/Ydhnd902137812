@@ -3,7 +3,6 @@
 The thresholds rank reviews. They are not empirically calibrated cheating rates.
 All engine decisions use the subject's POV; every signal has minimum coverage.
 """
-import atexit
 import math
 import os
 import queue
@@ -530,9 +529,6 @@ def close_shared_engine_pool():
     with _shared_engine_pool_lock:
         if _shared_engine_pool is not None:_shared_engine_pool.close()
         _shared_engine_pool=None
-
-
-atexit.register(close_shared_engine_pool)
 
 
 def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI, engine_factory=None,
