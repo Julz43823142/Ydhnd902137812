@@ -5,6 +5,7 @@ gives the active review exclusive access to the shared Stockfish pool. No Discor
 token, ledger, wallet or punishments.
 """
 import asyncio
+import os
 import threading
 import time
 import uuid
