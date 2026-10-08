@@ -245,6 +245,27 @@ class CheckpointStore:
                 return self._write()
             return True
 
+    def record_policies(self, target, pairs):
+        """Commit an entire completed Maia inference batch in one atomic write."""
+        if not self.enabled:
+            return False
+        with self.lock:
+            job = self.state["jobs"].get(target)
+            if not job or not job.get("contract"):
+                return False
+            changed = False
+            for game, decision in pairs:
+                if not decision.human_policy:
+                    continue
+                key = self._key(game, decision, "maia")
+                if key not in job["positions"]:
+                    job["positions"][key] = {"policy": copy.deepcopy(decision.human_policy)}
+                    changed = True
+            if changed:
+                job["updated"] = time.time()
+                return self._write()
+            return True
+
     def restore_counterfactual(self, target, game, decision, phase, nodes):
         if not self.enabled:
             return None
