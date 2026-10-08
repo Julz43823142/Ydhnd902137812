@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/QmPlv",
     "title": "Lichess • 2266",
     "fen": "1k1r3r/p6p/Ppp2qp1/3p4/8/5P2/5QPP/1RR4K w - - 0 33",
-    "current_fen": "1k1r3r/p6p/Ppp2qp1/3p4/8/5P2/5QPP/1RR4K w - - 0 33",
-    "last_move_uci": "b7b6",
+    "current_fen": "k2r3r/p6p/PRp2qp1/3p4/8/5P2/5QPP/2R4K w - - 1 34",
+    "last_move_uci": "b8a8",
     "pgn": "Rxb6+ Ka8 Rbxc6 Qxc6 Rxc6",
     "all_moves": [
       {
@@ -58,44 +58,62 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_QmPlv_1791483069164",
-    "last_activity_at": "2026-10-08T18:11:26.735252+00:00",
+    "last_activity_at": "2026-10-08T18:11:31.693298+00:00",
     "rating": 2266,
     "rp_band": 3,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1557817718021824553
+      "1468320170891022417": 1557817739840716820
     },
-    "message_id": 1557817718021824553,
+    "message_id": 1557817739840716820,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Rxb7",
-        "correct": false,
-        "timestamp": "2026-10-08T18:11:26.735918+00:00"
+        "move": "Rxb6",
+        "correct": true,
+        "timestamp": "2026-10-08T18:11:31.693523+00:00"
       }
     },
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
-    "last_card_activity_at": "2026-10-08T18:11:26.735252+00:00",
-    "recent_accepted_moves": [],
+    "last_card_activity_at": "2026-10-08T18:11:31.693298+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1791483091.6935303,
+        "fen_before": "1k1r3r/p6p/Ppp2qp1/3p4/8/5P2/5QPP/1RR4K w - - 0 33",
+        "expected": {
+          "uci": "b1b6",
+          "san": "Rxb6+",
+          "color": "white"
+        },
+        "accepted_uci": "b1b6"
+      }
+    ],
     "wrong_attempt_counts": {
       "442597396195704832": 1
     },
-    "last_feedback": "❌ **Puzzle verdict on Thice: you treated a forced line like an optional suggestion.**\n↪️ **Move played:** `Rxb7`"
+    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Ka8",
+    "accepted_solution_moves": [
+      {
+        "san": "Rxb6+",
+        "uci": "b1b6",
+        "principal": true
+      }
+    ]
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
