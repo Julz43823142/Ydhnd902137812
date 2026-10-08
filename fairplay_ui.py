@@ -112,6 +112,18 @@ def detail_embed(result, mode):
                 f"Low-policy strong moves: {sum(r.get('low_policy_strong_moves',0) for r in rows)}\n"
                 'Policy likelihood estimates human move choice, not cheating. Unknown engine alternatives '
                 'receive a conservative perfect-quality upper bound. Rare bad moves provide no strong-play evidence.',inline=False)
+            maia_audit=result.diagnostics.get('maia_evidence_audit',{})
+            whole=maia_audit.get('whole_engine_sample',{})
+            selected=maia_audit.get('selected_period')
+            if whole:
+                def brief_audit(report):
+                    return ' · '.join(f"{stage['gate']}: {stage['pass']}/{stage['before']} "
+                        f"(unknown {stage['unknown']})" for stage in report['stages'])
+                overview=("Whole engine sample: "+brief_audit(whole)+
+                          ("\\nSelected learned-policy period: "+brief_audit(selected) if selected else
+                           "\\nNo selected learned-policy period."))
+                embed.add_field(name='Maia evidence funnel — explicit scopes',inline=False,
+                                value=overview[:1024])
             comparison=result.diagnostics.get('learned_gameplay',{})
             proof=comparison.get('deep',{})
             embed.add_field(name='Paired human-reference review',value=
@@ -434,7 +446,12 @@ def add_gate_fields(embed,result):
             embed.add_field(name='HIGH trigger',value=result.diagnostics.get('high_path') or 'Required evidence established.',inline=False)
         for name,row in result.diagnostics['high_paths'].items():
             status='PASS' if row['passed'] else 'FAIL'
-            embed.add_field(name=name+' — '+status,value=('\n'.join('• '+v for v in row['blockers']) or 'Required evidence established.')[:1024],inline=False)
+            explanation=('\\n'.join('• '+v for v in row['blockers']) or 'Required evidence established.')
+            if 'candidates_evaluated' in row:
+                explanation=(f"Examined: {row['candidates_evaluated']} candidate periods · "
+                             f"displayed: {row.get('representative_time_class','unknown')} "
+                             f"({row.get('candidate_games',0)} games)\\n"+explanation)
+            embed.add_field(name=name+' — '+status,value=explanation[:1024],inline=False)
         return
     if result.diagnostics.get('gameplay',{}).get('qualified'):
         embed.add_field(name='HIGH trigger',value=result.diagnostics['high_path'],inline=False)
@@ -506,8 +523,17 @@ def add_gameplay_fields(embed,result):
     overlap={key:value for key,value in f.items() if key!='_flow'}
     embed.add_field(name='Evidence coverage — overlapping categories',inline=False,
         value=' · '.join(f'{key.replace("_"," ").title()}: {value}' for key,value in overlap.items())[:1024])
-    if flow:
-        embed.add_field(name='Evidence survivor funnel',inline=False,
+    audit=result.diagnostics.get('evidence_audit',{})
+    scoped=audit.get('whole_engine_sample',{})
+    if scoped:
+        lines=[f"Scope: entire engine sample · {scoped['scope_games']} games / {scoped['decisions']} decisions"]
+        for stage in scoped['stages']:
+            lines.append(f"{stage['gate']}: {stage['before']} → {stage['pass']} PASS / "
+                         f"{stage['fail']} FAIL / {stage['unknown']} UNKNOWN")
+        embed.add_field(name='Actual sequential opportunity eligibility (PASS / FAIL / UNKNOWN)',
+            inline=False,value='\\n'.join(lines)[:1024])
+    elif flow:
+        embed.add_field(name='Engine opportunity funnel',inline=False,
             value=' → '.join(f'{key.replace("_"," ")} {value}' for key,value in flow.items())[:1024])
 
 
