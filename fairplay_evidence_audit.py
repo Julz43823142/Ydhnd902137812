@@ -219,7 +219,8 @@ def audit_engine_sample(games, config=None):
     config = config or CONFIG
     rows = []
     for index, game in enumerate(games):
-        for decision in game.decisions:
+        seen_plies=set()
+        for ordinal, decision in enumerate(game.decisions):
             m = decision.metrics
             fast = decision.fast_engine
             evaluated = bool(m.get("candidates")) and "cpl" in m
@@ -258,7 +259,10 @@ def audit_engine_sample(games, config=None):
                 "rank_top1": gate(m.get("top1"), measured="top1" in m),
                 "rank_top3": gate(m.get("top3"), measured="top3" in m),
             }
-            rows.append(DecisionAudit(index, int(decision.ply), checks, branches))
+            local_ply=int(decision.ply)
+            if local_ply in seen_plies:local_ply=-ordinal-1
+            seen_plies.add(local_ply)
+            rows.append(DecisionAudit(index, local_ply, checks, branches))
     serial = ("off_book", "not_forced", "not_trivial", "not_easy_conversion",
               "not_post_opponent_error", "engine_evaluated", "engine_useful",
               "objective_score_consistent", "competitive", "high_difficulty")
