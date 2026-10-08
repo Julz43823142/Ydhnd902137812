@@ -464,7 +464,6 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         analyzed,probes = [],{}
         cached_deep = {}
         partial = False
-        analyzed_lock=threading.Lock()
         def fast_scan(game,worker=None):
             worker=worker or scanner
             check_deadline(deadline)
@@ -475,8 +474,9 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                     cached=(cached[0],copy.deepcopy(cached[1]),cached[2],copy.deepcopy(cached[3]))
                 else:
                     cached=None
+            cached_payload=None
             if cached:
-                if cached[2]:cached_deep[game.identity]=copy.deepcopy(cached[1])
+                if cached[2]:cached_payload=copy.deepcopy(cached[1])
                 game.decisions=cached[1]
                 # Discovery always sees equal-budget fast evidence. A warm
                 # cache must not add another ten deep games on every re-scan.
@@ -485,7 +485,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 game.deep=False
                 game.fast_metrics=cached[3];summarize(game,config)
             else:worker.analyse(game,config.fast_nodes)
-            with analyzed_lock:analyzed.append(game)
+            return game,cached_payload
         # Full primary fast pass ALWAYS precedes historical probes/deep searches.
         ordered_primary=list(reversed(primary))
         step=len(scanners)
@@ -494,13 +494,16 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             progress(f'Fast engine scan: {offset} / {len(primary)}')
             try:
                 if engine_executor is None:
-                    fast_scan(batch[0])
+                    completed=[fast_scan(batch[0])]
                 else:
                     futures=[engine_executor.submit(fast_scan,game,item)
                              for game,item in zip(batch,scanners)]
-                    # Resolve in chronological-prefix order so a deadline cannot
-                    # create a scored hole later in the sample.
-                    for future in futures:future.result()
+                    # Resolve and commit in batch order so the scored sample is
+                    # deterministic even when workers finish out of order.
+                    completed=[future.result() for future in futures]
+                for game,cached_payload in completed:
+                    analyzed.append(game)
+                    if cached_payload is not None:cached_deep[game.identity]=cached_payload
             except DeadlineReached:
                 partial=True;break
         primary_complete=len(analyzed)==len(primary)
