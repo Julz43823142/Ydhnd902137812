@@ -1,110 +1,75 @@
 {
   "latest_random_puzzle": {
-    "url": "https://lichess.org/training/Ac1H2",
-    "title": "Lichess • 2213",
-    "fen": "2k4r/b2r1p2/6p1/R3P3/Q2NqP1p/2P1B1PP/P4K2/8 b - - 0 36",
-    "current_fen": "2k4r/b2r1p2/6p1/R3P3/Q2NqP2/2P1B1pP/P3K3/8 b - - 1 37",
-    "last_move_uci": "f2e2",
-    "pgn": "hxg3+ Ke2 Rxh3 Qc6+ Qxc6",
+    "url": "https://lichess.org/training/RMqp3",
+    "title": "Lichess • 2794",
+    "fen": "2r3k1/8/4N1r1/3pPpN1/2pP2q1/Q2n4/6PP/5RK1 w - - 3 36",
+    "current_fen": "2r3k1/8/4N1r1/3pPpN1/2pP2q1/Q2n4/6PP/5RK1 w - - 3 36",
+    "last_move_uci": "b4d3",
+    "pgn": "h3 Qh5 Qe7",
     "all_moves": [
       {
-        "uci": "h4g3",
-        "san": "hxg3+",
-        "color": "black"
-      },
-      {
-        "uci": "f2e2",
-        "san": "Ke2",
+        "uci": "h2h3",
+        "san": "h3",
         "color": "white"
       },
       {
-        "uci": "h8h3",
-        "san": "Rxh3",
+        "uci": "g4h5",
+        "san": "Qh5",
         "color": "black"
       },
       {
-        "uci": "a4c6",
-        "san": "Qc6+",
+        "uci": "a3e7",
+        "san": "Qe7",
         "color": "white"
-      },
-      {
-        "uci": "e4c6",
-        "san": "Qxc6",
-        "color": "black"
       }
     ],
     "player_moves": [
       {
-        "uci": "h4g3",
-        "san": "hxg3+",
-        "color": "black"
+        "uci": "h2h3",
+        "san": "h3",
+        "color": "white"
       },
       {
-        "uci": "h8h3",
-        "san": "Rxh3",
-        "color": "black"
-      },
-      {
-        "uci": "e4c6",
-        "san": "Qxc6",
-        "color": "black"
+        "uci": "a3e7",
+        "san": "Qe7",
+        "color": "white"
       }
     ],
-    "player_color": "black",
-    "player_move_count": 3,
-    "posted_at": "2026-10-07T17:36:39.409577+00:00",
-    "answer_posted": true,
+    "player_color": "white",
+    "player_move_count": 2,
+    "posted_at": "2026-10-08T08:39:28.982772+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "random_Ac1H2_1791394599409",
-    "last_activity_at": "2026-10-07T17:39:02.443192+00:00",
-    "rating": 2213,
-    "rp_band": 3,
-    "boss": false,
+    "puzzle_id": "random_RMqp3_1791448768982",
+    "last_activity_at": "2026-10-08T08:39:28.982772+00:00",
+    "rating": 2794,
+    "rp_band": 5,
+    "boss": true,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 2,
-    "next_player_index": 1,
+    "next_solution_index": 0,
+    "next_player_index": 0,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1557447175288389653
+      "1468320170891022417": 1557673785484640337
     },
-    "message_id": 1557447175288389653,
+    "message_id": 1557673785484640337,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {
-      "442597396195704832": {
-        "name": "Thice",
-        "move": "G2",
-        "correct": false,
-        "timestamp": "2026-10-07T17:39:02.444020+00:00"
-      }
-    },
-    "first_move_user_id": "442597396195704832",
-    "first_move_user_name": "Thice",
+    "attempted_users": {},
+    "first_move_user_id": null,
+    "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
-    },
-    "last_card_activity_at": "2026-10-07T17:39:02.443192+00:00",
-    "recent_accepted_moves": [],
-    "accepted_solution_moves": [
-      {
-        "san": "hxg3+",
-        "uci": "h4g3",
-        "principal": true
-      }
-    ],
-    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** hxg3+ Rxh3 Qxc6",
-    "wrong_attempt_counts": {
-      "442597396195704832": 1
     }
   },
-  "latest_puzzle_type": "daily",
+  "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-08",
