@@ -110,8 +110,8 @@
     "url": "https://www.chess.com/daily/2026-10-08",
     "title": "Pwned",
     "fen": "5B2/7R/2p2pp1/8/1Pk1P3/2n1KPP1/1r5P/8 b - - 0 39",
-    "current_fen": "5B2/7R/2p2pp1/8/1Pk1P3/2n1KPP1/1r5P/8 b - - 0 39",
-    "last_move_uci": null,
+    "current_fen": "5B2/7R/2p2p2/6p1/1Pk1PP2/2n1K1P1/1r5P/8 b - - 0 40",
+    "last_move_uci": "f3f4",
     "pgn": "[Event \"Live Chess\"]\n[Site \"Chess.com\"]\n[Date \"2026.08.18\"]\n[Round \"?\"]\n[White \"Bikfoot\"]\n[Black \"Hendry35 Missed Opportunity\"]\n[Result \"0-1\"]\n[ECO \"A52\"]\n[WhiteElo \"2354\"]\n[BlackElo \"2331\"]\n[FEN \"5B2/7R/2p2pp1/8/1Pk1P3/2n1KPP1/1r5P/8 b - - 0 39\"]\n\n39... g5 40. f4 g4 41. f5 Re2+ 42. Kf4 Rxe4# 0-1",
     "all_moves": [
       {
@@ -180,24 +180,52 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1791445150179",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
-    "message_id": 1557658602108624929,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "message_id": 1557673668849565728,
+    "attempted_users": {
+      "442597396195704832": {
+        "name": "Thice",
+        "move": "G5",
+        "correct": true,
+        "timestamp": "2026-10-08T08:39:02.501809+00:00"
+      }
+    },
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1557658602108624929
+      "1468320170891022417": 1557673668849565728
     },
     "channel_id": 1468320170891022417,
     "board_attachment_filenames": {
-      "1468320170891022417": "daily_puzzle.png"
+      "1468320170891022417": "random_puzzle.png"
     },
-    "chat_since_refresh": 0
+    "chat_since_refresh": 0,
+    "last_card_activity_at": "2026-10-08T08:39:02.500383+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1791448742.5018187,
+        "fen_before": "5B2/7R/2p2pp1/8/1Pk1P3/2n1KPP1/1r5P/8 b - - 0 39",
+        "expected": {
+          "uci": "g6g5",
+          "san": "g5",
+          "color": "black"
+        },
+        "accepted_uci": "g6g5"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "g5",
+        "uci": "g6g5",
+        "principal": true
+      }
+    ],
+    "last_feedback": "**✅ Correct! 3 moves remaining.**\n↩️ **Opponent replies:** f4"
   },
   "lichess_rating_used": {
     "2000": [
