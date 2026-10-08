@@ -476,7 +476,7 @@
     "442597396195704832": {
       "best_streak": 21,
       "correct": 253,
-      "current_streak": 2,
+      "current_streak": 0,
       "name": "Thice",
       "targets": {
         "chatter": {
@@ -494,6 +494,11 @@
             "correct": 10,
             "total": 20,
             "wrong": 10
+          },
+          "Grumpymonk": {
+            "correct": 0,
+            "total": 1,
+            "wrong": 1
           },
           "Jessebrawlstars": {
             "correct": 4,
@@ -634,9 +639,9 @@
           }
         }
       },
-      "total": 383,
-      "updated_at": 1791299729,
-      "wrong": 130
+      "total": 384,
+      "updated_at": 1791483222,
+      "wrong": 131
     },
     "550338389535227926": {
       "best_streak": 0,
