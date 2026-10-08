@@ -75,8 +75,14 @@ def complete(games,nodes,deadline,*,executor=None,pool=None,scanner=None,fast=Fa
     for d in work:d.metrics.pop('policy_search',None)
     try:
         if executor is not None and pool is not None:
-            futures={executor.submit(pool._run_with_scanner,deadline,
-                lambda worker,d=d:search_alternatives(worker,d,nodes)):d for d in work}
+            futures={}
+            try:
+                for d in work:
+                    futures[executor.submit(pool._run_with_scanner,deadline,
+                        lambda worker,d=d:search_alternatives(worker,d,nodes))]=d
+            except Exception:
+                interrupted=True
+                for pending in futures:pending.cancel()
             for future in as_completed(futures):
                 try:
                     futures[future].metrics['policy_search']=future.result();completed+=1

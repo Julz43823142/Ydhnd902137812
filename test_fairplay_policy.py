@@ -23,7 +23,7 @@ def sample(index,*,strong=True,deep=True,count=6):
         d.fast_policy=policy_evidence(d,d.human_policy)
         decisions.append(d)
     return SimpleNamespace(identity=str(index),ended=index*3600,time_class='blitz',rated=True,
-        decisions=decisions,deep=deep,time_control='180',human_reference={})
+        decisions=decisions,deep=deep,time_control='180',human_reference={},fast_metrics={},metrics={})
 
 def result():
     return SimpleNamespace(priority='LOW',confidence='MEDIUM',partial=False,deep_confirmed=False,
