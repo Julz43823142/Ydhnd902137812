@@ -335,11 +335,11 @@ class EngineScanner:
         except Exception:
             self.close()
             raise
-        # Keep Stockfish slightly below the Discord process, but do not heavily
-        # throttle it. Fixed-node searches remain reproducible; this only changes
-        # wall-clock scheduling under CPU contention.
+        # Fixed-node searches are deterministic at Threads=1. Do not lower
+        # Stockfish CPU priority: Discord work is mostly I/O and the engine is
+        # the dominant scan-latency component.
         try:
-            os.setpriority(os.PRIO_PROCESS,self.engine.transport.get_pid(),2)
+            os.setpriority(os.PRIO_PROCESS,self.engine.transport.get_pid(),0)
         except (AttributeError, OSError):pass
 
     def close(self):
@@ -421,8 +421,9 @@ def available_engine_cpus():
 
 
 def automatic_engine_workers():
-    """Use two independent engines only when three scans can each get a CPU pair."""
-    return 2 if available_engine_cpus()>=6 else 1
+    """Scale to the CPU quota while preserving capacity for three live scans."""
+    cpus=available_engine_cpus()
+    return max(1,min(4,cpus//3))
 
 
 def engine_profile(scanners):
@@ -536,8 +537,9 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         analyzed.sort(key=lambda g:(g.ended,g.identity))
         progress('Building human-move profile…')
         progress('Analyzing sessions and repertoire…')
-        from fairplay_sequence import adaptive_deep_games, confirmation_extension
-        candidates=adaptive_deep_games(analyzed,config)
+        from fairplay_sequence import class_periods, adaptive_deep_games, confirmation_extension
+        gameplay_periods=class_periods(analyzed,config)
+        candidates=adaptive_deep_games(analyzed,config,periods=gameplay_periods)
         deep_started=time.monotonic()
         deep_incomplete=False
         index=0
@@ -568,7 +570,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 index+=len(batch)
                 if index==len(candidates):
                     # One bounded extension; completed games are never rerun.
-                    extra=confirmation_extension(analyzed,config)
+                    extra=confirmation_extension(analyzed,config,periods=gameplay_periods)
                     candidates.extend(g for g in extra if g not in candidates)
             except DeadlineReached:
                 deep_incomplete=True;break
@@ -595,7 +597,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         }
         result=score_review(canonical,analyzed,len(history),skipped,partial or archive_partial or deep_incomplete,
                             scanner.name,profile,time.monotonic()-started,config,
-                            coverage_state=coverage_state,context_games=history)
+                            coverage_state=coverage_state,context_games=history,
+                            gameplay_periods=gameplay_periods)
         result.coverage.update(primary_collected=len(primary),primary_fast_scanned=min(len(analyzed),len(primary)) if not primary_complete else len(primary),
                                history_probed=len(probes),history_fast_scanned=sum(g not in primary for g in analyzed),
                                history_probe_complete=probe_complete,deep_incomplete=deep_incomplete,
