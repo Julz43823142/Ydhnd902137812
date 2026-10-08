@@ -1,6 +1,9 @@
 """Exercise exact depth-18 full-game Fair Play without network/user accounts."""
 import os
 import time
+import sys
+from pathlib import Path
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from scripts.smoke_stockfish_reviews import TARGET, FixtureAPI
 from fairplay_analysis import review, close_shared_engine_pool
 
