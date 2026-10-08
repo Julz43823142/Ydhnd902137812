@@ -1270,7 +1270,26 @@ def _write_daily_rotation_marker():
 async def daily_workflow_rotation_loop():
     """Cleanly hand the persistent Daily bot to a fresh Actions worker."""
     try:
+        started = time.monotonic()
         await asyncio.sleep(DAILY_WORKFLOW_ROTATION_SECONDS)
+
+        # A full-depth Fair Play review can legitimately occupy the CPU for
+        # hours. Never abandon a running scan just to perform planned rotation.
+        # New submissions are declined while draining; the admission gate
+        # reserves enough runner lifetime for any accepted full-depth review.
+        import fairplay_ui
+        service = fairplay_ui._service
+        if service is not None and not service.closed:
+            service.draining = True
+            if service.jobs:
+                print("Daily rotation: waiting for active Fair Play review to finish.",
+                      flush=True)
+            safe_handoff_at = started + 330 * 60
+            while service.jobs and time.monotonic() < safe_handoff_at:
+                await asyncio.sleep(10)
+            if service.jobs:
+                print("WARNING: GitHub runner deadline reached during Fair Play; "
+                      "an incomplete scan cannot be marked as completed.",flush=True)
 
         print(
             "Planned Daily worker rotation: syncing critical state before restart...",
