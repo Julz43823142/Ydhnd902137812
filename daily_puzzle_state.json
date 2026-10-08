@@ -2859,7 +2859,7 @@
       "bot_engine": "Stockfish 19",
       "bot_full_strength": false,
       "initial_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-      "fen": "rnbq1k2/pp2p2p/5pp1/2Pn4/8/5N2/P2NPPPP/Q3KB1R w K - 0 12",
+      "fen": "rnbq1k2/pp2p2p/5pp1/2Pn4/8/4PN2/P2N1PPP/Q3KB1R b K - 0 12",
       "moves": [
         "d4",
         "Nf6",
@@ -2882,9 +2882,10 @@
         "Qxa1",
         "f6",
         "Bxf8",
-        "Kxf8"
+        "Kxf8",
+        "e3"
       ],
-      "last_move": "Kxf8",
+      "last_move": "e3",
       "started_at": 1791485500.919501,
       "draw_offer": null,
       "message_id": 1557828217774149632,
@@ -2892,7 +2893,7 @@
       "chat_since_refresh": 0,
       "theme_owner_id": "442597396195704832",
       "theme_owner_name": "Thice",
-      "last_move_at": 1791485595.5483546
+      "last_move_at": 1791485597.4180927
     }
   },
   "chess_challenges": {
