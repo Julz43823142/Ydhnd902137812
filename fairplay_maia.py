@@ -57,6 +57,26 @@ def policy_evidence(decision, probabilities):
     extra=m.get('policy_search',{})
     complete=(extra.get('depth')==m.get('search_depth') if m.get('search_depth') else
               extra.get('nodes')==m.get('nodes') and 'nodes' in m)
+    objective=m.get('search_contract')
+    alternative=extra.get('search_contract')
+    if complete and (objective or alternative):
+        # Same-position budget and exact-score comparisons are necessary;
+        # counterfactual searches can still have root-search calibration drift.
+        from fairplay_evidence_audit import SearchObservation, State, check_counterfactual_contract
+        if not (objective and alternative):
+            complete=False
+        else:
+            def observation(contract, achieved_depth):
+                return SearchObservation(
+                    position_key=(0,int(decision.ply)),engine_key=str(contract.get('engine') or ''),
+                    budget_mode=str(contract.get('mode') or ''),
+                    budget_value=int(contract.get('requested') or 0),
+                    completed=bool(contract.get('completed')),achieved_depth=achieved_depth,
+                    exact_scores=bool(contract.get('exact')))
+            complete=(check_counterfactual_contract(
+                observation(objective,m.get('search_depth')),
+                observation(alternative,extra.get('depth'))
+            ).state is State.PASS)
     if complete:searched.update(extra.get('scores',{}))
     if any(move not in legal or not isinstance(value,(int,float)) or not math.isfinite(value)
            for move,value in searched.items()):return None

@@ -89,6 +89,25 @@ def stability(decision, config=CONFIG):
     semantic = bool(near and cpl_ok and scaled_ok and geometry)
     exact = bool(compared and rank_ok and cpl_ok and gap_ok and (best or near) and geometry)
     stable = semantic or exact
+    # Independent semantic quality check; not an extra scoring family.
+    from fairplay_evidence_audit import SearchObservation, compare_search_quality
+    def observation(snapshot):
+        contract=snapshot.get('search_contract') or {}
+        return SearchObservation(
+            position_key=(0,decision.ply),engine_key=str(contract.get('engine') or ''),
+            budget_mode=contract.get('mode') or 'nodes',
+            budget_value=int(contract.get('requested') or 0),
+            completed=bool(contract.get('completed')),
+            achieved_depth=snapshot.get('search_depth'),
+            exact_scores=bool(contract.get('exact')),
+            cpl=snapshot.get('cpl'),scaled_loss=snapshot.get('scaled_loss'),
+            played_rank=snapshot.get('rank'),best_move=snapshot.get('best'))
+    comparison=compare_search_quality(observation(fast),observation(m),
+        near_best_cp=config.equivalent_cp,cp_tolerance=30,scaled_tolerance=.035)
+    m['semantic_search_check']={
+        'state':comparison.quality.state.value,'reason':comparison.quality.reason.value,
+        'same_rank':comparison.same_rank,'same_best_move':comparison.same_best_move,
+        'near_best_preserved':comparison.near_best_preserved}
     m['search_stability'] = {'compared':bool(compared), 'best':bool(best), 'rank':bool(rank_ok),
         'cpl':bool(cpl_ok), 'gap':bool(gap_ok), 'semantic_quality':semantic, 'stable':stable}
     return stable

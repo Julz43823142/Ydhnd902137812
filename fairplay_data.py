@@ -168,7 +168,7 @@ def parse_game(row: dict, target: str, config: ReviewConfig = CONFIG, *, exclusi
         return reject('other_invalid')
     matches = [str(side.get('username', '')).casefold() == target for side in sides]
     if matches.count(True) != 1:
-        return reject('other_invalid')
+        return reject('missing_player_identity')
     color = chess.WHITE if matches[0] else chess.BLACK
     own, other = (sides if color else sides[::-1])
     if own.get('result') == 'abandoned' or other.get('result') == 'abandoned':return reject('abandoned')

@@ -534,25 +534,59 @@ def integrate_gameplay(result,games,config=CONFIG,*,periods=None):
         required=('gameplay_period','deep_confirmation','complete_analysis')
         result.diagnostics['gameplay']['blocked']=[k.replace('_',' ') for k in required if not gates[k]]
     def route_row(predicate,field=None):
+        # Score EVERY pre-existing route candidate first. Choosing one to show
+        # cannot screen out stronger Rapid/Blitz candidates behind Bullet.
+        from fairplay_evidence_audit import CandidateAudit, Check, State, Reason, PASSED, select_route_diagnostics
         options=[p for p in periods if predicate(p)]
-        candidate=next((p for p in options if p['qualified'] and p['deep']['qualified'] and (not field or (p.get(field) and p['deep'].get(field)))),options[0] if options else None)
-        passed=bool(candidate and candidate['qualified'] and candidate['deep']['qualified'] and primary_complete
-                    and not {'human','difficulty'}&set(config.disabled_features))
-        if field and candidate and (not candidate.get(field) or not candidate['deep'].get(field)):passed=False
-        blockers=[]
-        if field and candidate and not candidate.get(field):
-            blockers.extend(candidate.get('blockers') or [field.title()+' candidate requirements are not established.'])
-        if field and candidate and not candidate['deep'].get(field):
-            blockers.extend(candidate['deep'].get('blockers') or [field.title()+' paired deep confirmation is not established.'])
-        if not candidate:blockers.append('No eligible chronological candidate.')
-        elif not candidate['qualified']:blockers.extend(candidate.get('blockers') or ['Personal/gameplay period not exceptional.'])
-        if candidate and not candidate['deep']['qualified']:blockers.extend(candidate['deep'].get('blockers') or ['Required paired deep confirmation not established.'])
-        if not primary_complete:blockers.append('Required primary engine coverage is incomplete.')
-        if candidate and not candidate.get('acute') and (not sufficient or result.confidence=='LOW'):
-            passed=False;blockers.append('Broad-sample coverage or confidence is insufficient.')
-        if {'human','difficulty'}&set(config.disabled_features):blockers.append('Gameplay family disabled in local ablation.')
-        return {'passed':passed,'blockers':[] if passed else list(dict.fromkeys(blockers)),
-                'candidate_games':len(candidate['ids']) if candidate else 0}
+        outcomes=[]
+        descriptors=[]
+        for p in options:
+            proof=p.get('deep',{})
+            qualifying=bool(p.get('qualified') and proof.get('qualified'))
+            route_specific=bool(not field or (p.get(field) and proof.get(field)))
+            broad_ok=bool(p.get('acute') or (sufficient and result.confidence!='LOW'))
+            eligible_kind=not (field in ('acute','personal') and p['class']=='bullet')
+            feature_ok=not {'human','difficulty'}&set(config.disabled_features)
+            passed=bool(qualifying and route_specific and broad_ok and
+                        eligible_kind and primary_complete and feature_ok)
+            blockers=[]
+            if not eligible_kind:blockers.append('Time class excluded by existing route rules.')
+            if field and not p.get(field):
+                blockers.extend(p.get('blockers') or [field.title()+' candidate requirements are not established.'])
+            if field and not proof.get(field):
+                blockers.extend(proof.get('blockers') or [field.title()+' paired deep confirmation is not established.'])
+            if not p['qualified']:blockers.extend(p.get('blockers') or ['Personal/gameplay period not exceptional.'])
+            if not proof.get('qualified'):blockers.extend(proof.get('blockers') or ['Required paired deep confirmation not established.'])
+            if not primary_complete:blockers.append('Required primary engine coverage is incomplete.')
+            if not broad_ok:blockers.append('Broad-sample coverage or confidence is insufficient.')
+            if not feature_ok:blockers.append('Gameplay family disabled in local ablation.')
+            blockers=list(dict.fromkeys(blockers))
+            outcomes.append((p,passed,blockers))
+            descriptors.append(CandidateAudit(
+                route=field or 'gameplay',time_class=p['class'],
+                games=len(p['ids']),opportunities=p.get('summary',{}).get('opportunities',0),
+                structurally_eligible=eligible_kind and broad_ok,
+                checks={'qualifying':PASSED if qualifying else Check(State.FAIL,Reason.EXISTING_GATE),
+                        'deep':PASSED if proof.get('qualified') else Check(State.FAIL,Reason.EXISTING_GATE),
+                        'route':PASSED if route_specific else Check(State.FAIL,Reason.EXISTING_GATE),
+                        'primary':PASSED if primary_complete else Check(State.FAIL,Reason.EXISTING_GATE)}))
+        # Presentation-only representative; route status is OR over ALL actual
+        # candidate outcomes and is never derived from the display choice.
+        chosen=(select_route_diagnostics(descriptors).get(field or 'gameplay')
+                if descriptors else None)
+        winner=next(((p,passed,blockers) for p,passed,blockers in outcomes
+                     if p['class']==chosen.time_class and len(p['ids'])==chosen.games
+                     and p.get('summary',{}).get('opportunities',0)==chosen.opportunities),
+                    outcomes[0] if outcomes else None) if chosen else None
+        accepted=next((row for row in outcomes if row[1]),None)
+        display=accepted or winner
+        passed=bool(accepted)
+        return {'passed':passed,
+                'blockers':[] if passed else (display[2] if display else ['No eligible chronological candidate.']),
+                'candidate_games':len(display[0]['ids']) if display else 0,
+                'representative_time_class':display[0]['class'] if display else 'none',
+                'candidates_evaluated':len(outcomes)}
+
     convergence=getattr(result,'clusters',{}).get('convergence',{})
     result.diagnostics['high_paths']={
         'Legacy cluster HIGH':{'passed':legacy_priority in ('HIGH','VERY HIGH') and not convergence.get('raised_priority'),

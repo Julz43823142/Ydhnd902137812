@@ -60,6 +60,11 @@ def search_alternatives(scanner,d,nodes):
         if 'Clear Hash' in scanner.engine.options:scanner.engine.configure({'Clear Hash':None})
         started=time.monotonic()
         line=scanner.engine.analyse(board,limit,root_moves=[move])
+        if (depth_search and (not isinstance(line,dict) or
+                int(line.get('depth',0) or 0)<nodes.depth)):
+            raise chess.engine.EngineError('Counterfactual did not reach the requested depth')
+        if (line.get('lowerbound') or line.get('upperbound') or not line.get('pv')):
+            raise chess.engine.EngineError('Counterfactual score was not exact')
         spent=time.monotonic()-started
         scanner.profile['root_seconds']+=spent;scanner.profile['root_searches']+=1
         key='deep_root_seconds' if depth_search or nodes==scanner.config.deep_nodes else 'fast_root_seconds'
@@ -68,8 +73,11 @@ def search_alternatives(scanner,d,nodes):
         scanner.profile['policy_root_searches']=scanner.profile.get('policy_root_searches',0)+1
         values[uci]=score_cp(line,board.turn)
     check_deadline(scanner.deadline)
-    return ({'depth':nodes.depth,'scores':values} if depth_search else
-            {'nodes':nodes,'scores':values})
+    contract={'mode':'depth' if depth_search else 'nodes',
+              'requested':nodes.depth if depth_search else nodes,
+              'engine':scanner.name,'completed':True,'exact':True}
+    return ({'depth':nodes.depth,'scores':values,'search_contract':contract} if depth_search else
+            {'nodes':nodes,'scores':values,'search_contract':contract})
 
 def complete(games,nodes,deadline,*,executor=None,pool=None,scanner=None,fast=False):
     """Reuse the bounded pool. Drain all tasks; incomplete optional data cannot score."""
@@ -207,6 +215,7 @@ def allocate(games,plan,config=CONFIG):
 
 def integrate(result,games,config=CONFIG):
     best=None
+    best_ids=()
     deep_rows={id(g):game_summary(g) for g in games if g.deep}
     fast_rows={id(g):game_summary(g,fast=True) for g in games if g.deep}
     for candidate in periods(games):
@@ -224,9 +233,13 @@ def integrate(result,games,config=CONFIG):
         reasons += [name for name,passed in tests.items() if not passed]
         row={'passed':not reasons,'blockers':reasons,'fast':candidate['summary'],'deep':deep,
              'class':candidate['class'],'candidate_games':len(candidate['ids'])}
-        if best is None or row['passed']:best=row
+        if best is None or row['passed']:
+            best=row
+            best_ids=tuple(candidate['ids'])
         if row['passed']:break
     best=best or {'passed':False,'blockers':['No adequately covered chronological human-policy period.'],'candidate_games':0}
+    from fairplay_evidence_audit import audit_maia_funnel
+    result.diagnostics['maia_evidence_audit']=audit_maia_funnel(games,best_ids)
     result.diagnostics['learned_gameplay']=best
     result.diagnostics.setdefault('high_paths',{})['Learned human-policy HIGH']={
         k:best[k] for k in ('passed','blockers','candidate_games')}
