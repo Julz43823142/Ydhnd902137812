@@ -74,6 +74,8 @@ jobs:
         env:
           BASELINE_STOCKFISH_PATH: /tmp/stockfish19-official/Stockfish/src/stockfish
         run: python scripts/benchmark_fairplay_transport.py
+      - name: Verify complete real-engine depth 18 on every eligible position
+        run: python scripts/smoke_fairplay_depth18.py
 
   human-model-smoke:
     runs-on: ubuntu-latest
