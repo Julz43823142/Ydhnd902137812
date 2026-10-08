@@ -1,0 +1,17 @@
+{
+  "action": "chess_bot_win",
+  "amount": 1,
+  "created_at": 1791485958,
+  "created_at_ns": 1791485958670813519,
+  "daily_key": "daily:2026-10-08",
+  "display_name": "Thice",
+  "metadata": {
+    "rating": 1530,
+    "variant": "standard"
+  },
+  "operation": "quest-progress",
+  "quest_build": "quests-v1-2026-09-08",
+  "transaction_id": "quest:chess-bot-win:bot-1557827841369055293-442597396195704832:442597396195704832",
+  "user_id": "442597396195704832",
+  "weekly_key": "weekly:2026-10-05"
+}
