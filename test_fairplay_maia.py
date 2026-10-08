@@ -131,6 +131,26 @@ class CausalSelection(unittest.TestCase):
             for d in game.decisions:d.metrics.update(cpl=900,scaled_loss=.8,high_information=False)
         self.assertEqual(baseline,[d.ply for _,d,_ in maia.selection(self.games)])
 
+    def test_full_coverage_predicts_all_eligible_positions_instead_of_eight(self):
+        ordinary=maia.selection(self.games)
+        full=maia.selection(self.games,full_coverage=True)
+        expected=sum(len(g.decisions) for g in self.games if g.moves and g.rating is not None
+                     and g.opponent_rating is not None)
+        self.assertLessEqual(len(ordinary),8*len(self.games))
+        self.assertEqual(len(full),expected)
+        self.assertGreaterEqual(len(full),len(ordinary))
+
+    def test_full_coverage_neural_inference_uses_bounded_batches(self):
+        calls=[]
+        def predictor(items):
+            calls.append(len(items))
+            return [{m.uci():1/chess.Board(i['history'][-1]).legal_moves.count()
+                     for m in chess.Board(i['history'][-1]).legal_moves} for i in items]
+        result=maia.annotate_history(self.games,predictor=predictor,full_coverage=True)
+        self.assertTrue(result['available'])
+        self.assertEqual(result['positions'],len(maia.selection(self.games,full_coverage=True)))
+        self.assertTrue(all(0<n<=64 for n in calls))
+
     def test_cache_reuses_policies_without_hidden_downloads(self):
         calls=[]
         def predict(items):

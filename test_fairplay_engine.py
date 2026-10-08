@@ -20,6 +20,7 @@ class CompactInfoTests(unittest.TestCase):
         self.assertEqual(row['score'].pov(chess.WHITE).score(),-31)
         self.assertEqual(row['score'].pov(chess.BLACK).score(),31)
         self.assertEqual(row['pv'],[chess.Move.from_uci('e2e4')])
+        self.assertEqual(row['nodes'],24000)
 
     def test_mate_and_partial_info(self):
         _,row=CompactNodeEngine.parse_info('info score mate -3 pv a7a8q',chess.BLACK)

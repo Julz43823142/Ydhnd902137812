@@ -84,6 +84,23 @@ jobs:
       - name: Compare Stockfish 18 and 19 at fixed depth 18
         run: python scripts/compare_stockfish18_19.py /tmp/fairplay-stockfish18/src/stockfish /tmp/stockfish19-official/Stockfish/src/stockfish
 
+  depth18-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install python-chess requests
+      - uses: actions/cache@v4
+        with:
+          path: /tmp/stockfish19-official-pgo/Stockfish/src/stockfish
+          key: stockfish-${{ runner.os }}-${{ runner.arch }}-edb0d9db6731067ec50ce619ff372b463bc4dd5d-pgo-v1
+      - run: python scripts/prepare_stockfish.py --github-env --profile-build
+      - name: Verify full-game depth 18
+        run: python scripts/smoke_fairplay_depth18.py
+
   human-model-smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 10

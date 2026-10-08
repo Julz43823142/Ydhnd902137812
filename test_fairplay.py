@@ -2,6 +2,7 @@
 import asyncio
 import copy
 import io
+import os
 import json
 import random
 import threading
@@ -294,6 +295,35 @@ class Pipeline(unittest.TestCase):
         self.assertIn(CONFIG.fast_nodes,engine.calls);self.assertIn(CONFIG.deep_nodes,engine.calls)
         engine.quit.assert_called_once();self.api.close.assert_called_once()
         self.assertTrue(any(call.args[0].get('Threads')==1 for call in engine.configure.call_args_list))
+
+    def test_full_depth18_reviews_every_one_of_sixteen_games(self):
+        class DepthEngine(FakeEngine):
+            def analyse(self,board,limit,multipv=None,root_moves=None):
+                rows=super().analyse(board,limit,multipv=multipv,root_moves=root_moves)
+                for row in rows if isinstance(rows,list) else [rows]:
+                    row['depth']=limit.depth or 8
+                    row['nodes']=350000 if limit.depth else CONFIG.fast_nodes
+                return rows
+
+        class SixteenGamesAPI:
+            def __init__(self,deadline):self.deadline=deadline
+            def get(self,target,suffix='',**kwargs):
+                if not suffix:return {'username':TARGET}
+                if suffix.endswith('/archives'):
+                    return {'archives':[f'https://api.chess.com/pub/player/{TARGET}/games/2026/10']}
+                return {'games':[sample_row(i) for i in range(1,17)]}
+            def close(self):pass
+
+        fake=DepthEngine()
+        with patch.dict(os.environ,{'FAIRPLAY_FULL_DEPTH18':'1','FAIRPLAY_REQUIRE_MAIA':'0'}):
+            result=analysis.review(TARGET,lambda _:None,
+                                   api_factory=SixteenGamesAPI,engine_factory=lambda:fake)
+        self.assertEqual(result.diagnostics['runtime']['full_depth18_games_completed'],16)
+        self.assertEqual(result.deep_coverage['games'],16)
+        self.assertTrue(all(d.metrics['search_depth']==18 for g in result.games for d in g.decisions
+                            if 'search_depth' in d.metrics))
+        self.assertIn(None,[call for call in fake.calls if call is None])
+        self.assertFalse(result.diagnostics['runtime'].get('deep_incomplete',False))
 
     def test_shared_pool_scales_to_cpu_and_memory_limits(self):
         cases=((2,None,2),(8,None,8),(16,None,16),(32,None,16),
