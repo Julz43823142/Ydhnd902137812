@@ -111,7 +111,7 @@ class TrivialTiming(unittest.TestCase):
     def test_thresholds_are_configurable_and_runtime_cache_version_changes(self):
         game = timed_game()
         self.assertFalse(trivial_delay_metrics(game.decisions,replace(CONFIG,trivial_overlap_min=1.01))['elevated'])
-        self.assertIn('v18-counterfactual-human',analysis.VERSION)
+        self.assertIn('v18.1-opportunity-weighting',analysis.VERSION)
 
 
 if __name__=='__main__':unittest.main()
