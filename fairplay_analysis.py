@@ -839,7 +839,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         analyzed.sort(key=lambda g:(g.ended,g.identity))
         progress('Building human-move profile…')
         neural_reference=(
-            __import__('fairplay_maia').annotate_history(analyzed,full_coverage=full_depth_mode)
+            __import__('fairplay_maia').annotate_history(
+                analyzed,full_coverage=full_depth_mode,checkpoint=checkpoint,target=target)
             if (primary_complete and time.monotonic()<deadline
                 and not (deadline.cancel is not None and deadline.cancel.is_set()))
             else {'available':False,'positions':0,
@@ -852,7 +853,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             progress('Comparing human alternatives…')
             neural_reference['fast_counterfactual']=complete_policy(
                 analyzed,config.fast_nodes,deadline,executor=engine_executor,
-                pool=shared_pool if use_shared else None,scanner=scanner,fast=True)
+                pool=shared_pool if use_shared else None,scanner=scanner,fast=True,
+                checkpoint=checkpoint,target=target)
             if (full_depth_mode and os.getenv('FAIRPLAY_REQUIRE_MAIA')=='1'
                     and not neural_reference['fast_counterfactual']['complete']):
                 raise ReviewError('The complete Maia fast reference did not finish; no review was issued.')
@@ -949,7 +951,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         if neural_reference.get('available'):
             neural_reference['deep_counterfactual']=complete_policy(
                 [g for g in analyzed if g.deep],deep_budget,deadline,
-                executor=engine_executor,pool=shared_pool if use_shared else None,scanner=scanner)
+                executor=engine_executor,pool=shared_pool if use_shared else None,scanner=scanner,
+                checkpoint=checkpoint,target=target)
             if (full_depth_mode and os.getenv('FAIRPLAY_REQUIRE_MAIA')=='1'
                     and not neural_reference['deep_counterfactual']['complete']):
                 raise ReviewError('The complete depth-18 Maia comparison did not finish; no review was issued.')
