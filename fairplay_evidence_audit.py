@@ -207,7 +207,7 @@ def gate(value, reason=Reason.EXISTING_GATE, *, measured=True):
     return PASSED if value else Check(State.FAIL, reason)
 
 
-def audit_engine_sample(games, config=None):
+def audit_engine_sample(games, config=None, *, period_ids=()):
     """Account for all engine decisions and a separate deep-confirmed subset.
 
     Sequential stages correspond to actual fast human-opportunity eligibility
@@ -279,8 +279,12 @@ def audit_engine_sample(games, config=None):
         by_class[kind] = audit_decisions(rows, scope="time_class:" + kind,
             game_indices=[i for i,g in enumerate(games) if g.time_class == kind],
             gate_order=serial, branch_names=branches)
+    ids=set(period_ids)
+    selected=(audit_decisions(rows,scope='selected_gameplay_period',
+        game_indices=[i for i,g in enumerate(games) if g.identity in ids],
+        gate_order=serial,branch_names=branches) if ids else None)
     return {"whole_engine_sample":overall,"deep_confirmed_subset":paired,
-            "by_time_class":by_class}
+            "selected_gameplay_period":selected,"by_time_class":by_class}
 
 
 def audit_maia_funnel(games, selected_ids=()):
