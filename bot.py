@@ -1272,6 +1272,17 @@ async def daily_workflow_rotation_loop():
     try:
         await asyncio.sleep(DAILY_WORKFLOW_ROTATION_SECONDS)
 
+        # Keep a live Fair Play depth-18 scan on the current runner as
+        # long as it is safe. Past this grace window, encrypted checkpoints
+        # permit the replacement worker to resume unfinished positions.
+        rotation_grace = max(0, int(os.getenv("FAIRPLAY_ROTATION_GRACE_SECONDS", "3000")))
+        started_wait = time.monotonic()
+        while time.monotonic() - started_wait < rotation_grace:
+            from fairplay_ui import _service as fairplay_service
+            if fairplay_service is None or not fairplay_service.jobs:
+                break
+            await asyncio.sleep(30)
+
         print(
             "Planned Daily worker rotation: syncing critical state before restart...",
             flush=True,
