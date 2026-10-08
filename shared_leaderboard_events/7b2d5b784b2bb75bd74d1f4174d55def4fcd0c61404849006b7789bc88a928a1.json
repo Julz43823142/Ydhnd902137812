@@ -1,0 +1,16 @@
+{
+  "after_coins": 41.17,
+  "before_coins": 28.93,
+  "created_at": 1791485960,
+  "created_at_ns": 1791485960877989827,
+  "details": {
+    "credited": 12.0,
+    "pet_bonus": 0.24,
+    "source": "quest-bonus"
+  },
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "coin-credit",
+  "transaction_id": "quest-reward:daily:2026-10-08:daily:2026-10-08:challenge:bot-1500:442597396195704832",
+  "user_id": "442597396195704832"
+}
