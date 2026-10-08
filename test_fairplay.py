@@ -486,10 +486,8 @@ class Pipeline(unittest.TestCase):
                   [(d.move,d.metrics,d.fast_engine) for d in g.decisions])
                  for g in baseline.games])
             self.assertEqual(
-                queued.diagnostics['runtime']['engine_searches']['multipv_searches'],
-                sum(len([d for d in g.decisions if d.useful]) for g in queued.games)
-                + queued.diagnostics['runtime']['deep_position_tasks']
-                - sum(not d.useful for g in queued.games if g.deep for d in g.decisions))
+                queued.diagnostics['runtime']['fast_position_tasks'],
+                sum(bool(d.useful) for g in queued.games for d in g.decisions))
             warm=analysis.review(
                 TARGET,lambda _:None,api_factory=lambda _:self.fake_api(6),
                 engine_pool=pool)
