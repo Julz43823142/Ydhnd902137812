@@ -727,11 +727,15 @@ class FairPlayService:
                 if self.checkpoints is not None:
                     await asyncio.to_thread(self.checkpoints.finish,job.target)
         except AccountNotFound:
+            if self.checkpoints is not None:
+                await asyncio.to_thread(self.checkpoints.suspend,job.target)
             try:
                 if job.ctx is not None:
                     await job.ctx.followup.send('❌ **Chess.com account not found**\nCheck the username and try again.',ephemeral=True)
             except discord.HTTPException:pass
         except ReviewError as error:
+            if self.checkpoints is not None:
+                await asyncio.to_thread(self.checkpoints.suspend,job.target)
             if job.message is not None:await self.safe_progress(job,'❌ '+str(error))
             else:
                 try:
@@ -747,6 +751,8 @@ class FairPlayService:
             except Exception:pass
             raise
         except Exception:
+            if self.checkpoints is not None:
+                await asyncio.to_thread(self.checkpoints.suspend,job.target)
             # Deliberately do not log exception values/targets/reports.
             if job.message is not None:await self.safe_progress(job,'❌ Analysis could not finish safely. Please try again later.')
             else:
