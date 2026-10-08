@@ -64,7 +64,10 @@ def annotate(decision, config=CONFIG):
 def stability(decision, config=CONFIG):
     fast = decision.fast_engine
     m = decision.metrics
-    compared = m.get('nodes', 0)>=config.deep_nodes and fast.get('nodes', 0)==config.fast_nodes
+    # Fixed-depth full coverage counts as a real deep comparison; depth-18
+    # searches may use fewer or more nodes than the legacy 320k budget.
+    compared = ((m.get('nodes', 0)>=config.deep_nodes or m.get('search_depth',0)>=18)
+                and fast.get('nodes', 0)==config.fast_nodes)
     rank, old = m.get('rank'), fast.get('rank')
     best = compared and m.get('best')==fast.get('best')
     rank_ok = compared and rank is not None and old is not None and abs(rank-old)<=1
