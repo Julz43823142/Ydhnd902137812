@@ -494,6 +494,7 @@ class SharedEnginePool:
             self.close()
             raise
         self.name=self.scanners[0].name
+        self.supports_decision_tasks=all(callable(getattr(scanner,'analyse_decision',None)) for scanner in self.scanners)
 
     def _run_with_scanner(self,deadline,action):
         if self.closed:raise ReviewError('Stockfish pool is unavailable.')
@@ -713,7 +714,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                    else candidates[index:index+requested_workers])
             progress(f'Deep confirmation: {index} / {len(candidates)}')
             try:
-                if use_shared and engine_executor is not None:
+                if use_shared and engine_executor is not None and shared_pool.supports_decision_tasks:
                     confirmed_batch=[]
                     work=[]
                     for game in batch:
@@ -744,7 +745,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 elif engine_executor is None:
                     confirmed_batch=[deep_scan(batch[0],scanner)]
                 else:
-                    workers=scanners[:len(batch)]
+                    workers=([None]*len(batch) if use_shared else scanners[:len(batch)])
                     futures=[engine_executor.submit(deep_scan,game,item)
                              for game,item in zip(batch,workers)]
                     slots=[None]*len(futures)
