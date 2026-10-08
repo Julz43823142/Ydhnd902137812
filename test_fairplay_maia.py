@@ -34,7 +34,7 @@ class PolicyMath(unittest.TestCase):
     def test_low_likelihood_good_move_produces_bounded_gameplay_information(self):
         d=decision();r=maia.policy_evidence(d,distribution(d))
         self.assertGreater(r['information'],.5)
-        self.assertEqual(r['played_move_probability'],.01)
+        self.assertAlmostEqual(r['played_move_probability'],.01)
         self.assertLessEqual(r['information'],1)
         self.assertIn('not a cheating probability',r['note'])
 

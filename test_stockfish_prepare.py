@@ -44,7 +44,7 @@ class EnginePreparation(unittest.TestCase):
     def test_workflow_installs_and_smoke_tests_before_discord(self):
         source=Path('.github/workflows/daily_puzzle_and_answer.yml').read_text()
         self.assertLess(source.index('python scripts/prepare_stockfish.py --github-env'),source.index('run: python bot.py'))
-        self.assertIn('STOCKFISH_PATH: /tmp/stockfish19-official/Stockfish/src/stockfish',source)
+        self.assertIn('STOCKFISH_PATH: /tmp/stockfish19-official-pgo/Stockfish/src/stockfish',source)
         self.assertIn(chess_play.STOCKFISH_SOURCE_REVISION,source)
 
     def test_failed_optional_engine_preparation_does_not_stop_discord(self):
@@ -56,5 +56,29 @@ class EnginePreparation(unittest.TestCase):
         self.assertIsNotNone(block)
         self.assertRegex(block.group(1),r'(?m)^        continue-on-error: true$')
 
+
+
+class ProfileGuidedBuildTests(unittest.TestCase):
+    def test_pinned_source_and_official_profile_target_are_preserved(self):
+        from contextlib import ExitStack
+        from types import SimpleNamespace
+        with ExitStack() as stack:
+            stack.enter_context(patch.dict('os.environ',{'GITHUB_ACTIONS':'true','STOCKFISH_AUTO_INSTALL':'1'}))
+            for name,value in [('_STOCKFISH_INSTALL_ATTEMPTED',False),('_STOCKFISH_PATH',None)]:
+                stack.enter_context(patch.object(chess_play,name,value))
+            stack.enter_context(patch.object(chess_play.shutil,'which',return_value='/tool'))
+            stack.enter_context(patch.object(chess_play.os.path,'isdir',return_value=False))
+            stack.enter_context(patch.object(chess_play.os,'makedirs'))
+            stack.enter_context(patch.object(chess_play.os,'chmod'))
+            stack.enter_context(patch.object(chess_play,'_probe_stockfish_major',return_value=19))
+            run=stack.enter_context(patch.object(chess_play.subprocess,'run',return_value=
+                SimpleNamespace(returncode=0,stdout=chess_play.STOCKFISH_SOURCE_REVISION,stderr='')))
+            chess_play._try_install_stockfish_on_github_actions(profile_build=True)
+            self.assertEqual(run.call_count,3)
+            self.assertIn('https://github.com/official-stockfish/Stockfish.git',run.call_args_list[0].args[0])
+            self.assertIn('rev-parse',run.call_args_list[1].args[0])
+            self.assertIn('profile-build',run.call_args_list[2].args[0])
+            self.assertIn('ARCH=x86-64-avx2',run.call_args_list[2].args[0])
+            self.assertIn('stockfish19-official-pgo',chess_play._STOCKFISH_PATH)
 
 if __name__=='__main__':unittest.main()

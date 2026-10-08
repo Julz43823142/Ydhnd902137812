@@ -77,8 +77,8 @@ jobs:
         continue-on-error: true
         uses: actions/cache@v4
         with:
-          path: /tmp/stockfish19-official/Stockfish/src/stockfish
-          key: stockfish-${{ runner.os }}-${{ runner.arch }}-edb0d9db6731067ec50ce619ff372b463bc4dd5d-v1
+          path: /tmp/stockfish19-official-pgo/Stockfish/src/stockfish
+          key: stockfish-${{ runner.os }}-${{ runner.arch }}-edb0d9db6731067ec50ce619ff372b463bc4dd5d-pgo-v1
 
       - name: Prepare and smoke-test Stockfish before Discord starts
         id: stockfish
@@ -87,8 +87,8 @@ jobs:
         continue-on-error: true
         timeout-minutes: 10
         env:
-          STOCKFISH_PATH: /tmp/stockfish19-official/Stockfish/src/stockfish
-        run: python scripts/prepare_stockfish.py --github-env
+          STOCKFISH_PATH: /tmp/stockfish19-official-pgo/Stockfish/src/stockfish
+        run: python scripts/prepare_stockfish.py --github-env --profile-build
 
       - name: Verify both real engine review paths using synthetic data
         if: steps.stockfish.outcome == 'success'

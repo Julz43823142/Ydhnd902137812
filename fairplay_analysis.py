@@ -10,7 +10,7 @@ import statistics as stats
 import time
 import threading
 from collections import OrderedDict
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor, as_completed, CancelledError
 from dataclasses import dataclass, field
 from typing import Callable
 
@@ -572,6 +572,43 @@ def close_shared_engine_pool():
     __import__('fairplay_maia').close_worker()
 
 
+def run_position_batch(executor, pool, work, nodes, deadline, progress, stage):
+    """Drain running tasks and preserve only fully completed games at a deadline.
+
+    A cancelled/failed position never becomes invented engine evidence. Workers
+    finish before callers summarize or cache any mutable decision objects.
+    """
+    expected={}
+    for game,decision in work:expected[id(game)]=expected.get(id(game),0)+1
+    done_by_game={}
+    futures={executor.submit(pool.run_decision,game,decision,nodes,deadline):id(game)
+             for game,decision in work}
+    interrupted=False
+    total=len(futures);done=0;tick=max(1,total//100)
+    if total:progress(f'{stage}: 0 / {total} positions')
+    try:
+        for future in as_completed(futures):
+            try:future.result()
+            except (DeadlineReached,CancelledError):
+                interrupted=True
+                for pending in futures:pending.cancel()
+            else:
+                key=futures[future]
+                done_by_game[key]=done_by_game.get(key,0)+1
+            done+=1
+            if done%tick==0 or done==total:
+                progress(f'{stage}: {done} / {total} positions')
+    except BaseException:
+        for pending in futures:pending.cancel()
+        # Match the existing shutdown guarantee: no background mutation after
+        # the caller handles the failure. Node searches have bounded timeouts.
+        for pending in futures:
+            try:pending.result()
+            except BaseException:pass
+        raise
+    return {key for key,count in expected.items() if done_by_game.get(key)==count},interrupted
+
+
 def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI, engine_factory=None,
            cancel=None, engine_workers=None, engine_pool=None):
     import copy
@@ -659,7 +696,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 if shared_pool is not None and use_shared:shared_pool.run(game,config.fast_nodes,deadline)
                 else:worker.analyse(game,config.fast_nodes)
             return game,cached_payload,bool(cached)
-        # Full primary fast pass ALWAYS precedes historical probes/deep searches.
+        # Full primary fast pass always precedes deep confirmation.
         ordered_primary=list(reversed(primary))
         # Shared-pool production can queue the whole primary pass at once.
         # ThreadPoolExecutor still runs only requested_workers tasks concurrently,
@@ -682,19 +719,12 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                           for i,(game,_,cache_hit) in enumerate(prepared) if not cache_hit
                           for decision in game.decisions if decision.useful]
                     fast_position_tasks+=len(work)
-                    if work:
-                        futures=[engine_executor.submit(
-                            shared_pool.run_decision,game,decision,config.fast_nodes,deadline)
-                            for _,game,decision in work]
-                        done=0
-                        total=len(futures)
-                        tick=max(1,total//100)
-                        progress(f'Fast engine scan: 0 / {total} positions')
-                        for future in as_completed(futures):
-                            future.result()
-                            done+=1
-                            if done%tick==0 or done==total:
-                                progress(f'Fast engine scan: {done} / {total} positions')
+                    complete_ids,interrupted=run_position_batch(
+                        engine_executor,shared_pool,[(game,d) for _,game,d in work],
+                        config.fast_nodes,deadline,progress,'Fast engine scan')
+                    if interrupted:
+                        partial=True
+                        prepared=[item for item in prepared if item[2] or id(item[0]) in complete_ids]
                     # Equivalent to EngineScanner.analyse(fast_nodes): summarize
                     # only after every position in that game has finished.
                     for game,_,cache_hit in prepared:
@@ -723,6 +753,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 for game,cached_payload in completed:
                     analyzed.append(game)
                     if cached_payload is not None:cached_deep[game.identity]=cached_payload
+                if partial:break
             except DeadlineReached:
                 partial=True;break
         primary_complete=len(analyzed)==len(primary)
@@ -735,7 +766,12 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         context_only = [g for g in history if g.identity not in {x.identity for x in analyzed}]
         analyzed.sort(key=lambda g:(g.ended,g.identity))
         progress('Building human-move profile…')
-        neural_reference=__import__('fairplay_maia').annotate_history(analyzed)
+        neural_reference=(
+            __import__('fairplay_maia').annotate_history(analyzed)
+            if (primary_complete and time.monotonic()<deadline
+                and not (deadline.cancel is not None and deadline.cancel.is_set()))
+            else {'available':False,'positions':0,
+                  'reason':'Primary engine pass incomplete or interrupted; optional human reference skipped.'})
         progress('Analyzing sessions and repertoire…')
         from fairplay_sequence import class_periods, adaptive_deep_games, confirmation_extension
         gameplay_periods=class_periods(analyzed,config)
@@ -779,17 +815,14 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                         for decision in confirmed.decisions:
                             work.append((confirmed,decision))
                     deep_position_tasks+=len(work)
-                    if work:
-                        futures=[engine_executor.submit(
-                            shared_pool.run_decision,confirmed,decision,config.deep_nodes,deadline)
-                            for confirmed,decision in work]
-                        done=0
-                        total=len(futures)
-                        progress(f'Deep confirmation: 0 / {total} positions')
-                        for future in as_completed(futures):
-                            future.result()
-                            done+=1
-                            progress(f'Deep confirmation: {done} / {total} positions')
+                    complete_ids,interrupted=run_position_batch(
+                        engine_executor,shared_pool,work,config.deep_nodes,deadline,progress,'Deep confirmation')
+                    if interrupted:
+                        deep_incomplete=True
+                        complete_pairs=[(game,confirmed) for game,confirmed in zip(batch,confirmed_batch)
+                                        if game.identity in cached_deep or id(confirmed) in complete_ids]
+                        batch=[game for game,_ in complete_pairs]
+                        confirmed_batch=[confirmed for _,confirmed in complete_pairs]
                     for game,confirmed in zip(batch,confirmed_batch):
                         if game.identity not in cached_deep:summarize(confirmed,config)
                 elif engine_executor is None:
@@ -807,6 +840,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                     game.decisions,game.metrics,game.deep=confirmed.decisions,confirmed.metrics,True
                     game.human_reference=confirmed.human_reference
                 index+=len(batch)
+                if deep_incomplete:break
                 if index==len(candidates):
                     # One bounded extension; completed games are never rerun.
                     extra=confirmation_extension(analyzed,config,periods=gameplay_periods)

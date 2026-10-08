@@ -1,6 +1,7 @@
 """Real-engine equivalence/latency check on synthetic positions; no accounts."""
 import copy
 import json
+import os
 import sys
 import time
 from pathlib import Path
@@ -22,8 +23,10 @@ def main():
     measurements=[]
     outputs=[]
     for compact in (False,True):
-        factory=None if compact else lambda:chess_play._create_stockfish_engine(
-            allow_install=False,engine_class=BoundedNodeEngine)
+        baseline_path=os.environ.get('BASELINE_STOCKFISH_PATH')
+        factory=(None if compact else
+            (lambda:BoundedNodeEngine.popen_uci(baseline_path,timeout=15)) if baseline_path else
+            (lambda:chess_play._create_stockfish_engine(allow_install=False,engine_class=BoundedNodeEngine)))
         engine=EngineScanner(deadline,CONFIG,factory)
         rows=[]
         started=time.monotonic()
@@ -36,7 +39,7 @@ def main():
         finally:engine.close()
         outputs.append(rows)
         measurements.append({'transport':'compact' if compact else 'python-chess',
-            'seconds':round(time.monotonic()-started,4),'positions':len(rows)})
+            'seconds':round(time.monotonic()-started,4),'positions':len(rows),'profile_guided':bool(compact and baseline_path)})
     assert outputs[0]==outputs[1], 'Compact transport changed fixed-node evidence'
     print(json.dumps({'equivalent':True,'measurements':measurements}))
 

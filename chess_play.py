@@ -318,7 +318,7 @@ def _github_actions_auto_install_enabled():
     return value not in {"0", "false", "no", "off"}
 
 
-def _try_install_stockfish_on_github_actions():
+def _try_install_stockfish_on_github_actions(*, profile_build=False):
     global _STOCKFISH_INSTALL_ATTEMPTED, _STOCKFISH_LAST_INSTALL_ERROR, _STOCKFISH_PATH
 
     if _STOCKFISH_INSTALL_ATTEMPTED:
@@ -334,7 +334,7 @@ def _try_install_stockfish_on_github_actions():
         _STOCKFISH_LAST_INSTALL_ERROR = "git/make is unavailable on this runner"
         return
 
-    build_root = os.path.join(tempfile.gettempdir(), "stockfish19-official")
+    build_root = os.path.join(tempfile.gettempdir(), "stockfish19-official-pgo" if profile_build else "stockfish19-official")
     source_root = os.path.join(build_root, "Stockfish")
     binary_path = os.path.join(source_root, "src", "stockfish")
 
@@ -366,10 +366,11 @@ def _try_install_stockfish_on_github_actions():
             return
 
         build = subprocess.run(
-            [make, "-C", os.path.join(source_root, "src"), "-j2", "build", "ARCH=x86-64-avx2"],
+            [make, "-C", os.path.join(source_root, "src"), "-j2",
+             "profile-build" if profile_build else "build", "ARCH=x86-64-avx2"],
             capture_output=True,
             text=True,
-            timeout=300,
+            timeout=600 if profile_build else 300,
         )
         if build.returncode != 0:
             detail = (build.stderr or build.stdout or "").strip().splitlines()

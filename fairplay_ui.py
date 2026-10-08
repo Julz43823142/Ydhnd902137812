@@ -796,6 +796,11 @@ async def startup(client):
             print(f'Fair Play engine pool ready: {pool.size} workers; '
                   f'effective CPU={available_engine_cpus()}; memory limit={memory_text}',flush=True)
         except Exception:pass  # scans still fail safely with the normal unavailable-engine message
+        try:
+            ready=await asyncio.to_thread(__import__('fairplay_maia').warm_worker)
+            print('Fair Play local human reference: '+('ready' if ready else 'not installed'),flush=True)
+        except Exception:
+            print('Fair Play local human reference unavailable; Stockfish remains available.',flush=True)
     _service.pool_warm_task=asyncio.create_task(warm_engine_pool(),name='fairplay-engine-warmup')
     _service.workers = [
         asyncio.create_task(_service.run_queue(),name=f'fairplay-queue-{index+1}')

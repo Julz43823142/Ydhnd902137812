@@ -59,4 +59,37 @@ class PoolFailureTests(unittest.TestCase):
             pool._run_with_scanner(ScanDeadline(time.monotonic()+10),lambda _:None)
 
 
+
+class PartialBatchTests(unittest.TestCase):
+    def test_deadline_preserves_complete_game_and_excludes_partial_game(self):
+        from concurrent.futures import Future
+        from types import SimpleNamespace
+        from fairplay_analysis import run_position_batch
+        one=SimpleNamespace();two=SimpleNamespace()
+        decisions=[object(),object(),object(),object()]
+        work=[(one,decisions[0]),(one,decisions[1]),(two,decisions[2]),(two,decisions[3])]
+        class InlineExecutor:
+            def submit(self,fn,game,decision,*args):
+                future=Future()
+                if decision is decisions[3]:future.set_exception(DeadlineReached())
+                else:future.set_result(True)
+                return future
+        done,partial=run_position_batch(InlineExecutor(),SimpleNamespace(run_decision=None),
+            work,24000,None,lambda _:None,'Fast engine scan')
+        self.assertTrue(partial)
+        self.assertIn(id(one),done)
+        self.assertNotIn(id(two),done)
+
+    def test_completed_batch_is_not_marked_partial(self):
+        from concurrent.futures import Future
+        from types import SimpleNamespace
+        from fairplay_analysis import run_position_batch
+        game=SimpleNamespace()
+        class InlineExecutor:
+            def submit(self,*args):
+                future=Future();future.set_result(True);return future
+        done,partial=run_position_batch(InlineExecutor(),SimpleNamespace(run_decision=None),
+            [(game,object())],24000,None,lambda _:None,'Fast engine scan')
+        self.assertFalse(partial);self.assertEqual(done,{id(game)})
+
 if __name__=='__main__':unittest.main()

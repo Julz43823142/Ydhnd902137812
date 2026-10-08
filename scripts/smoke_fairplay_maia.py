@@ -20,6 +20,9 @@ def main():
             legal={m.uci() for m in chess.Board(item['history'][-1]).legal_moves}
             assert set(row)==legal and abs(sum(row.values())-1)<1e-5
             assert all(0<=p<=1 for p in row.values())
+        low=worker.predict([dict(items[0],rating=800)])[0]
+        high=worker.predict([dict(items[0],rating=2600)])[0]
+        assert sum(abs(low[m]-high[m]) for m in low)>1e-4, 'Rating conditioning is inactive'
         print('Local Maia policy smoke passed: legal moves, deterministic repeat, Black orientation.')
     finally:worker.close()
 

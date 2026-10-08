@@ -112,8 +112,10 @@ def selection(games):
 class LocalPolicyWorker:
     def __init__(self,checkpoint):
         self.buffer=b''
-        env=dict(os.environ,OMP_NUM_THREADS='1',MKL_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',
-                 HF_HUB_OFFLINE='1',HF_HUB_DISABLE_TELEMETRY='1')
+        env={key:value for key,value in os.environ.items() if key in {
+            'PATH','HOME','LANG','LC_ALL','LD_LIBRARY_PATH','PYTHONPATH','VIRTUAL_ENV','SYSTEMROOT','TMPDIR'}}
+        env.update(OMP_NUM_THREADS='1',MKL_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',
+                   HF_HUB_OFFLINE='1',HF_HUB_DISABLE_TELEMETRY='1')
         self.process=subprocess.Popen([sys.executable,str(Path(__file__).parent/'scripts/fairplay_maia_worker.py'),str(checkpoint)],
             stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,bufsize=0,env=env)
         os.set_blocking(self.process.stdin.fileno(),False)
@@ -165,6 +167,16 @@ def close_worker():
     with _lock:
         if _worker is not None:_worker.close()
         _worker=None
+
+
+def warm_worker():
+    """Load once during bot startup, never download or block the Discord loop."""
+    global _worker
+    checkpoint=os.environ.get('FAIRPLAY_MAIA_CHECKPOINT')
+    if not checkpoint or not Path(checkpoint).is_file():return False
+    with _lock:
+        if _worker is None:_worker=LocalPolicyWorker(checkpoint)
+    return True
 
 
 def annotate_history(games,predictor=None):
