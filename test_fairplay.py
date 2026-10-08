@@ -419,6 +419,23 @@ class Pipeline(unittest.TestCase):
         finally:
             pool.close()
 
+    def test_shared_pool_reports_granular_deep_progress_and_per_scan_profile(self):
+        stages=[]
+        engines=[FakeEngine() for _ in range(4)]
+        pool=analysis.SharedEnginePool(size=4,factory=Mock(side_effect=engines))
+        try:
+            result=analysis.review(
+                TARGET,stages.append,api_factory=lambda _:self.fake_api(4),engine_pool=pool)
+            fast=[stage for stage in stages if stage.startswith('Fast engine scan:')]
+            deep=[stage for stage in stages if stage.startswith('Deep confirmation:')]
+            self.assertGreater(len(fast),2)
+            self.assertTrue(any('positions' in stage for stage in deep))
+            runtime=result.diagnostics['runtime']
+            self.assertGreater(runtime['deep_position_tasks'],0)
+            self.assertGreater(runtime['engine_searches'].get('multipv_searches',0),0)
+        finally:
+            pool.close()
+
     def test_shared_pool_eight_slots_materially_reduce_parallel_scheduler_time(self):
         class SlowEngine(FakeEngine):
             def analyse(self,board,limit,multipv=None,root_moves=None):
