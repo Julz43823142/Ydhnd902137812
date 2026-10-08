@@ -238,7 +238,7 @@ def warm_worker():
     checkpoint=os.environ.get('FAIRPLAY_MAIA_CHECKPOINT')
     if not checkpoint or not Path(checkpoint).is_file():return False
     with _lock:
-        if _worker is None:_worker=LocalPolicyWorker(checkpoint)
+        if _worker is None:_worker=LocalPolicyWorker(model_path)
     return True
 
 
@@ -250,8 +250,8 @@ def annotate_history(games,predictor=None,*,full_coverage=False,checkpoint=None,
         for decision in game.decisions:
             decision.human_policy={};decision.fast_policy={}
             decision.metrics.pop('policy_search',None)
-    checkpoint=os.environ.get('FAIRPLAY_MAIA_CHECKPOINT')
-    if predictor is None and (not checkpoint or not Path(checkpoint).is_file()):
+    model_path=os.environ.get('FAIRPLAY_MAIA_CHECKPOINT')
+    if predictor is None and (not model_path or not Path(model_path).is_file()):
         return {'available':False,'positions':0,'reason':'Local Maia checkpoint is not installed; Stockfish and the explicit heuristic remain active.'}
     chosen=selection(games,full_coverage=full_coverage)
     if not chosen:return {'available':False,'positions':0,'reason':'No positions with verified causal history and both ratings.'}
