@@ -182,6 +182,9 @@ jobs:
         run: python bot.py
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          # Full 100-game Stockfish depth-18 + per-position Maia review.
+          # Opt-in only; inactive until this PR is independently merged.
+          FAIRPLAY_FULL_DEPTH18: "1"
           SHARKMEISTER_USER_ID: "362606514764251137"
           TWITCH_EVENTSUB_ENABLED: "1"
           TWITCH_CLIENT_ID: ${{ vars.TWITCH_CLIENT_ID }}
