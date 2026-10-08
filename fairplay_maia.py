@@ -85,6 +85,20 @@ def refresh_game(game):
     return game.human_reference
 
 
+
+def carry_policy_after_deep(source, confirmed):
+    """Re-evaluate this scan's policies with deep metrics, including cached games.
+
+    Cached decisions can predate model availability or use a different sampled
+    subset. They must never restore stale policy observations into a new scan.
+    """
+    policies={(d.ply,d.fen,d.move):d.human_policy for d in source.decisions if d.human_policy}
+    for decision in confirmed.decisions:
+        decision.human_policy=dict(policies.get((decision.ply,decision.fen,decision.move),{}))
+    if policies:refresh_game(confirmed)
+    else:confirmed.human_reference={}
+
+
 def selection(games):
     # Compare successes and misses: selection uses difficulty/chronology, never
     # CPL, top-1, high-information hits, account names or validation labels.

@@ -837,6 +837,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                         slots[positions[future]]=future.result()
                     confirmed_batch=slots
                 for game,confirmed in zip(batch,confirmed_batch):
+                    __import__('fairplay_maia').carry_policy_after_deep(game,confirmed)
                     game.decisions,game.metrics,game.deep=confirmed.decisions,confirmed.metrics,True
                     game.human_reference=confirmed.human_reference
                 index+=len(batch)

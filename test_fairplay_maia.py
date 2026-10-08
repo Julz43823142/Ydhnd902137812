@@ -71,6 +71,21 @@ class PolicyMath(unittest.TestCase):
                     {k:v*2 for k,v in distribution(d).items()}):
             self.assertIsNone(maia.policy_evidence(d,bad))
 
+    def test_deep_cache_uses_current_policy_and_recomputes_quality(self):
+        current=decision();current.human_policy=distribution(current)
+        cached=copy.deepcopy(current);cached.human_policy=distribution(current,rare=False)
+        cached.metrics.update(cpl=250,scaled_loss=.3)
+        source=SimpleNamespace(decisions=[current])
+        confirmed=SimpleNamespace(decisions=[cached],human_reference={'information':1})
+        maia.carry_policy_after_deep(source,confirmed)
+        self.assertEqual(cached.human_policy,current.human_policy)
+        self.assertEqual(confirmed.human_reference['information'],0)
+        current.human_policy={}
+        maia.carry_policy_after_deep(source,confirmed)
+        self.assertEqual(cached.human_policy,{})
+        self.assertEqual(confirmed.human_reference,{})
+
+
 
 class CausalSelection(unittest.TestCase):
     def setUp(self):
