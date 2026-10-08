@@ -10,7 +10,7 @@ import statistics as stats
 import time
 import threading
 from collections import OrderedDict
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor, as_completed, CancelledError
 from dataclasses import dataclass, field
 from typing import Callable
 
@@ -133,6 +133,8 @@ def summarize(game: GameSample, config=CONFIG):
     game.metrics.update(position_summary(game))
     from fairplay_human import annotate_game
     annotate_game(game,config)
+    if any(d.human_policy for d in game.decisions):
+        __import__('fairplay_maia').refresh_game(game)
     game.metrics['timing'] = timing_metrics(game,config)
     return game.metrics
 
@@ -318,12 +320,12 @@ class BoundedNodeEngine(chess.engine.SimpleEngine):
 
 
 class EngineScanner:
-    """One independent low-priority Stockfish process per scan; no shared lock."""
+    """One independent fixed-node Stockfish process per pool worker."""
     def __init__(self, deadline, config=CONFIG, factory=None):
         self.deadline, self.config = deadline, config
         self.profile = {'multipv_seconds':0.0, 'root_seconds':0.0, 'multipv_searches':0, 'root_searches':0,
                         'fast_multipv_seconds':0.0, 'fast_root_seconds':0.0, 'deep_multipv_seconds':0.0, 'deep_root_seconds':0.0}
-        self.engine = (factory or (lambda:chess_play._create_stockfish_engine(allow_install=False,engine_class=BoundedNodeEngine)))()
+        self.engine = (factory or (lambda:chess_play._create_stockfish_engine(allow_install=False,engine_class=(__import__('fairplay_engine').CompactNodeEngine if os.name=='posix' else BoundedNodeEngine))))()
         self.engine.timeout = config.engine_timeout
         try:
             options = self.engine.options
@@ -336,11 +338,10 @@ class EngineScanner:
         except Exception:
             self.close()
             raise
-        # Fixed-node searches are deterministic at Threads=1. Do not lower
-        # Stockfish CPU priority: Discord work is mostly I/O and the engine is
-        # the dominant scan-latency component.
+        # Fixed nodes and one search thread preserve reproducibility. Yield
+        # CPU scheduling priority to interactive bot work under contention.
         try:
-            os.setpriority(os.PRIO_PROCESS,self.engine.transport.get_pid(),0)
+            os.setpriority(os.PRIO_PROCESS,self.engine.transport.get_pid(),5)
         except (AttributeError, OSError):pass
 
     def close(self):
@@ -453,8 +454,8 @@ def shared_engine_pool_size(config=CONFIG):
     if memory is None:
         memory_cap=_ENGINE_POOL_MAX
     else:
-        per_engine=max(96,config.hash_mb+32)
-        memory_cap=max(1,int(max(0,memory-256)//per_engine))
+        per_engine=max(256,config.hash_mb+192)
+        memory_cap=max(1,int(max(0,memory-768)//per_engine))
     # Sixteen is useful for the 100-game fast pass while remaining bounded;
     # the deep pass itself tops out below this. CPU affinity/quota and RAM can
     # only reduce this value, never inflate it.
@@ -483,6 +484,7 @@ class SharedEnginePool:
         self.available=queue.LifoQueue()
         self.scanners=[]
         self.closed=False
+        self.failed=threading.Event()
         try:
             for _ in range(self.size):
                 scanner=EngineScanner(None,config,factory)
@@ -497,8 +499,16 @@ class SharedEnginePool:
         self.supports_decision_tasks=all(callable(getattr(scanner,'analyse_decision',None)) for scanner in self.scanners)
 
     def _run_with_scanner(self,deadline,action):
-        if self.closed:raise ReviewError('Stockfish pool is unavailable.')
-        scanner=self.available.get()
+        # Never wait indefinitely after an engine dies and its replacement
+        # fails. Every borrower observes the scan deadline/cancellation too.
+        while True:
+            if self.closed or self.failed.is_set():
+                raise ReviewError('Stockfish pool is unavailable; please retry the review.')
+            check_deadline(deadline)
+            try:
+                scanner=self.available.get(timeout=.1)
+                break
+            except queue.Empty:continue
         reusable=True
         try:
             scanner.deadline=deadline
@@ -509,10 +519,14 @@ class SharedEnginePool:
             except Exception:pass
             try:
                 replacement=EngineScanner(None,self.config,self.factory)
+                if replacement.name!=self.name:
+                    replacement.close()
+                    raise ReviewError('Stockfish worker version changed.')
                 self.scanners[self.scanners.index(scanner)]=replacement
-                self.available.put(replacement)
+                if self.closed:replacement.close()
+                else:self.available.put(replacement)
             except Exception:
-                pass
+                self.failed.set()
             raise
         finally:
             scanner.deadline=None
@@ -543,7 +557,9 @@ _shared_engine_pool_lock=threading.Lock()
 def get_shared_engine_pool(config=CONFIG):
     global _shared_engine_pool
     with _shared_engine_pool_lock:
-        if _shared_engine_pool is None or _shared_engine_pool.closed:
+        if (_shared_engine_pool is None or _shared_engine_pool.closed
+                or _shared_engine_pool.failed.is_set()):
+            if _shared_engine_pool is not None:_shared_engine_pool.close()
             _shared_engine_pool=SharedEnginePool(config)
         return _shared_engine_pool
 
@@ -553,6 +569,44 @@ def close_shared_engine_pool():
     with _shared_engine_pool_lock:
         if _shared_engine_pool is not None:_shared_engine_pool.close()
         _shared_engine_pool=None
+    __import__('fairplay_maia').close_worker()
+
+
+def run_position_batch(executor, pool, work, nodes, deadline, progress, stage):
+    """Drain running tasks and preserve only fully completed games at a deadline.
+
+    A cancelled/failed position never becomes invented engine evidence. Workers
+    finish before callers summarize or cache any mutable decision objects.
+    """
+    expected={}
+    for game,decision in work:expected[id(game)]=expected.get(id(game),0)+1
+    done_by_game={}
+    futures={executor.submit(pool.run_decision,game,decision,nodes,deadline):id(game)
+             for game,decision in work}
+    interrupted=False
+    total=len(futures);done=0;tick=max(1,total//100)
+    if total:progress(f'{stage}: 0 / {total} positions')
+    try:
+        for future in as_completed(futures):
+            try:future.result()
+            except (DeadlineReached,CancelledError):
+                interrupted=True
+                for pending in futures:pending.cancel()
+            else:
+                key=futures[future]
+                done_by_game[key]=done_by_game.get(key,0)+1
+            done+=1
+            if done%tick==0 or done==total:
+                progress(f'{stage}: {done} / {total} positions')
+    except BaseException:
+        for pending in futures:pending.cancel()
+        # Match the existing shutdown guarantee: no background mutation after
+        # the caller handles the failure. Node searches have bounded timeouts.
+        for pending in futures:
+            try:pending.result()
+            except BaseException:pass
+        raise
+    return {key for key,count in expected.items() if done_by_game.get(key)==count},interrupted
 
 
 def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI, engine_factory=None,
@@ -642,7 +696,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 if shared_pool is not None and use_shared:shared_pool.run(game,config.fast_nodes,deadline)
                 else:worker.analyse(game,config.fast_nodes)
             return game,cached_payload,bool(cached)
-        # Full primary fast pass ALWAYS precedes historical probes/deep searches.
+        # Full primary fast pass always precedes deep confirmation.
         ordered_primary=list(reversed(primary))
         # Shared-pool production can queue the whole primary pass at once.
         # ThreadPoolExecutor still runs only requested_workers tasks concurrently,
@@ -665,19 +719,12 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                           for i,(game,_,cache_hit) in enumerate(prepared) if not cache_hit
                           for decision in game.decisions if decision.useful]
                     fast_position_tasks+=len(work)
-                    if work:
-                        futures=[engine_executor.submit(
-                            shared_pool.run_decision,game,decision,config.fast_nodes,deadline)
-                            for _,game,decision in work]
-                        done=0
-                        total=len(futures)
-                        tick=max(1,total//100)
-                        progress(f'Fast engine scan: 0 / {total} positions')
-                        for future in as_completed(futures):
-                            future.result()
-                            done+=1
-                            if done%tick==0 or done==total:
-                                progress(f'Fast engine scan: {done} / {total} positions')
+                    complete_ids,interrupted=run_position_batch(
+                        engine_executor,shared_pool,[(game,d) for _,game,d in work],
+                        config.fast_nodes,deadline,progress,'Fast engine scan')
+                    if interrupted:
+                        partial=True
+                        prepared=[item for item in prepared if item[2] or id(item[0]) in complete_ids]
                     # Equivalent to EngineScanner.analyse(fast_nodes): summarize
                     # only after every position in that game has finished.
                     for game,_,cache_hit in prepared:
@@ -706,6 +753,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 for game,cached_payload in completed:
                     analyzed.append(game)
                     if cached_payload is not None:cached_deep[game.identity]=cached_payload
+                if partial:break
             except DeadlineReached:
                 partial=True;break
         primary_complete=len(analyzed)==len(primary)
@@ -718,6 +766,12 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         context_only = [g for g in history if g.identity not in {x.identity for x in analyzed}]
         analyzed.sort(key=lambda g:(g.ended,g.identity))
         progress('Building human-move profile…')
+        neural_reference=(
+            __import__('fairplay_maia').annotate_history(analyzed)
+            if (primary_complete and time.monotonic()<deadline
+                and not (deadline.cancel is not None and deadline.cancel.is_set()))
+            else {'available':False,'positions':0,
+                  'reason':'Primary engine pass incomplete or interrupted; optional human reference skipped.'})
         progress('Analyzing sessions and repertoire…')
         from fairplay_sequence import class_periods, adaptive_deep_games, confirmation_extension
         gameplay_periods=class_periods(analyzed,config)
@@ -761,17 +815,14 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                         for decision in confirmed.decisions:
                             work.append((confirmed,decision))
                     deep_position_tasks+=len(work)
-                    if work:
-                        futures=[engine_executor.submit(
-                            shared_pool.run_decision,confirmed,decision,config.deep_nodes,deadline)
-                            for confirmed,decision in work]
-                        done=0
-                        total=len(futures)
-                        progress(f'Deep confirmation: 0 / {total} positions')
-                        for future in as_completed(futures):
-                            future.result()
-                            done+=1
-                            progress(f'Deep confirmation: {done} / {total} positions')
+                    complete_ids,interrupted=run_position_batch(
+                        engine_executor,shared_pool,work,config.deep_nodes,deadline,progress,'Deep confirmation')
+                    if interrupted:
+                        deep_incomplete=True
+                        complete_pairs=[(game,confirmed) for game,confirmed in zip(batch,confirmed_batch)
+                                        if game.identity in cached_deep or id(confirmed) in complete_ids]
+                        batch=[game for game,_ in complete_pairs]
+                        confirmed_batch=[confirmed for _,confirmed in complete_pairs]
                     for game,confirmed in zip(batch,confirmed_batch):
                         if game.identity not in cached_deep:summarize(confirmed,config)
                 elif engine_executor is None:
@@ -786,8 +837,11 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                         slots[positions[future]]=future.result()
                     confirmed_batch=slots
                 for game,confirmed in zip(batch,confirmed_batch):
+                    __import__('fairplay_maia').carry_policy_after_deep(game,confirmed)
                     game.decisions,game.metrics,game.deep=confirmed.decisions,confirmed.metrics,True
+                    game.human_reference=confirmed.human_reference
                 index+=len(batch)
+                if deep_incomplete:break
                 if index==len(candidates):
                     # One bounded extension; completed games are never rerun.
                     extra=confirmation_extension(analyzed,config,periods=gameplay_periods)
@@ -843,10 +897,12 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                             for key in shared_profile_after}
         else:
             search_profile=engine_profile(scanners) if scanners else {}
+        result.diagnostics['human_reference']=neural_reference
         result.diagnostics['runtime']={'collection_seconds':collected_at-started,
             'fast_seconds':fast_finished-collected_at,'deep_seconds':deep_finished-deep_started,
             'profile_seconds':time.monotonic()-deep_finished,'elapsed_seconds':result.elapsed,
             'peak_process_memory_mb':memory_mb,'full_fast_games':len(analyzed),'deep_games':sum(g.deep for g in analyzed),
+            'human_reference_seconds':neural_reference.get('seconds',0),
             'fast_position_tasks':fast_position_tasks,'deep_position_tasks':deep_position_tasks,
             'engine_workers':requested_workers,'shared_engine_pool':bool(use_shared),
             'effective_cpu_capacity':available_engine_cpus(),

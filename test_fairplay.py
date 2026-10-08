@@ -297,7 +297,7 @@ class Pipeline(unittest.TestCase):
 
     def test_shared_pool_scales_to_cpu_and_memory_limits(self):
         cases=((2,None,2),(8,None,8),(16,None,16),(32,None,16),
-               (16,1024,8),(12,2048,12),(8,512,2))
+               (16,1024,1),(12,2048,5),(8,512,1))
         for cpus,memory,workers in cases:
             with self.subTest(cpus=cpus,memory=memory), \
                  patch.object(analysis,'available_engine_cpus',return_value=cpus), \
@@ -309,7 +309,7 @@ class Pipeline(unittest.TestCase):
         engine=FakeEngine();engine.transport=SimpleNamespace(get_pid=lambda:123)
         with patch.object(analysis.os,'setpriority') as setpriority:
             scanner=analysis.EngineScanner(time.monotonic()+10,factory=lambda:engine)
-            try:setpriority.assert_called_once_with(analysis.os.PRIO_PROCESS,123,0)
+            try:setpriority.assert_called_once_with(analysis.os.PRIO_PROCESS,123,5)
             finally:scanner.close()
 
     def test_two_engine_workers_overlap_and_preserve_review_output(self):

@@ -117,6 +117,7 @@ class Decision:
     clock_valid: bool = False
     fast_engine: dict = field(default_factory=dict)
     opening: dict = field(default_factory=dict)
+    human_policy: dict = field(default_factory=dict)
 
 
 @dataclass
@@ -139,6 +140,8 @@ class GameSample:
     control_index: int | None = None
     rated: bool | None = None
     probe_only: bool = False
+    moves: list[str] = field(default_factory=list)
+    human_reference: dict = field(default_factory=dict)
 
 
 class QuietGameBuilder(chess.pgn.GameBuilder):
@@ -187,6 +190,7 @@ def parse_game(row: dict, target: str, config: ReviewConfig = CONFIG, *, exclusi
     previous = {chess.WHITE: None, chess.BLACK: None}
     decisions = []
     previous_capture_square = None
+    moves = []
     ply = 0
     for node in game.mainline():
         ply += 1
@@ -218,6 +222,7 @@ def parse_game(row: dict, target: str, config: ReviewConfig = CONFIG, *, exclusi
                                       trivial_kind=trivial,clock_valid=clock_valid,opening=opening))
         previous[side] = after  # a missing clock breaks that side's chain; never span missing moves
         previous_capture_square = node.move.to_square if capture else None
+        moves.append(node.move.uci())
         board.push(node.move)
     if ply < config.min_plies:return reject('too_short')
     if sum(d.useful for d in decisions) < config.min_game_decisions:return reject('insufficient_decisions')
@@ -240,7 +245,7 @@ def parse_game(row: dict, target: str, config: ReviewConfig = CONFIG, *, exclusi
     return GameSample(identity, safe_game_url(row.get('url', '')), int(end), row['time_class'],
                       int(rating) if rating and 100 <= rating <= 4000 else None,
                       int(opponent) if opponent and 100 <= opponent <= 4000 else None,
-                      result, score, accuracy, color, decisions,
+                      result, score, accuracy, color, decisions, moves=moves,
                       time_control=f'{base}+{increment}' if base is not None else '',
                       rated=row.get('rated') if isinstance(row.get('rated'),bool) else None)
 

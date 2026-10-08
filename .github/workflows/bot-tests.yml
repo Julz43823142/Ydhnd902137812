@@ -22,15 +22,21 @@ jobs:
       PYTHONPATH: ${{ github.workspace }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       - name: Install bot and minigame dependencies
-        run: python -m pip install -r requirements.txt -r minigames/minigames_requirements.txt
+        run: python -m pip install -r requirements.txt -r minigames/minigames_requirements.txt PyYAML
       - name: Run offline bot and persistence tests
         run: python -m unittest discover -v
       - name: Run offline minigame tests
         run: python -m unittest discover -s minigames -p test_minigames.py
+      - name: Validate JSON and YAML
+        run: python scripts/validate_repository_data.py
+      - name: Check committed patch whitespace
+        run: git diff --check HEAD~1 HEAD
       - name: Compile Python sources
         env:
           PYTHONPYCACHEPREFIX: ${{ runner.temp }}/sharkbot-pycache
@@ -54,7 +60,31 @@ jobs:
         env:
           STOCKFISH_PATH: /tmp/stockfish19-official/Stockfish/src/stockfish
         run: python scripts/prepare_stockfish.py --github-env
+      - uses: actions/cache@v4
+        with:
+          path: /tmp/stockfish19-official-pgo/Stockfish/src/stockfish
+          key: stockfish-${{ runner.os }}-${{ runner.arch }}-edb0d9db6731067ec50ce619ff372b463bc4dd5d-pgo-v1
+      - name: Prepare official profile-guided Stockfish
+        run: python scripts/prepare_stockfish.py --github-env --profile-build
       - name: Run synthetic two-pass Fair Play and normal Game Review smoke tests
         run: python scripts/smoke_stockfish_reviews.py
       - name: Verify real Stockfish position-queue evidence matches sequential search
         run: python scripts/smoke_fairplay_equivalence.py
+      - name: Compare compact and standard fixed-node transports
+        env:
+          BASELINE_STOCKFISH_PATH: /tmp/stockfish19-official/Stockfish/src/stockfish
+        run: python scripts/benchmark_fairplay_transport.py
+
+  human-model-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install requests python-chess
+      - run: python -m pip install torch==2.8.0 --index-url https://download.pytorch.org/whl/cpu
+      - run: python -m pip install -r requirements-fairplay-human.txt
+      - run: python scripts/prepare_fairplay_maia.py /tmp/sharkbot-maia/maia3-5m.pt --github-env
+      - run: python scripts/smoke_fairplay_maia.py

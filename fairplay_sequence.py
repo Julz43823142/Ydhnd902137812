@@ -302,7 +302,15 @@ def adaptive_deep_games(games,config=CONFIG,*,periods=None):
         if not any(set(p['ids'])&set(q['ids']) for q in independent):independent.append(p)
     if len(independent)>1:target=min(len(games),config.deep_max_games)
     target=max(min(len(games),config.deep_min_games),target)
-    if not candidate:return select_deep_games(games,replace(config,deep_games=target))
+    if not candidate:
+        plan=select_deep_games(games,replace(config,deep_games=target))
+        from fairplay_maia import confirmation_pair
+        pair=confirmation_pair(games)
+        if pair:
+            # Keep the normal plan and at most two additions. Do not remove
+            # representative controls or narrow confirmation to successful moves.
+            plan += [g for g in pair if g not in plan]
+        return plan[:config.deep_max_games]
     lookup={g.identity:g for g in games};members=[lookup[i] for i in candidate['ids']]
     sparse_allocation=not candidate.get('qualified') and not sparse_review_blockers(candidate,config)
     baseline=[g for g in games if g.identity not in candidate['ids'] and g.time_class==candidate['class']

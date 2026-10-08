@@ -1,0 +1,249 @@
+"""Optional local Maia-3 policy reference, independent of case labels.
+
+A move-policy probability is NOT a misconduct probability. Objective quality
+and policy rarity belong to the SAME gameplay family. This first integration
+adds transparent diagnostics and confirmation allocation, never a shortcut to
+HIGH. Unknown candidate quality is conservatively treated as perfect when
+computing an upper bound on expected quality.
+"""
+import hashlib
+import json
+import math
+import os
+import select
+import subprocess
+import sys
+import threading
+import time
+from collections import OrderedDict, deque
+from pathlib import Path
+
+import chess
+
+MODEL_REVISION = 'b6559de2398d7140b985f28fd2c19fb5e47ddabe'
+MODEL_SHA256 = 'ba14208b2992d85502f5fb501934abf6aaaeb355e9f3fdf90e326911f562524f'
+SOURCE_REVISION = '1e13597c42d4858b7cfd7cfdae01e297263364b2'
+MODEL_NAME = 'Maia-3 5M local policy'
+MAX_POSITIONS = 400
+_cache = OrderedDict()
+_worker = None
+_lock = threading.Lock()
+
+
+def quality(loss_cp, scaled_loss):
+    return max(0.0, min(1.0, 1-max(0,loss_cp)/150, 1-max(0,scaled_loss)/.20))
+
+
+def policy_evidence(decision, probabilities):
+    board=chess.Board(decision.fen)
+    legal={m.uci() for m in board.legal_moves}
+    if set(probabilities)!=legal:return None
+    if any(not isinstance(v,(int,float)) or not math.isfinite(v) or v<0 for v in probabilities.values()):return None
+    total=sum(probabilities.values())
+    if not .999<=total<=1.001:return None
+    probs={move:value/total for move,value in probabilities.items()}
+    m=decision.metrics
+    candidates=m.get('candidates',[])
+    values=m.get('candidate_cp',[])
+    if not values or len(candidates)!=len(values) or m.get('search_inconsistent'):return None
+    best=values[0]
+    def scale(cp):return 1/(1+math.exp(-.00368208*max(-10000,min(10000,cp))))
+    # No assumption that an unsearched move is bad: residual probability mass
+    # receives quality 1.0. This bound can only reduce anomaly evidence.
+    expected_upper=1.0
+    for move,value in zip(candidates,values):
+        expected_upper-=probs.get(move,0)*(1-quality(best-value,scale(best)-scale(value)))
+    observed=quality(m.get('cpl',1000),m.get('scaled_loss',1))
+    excess=max(0.0,observed-expected_upper)
+    near_mass=sum(probs.get(move,0) for move,value in zip(candidates,values) if best-value<=15)
+    played=probs.get(decision.move,0)
+    useful=bool(m.get('competitive') and m.get('useful') and not decision.forced
+                 and not decision.trivial_kind and decision.phase!='opening'
+                 and not m.get('post_opponent_error') and not m.get('easy_conversion'))
+    info=excess*m.get('difficulty',0) if useful else 0.0
+    return {'model':MODEL_NAME,'played_move_probability':played,
+        'played_move_rank':1+sum(v>played for v in probs.values()),
+        'near_best_policy_mass':near_mass,'expected_quality_upper_bound':max(0,expected_upper),
+        'observed_quality':observed,'quality_excess_lower_bound':excess,
+        'information':info,'eligible':useful,
+        'surprisal_nats':min(8.0,-math.log(max(played,math.exp(-8)))),
+        'note':'Model move likelihood, not a cheating probability; cross-platform calibration is incomplete.'}
+
+
+def refresh_game(game):
+    rows=[]
+    for decision in game.decisions:
+        if decision.human_policy:
+            row=policy_evidence(decision,decision.human_policy)
+            if row:rows.append(row)
+    useful=[r for r in rows if r['eligible']]
+    game.human_reference={'model':MODEL_NAME,'positions':len(rows),'eligible':len(useful),
+        'information':sum(r['information'] for r in useful)/len(useful) if useful else 0.0,
+        'quality_excess_lower_bound':sum(r['quality_excess_lower_bound'] for r in useful)/len(useful) if useful else 0.0,
+        'low_policy_strong_moves':sum(r['played_move_probability']<=.05 and r['information']>=.10 for r in useful),
+        'model_unexpected_moves':sum(r['played_move_probability']<=.05 for r in useful)}
+    return game.human_reference
+
+
+
+def carry_policy_after_deep(source, confirmed):
+    """Re-evaluate this scan's policies with deep metrics, including cached games.
+
+    Cached decisions can predate model availability or use a different sampled
+    subset. They must never restore stale policy observations into a new scan.
+    """
+    policies={(d.ply,d.fen,d.move):d.human_policy for d in source.decisions if d.human_policy}
+    for decision in confirmed.decisions:
+        decision.human_policy=dict(policies.get((decision.ply,decision.fen,decision.move),{}))
+    if policies:refresh_game(confirmed)
+    else:confirmed.human_reference={}
+
+
+def selection(games):
+    # Compare successes and misses: selection uses difficulty/chronology, never
+    # CPL, top-1, high-information hits, account names or validation labels.
+    eligible=[g for g in games if g.moves and g.rating is not None and g.opponent_rating is not None]
+    quota=max(1,min(4,MAX_POSITIONS//max(1,len(eligible))))
+    selected=[]
+    for game in eligible:
+        choices=[d for d in game.decisions if d.metrics.get('useful') and d.phase!='opening']
+        ordered=sorted(choices,key=lambda d:(d.metrics.get('difficulty',0),d.ply))
+        if len(ordered)>quota:
+            ordered=[ordered[round(i*(len(ordered)-1)/(quota-1))] for i in range(quota)] if quota>1 else ordered[-1:]
+        wanted={d.ply:d for d in ordered}
+        board=chess.Board();history=deque([board.fen()],maxlen=8)
+        for ply,uci in enumerate(game.moves,1):
+            if ply in wanted:
+                d=wanted[ply]
+                if d.fen==board.fen():
+                    selected.append((game,d,{'history':list(history),'rating':game.rating,'opponent_rating':game.opponent_rating}))
+            move=chess.Move.from_uci(uci)
+            if move not in board.legal_moves:break
+            board.push(move);history.append(board.fen())
+    return selected[:MAX_POSITIONS]
+
+
+class LocalPolicyWorker:
+    def __init__(self,checkpoint):
+        self.buffer=b''
+        env={key:value for key,value in os.environ.items() if key in {
+            'PATH','HOME','LANG','LC_ALL','LD_LIBRARY_PATH','PYTHONPATH','VIRTUAL_ENV','SYSTEMROOT','TMPDIR'}}
+        env.update(OMP_NUM_THREADS='1',MKL_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',
+                   HF_HUB_OFFLINE='1',HF_HUB_DISABLE_TELEMETRY='1')
+        self.process=subprocess.Popen([sys.executable,str(Path(__file__).parent/'scripts/fairplay_maia_worker.py'),str(checkpoint)],
+            stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,bufsize=0,env=env)
+        os.set_blocking(self.process.stdin.fileno(),False)
+        try:
+            if self.read(time.monotonic()+30).get('ready')!=MODEL_SHA256:raise ValueError('Model handshake failed')
+        except Exception:
+            self.close();raise
+
+    def read(self,deadline):
+        while b'\n' not in self.buffer:
+            remaining=deadline-time.monotonic()
+            if remaining<=0:raise TimeoutError('Local policy deadline exceeded')
+            ready,_,_=select.select([self.process.stdout],[],[],remaining)
+            if not ready:raise TimeoutError('Local policy deadline exceeded')
+            chunk=os.read(self.process.stdout.fileno(),65536)
+            if not chunk:raise RuntimeError('Local policy worker ended')
+            self.buffer+=chunk
+            if len(self.buffer)>4*1024*1024:raise ValueError('Local policy output too large')
+        line,self.buffer=self.buffer.split(b'\n',1)
+        return json.loads(line)
+
+    def predict(self,items):
+        deadline=time.monotonic()+20
+        data=memoryview((json.dumps({'positions':items},separators=(',',':'))+'\n').encode())
+        while data:
+            remaining=deadline-time.monotonic()
+            if remaining<=0:raise TimeoutError('Local policy write deadline exceeded')
+            _,ready,_=select.select([],[self.process.stdin],[],remaining)
+            if not ready:raise TimeoutError('Local policy write deadline exceeded')
+            try:written=os.write(self.process.stdin.fileno(),data)
+            except BlockingIOError:continue
+            data=data[written:]
+        reply=self.read(deadline)
+        rows=reply.get('policies')
+        if not isinstance(rows,list) or len(rows)!=len(items):raise ValueError('Incomplete local policy batch')
+        return rows
+
+    def close(self):
+        if self.process.poll() is None:
+            self.process.terminate()
+            try:self.process.wait(timeout=2)
+            except subprocess.TimeoutExpired:self.process.kill();self.process.wait(timeout=2)
+        for stream in (self.process.stdin,self.process.stdout):
+            if stream:stream.close()
+
+
+def close_worker():
+    global _worker
+    with _lock:
+        if _worker is not None:_worker.close()
+        _worker=None
+
+
+def warm_worker():
+    """Load once during bot startup, never download or block the Discord loop."""
+    global _worker
+    checkpoint=os.environ.get('FAIRPLAY_MAIA_CHECKPOINT')
+    if not checkpoint or not Path(checkpoint).is_file():return False
+    with _lock:
+        if _worker is None:_worker=LocalPolicyWorker(checkpoint)
+    return True
+
+
+def annotate_history(games,predictor=None):
+    global _worker
+    start=time.monotonic()
+    for game in games:
+        game.human_reference={}
+        for decision in game.decisions:decision.human_policy={}
+    checkpoint=os.environ.get('FAIRPLAY_MAIA_CHECKPOINT')
+    if predictor is None and (not checkpoint or not Path(checkpoint).is_file()):
+        return {'available':False,'positions':0,'reason':'Local Maia checkpoint is not installed; Stockfish and the explicit heuristic remain active.'}
+    chosen=selection(games)
+    if not chosen:return {'available':False,'positions':0,'reason':'No positions with verified causal history and both ratings.'}
+    try:
+        with _lock:
+            if predictor is None:
+                if _worker is None:_worker=LocalPolicyWorker(checkpoint)
+                predictor=_worker.predict
+            keys=[hashlib.sha256((MODEL_SHA256+json.dumps(item,sort_keys=True)).encode()).hexdigest() for _,_,item in chosen]
+            missing=[i for i,key in enumerate(keys) if key not in _cache]
+            if missing:
+                policies=predictor([chosen[i][2] for i in missing])
+                if len(policies)!=len(missing):raise ValueError('Incomplete local policies')
+                for i,policy in zip(missing,policies):
+                    if not isinstance(policy,dict) or policy_evidence(chosen[i][1],policy) is None:
+                        raise ValueError('Invalid local policy distribution')
+                    _cache[keys[i]]=policy
+            for (game,decision,_),key in zip(chosen,keys):
+                decision.human_policy=dict(_cache[key]);_cache.move_to_end(key)
+            while len(_cache)>2400:_cache.popitem(last=False)
+        for game in games:refresh_game(game)
+        return {'available':True,'model':MODEL_NAME,'positions':len(chosen),
+            'games':sum(bool(g.human_reference.get('positions')) for g in games),
+            'cache_hits':len(chosen)-len(missing),'seconds':time.monotonic()-start,
+            'role':'Gameplay reference and deep-review allocation; not independently calibrated misconduct evidence.'}
+    except Exception:
+        if predictor is not None and _worker is not None:close_worker()
+        return {'available':False,'positions':0,'seconds':time.monotonic()-start,
+                'reason':'Local human reference unavailable; Stockfish review completed without invented model results.'}
+
+
+def confirmation_pair(games):
+    """A contiguous replicated policy anomaly may earn extra deep scrutiny.
+
+    This only allocates full-game confirmation, including all mistakes. It does
+    not change priority thresholds or treat neural and engine evidence as
+    independent families.
+    """
+    options=[]
+    for kind in ('rapid','blitz'):
+        group=sorted([g for g in games if g.time_class==kind],key=lambda g:(g.ended,g.identity))
+        for a,b in zip(group,group[1:]):
+            refs=[a.human_reference,b.human_reference]
+            if all(r.get('eligible',0)>=3 and r.get('low_policy_strong_moves',0)>=2 for r in refs):
+                options.append((sum(r.get('information',0) for r in refs),a.ended,[a,b]))
+    return max(options,key=lambda row:(row[0],row[1]))[2] if options else []
