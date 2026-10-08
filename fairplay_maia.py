@@ -2,8 +2,8 @@
 
 A move-policy probability is NOT a misconduct probability. Objective quality
 and policy rarity belong to the SAME gameplay family. This first integration
-adds transparent diagnostics and confirmation allocation, never a shortcut to
-HIGH. Unknown candidate quality is conservatively treated as perfect when
+adds bounded human-alternative comparison and paired deep confirmation.
+Unknown candidate quality is conservatively treated as perfect when
 computing an upper bound on expected quality.
 """
 import hashlib
@@ -24,7 +24,7 @@ MODEL_REVISION = 'b6559de2398d7140b985f28fd2c19fb5e47ddabe'
 MODEL_SHA256 = 'ba14208b2992d85502f5fb501934abf6aaaeb355e9f3fdf90e326911f562524f'
 SOURCE_REVISION = '1e13597c42d4858b7cfd7cfdae01e297263364b2'
 MODEL_NAME = 'Maia-3 5M local policy'
-MAX_POSITIONS = 400
+MAX_POSITIONS = 800
 _cache = OrderedDict()
 _worker = None
 _lock = threading.Lock()
@@ -34,37 +34,59 @@ def quality(loss_cp, scaled_loss):
     return max(0.0, min(1.0, 1-max(0,loss_cp)/150, 1-max(0,scaled_loss)/.20))
 
 
+def valid_policy(decision, probabilities):
+    if not isinstance(probabilities,dict):return False
+    legal={m.uci() for m in chess.Board(decision.fen).legal_moves}
+    return (set(probabilities)==legal
+            and all(isinstance(v,(int,float)) and math.isfinite(v) and v>=0 for v in probabilities.values())
+            and .999<=sum(probabilities.values())<=1.001)
+
+
 def policy_evidence(decision, probabilities):
-    board=chess.Board(decision.fen)
-    legal={m.uci() for m in board.legal_moves}
-    if set(probabilities)!=legal:return None
-    if any(not isinstance(v,(int,float)) or not math.isfinite(v) or v<0 for v in probabilities.values()):return None
-    total=sum(probabilities.values())
-    if not .999<=total<=1.001:return None
+    if not valid_policy(decision,probabilities):return None
+    legal=set(probabilities);total=sum(probabilities.values())
     probs={move:value/total for move,value in probabilities.items()}
     m=decision.metrics
     candidates=m.get('candidates',[])
     values=m.get('candidate_cp',[])
     if not values or len(candidates)!=len(values) or m.get('search_inconsistent'):return None
     best=values[0]
+    from fairplay_policy import POLICY
+    searched=dict(zip(candidates,values))
+    if 'actual_cp' in m:searched.setdefault(decision.move,m['actual_cp'])
+    extra=m.get('policy_search',{})
+    complete=extra.get('nodes')==m.get('nodes') and 'nodes' in m
+    if complete:searched.update(extra.get('scores',{}))
+    if any(move not in legal or not isinstance(value,(int,float)) or not math.isfinite(value)
+           for move,value in searched.items()):return None
+    # An alternative overturning the original search invalidates this comparison.
+    if max(searched.values())>best+20:return None
+    best=max(best,max(searched.values()))
     def scale(cp):return 1/(1+math.exp(-.00368208*max(-10000,min(10000,cp))))
     # No assumption that an unsearched move is bad: residual probability mass
     # receives quality 1.0. This bound can only reduce anomaly evidence.
     expected_upper=1.0
-    for move,value in zip(candidates,values):
+    for move,value in searched.items():
         expected_upper-=probs.get(move,0)*(1-quality(best-value,scale(best)-scale(value)))
-    observed=quality(m.get('cpl',1000),m.get('scaled_loss',1))
+    expected_upper=min(1.0,max(0.0,expected_upper)+POLICY.quality_margin)
+    known_mass=sum(probs.get(move,0) for move in searched)
+    observed=(quality(best-m['actual_cp'],scale(best)-scale(m['actual_cp'])) if 'actual_cp' in m
+              else quality(m.get('cpl',1000),m.get('scaled_loss',1)))
     excess=max(0.0,observed-expected_upper)
-    near_mass=sum(probs.get(move,0) for move,value in zip(candidates,values) if best-value<=15)
+    near_mass=sum(probs.get(move,0) for move,value in searched.items() if best-value<=15)
     played=probs.get(decision.move,0)
     useful=bool(m.get('competitive') and m.get('useful') and not decision.forced
                  and not decision.trivial_kind and decision.phase!='opening'
-                 and not m.get('post_opponent_error') and not m.get('easy_conversion'))
+                 and not m.get('post_opponent_error') and not m.get('easy_conversion')
+                 and not m.get('simple_threat_response') and not m.get('automatic_material_gain'))
     info=excess*m.get('difficulty',0) if useful else 0.0
     return {'model':MODEL_NAME,'played_move_probability':played,
         'played_move_rank':1+sum(v>played for v in probs.values()),
         'near_best_policy_mass':near_mass,'expected_quality_upper_bound':max(0,expected_upper),
         'observed_quality':observed,'quality_excess_lower_bound':excess,
+        'signed_quality_excess':observed-expected_upper,'known_policy_mass':known_mass,
+        'difficulty':m.get('difficulty',0),'counterfactual_complete':complete,
+        'unsearched_mass':max(0.0,1-known_mass),'quality_uncertainty_margin':POLICY.quality_margin,
         'information':info,'eligible':useful,
         'surprisal_nats':min(8.0,-math.log(max(played,math.exp(-8)))),
         'note':'Model move likelihood, not a cheating probability; cross-platform calibration is incomplete.'}
@@ -95,19 +117,24 @@ def carry_policy_after_deep(source, confirmed):
     policies={(d.ply,d.fen,d.move):d.human_policy for d in source.decisions if d.human_policy}
     for decision in confirmed.decisions:
         decision.human_policy=dict(policies.get((decision.ply,decision.fen,decision.move),{}))
+        decision.fast_policy=dict(next((getattr(d,'fast_policy',{}) or {} for d in source.decisions
+            if (d.ply,d.fen,d.move)==(decision.ply,decision.fen,decision.move)),{}))
+        decision.metrics.pop('policy_search',None)
     if policies:refresh_game(confirmed)
     else:confirmed.human_reference={}
 
 
 def selection(games):
-    # Compare successes and misses: selection uses difficulty/chronology, never
+    # Compare successes and misses: selection uses position geometry, never
     # CPL, top-1, high-information hits, account names or validation labels.
     eligible=[g for g in games if g.moves and g.rating is not None and g.opponent_rating is not None]
-    quota=max(1,min(4,MAX_POSITIONS//max(1,len(eligible))))
+    quota=max(1,min(8,MAX_POSITIONS//max(1,len(eligible))))
     selected=[]
     for game in eligible:
-        choices=[d for d in game.decisions if d.metrics.get('useful') and d.phase!='opening']
-        ordered=sorted(choices,key=lambda d:(d.metrics.get('difficulty',0),d.ply))
+        choices=[d for d in game.decisions if d.metrics.get('useful') and d.metrics.get('competitive')
+                 and not d.metrics.get('post_opponent_error') and not d.metrics.get('easy_conversion') and d.phase!='opening']
+        # Position geometry only: no played-move rank, CPL or success selection.
+        ordered=sorted(choices,key=lambda d:(d.metrics.get('spread') or 0,d.ply))
         if len(ordered)>quota:
             ordered=[ordered[round(i*(len(ordered)-1)/(quota-1))] for i in range(quota)] if quota>1 else ordered[-1:]
         wanted={d.ply:d for d in ordered}
@@ -198,7 +225,9 @@ def annotate_history(games,predictor=None):
     start=time.monotonic()
     for game in games:
         game.human_reference={}
-        for decision in game.decisions:decision.human_policy={}
+        for decision in game.decisions:
+            decision.human_policy={};decision.fast_policy={}
+            decision.metrics.pop('policy_search',None)
     checkpoint=os.environ.get('FAIRPLAY_MAIA_CHECKPOINT')
     if predictor is None and (not checkpoint or not Path(checkpoint).is_file()):
         return {'available':False,'positions':0,'reason':'Local Maia checkpoint is not installed; Stockfish and the explicit heuristic remain active.'}
@@ -215,7 +244,7 @@ def annotate_history(games,predictor=None):
                 policies=predictor([chosen[i][2] for i in missing])
                 if len(policies)!=len(missing):raise ValueError('Incomplete local policies')
                 for i,policy in zip(missing,policies):
-                    if not isinstance(policy,dict) or policy_evidence(chosen[i][1],policy) is None:
+                    if not valid_policy(chosen[i][1],policy):
                         raise ValueError('Invalid local policy distribution')
                     _cache[keys[i]]=policy
             for (game,decision,_),key in zip(chosen,keys):
@@ -225,10 +254,10 @@ def annotate_history(games,predictor=None):
         return {'available':True,'model':MODEL_NAME,'positions':len(chosen),
             'games':sum(bool(g.human_reference.get('positions')) for g in games),
             'cache_hits':len(chosen)-len(missing),'seconds':time.monotonic()-start,
-            'role':'Gameplay reference and deep-review allocation; not independently calibrated misconduct evidence.'}
-    except Exception:
+            'role':'Learned human-policy comparison with Stockfish counterfactuals and paired deep confirmation; not a calibrated misconduct probability.'}
+    except Exception as error:
         if predictor is not None and _worker is not None:close_worker()
-        return {'available':False,'positions':0,'seconds':time.monotonic()-start,
+        return {'available':False,'positions':0,'seconds':time.monotonic()-start,'failure_kind':type(error).__name__,
                 'reason':'Local human reference unavailable; Stockfish review completed without invented model results.'}
 
 

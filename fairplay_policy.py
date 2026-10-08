@@ -1,0 +1,219 @@
+"""Counterfactual human-policy quality. No calibrated misconduct probabilities."""
+import math
+import statistics
+import time
+from concurrent.futures import as_completed
+from dataclasses import dataclass
+import chess
+import chess.engine
+from fairplay_config import CONFIG
+from fairplay_data import check_deadline
+
+@dataclass(frozen=True)
+class PolicyConfig:
+    alternatives: int = 3
+    target_mass: float = .90
+    minimum_move_mass: float = .025
+    difficulty: float = .45
+    known_mass: float = .65
+    quality_margin: float = .10  # domain/model uncertainty, not a calibrated CI
+    move_excess: float = .20
+    game_decisions: int = 4
+    game_hits: int = 2
+    game_signed_excess: float = .18
+    game_information: float = .12
+    contributor_games: int = 6
+    contributor_fraction: float = .60
+    decisions: int = 24
+    deep_games: int = 4
+    deep_decisions: int = 16
+    deep_stability: float = .75
+    retention: float = .75
+    windows: tuple = (6, 10, 20, 50)
+POLICY = PolicyConfig()
+
+def alternatives(d, config=POLICY):
+    """Choose roots by human probability mass, never by the played result."""
+    policy, m = d.human_policy, d.metrics
+    if not policy or not m.get('competitive') or not m.get('useful'):return []
+    known=set(m.get('candidates', []))
+    if 'actual_cp' in m:known.add(d.move)
+    mass=sum(policy.get(move,0) for move in known)
+    selected=[]
+    for move,probability in sorted(policy.items(),key=lambda item:(-item[1],item[0])):
+        if mass>=config.target_mass or len(selected)>=config.alternatives:break
+        if move in known:continue
+        if probability<config.minimum_move_mass:break
+        selected.append(move);mass+=probability
+    return selected
+
+def search_alternatives(scanner,d,nodes):
+    from fairplay_analysis import score_cp
+    values={};board=chess.Board(d.fen)
+    for uci in alternatives(d):
+        check_deadline(scanner.deadline)
+        move=chess.Move.from_uci(uci)
+        if move not in board.legal_moves:raise ValueError('Invalid local policy root')
+        if 'Clear Hash' in scanner.engine.options:scanner.engine.configure({'Clear Hash':None})
+        started=time.monotonic()
+        line=scanner.engine.analyse(board,chess.engine.Limit(nodes=nodes),root_moves=[move])
+        spent=time.monotonic()-started
+        scanner.profile['root_seconds']+=spent;scanner.profile['root_searches']+=1
+        key='deep_root_seconds' if nodes==scanner.config.deep_nodes else 'fast_root_seconds'
+        scanner.profile[key]+=spent
+        scanner.profile['policy_root_seconds']=scanner.profile.get('policy_root_seconds',0)+spent
+        scanner.profile['policy_root_searches']=scanner.profile.get('policy_root_searches',0)+1
+        values[uci]=score_cp(line,board.turn)
+    check_deadline(scanner.deadline)
+    return {'nodes':nodes,'scores':values}
+
+def complete(games,nodes,deadline,*,executor=None,pool=None,scanner=None,fast=False):
+    """Reuse the bounded pool. Drain all tasks; incomplete optional data cannot score."""
+    from fairplay_maia import refresh_game,policy_evidence
+    work=[d for g in games for d in g.decisions if d.human_policy]
+    started=time.monotonic();completed=0;interrupted=False
+    for d in work:d.metrics.pop('policy_search',None)
+    try:
+        if executor is not None and pool is not None:
+            futures={}
+            try:
+                for d in work:
+                    futures[executor.submit(pool._run_with_scanner,deadline,
+                        lambda worker,d=d:search_alternatives(worker,d,nodes))]=d
+            except Exception:
+                interrupted=True
+                for pending in futures:pending.cancel()
+            for future in as_completed(futures):
+                try:
+                    futures[future].metrics['policy_search']=future.result();completed+=1
+                except Exception:
+                    if not interrupted:
+                        interrupted=True
+                        for pending in futures:pending.cancel()
+        else:
+            for d in work:
+                check_deadline(deadline)
+                result=(pool._run_with_scanner(deadline,lambda worker:search_alternatives(worker,d,nodes))
+                        if pool is not None else search_alternatives(scanner,d,nodes))
+                d.metrics['policy_search']=result;completed+=1
+    except Exception:interrupted=True
+    if interrupted:
+        for d in work:
+            d.metrics.pop('policy_search',None);d.fast_policy={}
+    for game in games:
+        refresh_game(game)
+        if fast:
+            for d in game.decisions:
+                d.fast_policy=policy_evidence(d,d.human_policy) if d.human_policy and not interrupted else {}
+    return {'complete':not interrupted,'positions':completed,'seconds':time.monotonic()-started}
+
+def game_summary(game,*,fast=False):
+    from fairplay_maia import policy_evidence
+    rows=[];stable=0
+    for d in game.decisions:
+        r=(getattr(d,'fast_policy',{}) if fast else
+           policy_evidence(d,d.human_policy) if d.human_policy else None)
+        if not r or not r.get('eligible') or r.get('difficulty',0)<POLICY.difficulty:continue
+        if r.get('known_policy_mass',0)<POLICY.known_mass or not r.get('counterfactual_complete'):continue
+        rows.append(r)
+        old=getattr(d,'fast_policy',{}) or {}
+        if (not fast and game.deep and old.get('eligible')
+            and abs(r['observed_quality']-old.get('observed_quality',-1))<=.10
+            and abs(r['expected_quality_upper_bound']-old.get('expected_quality_upper_bound',-1))<=.15
+            and d.metrics.get('search_stability',{}).get('stable')):stable+=1
+    hits=sum(r['observed_quality']>=.85 and r['quality_excess_lower_bound']>=POLICY.move_excess for r in rows)
+    signed=statistics.mean(r['signed_quality_excess'] for r in rows) if rows else 0
+    info=statistics.mean(r['information'] for r in rows) if rows else 0
+    contributor=(len(rows)>=POLICY.game_decisions and hits>=POLICY.game_hits
+                 and signed>=POLICY.game_signed_excess and info>=POLICY.game_information)
+    return {'positions':len(rows),'hits':hits,'signed_excess':signed,
+            'information':info,'contributor':contributor,'stable':stable}
+
+def summarize(games,*,fast=False):
+    return combine([(g,game_summary(g,fast=fast)) for g in games])
+
+def combine(rows):
+    games=[g for g,_ in rows]
+    usable=[r for _,r in rows if r['positions']]
+    return {'games':len(games),'opportunity_games':len(usable),
+        'positions':sum(r['positions'] for _,r in rows),
+        'contributors':sum(r['contributor'] for _,r in rows),
+        'contributor_ids':[g.identity for g,r in rows if r['contributor']],
+        # Equal game influence: a 100-move game cannot dominate.
+        'signed_excess':statistics.mean(r['signed_excess'] for r in usable) if usable else 0,
+        'information':statistics.mean(r['information'] for r in usable) if usable else 0,
+        'stable':sum(r['stable'] for _,r in rows)}
+
+def blockers(s):
+    required=max(POLICY.contributor_games,math.ceil(s['games']*POLICY.contributor_fraction))
+    tests={
+        'six replicated contributor games':s['contributors']>=required,
+        'at least 24 comparable decisions':s['positions']>=max(POLICY.decisions,3*s['games']),
+        'signed quality excess includes mistakes':s['signed_excess']>=POLICY.game_signed_excess,
+        'bounded game-level information':s['information']>=POLICY.game_information}
+    return [name for name,passed in tests.items() if not passed]
+
+def periods(games):
+    """Fixed chronological blocks plus latest window; never ranked game sets."""
+    output=[]
+    summaries={id(g):game_summary(g,fast=True) for g in games}
+    for kind in ('rapid','blitz'):  # Bullet model/domain uncertainty is larger.
+        group=sorted([g for g in games if g.time_class==kind and g.rated is True],
+                     key=lambda g:(g.ended,g.identity))
+        seen=set()
+        for width in (*POLICY.windows,len(group)):
+            if width<POLICY.contributor_games or width>len(group):continue
+            for offset in sorted(set([*range(0,len(group)-width+1,width),len(group)-width])):
+                members=group[offset:offset+width];ids=tuple(g.identity for g in members)
+                if ids in seen:continue
+                seen.add(ids);s=combine([(g,summaries[id(g)]) for g in members])
+                output.append({'ids':ids,'class':kind,'summary':s,'blockers':blockers(s)})
+    return sorted(output,key=lambda row:(bool(row['blockers']),-row['summary']['signed_excess'],
+                                         -row['summary']['contributors'],row['ids']))
+
+def allocate(games,plan,config=CONFIG):
+    """Preserve the original plan and controls; add only spare deep slots."""
+    if config.deep_games==0 or {'human','neural'}&set(config.disabled_features):return plan
+    candidate=next((row for row in periods(games) if not row['blockers']),None)
+    if candidate is None:return plan
+    selected=list(plan);members=[g for g in games if g.identity in candidate['ids']]
+    from fairplay_sequence import coverage_members
+    for game in coverage_members(members,min(POLICY.contributor_games,len(members))):
+        if len(selected)>=config.deep_max_games:break
+        if game not in selected:selected.append(game)
+    return selected
+
+def integrate(result,games,config=CONFIG):
+    best=None
+    deep_rows={id(g):game_summary(g) for g in games if g.deep}
+    fast_rows={id(g):game_summary(g,fast=True) for g in games if g.deep}
+    for candidate in periods(games):
+        members=[g for g in games if g.identity in candidate['ids'] and g.deep]
+        deep=combine([(g,deep_rows[id(g)]) for g in members]);paired=combine([(g,fast_rows[id(g)]) for g in members])
+        reasons=list(candidate['blockers'])
+        tests={
+            'four deep-confirmed contributor games':deep['contributors']>=POLICY.deep_games,
+            'sixteen deep opportunities':deep['positions']>=POLICY.deep_decisions,
+            'deep information retained':deep['information']>=max(POLICY.game_information,POLICY.retention*paired['information']),
+            'deep signed excess retained':deep['signed_excess']>=POLICY.game_signed_excess,
+            'stable paired quality and human alternatives':deep['stable']>=POLICY.deep_stability*deep['positions'],
+            'primary engine coverage complete':result.coverage.get('primary_engine_complete',not result.partial),
+            'human-reference feature enabled':not {'human','neural'}&set(config.disabled_features)}
+        reasons += [name for name,passed in tests.items() if not passed]
+        row={'passed':not reasons,'blockers':reasons,'fast':candidate['summary'],'deep':deep,
+             'class':candidate['class'],'candidate_games':len(candidate['ids'])}
+        if best is None or row['passed']:best=row
+        if row['passed']:break
+    best=best or {'passed':False,'blockers':['No adequately covered chronological human-policy period.'],'candidate_games':0}
+    result.diagnostics['learned_gameplay']=best
+    result.diagnostics.setdefault('high_paths',{})['Learned human-policy HIGH']={
+        k:best[k] for k in ('passed','blockers','candidate_games')}
+    result.families['Learned Human Reference']='Elevated' if best['passed'] else 'Limited / not established'
+    if best['passed'] and result.priority in ('LOW','MODERATE','INSUFFICIENT DATA'):
+        result.priority='HIGH';result.deep_confirmed=True
+        result.diagnostics.update(high_path='Distributed learned human-policy discrepancy',high_blocked=[])
+        result.reasons=[
+            'Move quality repeatedly exceeded a conservative local human-policy reference in competitive decisions across several games.',
+            'The same decisions and human alternatives retained this discrepancy under deeper Stockfish review. '
+            'This is one gameplay family, not an independent probability or proof of misconduct.']
+    return result

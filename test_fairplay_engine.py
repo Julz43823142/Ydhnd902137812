@@ -114,4 +114,39 @@ class PartialBatchTests(unittest.TestCase):
             [(game,object())],24000,None,lambda _:None,'Fast engine scan')
         self.assertFalse(partial);self.assertEqual(done,{id(game)})
 
+
+
+class CoherentRoundTests(unittest.TestCase):
+    def rows(self,depth=8):
+        return [f'info depth {depth} multipv {i+1} score cp {score} pv {move}'
+                for i,(score,move) in enumerate([(50,'e2e4'),(20,'d2d4'),(-40,'g1f3')])]
+    def collect(self,lines,count=3):
+        from fairplay_engine import CoherentCandidates
+        c=CoherentCandidates(count)
+        for line in lines:
+            parsed=CompactNodeEngine.parse_info(line,chess.WHITE)
+            if parsed:c.add(*parsed)
+        return c.result()
+    def test_partial_new_iteration_does_not_mix_depths(self):
+        lines=self.rows()+['info depth 9 multipv 1 score cp -10 pv d2d4']
+        rows=self.collect(lines)
+        self.assertEqual([r['depth'] for r in rows],[8,8,8])
+        self.assertEqual([r['score'].relative.score() for r in rows],[50,20,-40])
+    def test_new_complete_iteration_replaces_previous(self):
+        rows=self.collect(self.rows()+self.rows(9))
+        self.assertEqual([r['depth'] for r in rows],[9,9,9])
+    def test_bounds_and_unsorted_rounds_do_not_become_exact_evidence(self):
+        for last in ('info depth 9 multipv 3 score cp -40 lowerbound pv g1f3',
+                     'info depth 9 multipv 3 score cp 100 pv g1f3'):
+            rows=self.collect(self.rows()+self.rows(9)[:2]+[last])
+            self.assertEqual([r['depth'] for r in rows],[8,8,8])
+    def test_duplicate_candidates_are_rejected(self):
+        with self.assertRaises(chess.engine.EngineError):
+            self.collect(self.rows()[:2]+['info depth 8 multipv 3 score cp -40 pv e2e4'])
+    def test_root_search_retains_last_exact_score(self):
+        rows=self.collect(['info depth 8 score cp 20 pv e2e4',
+                           'info depth 9 score cp 80 lowerbound pv e2e4'],count=1)
+        self.assertEqual(rows[0]['score'].relative.score(),20)
+
+
 if __name__=='__main__':unittest.main()
