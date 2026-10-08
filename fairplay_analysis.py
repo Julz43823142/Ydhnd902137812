@@ -357,7 +357,9 @@ class EngineScanner:
 
     def analyse_decision(self, game, decision, nodes):
         check_deadline(self.deadline)
-        if not decision.useful:return False
+        # Full-depth mode measures every played subject move, including book/
+        # forced moves. Existing scoring still excludes non-evidential moves.
+        if not decision.useful and not (isinstance(nodes,chess.engine.Limit) and nodes.depth is not None):return False
         depth_search=isinstance(nodes,chess.engine.Limit) and nodes.depth is not None
         if nodes==self.config.deep_nodes and not decision.metrics.get('useful',True) and abs(decision.metrics.get('before_cp',0))>=800:
             return False  # unambiguously decisive fast positions offer negligible evidence
