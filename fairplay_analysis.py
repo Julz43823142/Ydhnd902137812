@@ -4,6 +4,7 @@ The thresholds rank reviews. They are not empirically calibrated cheating rates.
 All engine decisions use the subject's POV; every signal has minimum coverage.
 """
 import math
+from copy import deepcopy
 import os
 import queue
 import statistics as stats
@@ -395,10 +396,18 @@ class EngineScanner:
             self.profile['root_seconds']+=spent;self.profile['root_searches']+=1
             self.profile['deep_root_seconds' if depth_search or nodes==self.config.deep_nodes else 'fast_root_seconds']+=spent
         decision.metrics = engine_metrics(decision,lines,actual,game.color,self.config)
+        decision.metrics['search_contract']={
+            'engine':self.name,
+            'mode':'depth' if depth_search else 'nodes',
+            'requested':nodes.depth if depth_search else nodes,
+            'multipv':multipv,
+            'completed':True,
+            'exact':not decision.metrics.get('search_inconsistent',False),
+        }
         decision.metrics['nodes']=(max(int(x.get('nodes',0) or 0) for x in lines) if depth_search else nodes)
         if depth_search:
             decision.metrics['search_depth']=min(int(x.get('depth',0) or 0) for x in lines)
-        if nodes==self.config.fast_nodes:decision.fast_engine=decision.metrics.copy()
+        if nodes==self.config.fast_nodes:decision.fast_engine=deepcopy(decision.metrics)
         return True
 
     def analyse(self, game, nodes):
@@ -406,7 +415,7 @@ class EngineScanner:
         summarize(game,self.config)
         if nodes == self.config.fast_nodes:
             for decision in game.decisions:
-                if decision.metrics:decision.fast_engine=decision.metrics.copy()
+                if decision.metrics:decision.fast_engine=deepcopy(decision.metrics)
             game.fast_metrics = {k:v for k,v in game.metrics.items() if k!='timing'}
 
 
@@ -757,7 +766,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                         if not cache_hit:
                             summarize(game,config)
                             for decision in game.decisions:
-                                if decision.metrics:decision.fast_engine=decision.metrics.copy()
+                                if decision.metrics:decision.fast_engine=deepcopy(decision.metrics)
                             game.fast_metrics={k:v for k,v in game.metrics.items() if k!='timing'}
                     completed=[(game,payload) for game,payload,_ in prepared]
                 elif engine_executor is None:
