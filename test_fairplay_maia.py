@@ -153,6 +153,19 @@ class HumanDetails(unittest.TestCase):
         self.assertIn('unavailable',embed.description)
         self.assertLess(len(embed),6000)
 
+    def test_model_detail_links_real_sampled_decisions_without_verdicts(self):
+        d=decision();d.human_policy=distribution(d)
+        game=SimpleNamespace(decisions=[d],human_reference={'positions':1,'eligible':1},
+            time_class='blitz',ended=1,url='https://www.chess.com/game/live/123',deep=True)
+        result=SimpleNamespace(username='synthetic-player',games=[game],diagnostics={
+            'human_reference':{'available':True,'positions':1,'games':1,'model':maia.MODEL_NAME}})
+        embed=detail_embed(result,'Human Moves')
+        field=next(f for f in embed.fields if f.name=='Decisions for manual inspection')
+        self.assertIn(game.url,field.value)
+        self.assertIn('deep checked',field.value)
+        self.assertIn('human-model rank',field.value)
+        self.assertLess(len(embed),6000)
+
     def test_persistent_button_uses_isolated_namespace(self):
         view=ReportView('synthetic-player')
         button=next(b for b in view.children if b.label=='Human Moves')

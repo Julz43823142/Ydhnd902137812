@@ -50,7 +50,8 @@ not replace representative controls. Existing HIGH/VERY HIGH requirements are
 unchanged: neural rarity is not an independent evidence family or an automatic
 verdict. This deliberately avoids inventing a misconduct calibration from a
 few owner-labelled accounts. The new private **Human Moves** detail shows actual
-model coverage and limitations. Existing scoring details explicitly identify
+model coverage, limitations and links to sampled decisions with their model rank
+and Stockfish loss. Existing scoring details explicitly identify
 the heuristic as a heuristic.
 
 Maia predicts human moves, not misconduct. Lichess and Chess.com ratings, time

@@ -112,6 +112,24 @@ def detail_embed(result, mode):
                 f"Low-policy strong moves: {sum(r.get('low_policy_strong_moves',0) for r in rows)}\n"
                 'Policy likelihood estimates human move choice, not cheating. Unknown engine alternatives '
                 'receive a conservative perfect-quality upper bound. Rare bad moves provide no strong-play evidence.',inline=False)
+            informative=[]
+            from fairplay_maia import policy_evidence
+            for game in result.games:
+                for decision in game.decisions:
+                    if not decision.human_policy:continue
+                    row=policy_evidence(decision,decision.human_policy)
+                    if row and row['eligible'] and row['information']>0:
+                        informative.append((row['information'],game,decision,row))
+            informative.sort(key=lambda item:(-item[0],item[1].ended,item[2].ply))
+            lines=[]
+            for _,game,decision,row in informative[:4]:
+                lines.append(
+                    f"[{game.time_class.title()} · move {(decision.ply+1)//2}]({game.url}) — "
+                    f"{decision.move} · human-model rank #{row['played_move_rank']} · "
+                    f"Stockfish loss {decision.metrics.get('cpl',0):.0f} cp · "
+                    + ('deep checked' if game.deep else 'fast screen'))
+            if lines:
+                embed.add_field(name='Decisions for manual inspection',value='\n'.join(lines)[:1024],inline=False)
             embed.add_field(name='Limits',value=
                 'Maia was trained on human chess, not calibrated as a SharkBot misconduct detector. '
                 'Platform ratings and time controls differ. Samples include misses; this reference can allocate '
