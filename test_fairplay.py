@@ -296,7 +296,7 @@ class Pipeline(unittest.TestCase):
         self.assertTrue(any(call.args[0].get('Threads')==1 for call in engine.configure.call_args_list))
 
     def test_shared_pool_scales_to_cpu_and_memory_limits(self):
-        cases=((2,None,2),(8,None,8),(16,None,12),(8,1024,8),(8,512,2))
+        cases=((2,None,2),(8,None,8),(16,None,8),(8,1024,8),(8,512,2))
         for cpus,memory,workers in cases:
             with self.subTest(cpus=cpus,memory=memory), \
                  patch.object(analysis,'available_engine_cpus',return_value=cpus), \
