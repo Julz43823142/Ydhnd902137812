@@ -10,7 +10,7 @@ import statistics as stats
 import time
 import threading
 from collections import OrderedDict
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from typing import Callable
 
@@ -349,40 +349,43 @@ class EngineScanner:
             try:self.engine.close()
             except Exception:pass
 
-    def analyse(self, game, nodes):
-        for decision in game.decisions:
-            check_deadline(self.deadline)
-            if not decision.useful:continue
-            if nodes==self.config.deep_nodes and not decision.metrics.get('useful',True) and abs(decision.metrics.get('before_cp',0))>=800:
-                continue  # unambiguously decisive fast positions offer negligible evidence
-            board = chess.Board(decision.fen)
-            # Clear hash between positions so order/cache warmth does not change
-            # fixed-node candidate rankings. Threads=1 avoids search races.
+    def analyse_decision(self, game, decision, nodes):
+        check_deadline(self.deadline)
+        if not decision.useful:return False
+        if nodes==self.config.deep_nodes and not decision.metrics.get('useful',True) and abs(decision.metrics.get('before_cp',0))>=800:
+            return False  # unambiguously decisive fast positions offer negligible evidence
+        board = chess.Board(decision.fen)
+        # Clear hash between positions so order/cache warmth does not change
+        # fixed-node candidate rankings. Threads=1 avoids search races.
+        if 'Clear Hash' in self.engine.options:self.engine.configure({'Clear Hash':None})
+        richer = (decision.metrics.get('critical') or (decision.metrics.get('gap') is not None
+                   and decision.metrics['gap']<25 and decision.metrics.get('cpl',100)<=25))
+        multipv=self.config.deep_multipv if nodes==self.config.deep_nodes else self.config.fast_multipv
+        search_started=time.monotonic()
+        lines = self.engine.analyse(board,chess.engine.Limit(nodes=nodes),multipv=multipv)
+        spent=time.monotonic()-search_started
+        self.profile['multipv_seconds']+=spent;self.profile['multipv_searches']+=1
+        self.profile['deep_multipv_seconds' if nodes==self.config.deep_nodes else 'fast_multipv_seconds']+=spent
+        check_deadline(self.deadline)
+        if isinstance(lines,dict):lines = [lines]
+        move = chess.Move.from_uci(decision.move)
+        actual = {}
+        if not any(line.get('pv') and line['pv'][0]==move for line in lines):
             if 'Clear Hash' in self.engine.options:self.engine.configure({'Clear Hash':None})
-            richer = (decision.metrics.get('critical') or (decision.metrics.get('gap') is not None
-                       and decision.metrics['gap']<25 and decision.metrics.get('cpl',100)<=25))
-            multipv=self.config.deep_multipv if nodes==self.config.deep_nodes else self.config.fast_multipv
+            # Restrict the root to the actual move: same POV/budget, avoiding
+            # after-move horizon differences being mistaken for CPL.
             search_started=time.monotonic()
-            lines = self.engine.analyse(board,chess.engine.Limit(nodes=nodes),multipv=multipv)
+            actual = self.engine.analyse(board,chess.engine.Limit(nodes=nodes),root_moves=[move])
             spent=time.monotonic()-search_started
-            self.profile['multipv_seconds']+=spent;self.profile['multipv_searches']+=1
-            self.profile['deep_multipv_seconds' if nodes==self.config.deep_nodes else 'fast_multipv_seconds']+=spent
-            check_deadline(self.deadline)
-            if isinstance(lines,dict):lines = [lines]
-            move = chess.Move.from_uci(decision.move)
-            actual = {}
-            if not any(line.get('pv') and line['pv'][0]==move for line in lines):
-                if 'Clear Hash' in self.engine.options:self.engine.configure({'Clear Hash':None})
-                # Restrict the root to the actual move: same POV/budget, avoiding
-                # after-move horizon differences being mistaken for CPL.
-                search_started=time.monotonic()
-                actual = self.engine.analyse(board,chess.engine.Limit(nodes=nodes),root_moves=[move])
-                spent=time.monotonic()-search_started
-                self.profile['root_seconds']+=spent;self.profile['root_searches']+=1
-                self.profile['deep_root_seconds' if nodes==self.config.deep_nodes else 'fast_root_seconds']+=spent
-            decision.metrics = engine_metrics(decision,lines,actual,game.color,self.config)
-            decision.metrics['nodes']=nodes
-            if nodes==self.config.fast_nodes:decision.fast_engine=decision.metrics.copy()
+            self.profile['root_seconds']+=spent;self.profile['root_searches']+=1
+            self.profile['deep_root_seconds' if nodes==self.config.deep_nodes else 'fast_root_seconds']+=spent
+        decision.metrics = engine_metrics(decision,lines,actual,game.color,self.config)
+        decision.metrics['nodes']=nodes
+        if nodes==self.config.fast_nodes:decision.fast_engine=decision.metrics.copy()
+        return True
+
+    def analyse(self, game, nodes):
+        for decision in game.decisions:self.analyse_decision(game,decision,nodes)
         summarize(game,self.config)
         if nodes == self.config.fast_nodes:
             for decision in game.decisions:
@@ -492,14 +495,13 @@ class SharedEnginePool:
             raise
         self.name=self.scanners[0].name
 
-    def run(self,game,nodes,deadline):
+    def _run_with_scanner(self,deadline,action):
         if self.closed:raise ReviewError('Stockfish pool is unavailable.')
         scanner=self.available.get()
         reusable=True
         try:
             scanner.deadline=deadline
-            scanner.analyse(game,nodes)
-            return game
+            return action(scanner)
         except (chess.engine.EngineError,TimeoutError):
             reusable=False
             try:scanner.close()
@@ -514,6 +516,17 @@ class SharedEnginePool:
         finally:
             scanner.deadline=None
             if reusable and not self.closed:self.available.put(scanner)
+
+    def run(self,game,nodes,deadline):
+        self._run_with_scanner(deadline,lambda scanner:scanner.analyse(game,nodes))
+        return game
+
+    def run_decision(self,game,decision,nodes,deadline):
+        # A deep game no longer monopolizes one Stockfish process. Each
+        # independent position is scheduled onto the next free single-threaded
+        # engine, keeping all CPU cores busy without changing search budgets.
+        return self._run_with_scanner(
+            deadline,lambda scanner:scanner.analyse_decision(game,decision,nodes))
 
     def close(self):
         if self.closed:return
@@ -555,6 +568,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
     engine_executor = None
     shared_pool = engine_pool
     scanner = None
+    shared_profile_before = {}
+    deep_position_tasks = 0
     try:
         progress('Fetching profile…')
         profile = api.get(target,profile=True)
@@ -574,6 +589,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 shared_pool=shared_pool or get_shared_engine_pool(config)
                 requested_workers=shared_pool.size
                 engine_name=shared_pool.name
+                shared_profile_before=engine_profile(shared_pool.scanners)
             else:
                 requested_workers=(1 if engine_factory is not None and engine_workers is None
                                    else automatic_engine_workers() if engine_workers is None
@@ -644,9 +660,16 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                     workers=([None]*len(batch) if use_shared else scanners[:len(batch)])
                     futures=[engine_executor.submit(fast_scan,game,item)
                              for game,item in zip(batch,workers)]
-                    # Resolve and commit in batch order so the scored sample is
-                    # deterministic even when workers finish out of order.
-                    completed=[future.result() for future in futures]
+                    # Report completions as they happen, but commit the results
+                    # in source order so detector output remains deterministic.
+                    slots=[None]*len(futures)
+                    positions={future:i for i,future in enumerate(futures)}
+                    done=0
+                    for future in as_completed(futures):
+                        slots[positions[future]]=future.result()
+                        done+=1
+                        progress(f'Fast engine scan: {offset+done} / {len(primary)}')
+                    completed=slots
                 for game,cached_payload in completed:
                     analyzed.append(game)
                     if cached_payload is not None:cached_deep[game.identity]=cached_payload
@@ -679,24 +702,55 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 else:
                     summarize(confirmed,config)
             else:
-                if shared_pool is not None and use_shared:shared_pool.run(confirmed,config.deep_nodes,deadline)
-                else:worker.analyse(confirmed,config.deep_nodes)
+                worker.analyse(confirmed,config.deep_nodes)
             return confirmed
         while index<len(candidates):
-            # Keep the shared pool saturated across the whole current deep
-            # candidate wave; extension candidates are still selected only
-            # after the original wave completes.
+            # Extension candidates are still selected only after the original
+            # wave completes. In production, however, the wave is balanced at
+            # position granularity: a long game can no longer strand idle cores.
             batch=(candidates[index:] if use_shared and engine_executor is not None
                    else candidates[index:index+requested_workers])
             progress(f'Deep confirmation: {index} / {len(candidates)}')
             try:
-                if engine_executor is None:
+                if use_shared and engine_executor is not None:
+                    confirmed_batch=[]
+                    work=[]
+                    for game in batch:
+                        confirmed=copy.deepcopy(game)
+                        confirmed_batch.append(confirmed)
+                        if game.identity in cached_deep:
+                            decisions,metrics=cached_deep[game.identity]
+                            confirmed.decisions=copy.deepcopy(decisions)
+                            if metrics is not None:confirmed.metrics=copy.deepcopy(metrics)
+                            else:summarize(confirmed,config)
+                            continue
+                        for decision in confirmed.decisions:
+                            work.append((confirmed,decision))
+                    deep_position_tasks+=len(work)
+                    if work:
+                        futures=[engine_executor.submit(
+                            shared_pool.run_decision,confirmed,decision,config.deep_nodes,deadline)
+                            for confirmed,decision in work]
+                        done=0
+                        total=len(futures)
+                        progress(f'Deep confirmation: 0 / {total} positions')
+                        for future in as_completed(futures):
+                            future.result()
+                            done+=1
+                            progress(f'Deep confirmation: {done} / {total} positions')
+                    for game,confirmed in zip(batch,confirmed_batch):
+                        if game.identity not in cached_deep:summarize(confirmed,config)
+                elif engine_executor is None:
                     confirmed_batch=[deep_scan(batch[0],scanner)]
                 else:
-                    workers=([None]*len(batch) if use_shared else scanners[:len(batch)])
+                    workers=scanners[:len(batch)]
                     futures=[engine_executor.submit(deep_scan,game,item)
                              for game,item in zip(batch,workers)]
-                    confirmed_batch=[future.result() for future in futures]
+                    slots=[None]*len(futures)
+                    positions={future:i for i,future in enumerate(futures)}
+                    for future in as_completed(futures):
+                        slots[positions[future]]=future.result()
+                    confirmed_batch=slots
                 for game,confirmed in zip(batch,confirmed_batch):
                     game.decisions,game.metrics,game.deep=confirmed.decisions,confirmed.metrics,True
                 index+=len(batch)
@@ -749,15 +803,22 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             import resource
             memory_mb=resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024
         except (ImportError,AttributeError):memory_mb=None
+        if use_shared and shared_pool is not None:
+            shared_profile_after=engine_profile(shared_pool.scanners)
+            search_profile={key:shared_profile_after.get(key,0)-shared_profile_before.get(key,0)
+                            for key in shared_profile_after}
+        else:
+            search_profile=engine_profile(scanners) if scanners else {}
         result.diagnostics['runtime']={'collection_seconds':collected_at-started,
             'fast_seconds':fast_finished-collected_at,'deep_seconds':deep_finished-deep_started,
             'profile_seconds':time.monotonic()-deep_finished,'elapsed_seconds':result.elapsed,
             'peak_process_memory_mb':memory_mb,'full_fast_games':len(analyzed),'deep_games':sum(g.deep for g in analyzed),
+            'deep_position_tasks':deep_position_tasks,
             'engine_workers':requested_workers,'shared_engine_pool':bool(use_shared),
             'effective_cpu_capacity':available_engine_cpus(),
             'effective_memory_limit_mb':available_engine_memory_mb(),
             'engine_pool_max':_ENGINE_POOL_MAX,
-            'engine_searches':engine_profile(scanners) if scanners else {}}
+            'engine_searches':search_profile}
         return result
     except (chess.engine.EngineError,TimeoutError) as error:
         raise ReviewError('Stockfish stopped responding. The scan was stopped safely; please try again later.') from error
