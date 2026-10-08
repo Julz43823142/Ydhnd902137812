@@ -242,7 +242,7 @@ def warm_worker():
     return True
 
 
-def annotate_history(games,predictor=None,*,full_coverage=False):
+def annotate_history(games,predictor=None,*,full_coverage=False,checkpoint=None,target=None):
     global _worker
     start=time.monotonic()
     for game in games:
@@ -261,6 +261,11 @@ def annotate_history(games,predictor=None,*,full_coverage=False):
                 if _worker is None:_worker=LocalPolicyWorker(checkpoint)
                 predictor=_worker.predict
             keys=[hashlib.sha256((MODEL_SHA256+json.dumps(item,sort_keys=True)).encode()).hexdigest() for _,_,item in chosen]
+            if checkpoint is not None:
+                for (game,decision,_),key in zip(chosen,keys):
+                    saved=checkpoint.policy(target,game,decision)
+                    if saved is not None and valid_policy(decision,saved):
+                        _cache[key]=saved
             missing=[i for i,key in enumerate(keys) if key not in _cache]
             if missing:
                 # Bound each CPU-inference request and IPC payload. A full
@@ -273,8 +278,13 @@ def annotate_history(games,predictor=None,*,full_coverage=False):
                         if not valid_policy(chosen[i][1],policy):
                             raise ValueError('Invalid local policy distribution')
                         _cache[keys[i]]=policy
+                    if checkpoint is not None:
+                        for i in group:chosen[i][1].human_policy=dict(_cache[keys[i]])
+                        checkpoint.record_policies(target,[(chosen[i][0],chosen[i][1]) for i in group])
             for (game,decision,_),key in zip(chosen,keys):
                 decision.human_policy=dict(_cache[key]);_cache.move_to_end(key)
+            if checkpoint is not None:
+                checkpoint.record_policies(target,[(game,decision) for game,decision,_ in chosen])
             while len(_cache)>2400:_cache.popitem(last=False)
         for game in games:refresh_game(game)
         return {'available':True,'model':MODEL_NAME,'positions':len(chosen),
