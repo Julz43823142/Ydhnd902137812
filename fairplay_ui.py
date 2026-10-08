@@ -661,7 +661,7 @@ class FairPlayService:
         self.jobs[target] = job
         self.queue.put_nowait(job)
         saved = (await asyncio.to_thread(self.checkpoints.note,target,token=job.token)
-                 if self.checkpoints is not None else False)
+                 if getattr(self,'checkpoints',None) is not None else False)
         import feature_usage
         feature_usage.note('use:fairplay-scan',ctx.user.id)
         await ctx.followup.send(
@@ -688,7 +688,7 @@ class FairPlayService:
                                                       allowed_mentions=discord.AllowedMentions.none())
                 job.delivery_unknown = False
             else:await job.message.edit(embed=card,view=view)
-            if self.checkpoints is not None:
+            if getattr(self,'checkpoints',None) is not None:
                 # Persist Discord message identity, so startup resumes by
                 # editing the existing card rather than posting a fresh panel.
                 await asyncio.to_thread(
@@ -724,17 +724,17 @@ class FairPlayService:
                 self.results[job.message.id] = (time.time(),result)
                 self.cache[job.target] = (time.time(),result,job.message)
                 self.expire_cache()
-                if self.checkpoints is not None:
+                if getattr(self,'checkpoints',None) is not None:
                     await asyncio.to_thread(self.checkpoints.finish,job.target)
         except AccountNotFound:
-            if self.checkpoints is not None:
+            if getattr(self,'checkpoints',None) is not None:
                 await asyncio.to_thread(self.checkpoints.suspend,job.target)
             try:
                 if job.ctx is not None:
                     await job.ctx.followup.send('❌ **Chess.com account not found**\nCheck the username and try again.',ephemeral=True)
             except discord.HTTPException:pass
         except ReviewError as error:
-            if self.checkpoints is not None:
+            if getattr(self,'checkpoints',None) is not None:
                 await asyncio.to_thread(self.checkpoints.suspend,job.target)
             if job.message is not None:await self.safe_progress(job,'❌ '+str(error))
             else:
@@ -751,7 +751,7 @@ class FairPlayService:
             except Exception:pass
             raise
         except Exception:
-            if self.checkpoints is not None:
+            if getattr(self,'checkpoints',None) is not None:
                 await asyncio.to_thread(self.checkpoints.suspend,job.target)
             # Deliberately do not log exception values/targets/reports.
             if job.message is not None:await self.safe_progress(job,'❌ Analysis could not finish safely. Please try again later.')
@@ -838,7 +838,7 @@ class FairPlayService:
             if not task.done():task.cancel()
         if tasks:await asyncio.gather(*tasks,return_exceptions=True)
         self.executor.shutdown(wait=False,cancel_futures=True)
-        if self.checkpoints is not None:
+        if getattr(self,'checkpoints',None) is not None:
             await asyncio.to_thread(self.checkpoints.flush)
         await asyncio.to_thread(close_shared_engine_pool)
 
