@@ -471,19 +471,22 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             with _game_cache_lock:
                 cached=_game_cache.get(key)
                 if cached and time.monotonic()-cached[0]<_GAME_CACHE_TTL:
-                    cached=(cached[0],copy.deepcopy(cached[1]),cached[2],copy.deepcopy(cached[3]))
+                    cached=(cached[0],copy.deepcopy(cached[1]),cached[2],copy.deepcopy(cached[3]),
+                            copy.deepcopy(cached[4]) if len(cached)>4 else None)
                 else:
                     cached=None
             cached_payload=None
             if cached:
-                if cached[2]:cached_payload=copy.deepcopy(cached[1])
+                if cached[2]:cached_payload=(copy.deepcopy(cached[1]),copy.deepcopy(cached[4]))
                 game.decisions=cached[1]
                 # Discovery always sees equal-budget fast evidence. A warm
                 # cache must not add another ten deep games on every re-scan.
                 for decision in game.decisions:
                     decision.metrics=copy.deepcopy(decision.fast_engine)
                 game.deep=False
-                game.fast_metrics=cached[3];summarize(game,config)
+                game.fast_metrics=cached[3]
+                game.metrics=copy.deepcopy(cached[3])
+                game.metrics['timing']=timing_metrics(game,config)
             else:worker.analyse(game,config.fast_nodes)
             return game,cached_payload
         # Full primary fast pass ALWAYS precedes historical probes/deep searches.
@@ -525,8 +528,12 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         def deep_scan(game,worker):
             confirmed=copy.deepcopy(game)
             if game.identity in cached_deep:
-                confirmed.decisions=copy.deepcopy(cached_deep[game.identity])
-                summarize(confirmed,config)
+                decisions,metrics=cached_deep[game.identity]
+                confirmed.decisions=copy.deepcopy(decisions)
+                if metrics is not None:
+                    confirmed.metrics=copy.deepcopy(metrics)
+                else:
+                    summarize(confirmed,config)
             else:
                 worker.analyse(confirmed,config.deep_nodes)
             return confirmed
@@ -555,7 +562,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             for game in analyzed:
                 if game.fast_metrics:
                     key=(game.identity,game.color,scanner.name,VERSION,config)
-                    _game_cache[key]=(time.monotonic(),copy.deepcopy(game.decisions),game.deep,copy.deepcopy(game.fast_metrics))
+                    _game_cache[key]=(time.monotonic(),copy.deepcopy(game.decisions),game.deep,
+                                      copy.deepcopy(game.fast_metrics),copy.deepcopy(game.metrics) if game.deep else None)
                     _game_cache.move_to_end(key)
             while len(_game_cache)>_GAME_CACHE_MAX:_game_cache.popitem(last=False)
         progress('Comparing personal timing baselines…')
