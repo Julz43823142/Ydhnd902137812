@@ -195,6 +195,16 @@ class OpportunityWeighting(unittest.TestCase):
                         d.fast_policy=policy_evidence(d,d.human_policy)
                 self.assertEqual(policy.integrate(result(),group).priority,'LOW')
 
+    def test_deep_coverage_keeps_early_and_late_anchors(self):
+        group=[sample(i,count=4) for i in range(20)]
+        controls=[sample(100),sample(101)]
+        # Force one full-period candidate so its temporal anchors are tested.
+        with patch('fairplay_policy.periods',return_value=[{'ids':tuple(g.identity for g in group),'blockers':[]}]):
+            plan=policy.allocate(group,controls)
+        self.assertIn(group[0],plan)
+        self.assertIn(group[-1],plan)
+        self.assertEqual(len(plan),8)
+
     def test_deep_allocation_counts_opportunities_and_keeps_controls(self):
         group=[sample(i,count=2) for i in range(12)]
         controls=[sample(100),sample(101)]

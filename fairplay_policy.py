@@ -192,7 +192,11 @@ def allocate(games,plan,config=CONFIG):
     # games or twelve two-opportunity games request the same evidence budget.
     exposure=lambda g:min(game_summary(g,fast=True)['positions'],POLICY.game_decisions)/POLICY.game_decisions
     covered=sum(exposure(g) for g in selected if g in members)
-    for game in coverage_members(members,len(members)):
+    mean_exposure=sum(exposure(g) for g in members)/len(members)
+    slots=min(len(members),math.ceil(POLICY.contributor_games/max(mean_exposure,.01)))
+    anchors=coverage_members(members,slots)
+    remaining=[g for g in coverage_members(members,len(members)) if g not in anchors]
+    for game in anchors+remaining:
         if covered>=POLICY.contributor_games or len(selected)>=config.deep_max_games:break
         if game not in selected:
             selected.append(game);covered+=exposure(game)
