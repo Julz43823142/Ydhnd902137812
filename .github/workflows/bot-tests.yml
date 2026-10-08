@@ -74,6 +74,8 @@ jobs:
         env:
           BASELINE_STOCKFISH_PATH: /tmp/stockfish19-official/Stockfish/src/stockfish
         run: python scripts/benchmark_fairplay_transport.py
+      - name: Benchmark depth 18 versus current 24k-node Fair Play fast pass
+        run: python scripts/benchmark_fairplay_depth18.py
 
   human-model-smoke:
     runs-on: ubuntu-latest
