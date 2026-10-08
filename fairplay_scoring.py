@@ -44,7 +44,8 @@ def priority_model(scores, *, games, decisions, critical, confidence, deep_confi
     return 'MODERATE' if moderate else 'LOW'
 
 
-def score_review(target, games, selected, skipped, partial, engine_name, profile, elapsed, config=CONFIG, *, coverage_state=None, context_games=None):
+def score_review(target, games, selected, skipped, partial, engine_name, profile, elapsed, config=CONFIG, *,
+                 coverage_state=None, context_games=None, gameplay_periods=None):
     from fairplay_analysis import aggregate, performance_metrics, context_metrics, median, family_label, ReviewResult
     # Only rated games with usable equal-budget engine coverage enter ANY signal.
     scanned_rated=[g for g in games if g.rated is True and not g.probe_only]
@@ -258,7 +259,7 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
     if not {'timing','results'}&disabled:result=integrate_review(result,timeline,config)
     if coverage_state and not coverage_state.get('primary_engine_complete',True):result.confidence='LOW'
     from fairplay_sequence import integrate_gameplay
-    result=integrate_gameplay(result,timeline,config)
+    result=integrate_gameplay(result,timeline,config,periods=gameplay_periods)
     if context_games is not None:
         from fairplay_opening import repertoire
         result.diagnostics['gameplay']['repertoire']=repertoire(context_games)
