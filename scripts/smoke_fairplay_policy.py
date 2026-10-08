@@ -11,6 +11,10 @@ def main():
     try:
         r=review(TARGET,lambda _:None,api_factory=FixtureAPI)
         ref=r.diagnostics['human_reference']
+        if not (ref['available'] and ref['positions']>0):
+            # Synthetic fixture only: print safe failure class, never a case.
+            print('Maia synthetic smoke unavailable:',
+                  ref.get('failure_kind','no-failure-kind'),ref.get('reason','no-reason'))
         assert ref['available'] and ref['positions']>0
         assert ref['fast_counterfactual']['complete'] and ref['deep_counterfactual']['complete']
         paired=0
