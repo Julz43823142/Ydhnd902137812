@@ -775,10 +775,16 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 and not (deadline.cancel is not None and deadline.cancel.is_set()))
             else {'available':False,'positions':0,
                   'reason':'Primary engine pass incomplete or interrupted; optional human reference skipped.'})
+        from fairplay_policy import complete as complete_policy, allocate as allocate_policy
+        if neural_reference.get('available'):
+            progress('Comparing human alternatives…')
+            neural_reference['fast_counterfactual']=complete_policy(
+                analyzed,config.fast_nodes,deadline,executor=engine_executor,
+                pool=shared_pool if use_shared else None,scanner=scanner,fast=True)
         progress('Analyzing sessions and repertoire…')
         from fairplay_sequence import class_periods, adaptive_deep_games, confirmation_extension
         gameplay_periods=class_periods(analyzed,config)
-        candidates=adaptive_deep_games(analyzed,config,periods=gameplay_periods)
+        candidates=allocate_policy(analyzed,adaptive_deep_games(analyzed,config,periods=gameplay_periods),config)
         deep_started=time.monotonic()
         deep_incomplete=False
         index=0
@@ -851,6 +857,10 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                     candidates.extend(g for g in extra if g not in candidates)
             except DeadlineReached:
                 deep_incomplete=True;break
+        if neural_reference.get('available'):
+            neural_reference['deep_counterfactual']=complete_policy(
+                [g for g in analyzed if g.deep],config.deep_nodes,deadline,
+                executor=engine_executor,pool=shared_pool if use_shared else None,scanner=scanner)
         deep_finished=time.monotonic()
         progress(f'Deep confirmation: {sum(g.deep for g in candidates)} / {len(candidates)}')
         with _game_cache_lock:
@@ -876,6 +886,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                             engine_name,profile,time.monotonic()-started,config,
                             coverage_state=coverage_state,context_games=history,
                             gameplay_periods=gameplay_periods)
+        from fairplay_policy import integrate as integrate_policy
+        result=integrate_policy(result,analyzed,config)
         result.coverage.update(primary_collected=len(primary),primary_fast_scanned=min(len(analyzed),len(primary)) if not primary_complete else len(primary),
                                history_probed=len(probes),history_fast_scanned=sum(g not in primary for g in analyzed),
                                history_probe_complete=probe_complete,deep_incomplete=deep_incomplete,

@@ -118,6 +118,7 @@ class Decision:
     fast_engine: dict = field(default_factory=dict)
     opening: dict = field(default_factory=dict)
     human_policy: dict = field(default_factory=dict)
+    fast_policy: dict = field(default_factory=dict)
 
 
 @dataclass

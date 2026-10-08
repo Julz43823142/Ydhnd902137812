@@ -12,7 +12,7 @@ def estimate(stage):
         match = re.search(r'(\d+)\s*/\s*(\d+)', stage)
         return 80+int(17*min(1, int(match[1])/max(1, int(match[2])))) if match else 80
     return {'Fetching profile…':3, 'Collecting rated games…':10,
-            'Building human-move profile…':77, 'Analyzing sessions and repertoire…':79,
+            'Comparing human alternatives…':78, 'Building human-move profile…':77, 'Analyzing sessions and repertoire…':79,
             'Comparing personal timing baselines…':98, 'Building report…':99}.get(stage, 0)
 
 

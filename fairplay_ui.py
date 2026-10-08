@@ -112,6 +112,12 @@ def detail_embed(result, mode):
                 f"Low-policy strong moves: {sum(r.get('low_policy_strong_moves',0) for r in rows)}\n"
                 'Policy likelihood estimates human move choice, not cheating. Unknown engine alternatives '
                 'receive a conservative perfect-quality upper bound. Rare bad moves provide no strong-play evidence.',inline=False)
+            comparison=result.diagnostics.get('learned_gameplay',{})
+            proof=comparison.get('deep',{})
+            embed.add_field(name='Paired human-reference review',value=
+                f"Deep contributor games: {proof.get('contributors',0)} · comparable decisions: {proof.get('positions',0)}\n"
+                + ('Distributed gameplay route established; manual review required.' if comparison.get('passed') else
+                   'Not established: '+ '; '.join(comparison.get('blockers',[])[:3])),inline=False)
             informative=[]
             from fairplay_maia import policy_evidence
             for game in result.games:
@@ -133,7 +139,8 @@ def detail_embed(result, mode):
             embed.add_field(name='Limits',value=
                 'Maia was trained on human chess, not calibrated as a SharkBot misconduct detector. '
                 'Platform ratings and time controls differ. Samples include misses; this reference can allocate '
-                'extra full-game deep review but cannot independently raise review priority.',inline=False)
+                'extra full-game deep review. Distributed model discrepancies can raise review priority only after '
+                'paired Stockfish confirmation; unsearched alternatives and model uncertainty reduce evidence.',inline=False)
         embed.set_footer(text=DISCLAIMER)
         return embed
     if mode=='Review Gates':
