@@ -24,8 +24,13 @@ MAX_AGE = 7 * 86400
 
 
 def _git(args, data=None):
+    env = os.environ.copy()
+    env.setdefault("GIT_AUTHOR_NAME", "SharkBot Fair Play checkpoint")
+    env.setdefault("GIT_AUTHOR_EMAIL", "sharkbot-checkpoint@users.noreply.github.com")
+    env.setdefault("GIT_COMMITTER_NAME", "SharkBot Fair Play checkpoint")
+    env.setdefault("GIT_COMMITTER_EMAIL", "sharkbot-checkpoint@users.noreply.github.com")
     return subprocess.run(
-        ["git", *args], input=data, stdout=subprocess.PIPE,
+        ["git", *args], input=data, stdout=subprocess.PIPE, env=env,
         stderr=subprocess.DEVNULL, check=False, timeout=25,
     )
 
