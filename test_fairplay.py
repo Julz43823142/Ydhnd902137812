@@ -276,7 +276,11 @@ class FakeEngine:
 
 
 class Pipeline(unittest.TestCase):
-    def setUp(self):analysis._game_cache.clear()
+    def setUp(self):
+        analysis.close_shared_engine_pool()
+        analysis._game_cache.clear()
+    def tearDown(self):
+        analysis.close_shared_engine_pool()
     def fake_api(self,count=1):
         self.api = Mock()
         self.api.deadline = time.monotonic()+60
@@ -291,10 +295,13 @@ class Pipeline(unittest.TestCase):
         engine.quit.assert_called_once();self.api.close.assert_called_once()
         self.assertTrue(any(call.args[0].get('Threads')==1 for call in engine.configure.call_args_list))
 
-    def test_cpu_aware_engine_parallelism_is_conservative(self):
-        expected={2:1,5:1,6:2,8:2,9:3,11:3,12:4,24:4}
-        for cpus,workers in expected.items():
-            with self.subTest(cpus=cpus),patch.object(analysis,'available_engine_cpus',return_value=cpus):
+    def test_shared_pool_scales_to_cpu_and_memory_limits(self):
+        cases=((2,None,2),(8,None,8),(16,None,12),(8,1024,8),(8,512,2))
+        for cpus,memory,workers in cases:
+            with self.subTest(cpus=cpus,memory=memory), \
+                 patch.object(analysis,'available_engine_cpus',return_value=cpus), \
+                 patch.object(analysis,'available_engine_memory_mb',return_value=memory):
+                self.assertEqual(analysis.shared_engine_pool_size(),workers)
                 self.assertEqual(analysis.automatic_engine_workers(),workers)
 
     def test_engine_priority_is_only_slightly_lowered(self):
@@ -377,6 +384,58 @@ class Pipeline(unittest.TestCase):
         two=run(2);four=run(4)
         print(f'Fair Play scheduler benchmark: 2 workers {two:.3f}s; 4 workers {four:.3f}s; reduction {(1-four/two)*100:.1f}%')
         self.assertLess(four,two*.72)
+
+    def test_shared_pool_reuses_stockfish_processes_across_reviews(self):
+        engines=[FakeEngine() for _ in range(4)]
+        factory=Mock(side_effect=engines)
+        pool=analysis.SharedEnginePool(size=4,factory=factory)
+        try:
+            first=analysis.review(TARGET,lambda _:None,api_factory=lambda _:self.fake_api(4),engine_pool=pool)
+            analysis._game_cache.clear()
+            second=analysis.review(TARGET,lambda _:None,api_factory=lambda _:self.fake_api(4),engine_pool=pool)
+            self.assertEqual(factory.call_count,4)
+            self.assertEqual(first.priority,second.priority)
+            self.assertEqual(first.totals,second.totals)
+            self.assertTrue(first.diagnostics['runtime']['shared_engine_pool'])
+            self.assertEqual(first.diagnostics['runtime']['engine_workers'],4)
+        finally:
+            pool.close()
+
+    def test_eight_slot_shared_pool_preserves_single_worker_output(self):
+        baseline_engine=FakeEngine()
+        baseline=analysis.review(
+            TARGET,lambda _:None,api_factory=lambda _:self.fake_api(8),
+            engine_factory=lambda:baseline_engine,engine_workers=1)
+        analysis._game_cache.clear()
+        engines=[FakeEngine() for _ in range(8)]
+        pool=analysis.SharedEnginePool(size=8,factory=Mock(side_effect=engines))
+        try:
+            parallel=analysis.review(TARGET,lambda _:None,api_factory=lambda _:self.fake_api(8),engine_pool=pool)
+            self.assertEqual(parallel.priority,baseline.priority)
+            self.assertEqual(parallel.totals,baseline.totals)
+            self.assertEqual(parallel.deep_coverage,baseline.deep_coverage)
+            self.assertEqual(parallel.classes,baseline.classes)
+        finally:
+            pool.close()
+
+    def test_shared_pool_eight_slots_materially_reduce_parallel_scheduler_time(self):
+        class SlowEngine(FakeEngine):
+            def analyse(self,board,limit,multipv=None,root_moves=None):
+                time.sleep(.006)
+                return super().analyse(board,limit,multipv=multipv,root_moves=root_moves)
+        def run(size):
+            analysis._game_cache.clear()
+            engines=[SlowEngine() for _ in range(size)]
+            pool=analysis.SharedEnginePool(size=size,factory=Mock(side_effect=engines))
+            try:
+                started=time.monotonic()
+                analysis.review(TARGET,lambda _:None,api_factory=lambda _:self.fake_api(16),engine_pool=pool)
+                return time.monotonic()-started
+            finally:
+                pool.close()
+        two=run(2);eight=run(8)
+        print(f'Fair Play shared-pool benchmark: 2 slots {two:.3f}s; 8 slots {eight:.3f}s; reduction {(1-eight/two)*100:.1f}%')
+        self.assertLess(eight,two*.40)
 
     def test_engine_unavailable_is_clear_failure_and_api_closes(self):
         with self.assertRaisesRegex(data.ReviewError,'Stockfish is unavailable'):
