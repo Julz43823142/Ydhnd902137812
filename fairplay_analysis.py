@@ -702,7 +702,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 else:
                     summarize(confirmed,config)
             else:
-                worker.analyse(confirmed,config.deep_nodes)
+                if shared_pool is not None and use_shared:shared_pool.run(confirmed,config.deep_nodes,deadline)
+                else:worker.analyse(confirmed,config.deep_nodes)
             return confirmed
         while index<len(candidates):
             # Extension candidates are still selected only after the original
