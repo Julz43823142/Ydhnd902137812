@@ -51,22 +51,25 @@ def alternatives(d, config=POLICY):
 def search_alternatives(scanner,d,nodes):
     from fairplay_analysis import score_cp
     values={};board=chess.Board(d.fen)
+    depth_search=isinstance(nodes,chess.engine.Limit) and nodes.depth is not None
+    limit=nodes if depth_search else chess.engine.Limit(nodes=nodes)
     for uci in alternatives(d):
         check_deadline(scanner.deadline)
         move=chess.Move.from_uci(uci)
         if move not in board.legal_moves:raise ValueError('Invalid local policy root')
         if 'Clear Hash' in scanner.engine.options:scanner.engine.configure({'Clear Hash':None})
         started=time.monotonic()
-        line=scanner.engine.analyse(board,chess.engine.Limit(nodes=nodes),root_moves=[move])
+        line=scanner.engine.analyse(board,limit,root_moves=[move])
         spent=time.monotonic()-started
         scanner.profile['root_seconds']+=spent;scanner.profile['root_searches']+=1
-        key='deep_root_seconds' if nodes==scanner.config.deep_nodes else 'fast_root_seconds'
+        key='deep_root_seconds' if depth_search or nodes==scanner.config.deep_nodes else 'fast_root_seconds'
         scanner.profile[key]+=spent
         scanner.profile['policy_root_seconds']=scanner.profile.get('policy_root_seconds',0)+spent
         scanner.profile['policy_root_searches']=scanner.profile.get('policy_root_searches',0)+1
         values[uci]=score_cp(line,board.turn)
     check_deadline(scanner.deadline)
-    return {'nodes':nodes,'scores':values}
+    return ({'depth':nodes.depth,'scores':values} if depth_search else
+            {'nodes':nodes,'scores':values})
 
 def complete(games,nodes,deadline,*,executor=None,pool=None,scanner=None,fast=False):
     """Reuse the bounded pool. Drain all tasks; incomplete optional data cannot score."""
