@@ -696,7 +696,9 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         def fast_scan(game,worker=None,*,prepare_only=False):
             worker=worker or scanner
             check_deadline(deadline)
-            key=(game.identity,game.color,engine_name,VERSION,config,full_depth_mode)
+            key=(game.identity,game.color,engine_name,VERSION,config,full_depth_mode,
+                 config.fast_nodes,config.fast_multipv,config.deep_nodes,config.deep_multipv,
+                 __import__('fairplay_maia').MODEL_SHA256)
             with _game_cache_lock:
                 cached=_game_cache.get(key)
                 if cached and time.monotonic()-cached[0]<_GAME_CACHE_TTL:
@@ -901,7 +903,9 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         with _game_cache_lock:
             for game in analyzed:
                 if game.fast_metrics:
-                    key=(game.identity,game.color,engine_name,VERSION,config,full_depth_mode)
+                    key=(game.identity,game.color,engine_name,VERSION,config,full_depth_mode,
+                 config.fast_nodes,config.fast_multipv,config.deep_nodes,config.deep_multipv,
+                 __import__('fairplay_maia').MODEL_SHA256)
                     _game_cache[key]=(time.monotonic(),copy.deepcopy(game.decisions),game.deep,
                                       copy.deepcopy(game.fast_metrics),copy.deepcopy(game.metrics) if game.deep else None)
                     _game_cache.move_to_end(key)
@@ -923,6 +927,10 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                             gameplay_periods=gameplay_periods)
         from fairplay_policy import integrate as integrate_policy
         result=integrate_policy(result,analyzed,config)
+        # Astra evidence accounting is strictly observational. Production
+        # eligibility, confidence and classifications were already frozen.
+        from fairplay_evidence_audit import audit_engine_sample
+        result.diagnostics['evidence_audit']=audit_engine_sample(analyzed,config)
         result.coverage.update(primary_collected=len(primary),primary_fast_scanned=min(len(analyzed),len(primary)) if not primary_complete else len(primary),
                                history_probed=len(probes),history_fast_scanned=sum(g not in primary for g in analyzed),
                                history_probe_complete=probe_complete,deep_incomplete=deep_incomplete,
@@ -947,6 +955,26 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                             for key in shared_profile_after}
         else:
             search_profile=engine_profile(scanners) if scanners else {}
+        # No account identifiers, FENs, URLs or case labels in run metadata.
+        from fairplay_maia import MODEL_SHA256, MODEL_REVISION, MODEL_NAME
+        result.diagnostics['run_contract']={
+            'version':VERSION,'engine':engine_name,
+            'fast':{'mode':'nodes','budget':config.fast_nodes,'multipv':config.fast_multipv},
+            'deep':{'mode':'depth' if full_depth_mode else 'nodes',
+                    'budget':18 if full_depth_mode else config.deep_nodes,'multipv':config.deep_multipv},
+            'maia_model':MODEL_NAME,'maia_revision':MODEL_REVISION[:12],
+            'maia_checkpoint_sha256_prefix':MODEL_SHA256[:12],
+            'parsed_primary_games':len(primary),
+            'deep_completed_games':sum(g.deep for g in analyzed),
+            'depth18_completed_positions':sum(
+                d.metrics.get('search_depth',0)>=18 for g in analyzed if g.deep
+                for d in g.decisions) if full_depth_mode else None,
+            'depth18_total_positions':sum(len(g.decisions) for g in analyzed)
+                if full_depth_mode else None,
+            'skipped_by_fixed_reason':dict(sorted(skipped.items())),
+            'archive_failures':skipped.get('unavailable_archive',0),
+            'runtime_seconds':round(result.elapsed,2),
+        }
         result.diagnostics['human_reference']=neural_reference
         result.diagnostics['runtime']={'collection_seconds':collected_at-started,
             'fast_seconds':fast_finished-collected_at,'deep_seconds':deep_finished-deep_started,
