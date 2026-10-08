@@ -220,6 +220,60 @@ class CheckpointStore:
             job["updated"] = time.time()
             return self._write()
 
+
+    def policy(self, target, game, decision):
+        """Validated cached Maia move probabilities (model pinned by bind())."""
+        if not self.enabled:
+            return None
+        with self.lock:
+            job = self.state["jobs"].get(target, {})
+            item = job.get("positions", {}).get(self._key(game, decision, "maia"))
+            value = item.get("policy") if isinstance(item, dict) else None
+            return copy.deepcopy(value) if isinstance(value, dict) else None
+
+    def record_policy(self, target, game, decision):
+        if not self.enabled or not decision.human_policy:
+            return False
+        with self.lock:
+            job = self.state["jobs"].get(target)
+            if not job or not job.get("contract"):
+                return False
+            key = self._key(game, decision, "maia")
+            if key not in job["positions"]:
+                job["positions"][key] = {"policy": copy.deepcopy(decision.human_policy)}
+                job["updated"] = time.time()
+                return self._write()
+            return True
+
+    def restore_counterfactual(self, target, game, decision, phase, nodes):
+        if not self.enabled:
+            return None
+        with self.lock:
+            job = self.state["jobs"].get(target, {})
+            item = job.get("positions", {}).get(self._key(game, decision, phase))
+            result = item.get("search") if isinstance(item, dict) else None
+            if not isinstance(result, dict):
+                return None
+            mode = "depth" if hasattr(nodes, "depth") and nodes.depth is not None else "nodes"
+            requested = nodes.depth if mode == "depth" else nodes
+            contract = result.get("search_contract", {})
+            if (contract.get("mode") != mode or contract.get("requested") != requested
+                    or contract.get("completed") is not True or contract.get("exact") is not True):
+                return None
+            return copy.deepcopy(result)
+
+    def record_counterfactual(self, target, game, decision, phase, result):
+        if not self.enabled or not result.get("search_contract", {}).get("completed"):
+            return False
+        with self.lock:
+            job = self.state["jobs"].get(target)
+            if not job or not job.get("contract"):
+                return False
+            job["positions"][self._key(game, decision, phase)] = {
+                "search": copy.deepcopy(result)}
+            job["updated"] = time.time()
+            return self._write()
+
     def flush(self):
         with self.lock:
             return self._write(force=True) if self.enabled else False
