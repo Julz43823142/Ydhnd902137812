@@ -272,3 +272,58 @@ def audit_engine_sample(games, config=None):
             gate_order=serial, branch_names=branches)
     return {"whole_engine_sample":overall,"deep_confirmed_subset":paired,
             "by_time_class":by_class}
+
+
+def audit_maia_funnel(games, selected_ids=()):
+    """Counts requested/inferred/aligned positions, with whole/period scope.
+
+    All decisions are retained. Missing model results are UNKNOWN, not weak
+    play. Policy probabilities are never used as misconduct probabilities.
+    """
+    from fairplay_maia import policy_evidence, valid_policy
+    from fairplay_policy import POLICY
+    selected = set(selected_ids)
+    rows = []
+    for gi, game in enumerate(games):
+        both_ratings = game.rating is not None and game.opponent_rating is not None
+        for d in game.decisions:
+            m = d.metrics
+            exists = bool(d.human_policy)
+            aligned = valid_policy(d,d.human_policy) if exists else False
+            evidence = policy_evidence(d,d.human_policy) if aligned else None
+            eligible = evidence.get('eligible') if evidence else None
+            known_mass = evidence.get('known_policy_mass') if evidence else None
+            counterfactual = evidence.get('counterfactual_complete') if evidence else None
+            strong = (evidence.get('played_move_probability',1) <= .05
+                      and evidence.get('information',0)>=.10
+                      and evidence.get('observed_quality',0)>=.85) if evidence else False
+            checks = {
+                'supported_reference_inputs':gate(both_ratings,Reason.UNSUPPORTED_REFERENCE),
+                'policy_inferred':gate(exists,measured=exists),
+                'valid_policy_alignment':gate(aligned,Reason.POLICY_UNAVAILABLE,measured=exists),
+                'engine_comparison_valid':gate(bool(evidence),Reason.INVALID_SCORE,measured=aligned),
+                'eligible_gameplay':gate(eligible,measured=eligible is not None),
+                'sufficient_known_policy_mass':gate(known_mass>=POLICY.known_mass if known_mass is not None else False,
+                                                    Reason.POLICY_MASS,measured=known_mass is not None),
+                'counterfactual_complete':gate(counterfactual,Reason.ALTERNATIVES_INCOMPLETE,
+                                               measured=counterfactual is not None),
+            }
+            branches = {
+                'strong_low_policy_move':gate(strong,measured=bool(evidence)),
+                'deep_reviewed':gate(game.deep),
+                'paired_semantic_stability':gate(m.get('search_stability',{}).get('stable'),
+                     Reason.QUALITY_CHANGED,
+                     measured=bool(m.get('search_stability',{}).get('compared'))),
+            }
+            rows.append(DecisionAudit(gi,d.ply,checks,branches))
+    order=('supported_reference_inputs','policy_inferred','valid_policy_alignment',
+           'engine_comparison_valid','eligible_gameplay','sufficient_known_policy_mass',
+           'counterfactual_complete')
+    branches=('strong_low_policy_move','deep_reviewed','paired_semantic_stability')
+    def scan(scope,indices):
+        return audit_decisions(rows,scope=scope,game_indices=indices,
+                               gate_order=order,branch_names=branches)
+    return {'whole_engine_sample':scan('whole_engine_sample',range(len(games))),
+            'selected_period':scan('selected_period',[i for i,g in enumerate(games)
+                    if g.identity in selected]) if selected else None,
+            'rating_support_note':'Paired player/opponent rating present; external Maia domain calibration not independently certified.'}
