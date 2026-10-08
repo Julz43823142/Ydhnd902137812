@@ -7,7 +7,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import chess
 import chess.pgn
 import chess_play
-from fairplay_analysis import review
+from fairplay_analysis import review, close_shared_engine_pool
 
 TARGET = 'engine-smoke-fixture'
 
@@ -46,17 +46,19 @@ class FixtureAPI:
 
 def smoke():
     started=time.monotonic()
-    result=review(TARGET,lambda stage:None,api_factory=FixtureAPI)
-    if (not result.engine.startswith('Stockfish 19') or not result.totals['decisions']
-            or result.deep_coverage['games']!=1 or not result.games[0].fast_metrics):
-        raise RuntimeError('The real two-pass engine review did not complete.')
-    print(f'Real Stockfish two-pass synthetic review passed: {result.totals["decisions"]} decisions, {time.monotonic()-started:.2f}s.')
     try:
+        result=review(TARGET,lambda stage:None,api_factory=FixtureAPI)
+        if (not result.engine.startswith('Stockfish 19') or not result.totals['decisions']
+                or result.deep_coverage['games']!=1 or not result.games[0].fast_metrics):
+            raise RuntimeError('The real two-pass engine review did not complete.')
+        print(f'Real Stockfish two-pass synthetic review passed: {result.totals["decisions"]} decisions, {time.monotonic()-started:.2f}s.')
         game=chess_play.analyse_game_moves(['e4','e5','Nf3','Nc6','Bb5','a6'])
         if game['analysed_plies']!=6 or any(row['loss_cp']!=0 for row in game['moves'] if row['played']==row['best']):
             raise RuntimeError('Normal Game Review smoke test failed.')
         print('Real Stockfish normal Game Review passed: 6 plies.')
-    finally:chess_play._close_analysis_engine()
+    finally:
+        chess_play._close_analysis_engine()
+        close_shared_engine_pool()
 
 
 if __name__=='__main__':smoke()
