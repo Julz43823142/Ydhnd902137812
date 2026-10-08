@@ -215,6 +215,7 @@ def allocate(games,plan,config=CONFIG):
 
 def integrate(result,games,config=CONFIG):
     best=None
+    best_ids=()
     deep_rows={id(g):game_summary(g) for g in games if g.deep}
     fast_rows={id(g):game_summary(g,fast=True) for g in games if g.deep}
     for candidate in periods(games):
@@ -232,9 +233,13 @@ def integrate(result,games,config=CONFIG):
         reasons += [name for name,passed in tests.items() if not passed]
         row={'passed':not reasons,'blockers':reasons,'fast':candidate['summary'],'deep':deep,
              'class':candidate['class'],'candidate_games':len(candidate['ids'])}
-        if best is None or row['passed']:best=row
+        if best is None or row['passed']:
+            best=row
+            best_ids=tuple(candidate['ids'])
         if row['passed']:break
     best=best or {'passed':False,'blockers':['No adequately covered chronological human-policy period.'],'candidate_games':0}
+    from fairplay_evidence_audit import audit_maia_funnel
+    result.diagnostics['maia_evidence_audit']=audit_maia_funnel(games,best_ids)
     result.diagnostics['learned_gameplay']=best
     result.diagnostics.setdefault('high_paths',{})['Learned human-policy HIGH']={
         k:best[k] for k in ('passed','blockers','candidate_games')}
