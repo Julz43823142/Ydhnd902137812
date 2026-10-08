@@ -570,6 +570,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
     shared_pool = engine_pool
     scanner = None
     shared_profile_before = {}
+    fast_position_tasks = 0
     deep_position_tasks = 0
     try:
         progress('Fetching profile…')
@@ -614,7 +615,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         analyzed,probes = [],{}
         cached_deep = {}
         partial = False
-        def fast_scan(game,worker=None):
+        def fast_scan(game,worker=None,*,prepare_only=False):
             worker=worker or scanner
             check_deadline(deadline)
             key=(game.identity,game.color,engine_name,VERSION,config)
@@ -637,10 +638,10 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 game.fast_metrics=cached[3]
                 game.metrics=copy.deepcopy(cached[3])
                 game.metrics['timing']=timing_metrics(game,config)
-            else:
+            elif not prepare_only:
                 if shared_pool is not None and use_shared:shared_pool.run(game,config.fast_nodes,deadline)
                 else:worker.analyse(game,config.fast_nodes)
-            return game,cached_payload
+            return game,cached_payload,bool(cached)
         # Full primary fast pass ALWAYS precedes historical probes/deep searches.
         ordered_primary=list(reversed(primary))
         # Shared-pool production can queue the whole primary pass at once.
@@ -655,8 +656,39 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             batch=ordered_primary[offset:offset+step]
             progress(f'Fast engine scan: {offset} / {len(primary)}')
             try:
-                if engine_executor is None:
-                    completed=[fast_scan(batch[0],scanner)]
+                if use_shared and engine_executor is not None and shared_pool.supports_decision_tasks:
+                    # Keep the entire fixed-node fast budget, but dispatch each
+                    # independent position to the next available Threads=1 engine.
+                    # In particular, a long final game cannot strand other cores.
+                    prepared=[fast_scan(game,prepare_only=True) for game in batch]
+                    work=[(i,game,decision)
+                          for i,(game,_,cache_hit) in enumerate(prepared) if not cache_hit
+                          for decision in game.decisions if decision.useful]
+                    fast_position_tasks+=len(work)
+                    if work:
+                        futures=[engine_executor.submit(
+                            shared_pool.run_decision,game,decision,config.fast_nodes,deadline)
+                            for _,game,decision in work]
+                        done=0
+                        total=len(futures)
+                        tick=max(1,total//100)
+                        progress(f'Fast engine scan: 0 / {total} positions')
+                        for future in as_completed(futures):
+                            future.result()
+                            done+=1
+                            if done%tick==0 or done==total:
+                                progress(f'Fast engine scan: {done} / {total} positions')
+                    # Equivalent to EngineScanner.analyse(fast_nodes): summarize
+                    # only after every position in that game has finished.
+                    for game,_,cache_hit in prepared:
+                        if not cache_hit:
+                            summarize(game,config)
+                            for decision in game.decisions:
+                                if decision.metrics:decision.fast_engine=decision.metrics.copy()
+                            game.fast_metrics={k:v for k,v in game.metrics.items() if k!='timing'}
+                    completed=[(game,payload) for game,payload,_ in prepared]
+                elif engine_executor is None:
+                    completed=[fast_scan(batch[0],scanner)[:2]]
                 else:
                     workers=([None]*len(batch) if use_shared else scanners[:len(batch)])
                     futures=[engine_executor.submit(fast_scan,game,item)
@@ -667,7 +699,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                     positions={future:i for i,future in enumerate(futures)}
                     done=0
                     for future in as_completed(futures):
-                        slots[positions[future]]=future.result()
+                        slots[positions[future]]=future.result()[:2]
                         done+=1
                         progress(f'Fast engine scan: {offset+done} / {len(primary)}')
                     completed=slots
@@ -815,7 +847,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             'fast_seconds':fast_finished-collected_at,'deep_seconds':deep_finished-deep_started,
             'profile_seconds':time.monotonic()-deep_finished,'elapsed_seconds':result.elapsed,
             'peak_process_memory_mb':memory_mb,'full_fast_games':len(analyzed),'deep_games':sum(g.deep for g in analyzed),
-            'deep_position_tasks':deep_position_tasks,
+            'fast_position_tasks':fast_position_tasks,'deep_position_tasks':deep_position_tasks,
             'engine_workers':requested_workers,'shared_engine_pool':bool(use_shared),
             'effective_cpu_capacity':available_engine_cpus(),
             'effective_memory_limit_mb':available_engine_memory_mb(),
