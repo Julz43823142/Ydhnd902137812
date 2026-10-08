@@ -441,11 +441,11 @@ def shared_engine_pool_size(config=CONFIG):
     # Stockfish hash is the largest predictable allocation. Leave a substantial
     # reserve for Discord/Python/PGNs and process overhead.
     if memory is None:
-        memory_cap=12
+        memory_cap=8
     else:
         per_engine=max(96,config.hash_mb+32)
         memory_cap=max(1,int(max(0,memory-256)//per_engine))
-    return max(1,min(12,cpus,memory_cap))
+    return max(1,min(8,cpus,memory_cap))
 
 
 def automatic_engine_workers():
@@ -567,7 +567,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             else:
                 requested_workers=(1 if engine_factory is not None and engine_workers is None
                                    else automatic_engine_workers() if engine_workers is None
-                                   else max(1,min(12,int(engine_workers))))
+                                   else max(1,min(8,int(engine_workers))))
                 for _ in range(requested_workers):scanners.append(EngineScanner(deadline,config,engine_factory))
                 scanner=scanners[0]
                 if any(item.name!=scanner.name for item in scanners[1:]):
