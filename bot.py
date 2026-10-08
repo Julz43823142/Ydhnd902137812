@@ -5831,9 +5831,12 @@ def _build_chess_pgn_text(game, analysis=None):
     alter the export.
     """
     chess960 = _game_variant(game) == CHESS_VARIANT_960
+    initial = _initial_chess_board_from_game(game)
+    nonstandard_start = chess960 or initial.fen() != chess.STARTING_FEN
     pgn_game = chess.pgn.Game()
+    if nonstandard_start:
+        pgn_game.setup(initial)
     if chess960:
-        pgn_game.setup(_initial_chess_board_from_game(game))
         pgn_game.headers["Variant"] = "Chess960"
     pgn_game.headers["Result"] = str(game.get("result") or "*")
     pgn_game.headers["White"] = str(game.get("white_name") or "White")
@@ -5845,7 +5848,7 @@ def _build_chess_pgn_text(game, analysis=None):
         node = node.add_variation(move)
         board.push(move)
     exporter = chess.pgn.StringExporter(
-        headers=chess960, variations=False, comments=False, columns=None,
+        headers=nonstandard_start, variations=False, comments=False, columns=None,
     )
     return pgn_game.accept(exporter).strip() + "\n"
 
