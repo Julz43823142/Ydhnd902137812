@@ -298,7 +298,7 @@ def audit_maia_funnel(games, selected_ids=()):
     selected = set(selected_ids)
     rows = []
     for gi, game in enumerate(games):
-        both_ratings = game.rating is not None and game.opponent_rating is not None
+        both_ratings = getattr(game,'rating',None) is not None and getattr(game,'opponent_rating',None) is not None
         seen_plies=set()
         for ordinal,d in enumerate(game.decisions):
             m = d.metrics
