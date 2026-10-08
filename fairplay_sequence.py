@@ -263,10 +263,10 @@ def coverage_members(members,count):
     return sorted(selected,key=lambda g:(g.ended,g.identity))
 
 
-def adaptive_deep_games(games,config=CONFIG):
+def adaptive_deep_games(games,config=CONFIG,*,periods=None):
     if config.deep_games==0:return []  # explicit local/fixture deep-disable override
     from fairplay_clusters import select_deep_games, representative_controls
-    periods=class_periods(games,config)
+    periods=class_periods(games,config) if periods is None else periods
     # A strict acute candidate is expensive to miss: deep-review it first.
     # Broad periods remain available as independent secondary coverage.
     acute_candidate=next((p for p in periods if p['qualified'] and p.get('acute')),None)
@@ -350,7 +350,7 @@ def adaptive_deep_games(games,config=CONFIG):
 
 
 
-def confirmation_extension(games,config=CONFIG):
+def confirmation_extension(games,config=CONFIG,*,periods=None):
     """Spend remaining deep budget on unresolved, retained gameplay evidence.
 
     This is allocation, not a relaxed HIGH gate. Whole games are chosen by
@@ -360,7 +360,8 @@ def confirmation_extension(games,config=CONFIG):
     if config.deep_games==0:return []
     budget=max(0,config.deep_max_games-sum(g.deep for g in games))
     if not budget:return []
-    for period in class_periods(games,config):
+    periods=class_periods(games,config) if periods is None else periods
+    for period in periods:
         if not period['qualified'] or period.get('acute'):continue
         proof=deep_confirmation(period,games,config);summary=proof['summary']
         if proof['qualified']:continue
@@ -397,12 +398,12 @@ def game_structure(game):
             if any(d.metrics.get('before_cp',0)<-100 for d in rows) else None}
 
 
-def integrate_gameplay(result,games,config=CONFIG):
+def integrate_gameplay(result,games,config=CONFIG,*,periods=None):
     from fairplay_opening import repertoire
     from fairplay_human import evidence_funnel
     legacy_priority=result.priority
     legacy_blockers=list(result.diagnostics.get("high_blocked",[]))
-    periods=class_periods(games,config);confirmed=[]
+    periods=class_periods(games,config) if periods is None else periods;confirmed=[]
     for p in periods:
         proof=deep_confirmation(p,games,config)
         p['deep']=proof
