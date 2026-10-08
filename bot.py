@@ -5965,7 +5965,7 @@ def _format_stockfish_game_analysis(game, analysis):
         )
 
     lines = [
-        f"🔎 **{engine_name} Game Review • SF Accuracy**",
+        f"🔎 **{engine_name} Game Review • depth {int(analysis.get('analysis_depth') or 18)} • SF Accuracy**",
         side_line("⚪", game.get("white_name", "White"), white),
         side_line("⚫", game.get("black_name", "Black"), black),
         "🎬 Use the **Game Review** buttons below to inspect every move.",
@@ -6215,7 +6215,7 @@ class ChessGameReviewView(discord.ui.View):
         lines.append(f"📖 **Ply {self.index + 1}/{len(self.moves)}**")
         lines.append("🧭 Use the numbered move buttons below; every button carries that move's review emoji.")
         embed = discord.Embed(
-            title="🎬 Stockfish 19 Game Review",
+            title=f"🎬 Stockfish 19 Game Review • depth {int(self.analysis.get('analysis_depth') or 18)}",
             description="\n".join(line for line in lines if line),
             color=0x2F3136,
         )
