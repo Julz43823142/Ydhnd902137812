@@ -74,7 +74,7 @@ def result_embed(result: ReviewResult):
     coverage = result.coverage
     sample = (f'Rated context games: **{coverage.get("collected",result.selected_games)}**\n'
               f'Full engine-reviewed: **{coverage.get("fast_scanned",totals["games"])}** · gameplay-scoring games: **{coverage.get("used",totals["games"])}**\n'
-              f'Deep-reviewed: **{coverage.get("deep_reviewed",result.deep_coverage["games"])}** · older context-only: **{coverage.get("context_only",max(0,result.selected_games-coverage.get("fast_scanned",totals["games"])))}**\n'
+              f'Deep-budget reviewed: **{coverage.get("deep_reviewed",result.deep_coverage["games"])}** · deep-confirmed evidence: **{"yes" if result.deep_confirmed else "not established"}** · older context-only: **{coverage.get("context_only",max(0,result.selected_games-coverage.get("fast_scanned",totals["games"])))}**\n'
               f'Meaningful decisions: **{totals["decisions"]:,}**\n{classes}\n'
               f'Account age: {result.context["age_days"] if result.context["age_days"] is not None else "unavailable"} days')
     funnel=result.diagnostics.get('gameplay',{}).get('funnel',{})
