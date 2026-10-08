@@ -599,8 +599,8 @@
           },
           "Mohammad": {
             "correct": 6,
-            "total": 12,
-            "wrong": 6
+            "total": 13,
+            "wrong": 7
           },
           "Nairyaaa": {
             "correct": 6,
@@ -639,9 +639,9 @@
           }
         }
       },
-      "total": 384,
-      "updated_at": 1791483222,
-      "wrong": 131
+      "total": 385,
+      "updated_at": 1791483287,
+      "wrong": 132
     },
     "550338389535227926": {
       "best_streak": 0,
