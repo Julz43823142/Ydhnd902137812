@@ -44,9 +44,12 @@ permissions:
   # planned, state-synced rotation.
   actions: write
 
+# Preserve the running Discord worker (and an hours-long Fair Play scan).
+# Replacement workers queue behind it until the existing bot rotates cleanly.
+# Concurrent Discord connections would be unsafe, so the group stays fixed.
 concurrency:
   group: daily-puzzle
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   run:
