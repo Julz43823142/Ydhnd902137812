@@ -198,3 +198,77 @@ def select_route_diagnostics(candidates: Iterable[CandidateAudit]) -> dict[str, 
         return (c.structurally_eligible, bool(measured) and passed == len(measured),
                 passed / max(1, len(measured)), c.opportunities, c.games)
     return {route: max(rows, key=key) for route, rows in sorted(grouped.items())}
+
+
+def gate(value, reason=Reason.EXISTING_GATE, *, measured=True):
+    """Adapter for a real current detector predicate, never a guessed proxy."""
+    if not measured:
+        return MISSING
+    return PASSED if value else Check(State.FAIL, reason)
+
+
+def audit_engine_sample(games, config=None):
+    """Account for all engine decisions and a separate deep-confirmed subset.
+
+    Sequential stages correspond to actual fast human-opportunity eligibility
+    (fairplay_human.annotate_game and engine_metrics). Search stability is a
+    confirmation property, not a precondition for fast opportunities. Critical,
+    unique and high-information are overlapping descriptive categories.
+    """
+    from fairplay_config import CONFIG
+    config = config or CONFIG
+    rows = []
+    for index, game in enumerate(games):
+        for decision in game.decisions:
+            m = decision.metrics
+            fast = decision.fast_engine
+            evaluated = bool(m.get("candidates")) and "cpl" in m
+            usable = m.get("useful") if "useful" in m else None
+            competitive = m.get("competitive") if "competitive" in m else None
+            difficulty = m.get("difficulty") if "difficulty" in m else None
+            stability = m.get("search_stability") or {}
+            if stability.get("compared"):
+                stable = gate(stability.get("stable"), Reason.QUALITY_CHANGED,
+                              measured="stable" in stability)
+            elif m.get("search_inconsistent"):
+                stable = Check(State.FAIL, Reason.SCORE_BOUND)
+            else:
+                stable = Check(State.UNKNOWN, Reason.SEARCH_INCOMPLETE)
+            checks = {
+                "off_book": gate(decision.phase != "opening", Reason.BOOK),
+                "not_forced": gate(not decision.forced, Reason.FORCED),
+                "not_trivial": gate(not (decision.trivial_kind or m.get("simple_threat_response")), Reason.TRIVIAL),
+                "not_easy_conversion": gate(not (m.get("easy_conversion") or m.get("automatic_material_gain")), Reason.EASY_CONVERSION),
+                "engine_evaluated": gate(evaluated, measured=evaluated),
+                "engine_useful": gate(usable, measured=usable is not None),
+                "competitive": gate(competitive, measured=competitive is not None),
+                "high_difficulty": gate(difficulty >= config.human_difficulty_floor if difficulty is not None else False,
+                                         measured=difficulty is not None),
+            }
+            branches = {
+                "critical": gate(m.get("critical"), measured="critical" in m),
+                "unique": gate(m.get("unique"), measured="unique" in m),
+                "high_information": gate(m.get("high_information"), measured="high_information" in m),
+                "search_stable": stable,
+                "fast_snapshot": gate(bool(fast), measured=bool(fast)),
+                "rank_top1": gate(m.get("top1"), measured="top1" in m),
+                "rank_top3": gate(m.get("top3"), measured="top3" in m),
+            }
+            rows.append(DecisionAudit(index, int(decision.ply), checks, branches))
+    serial = ("off_book", "not_forced", "not_trivial", "not_easy_conversion",
+              "engine_evaluated", "engine_useful", "competitive", "high_difficulty")
+    branches = ("critical", "unique", "high_information", "search_stable",
+                "fast_snapshot", "rank_top1", "rank_top3")
+    all_games = range(len(games))
+    overall = audit_decisions(rows, scope="whole_engine_sample",
+                              game_indices=all_games, gate_order=serial, branch_names=branches)
+    paired = audit_decisions(rows, scope="deep_confirmed_subset",
+                             game_indices=[i for i,g in enumerate(games) if g.deep],
+                             gate_order=serial, branch_names=branches)
+    by_class = {}
+    for kind in ("bullet", "blitz", "rapid"):
+        by_class[kind] = audit_decisions(rows, scope="time_class:" + kind,
+            game_indices=[i for i,g in enumerate(games) if g.time_class == kind],
+            gate_order=serial, branch_names=branches)
+    return {"whole_engine_sample":overall,"deep_confirmed_subset":paired,
+            "by_time_class":by_class}
