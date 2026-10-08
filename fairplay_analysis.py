@@ -462,7 +462,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         check_deadline(deadline)
         requested_workers = (1 if engine_factory is not None and engine_workers is None
                              else automatic_engine_workers() if engine_workers is None
-                             else max(1,min(2,int(engine_workers))))
+                             else max(1,min(4,int(engine_workers))))
         try:
             for _ in range(requested_workers):scanners.append(EngineScanner(deadline,config,engine_factory))
             scanner=scanners[0]
