@@ -134,9 +134,9 @@ class CausalSelection(unittest.TestCase):
     def test_full_coverage_predicts_all_eligible_positions_instead_of_eight(self):
         ordinary=maia.selection(self.games)
         full=maia.selection(self.games,full_coverage=True)
-        expected=sum(d.metrics.get('competitive') and d.metrics.get('useful')
+        expected=sum(bool(d.metrics.get('competitive') and d.metrics.get('useful')
                      and not d.metrics.get('post_opponent_error')
-                     and not d.metrics.get('easy_conversion') and d.phase!='opening'
+                     and not d.metrics.get('easy_conversion') and d.phase!='opening')
                      for g in self.games for d in g.decisions)
         self.assertLessEqual(len(ordinary),8*len(self.games))
         self.assertEqual(len(full),expected)
