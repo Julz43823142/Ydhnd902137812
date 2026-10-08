@@ -331,7 +331,8 @@ class EngineScanner:
         self.profile = {'multipv_seconds':0.0, 'root_seconds':0.0, 'multipv_searches':0, 'root_searches':0,
                         'fast_multipv_seconds':0.0, 'fast_root_seconds':0.0, 'deep_multipv_seconds':0.0, 'deep_root_seconds':0.0}
         self.engine = (factory or (lambda:chess_play._create_stockfish_engine(allow_install=False,engine_class=(__import__('fairplay_engine').CompactNodeEngine if os.name=='posix' else BoundedNodeEngine))))()
-        self.engine.timeout = (180 if os.getenv('FAIRPLAY_FULL_DEPTH18')=='1' and config==CONFIG
+        self.engine.timeout = (max(60,min(1800,int(os.getenv('FAIRPLAY_DEPTH18_ENGINE_TIMEOUT_SECONDS','600'))))
+                               if os.getenv('FAIRPLAY_FULL_DEPTH18')=='1' and config==CONFIG
                                else config.engine_timeout)
         try:
             options = self.engine.options
@@ -619,8 +620,8 @@ def run_position_batch(executor, pool, work, nodes, deadline, progress, stage,
     futures={executor.submit(pool.run_decision,game,decision,nodes,deadline):(game,decision)
              for game,decision in pending}
     interrupted=False
-    total=len(futures);done=0;tick=max(1,total//100)
-    if total:progress(f'{stage}: 0 / {total} positions')
+    total=len(work);done=sum(done_by_game.values());tick=max(1,total//100)
+    if total:progress(f'{stage}: {done} / {total} positions')
     try:
         for future in as_completed(futures):
             try:future.result()
@@ -715,7 +716,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         if full_depth_mode:
             # A fixed depth has no guaranteed bound on elapsed search time.
             for worker in (shared_pool.scanners if use_shared else scanners):
-                worker.engine.timeout=180
+                worker.engine.timeout=max(60,min(1800,int(
+                    os.getenv('FAIRPLAY_DEPTH18_ENGINE_TIMEOUT_SECONDS','600'))))
         for group in buckets(history).values():
             for index,game in enumerate(group):game.control_index=index
         collected_at=time.monotonic()
