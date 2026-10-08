@@ -120,8 +120,8 @@ def detail_embed(result, mode):
                     return ' · '.join(f"{stage['gate']}: {stage['pass']}/{stage['before']} "
                         f"(unknown {stage['unknown']})" for stage in report['stages'])
                 overview=("Whole engine sample: "+brief_audit(whole)+
-                          ("\\nSelected learned-policy period: "+brief_audit(selected) if selected else
-                           "\\nNo selected learned-policy period."))
+                          ("\nSelected learned-policy period: "+brief_audit(selected) if selected else
+                           "\nNo selected learned-policy period."))
                 embed.add_field(name='Maia evidence funnel — explicit scopes',inline=False,
                                 value=overview[:1024])
             comparison=result.diagnostics.get('learned_gameplay',{})
@@ -446,11 +446,11 @@ def add_gate_fields(embed,result):
             embed.add_field(name='HIGH trigger',value=result.diagnostics.get('high_path') or 'Required evidence established.',inline=False)
         for name,row in result.diagnostics['high_paths'].items():
             status='PASS' if row['passed'] else 'FAIL'
-            explanation=('\\n'.join('• '+v for v in row['blockers']) or 'Required evidence established.')
+            explanation=('\n'.join('• '+v for v in row['blockers']) or 'Required evidence established.')
             if 'candidates_evaluated' in row:
                 explanation=(f"Examined: {row['candidates_evaluated']} candidate periods · "
                              f"displayed: {row.get('representative_time_class','unknown')} "
-                             f"({row.get('candidate_games',0)} games)\\n"+explanation)
+                             f"({row.get('candidate_games',0)} games)\n"+explanation)
             embed.add_field(name=name+' — '+status,value=explanation[:1024],inline=False)
         return
     if result.diagnostics.get('gameplay',{}).get('qualified'):
@@ -531,7 +531,7 @@ def add_gameplay_fields(embed,result):
             lines.append(f"{stage['gate']}: {stage['before']} → {stage['pass']} PASS / "
                          f"{stage['fail']} FAIL / {stage['unknown']} UNKNOWN")
         embed.add_field(name='Actual sequential opportunity eligibility (PASS / FAIL / UNKNOWN)',
-            inline=False,value='\\n'.join(lines)[:1024])
+            inline=False,value='\n'.join(lines)[:1024])
     elif flow:
         embed.add_field(name='Engine opportunity funnel',inline=False,
             value=' → '.join(f'{key.replace("_"," ")} {value}' for key,value in flow.items())[:1024])
