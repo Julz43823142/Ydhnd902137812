@@ -565,9 +565,10 @@
             "daily:2026-10-08:puzzle:solve-5"
           ],
           "progress": {
+            "daily:2026-10-08:minigame:minigame-3": 1,
             "daily:2026-10-08:puzzle:solve-5": 6
           },
-          "updated_at": 1791483370
+          "updated_at": 1791485140
         }
       }
     },
@@ -756,10 +757,10 @@
             "weekly:2026-10-05:puzzle:solve-25"
           ],
           "progress": {
-            "weekly:2026-10-05:minigame:minigame-8": 6,
+            "weekly:2026-10-05:minigame:minigame-8": 7,
             "weekly:2026-10-05:puzzle:solve-25": 25
           },
-          "updated_at": 1791483370
+          "updated_at": 1791485140
         },
         "601406103712170014": {
           "name": "TheMakina",
