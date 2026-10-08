@@ -239,6 +239,10 @@ def audit_engine_sample(games, config=None):
                 "not_forced": gate(not decision.forced, Reason.FORCED),
                 "not_trivial": gate(not (decision.trivial_kind or m.get("simple_threat_response")), Reason.TRIVIAL),
                 "not_easy_conversion": gate(not (m.get("easy_conversion") or m.get("automatic_material_gain")), Reason.EASY_CONVERSION),
+                "not_post_opponent_error": gate(not m.get('post_opponent_error'), Reason.EXISTING_GATE,
+                                                  measured=bool(m)),
+                "objective_score_consistent": gate(not m.get('search_inconsistent'),Reason.SCORE_BOUND,
+                                                    measured='search_inconsistent' in m),
                 "engine_evaluated": gate(evaluated, measured=evaluated),
                 "engine_useful": gate(usable, measured=usable is not None),
                 "competitive": gate(competitive, measured=competitive is not None),
@@ -256,7 +260,8 @@ def audit_engine_sample(games, config=None):
             }
             rows.append(DecisionAudit(index, int(decision.ply), checks, branches))
     serial = ("off_book", "not_forced", "not_trivial", "not_easy_conversion",
-              "engine_evaluated", "engine_useful", "competitive", "high_difficulty")
+              "not_post_opponent_error", "engine_evaluated", "engine_useful",
+              "objective_score_consistent", "competitive", "high_difficulty")
     branches = ("critical", "unique", "high_information", "search_stable",
                 "fast_snapshot", "rank_top1", "rank_top3")
     all_games = range(len(games))
