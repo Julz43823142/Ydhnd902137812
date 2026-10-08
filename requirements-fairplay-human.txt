@@ -1,0 +1,5 @@
+# Optional local CPU reference. Install CPU torch separately with the official
+# PyTorch wheel index. Never install packages during a review.
+numpy>=1.24,<3
+huggingface-hub>=0.23,<2
+maia3 @ https://github.com/CSSLab/maia3/archive/1e13597c42d4858b7cfd7cfdae01e297263364b2.zip

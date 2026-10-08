@@ -133,6 +133,8 @@ def summarize(game: GameSample, config=CONFIG):
     game.metrics.update(position_summary(game))
     from fairplay_human import annotate_game
     annotate_game(game,config)
+    if any(d.human_policy for d in game.decisions):
+        __import__('fairplay_maia').refresh_game(game)
     game.metrics['timing'] = timing_metrics(game,config)
     return game.metrics
 
@@ -567,6 +569,7 @@ def close_shared_engine_pool():
     with _shared_engine_pool_lock:
         if _shared_engine_pool is not None:_shared_engine_pool.close()
         _shared_engine_pool=None
+    __import__('fairplay_maia').close_worker()
 
 
 def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI, engine_factory=None,
@@ -732,6 +735,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         context_only = [g for g in history if g.identity not in {x.identity for x in analyzed}]
         analyzed.sort(key=lambda g:(g.ended,g.identity))
         progress('Building human-move profile…')
+        neural_reference=__import__('fairplay_maia').annotate_history(analyzed)
         progress('Analyzing sessions and repertoire…')
         from fairplay_sequence import class_periods, adaptive_deep_games, confirmation_extension
         gameplay_periods=class_periods(analyzed,config)
@@ -801,6 +805,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                     confirmed_batch=slots
                 for game,confirmed in zip(batch,confirmed_batch):
                     game.decisions,game.metrics,game.deep=confirmed.decisions,confirmed.metrics,True
+                    game.human_reference=confirmed.human_reference
                 index+=len(batch)
                 if index==len(candidates):
                     # One bounded extension; completed games are never rerun.
@@ -857,10 +862,12 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                             for key in shared_profile_after}
         else:
             search_profile=engine_profile(scanners) if scanners else {}
+        result.diagnostics['human_reference']=neural_reference
         result.diagnostics['runtime']={'collection_seconds':collected_at-started,
             'fast_seconds':fast_finished-collected_at,'deep_seconds':deep_finished-deep_started,
             'profile_seconds':time.monotonic()-deep_finished,'elapsed_seconds':result.elapsed,
             'peak_process_memory_mb':memory_mb,'full_fast_games':len(analyzed),'deep_games':sum(g.deep for g in analyzed),
+            'human_reference_seconds':neural_reference.get('seconds',0),
             'fast_position_tasks':fast_position_tasks,'deep_position_tasks':deep_position_tasks,
             'engine_workers':requested_workers,'shared_engine_pool':bool(use_shared),
             'effective_cpu_capacity':available_engine_cpus(),
