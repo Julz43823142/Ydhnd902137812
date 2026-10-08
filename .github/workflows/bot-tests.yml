@@ -76,6 +76,13 @@ jobs:
         run: python scripts/benchmark_fairplay_transport.py
       - name: Benchmark depth 18 versus current 24k-node Fair Play fast pass
         run: python scripts/benchmark_fairplay_depth18.py
+      - name: Compile official Stockfish 18 with matching AVX2 build options
+        run: |
+          git clone -q --depth 1 --branch sf_18 https://github.com/official-stockfish/Stockfish.git /tmp/fairplay-stockfish18
+          test "$(git -C /tmp/fairplay-stockfish18 rev-parse --short=7 HEAD)" = "cb3d4ee"
+          make -C /tmp/fairplay-stockfish18/src -j2 build ARCH=x86-64-avx2
+      - name: Compare Stockfish 18 and 19 at fixed depth 18
+        run: python scripts/compare_stockfish18_19.py /tmp/fairplay-stockfish18/src/stockfish /tmp/stockfish19-official/Stockfish/src/stockfish
 
   human-model-smoke:
     runs-on: ubuntu-latest
