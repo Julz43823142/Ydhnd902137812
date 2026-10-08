@@ -177,6 +177,7 @@ class CompactNodeEngine:
             if move:row['pv']=[chess.Move.from_uci(move)]
             if not row:return None
             if value('depth') is not None:row['depth']=int(value('depth'))
+            if value('nodes') is not None:row['nodes']=int(value('nodes'))
             if 'lowerbound' in tokens:row['lowerbound']=True
             if 'upperbound' in tokens:row['upperbound']=True
             return (index,row)
