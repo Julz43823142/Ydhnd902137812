@@ -2859,16 +2859,20 @@
       "bot_engine": "Stockfish 19",
       "bot_full_strength": false,
       "initial_fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-      "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-      "moves": [],
-      "last_move": null,
+      "fen": "rnbqkbnr/pppppppp/8/8/3P4/8/PPP1PPPP/RNBQKBNR b KQkq - 0 1",
+      "moves": [
+        "d4"
+      ],
+      "last_move": "d4",
       "started_at": 1791485500.919501,
       "draw_offer": null,
       "message_id": null,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
       "theme_owner_id": "442597396195704832",
-      "theme_owner_name": "Thice"
+      "theme_owner_name": "Thice",
+      "start_note": "♜ **Rated game started!** Your Chess Elo: **1591** • Stockfish 19: **1530 Elo**\n🏆 **Win:** +13 Elo → **1604**\n🤝 **Draw:** -3 Elo → **1588**\n❌ **Loss:** -19 Elo → **1572**\nPlay moves like `e4` or `Nf3`. Use `!resign` to resign.",
+      "last_move_at": 1791485502.771607
     }
   },
   "chess_challenges": {
