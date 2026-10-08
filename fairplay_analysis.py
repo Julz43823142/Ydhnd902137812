@@ -375,6 +375,9 @@ class EngineScanner:
         self.profile['deep_multipv_seconds' if depth_search or nodes==self.config.deep_nodes else 'fast_multipv_seconds']+=spent
         check_deadline(self.deadline)
         if isinstance(lines,dict):lines = [lines]
+        if depth_search and (not lines or any(
+                int(line.get('depth',0) or 0)<nodes.depth for line in lines)):
+            raise chess.engine.EngineError('Depth-18 search ended without full exact depth coverage')
         move = chess.Move.from_uci(decision.move)
         actual = {}
         if not any(line.get('pv') and line['pv'][0]==move for line in lines):
@@ -383,6 +386,8 @@ class EngineScanner:
             # after-move horizon differences being mistaken for CPL.
             search_started=time.monotonic()
             actual = self.engine.analyse(board,limit,root_moves=[move])
+            if depth_search and int(actual.get('depth',0) or 0)<nodes.depth:
+                raise chess.engine.EngineError('Played move did not reach required depth 18')
             spent=time.monotonic()-search_started
             self.profile['root_seconds']+=spent;self.profile['root_searches']+=1
             self.profile['deep_root_seconds' if depth_search or nodes==self.config.deep_nodes else 'fast_root_seconds']+=spent
