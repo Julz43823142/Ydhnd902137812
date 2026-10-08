@@ -330,7 +330,8 @@ class EngineScanner:
         self.profile = {'multipv_seconds':0.0, 'root_seconds':0.0, 'multipv_searches':0, 'root_searches':0,
                         'fast_multipv_seconds':0.0, 'fast_root_seconds':0.0, 'deep_multipv_seconds':0.0, 'deep_root_seconds':0.0}
         self.engine = (factory or (lambda:chess_play._create_stockfish_engine(allow_install=False,engine_class=(__import__('fairplay_engine').CompactNodeEngine if os.name=='posix' else BoundedNodeEngine))))()
-        self.engine.timeout = config.engine_timeout
+        self.engine.timeout = (180 if os.getenv('FAIRPLAY_FULL_DEPTH18')=='1' and config==CONFIG
+                               else config.engine_timeout)
         try:
             options = self.engine.options
             settings = {}
@@ -793,12 +794,18 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 and not (deadline.cancel is not None and deadline.cancel.is_set()))
             else {'available':False,'positions':0,
                   'reason':'Primary engine pass incomplete or interrupted; optional human reference skipped.'})
+        if (full_depth_mode and os.getenv('FAIRPLAY_REQUIRE_MAIA')=='1'
+                and not neural_reference.get('available')):
+            raise ReviewError('Complete depth-18 review requires local Maia-3; the model was unavailable.')
         from fairplay_policy import complete as complete_policy, allocate as allocate_policy
         if neural_reference.get('available'):
             progress('Comparing human alternatives…')
             neural_reference['fast_counterfactual']=complete_policy(
                 analyzed,config.fast_nodes,deadline,executor=engine_executor,
                 pool=shared_pool if use_shared else None,scanner=scanner,fast=True)
+            if (full_depth_mode and os.getenv('FAIRPLAY_REQUIRE_MAIA')=='1'
+                    and not neural_reference['fast_counterfactual']['complete']):
+                raise ReviewError('The complete Maia fast reference did not finish; no review was issued.')
         progress('Analyzing sessions and repertoire…')
         from fairplay_sequence import class_periods, adaptive_deep_games, confirmation_extension
         gameplay_periods=class_periods(analyzed,config)
@@ -882,6 +889,9 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             neural_reference['deep_counterfactual']=complete_policy(
                 [g for g in analyzed if g.deep],deep_budget,deadline,
                 executor=engine_executor,pool=shared_pool if use_shared else None,scanner=scanner)
+            if (full_depth_mode and os.getenv('FAIRPLAY_REQUIRE_MAIA')=='1'
+                    and not neural_reference['deep_counterfactual']['complete']):
+                raise ReviewError('The complete depth-18 Maia comparison did not finish; no review was issued.')
         deep_finished=time.monotonic()
         progress(f'Deep confirmation: {sum(g.deep for g in candidates)} / {len(candidates)}')
         with _game_cache_lock:
