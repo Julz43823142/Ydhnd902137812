@@ -263,17 +263,17 @@ def evidence_funnel(games, config=CONFIG):
         ('not_forced',lambda d:not d.forced),
         ('not_trivial',lambda d:not (d.trivial_kind or d.metrics.get('simple_threat_response'))),
         ('not_easy_conversion',lambda d:not (d.metrics.get('easy_conversion') or d.metrics.get('automatic_material_gain'))),
-        ('search_stable',lambda d:not d.metrics.get('search_inconsistent') and not (
-            d.metrics.get('search_stability',{}).get('compared') and not d.metrics.get('search_stability',{}).get('stable'))),
         ('engine_useful',lambda d:bool(d.metrics.get('useful'))),
         ('competitive',lambda d:bool(d.metrics.get('competitive'))),
         ('high_difficulty',lambda d:d.metrics.get('difficulty',0)>=config.human_difficulty_floor),
-        ('critical',lambda d:bool(d.metrics.get('critical'))),
-        ('unique',lambda d:bool(d.metrics.get('unique'))),
-        ('high_information',lambda d:bool(d.metrics.get('high_information'))),
     ]
     for name,predicate in stages:
         remaining=[d for d in remaining if predicate(d)]
         flow[name]=len(remaining)
+    # These attributes overlap. Never present them as additional serial
+    # eligibility gates or suggest the remaining count is the scoring pool.
+    counts['search_stability_unknown']=sum(
+        not d.metrics.get('search_stability',{}).get('compared')
+        and not d.metrics.get('search_inconsistent',False) for d in decisions)
     counts['_flow']=flow
     return counts
