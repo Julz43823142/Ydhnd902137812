@@ -597,17 +597,27 @@ def close_shared_engine_pool():
     __import__('fairplay_maia').close_worker()
 
 
-def run_position_batch(executor, pool, work, nodes, deadline, progress, stage):
+def run_position_batch(executor, pool, work, nodes, deadline, progress, stage,
+                       checkpoint=None, target=None, phase=None, checkpoint_config=CONFIG,
+                       checkpoint_full_depth=False):
     """Drain running tasks and preserve only fully completed games at a deadline.
 
     A cancelled/failed position never becomes invented engine evidence. Workers
     finish before callers summarize or cache any mutable decision objects.
     """
     expected={}
-    for game,decision in work:expected[id(game)]=expected.get(id(game),0)+1
     done_by_game={}
-    futures={executor.submit(pool.run_decision,game,decision,nodes,deadline):id(game)
-             for game,decision in work}
+    pending=[]
+    for game,decision in work:
+        key=id(game)
+        expected[key]=expected.get(key,0)+1
+        if checkpoint is not None and checkpoint.restore(
+                target,game,decision,phase,checkpoint_config,checkpoint_full_depth):
+            done_by_game[key]=done_by_game.get(key,0)+1
+        else:
+            pending.append((game,decision))
+    futures={executor.submit(pool.run_decision,game,decision,nodes,deadline):(game,decision)
+             for game,decision in pending}
     interrupted=False
     total=len(futures);done=0;tick=max(1,total//100)
     if total:progress(f'{stage}: 0 / {total} positions')
@@ -621,8 +631,11 @@ def run_position_batch(executor, pool, work, nodes, deadline, progress, stage):
                     # position (quadratic work for a large timed-out scan).
                     for pending in futures:pending.cancel()
             else:
-                key=futures[future]
+                game,decision=futures[future]
+                key=id(game)
                 done_by_game[key]=done_by_game.get(key,0)+1
+                if checkpoint is not None:
+                    checkpoint.record(target,game,decision,phase)
             done+=1
             if done%tick==0 or done==total:
                 progress(f'{stage}: {done} / {total} positions')
@@ -638,11 +651,16 @@ def run_position_batch(executor, pool, work, nodes, deadline, progress, stage):
 
 
 def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI, engine_factory=None,
-           cancel=None, engine_workers=None, engine_pool=None):
+           cancel=None, engine_workers=None, engine_pool=None, checkpoint=None):
     import copy
     started = time.monotonic()
     full_depth_mode=(os.getenv('FAIRPLAY_FULL_DEPTH18')=='1' and config==CONFIG)
-    deadline = ScanDeadline(started+(4*60*60 if full_depth_mode else config.deadline_seconds),cancel)
+    # Full depth 18 may legitimately take longer than four hours. A zero
+    # configured ceiling means no scan-level time limit; runner rotations are
+    # handled by durable checkpoints instead of returning a partial verdict.
+    duration=(max(0,int(os.getenv('FAIRPLAY_FULL_SCAN_DEADLINE_SECONDS','0')))
+              if full_depth_mode else config.deadline_seconds)
+    deadline = ScanDeadline(started+duration if duration else float('inf'),cancel)
     target = username(target)
     with _game_cache_lock:
         for key,cached in list(_game_cache.items()):
@@ -690,6 +708,10 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             for item in scanners:item.close()
             scanners.clear()
             raise ReviewError('Stockfish is unavailable. Engine screening could not be performed; no review priority was assigned.') from error
+        if checkpoint is not None:
+            from fairplay_maia import MODEL_SHA256
+            checkpoint.bind(target,engine=engine_name,version=VERSION,config=config,
+                            full_depth=full_depth_mode,maia=MODEL_SHA256)
         if full_depth_mode:
             # A fixed depth has no guaranteed bound on elapsed search time.
             for worker in (shared_pool.scanners if use_shared else scanners):
@@ -728,8 +750,21 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 game.metrics=copy.deepcopy(cached[3])
                 game.metrics['timing']=timing_metrics(game,config)
             elif not prepare_only:
-                if shared_pool is not None and use_shared:shared_pool.run(game,config.fast_nodes,deadline)
-                else:worker.analyse(game,config.fast_nodes)
+                if checkpoint is None:
+                    if shared_pool is not None and use_shared:shared_pool.run(game,config.fast_nodes,deadline)
+                    else:worker.analyse(game,config.fast_nodes)
+                else:
+                    for decision in game.decisions:
+                        if not decision.useful:continue
+                        if checkpoint.restore(target,game,decision,'fast',config,full_depth_mode):continue
+                        if shared_pool is not None and use_shared:
+                            shared_pool.run_decision(game,decision,config.fast_nodes,deadline)
+                        else:worker.analyse_decision(game,decision,config.fast_nodes)
+                        checkpoint.record(target,game,decision,'fast')
+                    summarize(game,config)
+                    for decision in game.decisions:
+                        if decision.metrics:decision.fast_engine=deepcopy(decision.metrics)
+                    game.fast_metrics={k:v for k,v in game.metrics.items() if k!='timing'}
             return game,cached_payload,bool(cached)
         # Full primary fast pass always precedes deep confirmation.
         ordered_primary=list(reversed(primary))
@@ -756,7 +791,9 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                     fast_position_tasks+=len(work)
                     complete_ids,interrupted=run_position_batch(
                         engine_executor,shared_pool,[(game,d) for _,game,d in work],
-                        config.fast_nodes,deadline,progress,'Fast engine scan')
+                        config.fast_nodes,deadline,progress,'Fast engine scan',
+                        checkpoint=checkpoint,target=target,phase='fast',
+                        checkpoint_config=config,checkpoint_full_depth=full_depth_mode)
                     if interrupted:
                         partial=True
                         prepared=[item for item in prepared if item[2] or id(item[0]) in complete_ids]
@@ -838,8 +875,17 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 else:
                     summarize(confirmed,config)
             else:
-                if shared_pool is not None and use_shared:shared_pool.run(confirmed,deep_budget,deadline)
-                else:worker.analyse(confirmed,deep_budget)
+                if checkpoint is None:
+                    if shared_pool is not None and use_shared:shared_pool.run(confirmed,deep_budget,deadline)
+                    else:worker.analyse(confirmed,deep_budget)
+                else:
+                    for decision in confirmed.decisions:
+                        if checkpoint.restore(target,confirmed,decision,'deep',config,full_depth_mode):continue
+                        if shared_pool is not None and use_shared:
+                            shared_pool.run_decision(confirmed,decision,deep_budget,deadline)
+                        else:worker.analyse_decision(confirmed,decision,deep_budget)
+                        checkpoint.record(target,confirmed,decision,'deep')
+                    summarize(confirmed,config)
             return confirmed
         while index<len(candidates):
             # Extension candidates are still selected only after the original
@@ -866,7 +912,9 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                     deep_position_tasks+=len(work)
                     complete_ids,interrupted=run_position_batch(
                         engine_executor,shared_pool,work,deep_budget,deadline,progress,
-                        'Full depth-18 engine scan' if full_depth_mode else 'Deep confirmation')
+                        'Full depth-18 engine scan' if full_depth_mode else 'Deep confirmation',
+                        checkpoint=checkpoint,target=target,phase='deep',
+                        checkpoint_config=config,checkpoint_full_depth=full_depth_mode)
                     if interrupted:
                         deep_incomplete=True
                         complete_pairs=[(game,confirmed) for game,confirmed in zip(batch,confirmed_batch)
