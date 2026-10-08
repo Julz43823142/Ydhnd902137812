@@ -9,6 +9,7 @@ import statistics as stats
 import time
 import threading
 from collections import OrderedDict
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from typing import Callable
 
@@ -334,8 +335,11 @@ class EngineScanner:
         except Exception:
             self.close()
             raise
+        # Keep Stockfish slightly below the Discord process, but do not heavily
+        # throttle it. Fixed-node searches remain reproducible; this only changes
+        # wall-clock scheduling under CPU contention.
         try:
-            os.setpriority(os.PRIO_PROCESS,self.engine.transport.get_pid(),10)
+            os.setpriority(os.PRIO_PROCESS,self.engine.transport.get_pid(),2)
         except (AttributeError, OSError):pass
 
     def close(self):
@@ -390,17 +394,41 @@ class EngineScanner:
 # write is protected. Cached payloads are immutable-by-convention deep copies.
 _game_cache = OrderedDict()
 _game_cache_lock = threading.RLock()
+_GAME_CACHE_TTL = 3 * 3600
+_GAME_CACHE_MAX = 320
 
 
-def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI, engine_factory=None, cancel=None):
+def available_engine_cpus():
+    try:return len(os.sched_getaffinity(0))
+    except (AttributeError,OSError):
+        return os.cpu_count() or 1
+
+
+def automatic_engine_workers():
+    """Use two independent engines only when three scans can each get a CPU pair."""
+    return 2 if available_engine_cpus()>=6 else 1
+
+
+def engine_profile(scanners):
+    totals={}
+    for scanner in scanners:
+        for key,value in getattr(scanner,'profile',{}).items():
+            totals[key]=totals.get(key,0)+value
+    return totals
+
+
+def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI, engine_factory=None,
+           cancel=None, engine_workers=None):
     import copy
     started = time.monotonic()
     deadline = ScanDeadline(started+config.deadline_seconds,cancel)
     target = username(target)
     with _game_cache_lock:
         for key,cached in list(_game_cache.items()):
-            if started-cached[0]>=3600:_game_cache.pop(key,None)
+            if started-cached[0]>=_GAME_CACHE_TTL:_game_cache.pop(key,None)
     api = api_factory(deadline)
+    scanners = []
+    engine_executor = None
     scanner = None
     try:
         progress('Fetching profile…')
@@ -415,8 +443,19 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         history=sorted([g for g in history if g.rated is True],key=lambda g:(g.ended,g.identity))[-collection_limit(config):]
         if not history:raise ReviewError('No eligible rated standard live games with enough meaningful moves were found.')
         check_deadline(deadline)
-        try:scanner = EngineScanner(deadline,config,engine_factory)
-        except Exception as error:raise ReviewError('Stockfish is unavailable. Engine screening could not be performed; no review priority was assigned.') from error
+        requested_workers = (1 if engine_factory is not None and engine_workers is None
+                             else automatic_engine_workers() if engine_workers is None
+                             else max(1,min(2,int(engine_workers))))
+        try:
+            for _ in range(requested_workers):scanners.append(EngineScanner(deadline,config,engine_factory))
+            scanner=scanners[0]
+            if any(item.name!=scanner.name for item in scanners[1:]):
+                raise ReviewError('Stockfish worker versions do not match.')
+            if len(scanners)>1:engine_executor=ThreadPoolExecutor(max_workers=len(scanners),thread_name_prefix='fairplay-engine')
+        except Exception as error:
+            for item in scanners:item.close()
+            scanners.clear()
+            raise ReviewError('Stockfish is unavailable. Engine screening could not be performed; no review priority was assigned.') from error
         for group in buckets(history).values():
             for index,game in enumerate(group):game.control_index=index
         collected_at=time.monotonic()
@@ -425,12 +464,14 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         analyzed,probes = [],{}
         cached_deep = {}
         partial = False
-        def fast_scan(game):
+        analyzed_lock=threading.Lock()
+        def fast_scan(game,worker=None):
+            worker=worker or scanner
             check_deadline(deadline)
-            key=(game.identity,game.color,scanner.name,VERSION,config)
+            key=(game.identity,game.color,worker.name,VERSION,config)
             with _game_cache_lock:
                 cached=_game_cache.get(key)
-                if cached and time.monotonic()-cached[0]<3600:
+                if cached and time.monotonic()-cached[0]<_GAME_CACHE_TTL:
                     cached=(cached[0],copy.deepcopy(cached[1]),cached[2],copy.deepcopy(cached[3]))
                 else:
                     cached=None
@@ -443,13 +484,25 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                     decision.metrics=copy.deepcopy(decision.fast_engine)
                 game.deep=False
                 game.fast_metrics=cached[3];summarize(game,config)
-            else:scanner.analyse(game,config.fast_nodes)
-            analyzed.append(game)
+            else:worker.analyse(game,config.fast_nodes)
+            with analyzed_lock:analyzed.append(game)
         # Full primary fast pass ALWAYS precedes historical probes/deep searches.
-        for index,game in enumerate(reversed(primary)):
-            progress(f'Fast engine scan: {index} / {len(primary)}')
-            try:fast_scan(game)
-            except DeadlineReached:partial=True;break
+        ordered_primary=list(reversed(primary))
+        step=len(scanners)
+        for offset in range(0,len(ordered_primary),step):
+            batch=ordered_primary[offset:offset+step]
+            progress(f'Fast engine scan: {offset} / {len(primary)}')
+            try:
+                if engine_executor is None:
+                    fast_scan(batch[0])
+                else:
+                    futures=[engine_executor.submit(fast_scan,game,item)
+                             for game,item in zip(batch,scanners)]
+                    # Resolve in chronological-prefix order so a deadline cannot
+                    # create a scored hole later in the sample.
+                    for future in futures:future.result()
+            except DeadlineReached:
+                partial=True;break
         primary_complete=len(analyzed)==len(primary)
         progress(f'Fast engine scan: {len(analyzed)} / {len(primary)}')
         fast_finished=time.monotonic()
@@ -466,24 +519,33 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         deep_started=time.monotonic()
         deep_incomplete=False
         index=0
+        def deep_scan(game,worker):
+            confirmed=copy.deepcopy(game)
+            if game.identity in cached_deep:
+                confirmed.decisions=copy.deepcopy(cached_deep[game.identity])
+                summarize(confirmed,config)
+            else:
+                worker.analyse(confirmed,config.deep_nodes)
+            return confirmed
         while index<len(candidates):
-            game=candidates[index]
+            batch=candidates[index:index+len(scanners)]
             progress(f'Deep confirmation: {index} / {len(candidates)}')
             try:
-                confirmed=copy.deepcopy(game)
-                if game.identity in cached_deep:
-                    confirmed.decisions=copy.deepcopy(cached_deep[game.identity])
-                    summarize(confirmed,config)
+                if engine_executor is None:
+                    confirmed_batch=[deep_scan(batch[0],scanner)]
                 else:
-                    scanner.analyse(confirmed,config.deep_nodes)
-                game.decisions,game.metrics,game.deep=confirmed.decisions,confirmed.metrics,True
+                    futures=[engine_executor.submit(deep_scan,game,item)
+                             for game,item in zip(batch,scanners)]
+                    confirmed_batch=[future.result() for future in futures]
+                for game,confirmed in zip(batch,confirmed_batch):
+                    game.decisions,game.metrics,game.deep=confirmed.decisions,confirmed.metrics,True
+                index+=len(batch)
+                if index==len(candidates):
+                    # One bounded extension; completed games are never rerun.
+                    extra=confirmation_extension(analyzed,config)
+                    candidates.extend(g for g in extra if g not in candidates)
             except DeadlineReached:
                 deep_incomplete=True;break
-            index+=1
-            if index==len(candidates):
-                # One bounded extension; completed games are never rerun.
-                extra=confirmation_extension(analyzed,config)
-                candidates.extend(g for g in extra if g not in candidates)
         deep_finished=time.monotonic()
         progress(f'Deep confirmation: {sum(g.deep for g in candidates)} / {len(candidates)}')
         with _game_cache_lock:
@@ -492,7 +554,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                     key=(game.identity,game.color,scanner.name,VERSION,config)
                     _game_cache[key]=(time.monotonic(),copy.deepcopy(game.decisions),game.deep,copy.deepcopy(game.fast_metrics))
                     _game_cache.move_to_end(key)
-            while len(_game_cache)>200:_game_cache.popitem(last=False)
+            while len(_game_cache)>_GAME_CACHE_MAX:_game_cache.popitem(last=False)
         progress('Comparing personal timing baselines…')
         collection_coverage = getattr(api, 'fairplay_collection_coverage', {})
         if not isinstance(collection_coverage,dict):collection_coverage={}
@@ -529,7 +591,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             'fast_seconds':fast_finished-collected_at,'deep_seconds':deep_finished-deep_started,
             'profile_seconds':time.monotonic()-deep_finished,'elapsed_seconds':result.elapsed,
             'peak_process_memory_mb':memory_mb,'full_fast_games':len(analyzed),'deep_games':sum(g.deep for g in analyzed),
-            'engine_searches':dict(getattr(scanner,'profile',{}))}
+            'engine_workers':len(scanners),'engine_searches':engine_profile(scanners)}
         return result
     except (chess.engine.EngineError,TimeoutError) as error:
         raise ReviewError('Stockfish stopped responding. The scan was stopped safely; please try again later.') from error
@@ -537,7 +599,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         raise ReviewError('The review reached its runtime limit before meaningful engine data was available. Try again later.')
     finally:
         api.close()
-        if scanner is not None:scanner.close()
+        if engine_executor is not None:engine_executor.shutdown(wait=True,cancel_futures=True)
+        for item in scanners:item.close()
 
 
 def review_interest(game):
