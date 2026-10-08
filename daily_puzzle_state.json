@@ -1,122 +1,85 @@
 {
   "latest_random_puzzle": {
-    "url": "https://lichess.org/training/Ve6IM",
-    "title": "Lichess • 1360",
-    "fen": "1R6/7p/6p1/6P1/p2p3P/1b2p3/k4P2/2K5 w - - 0 46",
-    "current_fen": "4R3/7p/6p1/6P1/p6P/1b2p3/k7/2K5 b - - 1 47",
-    "last_move_uci": "b8e8",
-    "pgn": "fxe3 dxe3 Re8",
+    "url": "https://lichess.org/training/l5cPW",
+    "title": "Lichess • 2448",
+    "fen": "5r2/8/2qp3p/2p1p2k/1pP5/4QPK1/P7/R7 w - - 0 47",
+    "current_fen": "5r2/8/2qp3p/2p1p2k/1pP5/4QPK1/P7/R7 w - - 0 47",
+    "last_move_uci": "g6h5",
+    "pgn": "Rh1+ Kg6 Rxh6+ Kf7 Qg5",
     "all_moves": [
       {
-        "uci": "f2e3",
-        "san": "fxe3",
+        "uci": "a1h1",
+        "san": "Rh1+",
         "color": "white"
       },
       {
-        "uci": "d4e3",
-        "san": "dxe3",
+        "uci": "h5g6",
+        "san": "Kg6",
         "color": "black"
       },
       {
-        "uci": "b8e8",
-        "san": "Re8",
+        "uci": "h1h6",
+        "san": "Rxh6+",
+        "color": "white"
+      },
+      {
+        "uci": "g6f7",
+        "san": "Kf7",
+        "color": "black"
+      },
+      {
+        "uci": "e3g5",
+        "san": "Qg5",
         "color": "white"
       }
     ],
     "player_moves": [
       {
-        "uci": "f2e3",
-        "san": "fxe3",
+        "uci": "a1h1",
+        "san": "Rh1+",
         "color": "white"
       },
       {
-        "uci": "b8e8",
-        "san": "Re8",
+        "uci": "h1h6",
+        "san": "Rxh6+",
+        "color": "white"
+      },
+      {
+        "uci": "e3g5",
+        "san": "Qg5",
         "color": "white"
       }
     ],
     "player_color": "white",
-    "player_move_count": 2,
-    "posted_at": "2026-10-08T17:39:11.970775+00:00",
-    "answer_posted": true,
+    "player_move_count": 3,
+    "posted_at": "2026-10-08T17:39:34.101292+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "random_Ve6IM_1791481151970",
-    "last_activity_at": "2026-10-08T17:39:30.760513+00:00",
-    "rating": 1360,
-    "rp_band": 0,
+    "puzzle_id": "random_l5cPW_1791481174101",
+    "last_activity_at": "2026-10-08T17:39:34.101292+00:00",
+    "rating": 2448,
+    "rp_band": 4,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 3,
-    "next_player_index": 2,
-    "solved": true,
-    "message_ids": {
-      "1468320170891022417": 1557809681945333963
-    },
-    "message_id": 1557809681945333963,
+    "next_solution_index": 0,
+    "next_player_index": 0,
+    "solved": false,
+    "message_ids": {},
+    "message_id": null,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {
-      "442597396195704832": {
-        "name": "Thice",
-        "move": "Re8",
-        "correct": true,
-        "timestamp": "2026-10-08T17:39:30.760677+00:00"
-      }
-    },
-    "first_move_user_id": "442597396195704832",
-    "first_move_user_name": "Thice",
-    "first_move_awarded": true,
+    "attempted_users": {},
+    "first_move_user_id": null,
+    "first_move_user_name": null,
+    "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "board_attachment_filenames": {
-      "1468320170891022417": "random_puzzle.png"
-    },
-    "last_card_activity_at": "2026-10-08T17:39:30.760513+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1791481165.6152518,
-        "fen_before": "1R6/7p/6p1/6P1/p2p3P/1b2p3/k4P2/2K5 w - - 0 46",
-        "expected": {
-          "uci": "f2e3",
-          "san": "fxe3",
-          "color": "white"
-        },
-        "accepted_uci": "f2e3"
-      },
-      {
-        "accepted_at": 1791481170.7606828,
-        "fen_before": "1R6/7p/6p1/6P1/p6P/1b2p3/k7/2K5 w - - 0 47",
-        "expected": {
-          "uci": "b8e8",
-          "san": "Re8",
-          "color": "white"
-        },
-        "accepted_uci": "b8e8"
-      }
-    ],
-    "accepted_solution_moves": [
-      {
-        "san": "fxe3",
-        "uci": "f2e3",
-        "principal": true
-      },
-      {
-        "san": "Re8",
-        "uci": "b8e8",
-        "principal": true
-      }
-    ],
-    "last_feedback": "✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1776 points.**\n\nPuzzle Elo: **2584**\n\n💡 **Solution:** fxe3 Re8\n\n🏆 **Your ranking**\n**#1 🐶 Thice — 1776 points ← you**\n**#2 🍅 TheMakina — 1557 points**",
-    "completion_solver_id": "442597396195704832",
-    "completion_solver_name": "Thice",
-    "activity_bonus_users": [],
-    "auto_next_started": true
+    "helper_candidate_users": []
   },
-  "latest_puzzle_type": "daily",
+  "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-08",
