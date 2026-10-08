@@ -73,19 +73,24 @@ def class_periods(games, config=CONFIG):
                 s['rating_reference'] is not None and abs(g.rating-s['rating_reference'])<=config.baseline_player_rating_tolerance
                 and g.opponent_rating is not None and opponent_reference is not None
                 and abs(g.opponent_rating-opponent_reference)<=config.baseline_opponent_rating_tolerance]
-            b=period_summary(baseline,config,fast=True)
-            personal=('personal' not in config.disabled_features and kind!='bullet' and len(baseline)>=config.baseline_reference_games and b['hard_opportunities']>=40
-                and not acute and not replication_half and s['hard_opportunities']>=40 and s['hard_contributors']>=config.human_min_contributors and s['hard_lower']>=.65
+            personal_eligible=('personal' not in config.disabled_features and kind!='bullet'
+                               and not acute and not replication_half)
+            b=period_summary(baseline,config,fast=True) if personal_eligible else {}
+            personal=(personal_eligible and len(baseline)>=config.baseline_reference_games and b['hard_opportunities']>=40
+                and s['hard_opportunities']>=40 and s['hard_contributors']>=config.human_min_contributors and s['hard_lower']>=.65
                 and s['hard_hits']/max(1,s['hard_opportunities'])-b['hard_hits']/max(1,b['hard_opportunities'])>=.25
                 and (s.get('observed_quality') or 0)-(b.get('observed_quality') or 0)>=.18)
+            if acute:
+                blockers=acute_blockers(part,config);absolute=False;qualified=not blockers
+            else:
+                blockers=absolute_blockers(s,config)
+                absolute=bool(not replication_half and class_absolute(s,kind,config))
+                qualified=False if replication_half else bool(absolute or personal)
             periods.append({'ids':list(ids),'class':kind,'kind':mode,'start':part[0].ended,'end':part[-1].ended,
                 'controls':sorted(set(g.time_control for g in part)), 'summary':s,
-                'absolute':not acute and not replication_half and class_absolute(s,kind,config),
-                'acute':acute,'replication_half':replication_half,
-                'blockers':acute_blockers(part,config) if acute else absolute_blockers(s,config),
-                'personal':bool(personal),'baseline_ids':[g.identity for g in baseline],
-                'qualified':(not acute_blockers(part,config) if acute else
-                    (False if replication_half else (class_absolute(s,kind,config) or bool(personal))))})
+                'absolute':absolute,'acute':acute,'replication_half':replication_half,
+                'blockers':blockers,'personal':bool(personal),'baseline_ids':[g.identity for g in baseline],
+                'qualified':qualified})
     return sorted(periods,key=lambda p:(p['qualified'],p['summary']['information']*p['summary']['hit_lower'],p['summary']['contributors']),reverse=True)
 
 
