@@ -590,8 +590,11 @@ def run_position_batch(executor, pool, work, nodes, deadline, progress, stage):
         for future in as_completed(futures):
             try:future.result()
             except (DeadlineReached,CancelledError):
-                interrupted=True
-                for pending in futures:pending.cancel()
+                if not interrupted:
+                    interrupted=True
+                    # Cancel the batch once, not again for every cancelled
+                    # position (quadratic work for a large timed-out scan).
+                    for pending in futures:pending.cancel()
             else:
                 key=futures[future]
                 done_by_game[key]=done_by_game.get(key,0)+1

@@ -80,6 +80,28 @@ class PartialBatchTests(unittest.TestCase):
         self.assertIn(id(one),done)
         self.assertNotIn(id(two),done)
 
+    def test_large_cancelled_batch_has_linear_cleanup_cost(self):
+        from concurrent.futures import Future, CancelledError
+        from types import SimpleNamespace
+        from fairplay_analysis import run_position_batch
+        pending=[]
+        class CountedFuture(Future):
+            def __init__(self):
+                super().__init__();self.cancel_calls=0
+            def cancel(self):
+                self.cancel_calls+=1
+                return super().cancel()
+        class InlineExecutor:
+            def submit(self,*args):
+                future=CountedFuture()
+                future.set_exception(DeadlineReached() if not pending else CancelledError())
+                pending.append(future)
+                return future
+        done,partial=run_position_batch(InlineExecutor(),SimpleNamespace(run_decision=None),
+            [(SimpleNamespace(),object()) for _ in range(200)],24000,None,lambda _:None,'Fast engine scan')
+        self.assertTrue(partial);self.assertEqual(done,set())
+        self.assertLessEqual(sum(f.cancel_calls for f in pending),2*len(pending))
+
     def test_completed_batch_is_not_marked_partial(self):
         from concurrent.futures import Future
         from types import SimpleNamespace
