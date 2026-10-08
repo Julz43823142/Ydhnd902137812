@@ -271,7 +271,7 @@ def audit_engine_sample(games, config=None, *, period_ids=()):
     all_games = range(len(games))
     overall = audit_decisions(rows, scope="whole_engine_sample",
                               game_indices=all_games, gate_order=serial, branch_names=branches)
-    paired = audit_decisions(rows, scope="deep_confirmed_subset",
+    paired = audit_decisions(rows, scope="deep_budget_reviewed_subset",
                              game_indices=[i for i,g in enumerate(games) if g.deep],
                              gate_order=serial, branch_names=branches)
     by_class = {}
@@ -283,7 +283,7 @@ def audit_engine_sample(games, config=None, *, period_ids=()):
     selected=(audit_decisions(rows,scope='selected_gameplay_period',
         game_indices=[i for i,g in enumerate(games) if g.identity in ids],
         gate_order=serial,branch_names=branches) if ids else None)
-    return {"whole_engine_sample":overall,"deep_confirmed_subset":paired,
+    return {"whole_engine_sample":overall,"deep_budget_reviewed_subset":paired,
             "selected_gameplay_period":selected,"by_time_class":by_class}
 
 
