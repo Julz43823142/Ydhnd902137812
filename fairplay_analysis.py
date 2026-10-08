@@ -391,12 +391,13 @@ class EngineScanner:
 
 
 # Bounded process-local successful game cache, not an account/case ledger.
-# Three review workers may access it concurrently, so every structural read/
-# write is protected. Cached payloads are immutable-by-convention deep copies.
+# Engine tasks may access it concurrently, so every structural read/write is
+# protected. Cached payloads are immutable-by-convention deep copies.
 _game_cache = OrderedDict()
 _game_cache_lock = threading.RLock()
 _GAME_CACHE_TTL = 3 * 3600
 _GAME_CACHE_MAX = 320
+_ENGINE_POOL_MAX = 16
 
 
 def available_engine_cpus():
@@ -431,6 +432,12 @@ def available_engine_memory_mb():
                 # Some cgroup-v1 hosts expose a huge sentinel rather than "max".
                 if 0<value<1<<50:values.append(value/(1024*1024))
         except (OSError,ValueError):pass
+    # Bare-metal/VM deployments may have no cgroup memory ceiling. In that
+    # case physical RAM is still a real bound and should inform pool sizing.
+    try:
+        physical=int(os.sysconf('SC_PHYS_PAGES'))*int(os.sysconf('SC_PAGE_SIZE'))
+        if 0<physical<1<<60:values.append(physical/(1024*1024))
+    except (AttributeError,OSError,TypeError,ValueError):pass
     return min(values) if values else None
 
 
@@ -441,11 +448,14 @@ def shared_engine_pool_size(config=CONFIG):
     # Stockfish hash is the largest predictable allocation. Leave a substantial
     # reserve for Discord/Python/PGNs and process overhead.
     if memory is None:
-        memory_cap=8
+        memory_cap=_ENGINE_POOL_MAX
     else:
         per_engine=max(96,config.hash_mb+32)
         memory_cap=max(1,int(max(0,memory-256)//per_engine))
-    return max(1,min(8,cpus,memory_cap))
+    # Sixteen is useful for the 100-game fast pass while remaining bounded;
+    # the deep pass itself tops out below this. CPU affinity/quota and RAM can
+    # only reduce this value, never inflate it.
+    return max(1,min(_ENGINE_POOL_MAX,cpus,memory_cap))
 
 
 def automatic_engine_workers():
@@ -567,7 +577,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             else:
                 requested_workers=(1 if engine_factory is not None and engine_workers is None
                                    else automatic_engine_workers() if engine_workers is None
-                                   else max(1,min(8,int(engine_workers))))
+                                   else max(1,min(_ENGINE_POOL_MAX,int(engine_workers))))
                 for _ in range(requested_workers):scanners.append(EngineScanner(deadline,config,engine_factory))
                 scanner=scanners[0]
                 if any(item.name!=scanner.name for item in scanners[1:]):
@@ -616,7 +626,14 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             return game,cached_payload
         # Full primary fast pass ALWAYS precedes historical probes/deep searches.
         ordered_primary=list(reversed(primary))
-        step=requested_workers
+        # Shared-pool production can queue the whole primary pass at once.
+        # ThreadPoolExecutor still runs only requested_workers tasks concurrently,
+        # but a worker that finishes an unusually short game immediately takes
+        # the next queued game instead of idling behind a fixed batch barrier.
+        # Futures are resolved/committed in source order below, preserving
+        # deterministic review output.
+        step=(len(ordered_primary) if use_shared and engine_executor is not None
+              else requested_workers)
         for offset in range(0,len(ordered_primary),step):
             batch=ordered_primary[offset:offset+step]
             progress(f'Fast engine scan: {offset} / {len(primary)}')
@@ -666,7 +683,11 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 else:worker.analyse(confirmed,config.deep_nodes)
             return confirmed
         while index<len(candidates):
-            batch=candidates[index:index+requested_workers]
+            # Keep the shared pool saturated across the whole current deep
+            # candidate wave; extension candidates are still selected only
+            # after the original wave completes.
+            batch=(candidates[index:] if use_shared and engine_executor is not None
+                   else candidates[index:index+requested_workers])
             progress(f'Deep confirmation: {index} / {len(candidates)}')
             try:
                 if engine_executor is None:
@@ -733,6 +754,9 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             'profile_seconds':time.monotonic()-deep_finished,'elapsed_seconds':result.elapsed,
             'peak_process_memory_mb':memory_mb,'full_fast_games':len(analyzed),'deep_games':sum(g.deep for g in analyzed),
             'engine_workers':requested_workers,'shared_engine_pool':bool(use_shared),
+            'effective_cpu_capacity':available_engine_cpus(),
+            'effective_memory_limit_mb':available_engine_memory_mb(),
+            'engine_pool_max':_ENGINE_POOL_MAX,
             'engine_searches':engine_profile(scanners) if scanners else {}}
         return result
     except (chess.engine.EngineError,TimeoutError) as error:
