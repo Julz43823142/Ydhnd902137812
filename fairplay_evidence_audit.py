@@ -295,7 +295,8 @@ def audit_maia_funnel(games, selected_ids=()):
     rows = []
     for gi, game in enumerate(games):
         both_ratings = game.rating is not None and game.opponent_rating is not None
-        for d in game.decisions:
+        seen_plies=set()
+        for ordinal,d in enumerate(game.decisions):
             m = d.metrics
             exists = bool(d.human_policy)
             aligned = valid_policy(d,d.human_policy) if exists else False
@@ -324,7 +325,10 @@ def audit_maia_funnel(games, selected_ids=()):
                      Reason.QUALITY_CHANGED,
                      measured=bool(m.get('search_stability',{}).get('compared'))),
             }
-            rows.append(DecisionAudit(gi,d.ply,checks,branches))
+            local_ply=int(d.ply)
+            if local_ply in seen_plies:local_ply=-ordinal-1
+            seen_plies.add(local_ply)
+            rows.append(DecisionAudit(gi,local_ply,checks,branches))
     order=('supported_reference_inputs','policy_inferred','valid_policy_alignment',
            'engine_comparison_valid','eligible_gameplay','sufficient_known_policy_mass',
            'counterfactual_complete')
