@@ -132,8 +132,9 @@ def selection(games,*,full_coverage=False):
     quota=(None if full_coverage else max(1,min(8,MAX_POSITIONS//max(1,len(eligible)))))
     selected=[]
     for game in eligible:
-        choices=[d for d in game.decisions if d.metrics.get('useful') and d.metrics.get('competitive')
-                 and not d.metrics.get('post_opponent_error') and not d.metrics.get('easy_conversion') and d.phase!='opening']
+        choices=(list(game.decisions) if full_coverage else
+                 [d for d in game.decisions if d.metrics.get('useful') and d.metrics.get('competitive')
+                  and not d.metrics.get('post_opponent_error') and not d.metrics.get('easy_conversion') and d.phase!='opening'])
         # Position geometry only: no played-move rank, CPL or success selection.
         ordered=sorted(choices,key=lambda d:(d.metrics.get('spread') or 0,d.ply))
         if quota is not None and len(ordered)>quota:
