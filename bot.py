@@ -1323,6 +1323,11 @@ async def daily_workflow_rotation_loop():
             "Closing Daily Discord worker for automatic GitHub Actions handoff.",
             flush=True,
         )
+        # Flush encrypted position snapshots before tearing down Stockfish.
+        # The replacement runner then recovers the same Discord progress card.
+        from fairplay_ui import _service as fairplay_service
+        if fairplay_service is not None and not fairplay_service.closed:
+            await fairplay_service.close()
         await client.close()
 
     except asyncio.CancelledError:
