@@ -275,5 +275,7 @@ def evidence_funnel(games, config=CONFIG):
     counts['search_stability_unknown']=sum(
         not d.metrics.get('search_stability',{}).get('compared')
         and not d.metrics.get('search_inconsistent',False) for d in decisions)
+    # Compatibility-only branch count; not a genuine serial requirement.
+    flow['high_information']=sum(bool(d.metrics.get('high_information')) for d in remaining)
     counts['_flow']=flow
     return counts
