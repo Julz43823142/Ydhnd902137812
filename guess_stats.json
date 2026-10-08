@@ -542,8 +542,8 @@
           },
           "Pandarou": {
             "correct": 2,
-            "total": 5,
-            "wrong": 3
+            "total": 6,
+            "wrong": 4
           },
           "Sativahibread": {
             "correct": 0,
@@ -639,9 +639,9 @@
           }
         }
       },
-      "total": 385,
-      "updated_at": 1791483287,
-      "wrong": 132
+      "total": 386,
+      "updated_at": 1791483328,
+      "wrong": 133
     },
     "550338389535227926": {
       "best_streak": 0,
