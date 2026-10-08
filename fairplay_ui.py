@@ -14,7 +14,8 @@ from datetime import datetime, timezone
 
 import discord
 
-from fairplay_analysis import ReviewResult, review, review_interest
+from fairplay_analysis import (ReviewResult, review, review_interest,
+                               get_shared_engine_pool, close_shared_engine_pool)
 from fairplay_config import CHANNEL_ID, DISCLAIMER, NAMESPACE, CONFIG
 from fairplay_data import AccountNotFound, ReviewError, username
 from fairplay_progress import estimate, bar, label
@@ -545,6 +546,7 @@ class FairPlayService:
         self.worker = None  # compatibility alias for the first queue worker
         self.workers = []
         self.idle_task = None
+        self.pool_warm_task = None
         self.closed = False
 
     def note_human(self):self.last_human = time.time()
@@ -725,12 +727,13 @@ class FairPlayService:
         self.closed = True
         for job in self.jobs.values():job.stop.set()
         tasks=[]
-        for task in [self.idle_task,*self.workers,self.worker]:
+        for task in [self.idle_task,self.pool_warm_task,*self.workers,self.worker]:
             if task and task not in tasks:tasks.append(task)
         for task in tasks:
             if not task.done():task.cancel()
         if tasks:await asyncio.gather(*tasks,return_exceptions=True)
         self.executor.shutdown(wait=False,cancel_futures=True)
+        await asyncio.to_thread(close_shared_engine_pool)
 
 
 async def submit(ctx,target):
@@ -763,6 +766,10 @@ async def startup(client):
     except discord.HTTPException:
         print('Fair Play channel unavailable; normal SharkBot startup continues.',flush=True);return
     _service = FairPlayService(client,channel)
+    async def warm_engine_pool():
+        try:await asyncio.to_thread(get_shared_engine_pool)
+        except Exception:pass  # scans still fail safely with the normal unavailable-engine message
+    _service.pool_warm_task=asyncio.create_task(warm_engine_pool(),name='fairplay-engine-warmup')
     _service.workers = [
         asyncio.create_task(_service.run_queue(),name=f'fairplay-queue-{index+1}')
         for index in range(MAX_CONCURRENT_SCANS)

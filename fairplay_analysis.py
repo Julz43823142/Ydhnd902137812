@@ -5,6 +5,7 @@ All engine decisions use the subject's POV; every signal has minimum coverage.
 """
 import math
 import os
+import queue
 import statistics as stats
 import time
 import threading
@@ -420,10 +421,36 @@ def available_engine_cpus():
     return max(1,min([count,*quotas])) if quotas else max(1,count)
 
 
-def automatic_engine_workers():
-    """Scale to the CPU quota while preserving capacity for three live scans."""
+def available_engine_memory_mb():
+    values=[]
+    for path in ('/sys/fs/cgroup/memory.max','/sys/fs/cgroup/memory/memory.limit_in_bytes'):
+        try:
+            with open(path,encoding='utf-8') as handle:text=handle.read().strip()
+            if text and text!='max':
+                value=int(text)
+                # Some cgroup-v1 hosts expose a huge sentinel rather than "max".
+                if 0<value<1<<50:values.append(value/(1024*1024))
+        except (OSError,ValueError):pass
+    return min(values) if values else None
+
+
+def shared_engine_pool_size(config=CONFIG):
+    """Use available CPU aggressively while keeping bounded Stockfish memory."""
     cpus=available_engine_cpus()
-    return max(1,min(4,cpus//3))
+    memory=available_engine_memory_mb()
+    # Stockfish hash is the largest predictable allocation. Leave a substantial
+    # reserve for Discord/Python/PGNs and process overhead.
+    if memory is None:
+        memory_cap=8
+    else:
+        per_engine=max(96,config.hash_mb+32)
+        memory_cap=max(1,int(max(0,memory-256)//per_engine))
+    return max(1,min(8,cpus,memory_cap))
+
+
+def automatic_engine_workers():
+    # Compatibility/local-test helper. Production uses the shared pool below.
+    return shared_engine_pool_size(CONFIG)
 
 
 def engine_profile(scanners):
@@ -434,8 +461,78 @@ def engine_profile(scanners):
     return totals
 
 
+class SharedEnginePool:
+    """Process-wide Stockfish pool shared by all concurrent Fair Play reviews."""
+    def __init__(self,config=CONFIG,*,size=None,factory=None):
+        self.config=config
+        self.size=max(1,int(size or shared_engine_pool_size(config)))
+        self.factory=factory
+        self.available=queue.LifoQueue()
+        self.scanners=[]
+        self.closed=False
+        try:
+            for _ in range(self.size):
+                scanner=EngineScanner(None,config,factory)
+                if self.scanners and scanner.name!=self.scanners[0].name:
+                    scanner.close()
+                    raise ReviewError('Stockfish worker versions do not match.')
+                self.scanners.append(scanner);self.available.put(scanner)
+        except Exception:
+            self.close()
+            raise
+        self.name=self.scanners[0].name
+
+    def run(self,game,nodes,deadline):
+        if self.closed:raise ReviewError('Stockfish pool is unavailable.')
+        scanner=self.available.get()
+        reusable=True
+        try:
+            scanner.deadline=deadline
+            scanner.analyse(game,nodes)
+            return game
+        except (chess.engine.EngineError,TimeoutError):
+            reusable=False
+            try:scanner.close()
+            except Exception:pass
+            try:
+                replacement=EngineScanner(None,self.config,self.factory)
+                self.scanners[self.scanners.index(scanner)]=replacement
+                self.available.put(replacement)
+            except Exception:
+                pass
+            raise
+        finally:
+            scanner.deadline=None
+            if reusable and not self.closed:self.available.put(scanner)
+
+    def close(self):
+        if self.closed:return
+        self.closed=True
+        for scanner in list(self.scanners):scanner.close()
+        self.scanners.clear()
+
+
+_shared_engine_pool=None
+_shared_engine_pool_lock=threading.Lock()
+
+
+def get_shared_engine_pool(config=CONFIG):
+    global _shared_engine_pool
+    with _shared_engine_pool_lock:
+        if _shared_engine_pool is None or _shared_engine_pool.closed:
+            _shared_engine_pool=SharedEnginePool(config)
+        return _shared_engine_pool
+
+
+def close_shared_engine_pool():
+    global _shared_engine_pool
+    with _shared_engine_pool_lock:
+        if _shared_engine_pool is not None:_shared_engine_pool.close()
+        _shared_engine_pool=None
+
+
 def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI, engine_factory=None,
-           cancel=None, engine_workers=None):
+           cancel=None, engine_workers=None, engine_pool=None):
     import copy
     started = time.monotonic()
     deadline = ScanDeadline(started+config.deadline_seconds,cancel)
@@ -446,6 +543,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
     api = api_factory(deadline)
     scanners = []
     engine_executor = None
+    shared_pool = engine_pool
     scanner = None
     try:
         progress('Fetching profile…')
@@ -460,15 +558,23 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         history=sorted([g for g in history if g.rated is True],key=lambda g:(g.ended,g.identity))[-collection_limit(config):]
         if not history:raise ReviewError('No eligible rated standard live games with enough meaningful moves were found.')
         check_deadline(deadline)
-        requested_workers = (1 if engine_factory is not None and engine_workers is None
-                             else automatic_engine_workers() if engine_workers is None
-                             else max(1,min(4,int(engine_workers))))
+        use_shared=(engine_factory is None and engine_workers is None and config==CONFIG)
         try:
-            for _ in range(requested_workers):scanners.append(EngineScanner(deadline,config,engine_factory))
-            scanner=scanners[0]
-            if any(item.name!=scanner.name for item in scanners[1:]):
-                raise ReviewError('Stockfish worker versions do not match.')
-            if len(scanners)>1:engine_executor=ThreadPoolExecutor(max_workers=len(scanners),thread_name_prefix='fairplay-engine')
+            if use_shared:
+                shared_pool=shared_pool or get_shared_engine_pool(config)
+                requested_workers=shared_pool.size
+                engine_name=shared_pool.name
+            else:
+                requested_workers=(1 if engine_factory is not None and engine_workers is None
+                                   else automatic_engine_workers() if engine_workers is None
+                                   else max(1,min(8,int(engine_workers))))
+                for _ in range(requested_workers):scanners.append(EngineScanner(deadline,config,engine_factory))
+                scanner=scanners[0]
+                if any(item.name!=scanner.name for item in scanners[1:]):
+                    raise ReviewError('Stockfish worker versions do not match.')
+                engine_name=scanner.name
+            if requested_workers>1:
+                engine_executor=ThreadPoolExecutor(max_workers=requested_workers,thread_name_prefix='fairplay-engine')
         except Exception as error:
             for item in scanners:item.close()
             scanners.clear()
@@ -484,7 +590,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         def fast_scan(game,worker=None):
             worker=worker or scanner
             check_deadline(deadline)
-            key=(game.identity,game.color,worker.name,VERSION,config)
+            key=(game.identity,game.color,engine_name,VERSION,config)
             with _game_cache_lock:
                 cached=_game_cache.get(key)
                 if cached and time.monotonic()-cached[0]<_GAME_CACHE_TTL:
@@ -504,20 +610,23 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 game.fast_metrics=cached[3]
                 game.metrics=copy.deepcopy(cached[3])
                 game.metrics['timing']=timing_metrics(game,config)
-            else:worker.analyse(game,config.fast_nodes)
+            else:
+                if shared_pool is not None and use_shared:shared_pool.run(game,config.fast_nodes,deadline)
+                else:worker.analyse(game,config.fast_nodes)
             return game,cached_payload
         # Full primary fast pass ALWAYS precedes historical probes/deep searches.
         ordered_primary=list(reversed(primary))
-        step=len(scanners)
+        step=requested_workers
         for offset in range(0,len(ordered_primary),step):
             batch=ordered_primary[offset:offset+step]
             progress(f'Fast engine scan: {offset} / {len(primary)}')
             try:
                 if engine_executor is None:
-                    completed=[fast_scan(batch[0])]
+                    completed=[fast_scan(batch[0],scanner)]
                 else:
+                    workers=([None]*len(batch) if use_shared else scanners[:len(batch)])
                     futures=[engine_executor.submit(fast_scan,game,item)
-                             for game,item in zip(batch,scanners)]
+                             for game,item in zip(batch,workers)]
                     # Resolve and commit in batch order so the scored sample is
                     # deterministic even when workers finish out of order.
                     completed=[future.result() for future in futures]
@@ -543,7 +652,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         deep_started=time.monotonic()
         deep_incomplete=False
         index=0
-        def deep_scan(game,worker):
+        def deep_scan(game,worker=None):
             confirmed=copy.deepcopy(game)
             if game.identity in cached_deep:
                 decisions,metrics=cached_deep[game.identity]
@@ -553,17 +662,19 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 else:
                     summarize(confirmed,config)
             else:
-                worker.analyse(confirmed,config.deep_nodes)
+                if shared_pool is not None and use_shared:shared_pool.run(confirmed,config.deep_nodes,deadline)
+                else:worker.analyse(confirmed,config.deep_nodes)
             return confirmed
         while index<len(candidates):
-            batch=candidates[index:index+len(scanners)]
+            batch=candidates[index:index+requested_workers]
             progress(f'Deep confirmation: {index} / {len(candidates)}')
             try:
                 if engine_executor is None:
                     confirmed_batch=[deep_scan(batch[0],scanner)]
                 else:
+                    workers=([None]*len(batch) if use_shared else scanners[:len(batch)])
                     futures=[engine_executor.submit(deep_scan,game,item)
-                             for game,item in zip(batch,scanners)]
+                             for game,item in zip(batch,workers)]
                     confirmed_batch=[future.result() for future in futures]
                 for game,confirmed in zip(batch,confirmed_batch):
                     game.decisions,game.metrics,game.deep=confirmed.decisions,confirmed.metrics,True
@@ -579,7 +690,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         with _game_cache_lock:
             for game in analyzed:
                 if game.fast_metrics:
-                    key=(game.identity,game.color,scanner.name,VERSION,config)
+                    key=(game.identity,game.color,engine_name,VERSION,config)
                     _game_cache[key]=(time.monotonic(),copy.deepcopy(game.decisions),game.deep,
                                       copy.deepcopy(game.fast_metrics),copy.deepcopy(game.metrics) if game.deep else None)
                     _game_cache.move_to_end(key)
@@ -596,7 +707,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             'context_only':len(context_only),
         }
         result=score_review(canonical,analyzed,len(history),skipped,partial or archive_partial or deep_incomplete,
-                            scanner.name,profile,time.monotonic()-started,config,
+                            engine_name,profile,time.monotonic()-started,config,
                             coverage_state=coverage_state,context_games=history,
                             gameplay_periods=gameplay_periods)
         result.coverage.update(primary_collected=len(primary),primary_fast_scanned=min(len(analyzed),len(primary)) if not primary_complete else len(primary),
@@ -621,7 +732,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             'fast_seconds':fast_finished-collected_at,'deep_seconds':deep_finished-deep_started,
             'profile_seconds':time.monotonic()-deep_finished,'elapsed_seconds':result.elapsed,
             'peak_process_memory_mb':memory_mb,'full_fast_games':len(analyzed),'deep_games':sum(g.deep for g in analyzed),
-            'engine_workers':len(scanners),'engine_searches':engine_profile(scanners)}
+            'engine_workers':requested_workers,'shared_engine_pool':bool(use_shared),
+            'engine_searches':engine_profile(scanners) if scanners else {}}
         return result
     except (chess.engine.EngineError,TimeoutError) as error:
         raise ReviewError('Stockfish stopped responding. The scan was stopped safely; please try again later.') from error
