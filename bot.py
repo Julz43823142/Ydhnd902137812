@@ -1267,6 +1267,21 @@ def _write_daily_rotation_marker():
     os.replace(tmp, DAILY_WORKFLOW_ROTATION_MARKER)
 
 
+async def _await_fairplay_idle_before_rotation(service, cutoff_monotonic):
+    """Drain accepted heavy reviews before deliberately closing the Discord bot.
+
+    Only the helper that owns the Actions rotation sets the drain flag. A
+    canceled hosted job can still interrupt a review; the workflow concurrency
+    policy must also keep the running worker alive.
+    """
+    if service is None or service.closed:
+        return True
+    service.draining = True
+    while service.jobs and time.monotonic() < cutoff_monotonic:
+        await asyncio.sleep(10)
+    return not service.jobs
+
+
 async def daily_workflow_rotation_loop():
     """Cleanly hand the persistent Daily bot to a fresh Actions worker."""
     try:
@@ -1279,17 +1294,14 @@ async def daily_workflow_rotation_loop():
         # reserves enough runner lifetime for any accepted full-depth review.
         import fairplay_ui
         service = fairplay_ui._service
-        if service is not None and not service.closed:
-            service.draining = True
-            if service.jobs:
-                print("Daily rotation: waiting for active Fair Play review to finish.",
-                      flush=True)
-            safe_handoff_at = started + 330 * 60
-            while service.jobs and time.monotonic() < safe_handoff_at:
-                await asyncio.sleep(10)
-            if service.jobs:
-                print("WARNING: GitHub runner deadline reached during Fair Play; "
-                      "an incomplete scan cannot be marked as completed.",flush=True)
+        if service is not None and not service.closed and service.jobs:
+            print("Daily rotation: waiting for active Fair Play review to finish.",
+                  flush=True)
+        drained = await _await_fairplay_idle_before_rotation(
+            service, started + 330 * 60)
+        if not drained:
+            print("WARNING: Runner deadline approached with Fair Play still active; "
+                  "an interrupted scan cannot be marked as completed.",flush=True)
 
         print(
             "Planned Daily worker rotation: syncing critical state before restart...",
