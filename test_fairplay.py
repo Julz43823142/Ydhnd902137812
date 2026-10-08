@@ -277,10 +277,10 @@ class FakeEngine:
 
 class Pipeline(unittest.TestCase):
     def setUp(self):analysis._game_cache.clear()
-    def fake_api(self):
+    def fake_api(self,count=1):
         self.api = Mock()
         self.api.deadline = time.monotonic()+60
-        self.api.get.side_effect = lambda target,suffix='',**kw: {'username':TARGET,'joined':1700000000} if not suffix else {'archives':[f'https://api.chess.com/pub/player/{TARGET}/games/2026/10']} if suffix.endswith('/archives') else {'games':[sample_row()]}
+        self.api.get.side_effect = lambda target,suffix='',**kw: {'username':TARGET,'joined':1700000000} if not suffix else {'archives':[f'https://api.chess.com/pub/player/{TARGET}/games/2026/10']} if suffix.endswith('/archives') else {'games':[sample_row(i) for i in range(count)]}
         return self.api
 
     def test_two_pass_one_engine_fixed_nodes_and_cleanup(self):
@@ -290,6 +290,49 @@ class Pipeline(unittest.TestCase):
         self.assertIn(CONFIG.fast_nodes,engine.calls);self.assertIn(CONFIG.deep_nodes,engine.calls)
         engine.quit.assert_called_once();self.api.close.assert_called_once()
         self.assertTrue(any(call.args[0].get('Threads')==1 for call in engine.configure.call_args_list))
+
+    def test_cpu_aware_engine_parallelism_is_conservative(self):
+        with patch.object(analysis,'available_engine_cpus',return_value=5):
+            self.assertEqual(analysis.automatic_engine_workers(),1)
+        with patch.object(analysis,'available_engine_cpus',return_value=6):
+            self.assertEqual(analysis.automatic_engine_workers(),2)
+
+    def test_engine_priority_is_only_slightly_lowered(self):
+        engine=FakeEngine();engine.transport=SimpleNamespace(get_pid=lambda:123)
+        with patch.object(analysis.os,'setpriority') as setpriority:
+            scanner=analysis.EngineScanner(time.monotonic()+10,factory=lambda:engine)
+            try:setpriority.assert_called_once_with(analysis.os.PRIO_PROCESS,123,2)
+            finally:scanner.close()
+
+    def test_two_engine_workers_overlap_and_preserve_review_output(self):
+        sequential_engine=FakeEngine()
+        sequential=analysis.review(
+            TARGET,lambda _:None,api_factory=lambda _:self.fake_api(2),
+            engine_factory=lambda:sequential_engine,engine_workers=1)
+        analysis._game_cache.clear()
+
+        barrier=threading.Barrier(2)
+        class ParallelEngine(FakeEngine):
+            def __init__(self):
+                super().__init__();self.waited=False
+            def analyse(self,board,limit,multipv=None,root_moves=None):
+                if not self.waited and limit.nodes==CONFIG.fast_nodes and multipv:
+                    self.waited=True
+                    barrier.wait(timeout=2)
+                return super().analyse(board,limit,multipv=multipv,root_moves=root_moves)
+
+        engines=[ParallelEngine(),ParallelEngine()]
+        factory=Mock(side_effect=engines)
+        parallel=analysis.review(
+            TARGET,lambda _:None,api_factory=lambda _:self.fake_api(2),
+            engine_factory=factory,engine_workers=2)
+        self.assertEqual(parallel.diagnostics['runtime']['engine_workers'],2)
+        self.assertTrue(all(engine.waited for engine in engines))
+        self.assertEqual(parallel.priority,sequential.priority)
+        self.assertEqual(parallel.totals,sequential.totals)
+        self.assertEqual(parallel.deep_coverage,sequential.deep_coverage)
+        self.assertEqual(parallel.classes,sequential.classes)
+        for engine in engines:engine.quit.assert_called_once()
 
     def test_engine_unavailable_is_clear_failure_and_api_closes(self):
         with self.assertRaisesRegex(data.ReviewError,'Stockfish is unavailable'):
