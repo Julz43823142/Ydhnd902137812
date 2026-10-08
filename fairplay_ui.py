@@ -1,7 +1,8 @@
 """Discord is the case history. Runtime review data stays in bounded memory.
 
-A bounded three-worker executor/queue keeps engine work off Discord's loop and
-outside the normal chess engine locks. No Discord token, ledger, wallet or punishments.
+A bounded single-review executor/queue keeps engine work off Discord's loop and
+gives the active review exclusive access to the shared Stockfish pool. No Discord
+token, ledger, wallet or punishments.
 """
 import asyncio
 import threading
@@ -15,7 +16,8 @@ from datetime import datetime, timezone
 import discord
 
 from fairplay_analysis import (ReviewResult, review, review_interest,
-                               get_shared_engine_pool, close_shared_engine_pool)
+                               get_shared_engine_pool, close_shared_engine_pool,
+                               available_engine_cpus, available_engine_memory_mb)
 from fairplay_config import CHANNEL_ID, DISCLAIMER, NAMESPACE, CONFIG
 from fairplay_data import AccountNotFound, ReviewError, username
 from fairplay_progress import estimate, bar, label
@@ -25,8 +27,8 @@ PANEL_TITLE = '🛡️ Fair Play Task Force'
 REPORT_PREFIX = '🛡️ Fair Play Review — '
 IDLE_SECONDS = CONFIG.intro_panel_seconds
 PANEL_MARKER = 'shark:fairplay:panel:v1'
-MAX_CONCURRENT_SCANS = 3
-MAX_WAITING_SCANS = 3
+MAX_CONCURRENT_SCANS = 1
+MAX_WAITING_SCANS = 5
 MAX_JOBS = MAX_CONCURRENT_SCANS + MAX_WAITING_SCANS
 _service = None
 
@@ -767,7 +769,12 @@ async def startup(client):
         print('Fair Play channel unavailable; normal SharkBot startup continues.',flush=True);return
     _service = FairPlayService(client,channel)
     async def warm_engine_pool():
-        try:await asyncio.to_thread(get_shared_engine_pool)
+        try:
+            pool=await asyncio.to_thread(get_shared_engine_pool)
+            memory=available_engine_memory_mb()
+            memory_text='unbounded/unknown' if memory is None else f'{memory:.0f} MB'
+            print(f'Fair Play engine pool ready: {pool.size} workers; '
+                  f'effective CPU={available_engine_cpus()}; memory limit={memory_text}',flush=True)
         except Exception:pass  # scans still fail safely with the normal unavailable-engine message
     _service.pool_warm_task=asyncio.create_task(warm_engine_pool(),name='fairplay-engine-warmup')
     _service.workers = [
