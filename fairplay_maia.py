@@ -258,7 +258,7 @@ def annotate_history(games,predictor=None,*,full_coverage=False,checkpoint=None,
     try:
         with _lock:
             if predictor is None:
-                if _worker is None:_worker=LocalPolicyWorker(checkpoint)
+                if _worker is None:_worker=LocalPolicyWorker(model_path)
                 predictor=_worker.predict
             keys=[hashlib.sha256((MODEL_SHA256+json.dumps(item,sort_keys=True)).encode()).hexdigest() for _,_,item in chosen]
             if checkpoint is not None:
