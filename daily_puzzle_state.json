@@ -58,7 +58,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_l5cPW_1791481174101",
-    "last_activity_at": "2026-10-08T17:40:21.897072+00:00",
+    "last_activity_at": "2026-10-08T17:40:36.615927+00:00",
     "rating": 2448,
     "rp_band": 4,
     "boss": false,
@@ -69,17 +69,17 @@
     "next_player_index": 2,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1557809896882438174
+      "1468320170891022417": 1557809958043656349
     },
-    "message_id": 1557809896882438174,
+    "message_id": 1557809958043656349,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Qxe5",
+        "move": "Rh7",
         "correct": false,
-        "timestamp": "2026-10-08T17:40:21.897258+00:00"
+        "timestamp": "2026-10-08T17:40:36.616723+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
@@ -90,7 +90,7 @@
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
-    "last_card_activity_at": "2026-10-08T17:40:21.897072+00:00",
+    "last_card_activity_at": "2026-10-08T17:40:36.615927+00:00",
     "recent_accepted_moves": [],
     "accepted_solution_moves": [
       {
@@ -104,9 +104,9 @@
         "principal": true
       }
     ],
-    "last_feedback": "❌ **Wrong, Thice. you managed to lose the argument against a position that cannot speak.**\n↪️ **Move played:** `Qxe5`",
+    "last_feedback": "❌ **Wrong, Thice. you just proved that long calculation and correct calculation are different hobbies.**\n↪️ **Move played:** `Rh7`",
     "wrong_attempt_counts": {
-      "442597396195704832": 2
+      "442597396195704832": 3
     }
   },
   "latest_puzzle_type": "random",
