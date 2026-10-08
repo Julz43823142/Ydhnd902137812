@@ -269,10 +269,10 @@
     },
     "442597396195704832": {
       "name": "Thice",
-      "elo": 1591.262,
-      "peak_elo": 1591.262,
-      "games": 20,
-      "wins": 9,
+      "elo": 1604.47,
+      "peak_elo": 1604.47,
+      "games": 21,
+      "wins": 10,
       "draws": 1,
       "losses": 10
     },
@@ -2843,7 +2843,7 @@
     },
     "bot-1557827841369055293-442597396195704832": {
       "game_id": "bot-1557827841369055293-442597396195704832",
-      "status": "active",
+      "status": "finished",
       "mode": "bot",
       "variant": "standard",
       "chess960_pos": null,
@@ -2961,12 +2961,18 @@
       "last_move": "Qb3#",
       "started_at": 1791485500.919501,
       "draw_offer": null,
-      "message_id": 1557829713479864424,
+      "message_id": 1557829737999769630,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
       "theme_owner_id": "442597396195704832",
       "theme_owner_name": "Thice",
-      "last_move_at": 1791485951.9638934
+      "last_move_at": 1791485951.9638934,
+      "game_reward_points": 0.0,
+      "game_reward_coins": 3.0,
+      "result": "0-1",
+      "finished_at": 1791485958.457929,
+      "finish_reason": "Checkmate",
+      "human_rating_after": 1604.469659656929
     }
   },
   "chess_challenges": {
