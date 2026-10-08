@@ -60,6 +60,11 @@ def search_alternatives(scanner,d,nodes):
         if 'Clear Hash' in scanner.engine.options:scanner.engine.configure({'Clear Hash':None})
         started=time.monotonic()
         line=scanner.engine.analyse(board,limit,root_moves=[move])
+        if (depth_search and (not isinstance(line,dict) or
+                int(line.get('depth',0) or 0)<nodes.depth)):
+            raise chess.engine.EngineError('Counterfactual did not reach the requested depth')
+        if (line.get('lowerbound') or line.get('upperbound') or not line.get('pv')):
+            raise chess.engine.EngineError('Counterfactual score was not exact')
         spent=time.monotonic()-started
         scanner.profile['root_seconds']+=spent;scanner.profile['root_searches']+=1
         key='deep_root_seconds' if depth_search or nodes==scanner.config.deep_nodes else 'fast_root_seconds'
@@ -68,8 +73,11 @@ def search_alternatives(scanner,d,nodes):
         scanner.profile['policy_root_searches']=scanner.profile.get('policy_root_searches',0)+1
         values[uci]=score_cp(line,board.turn)
     check_deadline(scanner.deadline)
-    return ({'depth':nodes.depth,'scores':values} if depth_search else
-            {'nodes':nodes,'scores':values})
+    contract={'mode':'depth' if depth_search else 'nodes',
+              'requested':nodes.depth if depth_search else nodes,
+              'engine':scanner.name,'completed':True,'exact':True}
+    return ({'depth':nodes.depth,'scores':values,'search_contract':contract} if depth_search else
+            {'nodes':nodes,'scores':values,'search_contract':contract})
 
 def complete(games,nodes,deadline,*,executor=None,pool=None,scanner=None,fast=False):
     """Reuse the bounded pool. Drain all tasks; incomplete optional data cannot score."""
