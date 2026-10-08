@@ -296,7 +296,8 @@ class Pipeline(unittest.TestCase):
         self.assertTrue(any(call.args[0].get('Threads')==1 for call in engine.configure.call_args_list))
 
     def test_shared_pool_scales_to_cpu_and_memory_limits(self):
-        cases=((2,None,2),(8,None,8),(16,None,8),(8,1024,8),(8,512,2))
+        cases=((2,None,2),(8,None,8),(16,None,16),(32,None,16),
+               (16,1024,8),(12,2048,12),(8,512,2))
         for cpus,memory,workers in cases:
             with self.subTest(cpus=cpus,memory=memory), \
                  patch.object(analysis,'available_engine_cpus',return_value=cpus), \
@@ -589,12 +590,12 @@ class DiscordRules(unittest.IsolatedAsyncioTestCase):
             self.assertTrue(all(call.args==('use:fairplay-scan',42) for call in note.call_args_list))
             self.assertIn('queue is full',events[-1].followup.send.call_args.args[0])
 
-    async def test_three_reviews_run_in_parallel_and_fourth_waits(self):
-        release=threading.Event();three_started=threading.Event();started=[];lock=threading.Lock()
+    async def test_only_configured_reviews_run_and_next_waits(self):
+        release=threading.Event();capacity_started=threading.Event();started=[];lock=threading.Lock()
         def blocking(target,progress,*,cancel):
             with lock:
                 started.append(target)
-                if len(started)>=ui.MAX_CONCURRENT_SCANS:three_started.set()
+                if len(started)>=ui.MAX_CONCURRENT_SCANS:capacity_started.set()
             while not release.wait(.01):
                 if cancel.is_set():raise data.ReviewError('Stopped')
             raise data.ReviewError('Synthetic complete')
@@ -609,9 +610,9 @@ class DiscordRules(unittest.IsolatedAsyncioTestCase):
         ]
         self.service.worker=self.service.workers[0]
         for _ in range(100):
-            if three_started.is_set():break
+            if capacity_started.is_set():break
             await asyncio.sleep(.01)
-        self.assertTrue(three_started.is_set())
+        self.assertTrue(capacity_started.is_set())
         await asyncio.sleep(.05)
         self.assertEqual(len(started),ui.MAX_CONCURRENT_SCANS)
         self.assertNotIn('parallel-four',started)
