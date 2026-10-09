@@ -63,6 +63,30 @@ def percentage(value):
     return number(None if value is None else value*100,'%')
 
 
+def capture_human_examples(result, limit=4):
+    """Keep only bounded public-game pointers when full decision trees expire.
+
+    The service deliberately drops in-memory positions/FENs after posting the
+    report, but the Human Moves button must still work afterwards. Never copy
+    model policy distributions or board positions to Discord history.
+    """
+    from fairplay_maia import policy_evidence
+    informative=[]
+    for game in getattr(result,'games',()):
+        for decision in game.decisions:
+            if not decision.human_policy:continue
+            row=policy_evidence(decision,decision.human_policy)
+            if not row or not row['eligible'] or row['information']<=0:continue
+            informative.append((row['information'],game.ended,decision.ply,game,decision,row))
+    informative.sort(key=lambda item:(-item[0],item[1],item[2]))
+    return [
+        {'class':game.time_class,'move_number':(decision.ply+1)//2,
+         'url':game.url,'move':decision.move,'rank':row['played_move_rank'],
+         'cpl':decision.metrics.get('cpl',0),'deep':bool(game.deep)}
+        for _,_,_,game,decision,row in informative[:max(0,limit)]
+    ]
+
+
 def result_embed(result: ReviewResult):
     icons = {'LOW':'🟢','MODERATE':'🟡','HIGH':'🟠','VERY HIGH':'🔴','INSUFFICIENT DATA':'⚪'}
     colors = {'LOW':0x2E9E65,'MODERATE':0xE9B44C,'HIGH':0xEA8537,'VERY HIGH':0xD94F55,'INSUFFICIENT DATA':0x788491}
@@ -158,22 +182,14 @@ def detail_embed(result, mode):
                 + f"Game-capped evidence: {proof.get('effective_positions',0):g} decisions · contributor equivalents: {proof.get('contributor_weight',0):g}\n"
                 + ('Distributed gameplay route established; manual review required.' if comparison.get('passed') else
                    'Not established: '+ '; '.join(comparison.get('blockers',[])[:3])),inline=False)
-            informative=[]
-            from fairplay_maia import policy_evidence
-            for game in result.games:
-                for decision in game.decisions:
-                    if not decision.human_policy:continue
-                    row=policy_evidence(decision,decision.human_policy)
-                    if row and row['eligible'] and row['information']>0:
-                        informative.append((row['information'],game,decision,row))
-            informative.sort(key=lambda item:(-item[0],item[1].ended,item[2].ply))
+            examples=result.diagnostics.get('manual_maia_examples')
+            if examples is None:examples=capture_human_examples(result)
             lines=[]
-            for _,game,decision,row in informative[:4]:
-                lines.append(
-                    f"[{game.time_class.title()} · move {(decision.ply+1)//2}]({game.url}) — "
-                    f"{decision.move} · human-model rank #{row['played_move_rank']} · "
-                    f"Stockfish loss {decision.metrics.get('cpl',0):.0f} cp · "
-                    + ('deep checked' if game.deep else 'fast screen'))
+            for item in examples[:4]:
+                source=f"[{item['class'].title()} · move {item['move_number']}]({item['url']})"
+                lines.append(f"{source} — {item['move']} · human-model rank #{item['rank']} · "
+                             f"Stockfish loss {item['cpl']:.0f} cp · "
+                             + ('deep checked' if item['deep'] else 'fast screen'))
             if lines:
                 embed.add_field(name='Decisions for manual inspection',value='\n'.join(lines)[:1024],inline=False)
             embed.add_field(name='Limits',value=
@@ -745,6 +761,7 @@ class FairPlayService:
             result = await future
             # All detailed position caches remain bounded in the engine worker.
             # Discord detail pages need game summaries, not thousands of FENs.
+            result.diagnostics['manual_maia_examples']=capture_human_examples(result)
             for game in result.games:game.decisions.clear()
             if await self.safe_progress(job,'Complete',view=ReportView(result.username),embed=result_embed(result)):
                 self.results[job.message.id] = (time.time(),result)
