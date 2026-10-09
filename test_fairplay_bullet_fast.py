@@ -89,6 +89,55 @@ class MixedDepthTests(unittest.TestCase):
         self.assertEqual(contract["depth18_total_positions"],
                          contract["depth18_completed_positions"])
 
+    def test_maia_counterfactuals_use_the_same_depth_as_their_games(self):
+        records = [game(i + 3000, deep=False) for i in range(2)]
+        for i, item in enumerate(records):
+            item.identity = f"mixed-policy-{i}"
+            item.rated = True
+            item.time_class = "bullet" if i == 0 else "rapid"
+        class FakeScanner:
+            name = "Stockfish 19 synthetic"
+            def __init__(self, *args):
+                self.engine = type("Engine", (), {"timeout": 30.0})()
+            def analyse(self, item, budget):
+                depth = getattr(budget, "depth", None)
+                if depth:
+                    for decision in item.decisions:
+                        decision.metrics["search_depth"] = depth
+                else:
+                    item.fast_metrics = copy.deepcopy(item.metrics)
+            def close(self):
+                pass
+        def fake_result(target, analyzed, *args, **kwargs):
+            return analysis.ReviewResult(
+                username=target, games=list(analyzed), selected_games=len(analyzed),
+                skipped={}, partial=False, engine="Synthetic", totals={},
+                classes={}, performance={}, context={}, families={},
+                priority="LOW", confidence="HIGH", reasons=[],
+                deep_confirmed=False, deep_coverage={}, elapsed=0)
+        calls = []
+        def fake_policy(group, budget, deadline, **kwargs):
+            calls.append((tuple(item.time_class for item in group),
+                          getattr(budget, "depth", None) or budget))
+            return {"complete": True, "positions":len(group), "seconds":0}
+        api = Mock()
+        api.get.return_value = {"username": TARGET}
+        with patch.dict(os.environ, {"FAIRPLAY_FULL_DEPTH18": "1",
+                                      "FAIRPLAY_REQUIRE_MAIA": "1"}), \
+             patch.object(analysis, "collect_games", return_value=(records, {}, False)), \
+             patch.object(analysis, "EngineScanner", FakeScanner), \
+             patch.object(analysis, "score_review", side_effect=fake_result), \
+             patch.object(fairplay_maia, "annotate_history",
+                          return_value={"available": True, "positions": 2}), \
+             patch.object(fairplay_policy, "complete", side_effect=fake_policy), \
+             patch.object(fairplay_policy, "integrate",
+                          side_effect=lambda result, *args: result):
+            analysis.review(TARGET, lambda _: None, api_factory=lambda _: api,
+                            engine_factory=lambda: object())
+        self.assertEqual(calls[0][1], CONFIG.fast_nodes)
+        self.assertEqual(set(calls[0][0]), {"bullet","rapid"})
+        self.assertEqual(calls[1:], [(("rapid",),18), (("bullet",),12)])
+
     def test_checkpoint_restores_only_correct_bullet_depth(self):
         with tempfile.TemporaryDirectory() as temp, patch.dict(os.environ, {
                 "DISCORD_TOKEN": "synthetic-only-not-real"}):
