@@ -5,7 +5,7 @@ CHANNEL_ID = 1311445685492781186
 NAMESPACE = 'shark:fairplay:'
 DISCLAIMER = ('Automated fair-play screening only. This result is not proof of cheating '
               'and must not be used as the sole basis for punishment. Human review is mandatory.')
-VERSION = 'fairplay-v19.0-500-full-depth-audit'
+VERSION = 'fairplay-v19.1-500-mixed-depth-resume'
 
 
 @dataclass(frozen=True)
@@ -84,6 +84,8 @@ class ReviewConfig:
     fast_nodes: int = 24_000
     fast_multipv: int = 5
     deep_nodes: int = 320_000
+    # Bullet is screening-only in full-depth mode; rapid/blitz remain depth 18.
+    bullet_deep_depth: int = 12
     deep_games: int = 10
     deadline_seconds: int = 3600
     deep_min_games: int = 6

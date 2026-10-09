@@ -54,7 +54,7 @@ jobs:
         run: python -m pip install -r requirements.txt
       - name: Verify positive and false-positive legacy HIGH selection
         run: |
-          python -m unittest -v test_fairplay_legacy_candidate test_fairplay_end_to_end_audit test_fairplay_stop test_fairplay_evidence_500 test_fairplay_evidence_store test_fairplay_multimodel test_fairplay_model_runtime test_fairplay_model_readiness test_prepare_fairplay_lc0 test_fairplay_500_execution test_fairplay_lichess_baseline
+          python -m unittest -v test_fairplay_legacy_candidate test_fairplay_end_to_end_audit test_fairplay_stop test_fairplay_evidence_500 test_fairplay_evidence_store test_fairplay_multimodel test_fairplay_model_runtime test_fairplay_model_readiness test_prepare_fairplay_lc0 test_fairplay_500_execution test_fairplay_lichess_baseline test_fairplay_bullet_fast
           python -m unittest -v \
             test_fairplay_v6.PersonalCalibration.test_deep_baseline_improvement_erases_fast_anomaly \
             test_fairplay_status.AccountStatusIndependence.test_full_scoring_is_identical_with_hidden_open_or_closed_status \
@@ -118,6 +118,24 @@ jobs:
       - run: python scripts/prepare_stockfish.py --github-env --profile-build
       - name: Verify full-game depth 18
         run: python scripts/smoke_fairplay_depth18.py
+
+  bullet-depth-benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install python-chess requests
+      - uses: actions/cache@v4
+        with:
+          path: /tmp/stockfish19-official-pgo/Stockfish/src/stockfish
+          key: stockfish-${{ runner.os }}-${{ runner.arch }}-edb0d9db6731067ec50ce619ff372b463bc4dd5d-pgo-v1
+      - name: Prepare pinned Stockfish 19
+        run: python scripts/prepare_stockfish.py --github-env --profile-build
+      - name: Measure depth 18 versus depth 12 on real synthetic bullet positions
+        run: python scripts/benchmark_fairplay_bullet.py
 
   human-model-smoke:
     runs-on: ubuntu-latest
