@@ -98,10 +98,29 @@ class PoolRecoveryTests(unittest.TestCase):
         self.assertFalse(pool.failed.is_set())
         self.assertEqual(pool.available.qsize(),1)
 
-    def test_fast_pv1_and_evidence_confirmation_pv5(self):
+    def test_fast_and_deep_both_use_single_pv(self):
         from fairplay_config import CONFIG
         self.assertEqual(CONFIG.fast_multipv,1)
-        self.assertEqual(CONFIG.deep_multipv,5)
+        self.assertEqual(CONFIG.deep_multipv,1)
+
+
+class SinglePVConservativePriorityTests(unittest.TestCase):
+    def test_single_pv_never_issues_high_without_alternative_evidence(self):
+        from fairplay_scoring import priority_model
+        from fairplay_config import CONFIG
+        from dataclasses import replace
+        args=dict(games=100,decisions=4000,critical=100,confidence='HIGH',
+                  deep_confirmed=True,partial=False,persistent=True,
+                  recurrence=True,cluster_games=100,deep_cluster_games=100,
+                  cluster_decisions=4000,cluster_qualified=True,
+                  baseline_anomaly=True,baseline_available=True,
+                  baseline_confirmed=True)
+        result=priority_model((1.0,1.0,1.0,1.0,1.0),config=CONFIG,**args)
+        self.assertNotIn(result,('HIGH','VERY HIGH'))
+        # Legacy multi-candidate configuration keeps the old gating behavior.
+        legacy=replace(CONFIG,deep_multipv=5)
+        self.assertIn(priority_model((1.0,1.0,1.0,1.0,1.0),config=legacy,**args),
+                      ('HIGH','VERY HIGH'))
 
 
 class PartialBatchTests(unittest.TestCase):
