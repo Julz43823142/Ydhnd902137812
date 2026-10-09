@@ -251,7 +251,7 @@ class Coverage(unittest.TestCase):
 
     def test_fast_and_deep_defaults_keep_search_quality(self):
         self.assertEqual((CONFIG.fast_nodes,CONFIG.deep_nodes),(24000,320000))
-        self.assertEqual((CONFIG.fast_multipv,CONFIG.deep_multipv),(5,5))
+        self.assertEqual((CONFIG.fast_multipv,CONFIG.deep_multipv),(1,5))
         self.assertEqual(CONFIG.deep_normal_games,10)
         self.assertEqual(CONFIG.deep_max_games,14)
 

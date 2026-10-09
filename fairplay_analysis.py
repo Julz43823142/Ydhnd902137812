@@ -331,6 +331,21 @@ class BoundedNodeEngine(chess.engine.SimpleEngine):
         return self.timeout
 
 
+def scan_engine_timeout(limit, config=CONFIG):
+    """Use search-phase-specific, bounded timeouts without weakening evidence."""
+    if limit.depth is not None:
+        key,default,minimum,maximum='FAIRPLAY_DEPTH18_ENGINE_TIMEOUT_SECONDS',1200,60,7200
+    elif limit.nodes == config.deep_nodes:
+        key,default,minimum,maximum='FAIRPLAY_DEEP_ENGINE_TIMEOUT_SECONDS',180,30,3600
+    else:
+        key,default,minimum,maximum='FAIRPLAY_FAST_ENGINE_TIMEOUT_SECONDS',max(30,config.engine_timeout),10,300
+    try:
+        requested=int(os.getenv(key,str(default)))
+    except ValueError:
+        requested=default
+    return max(minimum,min(maximum,requested))
+
+
 class EngineScanner:
     """One independent fixed-node Stockfish process per pool worker."""
     def __init__(self, deadline, config=CONFIG, factory=None):
@@ -338,9 +353,7 @@ class EngineScanner:
         self.profile = {'multipv_seconds':0.0, 'root_seconds':0.0, 'multipv_searches':0, 'root_searches':0,
                         'fast_multipv_seconds':0.0, 'fast_root_seconds':0.0, 'deep_multipv_seconds':0.0, 'deep_root_seconds':0.0}
         self.engine = (factory or (lambda:chess_play._create_stockfish_engine(allow_install=False,engine_class=(__import__('fairplay_engine').CompactNodeEngine if os.name=='posix' else BoundedNodeEngine))))()
-        self.engine.timeout = (max(60,min(1800,int(os.getenv('FAIRPLAY_DEPTH18_ENGINE_TIMEOUT_SECONDS','600'))))
-                               if os.getenv('FAIRPLAY_FULL_DEPTH18')=='1' and config==CONFIG
-                               else config.engine_timeout)
+        self.engine.timeout = max(10,config.engine_timeout)  # phase-specific timeout set per position
         try:
             options = self.engine.options
             settings = {}
@@ -380,6 +393,8 @@ class EngineScanner:
                    and decision.metrics['gap']<25 and decision.metrics.get('cpl',100)<=25))
         multipv=self.config.deep_multipv if depth_search or nodes==self.config.deep_nodes else self.config.fast_multipv
         limit=nodes if depth_search else chess.engine.Limit(nodes=nodes)
+        # The worker owns this engine exclusively for both candidate and root searches.
+        self.engine.timeout=scan_engine_timeout(limit,self.config)
         search_started=time.monotonic()
         lines = self.engine.analyse(board,limit,multipv=multipv)
         spent=time.monotonic()-search_started
@@ -752,11 +767,6 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             from fairplay_maia import MODEL_SHA256
             checkpoint.bind(target,engine=engine_name,version=VERSION,config=config,
                             full_depth=full_depth_mode,maia=MODEL_SHA256)
-        if full_depth_mode:
-            # A fixed depth has no guaranteed bound on elapsed search time.
-            for worker in (shared_pool.scanners if use_shared else scanners):
-                worker.engine.timeout=max(60,min(1800,int(
-                    os.getenv('FAIRPLAY_DEPTH18_ENGINE_TIMEOUT_SECONDS','600'))))
         for group in buckets(history).values():
             for index,game in enumerate(group):game.control_index=index
         collected_at=time.monotonic()
@@ -1138,8 +1148,10 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             'engine_pool_max':_ENGINE_POOL_MAX,
             'engine_searches':search_profile}
         return result
-    except (chess.engine.EngineError,TimeoutError) as error:
-        raise ReviewError('Stockfish stopped responding. The scan was stopped safely; please try again later.') from error
+    except TimeoutError as error:
+        raise ReviewError('A Stockfish search timed out despite worker recovery. No review result was issued; please retry later.') from error
+    except (chess.engine.EngineError,OSError) as error:
+        raise ReviewError('Stockfish failed despite worker recovery. No review result was issued; please retry later.') from error
     except DeadlineReached:
         raise ReviewError('The review reached its runtime limit before meaningful engine data was available. Try again later.')
     finally:
