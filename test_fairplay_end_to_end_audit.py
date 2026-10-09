@@ -182,7 +182,7 @@ class CoverageAndReview(unittest.TestCase):
         combined={"contributors":6,"contributor_weight":6,"effective_positions":24,
                   "information":.6,"signed_excess":.5,"stable":24,"positions":24}
         result=SimpleNamespace(games=games,totals={"decisions":120},priority="LOW",
-            confidence="MEDIUM",coverage={"primary_engine_complete":True},
+            confidence="MEDIUM",partial=False,coverage={"primary_engine_complete":True},
             diagnostics={},families={},deep_confirmed=False,reasons=[])
         with patch.object(policy,"periods",return_value=[candidate]), \
              patch.object(policy,"game_summary",return_value={}), \
