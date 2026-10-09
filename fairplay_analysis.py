@@ -103,8 +103,15 @@ def summarize(game: GameSample, config=CONFIG):
     unique = [d for d in critical if d.metrics['unique']]
     losses = [d.metrics['cpl'] for d in moves]
     quiet = [d for d in moves if not (d.capture or d.check or d.gives_check)]
-    compared = [d for d in moves if getattr(d,'fast_engine',{})
-                and d.metrics.get('nodes',0)>d.fast_engine.get('nodes',0)]
+    compared = [d for d in moves if getattr(d,'fast_engine',{}) and (
+                d.metrics.get('nodes',0)>d.fast_engine.get('nodes',0)
+                or (d.metrics.get('search_contract',{}).get('mode')=='depth'
+                    and d.metrics.get('search_contract',{}).get('completed') is True
+                    and d.metrics.get('search_depth',0)>=
+                        d.metrics.get('search_contract',{}).get('requested',float('inf'))))]
+    # A completed fixed-depth analysis need not consume more nodes than its
+    # preceding fixed-node screening. Count actual depth comparisons instead
+    # of silently reporting zero paired positions.
     consecutive = run = 0
     for d in moves:
         # Count consecutive critical opportunities; a noncritical move is not
@@ -966,7 +973,14 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         progress(f'Deep confirmation: {sum(g.deep for g in candidates)} / {len(candidates)}')
         with _game_cache_lock:
             for game in analyzed:
-                if game.fast_metrics:
+                # Never freeze an explicitly non-exact MultiPV/root search
+                # into the 3-hour warm cache: the next scan must be allowed
+                # to re-check uncertain evidence rather than copy a LOW.
+                inconsistent=any(
+                    d.fast_engine.get('search_contract',{}).get('exact') is False
+                    or (game.deep and d.metrics.get('search_contract',{}).get('exact') is False)
+                    for d in game.decisions)
+                if game.fast_metrics and not inconsistent:
                     key=(game.identity,game.color,engine_name,VERSION,config,full_depth_mode,
                  config.fast_nodes,config.fast_multipv,config.deep_nodes,config.deep_multipv,
                  __import__('fairplay_maia').MODEL_SHA256)
@@ -984,8 +998,18 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             'context_history_complete':not archive_partial,
             'optional_context_partial':archive_partial and not primary_archive_partial,
             'context_only':len(context_only),
+            'available_archive_months':collection_coverage.get('available_archive_months'),
+            'visited_archive_months':collection_coverage.get('visited_archive_months'),
+            'unvisited_archive_months':collection_coverage.get('unvisited_archive_months'),
+            'eligible_games_capped':collection_coverage.get('eligible_games_capped'),
+            'requested_context_limit':collection_limit(config),
+            'requested_primary_limit':primary_limit(config),
         }
-        result=score_review(canonical,analyzed,len(history),skipped,partial or archive_partial or deep_incomplete,
+        # Missing *older* optional archives must not veto independent HIGH
+        # evidence in a fully scanned primary sample. Preserve the missing
+        # historical context as a separate, explicit coverage warning.
+        primary_partial=partial or primary_archive_partial or deep_incomplete
+        result=score_review(canonical,analyzed,len(history),skipped,primary_partial,
                             engine_name,profile,time.monotonic()-started,config,
                             coverage_state=coverage_state,context_games=history,
                             gameplay_periods=gameplay_periods)
@@ -1022,8 +1046,10 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             search_profile=engine_profile(scanners) if scanners else {}
         # No account identifiers, FENs, URLs or case labels in run metadata.
         from fairplay_maia import MODEL_SHA256, MODEL_REVISION, MODEL_NAME
+        commit=os.environ.get('GITHUB_SHA','').lower()
+        revision=commit[:12] if len(commit)==40 and all(c in '0123456789abcdef' for c in commit) else None
         result.diagnostics['run_contract']={
-            'version':VERSION,'engine':engine_name,
+            'version':VERSION,'code_revision':revision,'engine':engine_name,
             'fast':{'mode':'nodes','budget':config.fast_nodes,'multipv':config.fast_multipv},
             'deep':{'mode':'depth' if full_depth_mode else 'nodes',
                     'budget':18 if full_depth_mode else config.deep_nodes,'multipv':config.deep_multipv},

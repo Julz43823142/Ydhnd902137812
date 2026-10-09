@@ -193,6 +193,7 @@ class CheckpointStore:
                 return False
             contract = item.get("metrics", {}).get("search_contract", {})
             valid = (contract.get("completed") is True
+                     and contract.get("exact") is not False
                      and contract.get("mode") == ("depth" if phase == "deep" and full_depth else "nodes")
                      and contract.get("requested") == (
                          18 if phase == "deep" and full_depth else
@@ -209,7 +210,9 @@ class CheckpointStore:
         if not self.enabled:
             return False
         contract = decision.metrics.get("search_contract", {})
-        if contract.get("completed") is not True:
+        if contract.get("completed") is not True or contract.get("exact") is False:
+            # An inconsistent search must not be frozen across worker
+            # restarts. A repeat search can settle the bound/score uncertainty.
             return False
         with self.lock:
             job = self.state["jobs"].get(target)

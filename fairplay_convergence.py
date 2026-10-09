@@ -175,8 +175,32 @@ def confirm_convergence(candidate, games, config=CONFIG, *, partial=False, confi
     lower=lower_bound(deep['critical_top1'],deep['critical'],config.rate_lower_bound_z)
     fast_lower=lower_bound(fast['critical_top1'],fast['critical'],config.rate_lower_bound_z)
     critical_contributors=sum(g.metrics.get('critical',0)>0 for g in selected)
-    measured=all(d.metrics.get('nodes',0)>=config.deep_nodes
-                 and d.fast_engine.get('nodes',0)==config.fast_nodes
+    def paired_budget_measured(decision):
+        deep=decision.metrics
+        fast=decision.fast_engine
+        first=fast.get('search_contract') or {}
+        second=deep.get('search_contract') or {}
+        if not first and not second:
+            # Older synthetic fixtures have explicit node counters, but no
+            # search-contract objects. Retain their existing strict budget gate.
+            return (deep.get('nodes',0)>=config.deep_nodes
+                    and fast.get('nodes',0)==config.fast_nodes)
+        if (not first or not second or first.get('completed') is not True
+                or second.get('completed') is not True
+                or first.get('exact') is False or second.get('exact') is False
+                or first.get('mode')!='nodes' or first.get('requested')!=config.fast_nodes
+                or (first.get('engine') and second.get('engine')
+                    and first['engine']!=second['engine'])):
+            return False
+        if second.get('mode')=='depth':
+            # Exact depth 18 is *not* a 320k-node search. It may visit fewer
+            # nodes while fully satisfying the independent depth budget.
+            return (second.get('requested')==18
+                    and deep.get('search_depth',0)>=18)
+        return (second.get('mode')=='nodes'
+                and second.get('requested')==config.deep_nodes
+                and deep.get('nodes',0)>=config.deep_nodes)
+    measured=all(paired_budget_measured(d)
                  for g in selected for d in g.decisions if d.metrics.get('useful'))
     middle=len(candidate['ids'])//2
     deep_halves=[]

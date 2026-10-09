@@ -63,6 +63,30 @@ def percentage(value):
     return number(None if value is None else value*100,'%')
 
 
+def capture_human_examples(result, limit=4):
+    """Keep only bounded public-game pointers when full decision trees expire.
+
+    The service deliberately drops in-memory positions/FENs after posting the
+    report, but the Human Moves button must still work afterwards. Never copy
+    model policy distributions or board positions to Discord history.
+    """
+    from fairplay_maia import policy_evidence
+    informative=[]
+    for game in getattr(result,'games',()):
+        for decision in game.decisions:
+            if not decision.human_policy:continue
+            row=policy_evidence(decision,decision.human_policy)
+            if not row or not row['eligible'] or row['information']<=0:continue
+            informative.append((row['information'],game.ended,decision.ply,game,decision,row))
+    informative.sort(key=lambda item:(-item[0],item[1],item[2]))
+    return [
+        {'class':game.time_class,'move_number':(decision.ply+1)//2,
+         'url':game.url,'move':decision.move,'rank':row['played_move_rank'],
+         'cpl':decision.metrics.get('cpl',0),'deep':bool(game.deep)}
+        for _,_,_,game,decision,row in informative[:max(0,limit)]
+    ]
+
+
 def result_embed(result: ReviewResult):
     icons = {'LOW':'🟢','MODERATE':'🟡','HIGH':'🟠','VERY HIGH':'🔴','INSUFFICIENT DATA':'⚪'}
     colors = {'LOW':0x2E9E65,'MODERATE':0xE9B44C,'HIGH':0xEA8537,'VERY HIGH':0xD94F55,'INSUFFICIENT DATA':0x788491}
@@ -84,12 +108,23 @@ def result_embed(result: ReviewResult):
         sample += f'\nRecent rated primary sample: {coverage["primary_fast_scanned"]}/{coverage["primary_collected"]} · historical discovery probes: {coverage.get("history_probed",0)}'
     sample += f'\nSkipped unrated games while collecting history: {result.skipped.get("unrated",0)} · unknown rated status: {result.skipped.get("rated_status_unknown",0)}'
     if coverage.get('history_probe_complete') is False:sample += '\nExtended-history discovery is incomplete; primary coverage is shown separately.'
+    scope=[]
+    if coverage.get('requested_primary_limit'):
+        scope.append(f"Engine scope: latest up to {coverage['requested_primary_limit']} eligible rated games. "
+                     "An account with thousands of games is NOT exhaustively analyzed.")
+    if coverage.get('available_archive_months') is not None:
+        scope.append(f"Archive months visited: {coverage.get('visited_archive_months',0)}/"
+                     f"{coverage['available_archive_months']}; "
+                     f"older months not visited: {coverage.get('unvisited_archive_months',0)}.")
+    if coverage.get('eligible_games_capped'):
+        scope.append('Context/history was capped by the configured game limit.')
     if result.skipped:sample += f'\nSkipped archive/game entries: {sum(result.skipped.values())}'
     if coverage.get('optional_context_partial'):sample += '\n⚠️ Older context is incomplete; primary engine coverage is complete.'
     elif result.partial:sample += '\n⚠️ Partial scan / limited archive coverage. Missing data is not suspicious.'
     dates=[g.ended for g in (result.timeline or result.games) if g.ended>0]
     if dates:sample += f'\nEngine-covered dates: <t:{min(dates)}:d> → <t:{max(dates)}:d>'
-    embed.add_field(name='Sample',value=sample,inline=False)
+    embed.add_field(name='Sample',value=sample[:1024],inline=False)
+    if scope:embed.add_field(name='Review scope — bounded archive',value='\n'.join(scope)[:1024],inline=False)
     embed.add_field(name='Signals',value='\n'.join(f'**{key}:** {value}' for key,value in result.families.items()),inline=False)
     embed.add_field(name='Review notes',value='\n'.join('• '+value for value in result.reasons)[:1024],inline=False)
     if result.priority=='LOW':
@@ -107,7 +142,10 @@ def result_embed(result: ReviewResult):
             explanation+='See Review Gates for the exact evidence requirements.'
         embed.add_field(name='Why LOW is not a clearance',value=explanation[:1024],inline=False)
     embed.add_field(name='⚠️ Automated screening only',value=DISCLAIMER,inline=False)
-    embed.set_footer(text=f'{result.version} · {result.engine} · heuristic thresholds, not probabilities · details expire after restart')
+    revision=(result.diagnostics.get('run_contract') or {}).get('code_revision')
+    embed.set_footer(text=(f'{result.version} · {result.engine}'
+                           + (f' · code {revision}' if revision else '')
+                           + ' · heuristic thresholds, not probabilities · details expire after restart'))
     return embed
 
 
@@ -146,22 +184,14 @@ def detail_embed(result, mode):
                 + f"Game-capped evidence: {proof.get('effective_positions',0):g} decisions · contributor equivalents: {proof.get('contributor_weight',0):g}\n"
                 + ('Distributed gameplay route established; manual review required.' if comparison.get('passed') else
                    'Not established: '+ '; '.join(comparison.get('blockers',[])[:3])),inline=False)
-            informative=[]
-            from fairplay_maia import policy_evidence
-            for game in result.games:
-                for decision in game.decisions:
-                    if not decision.human_policy:continue
-                    row=policy_evidence(decision,decision.human_policy)
-                    if row and row['eligible'] and row['information']>0:
-                        informative.append((row['information'],game,decision,row))
-            informative.sort(key=lambda item:(-item[0],item[1].ended,item[2].ply))
+            examples=result.diagnostics.get('manual_maia_examples')
+            if examples is None:examples=capture_human_examples(result)
             lines=[]
-            for _,game,decision,row in informative[:4]:
-                lines.append(
-                    f"[{game.time_class.title()} · move {(decision.ply+1)//2}]({game.url}) — "
-                    f"{decision.move} · human-model rank #{row['played_move_rank']} · "
-                    f"Stockfish loss {decision.metrics.get('cpl',0):.0f} cp · "
-                    + ('deep checked' if game.deep else 'fast screen'))
+            for item in examples[:4]:
+                source=f"[{item['class'].title()} · move {item['move_number']}]({item['url']})"
+                lines.append(f"{source} — {item['move']} · human-model rank #{item['rank']} · "
+                             f"Stockfish loss {item['cpl']:.0f} cp · "
+                             + ('deep checked' if item['deep'] else 'fast screen'))
             if lines:
                 embed.add_field(name='Decisions for manual inspection',value='\n'.join(lines)[:1024],inline=False)
             embed.add_field(name='Limits',value=
@@ -724,7 +754,16 @@ class FairPlayService:
                 kwargs={'cancel':job.stop}
                 if self.analyzer is review and self.checkpoints is not None:
                     kwargs['checkpoint']=self.checkpoints
-                return self.analyzer(job.target,progress,**kwargs)
+                result=self.analyzer(job.target,progress,**kwargs)
+                # Policy scoring can inspect thousands of engine-reviewed
+                # positions. Do this in the scan executor, never Discord's
+                # event loop, before sensitive decisions are discarded.
+                try:result.diagnostics['manual_maia_examples']=capture_human_examples(result)
+                except Exception:
+                    # A supplementary public-link excerpt must never prevent
+                    # delivery of a fully completed screening result.
+                    result.diagnostics['manual_maia_examples']=[]
+                return result
             future = loop.run_in_executor(self.executor,run_review)
             while not future.done():
                 if job.stage!='Fetching profile…' and job.stage!=last:
