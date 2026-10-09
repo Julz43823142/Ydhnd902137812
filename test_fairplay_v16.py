@@ -39,8 +39,8 @@ class V16ResidualEvidence(unittest.TestCase):
         self.assertEqual(metrics['precision'],1)
 
     def test_public_priority_vocabulary_unchanged(self):
-        self.assertEqual(CONFIG.primary_engine_games,100)
-        self.assertEqual(CONFIG.history_games,200)
+        self.assertEqual(CONFIG.primary_engine_games,500)
+        self.assertEqual(CONFIG.history_games,500)
 
 
 if __name__=='__main__':unittest.main()
