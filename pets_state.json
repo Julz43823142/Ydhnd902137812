@@ -61,8 +61,8 @@
     "pets": [
       {
         "born_at": 1790888210.1498027,
-        "fed_at": 1791336580.4815054,
-        "feed_day": "2026-10-07",
+        "fed_at": 1791504937.671395,
+        "feed_day": "2026-10-09",
         "happiness": 100,
         "happy_at": 1791172537.7176836,
         "id": "ec762f8f4d884118a7a8429b28da7bd9",
@@ -89,7 +89,7 @@
         "puzzle_day": "2026-10-05",
         "rarity": "common",
         "species": "Cat",
-        "xp": 85
+        "xp": 90
       },
       {
         "activity_xp": 50.0,
