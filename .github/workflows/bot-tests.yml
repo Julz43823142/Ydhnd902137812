@@ -54,7 +54,7 @@ jobs:
         run: python -m pip install -r requirements.txt
       - name: Verify positive and false-positive legacy HIGH selection
         run: |
-          python -m unittest -v test_fairplay_legacy_candidate test_fairplay_end_to_end_audit test_fairplay_stop test_fairplay_evidence_500 test_fairplay_evidence_store
+          python -m unittest -v test_fairplay_legacy_candidate test_fairplay_end_to_end_audit test_fairplay_stop test_fairplay_evidence_500 test_fairplay_evidence_store test_fairplay_multimodel test_fairplay_500_execution
           python -m unittest -v \
             test_fairplay_v6.PersonalCalibration.test_deep_baseline_improvement_erases_fast_anomaly \
             test_fairplay_status.AccountStatusIndependence.test_full_scoring_is_identical_with_hidden_open_or_closed_status \
@@ -132,6 +132,13 @@ jobs:
       - run: python -m pip install -r requirements-fairplay-human.txt
       - run: python scripts/prepare_fairplay_maia.py /tmp/sharkbot-maia/maia3-5m.pt --github-env
       - run: python scripts/smoke_fairplay_maia.py
+      - name: Install supplementary official Maia-3 UCI and integrity-pinned checkpoints
+        run: |
+          python -m pip install git+https://github.com/CSSLab/maia3.git@1e13597c42d4858b7cfd7cfdae01e297263364b2
+          python scripts/prepare_fairplay_maia_23m.py /tmp/sharkbot-maia/maia3-23m.pt --github-env
+          python scripts/prepare_fairplay_maia_79m.py /tmp/sharkbot-maia/maia3-79m.pt --github-env
+      - name: Verify real Maia-3 23M / 79M UCI predictions
+        run: python scripts/smoke_maia3_23m.py
       - uses: actions/cache@v4
         with:
           path: /tmp/stockfish19-official-pgo/Stockfish/src/stockfish
