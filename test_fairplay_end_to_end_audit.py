@@ -201,23 +201,13 @@ class CoverageAndReview(unittest.TestCase):
         self.assertEqual(coverage["requested_primary_limit"],100)
         self.assertEqual(len(rows),2)
 
-    def test_insufficient_account_sample_cannot_get_broad_maia_high(self):
-        games=[SimpleNamespace(identity=str(i),deep=True) for i in range(6)]
-        candidate={"ids":[g.identity for g in games],"class":"blitz",
-                   "summary":{"signed_excess":.6},"blockers":[]}
-        combined={"contributors":6,"contributor_weight":6,"effective_positions":24,
-                  "information":.6,"signed_excess":.5,"stable":24,"positions":24}
-        result=SimpleNamespace(games=games,totals={"decisions":120},priority="LOW",
-            confidence="MEDIUM",partial=False,coverage={"primary_engine_complete":True},
-            diagnostics={},families={},deep_confirmed=False,reasons=[])
-        with patch.object(policy,"periods",return_value=[candidate]), \
-             patch.object(policy,"game_summary",return_value={}), \
-             patch.object(policy,"combine",return_value=combined), \
-             patch("fairplay_evidence_audit.audit_maia_funnel",return_value={}):
-            policy.integrate(result,games)
-        self.assertEqual(result.priority,"LOW")
-        self.assertIn("minimum broad evidence sample",
-                      result.diagnostics["learned_gameplay"]["blockers"])
+    def test_six_game_learned_reference_route_remains_available(self):
+        # The learned-policy family has independent six-game/deep/opportunity
+        # gates. Broad heuristic sample rules must not silently veto it.
+        from test_fairplay_policy import sample, result
+        reviewed=policy.integrate(result(),[sample(i) for i in range(6)])
+        self.assertEqual(reviewed.priority,"HIGH")
+        self.assertTrue(reviewed.diagnostics["learned_gameplay"]["passed"])
 
     def test_report_shows_bounded_scope_and_running_revision(self):
         result=report([game(i) for i in range(14)])
