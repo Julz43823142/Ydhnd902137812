@@ -22,7 +22,9 @@ class FiveHundredDeepTests(unittest.TestCase):
         class FakeScanner:
             name = "Stockfish 19 synthetic"
             def __init__(self, *args):
-                pass
+                # Production EngineScanner wraps a UCI engine with a timeout.
+                # This fake must expose the same contract for full-depth mode.
+                self.engine = type("FakeEngine", (), {"timeout": 30.0})()
             def analyse(self, item, budget):
                 depth = getattr(budget, "depth", None)
                 calls.append((item.identity, depth or "fast"))
