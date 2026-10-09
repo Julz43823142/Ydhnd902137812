@@ -59,7 +59,7 @@ class LiveTiming:
     def observe(self,stage,now=None):
         import time
         now=time.monotonic() if now is None else now
-        match=re.search(r'(\\d+)\\s*/\\s*(\\d+)',stage)
+        match=re.search(r'(\d+)\s*/\s*(\d+)',stage)
         phase=('deep' if stage.startswith(('Deep confirmation:', 'Depth-18 rapid/blitz'))
                else 'fast' if stage.startswith('Fast engine scan:') else None)
         if phase and match:
