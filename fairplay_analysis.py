@@ -973,7 +973,14 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         progress(f'Deep confirmation: {sum(g.deep for g in candidates)} / {len(candidates)}')
         with _game_cache_lock:
             for game in analyzed:
-                if game.fast_metrics:
+                # Never freeze an explicitly non-exact MultiPV/root search
+                # into the 3-hour warm cache: the next scan must be allowed
+                # to re-check uncertain evidence rather than copy a LOW.
+                inconsistent=any(
+                    d.fast_engine.get('search_contract',{}).get('exact') is False
+                    or (game.deep and d.metrics.get('search_contract',{}).get('exact') is False)
+                    for d in game.decisions)
+                if game.fast_metrics and not inconsistent:
                     key=(game.identity,game.color,engine_name,VERSION,config,full_depth_mode,
                  config.fast_nodes,config.fast_multipv,config.deep_nodes,config.deep_multipv,
                  __import__('fairplay_maia').MODEL_SHA256)
