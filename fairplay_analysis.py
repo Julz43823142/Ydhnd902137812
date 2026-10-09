@@ -839,7 +839,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 shared_profile_before=engine_profile(shared_pool.scanners)
                 pool_restarts_before=getattr(shared_pool,'restarts',0)
                 position_cache_before=(shared_pool.position_cache.snapshot()
-                                       if hasattr(shared_pool,'position_cache') else position_cache_before)
+                                       if getattr(shared_pool,'position_cache',None) is not None else position_cache_before)
             else:
                 requested_workers=(1 if engine_factory is not None and engine_workers is None
                                    else automatic_engine_workers() if engine_workers is None
@@ -1234,7 +1234,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                                          if use_shared and shared_pool is not None else None),
             'exact_position_cache':({key:value-position_cache_before.get(key,0)
                 for key,value in shared_pool.position_cache.snapshot().items() if key!='entries'}
-                if use_shared and shared_pool is not None and hasattr(shared_pool,'position_cache') else None),
+                if use_shared and shared_pool is not None and getattr(shared_pool,'position_cache',None) is not None else None),
             'full_depth18_mode':full_depth_mode,
             'full_depth18_games_completed':sum(g.deep for g in analyzed if g.time_class!='bullet') if full_depth_mode else None,
             'bullet_depth12_games_completed':sum(g.deep for g in analyzed if g.time_class=='bullet') if full_depth_mode else None,
