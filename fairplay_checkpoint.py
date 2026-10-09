@@ -210,7 +210,9 @@ class CheckpointStore:
         if not self.enabled:
             return False
         contract = decision.metrics.get("search_contract", {})
-        if contract.get("completed") is not True:
+        if contract.get("completed") is not True or contract.get("exact") is False:
+            # An inconsistent search must not be frozen across worker
+            # restarts. A repeat search can settle the bound/score uncertainty.
             return False
         with self.lock:
             job = self.state["jobs"].get(target)
