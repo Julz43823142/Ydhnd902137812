@@ -326,7 +326,7 @@ class Progress(unittest.IsolatedAsyncioTestCase):
         card=ui.progress_embed(TARGET,'Deep confirmation: 1 / 10',81)
         self.assertIn('81%',card.description)
         self.assertNotIn('1 / 10',card.description)
-        self.assertIn('not a time estimate',card.footer.text)
+        self.assertIn('not percent of elapsed time',card.footer.text)
 
 
 if __name__=='__main__':

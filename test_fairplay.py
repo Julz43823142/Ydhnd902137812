@@ -475,6 +475,9 @@ class Pipeline(unittest.TestCase):
             analysis._game_cache.clear()
             engines=[SlowEngine() for _ in range(size)]
             pool=analysis.SharedEnginePool(size=size,factory=Mock(side_effect=engines))
+            # Isolate scheduler scalability from the independent position-cache
+            # speedup; reused opening positions otherwise dominate this fixture.
+            pool.position_cache=None
             try:
                 started=time.monotonic()
                 analysis.review(TARGET,lambda _:None,api_factory=lambda _:self.fake_api(16),engine_pool=pool)
@@ -535,7 +538,7 @@ class Pipeline(unittest.TestCase):
 
     def test_engine_crash_stops_safely_and_closes_everything(self):
         engine = FakeEngine();engine.analyse = Mock(side_effect=chess.engine.EngineTerminatedError())
-        with self.assertRaisesRegex(data.ReviewError,'stopped responding'):
+        with self.assertRaisesRegex(data.ReviewError,'Stockfish failed despite worker recovery'):
             analysis.review(TARGET,lambda _:None,api_factory=lambda _:self.fake_api(),engine_factory=lambda:engine)
         self.api.close.assert_called_once();engine.quit.assert_called_once()
 

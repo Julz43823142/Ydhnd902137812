@@ -17,6 +17,7 @@ import shutil
 import subprocess
 import tempfile
 from urllib.request import urlopen
+from urllib.error import HTTPError
 
 RELEASE = "v0.32.1"
 SOURCE_SHA = "fd71a2d921b689c5f479d3227c3806c8e272d9c5"
@@ -25,6 +26,14 @@ SOURCE_URL = "https://github.com/LeelaChessZero/lc0.git"
 NETWORK_URL = ("https://storage.lczero.org/files/networks-contrib/"
                "t1-256x10-distilled-swa-2432500.pb.gz")
 MAX_NET_BYTES = 64 * 1024 * 1024
+# Independent published LFS and Xet metadata confirm the same 37,118,673-byte
+# T1 small network digest. Keep the content hash pinned even on mirror fallback.
+NETWORK_SHA256 = "bc27a6cae8ad36f2b9a80a6ad9dabb0d6fda25b1e7f481a79bc359e14f563406"
+NETWORK_FALLBACK_URL = (
+    "https://huggingface.co/notune/lc0-nets-backup/resolve/"
+    "d1bdbb25f690d7d7bfbe78da49ed35d7e677a091/"
+    "t1-256x10-distilled-swa-2432500.pb.gz")
+
 
 
 def _sha256(path):
@@ -43,6 +52,9 @@ def download_network(destination, *, expected_sha256="", opener=None):
     if expected and (len(expected) != 64 or
                      any(c not in "0123456789abcdef" for c in expected)):
         raise ValueError("expected network SHA-256 must be 64 hex characters")
+    if not expected:
+        expected = NETWORK_SHA256  # Never trust a mirror without the known digest
+
     if destination.is_file() and destination.stat().st_size <= MAX_NET_BYTES:
         actual = _sha256(destination)
         if not expected or actual == expected:
@@ -50,9 +62,19 @@ def download_network(destination, *, expected_sha256="", opener=None):
     destination.parent.mkdir(parents=True, exist_ok=True)
     stage = destination.with_name(destination.name + ".part")
     try:
-        with opener(NETWORK_URL, timeout=60) as response, open(stage, "wb") as output:
+        try:
+            response = opener(NETWORK_URL, timeout=60)
             if response.geturl() != NETWORK_URL:
-                raise RuntimeError("Lc0 network download redirected from official URL")
+                response.close()
+                raise RuntimeError("Lc0 official network download redirected")
+        except HTTPError as error:
+            if error.code not in (403,404):
+                raise
+            # Official storage can reject GitHub-hosted runner IPs. Download
+            # the byte-identical, content-addressed backup instead. Mirrors
+            # are never trusted without the SHA-256 verification below.
+            response = opener(NETWORK_FALLBACK_URL, timeout=60)
+        with response, open(stage, "wb") as output:
             size = 0
             for block in iter(lambda: response.read(1024 * 1024), b""):
                 size += len(block)

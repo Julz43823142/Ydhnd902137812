@@ -1,13 +1,14 @@
 """Tests for pinned Leela source, bounded network delivery, and provenance."""
 import hashlib
 import io
+from urllib.error import HTTPError
 from pathlib import Path
 import tempfile
 import unittest
 from unittest.mock import patch
 
 from scripts.prepare_fairplay_lc0 import (
-    NETWORK_URL, SOURCE_SHA, MAX_NET_BYTES, download_network, prepare)
+    NETWORK_URL, NETWORK_FALLBACK_URL, NETWORK_SHA256, SOURCE_SHA, MAX_NET_BYTES, download_network, prepare)
 
 
 class Response(io.BytesIO):
@@ -18,6 +19,24 @@ class Response(io.BytesIO):
 class LeelaProvisioningTests(unittest.TestCase):
     def test_pinned_upstream_sha_is_full_length(self):
         self.assertEqual(len(SOURCE_SHA), 40)
+
+    def test_official_403_uses_pinned_mirror_but_rejects_wrong_bytes(self):
+        with tempfile.TemporaryDirectory() as temp:
+            output=Path(temp)/"net.pb.gz"
+            calls=[]
+            def fetch(url,timeout):
+                calls.append(url)
+                if url==NETWORK_URL:
+                    raise HTTPError(url,403,"Forbidden",{},None)
+                return Response(b"not-the-authentic-network"*80)
+            with self.assertRaisesRegex(RuntimeError,"SHA-256 mismatch"):
+                download_network(output,opener=fetch)
+            self.assertEqual(calls,[NETWORK_URL,NETWORK_FALLBACK_URL])
+            self.assertFalse(output.exists())
+
+    def test_pinned_network_digest_is_known(self):
+        self.assertEqual(NETWORK_SHA256,
+            "bc27a6cae8ad36f2b9a80a6ad9dabb0d6fda25b1e7f481a79bc359e14f563406")
 
     def test_official_download_is_bounded_and_checks_checksum(self):
         payload = b"neural-net-synthetic-fixture" * 80

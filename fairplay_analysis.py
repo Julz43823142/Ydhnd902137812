@@ -11,7 +11,7 @@ import statistics as stats
 import time
 import threading
 from collections import OrderedDict
-from concurrent.futures import ThreadPoolExecutor, as_completed, CancelledError
+from concurrent.futures import ThreadPoolExecutor, as_completed, CancelledError, wait, FIRST_COMPLETED
 from dataclasses import dataclass, field
 from typing import Callable
 
@@ -350,6 +350,7 @@ class EngineScanner:
     """One independent fixed-node Stockfish process per pool worker."""
     def __init__(self, deadline, config=CONFIG, factory=None):
         self.deadline, self.config = deadline, config
+        self.last_search = {}  # diagnostic category/budget only; never FEN/user
         self.profile = {'multipv_seconds':0.0, 'root_seconds':0.0, 'multipv_searches':0, 'root_searches':0,
                         'fast_multipv_seconds':0.0, 'fast_root_seconds':0.0, 'deep_multipv_seconds':0.0, 'deep_root_seconds':0.0}
         self.engine = (factory or (lambda:chess_play._create_stockfish_engine(allow_install=False,engine_class=(__import__('fairplay_engine').CompactNodeEngine if os.name=='posix' else BoundedNodeEngine))))()
@@ -395,6 +396,9 @@ class EngineScanner:
         limit=nodes if depth_search else chess.engine.Limit(nodes=nodes)
         # The worker owns this engine exclusively for both candidate and root searches.
         self.engine.timeout=scan_engine_timeout(limit,self.config)
+        self.last_search={'phase':'deep-candidates' if depth_search or nodes==self.config.deep_nodes else 'fast-candidates',
+                          'budget':nodes.depth if depth_search else nodes,
+                          'multipv':multipv,'started':time.monotonic()}
         search_started=time.monotonic()
         lines = self.engine.analyse(board,limit,multipv=multipv)
         spent=time.monotonic()-search_started
@@ -411,6 +415,9 @@ class EngineScanner:
             if 'Clear Hash' in self.engine.options:self.engine.configure({'Clear Hash':None})
             # Restrict the root to the actual move: same POV/budget, avoiding
             # after-move horizon differences being mistaken for CPL.
+            self.last_search={'phase':'deep-played-root' if depth_search or nodes==self.config.deep_nodes else 'fast-played-root',
+                              'budget':nodes.depth if depth_search else nodes,
+                              'multipv':1,'started':time.monotonic()}
             search_started=time.monotonic()
             actual = self.engine.analyse(board,limit,root_moves=[move])
             if depth_search and int(actual.get('depth',0) or 0)<nodes.depth:
@@ -450,6 +457,54 @@ _game_cache_lock = threading.RLock()
 _GAME_CACHE_TTL = 3 * 3600
 _GAME_CACHE_MAX = 320
 _ENGINE_POOL_MAX = 16
+_POSITION_CACHE_MAX = 2048
+
+
+class ExactPositionCache:
+    """Bounded volatile cache of completed, exact position evidence only."""
+    def __init__(self, capacity=_POSITION_CACHE_MAX):
+        self.capacity=max(1,capacity)
+        self.entries=OrderedDict()
+        self.lock=threading.RLock()
+        self.hits=0
+        self.misses=0
+
+    def get(self,key):
+        with self.lock:
+            if key not in self.entries:
+                self.misses+=1
+                return None
+            self.entries.move_to_end(key)
+            self.hits+=1
+            return deepcopy(self.entries[key])
+
+    def put(self,key,metrics):
+        contract=metrics.get('search_contract',{}) if metrics else {}
+        if (not metrics or metrics.get('search_inconsistent')
+                or contract.get('completed') is not True
+                or contract.get('exact') is not True):
+            return
+        with self.lock:
+            self.entries[key]=deepcopy(metrics)
+            self.entries.move_to_end(key)
+            while len(self.entries)>self.capacity:self.entries.popitem(last=False)
+
+    def snapshot(self):
+        with self.lock:return {'hits':self.hits,'misses':self.misses,'entries':len(self.entries)}
+
+
+def position_cache_key(game,decision,nodes,config=CONFIG):
+    """All engine search and position-context inputs affecting decision metrics."""
+    depth=nodes.depth if isinstance(nodes,chess.engine.Limit) else None
+    budget=(('depth',depth) if depth is not None else
+            ('nodes',nodes.nodes if isinstance(nodes,chess.engine.Limit) else nodes))
+    multipv=(config.deep_multipv if depth is not None or budget[1]==config.deep_nodes
+             else config.fast_multipv)
+    return (decision.fen,decision.move,game.color,budget,multipv,
+            decision.phase,decision.legal,decision.useful,decision.forced,
+            decision.trivial_kind,decision.capture,decision.gives_check,decision.check,
+            decision.metrics.get('useful',True),decision.metrics.get('before_cp'))
+
 
 
 def available_engine_cpus():
@@ -534,6 +589,7 @@ class SharedEnginePool:
         self.closed=False
         self.failed=threading.Event()
         self.restarts=0  # aggregate engine health, not user data
+        self.position_cache=ExactPositionCache()
         try:
             for _ in range(self.size):
                 scanner=EngineScanner(None,config,factory)
@@ -584,9 +640,22 @@ class SharedEnginePool:
                 reason=('timeout' if isinstance(error,TimeoutError) else
                         'terminated' if isinstance(error,chess.engine.EngineTerminatedError)
                         else 'uci-error')
+                # Only bounded execution metadata, never user/account/FEN, is
+                # allowed into production logs. This identifies which phase
+                # really causes the repeated 55-minute failures.
+                search=getattr(scanner,'last_search',{})
+                if not isinstance(search,dict):search={}
+                phase=search.get('phase','unknown')
+                budget=search.get('budget','unknown')
+                multipv=search.get('multipv','unknown')
+                started=search.get('started')
+                seconds=(round(max(0,time.monotonic()-started),1)
+                         if isinstance(started,(int,float)) else 'unknown')
                 print(f'Fair Play engine worker {reason}; '
                       f'{"restarted" if recovered else "restart-failed"} '
-                      f'(attempt {attempt+1}/2)',flush=True)
+                      f'(attempt {attempt+1}/2; phase={phase}; '
+                      f'budget={budget}; multipv={multipv}; seconds={seconds})',
+                      flush=True)
                 if not recovered or attempt==1:raise
             finally:
                 scanner.deadline=None
@@ -597,11 +666,19 @@ class SharedEnginePool:
         return game
 
     def run_decision(self,game,decision,nodes,deadline):
-        # A deep game no longer monopolizes one Stockfish process. Each
-        # independent position is scheduled onto the next free single-threaded
-        # engine, keeping all CPU cores busy without changing search budgets.
-        return self._run_with_scanner(
+        # Reuse only exact same FEN, move, side, budget, MultiPV, context.
+        check_deadline(deadline)
+        cache=getattr(self,'position_cache',None)
+        key=position_cache_key(game,decision,nodes,self.config) if cache is not None else None
+        cached=cache.get(key) if cache is not None else None
+        if cached is not None:
+            decision.metrics=cached
+            if nodes==self.config.fast_nodes:decision.fast_engine=deepcopy(cached)
+            return True
+        result=self._run_with_scanner(
             deadline,lambda scanner:scanner.analyse_decision(game,decision,nodes))
+        if result and cache is not None:cache.put(key,decision.metrics)
+        return result
 
     def close(self):
         if self.closed:return
@@ -651,37 +728,49 @@ def run_position_batch(executor, pool, work, nodes, deadline, progress, stage,
             done_by_game[key]=done_by_game.get(key,0)+1
         else:
             pending.append((game,decision))
-    futures={executor.submit(pool.run_decision,game,decision,
-                             budget_for_game(game) if budget_for_game else nodes,deadline):(game,decision)
-             for game,decision in pending}
+    # Schedule only a bounded multiple of active workers. In particular, a
+    # 500-game scan must not create thousands of queued futures up front.
+    max_workers=max(1,int(getattr(executor,'_max_workers',getattr(pool,'size',1))))
+    capacity=min(64,max_workers*3)
+    pending_iter=iter(pending)
+    futures={}
     interrupted=False
+    def submit_available():
+        while len(futures)<capacity:
+            try:game,decision=next(pending_iter)
+            except StopIteration:break
+            budget=budget_for_game(game) if budget_for_game else nodes
+            futures[executor.submit(pool.run_decision,game,decision,budget,deadline)]=(game,decision)
+    submit_available()
     # Avoid encrypting and rewriting the entire growing checkpoint per position.
     # Bound the undurable tail and flush completed work even when interrupted.
     buffered=0;last_flush=time.monotonic()
     total=len(work);done=sum(done_by_game.values());tick=max(1,total//100)
     if total:progress(f'{stage}: {done} / {total} positions')
     try:
-        for future in as_completed(futures):
-            try:future.result()
-            except (DeadlineReached,CancelledError):
-                if not interrupted:
+        while futures:
+            completed,_=wait(tuple(futures),return_when=FIRST_COMPLETED)
+            for future in completed:
+                game,decision=futures.pop(future)
+                try:future.result()
+                except (DeadlineReached,CancelledError):
                     interrupted=True
-                    # Cancel the batch once, not again for every cancelled
-                    # position (quadratic work for a large timed-out scan).
-                    for pending in futures:pending.cancel()
+                else:
+                    key=id(game)
+                    done_by_game[key]=done_by_game.get(key,0)+1
+                    if checkpoint is not None:
+                        checkpoint.record(target,game,decision,phase,persist=False)
+                        buffered+=1
+                        if buffered>=64 or time.monotonic()-last_flush>=15:
+                            checkpoint.flush(force=False)
+                            buffered=0;last_flush=time.monotonic()
+                done+=1
+                if done%tick==0 or done==total:
+                    progress(f'{stage}: {done} / {total} positions')
+            if interrupted:
+                for running in futures:running.cancel()
             else:
-                game,decision=futures[future]
-                key=id(game)
-                done_by_game[key]=done_by_game.get(key,0)+1
-                if checkpoint is not None:
-                    checkpoint.record(target,game,decision,phase,persist=False)
-                    buffered+=1
-                    if buffered>=64 or time.monotonic()-last_flush>=15:
-                        checkpoint.flush(force=False)
-                        buffered=0;last_flush=time.monotonic()
-            done+=1
-            if done%tick==0 or done==total:
-                progress(f'{stage}: {done} / {total} positions')
+                submit_available()
     except BaseException:
         for pending in futures:pending.cancel()
         # Match the existing shutdown guarantee: no background mutation after
@@ -725,6 +814,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
     scanner = None
     shared_profile_before = {}
     pool_restarts_before = 0
+    position_cache_before={'hits':0,'misses':0}
     fast_position_tasks = 0
     deep_position_tasks = 0
     try:
@@ -748,6 +838,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 engine_name=shared_pool.name
                 shared_profile_before=engine_profile(shared_pool.scanners)
                 pool_restarts_before=getattr(shared_pool,'restarts',0)
+                position_cache_before=(shared_pool.position_cache.snapshot()
+                                       if getattr(shared_pool,'position_cache',None) is not None else position_cache_before)
             else:
                 requested_workers=(1 if engine_factory is not None and engine_workers is None
                                    else automatic_engine_workers() if engine_workers is None
@@ -1140,6 +1232,9 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             'engine_workers':requested_workers,'shared_engine_pool':bool(use_shared),
             'stockfish_worker_restarts':(getattr(shared_pool,'restarts',0)-pool_restarts_before
                                          if use_shared and shared_pool is not None else None),
+            'exact_position_cache':({key:value-position_cache_before.get(key,0)
+                for key,value in shared_pool.position_cache.snapshot().items() if key!='entries'}
+                if use_shared and shared_pool is not None and getattr(shared_pool,'position_cache',None) is not None else None),
             'full_depth18_mode':full_depth_mode,
             'full_depth18_games_completed':sum(g.deep for g in analyzed if g.time_class!='bullet') if full_depth_mode else None,
             'bullet_depth12_games_completed':sum(g.deep for g in analyzed if g.time_class=='bullet') if full_depth_mode else None,

@@ -296,7 +296,7 @@ class CheckpointStore:
                 return None
             return copy.deepcopy(result)
 
-    def record_counterfactual(self, target, game, decision, phase, result):
+    def record_counterfactual(self, target, game, decision, phase, result, *, persist=True):
         if not self.enabled or not result.get("search_contract", {}).get("completed"):
             return False
         with self.lock:
@@ -306,7 +306,7 @@ class CheckpointStore:
             job["positions"][self._key(game, decision, phase)] = {
                 "search": copy.deepcopy(result)}
             job["updated"] = time.time()
-            return self._write()
+            return self._write() if persist else True
 
     def flush(self, *, force=True):
         with self.lock:
