@@ -385,9 +385,9 @@
         ],
         "puzzle": {
           "day": "2026-10-09",
-          "fen": "8/p7/1p1r4/1k6/3p4/2Q3P1/P6P/3R3K b - - 0 44",
+          "fen": "8/p7/1p1R4/1k6/8/2p3P1/P6P/7K b - - 0 45",
           "id": "KrfoG",
-          "index": 0,
+          "index": 2,
           "moves": [
             "d4c3",
             "d1d6",
