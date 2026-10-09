@@ -101,6 +101,17 @@ def model_config(name, env):
         base = local_base_url(env.get("FAIRPLAY_CHESSMIMIC_URL"))
         return ({"kind": "chessmimic", "url": base}, None) if base else (
             None, "no safe local ChessMimic endpoint")
+    if name == "allie_2" and env.get("FAIRPLAY_ALLIE_2_MODEL_DIR"):
+        # Official Allie 2.0 Python API runs on CPU, with local ~11GB weights.
+        # No implicit Hugging Face downloads inside a live Fair Play review.
+        folder = Path(env["FAIRPLAY_ALLIE_2_MODEL_DIR"])
+        if not folder.is_dir() or not all(
+            (folder / file).is_file() for file in ("config.json", "model.safetensors")
+        ):
+            return None, "local Allie 2.0 config and weights not installed"
+        if importlib.util.find_spec("allie") is None:
+            return None, "official Allie 2.0 Python package not installed"
+        return {"kind": "allie_local", "directory": str(folder)}, None
     if name in BRIDGE_NAMES:
         base = local_base_url(env.get(BRIDGE_ENV[name]))
         return ({"kind": "bridge", "url": base}, None) if base else (
@@ -156,6 +167,27 @@ class _RejectRedirects(HTTPRedirectHandler):
 _LOCAL_OPENER = build_opener(ProxyHandler({}), _RejectRedirects())
 
 
+def _allie_clocks(game, decision):
+    """Clock values after each historical mover's move, never fabricated.
+
+    Chess.com PGN parsing retains the investigated player's clocks and the
+    opponent's last clock at each decision. Model input is the full prefix
+    before the current decision, including only the actually observed values.
+    """
+    length = max(0, decision.ply - 1)
+    clocks = [None] * length
+    for item in game.decisions:
+        own = getattr(item, "clock_after", None)
+        other = getattr(item, "opponent_clock_before", None)
+        if (1 <= item.ply <= length and isinstance(own, (int, float))
+                and math.isfinite(own) and own >= 0):
+            clocks[item.ply - 1] = float(own)
+        if (1 <= item.ply - 1 <= length and isinstance(other, (int, float))
+                and math.isfinite(other) and other >= 0):
+            clocks[item.ply - 2] = float(other)
+    return clocks
+
+
 def _post_local(url, payload, timeout=8):
     raw = json.dumps(payload, separators=(",", ":"), allow_nan=False).encode()
     if len(raw) > 32768:
@@ -199,7 +231,7 @@ def _valid_move(board, raw):
 
 
 def run_external_models(result, *, env=None, engine_factory=None, http_post=None,
-                        http_get=None, monotonic=None):
+                        http_get=None, monotonic=None, allie_factory=None):
     """Run configured providers against fixed, checked positions; no scoring.
 
     Reads environment only when invoked (in the Fair Play executor thread).
@@ -244,6 +276,7 @@ def run_external_models(result, *, env=None, engine_factory=None, http_post=None
             continue
         observations = []
         engine = None
+        human_model = None
         status = "evaluated"
         try:
             if config["kind"] == "uci":
@@ -257,6 +290,13 @@ def run_external_models(result, *, env=None, engine_factory=None, http_post=None
                     if "WeightsFile" not in engine.options:
                         raise RuntimeError("Lc0 does not expose WeightsFile")
                     engine.configure({"WeightsFile": config["weights"]})
+            elif config["kind"] == "allie_local":
+                if allie_factory is not None:
+                    human_model = allie_factory(config["directory"])
+                else:
+                    from allie.lichess.api import Allie
+                    human_model = Allie.from_pretrained(
+                        config["directory"], device="cpu")
             elif config["kind"] == "chessmimic":
                 info = http_get(config["url"] + "/models")
                 if not isinstance(info, dict) or (info.get("move_models") or {}).get("count", 0) < 1:
@@ -271,6 +311,7 @@ def run_external_models(result, *, env=None, engine_factory=None, http_post=None
                     continue
                 prediction = None
                 reported_time = None
+                played_probability = None
                 if config["kind"] == "uci":
                     if name.startswith("maia3"):
                         elo = max(0, min(5000, int(game.rating if game.rating is not None else 1500)))
@@ -283,6 +324,34 @@ def run_external_models(result, *, env=None, engine_factory=None, http_post=None
                         info = info[0] if info else {}
                     pv = info.get("pv", ()) if isinstance(info, dict) else ()
                     prediction = _valid_move(board, pv[0].uci()) if pv else None
+                elif config["kind"] == "allie_local":
+                    # Official API: Allie.analyze(moves, white_elo, black_elo,
+                    # time_control, clocks) -> {moves:{uci:prob},think_time:...}.
+                    # A fully verified prefix prevents incorrect board inputs.
+                    _san_history(game, decision)
+                    own = int(game.rating if game.rating is not None else 1500)
+                    other = int(game.opponent_rating if game.opponent_rating is not None else 1500)
+                    policy = human_model.analyze(
+                        game.moves[:decision.ply - 1],
+                        white_elo=own if game.color else other,
+                        black_elo=other if game.color else own,
+                        time_control=game.time_control,
+                        clocks=_allie_clocks(game, decision))
+                    probabilities = policy.get("moves") if isinstance(policy, dict) else None
+                    if not isinstance(probabilities, dict):
+                        raise ValueError("Allie 2.0 did not return a move policy")
+                    valid = {}
+                    for raw, probability in probabilities.items():
+                        move = _valid_move(board, raw)
+                        if (move is not None and isinstance(probability, (float, int))
+                                and not isinstance(probability, bool)
+                                and math.isfinite(probability) and 0 <= probability <= 1):
+                            valid[move] = float(probability)
+                    if not valid:
+                        raise ValueError("Allie 2.0 returned no legal probabilities")
+                    prediction = max(valid, key=valid.get)
+                    played_probability = valid.get(played)
+                    reported_time = policy.get("think_time")
                 else:
                     # ChessMimic conditions move/time prediction on BOTH clocks.
                     # Never fabricate the opponent clock from the player's
@@ -328,6 +397,11 @@ def run_external_models(result, *, env=None, engine_factory=None, http_post=None
                 row = {"game_index": index, "ply": decision.ply,
                        "played": played, "predicted": prediction,
                        "top1_agreement": prediction == played}
+                if played_probability is not None:
+                    row["played_move_probability"] = round(played_probability, 7)
+                if config["kind"] == "allie_local":
+                    row["clock_observations"] = sum(
+                        clock is not None for clock in _allie_clocks(game, decision))
                 if config["kind"] in ("chessmimic", "bridge"):
                     row["own_clock_observed"] = bool(valid_own)
                     row["opponent_clock_observed"] = bool(valid_opponent)
