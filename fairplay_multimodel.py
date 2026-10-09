@@ -94,7 +94,8 @@ def model_config(name, env):
             return None, "Lc0 executable not installed"
         if not weights or not Path(weights).is_file():
             return None, "Lc0 neural weights not installed"
-        return {"kind": "uci", "command": [binary], "weights": weights}, None
+        return {"kind": "uci", "command": [binary], "weights": weights,
+                "weights_sha256": env.get("FAIRPLAY_LC0_WEIGHTS_SHA256", "")}, None
     if name == "chessmimic":
         if env.get("FAIRPLAY_CHESSMIMIC_ACCEPT_LICENSE") != "1":
             return None, "non-commercial model license not acknowledged"
@@ -293,6 +294,9 @@ def run_external_models(result, *, env=None, engine_factory=None, http_post=None
                     if hasattr(engine, "timeout"):
                         engine.timeout = 90
                 elif name == "lc0":
+                    identity = str(getattr(engine, "id", {}).get("name", "")).lower()
+                    if identity and "lc0" not in identity and "leela" not in identity:
+                        raise RuntimeError("configured engine is not Lc0")
                     if "WeightsFile" not in engine.options:
                         raise RuntimeError("Lc0 does not expose WeightsFile")
                     engine.configure({"WeightsFile": config["weights"]})
@@ -442,6 +446,8 @@ def run_external_models(result, *, env=None, engine_factory=None, http_post=None
             "backend": config["kind"],
             "requested_positions": len(picks),
         }
+        if name == "lc0" and config.get("weights_sha256"):
+            audit["statuses"][name]["weights_sha256"] = config["weights_sha256"]
         if status == "failed":
             audit["statuses"][name]["error_type"] = failure_type
         if observations:

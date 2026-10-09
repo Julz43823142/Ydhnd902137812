@@ -71,3 +71,52 @@ No automatic bans, no user punishments, no external data treated as independent 
 - [ChessFraud research repository](https://github.com/artem-lepin-ml/chess-fraud)
 - [Kaladin](https://github.com/lichess-org/kaladin) and [Irwin](https://github.com/clarkerubber/irwin)
 - [Official Lichess game database](https://database.lichess.org/)
+
+## Draft #83: optional real-model provisioning and acceptance (NOT MERGED)
+
+Draft #83 contains **source-pinned Lc0 0.32.1 CPU build and a small official
+network** from the published Lc0 best-net index. The builder checks the full
+pinned upstream commit `fd71a2d921b689c5f479d3227c3806c8e272d9c5`
+before executing the build, bounds the network download to 64 MiB, rejects
+off-domain redirect targets, records the network SHA-256, and will enforce an
+operator-provided digest via `FAIRPLAY_LC0_NETWORK_SHA256`. **Without this
+expected hash, the model is downloaded from a fixed official HTTPS URL but
+is not pre-pinned; do not claim reproducible weights.**
+
+There is now a real (not synthetic) Lc0 test in PR CI. The ordinary hosted bot
+worker attempts Leela setup with `continue-on-error`, emits the necessary
+`FAIRPLAY_LC0_BIN`/`FAIRPLAY_LC0_WEIGHTS` environment entries only after a
+real UCI inference smoke, and records unavailable/error otherwise. This adds
+startup time and CPU load. Production suitability still needs monitoring.
+
+Use **only a separately provisioned, adequately resourced worker** for Allie
+2.0's ~11 GB weights and ChessMimic's multi-GB noncommercial artifacts.
+`python scripts/smoke_fairplay_external_models.py --require allie_2,chessmimic`
+performs a real legal-move inference with each explicitly configured provider
+on a synthetic board; it returns failure unless *both* actually respond. The
+test is never a cheat accusation or accuracy benchmark. The existing adapter
+is local-only and will not send real Chess.com FENs to arbitrary internet APIs.
+
+Operator checklist for off-hosted inference workers:
+
+1. Install the official Allie package/weights into the same host as the bot,
+   set `FAIRPLAY_ALLIE_2_MODEL_DIR`, and run the real synthetic smoke.
+2. For ChessMimic, check PolyForm Noncommercial eligibility with legal/operator,
+   install upstream Python 3.12 backend and real Git LFS artifacts on that host,
+   start its backend bound to loopback, set `FAIRPLAY_CHESSMIMIC_ACCEPT_LICENSE=1`
+   plus `FAIRPLAY_CHESSMIMIC_URL`, and run the synthetic smoke.
+3. Older Allie and Allie v2 can only run when their actual upstream weights
+   and a truthful local `/predict` implementation are installed. Merely
+   implementing `/predict` is not proof that upstream model inference works.
+4. Maia4All lacks confirmed public pretrained per-user checkpoints; Kaladin
+   and Irwin need Lichess-internal signals. Those integrations cannot be
+   automatically enabled responsibly on Chess.com accounts.
+5. ChessFraud/Lichess data remain offline evaluation sources, not model votes.
+   Style embedding/signature research without released weights is research-only.
+
+The owner-only diagnostic now includes `model_coverage_summary` with actual
+per-model status and number of measured positions; absent models are not
+silently presented as operative. Extra model observations **still cannot
+change LOW/HIGH** until blinded validation demonstrates better detection at
+an acceptable false-positive rate. The full 500-game Stockfish depth-18
+requirement and encrypted checkpoints remain unchanged.
