@@ -363,9 +363,9 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG):
 
 
 def collection_limit(config=CONFIG):
-    # Older callers/tests use max_games as a small explicit fixture limit.
-    return max(1, min(500, config.history_games if config.max_games in (100, 200) else config.max_games))
+    # Respect explicit fixture caps while allowing all 500 latest rated games in production.
+    return max(1, min(500, config.history_games if config.max_games in (100, 200, 500) else config.max_games))
 
 
 def primary_limit(config=CONFIG):
-    return max(1, min(200, config.primary_engine_games, config.max_games))
+    return max(1, min(500, config.primary_engine_games, config.max_games))
