@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/FTkTg",
     "title": "Lichess • 1353",
     "fen": "r6k/2pb2RP/p2q3P/1pnn1pB1/8/P1P5/1P4Q1/2K1R3 b - - 5 34",
-    "current_fen": "r6k/2pb2RP/p2q3P/1pnn1pB1/8/P1P5/1P4Q1/2K1R3 b - - 5 34",
-    "last_move_uci": "c2g2",
+    "current_fen": "r6k/2pb2RP/p2q3P/1p1n1pB1/8/P1Pn4/1P4Q1/1K2R3 b - - 7 35",
+    "last_move_uci": "c1b1",
     "pgn": "Nd3+ Kb1 Nxe1",
     "all_moves": [
       {
@@ -43,26 +43,59 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_FTkTg_1791582910960",
-    "last_activity_at": "2026-10-09T21:55:10.960054+00:00",
+    "last_activity_at": "2026-10-09T21:55:18.707196+00:00",
     "rating": 1353,
     "rp_band": 0,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
-    "message_ids": {},
-    "message_id": null,
+    "message_ids": {
+      "1468320170891022417": 1558236444047183933
+    },
+    "message_id": 1558236444047183933,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "attempted_users": {
+      "442597396195704832": {
+        "name": "Thice",
+        "move": "nd3",
+        "correct": true,
+        "timestamp": "2026-10-09T21:55:18.708389+00:00"
+      }
+    },
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "board_attachment_filenames": {
+      "1468320170891022417": "random_puzzle.png"
+    },
+    "last_card_activity_at": "2026-10-09T21:55:18.707196+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1791582918.7084053,
+        "fen_before": "r6k/2pb2RP/p2q3P/1pnn1pB1/8/P1P5/1P4Q1/2K1R3 b - - 5 34",
+        "expected": {
+          "uci": "c5d3",
+          "san": "Nd3+",
+          "color": "black"
+        },
+        "accepted_uci": "c5d3"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "Nd3+",
+        "uci": "c5d3",
+        "principal": true
+      }
+    ],
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kb1"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
