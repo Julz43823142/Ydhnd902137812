@@ -215,8 +215,7 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
                                baseline_available=comparison['sufficient'],baseline_anomaly=comparison['established'],
                                baseline_confirmed=deep_confirmation.get('anomaly_confirmed',False))
 
-        return {name: value for name,value in locals().items()
-                if name in ['strongest','priority','deep_confirmation','deep_confirmed','comparison','recurrence','scope','scope_class','scope_behavior','stable_strong','independent_timing','within_shift','gate_scores','scores','gate_timing','gate_context','scoped_results','perf_score','fallback','reference','matching_personal']}
+        return {'strongest':strongest,'priority':priority,'deep_confirmation':deep_confirmation,'deep_confirmed':deep_confirmed,'comparison':comparison,'recurrence':recurrence,'scope':scope,'scope_class':scope_class,'scope_behavior':scope_behavior,'stable_strong':stable_strong,'independent_timing':independent_timing,'within_shift':within_shift,'gate_scores':gate_scores,'scores':scores,'gate_timing':gate_timing,'gate_context':gate_context,'scoped_results':scoped_results,'perf_score':perf_score,'fallback':fallback,'reference':reference,'matching_personal':matching_personal}
 
     original_strongest=strongest
     candidate_pool=clusters.get('gate_candidates',clusters['candidates'])
