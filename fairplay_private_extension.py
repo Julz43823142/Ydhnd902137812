@@ -13,12 +13,11 @@ def install():
     original_view = ui.ReportView
 
     def capture(result, limit=4):
-        samples = original_capture(result, limit=limit)
         try:
             result.diagnostics["_private_evidence"] = evidence(result)
         except Exception:
             result.diagnostics["_private_evidence_error"] = "Full evidence export unavailable"
-        return samples
+        return original_capture(result, limit=limit)
 
     class OwnerView(original_view):
         def __init__(self, target=None):
