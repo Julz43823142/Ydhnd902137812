@@ -164,32 +164,37 @@ def select_gate_candidates(ranked_persistent, all_candidates, config=CONFIG):
     selected=list(ranked_persistent[:limit])
     def cohort(row):
         return (row['time_class'],row['time_control'],row['rated'])
+    def eligible(row):
+        if not row['persistent']:return False
+        return (row['high_qualifying'] if 'high_qualifying' in row else
+                high_cluster_qualification(row,(),config)
+                if 'metrics' in row else False)
     counts=defaultdict(int)
     for row in selected:counts[cohort(row)]+=1
-    # Original strength ordering determines the representative within a
-    # control. Never promote a ranked/nonpersistent excerpt into a gate.
+    represented={cohort(row) for row in selected if eligible(row)}
+    # Preserve the globally strongest discovery view separately in 'finalists'.
+    # For scoring, keep at least one eligible *qualifying* window per cohort.
+    # A stronger undercovered candidate never uses the sole slot for a class.
     for row in all_candidates:
-        if not row['persistent'] or counts[cohort(row)]:
-            continue
-        # A stronger-looking short/undercovered window can fail the ordinary
-        # HIGH opportunity gates. It must not monopolize the only reserved
-        # slot when a slightly weaker *qualifying* window exists.
-        qualified=(row['high_qualifying'] if 'high_qualifying' in row else
-                   high_cluster_qualification(row,(),config)
-                   if 'metrics' in row else False)
-        if not qualified:
-            continue
-        if len(selected)<limit:
+        key=cohort(row)
+        if key in represented or not eligible(row):continue
+        existing=[i for i,item in enumerate(selected) if cohort(item)==key]
+        if existing:
+            victim=next((i for i in reversed(existing) if not eligible(selected[i])),None)
+            if victim is None:continue
+        elif len(selected)<limit:
             selected.append(row)
+            counts[key]+=1
+            represented.add(key)
+            continue
         else:
-            # Replace the weakest *redundant* window, preserving the first
-            # globally strongest period and at least one from every cohort.
             victim=next((i for i in range(len(selected)-1,0,-1)
                          if counts[cohort(selected[i])]>1),None)
-            if victim is None:break
-            counts[cohort(selected[victim])]-=1
-            selected[victim]=row
-        counts[cohort(row)]+=1
+            if victim is None:continue
+        counts[cohort(selected[victim])]-=1
+        selected[victim]=row
+        counts[key]+=1
+        represented.add(key)
     return selected
 
 
