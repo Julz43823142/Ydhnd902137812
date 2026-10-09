@@ -263,6 +263,22 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
         'original_priority':assessments[0]['priority'],
         'selected_priority':priority,
         'incomplete_scan_guard':not allow_alternate,
+        # Each candidate is independent; identifiers, PGNs and FENs are
+        # deliberately absent. This makes an unexpected LOW review auditable.
+        'candidate_checks':[
+            {'class':row['strongest']['time_class'] if row['strongest'] else 'none',
+             'kind':row['strongest']['kind'] if row['strongest'] else 'none',
+             'games':len(row['scope']),
+             'deep_confirmed':row['deep_confirmed'],
+             'baseline_confirmed':row['deep_confirmation'].get('anomaly_confirmed',False),
+             'timing':round(row['gate_timing'],3),
+             'results':round(row['gate_context'],3),
+             'priority':row['priority'],
+             'blockers':high_block_reasons(
+                 row['priority'],row['comparison'],row['deep_confirmation'],
+                 row['strongest'],row['gate_timing'],row['gate_context'],
+                 row['recurrence'],len(useful),config)}
+            for row in assessments],
     }
     # Deep evidence can lower a shallow anomaly; selecting unaffected games is
     # not permission to claim confirmation. Every gate uses the actual cluster.
