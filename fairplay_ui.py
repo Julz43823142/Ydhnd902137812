@@ -84,6 +84,15 @@ def result_embed(result: ReviewResult):
         sample += f'\nRecent rated primary sample: {coverage["primary_fast_scanned"]}/{coverage["primary_collected"]} · historical discovery probes: {coverage.get("history_probed",0)}'
     sample += f'\nSkipped unrated games while collecting history: {result.skipped.get("unrated",0)} · unknown rated status: {result.skipped.get("rated_status_unknown",0)}'
     if coverage.get('history_probe_complete') is False:sample += '\nExtended-history discovery is incomplete; primary coverage is shown separately.'
+    if coverage.get('requested_primary_limit'):
+        sample += (f"\nEngine scope: latest up to {coverage['requested_primary_limit']} eligible rated games. "
+                   "An account with thousands of games is NOT exhaustively analyzed.")
+    if coverage.get('available_archive_months') is not None:
+        sample += (f"\nArchive months visited: {coverage.get('visited_archive_months',0)}/"
+                   f"{coverage['available_archive_months']}; "
+                   f"older months not visited: {coverage.get('unvisited_archive_months',0)}.")
+    if coverage.get('eligible_games_capped'):
+        sample += '\nContext/history was capped by the configured game limit.'
     if result.skipped:sample += f'\nSkipped archive/game entries: {sum(result.skipped.values())}'
     if coverage.get('optional_context_partial'):sample += '\n⚠️ Older context is incomplete; primary engine coverage is complete.'
     elif result.partial:sample += '\n⚠️ Partial scan / limited archive coverage. Missing data is not suspicious.'
