@@ -196,21 +196,25 @@ class CheckpointStore:
             if not isinstance(item, dict):
                 return False
             contract = item.get("metrics", {}).get("search_contract", {})
+            # Never restore a lower-depth bullet screen as a depth-18
+            # rapid/blitz result, or vice versa. Metadata is per-game.
+            required_depth = (config.bullet_deep_depth
+                              if getattr(game, 'time_class', None) == 'bullet' else 18)
+            required = (required_depth if phase == 'deep' and full_depth else
+                        config.deep_nodes if phase == 'deep' else config.fast_nodes)
             valid = (contract.get("completed") is True
                      and contract.get("exact") is not False
                      and contract.get("mode") == ("depth" if phase == "deep" and full_depth else "nodes")
-                     and contract.get("requested") == (
-                         18 if phase == "deep" and full_depth else
-                         config.deep_nodes if phase == "deep" else config.fast_nodes))
+                     and contract.get("requested") == required)
             if not valid or (phase == "deep" and full_depth and
-                             item["metrics"].get("search_depth", 0) < 18):
+                             item["metrics"].get("search_depth", 0) < required_depth):
                 return False
             decision.metrics = copy.deepcopy(item["metrics"])
             if phase == "fast":
                 decision.fast_engine = copy.deepcopy(item["metrics"])
             return True
 
-    def record(self, target, game, decision, phase):
+    def record(self, target, game, decision, phase, *, persist=True):
         if not self.enabled:
             return False
         contract = decision.metrics.get("search_contract", {})
@@ -225,7 +229,9 @@ class CheckpointStore:
             key = self._key(game, decision, phase)
             job["positions"][key] = {"metrics": copy.deepcopy(decision.metrics)}
             job["updated"] = time.time()
-            return self._write()
+            # The pool batches checkpoint writes. Per-decision Fernet+JSON
+            # serialization of the growing 500-game snapshot is quadratic.
+            return self._write() if persist else True
 
 
     def policy(self, target, game, decision):
@@ -302,9 +308,9 @@ class CheckpointStore:
             job["updated"] = time.time()
             return self._write()
 
-    def flush(self):
+    def flush(self, *, force=True):
         with self.lock:
-            return self._write(force=True) if self.enabled else False
+            return self._write(force=force) if self.enabled else False
 
     def cancel(self, target):
         """Persist a non-resumable stop without discarding in-flight engine work.
