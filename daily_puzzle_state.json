@@ -143,7 +143,7 @@
     "player_color": "white",
     "player_move_count": 9,
     "posted_at": "2026-10-09T21:58:17.070012+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -172,9 +172,10 @@
     "helper_candidate_users": [],
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
-    }
+    },
+    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Kf5 g6 Kg5 f5 Kh6 d6 g7 Kh7 g8=Q"
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-09",
