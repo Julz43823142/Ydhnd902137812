@@ -92,6 +92,20 @@ def result_embed(result: ReviewResult):
     embed.add_field(name='Sample',value=sample,inline=False)
     embed.add_field(name='Signals',value='\n'.join(f'**{key}:** {value}' for key,value in result.families.items()),inline=False)
     embed.add_field(name='Review notes',value='\n'.join('• '+value for value in result.reasons)[:1024],inline=False)
+    if result.priority=='LOW':
+        coverage_ok=coverage.get('primary_engine_complete',not result.partial)
+        maia=result.diagnostics.get('human_reference',{})
+        model_status=('evaluated' if maia.get('available') else 'not evaluated')
+        blocked=result.diagnostics.get('high_blocked',[])
+        explanation=('LOW means the measured evidence did not qualify for an elevated review priority; '
+                     'it does not establish fair play.\n'
+                     f'Primary engine sample: {"complete" if coverage_ok else "incomplete"} · '
+                     f'Maia reference: {model_status}.\n')
+        if blocked:
+            explanation+='Most relevant missing HIGH criteria: '+'; '.join(blocked[:2])
+        else:
+            explanation+='See Review Gates for the exact evidence requirements.'
+        embed.add_field(name='Why LOW is not a clearance',value=explanation[:1024],inline=False)
     embed.add_field(name='⚠️ Automated screening only',value=DISCLAIMER,inline=False)
     embed.set_footer(text=f'{result.version} · {result.engine} · heuristic thresholds, not probabilities · details expire after restart')
     return embed

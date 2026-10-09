@@ -7,7 +7,7 @@ import unittest
 from unittest.mock import patch
 
 import fairplay_scoring as scoring
-from fairplay_clusters import find_clusters, group_record
+from fairplay_clusters import find_clusters, group_record, select_gate_candidates
 from test_fairplay_v4 import game, report
 
 
@@ -78,6 +78,63 @@ class IndependentCandidateSelection(unittest.TestCase):
         r = self.report_with_candidates(games, earlier, later, partial=True)
         self.assertFalse(r.clusters["legacy_scope_selection"]["selected_alternate"])
         self.assertFalse(r.clusters["legacy_scope_selection"]["incomplete_scan_guard"] is False)
+
+    def test_fully_occupied_fast_windows_cannot_hide_different_control(self):
+        from fairplay_config import CONFIG
+        from dataclasses import replace
+        config=replace(CONFIG,baseline_candidate_limit=8)
+        def candidate(i, control, *, persistent=True):
+            return {'kind':'chronological','time_class':'blitz' if control=='180+0' else 'rapid',
+                    'time_control':control,'rated':True,'persistent':persistent,
+                    'strength':1-i*.01,'end':1700000000+i,
+                    'high_qualifying':True,'ids':list(range(i,i+8))}
+        dominant=[candidate(i,'180+0') for i in range(8)]
+        minority=candidate(9,'600+0')
+        selected=select_gate_candidates(dominant,dominant+[minority],config)
+        self.assertEqual(len(selected),config.baseline_candidate_limit)
+        self.assertIs(selected[0],dominant[0])
+        self.assertIn(minority,selected)
+        self.assertEqual(sum(row['time_class']=='rapid' for row in selected),1)
+
+    def test_undercovered_window_does_not_mask_a_qualified_same_control_candidate(self):
+        from dataclasses import replace
+        from fairplay_config import CONFIG
+        config=replace(CONFIG,baseline_candidate_limit=2)
+        original={'kind':'chronological','time_class':'blitz','time_control':'180+0',
+                  'rated':True,'persistent':True,'high_qualifying':False}
+        other={'kind':'chronological','time_class':'rapid','time_control':'600+0',
+               'rated':True,'persistent':True,'high_qualifying':True}
+        improved={**original,'high_qualifying':True,'kind':'complete period'}
+        selected=select_gate_candidates([original,other],[original,other,improved],config)
+        self.assertIn(improved,selected)
+        self.assertIn(other,selected)
+        self.assertNotIn(original,selected)
+
+    def test_nonpersistent_ranked_excerpt_cannot_take_a_gate_slot(self):
+        from dataclasses import replace
+        from fairplay_config import CONFIG
+        config=replace(CONFIG,baseline_candidate_limit=2)
+        base=[{'time_class':'blitz','time_control':'180+0','rated':True,
+               'persistent':True,'kind':'chronological'} for _ in range(2)]
+        ranked={'time_class':'rapid','time_control':'600+0','rated':True,
+                'persistent':False,'kind':'ranked'}
+        selected=select_gate_candidates(base,base+[ranked],config)
+        self.assertEqual(selected,base)
+
+    def test_real_discovery_retains_a_second_class_under_window_crowding(self):
+        from dataclasses import replace
+        from fairplay_config import CONFIG
+        config=replace(CONFIG,baseline_candidate_limit=12)
+        games=[game(i, i>=20 and i<60, control='180+0') for i in range(65)]
+        games += [game(70+i,True,control='600+0') for i in range(12)]
+        for g in games[65:]:
+            g.time_class='rapid'
+        for cohort in (games[:65],games[65:]):
+            for i,g in enumerate(cohort):g.control_index=i
+        found=find_clusters(games,config=config,fast=True)
+        self.assertLessEqual(len(found['gate_candidates']),12)
+        self.assertTrue(any(row['time_class']=='rapid' for row in found['gate_candidates']))
+        self.assertTrue(all(row['persistent'] for row in found['gate_candidates']))
 
     def test_candidate_limit_not_same_as_twelve_display_rows(self):
         found = find_clusters([game(i, i >= 30) for i in range(60)], fast=True)
