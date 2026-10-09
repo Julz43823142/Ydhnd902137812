@@ -116,7 +116,10 @@ def result_embed(result: ReviewResult):
             explanation+='See Review Gates for the exact evidence requirements.'
         embed.add_field(name='Why LOW is not a clearance',value=explanation[:1024],inline=False)
     embed.add_field(name='⚠️ Automated screening only',value=DISCLAIMER,inline=False)
-    embed.set_footer(text=f'{result.version} · {result.engine} · heuristic thresholds, not probabilities · details expire after restart')
+    revision=(result.diagnostics.get('run_contract') or {}).get('code_revision')
+    embed.set_footer(text=(f'{result.version} · {result.engine}'
+                           + (f' · code {revision}' if revision else '')
+                           + ' · heuristic thresholds, not probabilities · details expire after restart'))
     return embed
 
 
