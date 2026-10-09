@@ -101,6 +101,13 @@ class SlashPermissions(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(active.stop.is_set())
         self.assertEqual(await self.service.stop_current(),'already')
 
+    async def test_delivered_review_cannot_be_retroactively_cancelled(self):
+        active=ui.Job(TARGET,None)
+        active.report_published=True
+        self.service.active_job=active
+        self.assertEqual(await self.service.stop_current(),'idle')
+        self.assertFalse(active.stop.is_set())
+
     async def test_missing_checkpoint_durability_is_explicit(self):
         active=ui.Job(TARGET,None)
         checkpoints=SimpleNamespace(enabled=True,cancel=Mock(return_value=False),
