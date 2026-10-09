@@ -350,6 +350,7 @@ class EngineScanner:
     """One independent fixed-node Stockfish process per pool worker."""
     def __init__(self, deadline, config=CONFIG, factory=None):
         self.deadline, self.config = deadline, config
+        self.last_search = {}  # diagnostic category/budget only; never FEN/user
         self.profile = {'multipv_seconds':0.0, 'root_seconds':0.0, 'multipv_searches':0, 'root_searches':0,
                         'fast_multipv_seconds':0.0, 'fast_root_seconds':0.0, 'deep_multipv_seconds':0.0, 'deep_root_seconds':0.0}
         self.engine = (factory or (lambda:chess_play._create_stockfish_engine(allow_install=False,engine_class=(__import__('fairplay_engine').CompactNodeEngine if os.name=='posix' else BoundedNodeEngine))))()
@@ -395,6 +396,9 @@ class EngineScanner:
         limit=nodes if depth_search else chess.engine.Limit(nodes=nodes)
         # The worker owns this engine exclusively for both candidate and root searches.
         self.engine.timeout=scan_engine_timeout(limit,self.config)
+        self.last_search={'phase':'deep-candidates' if depth_search or nodes==self.config.deep_nodes else 'fast-candidates',
+                          'budget':nodes.depth if depth_search else nodes,
+                          'multipv':multipv,'started':time.monotonic()}
         search_started=time.monotonic()
         lines = self.engine.analyse(board,limit,multipv=multipv)
         spent=time.monotonic()-search_started
@@ -411,6 +415,9 @@ class EngineScanner:
             if 'Clear Hash' in self.engine.options:self.engine.configure({'Clear Hash':None})
             # Restrict the root to the actual move: same POV/budget, avoiding
             # after-move horizon differences being mistaken for CPL.
+            self.last_search={'phase':'deep-played-root' if depth_search or nodes==self.config.deep_nodes else 'fast-played-root',
+                              'budget':nodes.depth if depth_search else nodes,
+                              'multipv':1,'started':time.monotonic()}
             search_started=time.monotonic()
             actual = self.engine.analyse(board,limit,root_moves=[move])
             if depth_search and int(actual.get('depth',0) or 0)<nodes.depth:
@@ -633,9 +640,22 @@ class SharedEnginePool:
                 reason=('timeout' if isinstance(error,TimeoutError) else
                         'terminated' if isinstance(error,chess.engine.EngineTerminatedError)
                         else 'uci-error')
+                # Only bounded execution metadata, never user/account/FEN, is
+                # allowed into production logs. This identifies which phase
+                # really causes the repeated 55-minute failures.
+                search=getattr(scanner,'last_search',{})
+                if not isinstance(search,dict):search={}
+                phase=search.get('phase','unknown')
+                budget=search.get('budget','unknown')
+                multipv=search.get('multipv','unknown')
+                started=search.get('started')
+                seconds=(round(max(0,time.monotonic()-started),1)
+                         if isinstance(started,(int,float)) else 'unknown')
                 print(f'Fair Play engine worker {reason}; '
                       f'{"restarted" if recovered else "restart-failed"} '
-                      f'(attempt {attempt+1}/2)',flush=True)
+                      f'(attempt {attempt+1}/2; phase={phase}; '
+                      f'budget={budget}; multipv={multipv}; seconds={seconds})',
+                      flush=True)
                 if not recovered or attempt==1:raise
             finally:
                 scanner.deadline=None
