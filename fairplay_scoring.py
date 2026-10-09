@@ -127,6 +127,7 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
     # unchanged HIGH requirements. Evaluate them independently, without
     # borrowing clocks, results, controls, or deep evidence between periods.
     base_perf_score=perf_score
+    disabled=set(config.disabled_features)
     def assess_legacy_scope(strongest):
         deep_confirmation=confirm_cluster(strongest,timeline,config)
         deep_confirmed=deep_confirmation['confirmed']
