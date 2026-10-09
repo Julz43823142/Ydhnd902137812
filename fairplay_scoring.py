@@ -234,30 +234,36 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
     # Incomplete scans cannot acquire new HIGH claims from alternate windows.
     allow_alternate=(not partial and
                      (coverage_state or {}).get('primary_engine_complete',True))
-    accepted=next((row for row in assessments if row['priority'] in ('HIGH','VERY HIGH')),
-                  None) if allow_alternate else None
-    selected=accepted or assessments[0]
-    strongest=selected['strongest']
-    priority=selected['priority']
-    deep_confirmation=selected['deep_confirmation']
-    deep_confirmed=selected['deep_confirmed']
-    comparison=selected['comparison']
-    recurrence=selected['recurrence']
-    scope=selected['scope']
-    scope_class=selected['scope_class']
-    scope_behavior=selected['scope_behavior']
-    stable_strong=selected['stable_strong']
-    independent_timing=selected['independent_timing']
-    within_shift=selected['within_shift']
-    gate_scores=selected['gate_scores']
-    scores=selected['scores']
-    gate_timing=selected['gate_timing']
-    gate_context=selected['gate_context']
-    scoped_results=selected['scoped_results']
-    perf_score=selected['perf_score']
-    fallback=selected['fallback']
-    reference=selected['reference']
-    matching_personal=selected['matching_personal']
+    original_ids=set(original_strongest['ids']) if original_strongest else set()
+    accepted=next((
+        row for index,row in enumerate(assessments)
+        if row['priority'] in ('HIGH','VERY HIGH')
+        and (index==0 or not (original_ids & set(row['strongest']['ids'])))
+        # An already-qualifying original should remain the selected view.
+        and (index==0 or assessments[0]['priority'] not in ('HIGH','VERY HIGH'))
+    ),None) if allow_alternate else None
+    chosen_scope=accepted or assessments[0]
+    strongest=chosen_scope['strongest']
+    priority=chosen_scope['priority']
+    deep_confirmation=chosen_scope['deep_confirmation']
+    deep_confirmed=chosen_scope['deep_confirmed']
+    comparison=chosen_scope['comparison']
+    recurrence=chosen_scope['recurrence']
+    scope=chosen_scope['scope']
+    scope_class=chosen_scope['scope_class']
+    scope_behavior=chosen_scope['scope_behavior']
+    stable_strong=chosen_scope['stable_strong']
+    independent_timing=chosen_scope['independent_timing']
+    within_shift=chosen_scope['within_shift']
+    gate_scores=chosen_scope['gate_scores']
+    scores=chosen_scope['scores']
+    gate_timing=chosen_scope['gate_timing']
+    gate_context=chosen_scope['gate_context']
+    scoped_results=chosen_scope['scoped_results']
+    perf_score=chosen_scope['perf_score']
+    fallback=chosen_scope['fallback']
+    reference=chosen_scope['reference']
+    matching_personal=chosen_scope['matching_personal']
     clusters['strongest']=strongest
     clusters['deep']=deep_confirmation
     clusters['personal']=comparison
