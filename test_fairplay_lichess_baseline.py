@@ -1,5 +1,6 @@
 """Local Lichess research baseline regression tests (no real accounts)."""
 import unittest
+import random
 import chess
 import chess.pgn
 from scripts.benchmark_lichess_baseline import bracket, examine
@@ -14,13 +15,15 @@ def synthetic_lichess(*, control="300+0", white_rating="1540", black_rating="165
                          "TimeControl": control})
     board = game.board()
     node = game
+    rng = random.Random(20261009)
     for ply in range(30):
         if board.is_game_over():
             break
-        move = next(iter(board.legal_moves))
+        move = rng.choice(list(board.legal_moves))
         node = node.add_variation(move)
         node.comment = f"[%clk 0:04:{59 - ply:02}]"
         board.push(move)
+    assert len(list(game.mainline())) >= 24, "Synthetic test game ended too early"
     return game
 
 
