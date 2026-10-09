@@ -39,6 +39,9 @@ class FairPlayClient(discord.Client):
     def __init__(self,**kwargs):
         super().__init__(**kwargs)
         install_gate(self._connection)
+        # Install the owner-only evidence button before persistent views are registered.
+        from fairplay_private_extension import install as install_owner_evidence
+        install_owner_evidence()
 
     async def close(self):
         import fairplay_ui
