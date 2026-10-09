@@ -369,8 +369,8 @@
         "accessory": "crown",
         "activity_xp": 50,
         "born_at": 1791108685.6424184,
-        "fed_at": 1791336468.1542356,
-        "feed_day": "2026-10-07",
+        "fed_at": 1791504865.9465923,
+        "feed_day": "2026-10-09",
         "happiness": 100,
         "happy_at": 1791336558.9922016,
         "id": "a694b65e5fd547a48c21a63fe10808a2",
@@ -399,7 +399,7 @@
         "puzzle_day": "2026-10-07",
         "rarity": "uncommon",
         "species": "Penguin",
-        "xp": 575,
+        "xp": 580,
         "xp_day": "2026-10-08"
       }
     ]
