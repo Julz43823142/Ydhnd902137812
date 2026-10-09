@@ -75,6 +75,33 @@ def local_base_url(value):
         return None
 
 
+def available_model_memory_mb():
+    """Best-known memory ceiling, including GitHub-hosted cgroup limits.
+
+    A heavyweight model may not be safe on a 7-GiB GitHub shared runner
+    even if a host reports much more total physical memory.
+    """
+    limits = []
+    for path in ("/sys/fs/cgroup/memory.max",
+                 "/sys/fs/cgroup/memory/memory.limit_in_bytes"):
+        try:
+            raw = Path(path).read_text(encoding="utf-8").strip()
+            if raw.isdecimal():
+                size = int(raw)
+                if 0 < size < (1 << 60):
+                    limits.append(size // (1024 * 1024))
+        except (OSError, ValueError):
+            pass
+    try:
+        for line in Path("/proc/meminfo").read_text(encoding="utf-8").splitlines():
+            if line.startswith("MemAvailable:"):
+                limits.append(int(line.split()[1]) // 1024)
+                break
+    except (OSError, ValueError, IndexError):
+        pass
+    return min(limits) if limits else None
+
+
 def model_config(name, env):
     if name in WEIGHTS_ENV:
         path = env.get(WEIGHTS_ENV[name], "")
@@ -94,7 +121,8 @@ def model_config(name, env):
             return None, "Lc0 executable not installed"
         if not weights or not Path(weights).is_file():
             return None, "Lc0 neural weights not installed"
-        return {"kind": "uci", "command": [binary], "weights": weights}, None
+        return {"kind": "uci", "command": [binary], "weights": weights,
+                "weights_sha256": env.get("FAIRPLAY_LC0_WEIGHTS_SHA256", "")}, None
     if name == "chessmimic":
         if env.get("FAIRPLAY_CHESSMIMIC_ACCEPT_LICENSE") != "1":
             return None, "non-commercial model license not acknowledged"
@@ -102,6 +130,11 @@ def model_config(name, env):
         return ({"kind": "chessmimic", "url": base}, None) if base else (
             None, "no safe local ChessMimic endpoint")
     if name == "allie_2" and env.get("FAIRPLAY_ALLIE_2_MODEL_DIR"):
+        required = int(env.get("FAIRPLAY_ALLIE_2_REQUIRE_MEMORY_MB") or "0")
+        actual = available_model_memory_mb()
+        if required and (actual is None or actual < required):
+            return None, ("Allie 2.0 requires a dedicated high-memory runner; "
+                          "current memory unavailable or below minimum")
         # Official Allie 2.0 Python API runs on CPU, with local ~11GB weights.
         # No implicit Hugging Face downloads inside a live Fair Play review.
         folder = Path(env["FAIRPLAY_ALLIE_2_MODEL_DIR"])
@@ -256,11 +289,13 @@ def run_external_models(result, *, env=None, engine_factory=None, http_post=None
         "positions_selected": len(picks),
         "statuses": {},
         "models": {},
+        "runtime_budget_seconds": runtime,
+        "budget_policy": "remaining time divided among remaining supported providers",
     }
     if not requested:
         return audit
     cutoff = clock() + runtime
-    for name in requested:
+    for model_index, name in enumerate(requested):
         if name in INCOMPATIBLE:
             audit["statuses"][name] = {"status": "incompatible", "reason": INCOMPATIBLE[name]}
             continue
@@ -274,6 +309,10 @@ def run_external_models(result, *, env=None, engine_factory=None, http_post=None
         if clock() >= cutoff:
             audit["statuses"][name] = {"status": "skipped", "reason": "runtime budget exhausted"}
             continue
+        # Fair-share remaining time: one expensive model cannot consume the
+        # whole optional research allowance before the other providers run.
+        remaining = sum(candidate in KNOWN for candidate in requested[model_index:])
+        provider_deadline = min(cutoff, clock() + max(1, (cutoff - clock()) / max(1, remaining)))
         observations = []
         engine = None
         human_model = None
@@ -287,6 +326,9 @@ def run_external_models(result, *, env=None, engine_factory=None, http_post=None
                     if hasattr(engine, "timeout"):
                         engine.timeout = 90
                 elif name == "lc0":
+                    identity = str(getattr(engine, "id", {}).get("name", "")).lower()
+                    if identity and "lc0" not in identity and "leela" not in identity:
+                        raise RuntimeError("configured engine is not Lc0")
                     if "WeightsFile" not in engine.options:
                         raise RuntimeError("Lc0 does not expose WeightsFile")
                     engine.configure({"WeightsFile": config["weights"]})
@@ -302,7 +344,7 @@ def run_external_models(result, *, env=None, engine_factory=None, http_post=None
                 if not isinstance(info, dict) or (info.get("move_models") or {}).get("count", 0) < 1:
                     raise RuntimeError("ChessMimic model artifacts unavailable")
             for index, game, decision in picks:
-                if clock() >= cutoff:
+                if clock() >= provider_deadline:
                     status = "partial"
                     break
                 board = chess.Board(decision.fen)
@@ -417,16 +459,29 @@ def run_external_models(result, *, env=None, engine_factory=None, http_post=None
                     if decision.clock_valid and decision.think is not None:
                         row["actual_think_seconds"] = round(float(decision.think), 3)
                 observations.append(row)
-        except Exception:
+        except Exception as error:
             status = "failed"
+            # Never disclose FEN, player name, local paths or HTTP bodies
+            # from an exception in the owner audit. Preserve only its type.
+            failure_type = type(error).__name__
         finally:
             if engine is not None:
                 try:
                     engine.quit()
                 except Exception:
                     pass
-        # Never compute an agreement fraction for failed/empty model runs.
-        audit["statuses"][name] = {"status": status, "positions": len(observations)}
+        # A configured model with no legal predictions is NOT evaluated.
+        if status == "evaluated" and not observations:
+            status = "no_positions"
+        audit["statuses"][name] = {
+            "status": status, "positions": len(observations),
+            "backend": config["kind"],
+            "requested_positions": len(picks),
+        }
+        if name == "lc0" and config.get("weights_sha256"):
+            audit["statuses"][name]["weights_sha256"] = config["weights_sha256"]
+        if status == "failed":
+            audit["statuses"][name]["error_type"] = failure_type
         if observations:
             audit["models"][name] = {
                 "url": MODEL_URLS[name],

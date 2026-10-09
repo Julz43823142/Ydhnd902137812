@@ -53,7 +53,10 @@ concurrency:
 
 jobs:
   run:
-    runs-on: ubuntu-latest
+    # Optional dedicated self-hosted runner is needed for heavyweight
+    # Allie 2.0/ChessMimic installations. Only use a trusted private runner
+    # because this job receives DISCORD_TOKEN. Hosted runner stays default.
+    runs-on: ${{ vars.SHARKBOT_DAILY_RUNNER || 'ubuntu-latest' }}
     # Emergency ceiling only. Normal workers hand off after ~4h20.
     timeout-minutes: 350
 
@@ -84,6 +87,22 @@ jobs:
           python -m pip install git+https://github.com/CSSLab/maia3.git@1e13597c42d4858b7cfd7cfdae01e297263364b2
           python scripts/prepare_fairplay_maia_23m.py /tmp/sharkbot-maia/maia3-23m.pt --github-env
           python scripts/prepare_fairplay_maia_79m.py /tmp/sharkbot-maia/maia3-79m.pt --github-env
+
+      - uses: actions/cache@v4
+        with:
+          path: /tmp/sharkbot-fairplay-lc0
+          key: fairplay-lc0-v0.32.1-smallnet-v1
+
+      - name: Provision independent Lc0 CPU inference (optional)
+        # Leela is observational only; build or network failure must not
+        # prevent the Discord bot or required Stockfish depth-18 scan.
+        continue-on-error: true
+        timeout-minutes: 18
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq libopenblas-dev libzstd-dev ninja-build pkg-config build-essential
+          python -m pip install meson ninja
+          python scripts/prepare_fairplay_lc0.py --provision --github-env
 
       - name: Restore official Stockfish 19 binary
         continue-on-error: true
@@ -203,6 +222,17 @@ jobs:
           FAIRPLAY_EXTERNAL_MODELS: "maia3_23m,maia3_79m,lc0,chessmimic,allie,allie_v2,allie_2,maia4all,kaladin,irwin"
           FAIRPLAY_EXTERNAL_MAX_POSITIONS: "48"
           FAIRPLAY_EXTERNAL_MAX_SECONDS: "600"
+          # Optional host-provisioned models; these paths/URLs are NOT model weights.
+          FAIRPLAY_ALLIE_2_MODEL_DIR: ${{ vars.FAIRPLAY_ALLIE_2_MODEL_DIR }}
+          FAIRPLAY_ALLIE_2_REQUIRE_MEMORY_MB: "16000"
+          FAIRPLAY_CHESSMIMIC_URL: ${{ vars.FAIRPLAY_CHESSMIMIC_URL }}
+          FAIRPLAY_CHESSMIMIC_ACCEPT_LICENSE: ${{ vars.FAIRPLAY_CHESSMIMIC_ACCEPT_LICENSE }}
+          FAIRPLAY_ALLIE_BRIDGE_URL: ${{ vars.FAIRPLAY_ALLIE_BRIDGE_URL }}
+          FAIRPLAY_ALLIE_V2_BRIDGE_URL: ${{ vars.FAIRPLAY_ALLIE_V2_BRIDGE_URL }}
+          FAIRPLAY_ALLIE_2_BRIDGE_URL: ${{ vars.FAIRPLAY_ALLIE_2_BRIDGE_URL }}
+          FAIRPLAY_MAIA4ALL_BRIDGE_URL: ${{ vars.FAIRPLAY_MAIA4ALL_BRIDGE_URL }}
+          # No unsafe automatic downloads of 11 GB Allie or noncommercial ChessMimic.
+          # Install these on a separately resourced worker before enabling.
           SHARKMEISTER_USER_ID: "362606514764251137"
           TWITCH_EVENTSUB_ENABLED: "1"
           TWITCH_CLIENT_ID: ${{ vars.TWITCH_CLIENT_ID }}
