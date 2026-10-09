@@ -992,7 +992,11 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             'optional_context_partial':archive_partial and not primary_archive_partial,
             'context_only':len(context_only),
         }
-        result=score_review(canonical,analyzed,len(history),skipped,partial or archive_partial or deep_incomplete,
+        # Missing *older* optional archives must not veto independent HIGH
+        # evidence in a fully scanned primary sample. Preserve the missing
+        # historical context as a separate, explicit coverage warning.
+        primary_partial=partial or primary_archive_partial or deep_incomplete
+        result=score_review(canonical,analyzed,len(history),skipped,primary_partial,
                             engine_name,profile,time.monotonic()-started,config,
                             coverage_state=coverage_state,context_games=history,
                             gameplay_periods=gameplay_periods)
