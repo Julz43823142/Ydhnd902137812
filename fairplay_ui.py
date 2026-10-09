@@ -20,7 +20,7 @@ from fairplay_analysis import (ReviewResult, review, review_interest,
                                available_engine_cpus, available_engine_memory_mb)
 from fairplay_config import CHANNEL_ID, DISCLAIMER, NAMESPACE, CONFIG
 from fairplay_data import AccountNotFound, ReviewError, username
-from fairplay_progress import estimate, bar, label
+from fairplay_progress import estimate, bar, label, duration, LiveTiming
 from fairplay_checkpoint import CheckpointStore
 
 RESERVED = '🛡️ This channel is reserved for Fair Play reviews.'
@@ -47,10 +47,12 @@ def panel_embed():
     return embed
 
 
-def progress_embed(target, stage, value=None):
+def progress_embed(target, stage, value=None, timing=None):
     value=estimate(stage) if value is None else value
-    embed = discord.Embed(title=REPORT_PREFIX+target, description=bar(value)+"\n\n"+label(stage), color=0x427CBA)
-    embed.set_footer(text="Overall analysis progress · stage-weighted, not a time estimate")
+    description=bar(value)+"\n\n"+label(stage)
+    if timing is not None:description+='\n'+timing.summary(stage)
+    embed = discord.Embed(title=REPORT_PREFIX+target, description=description, color=0x427CBA)
+    embed.set_footer(text="Work progress (stage-weighted), not percent of elapsed time · ETA covers current phase only")
     embed.add_field(name='⚠️ Automated screening only', value=DISCLAIMER, inline=False)
     return embed
 
@@ -648,6 +650,11 @@ class Job:
     ctx: object
     stage: str = 'Fetching profile…'
     progress_percent: int = 0
+    timing: LiveTiming = field(default_factory=LiveTiming)
+    last_progress_edit: float = 0.0
+
+    def timing_elapsed(self):
+        return max(0,time.monotonic()-self.timing.started)
     message: object = None
     stop: threading.Event = field(default_factory=threading.Event)
     cancel_requested: bool = False  # explicit /stopfairplay; not a runner handoff
@@ -752,8 +759,11 @@ class FairPlayService:
                     if candidate.author.id==self.client.user.id and candidate.embeds and f'Review ID: {job.token}' in str(candidate.embeds[0].footer.text):
                         job.message = candidate;job.delivery_unknown = False;break
                 if job.message is None:return False  # an uncertain ACK is not permission to repost
+            job.timing.observe(stage)
             job.progress_percent=max(job.progress_percent,estimate(stage))
-            card = (embed.copy() if embed is not None else progress_embed(job.target,stage,job.progress_percent))
+            card = (embed.copy() if embed is not None else progress_embed(job.target,stage,job.progress_percent,job.timing))
+            if embed is not None and stage=='Complete':
+                card.add_field(name='Totale scantijd',value=duration(job.timing_elapsed()),inline=False)
             card.set_footer(text=(card.footer.text or '')+f' · Review ID: {job.token}')
             if job.message is None:
                 job.delivery_unknown = True
@@ -761,6 +771,7 @@ class FairPlayService:
                                                       allowed_mentions=discord.AllowedMentions.none())
                 job.delivery_unknown = False
             else:await job.message.edit(embed=card,view=view)
+            job.last_progress_edit=time.monotonic()
             if getattr(self,'checkpoints',None) is not None:
                 # Persist Discord message identity, so startup resumes by
                 # editing the existing card rather than posting a fresh panel.
@@ -796,9 +807,10 @@ class FairPlayService:
                     # delivery of a fully completed screening result.
                     result.diagnostics['manual_maia_examples']=[]
                 return result
+            job.timing=LiveTiming()
             future = loop.run_in_executor(self.executor,run_review)
             while not future.done():
-                if not job.cancel_requested and job.stage!='Fetching profile…' and job.stage!=last:
+                if not job.cancel_requested and (job.stage!=last or (job.message is not None and time.monotonic()-job.last_progress_edit>=15)):
                     if await self.safe_progress(job,job.stage):last = job.stage
                 await asyncio.wait({future},timeout=3)
             result = await future
