@@ -41,7 +41,8 @@
   "442597396195704832": {
     "accessories": [
       "glasses",
-      "crown"
+      "crown",
+      "necklace"
     ],
     "active": "a694b65e5fd547a48c21a63fe10808a2",
     "expedition": {
@@ -55,7 +56,7 @@
         "xp": 50
       },
       "start": 1791389844.3291829,
-      "status": "running"
+      "status": "claimed"
     },
     "pets": [
       {
@@ -398,7 +399,7 @@
         "puzzle_day": "2026-10-07",
         "rarity": "uncommon",
         "species": "Penguin",
-        "xp": 525,
+        "xp": 575,
         "xp_day": "2026-10-08"
       }
     ]
