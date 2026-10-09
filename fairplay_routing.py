@@ -13,7 +13,7 @@ def permitted(payload):
     except (ValueError,TypeError):channel = 0
     if channel!=CHANNEL_ID:return True
     data = payload.get('data',{})
-    if payload.get('type') in (2,4):return data.get('name')=='fairplay'
+    if payload.get('type') in (2,4):return data.get('name') in ('fairplay','stopfairplay')
     if payload.get('type') in (3,5):return str(data.get('custom_id','')).startswith(NAMESPACE)
     return False
 
