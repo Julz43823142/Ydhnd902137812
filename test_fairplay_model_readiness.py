@@ -5,7 +5,7 @@ from unittest.mock import patch, Mock
 
 import chess
 from fairplay_model_readiness import summarize_model_audit
-from fairplay_multimodel import run_external_models
+from fairplay_multimodel import run_external_models, model_config
 from test_fairplay_multimodel import fixture
 from scripts.smoke_fairplay_external_models import synthetic_result
 
@@ -53,6 +53,14 @@ class ModelReadinessTests(unittest.TestCase):
         text = str(audit)
         self.assertNotIn(secret, text)
         self.assertEqual(audit["statuses"]["lc0"]["error_type"], "RuntimeError")
+
+    def test_allie_heavy_model_rejected_on_small_worker_before_load(self):
+        with patch("fairplay_multimodel.available_model_memory_mb", return_value=7000):
+            cfg, reason = model_config("allie_2", {
+                "FAIRPLAY_ALLIE_2_MODEL_DIR": "/tmp/would-be-weights",
+                "FAIRPLAY_ALLIE_2_REQUIRE_MEMORY_MB": "16000"})
+        self.assertIsNone(cfg)
+        self.assertIn("high-memory", reason)
 
     def test_synthetic_smoke_contains_no_real_account(self):
         result = synthetic_result()

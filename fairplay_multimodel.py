@@ -75,6 +75,33 @@ def local_base_url(value):
         return None
 
 
+def available_model_memory_mb():
+    """Best-known memory ceiling, including GitHub-hosted cgroup limits.
+
+    A heavyweight model may not be safe on a 7-GiB GitHub shared runner
+    even if a host reports much more total physical memory.
+    """
+    limits = []
+    for path in ("/sys/fs/cgroup/memory.max",
+                 "/sys/fs/cgroup/memory/memory.limit_in_bytes"):
+        try:
+            raw = Path(path).read_text(encoding="utf-8").strip()
+            if raw.isdecimal():
+                size = int(raw)
+                if 0 < size < (1 << 60):
+                    limits.append(size // (1024 * 1024))
+        except (OSError, ValueError):
+            pass
+    try:
+        for line in Path("/proc/meminfo").read_text(encoding="utf-8").splitlines():
+            if line.startswith("MemAvailable:"):
+                limits.append(int(line.split()[1]) // 1024)
+                break
+    except (OSError, ValueError, IndexError):
+        pass
+    return min(limits) if limits else None
+
+
 def model_config(name, env):
     if name in WEIGHTS_ENV:
         path = env.get(WEIGHTS_ENV[name], "")
@@ -103,6 +130,11 @@ def model_config(name, env):
         return ({"kind": "chessmimic", "url": base}, None) if base else (
             None, "no safe local ChessMimic endpoint")
     if name == "allie_2" and env.get("FAIRPLAY_ALLIE_2_MODEL_DIR"):
+        required = int(env.get("FAIRPLAY_ALLIE_2_REQUIRE_MEMORY_MB") or "0")
+        actual = available_model_memory_mb()
+        if required and (actual is None or actual < required):
+            return None, ("Allie 2.0 requires a dedicated high-memory runner; "
+                          "current memory unavailable or below minimum")
         # Official Allie 2.0 Python API runs on CPU, with local ~11GB weights.
         # No implicit Hugging Face downloads inside a live Fair Play review.
         folder = Path(env["FAIRPLAY_ALLIE_2_MODEL_DIR"])

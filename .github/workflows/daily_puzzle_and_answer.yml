@@ -53,7 +53,10 @@ concurrency:
 
 jobs:
   run:
-    runs-on: ubuntu-latest
+    # Optional dedicated self-hosted runner is needed for heavyweight
+    # Allie 2.0/ChessMimic installations. Only use a trusted private runner
+    # because this job receives DISCORD_TOKEN. Hosted runner stays default.
+    runs-on: ${{ vars.SHARKBOT_DAILY_RUNNER || 'ubuntu-latest' }}
     # Emergency ceiling only. Normal workers hand off after ~4h20.
     timeout-minutes: 350
 
@@ -219,6 +222,15 @@ jobs:
           FAIRPLAY_EXTERNAL_MODELS: "maia3_23m,maia3_79m,lc0,chessmimic,allie,allie_v2,allie_2,maia4all,kaladin,irwin"
           FAIRPLAY_EXTERNAL_MAX_POSITIONS: "48"
           FAIRPLAY_EXTERNAL_MAX_SECONDS: "600"
+          # Optional host-provisioned models; these paths/URLs are NOT model weights.
+          FAIRPLAY_ALLIE_2_MODEL_DIR: ${{ vars.FAIRPLAY_ALLIE_2_MODEL_DIR }}
+          FAIRPLAY_ALLIE_2_REQUIRE_MEMORY_MB: "16000"
+          FAIRPLAY_CHESSMIMIC_URL: ${{ vars.FAIRPLAY_CHESSMIMIC_URL }}
+          FAIRPLAY_CHESSMIMIC_ACCEPT_LICENSE: ${{ vars.FAIRPLAY_CHESSMIMIC_ACCEPT_LICENSE }}
+          FAIRPLAY_ALLIE_BRIDGE_URL: ${{ vars.FAIRPLAY_ALLIE_BRIDGE_URL }}
+          FAIRPLAY_ALLIE_V2_BRIDGE_URL: ${{ vars.FAIRPLAY_ALLIE_V2_BRIDGE_URL }}
+          FAIRPLAY_ALLIE_2_BRIDGE_URL: ${{ vars.FAIRPLAY_ALLIE_2_BRIDGE_URL }}
+          FAIRPLAY_MAIA4ALL_BRIDGE_URL: ${{ vars.FAIRPLAY_MAIA4ALL_BRIDGE_URL }}
           # No unsafe automatic downloads of 11 GB Allie or noncommercial ChessMimic.
           # Install these on a separately resourced worker before enabling.
           SHARKMEISTER_USER_ID: "362606514764251137"

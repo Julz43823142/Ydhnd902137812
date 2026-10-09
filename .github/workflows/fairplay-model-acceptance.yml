@@ -1,0 +1,47 @@
+name: Fair Play Real Model Acceptance (synthetic only)
+
+# Explicitly run on a dedicated trusted self-hosted runner after installing
+# official heavyweight model weights and accepting applicable licenses.
+# This workflow NEVER fetches Chess.com users, Discord tokens, or private FENs.
+on:
+  workflow_dispatch:
+    inputs:
+      runner_label:
+        description: 'Trusted preprovisioned runner label (e.g. self-hosted)'
+        required: true
+        default: 'self-hosted'
+        type: string
+      models:
+        description: 'Comma-separated models requiring real legal-move inference'
+        required: true
+        default: 'allie_2,chessmimic'
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  acceptance:
+    # The operator chooses a trusted runner; never silently use shared CPU.
+    runs-on: ${{ inputs.runner_label }}
+    timeout-minutes: 20
+    env:
+      FAIRPLAY_ALLIE_2_MODEL_DIR: ${{ vars.FAIRPLAY_ALLIE_2_MODEL_DIR }}
+      FAIRPLAY_ALLIE_2_REQUIRE_MEMORY_MB: "16000"
+      FAIRPLAY_CHESSMIMIC_URL: ${{ vars.FAIRPLAY_CHESSMIMIC_URL }}
+      FAIRPLAY_CHESSMIMIC_ACCEPT_LICENSE: ${{ vars.FAIRPLAY_CHESSMIMIC_ACCEPT_LICENSE }}
+      FAIRPLAY_LC0_BIN: ${{ vars.FAIRPLAY_LC0_BIN }}
+      FAIRPLAY_LC0_WEIGHTS: ${{ vars.FAIRPLAY_LC0_WEIGHTS }}
+      FAIRPLAY_ALLIE_BRIDGE_URL: ${{ vars.FAIRPLAY_ALLIE_BRIDGE_URL }}
+      FAIRPLAY_ALLIE_V2_BRIDGE_URL: ${{ vars.FAIRPLAY_ALLIE_V2_BRIDGE_URL }}
+      FAIRPLAY_ALLIE_2_BRIDGE_URL: ${{ vars.FAIRPLAY_ALLIE_2_BRIDGE_URL }}
+      FAIRPLAY_MAIA4ALL_BRIDGE_URL: ${{ vars.FAIRPLAY_MAIA4ALL_BRIDGE_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install synthetic chess board helpers
+        run: python -m pip install python-chess
+      - name: Verify genuine installed model responses, not protocol mocks
+        run: python scripts/smoke_fairplay_external_models.py --require "${{ inputs.models }}"

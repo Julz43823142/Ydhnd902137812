@@ -1,7 +1,8 @@
 # Fair Play 500 / Depth 18 / Multi-model research integration
 
-**Replacement draft PR #82. Must not be merged or deployed without explicit owner approval.**
-Supersedes earlier draft PRs #80 and #81; no automatic merge.
+**PR #82 merged by the repository owner on 9 October 2026.**
+**Follow-up PR #83 is DRAFT ONLY; do not merge or deploy without new approval.**
+#82 superseded #80/#81; #83 further improves optional model availability checks.
 
 ## Verified architecture and decision contract
 
@@ -21,7 +22,7 @@ Supersedes earlier draft PRs #80 and #81; no automatic merge.
 | Maia-3 5M | **Existing active** local policy | Existing worker; this is an additional human comparison, not a cheat probability |
 | Maia-3 23M | **Real UCI adapter + official checksum-pinned checkpoint installer** | Production workflow provisions model; new real-inference CI smoke |
 | Maia-3 79M | **Real UCI adapter + official checksum-pinned checkpoint installer** | Production workflow provisions model; new real-inference CI smoke; larger CPU/RAM footprint |
-| Lc0 / Leela Chess Zero | **Real opt-in UCI adapter** | Requires local Lc0 binary and compatible downloaded network weights; not provisioned by hosted workflow |
+| Lc0 / Leela Chess Zero | **Official pinned-source CPU build and real model smoke proposed in draft #83** | The new hosted workflow attempts provisioning; no claim of a production-successful build before its real CI smoke passes |
 | ChessMimic | **Real opt-in localhost REST adapter** to upstream `/models` and `/get_move` | Must be self-hosted with multi-GB Git LFS artifacts; requires PolyForm **Noncommercial** acknowledgment. Uses the actual opponent clock when available, never clones the player clock. Upstream sometimes uses an opening-book database, not necessarily neural inference. |
 | Allie (original) | Local `/predict` sidecar protocol | Requires operator-supplied model server; original release requests GPU and large model assets |
 | Allie v2 (legacy) | Local `/predict` sidecar | Historical Qwen/vLLM model; former GitHub link now redirects to the newer model. Not deployed. |
@@ -120,3 +121,23 @@ silently presented as operative. Extra model observations **still cannot
 change LOW/HIGH** until blinded validation demonstrates better detection at
 an acceptable false-positive rate. The full 500-game Stockfish depth-18
 requirement and encrypted checkpoints remain unchanged.
+
+### Dedicated runner activation (draft #83)
+
+For optional heavyweight models, register a **trusted private self-hosted runner**
+with sufficient disk/RAM and local model installations. Do not attach secrets
+to an untrusted self-hosted runner. Define GitHub Actions repository variable
+`SHARKBOT_DAILY_RUNNER` to the runner label *only after separate approval*;
+the default remains `ubuntu-latest`. Configure
+`FAIRPLAY_ALLIE_2_MODEL_DIR`, `FAIRPLAY_CHESSMIMIC_URL`,
+`FAIRPLAY_CHESSMIMIC_ACCEPT_LICENSE`, and other provider-specific local
+paths/localhost URLs with repository variables. A 16 GB available-memory
+threshold protects the ordinary shared runner from trying to load Allie 2.0
+weights; configure a sufficiently large worker and account for Stockfish,
+Maia, and operating system allocations.
+
+The manual workflow `.github/workflows/fairplay-model-acceptance.yml` accepts
+a comma-separated required-model list and executes **only synthetic opening
+positions** on the selected worker. It fails if any requested model does not
+produce a legal move. That verifies actual model functionality, not whether
+engine assistance can be accurately detected. It never merges/deploys.
