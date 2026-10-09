@@ -43,7 +43,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_BUaQK_1791583042240",
-    "last_activity_at": "2026-10-09T21:57:22.240922+00:00",
+    "last_activity_at": "2026-10-09T21:57:45.110209+00:00",
     "rating": 2301,
     "rp_band": 3,
     "boss": false,
@@ -53,16 +53,34 @@
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_ids": {},
-    "message_id": null,
+    "message_ids": {
+      "1468320170891022417": 1558237057866792981
+    },
+    "message_id": 1558237057866792981,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {},
+    "attempted_users": {
+      "442597396195704832": {
+        "name": "Thice",
+        "move": "bxd7",
+        "correct": false,
+        "timestamp": "2026-10-09T21:57:45.111096+00:00"
+      }
+    },
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "board_attachment_filenames": {
+      "1468320170891022417": "random_puzzle.png"
+    },
+    "last_card_activity_at": "2026-10-09T21:57:45.110209+00:00",
+    "recent_accepted_moves": [],
+    "wrong_attempt_counts": {
+      "442597396195704832": 1
+    },
+    "last_feedback": "❌ **Puzzle verdict on Thice: your calculation was deep enough to drown in and still missed the shore.**\n↪️ **Move played:** `bxd7`"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
