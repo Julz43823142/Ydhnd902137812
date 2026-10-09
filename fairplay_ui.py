@@ -646,6 +646,7 @@ class Job:
     message: object = None
     stop: threading.Event = field(default_factory=threading.Event)
     cancel_requested: bool = False  # explicit /stopfairplay; not a runner handoff
+    report_published: bool = False  # do not retroactively cancel a delivered review
     message_deleted: bool = False
     delivery_unknown: bool = False
     token: str = field(default_factory=lambda:uuid.uuid4().hex[:12])
@@ -682,7 +683,7 @@ class FairPlayService:
         """
         if self.closed:return 'unavailable'
         job=self.active_job
-        if job is None:return 'idle'
+        if job is None or job.report_published:return 'idle'
         if job.cancel_requested:return 'already'
         job.cancel_requested=True
         job.stop.set()
@@ -804,6 +805,7 @@ class FairPlayService:
                 if job.cancel_requested:return
                 self.results[job.message.id] = (time.time(),result)
                 self.cache[job.target] = (time.time(),result,job.message)
+                job.report_published=True
                 self.expire_cache()
                 if getattr(self,'checkpoints',None) is not None:
                     await asyncio.to_thread(self.checkpoints.finish,job.target)
