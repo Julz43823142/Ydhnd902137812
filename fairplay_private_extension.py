@@ -1,0 +1,51 @@
+"""Add private report access to the existing Discord Fair Play view."""
+import io
+import discord
+from fairplay_evidence_payload import evidence
+from shark_admin import ADMIN_ID
+
+
+def install():
+    import fairplay_ui as ui
+    if getattr(ui, "_owner_export_installed", False):
+        return
+    original_capture = ui.capture_human_examples
+    original_view = ui.ReportView
+
+    def capture(result, limit=4):
+        samples = original_capture(result, limit=limit)
+        try:
+            result.diagnostics["_private_evidence"] = evidence(result)
+        except Exception:
+            result.diagnostics["_private_evidence_error"] = "Full evidence export unavailable"
+        return samples
+
+    class OwnerView(original_view):
+        def __init__(self, target=None):
+            super().__init__(target)
+            button = discord.ui.Button(label="Owner Evidence", emoji="🔒",
+                                       custom_id="shark:fairplay:owner-evidence")
+
+            async def deliver(ctx):
+                if ctx.user.id != ADMIN_ID:
+                    await ctx.response.send_message("Only Sharkmeister may access this export.",
+                                                    ephemeral=True)
+                    return
+                result = ui._service.result_for(ctx.message.id) if ui._service else None
+                files = result.diagnostics.get("_private_evidence") if result else None
+                if not files:
+                    await ctx.response.send_message(
+                        "Full evidence unavailable after expiry/restart.", ephemeral=True)
+                    return
+                await ctx.response.defer(ephemeral=True, thinking=True)
+                for name, payload in files:
+                    await ctx.followup.send(
+                        file=discord.File(io.BytesIO(payload), filename=name),
+                        ephemeral=True, allowed_mentions=discord.AllowedMentions.none())
+
+            button.callback = deliver
+            self.add_item(button)
+
+    ui.capture_human_examples = capture
+    ui.ReportView = OwnerView
+    ui._owner_export_installed = True
