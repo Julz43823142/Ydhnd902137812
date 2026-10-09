@@ -312,9 +312,11 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG):
     limit = collection_limit(config)
     partial = len(ordered) > config.max_archives
     primary_archive_partial = False
+    visited_months = 0
     try:
         for year, month in ordered[:config.max_archives]:
             check_deadline(api.deadline)
+            visited_months += 1
             progress('Collecting rated games…')
             try:data = api.get(target, f'/games/{year:04d}/{month:02d}')
             except DeadlineReached:raise
