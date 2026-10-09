@@ -1,6 +1,9 @@
 """Real (network-free at inference time) smoke: Maia-3 23M UCI policy."""
 import os
+import sys
+from pathlib import Path
 from types import SimpleNamespace
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import chess
 from fairplay_multimodel import run_external_models
 
