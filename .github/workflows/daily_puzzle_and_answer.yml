@@ -200,7 +200,7 @@ jobs:
           FAIRPLAY_REQUIRE_MAIA: "1"
           # Deterministic supplementary model observations on up to 48
           # temporally spread depth-completed games; never raise verdicts.
-          FAIRPLAY_EXTERNAL_MODELS: "maia3_23m,maia3_79m,lc0,chessmimic,allie,allie_v2,maia4all,kaladin,irwin"
+          FAIRPLAY_EXTERNAL_MODELS: "maia3_23m,maia3_79m,lc0,chessmimic,allie,allie_v2,allie_2,maia4all,kaladin,irwin"
           FAIRPLAY_EXTERNAL_MAX_POSITIONS: "48"
           FAIRPLAY_EXTERNAL_MAX_SECONDS: "600"
           SHARKMEISTER_USER_ID: "362606514764251137"
