@@ -607,7 +607,7 @@ def close_shared_engine_pool():
 
 def run_position_batch(executor, pool, work, nodes, deadline, progress, stage,
                        checkpoint=None, target=None, phase=None, checkpoint_config=CONFIG,
-                       checkpoint_full_depth=False):
+                       checkpoint_full_depth=False, budget_for_game=None):
     """Drain running tasks and preserve only fully completed games at a deadline.
 
     A cancelled/failed position never becomes invented engine evidence. Workers
@@ -624,9 +624,13 @@ def run_position_batch(executor, pool, work, nodes, deadline, progress, stage,
             done_by_game[key]=done_by_game.get(key,0)+1
         else:
             pending.append((game,decision))
-    futures={executor.submit(pool.run_decision,game,decision,nodes,deadline):(game,decision)
+    futures={executor.submit(pool.run_decision,game,decision,
+                             budget_for_game(game) if budget_for_game else nodes,deadline):(game,decision)
              for game,decision in pending}
     interrupted=False
+    # Avoid encrypting and rewriting the entire growing checkpoint per position.
+    # Bound the undurable tail and flush completed work even when interrupted.
+    buffered=0;last_flush=time.monotonic()
     total=len(work);done=sum(done_by_game.values());tick=max(1,total//100)
     if total:progress(f'{stage}: {done} / {total} positions')
     try:
@@ -643,7 +647,11 @@ def run_position_batch(executor, pool, work, nodes, deadline, progress, stage,
                 key=id(game)
                 done_by_game[key]=done_by_game.get(key,0)+1
                 if checkpoint is not None:
-                    checkpoint.record(target,game,decision,phase)
+                    checkpoint.record(target,game,decision,phase,persist=False)
+                    buffered+=1
+                    if buffered>=64 or time.monotonic()-last_flush>=15:
+                        checkpoint.flush(force=False)
+                        buffered=0;last_flush=time.monotonic()
             done+=1
             if done%tick==0 or done==total:
                 progress(f'{stage}: {done} / {total} positions')
@@ -655,7 +663,15 @@ def run_position_batch(executor, pool, work, nodes, deadline, progress, stage,
             try:pending.result()
             except BaseException:pass
         raise
+    finally:
+        if checkpoint is not None and buffered:
+            checkpoint.flush()  # Force a durable handoff before returning.
     return {key for key,count in expected.items() if done_by_game.get(key)==count},interrupted
+
+
+def full_depth_budget(game, config=CONFIG):
+    """Full-depth mode: bullet is depth-12 screening, rapid/blitz depth-18."""
+    return chess.engine.Limit(depth=(config.bullet_deep_depth if game.time_class=='bullet' else 18))
 
 
 def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI, engine_factory=None,
@@ -875,6 +891,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         candidates=(list(analyzed) if full_depth_mode else
                     allocate_policy(analyzed,adaptive_deep_games(analyzed,config,periods=gameplay_periods),config))
         deep_budget=chess.engine.Limit(depth=18) if full_depth_mode else config.deep_nodes
+        game_deep_budget=(lambda game:full_depth_budget(game,config)) if full_depth_mode else (lambda game:deep_budget)
         deep_started=time.monotonic()
         deep_incomplete=False
         index=0
@@ -889,14 +906,14 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                     summarize(confirmed,config)
             else:
                 if checkpoint is None:
-                    if shared_pool is not None and use_shared:shared_pool.run(confirmed,deep_budget,deadline)
-                    else:worker.analyse(confirmed,deep_budget)
+                    if shared_pool is not None and use_shared:shared_pool.run(confirmed,game_deep_budget(game),deadline)
+                    else:worker.analyse(confirmed,game_deep_budget(game))
                 else:
                     for decision in confirmed.decisions:
                         if checkpoint.restore(target,confirmed,decision,'deep',config,full_depth_mode):continue
                         if shared_pool is not None and use_shared:
-                            shared_pool.run_decision(confirmed,decision,deep_budget,deadline)
-                        else:worker.analyse_decision(confirmed,decision,deep_budget)
+                            shared_pool.run_decision(confirmed,decision,game_deep_budget(game),deadline)
+                        else:worker.analyse_decision(confirmed,decision,game_deep_budget(game))
                         checkpoint.record(target,confirmed,decision,'deep')
                     summarize(confirmed,config)
             return confirmed
@@ -925,9 +942,10 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                     deep_position_tasks+=len(work)
                     complete_ids,interrupted=run_position_batch(
                         engine_executor,shared_pool,work,deep_budget,deadline,progress,
-                        'Full depth-18 engine scan' if full_depth_mode else 'Deep confirmation',
+                        'Depth-18 rapid/blitz · depth-12 bullet' if full_depth_mode else 'Deep confirmation',
                         checkpoint=checkpoint,target=target,phase='deep',
-                        checkpoint_config=config,checkpoint_full_depth=full_depth_mode)
+                        checkpoint_config=config,checkpoint_full_depth=full_depth_mode,
+                        budget_for_game=game_deep_budget)
                     if interrupted:
                         deep_incomplete=True
                         complete_pairs=[(game,confirmed) for game,confirmed in zip(batch,confirmed_batch)
@@ -960,16 +978,23 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             except DeadlineReached:
                 deep_incomplete=True;break
         if neural_reference.get('available'):
-            neural_reference['deep_counterfactual']=complete_policy(
-                [g for g in analyzed if g.deep],deep_budget,deadline,
+            deep_groups=([([g for g in analyzed if g.deep and g.time_class!='bullet'],deep_budget),
+                          ([g for g in analyzed if g.deep and g.time_class=='bullet'],
+                           chess.engine.Limit(depth=config.bullet_deep_depth))]
+                         if full_depth_mode else [([g for g in analyzed if g.deep],deep_budget)])
+            policy_reports=[complete_policy(group,budget,deadline,
                 executor=engine_executor,pool=shared_pool if use_shared else None,scanner=scanner,
-                **resume_kwargs)
+                **resume_kwargs) for group,budget in deep_groups if group]
+            neural_reference['deep_counterfactual']={
+                'complete':all(row['complete'] for row in policy_reports),
+                'positions':sum(row['positions'] for row in policy_reports),
+                'seconds':sum(row['seconds'] for row in policy_reports)}
             if (full_depth_mode and os.getenv('FAIRPLAY_REQUIRE_MAIA')=='1'
                     and not neural_reference['deep_counterfactual']['complete']):
                 raise ReviewError('The complete depth-18 Maia comparison did not finish; no review was issued.')
         deep_finished=time.monotonic()
         if full_depth_mode and (deep_incomplete or not primary_complete or any(not g.deep for g in analyzed)):
-            raise ReviewError(f'All {len(primary)} eligible primary games must complete depth 18 before a priority can be issued.')
+            raise ReviewError(f'All {len(primary)} primary games must complete their required engine depths before a priority can be issued.')
         progress(f'Deep confirmation: {sum(g.deep for g in candidates)} / {len(candidates)}')
         with _game_cache_lock:
             for game in analyzed:
@@ -1052,18 +1077,28 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             'version':VERSION,'code_revision':revision,'engine':engine_name,
             'fast':{'mode':'nodes','budget':config.fast_nodes,'multipv':config.fast_multipv},
             'deep':{'mode':'depth' if full_depth_mode else 'nodes',
-                    'budget':18 if full_depth_mode else config.deep_nodes,'multipv':config.deep_multipv},
+                    'budget':18 if full_depth_mode else config.deep_nodes,'multipv':config.deep_multipv,
+                    'bullet_budget':config.bullet_deep_depth if full_depth_mode else config.deep_nodes},
             'maia_model':MODEL_NAME,'maia_revision':MODEL_REVISION[:12],
             'maia_checkpoint_sha256_prefix':MODEL_SHA256[:12],
             'parsed_primary_games':len(primary),
             'deep_completed_games':sum(g.deep for g in analyzed),
-            'required_primary_depth':18 if full_depth_mode else None,
+            'required_primary_depth':(18 if full_depth_mode and not any(g.time_class=='bullet' for g in primary)
+                                      else None),
+            'required_primary_depth_by_class':({'bullet':config.bullet_deep_depth,'blitz':18,'rapid':18}
+                                               if full_depth_mode else None),
             'required_full_coverage':bool(full_depth_mode),
             'human_policy_sampling':'stratified bounded positions (not all moves)',
             'depth18_completed_positions':sum(
-                d.metrics.get('search_depth',0)>=18 for g in analyzed if g.deep
+                d.metrics.get('search_depth',0)>=18 for g in analyzed if g.deep and g.time_class!='bullet'
                 for d in g.decisions) if full_depth_mode else None,
-            'depth18_total_positions':sum(len(g.decisions) for g in analyzed)
+            'depth18_total_positions':sum(len(g.decisions) for g in analyzed if g.time_class!='bullet')
+                if full_depth_mode else None,
+            'bullet_depth12_completed_positions':sum(
+                d.metrics.get('search_depth',0)>=config.bullet_deep_depth
+                for g in analyzed if g.deep and g.time_class=='bullet' for d in g.decisions)
+                if full_depth_mode else None,
+            'bullet_depth12_total_positions':sum(len(g.decisions) for g in analyzed if g.time_class=='bullet')
                 if full_depth_mode else None,
             'skipped_by_fixed_reason':dict(sorted(skipped.items())),
             'archive_failures':skipped.get('unavailable_archive',0),
@@ -1078,7 +1113,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             'fast_position_tasks':fast_position_tasks,'deep_position_tasks':deep_position_tasks,
             'engine_workers':requested_workers,'shared_engine_pool':bool(use_shared),
             'full_depth18_mode':full_depth_mode,
-            'full_depth18_games_completed':sum(g.deep for g in analyzed) if full_depth_mode else None,
+            'full_depth18_games_completed':sum(g.deep for g in analyzed if g.time_class!='bullet') if full_depth_mode else None,
+            'bullet_depth12_games_completed':sum(g.deep for g in analyzed if g.time_class=='bullet') if full_depth_mode else None,
             'effective_cpu_capacity':available_engine_cpus(),
             'effective_memory_limit_mb':available_engine_memory_mb(),
             'engine_pool_max':_ENGINE_POOL_MAX,
