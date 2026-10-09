@@ -752,7 +752,12 @@ class FairPlayService:
                 kwargs={'cancel':job.stop}
                 if self.analyzer is review and self.checkpoints is not None:
                     kwargs['checkpoint']=self.checkpoints
-                return self.analyzer(job.target,progress,**kwargs)
+                result=self.analyzer(job.target,progress,**kwargs)
+                # Policy scoring can inspect thousands of engine-reviewed
+                # positions. Do this in the scan executor, never Discord's
+                # event loop, before sensitive decisions are discarded.
+                result.diagnostics['manual_maia_examples']=capture_human_examples(result)
+                return result
             future = loop.run_in_executor(self.executor,run_review)
             while not future.done():
                 if job.stage!='Fetching profile…' and job.stage!=last:
@@ -761,7 +766,6 @@ class FairPlayService:
             result = await future
             # All detailed position caches remain bounded in the engine worker.
             # Discord detail pages need game summaries, not thousands of FENs.
-            result.diagnostics['manual_maia_examples']=capture_human_examples(result)
             for game in result.games:game.decisions.clear()
             if await self.safe_progress(job,'Complete',view=ReportView(result.username),embed=result_embed(result)):
                 self.results[job.message.id] = (time.time(),result)
