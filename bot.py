@@ -5839,66 +5839,34 @@ def _chess_material_lines(game):
 
 
 def _build_chess_pgn_text(game, analysis=None):
+    """Chess.com-compatible, clean PGN: moves and result, without annotations.
+
+    For standard chess this is a single compact movetext line. Chess960 keeps
+    its necessary variant/FEN headers so the starting position is importable.
+    The optional analysis argument remains for existing callers but does not
+    alter the export.
+    """
+    chess960 = _game_variant(game) == CHESS_VARIANT_960
+    initial = _initial_chess_board_from_game(game)
+    nonstandard_start = chess960 or initial.fen() != chess.STARTING_FEN
     pgn_game = chess.pgn.Game()
-    if _game_variant(game) == CHESS_VARIANT_960:
-        pgn_game.setup(_initial_chess_board_from_game(game))
-    headers = pgn_game.headers
-    headers["Event"] = "Discord Chess960" if _game_variant(game) == CHESS_VARIANT_960 else "Discord Rated Chess"
-    if _game_variant(game) == CHESS_VARIANT_960:
-        headers["Variant"] = "Chess960"
-        if game.get("chess960_pos") is not None:
-            headers["Chess960Position"] = str(int(game.get("chess960_pos")))
-    headers["Site"] = "Discord"
-    try:
-        started = datetime.fromtimestamp(float(game.get("started_at", time.time())), timezone.utc)
-        headers["Date"] = started.strftime("%Y.%m.%d")
-    except Exception:
-        headers["Date"] = datetime.now(timezone.utc).strftime("%Y.%m.%d")
-    headers["Round"] = "-"
-    headers["White"] = str(game.get("white_name") or "White")
-    headers["Black"] = str(game.get("black_name") or "Black")
-    headers["Result"] = str(game.get("result") or "*")
-    headers["Termination"] = str(game.get("finish_reason") or "Game finished")[:120]
-    if game.get("white_rating") is not None:
-        headers["WhiteElo"] = str(int(round(float(game.get("white_rating")))))
-    if game.get("black_rating") is not None:
-        headers["BlackElo"] = str(int(round(float(game.get("black_rating")))))
-    if game.get("game_id"):
-        headers["GameId"] = str(game.get("game_id"))[:120]
-
-    analysed_moves = list((analysis or {}).get("moves") or [])
-    if analysed_moves:
-        headers["Annotator"] = str((analysis or {}).get("engine") or "Stockfish 19")[:120]
-        headers["Analysis"] = "Shark Bot Game Review"
-
+    if nonstandard_start:
+        pgn_game.setup(initial)
+    if chess960:
+        pgn_game.headers["Variant"] = "Chess960"
+    pgn_game.headers["Result"] = str(game.get("result") or "*")
+    pgn_game.headers["White"] = str(game.get("white_name") or "White")
+    pgn_game.headers["Black"] = str(game.get("black_name") or "Black")
     board = pgn_game.board()
     node = pgn_game
-    for index, san in enumerate(list(game.get("moves") or [])):
+    for san in list(game.get("moves") or []):
         move = board.parse_san(str(san))
         node = node.add_variation(move)
         board.push(move)
-        if index < len(analysed_moves):
-            item = analysed_moves[index]
-            classification = str(item.get("classification") or "good")
-            _icon, label = _REVIEW_CLASSIFICATION_LABELS.get(
-                classification,
-                ("✅", classification.title()),
-            )
-            best = str(item.get("best") or "")
-            played = str(item.get("played") or san)
-            parts = [
-                f"Shark Bot: {label}",
-                f"Eval {_format_review_eval(item.get('eval_white_cp', 0))}",
-                f"Move accuracy {float(item.get('move_accuracy', 0.0)):.1f}%",
-            ]
-            if best and best != played:
-                parts.append(f"Best {best}")
-            comment = str(item.get("comment") or "").strip()
-            if comment:
-                parts.append(comment)
-            node.comment = " | ".join(parts)
-
-    return str(pgn_game).strip() + "\n"
+    exporter = chess.pgn.StringExporter(
+        headers=nonstandard_start, variations=False, comments=False, columns=None,
+    )
+    return pgn_game.accept(exporter).strip() + "\n"
 
 
 def _chess_pgn_file(game, analysis=None):
@@ -5931,42 +5899,20 @@ def _discord_text_chunks(text, limit=1800):
 
 
 async def _send_pgn_thread(channel, game, result_message=None, analysis=None):
-    """Put the copyable PGN in a public thread attached to the result.
+    """Publish ONE easily copyable clean PGN message; never split into chunks.
 
-    When Stockfish analysis is available every played move is annotated in the
-    PGN with its Game Review label, evaluation, move accuracy and best move.
+    Short PGNs are both inline and attached. Longer PGNs are a single .pgn
+    attachment, since Discord limits normal message size to 2,000 characters.
+    The result_message/analysis parameters are kept for existing call sites.
     """
-    pgn_text = _build_chess_pgn_text(game, analysis=analysis)
-    white_name = str(game.get("white_name") or "White")
-    black_name = str(game.get("black_name") or "Black")
-    thread = None
-
-    if result_message is not None and isinstance(channel, discord.TextChannel):
-        try:
-            thread_name = f"PGN • {white_name} vs {black_name}"[:100]
-            thread = await result_message.create_thread(
-                name=thread_name,
-                auto_archive_duration=1440,
-                reason="Rated chess game PGN",
-            )
-        except Exception as error:
-            print(f"Chess PGN thread creation failed: {error}", flush=True)
-
-    if thread is None:
-        label = "📄 **Stockfish-annotated Game PGN**" if analysis else "📄 **Game PGN**"
-        await channel.send(label, file=_chess_pgn_file(game, analysis=analysis))
-        return None
-
-    if analysis:
-        await thread.send(
-            "📄 **Stockfish-annotated PGN** — every analysed move includes its Shark Bot Game Review label, eval, move accuracy and best move."
-        )
-    else:
-        await thread.send("📄 **Full PGN — copy everything inside the code blocks:**")
-    for chunk in _discord_text_chunks(pgn_text, limit=1800):
-        await thread.send(f"```pgn\n{chunk}\n```")
-    return thread
-
+    pgn_text = _build_chess_pgn_text(game)
+    heading = "📋 **Chess.com-ready PGN** (no comments or analysis)"
+    inline = f"{heading}\n```pgn\n{pgn_text.strip()}\n```"
+    content = inline if len(inline) <= 1950 else (
+        f"{heading}\nLong game: open the single attached `.pgn` file and copy its text."
+    )
+    await channel.send(content, file=_chess_pgn_file(game))
+    return None
 
 BRILLIANT_REVIEW_EMOJI = "<:BRILLIANT:1525486133172240566>"
 BLUNDER_REVIEW_EMOJI = "<:BLUNDER:1525486089744154684>"
@@ -6035,7 +5981,7 @@ def _format_stockfish_game_analysis(game, analysis):
         )
 
     lines = [
-        f"🔎 **{engine_name} Game Review • SF Accuracy**",
+        f"🔎 **{engine_name} Game Review • depth {int(analysis.get('analysis_depth') or 18)} • SF Accuracy**",
         side_line("⚪", game.get("white_name", "White"), white),
         side_line("⚫", game.get("black_name", "Black"), black),
         "🎬 Use the **Game Review** buttons below to inspect every move.",
@@ -6285,7 +6231,7 @@ class ChessGameReviewView(discord.ui.View):
         lines.append(f"📖 **Ply {self.index + 1}/{len(self.moves)}**")
         lines.append("🧭 Use the numbered move buttons below; every button carries that move's review emoji.")
         embed = discord.Embed(
-            title="🎬 Stockfish 19 Game Review",
+            title=f"🎬 Stockfish 19 Game Review • depth {int(self.analysis.get('analysis_depth') or 18)}",
             description="\n".join(line for line in lines if line),
             color=0x2F3136,
         )
@@ -6492,8 +6438,15 @@ async def _award_brilliant_game_rewards(channel, game, analysis):
 
 
 async def _send_finished_chess_extras(channel, game, result_message=None):
-    analysis = None
-    analysis_error = None
+    # Export first: depth-18 review can take a long time, and users should
+    # receive the Chess.com-ready game record as soon as their game finishes.
+    try:
+        await _send_pgn_thread(channel, game, result_message=result_message)
+    except Exception as error:
+        print(f"Chess PGN export failed: {error}", flush=True)
+        await channel.send("⚠️ **The game finished, but the PGN export failed.**")
+
+    status = await channel.send("🔎 **Stockfish 19 Game Review at depth 18 is analysing this game…**")
     try:
         analysis = await asyncio.to_thread(
             analyse_game_moves,
@@ -6503,29 +6456,17 @@ async def _send_finished_chess_extras(channel, game, result_message=None):
             _game_variant(game) == CHESS_VARIANT_960,
         )
     except StockfishUnavailableError as error:
-        analysis_error = "unavailable"
         print(f"Post-game Stockfish analysis unavailable: {error}", flush=True)
+        await status.edit(content="⚠️ **PGN saved, but Stockfish 19 is unavailable right now.**")
+        return
     except Exception as error:
-        analysis_error = "failed"
         print(f"Post-game Stockfish analysis failed: {error}", flush=True)
+        await status.edit(content="⚠️ **PGN saved, but the depth-18 review could not be completed.**")
+        return
 
-    if analysis:
-        await _award_brilliant_game_rewards(channel, game, analysis)
-
-    try:
-        await _send_pgn_thread(channel, game, result_message=result_message, analysis=analysis)
-    except Exception as error:
-        print(f"Chess PGN export failed: {error}", flush=True)
-        await channel.send("⚠️ **The game finished, but the PGN export failed.**")
-
-    if analysis:
-        await channel.send(_format_stockfish_game_analysis(game, analysis))
-        await _send_chess_game_review(channel, game, analysis)
-    elif analysis_error == "unavailable":
-        await channel.send("⚠️ **PGN saved, but Stockfish analysis is unavailable right now.**")
-    else:
-        await channel.send("⚠️ **PGN saved, but the post-game analysis could not be completed.**")
-
+    await _award_brilliant_game_rewards(channel, game, analysis)
+    await status.edit(content=_format_stockfish_game_analysis(game, analysis))
+    await _send_chess_game_review(channel, game, analysis)
 
 def _new_chess_game_board(variant=CHESS_VARIANT_STANDARD, chess960_pos=None):
     variant = _game_variant({"variant": variant})
