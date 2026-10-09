@@ -238,7 +238,7 @@ def warm_worker():
     checkpoint=os.environ.get('FAIRPLAY_MAIA_CHECKPOINT')
     if not checkpoint or not Path(checkpoint).is_file():return False
     with _lock:
-        if _worker is None:_worker=LocalPolicyWorker(model_path)
+        if _worker is None:_worker=LocalPolicyWorker(checkpoint)
     return True
 
 
@@ -251,6 +251,7 @@ def annotate_history(games,predictor=None,*,full_coverage=False,checkpoint=None,
             decision.human_policy={};decision.fast_policy={}
             decision.metrics.pop('policy_search',None)
     model_path=os.environ.get('FAIRPLAY_MAIA_CHECKPOINT')
+    owns_worker=predictor is None
     if predictor is None and (not model_path or not Path(model_path).is_file()):
         return {'available':False,'positions':0,'reason':'Local Maia checkpoint is not installed; Stockfish and the explicit heuristic remain active.'}
     chosen=selection(games,full_coverage=full_coverage)
@@ -292,7 +293,16 @@ def annotate_history(games,predictor=None,*,full_coverage=False,checkpoint=None,
             'cache_hits':len(chosen)-len(missing),'seconds':time.monotonic()-start,
             'role':'Learned human-policy comparison with Stockfish counterfactuals and paired deep confirmation; not a calibrated misconduct probability.'}
     except Exception as error:
-        if predictor is not None and _worker is not None:close_worker()
+        # A failed *later* 64-position batch can leave earlier policies on
+        # decisions. Do not allow partial model evidence to influence scoring
+        # when the declared Maia reference is unavailable.
+        for game in games:
+            game.human_reference={}
+            for decision in game.decisions:
+                decision.human_policy={}
+                decision.fast_policy={}
+                decision.metrics.pop('policy_search',None)
+        if owns_worker and _worker is not None:close_worker()
         return {'available':False,'positions':0,'seconds':time.monotonic()-start,'failure_kind':type(error).__name__,
                 'reason':'Local human reference unavailable; Stockfish review completed without invented model results.'}
 
@@ -308,6 +318,15 @@ def confirmation_pair(games):
     for kind in ('rapid','blitz'):
         group=sorted([g for g in games if g.time_class==kind],key=lambda g:(g.ended,g.identity))
         for a,b in zip(group,group[1:]):
+            # A neighboring row in a broad time class is not necessarily
+            # the next rated game at the *same* exact clock control.
+            if (getattr(a,'time_control',None)!=getattr(b,'time_control',None)
+                    or getattr(a,'rated',True) is not True or getattr(b,'rated',True) is not True
+                    or getattr(a,'probe_only',False) or getattr(b,'probe_only',False)
+                    or (getattr(a,'control_index',None) is not None
+                        and getattr(b,'control_index',None) is not None
+                        and b.control_index!=a.control_index+1)):
+                continue
             refs=[a.human_reference,b.human_reference]
             if all(r.get('eligible',0)>=3 and r.get('low_policy_strong_moves',0)>=2 for r in refs):
                 options.append((sum(r.get('information',0) for r in refs),a.ended,[a,b]))
