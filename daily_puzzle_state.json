@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/NqHEC",
     "title": "Lichess • 1891",
     "fen": "8/P3R3/7p/1P4p1/8/2P3PP/3kp2K/r7 b - - 1 51",
-    "current_fen": "8/P3R3/7p/1P4p1/8/2P3PP/3kp2K/r7 b - - 1 51",
-    "last_move_uci": "f7e7",
+    "current_fen": "8/R7/7p/1P4p1/8/2P3PP/3kp2K/8 b - - 0 52",
+    "last_move_uci": "e7a7",
     "pgn": "Rxa7 Rxa7 e1=Q",
     "all_moves": [
       {
@@ -43,26 +43,59 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_NqHEC_1791582952874",
-    "last_activity_at": "2026-10-09T21:55:52.874195+00:00",
+    "last_activity_at": "2026-10-09T21:56:11.884059+00:00",
     "rating": 1891,
     "rp_band": 2,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
-    "message_ids": {},
-    "message_id": null,
+    "message_ids": {
+      "1468320170891022417": 1558236668429860884
+    },
+    "message_id": 1558236668429860884,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "attempted_users": {
+      "442597396195704832": {
+        "name": "Thice",
+        "move": "rxa7",
+        "correct": true,
+        "timestamp": "2026-10-09T21:56:11.884829+00:00"
+      }
+    },
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "board_attachment_filenames": {
+      "1468320170891022417": "random_puzzle.png"
+    },
+    "last_card_activity_at": "2026-10-09T21:56:11.884059+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1791582971.8848436,
+        "fen_before": "8/P3R3/7p/1P4p1/8/2P3PP/3kp2K/r7 b - - 1 51",
+        "expected": {
+          "uci": "a1a7",
+          "san": "Rxa7",
+          "color": "black"
+        },
+        "accepted_uci": "a1a7"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "Rxa7",
+        "uci": "a1a7",
+        "principal": true
+      }
+    ],
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Rxa7"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
