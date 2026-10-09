@@ -21,6 +21,15 @@ def install():
     ui.panel_embed = new_panel
 
     def capture(result, limit=4):
+        # Executed in the Fair Play scan thread before the full move trees are
+        # deleted. Optional sidecars cannot influence the screening priority.
+        from fairplay_multimodel import run_external_models
+        try:
+            result.diagnostics["independent_model_observations"] = run_external_models(result)
+        except Exception:
+            result.diagnostics["independent_model_observations"] = {
+                "role": "Optional research-only comparisons; scoring unchanged",
+                "status": "unavailable"}
         try:
             result.diagnostics["_private_evidence"] = evidence(result)
         except Exception:
