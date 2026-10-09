@@ -117,6 +117,9 @@ class Decision:
     clock_valid: bool = False
     fast_engine: dict = field(default_factory=dict)
     opening: dict = field(default_factory=dict)
+    # Most recent opponent clock observation at this exact position. This is
+    # intentionally distinct from the reviewed player's clock and may be null.
+    opponent_clock_before: float | None = None
     human_policy: dict = field(default_factory=dict)
     fast_policy: dict = field(default_factory=dict)
 
@@ -220,7 +223,8 @@ def parse_game(row: dict, target: str, config: ReviewConfig = CONFIG, *, exclusi
             decisions.append(Decision(ply, board.fullmove_number, board.fen(), node.move.uci(),
                                       before, after, think, legal, in_check, capture, phase, forced,
                                       phase != 'opening' and not forced and trivial is None, reliable, board.gives_check(node.move),
-                                      trivial_kind=trivial,clock_valid=clock_valid,opening=opening))
+                                      trivial_kind=trivial,clock_valid=clock_valid,opening=opening,
+                                      opponent_clock_before=previous[not side]))
         previous[side] = after  # a missing clock breaks that side's chain; never span missing moves
         previous_capture_square = node.move.to_square if capture else None
         moves.append(node.move.uci())
