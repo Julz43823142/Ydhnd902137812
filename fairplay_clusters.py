@@ -195,6 +195,35 @@ def select_gate_candidates(ranked_persistent, all_candidates, config=CONFIG):
         selected[victim]=row
         counts[key]+=1
         represented.add(key)
+    # A *different* time period inside the same clock cohort may still be
+    # omitted after 64 stronger overlapping windows. Preserve discovery of
+    # separate, non-overlapping periods without expanding the search budget or
+    # promoting arbitrary ranked/nonpersistent subsets.
+    for row in all_candidates:
+        ids=set(row.get('ids') or ())
+        key=cohort(row)
+        if (not eligible(row) or not ids or row in selected
+                or any(ids & set(item.get('ids') or ())
+                       for item in selected if eligible(item) and cohort(item)==key)):
+            continue
+        if len(selected)<limit:
+            selected.append(row)
+            counts[key]+=1
+            continue
+        # The evicted slot must be redundant: its cohort retains a window
+        # covering the *same underlying games*, or it was not HIGH-eligible.
+        # Never evict the globally strongest original discovery window.
+        victim=next((i for i in range(len(selected)-1,0,-1)
+                     if counts[cohort(selected[i])]>1
+                     and (not eligible(selected[i]) or any(
+                         j!=i and cohort(other)==cohort(selected[i])
+                         and (set(other.get('ids') or ()) & set(selected[i].get('ids') or ()))
+                         for j,other in enumerate(selected)))),
+                    None)
+        if victim is None:continue
+        counts[cohort(selected[victim])]-=1
+        selected[victim]=row
+        counts[key]+=1
     return selected
 
 
