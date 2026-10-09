@@ -349,8 +349,15 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG):
         partial = True
         primary_archive_partial |= len(samples)<primary_limit(config)
     if partial and len(samples)<primary_limit(config):primary_archive_partial=True
-    api.fairplay_collection_coverage = {'primary_archive_partial':primary_archive_partial,
-        'context_history_complete':not partial}
+    api.fairplay_collection_coverage = {
+        'primary_archive_partial':primary_archive_partial,
+        'context_history_complete':not partial,
+        'available_archive_months':len(ordered),
+        'visited_archive_months':visited_months,
+        'unvisited_archive_months':max(0,len(ordered)-visited_months),
+        'eligible_games_capped':len(samples)>=limit,
+        'requested_context_limit':limit,
+        'requested_primary_limit':primary_limit(config)}
     newest = sorted(samples, key=lambda g: (g.ended, g.identity), reverse=True)[:limit]
     return sorted(newest, key=lambda g: (g.ended, g.identity)), dict(skipped), partial
 
