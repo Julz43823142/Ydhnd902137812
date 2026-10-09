@@ -14,15 +14,20 @@ game = SimpleNamespace(
     rated=True, probe_only=False, decisions=[decision], moves=["e2e4"],
     rating=1500, opponent_rating=1500, time_control="180+0")
 result = SimpleNamespace(games=[game], priority="LOW")
-environ = dict(os.environ, FAIRPLAY_EXTERNAL_MODELS="maia3_23m",
+variants = ["maia3_23m"]
+if os.environ.get("FAIRPLAY_MAIA_79M_CHECKPOINT"):
+    variants.append("maia3_79m")
+environ = dict(os.environ, FAIRPLAY_EXTERNAL_MODELS=",".join(variants),
                FAIRPLAY_EXTERNAL_MAX_POSITIONS="1",
-               FAIRPLAY_EXTERNAL_MAX_SECONDS="240")
+               FAIRPLAY_EXTERNAL_MAX_SECONDS="300")
 report = run_external_models(result, env=environ)
-row = report["statuses"].get("maia3_23m", {})
-assert row.get("status") == "evaluated", row
-assert row.get("positions") == 1, row
-model = report["models"]["maia3_23m"]
-assert model["observations"][0]["predicted"] in {
-    m.uci() for m in board.legal_moves}, model
+for name in variants:
+    row = report["statuses"].get(name, {})
+    assert row.get("status") == "evaluated", (name, row)
+    assert row.get("positions") == 1, (name, row)
+    model = report["models"][name]
+    assert model["observations"][0]["predicted"] in {
+        m.uci() for m in board.legal_moves}, model
 assert result.priority == "LOW"
-print("Verified: real Maia-3 23M local UCI prediction; review score untouched.")
+print("Verified: real local Maia-3 " + ", ".join(variants) +
+      " UCI predictions; review score untouched.")
