@@ -1,5 +1,7 @@
 """Add private report access to the existing Discord Fair Play view."""
 import io
+import asyncio
+from fairplay_export_persistence import OwnerEvidenceStore
 import discord
 from fairplay_evidence_payload import evidence
 from shark_admin import ADMIN_ID
@@ -36,13 +38,16 @@ def install():
                     await ctx.response.send_message("Only Sharkmeister may access this export.",
                                                     ephemeral=True)
                     return
+                await ctx.response.defer(ephemeral=True, thinking=True)
                 result = ui._service.result_for(ctx.message.id) if ui._service else None
                 files = result.diagnostics.get("_private_evidence") if result else None
                 if not files:
-                    await ctx.response.send_message(
-                        "Full evidence unavailable after expiry/restart.", ephemeral=True)
+                    files = await asyncio.to_thread(OwnerEvidenceStore().get, ctx.message.id)
+                if not files:
+                    await ctx.followup.send(
+                        "Full evidence unavailable or expired. No partial audit was sent.",
+                        ephemeral=True)
                     return
-                await ctx.response.defer(ephemeral=True, thinking=True)
                 for name, payload in files:
                     await ctx.followup.send(
                         file=discord.File(io.BytesIO(payload), filename=name),
