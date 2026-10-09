@@ -61,6 +61,68 @@ class PoolFailureTests(unittest.TestCase):
 
 
 
+class PoolRecoveryTests(unittest.TestCase):
+    def setup_pool(self):
+        pool=SharedEnginePool.__new__(SharedEnginePool)
+        pool.closed=False;pool.failed=threading.Event();pool.available=queue.LifoQueue()
+        pool.config=Mock();pool.factory=None;pool.name='Synthetic';pool.restarts=0
+        original=Mock();original.name='Synthetic'
+        pool.scanners=[original];pool.available.put(original)
+        return pool,original
+
+    def test_timeout_retries_same_action_after_worker_restart(self):
+        pool,original=self.setup_pool()
+        replacement=Mock();replacement.name='Synthetic'
+        seen=[]
+        def task(worker):
+            seen.append(worker)
+            if worker is original:raise TimeoutError('synthetic stall')
+            return 'complete'
+        with patch('fairplay_analysis.EngineScanner',return_value=replacement):
+            self.assertEqual(pool._run_with_scanner(
+                ScanDeadline(time.monotonic()+10),task),'complete')
+        self.assertEqual(seen,[original,replacement])
+        self.assertEqual(pool.restarts,1)
+        self.assertFalse(pool.failed.is_set())
+        self.assertIs(pool.available.get_nowait(),replacement)
+        original.close.assert_called_once()
+
+    def test_two_failures_do_not_become_completed_evidence(self):
+        pool,_=self.setup_pool()
+        replacement=Mock();replacement.name='Synthetic'
+        def task(_):raise TimeoutError('synthetic stall')
+        with patch('fairplay_analysis.EngineScanner',return_value=replacement):
+            with self.assertRaises(TimeoutError):
+                pool._run_with_scanner(ScanDeadline(time.monotonic()+10),task)
+        self.assertEqual(pool.restarts,2)
+        self.assertFalse(pool.failed.is_set())
+        self.assertEqual(pool.available.qsize(),1)
+
+    def test_fast_and_deep_both_use_single_pv(self):
+        from fairplay_config import CONFIG
+        self.assertEqual(CONFIG.fast_multipv,1)
+        self.assertEqual(CONFIG.deep_multipv,1)
+
+
+class SinglePVConservativePriorityTests(unittest.TestCase):
+    def test_single_pv_never_issues_high_without_alternative_evidence(self):
+        from fairplay_scoring import priority_model
+        from fairplay_config import CONFIG
+        from dataclasses import replace
+        args=dict(games=100,decisions=4000,critical=100,confidence='HIGH',
+                  deep_confirmed=True,partial=False,persistent=True,
+                  recurrence=True,cluster_games=100,deep_cluster_games=100,
+                  cluster_decisions=4000,cluster_qualified=True,
+                  baseline_anomaly=True,baseline_available=True,
+                  baseline_confirmed=True)
+        result=priority_model((1.0,1.0,1.0,1.0,1.0),config=CONFIG,**args)
+        self.assertNotIn(result,('HIGH','VERY HIGH'))
+        # Legacy multi-candidate configuration keeps the old gating behavior.
+        legacy=replace(CONFIG,deep_multipv=5)
+        self.assertIn(priority_model((1.0,1.0,1.0,1.0,1.0),config=legacy,**args),
+                      ('HIGH','VERY HIGH'))
+
+
 class PartialBatchTests(unittest.TestCase):
     def test_deadline_preserves_complete_game_and_excludes_partial_game(self):
         from concurrent.futures import Future

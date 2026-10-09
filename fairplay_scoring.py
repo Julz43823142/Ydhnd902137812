@@ -30,7 +30,10 @@ def priority_model(scores, *, games, decisions, critical, confidence, deep_confi
     # No-history cases remain reviewable, but need exceptional sustained absolute
     # evidence and strong behavioral corroboration. A missing baseline is not a delta.
     absolute_path=extreme and period_games>=10 and (not baseline_available or recurrence) and (timing>=.75 or recurrence)
-    high_ok=(primary and supporting and persistent and cluster_qualified and sample_ok
+    # With MultiPV 1, critical/unique alternatives are unavailable. Until
+    # an independently validated difficulty metric replaces them, never
+    # issue HIGH or VERY HIGH from this incomplete evidence contract.
+    high_ok=(config.deep_multipv >= 3 and primary and supporting and persistent and cluster_qualified and sample_ok
              and deep_confirmed and confidence!='LOW' and (personal_path or absolute_path))
     if (high_ok and strong and max(timing,context)>=.75 and (personal_path or recurrence)
             and confidence=='HIGH' and not partial and games>=config.very_high_games

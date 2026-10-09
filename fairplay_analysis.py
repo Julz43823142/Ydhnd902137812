@@ -518,6 +518,7 @@ class SharedEnginePool:
         self.scanners=[]
         self.closed=False
         self.failed=threading.Event()
+        self.restarts=0  # aggregate engine health, not user data
         try:
             for _ in range(self.size):
                 scanner=EngineScanner(None,config,factory)
@@ -532,38 +533,49 @@ class SharedEnginePool:
         self.supports_decision_tasks=all(callable(getattr(scanner,'analyse_decision',None)) for scanner in self.scanners)
 
     def _run_with_scanner(self,deadline,action):
-        # Never wait indefinitely after an engine dies and its replacement
-        # fails. Every borrower observes the scan deadline/cancellation too.
-        while True:
-            if self.closed or self.failed.is_set():
-                raise ReviewError('Stockfish pool is unavailable; please retry the review.')
-            check_deadline(deadline)
+        # Retry one failed position after replacing a broken engine worker.
+        # Never record incomplete searches or silently drop evidence.
+        for attempt in range(2):
+            while True:
+                if self.closed or self.failed.is_set():
+                    raise ReviewError('Stockfish pool is unavailable; please retry the review.')
+                check_deadline(deadline)
+                try:
+                    scanner=self.available.get(timeout=.1)
+                    break
+                except queue.Empty:continue
+            reusable=True
             try:
-                scanner=self.available.get(timeout=.1)
-                break
-            except queue.Empty:continue
-        reusable=True
-        try:
-            scanner.deadline=deadline
-            return action(scanner)
-        except (chess.engine.EngineError,TimeoutError):
-            reusable=False
-            try:scanner.close()
-            except Exception:pass
-            try:
-                replacement=EngineScanner(None,self.config,self.factory)
-                if replacement.name!=self.name:
-                    replacement.close()
-                    raise ReviewError('Stockfish worker version changed.')
-                self.scanners[self.scanners.index(scanner)]=replacement
-                if self.closed:replacement.close()
-                else:self.available.put(replacement)
-            except Exception:
-                self.failed.set()
-            raise
-        finally:
-            scanner.deadline=None
-            if reusable and not self.closed:self.available.put(scanner)
+                scanner.deadline=deadline
+                return action(scanner)
+            except (chess.engine.EngineError,TimeoutError,OSError) as error:
+                reusable=False
+                try:scanner.close()
+                except Exception:pass
+                recovered=False
+                try:
+                    replacement=EngineScanner(None,self.config,self.factory)
+                    if replacement.name!=self.name:
+                        replacement.close()
+                        raise ReviewError('Stockfish worker version changed.')
+                    self.scanners[self.scanners.index(scanner)]=replacement
+                    if self.closed:replacement.close()
+                    else:self.available.put(replacement)
+                    self.restarts+=1
+                    recovered=not self.closed
+                except Exception:
+                    self.failed.set()
+                # Log categories only: no username, FEN or raw exception data.
+                reason=('timeout' if isinstance(error,TimeoutError) else
+                        'terminated' if isinstance(error,chess.engine.EngineTerminatedError)
+                        else 'uci-error')
+                print(f'Fair Play engine worker {reason}; '
+                      f'{"restarted" if recovered else "restart-failed"} '
+                      f'(attempt {attempt+1}/2)',flush=True)
+                if not recovered or attempt==1:raise
+            finally:
+                scanner.deadline=None
+                if reusable and not self.closed:self.available.put(scanner)
 
     def run(self,game,nodes,deadline):
         self._run_with_scanner(deadline,lambda scanner:scanner.analyse(game,nodes))
@@ -697,6 +709,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
     shared_pool = engine_pool
     scanner = None
     shared_profile_before = {}
+    pool_restarts_before = 0
     fast_position_tasks = 0
     deep_position_tasks = 0
     try:
@@ -719,6 +732,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 requested_workers=shared_pool.size
                 engine_name=shared_pool.name
                 shared_profile_before=engine_profile(shared_pool.scanners)
+                pool_restarts_before=getattr(shared_pool,'restarts',0)
             else:
                 requested_workers=(1 if engine_factory is not None and engine_workers is None
                                    else automatic_engine_workers() if engine_workers is None
@@ -1114,6 +1128,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             'human_reference_seconds':neural_reference.get('seconds',0),
             'fast_position_tasks':fast_position_tasks,'deep_position_tasks':deep_position_tasks,
             'engine_workers':requested_workers,'shared_engine_pool':bool(use_shared),
+            'stockfish_worker_restarts':(getattr(shared_pool,'restarts',0)-pool_restarts_before
+                                         if use_shared and shared_pool is not None else None),
             'full_depth18_mode':full_depth_mode,
             'full_depth18_games_completed':sum(g.deep for g in analyzed if g.time_class!='bullet') if full_depth_mode else None,
             'bullet_depth12_games_completed':sum(g.deep for g in analyzed if g.time_class=='bullet') if full_depth_mode else None,
