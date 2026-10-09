@@ -171,6 +171,14 @@ def select_gate_candidates(ranked_persistent, all_candidates, config=CONFIG):
     for row in all_candidates:
         if not row['persistent'] or counts[cohort(row)]:
             continue
+        # A stronger-looking short/undercovered window can fail the ordinary
+        # HIGH opportunity gates. It must not monopolize the only reserved
+        # slot when a slightly weaker *qualifying* window exists.
+        qualified=(row['high_qualifying'] if 'high_qualifying' in row else
+                   high_cluster_qualification(row,(),config)
+                   if 'metrics' in row else False)
+        if not qualified:
+            continue
         if len(selected)<limit:
             selected.append(row)
         else:
