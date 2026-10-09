@@ -108,21 +108,23 @@ def result_embed(result: ReviewResult):
         sample += f'\nRecent rated primary sample: {coverage["primary_fast_scanned"]}/{coverage["primary_collected"]} · historical discovery probes: {coverage.get("history_probed",0)}'
     sample += f'\nSkipped unrated games while collecting history: {result.skipped.get("unrated",0)} · unknown rated status: {result.skipped.get("rated_status_unknown",0)}'
     if coverage.get('history_probe_complete') is False:sample += '\nExtended-history discovery is incomplete; primary coverage is shown separately.'
+    scope=[]
     if coverage.get('requested_primary_limit'):
-        sample += (f"\nEngine scope: latest up to {coverage['requested_primary_limit']} eligible rated games. "
-                   "An account with thousands of games is NOT exhaustively analyzed.")
+        scope.append(f"Engine scope: latest up to {coverage['requested_primary_limit']} eligible rated games. "
+                     "An account with thousands of games is NOT exhaustively analyzed.")
     if coverage.get('available_archive_months') is not None:
-        sample += (f"\nArchive months visited: {coverage.get('visited_archive_months',0)}/"
-                   f"{coverage['available_archive_months']}; "
-                   f"older months not visited: {coverage.get('unvisited_archive_months',0)}.")
+        scope.append(f"Archive months visited: {coverage.get('visited_archive_months',0)}/"
+                     f"{coverage['available_archive_months']}; "
+                     f"older months not visited: {coverage.get('unvisited_archive_months',0)}.")
     if coverage.get('eligible_games_capped'):
-        sample += '\nContext/history was capped by the configured game limit.'
+        scope.append('Context/history was capped by the configured game limit.')
     if result.skipped:sample += f'\nSkipped archive/game entries: {sum(result.skipped.values())}'
     if coverage.get('optional_context_partial'):sample += '\n⚠️ Older context is incomplete; primary engine coverage is complete.'
     elif result.partial:sample += '\n⚠️ Partial scan / limited archive coverage. Missing data is not suspicious.'
     dates=[g.ended for g in (result.timeline or result.games) if g.ended>0]
     if dates:sample += f'\nEngine-covered dates: <t:{min(dates)}:d> → <t:{max(dates)}:d>'
-    embed.add_field(name='Sample',value=sample,inline=False)
+    embed.add_field(name='Sample',value=sample[:1024],inline=False)
+    if scope:embed.add_field(name='Review scope — bounded archive',value='\n'.join(scope)[:1024],inline=False)
     embed.add_field(name='Signals',value='\n'.join(f'**{key}:** {value}' for key,value in result.families.items()),inline=False)
     embed.add_field(name='Review notes',value='\n'.join('• '+value for value in result.reasons)[:1024],inline=False)
     if result.priority=='LOW':
@@ -756,7 +758,11 @@ class FairPlayService:
                 # Policy scoring can inspect thousands of engine-reviewed
                 # positions. Do this in the scan executor, never Discord's
                 # event loop, before sensitive decisions are discarded.
-                result.diagnostics['manual_maia_examples']=capture_human_examples(result)
+                try:result.diagnostics['manual_maia_examples']=capture_human_examples(result)
+                except Exception:
+                    # A supplementary public-link excerpt must never prevent
+                    # delivery of a fully completed screening result.
+                    result.diagnostics['manual_maia_examples']=[]
                 return result
             future = loop.run_in_executor(self.executor,run_review)
             while not future.done():
