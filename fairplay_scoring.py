@@ -128,6 +128,12 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
     # borrowing clocks, results, controls, or deep evidence between periods.
     base_perf_score=perf_score
     disabled=set(config.disabled_features)
+    # This descriptive fallback does not depend on the candidate; compute it
+    # once rather than repeating a relatively expensive timing comparison.
+    descriptive_fallback=max(
+        buckets(timeline).values(),
+        key=lambda group:descriptive_group_rank(group,profile,personal,config),
+        default=[])
     def assess_legacy_scope(strongest):
         deep_confirmation=confirm_cluster(strongest,timeline,config)
         deep_confirmed=deep_confirmation['confirmed']
@@ -145,7 +151,7 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
         comparison=baseline_comparison(strongest,timeline,config,fast=True)
         # Absence of a qualifying period blocks HIGH, but must not erase large
         # same-control aggregate signals from a descriptive MODERATE review.
-        fallback=max(buckets(timeline).values(),key=lambda group:descriptive_group_rank(group,profile,personal,config),default=[])
+        fallback=descriptive_fallback
         reference=[g for g in games if strongest and g.time_class==strongest['time_class'] and g.time_control==strongest['time_control']] if strongest else fallback
         stable_strong=comparison['stable'] or stable_history(reference,config)
         independent_timing = any(row['state'] in ('Moderate','Strong','Very Strong') and row['time_class']!='bullet' for row in personal)
