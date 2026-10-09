@@ -246,7 +246,10 @@ def find_clusters(games, config=CONFIG, fast=False):
     ranked_persistent=[r for r in candidates if r['persistent']]
     finalists=ranked_persistent[:config.baseline_candidate_limit]
     gate_candidates=select_gate_candidates(finalists,candidates,config)
-    for row in gate_candidates:
+    annotated=set()
+    for row in finalists+gate_candidates:
+        if id(row) in annotated:continue
+        annotated.add(id(row))
         row['personal']=baseline_comparison(row,games,config,fast=fast)
         row['high_qualifying']=high_cluster_qualification(row,games,config)
     finalists.sort(key=lambda r:(r['high_qualifying'],r['personal']['established'],r['strength'],r['end']),reverse=True)
