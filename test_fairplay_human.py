@@ -558,7 +558,8 @@ class OpeningAndCoverage(unittest.TestCase):
         self.assertIn('off_book_moves',p['White'])
 
     def test_newest_200_context_games_with_latest_100_engine_quota(self):
-        self.assertEqual(data.collection_limit(),200);self.assertEqual(data.primary_limit(),100)
+        old_config=replace(CONFIG,max_games=200,history_games=200,primary_engine_games=100)
+        self.assertEqual(data.collection_limit(old_config),200);self.assertEqual(data.primary_limit(old_config),100)
         rows=[sample_row(i) for i in range(240)]
         for i in range(20):rows.append({**sample_row(300+i),'rules':'chess960'})
         for i in range(20):rows.append({**sample_row(400+i),'rated':False})
@@ -566,7 +567,7 @@ class OpeningAndCoverage(unittest.TestCase):
         class API:
             deadline=time.monotonic()+120
             def get(self,name,suffix):return {'archives':[f'https://api.chess.com/pub/player/{name}/games/2026/10']} if suffix.endswith('archives') else {'games':rows}
-        found,skipped,partial=data.collect_games(API(),TARGET,lambda _:None)
+        found,skipped,partial=data.collect_games(API(),TARGET,lambda _:None,old_config)
         self.assertEqual(len(found),200);self.assertEqual(found[0].identity,'synthetic-40')
         self.assertEqual(found[-1].identity,'synthetic-239');self.assertEqual(skipped['unrated'],20);self.assertEqual(skipped['variant'],20)
         self.assertFalse(partial)

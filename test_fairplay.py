@@ -640,7 +640,7 @@ class DiscordRules(unittest.IsolatedAsyncioTestCase):
         message=FakeMessage(self.channel,1,old,created=time.time()-3700)
         self.channel.messages.append(message)
         self.assertFalse(await self.service.ensure_panel())
-        self.assertIn('200',message.embeds[0].description)
+        self.assertIn('500',message.embeds[0].description)
         self.assertEqual(message.edits,1);self.assertEqual(self.channel.sends,0)
         self.assertFalse(await self.service.ensure_panel())
         self.assertEqual(message.edits,1)

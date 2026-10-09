@@ -187,7 +187,8 @@ class Coverage(unittest.TestCase):
                 if nodes==CONFIG.fast_nodes:g.fast_metrics=copy.deepcopy(g.metrics)
             def close(self):pass
         api=SimpleNamespace(get=Mock(return_value={'username':TARGET}),close=Mock())
-        config=replace(CONFIG,deep_games=0)
+        config=replace(CONFIG,max_games=200,history_games=200,
+                       primary_engine_games=100,deep_games=0)
         with patch.object(analysis,'collect_games',return_value=(games,{},False)),patch.object(analysis,'EngineScanner',Scanner):
             result=analysis.review(TARGET,lambda _:None,config,api_factory=lambda _:api)
         self.assertEqual(len(calls),100)
@@ -210,7 +211,8 @@ class Coverage(unittest.TestCase):
                                             f'https://api.chess.com/pub/player/{name}/games/2026/10']}
                     if suffix.endswith('10'):return None if missing_newer else {'games':rows}
                     return {'games':rows} if missing_newer else None
-            api=API();found,skipped,partial=data.collect_games(api,TARGET,lambda _:None)
+            api=API();found,skipped,partial=data.collect_games(api,TARGET,lambda _:None,
+                replace(CONFIG,max_games=200,history_games=200,primary_engine_games=100))
             self.assertEqual(len(found),100);self.assertTrue(partial)
             self.assertEqual(api.fairplay_collection_coverage['primary_archive_partial'],missing_newer)
 
@@ -224,7 +226,8 @@ class Coverage(unittest.TestCase):
                     f'https://api.chess.com/pub/player/{name}/games/2026/10']}
                 if suffix.endswith('10'):return {'games':rows}
                 raise data.ReviewError('Temporarily unavailable')
-        api=API();found,skipped,partial=data.collect_games(api,TARGET,lambda _:None)
+        api=API();found,skipped,partial=data.collect_games(api,TARGET,lambda _:None,
+            replace(CONFIG,max_games=200,history_games=200,primary_engine_games=100))
         self.assertEqual(len(found),100);self.assertTrue(partial)
         self.assertFalse(api.fairplay_collection_coverage['primary_archive_partial'])
 

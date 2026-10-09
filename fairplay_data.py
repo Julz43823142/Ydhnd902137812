@@ -117,6 +117,9 @@ class Decision:
     clock_valid: bool = False
     fast_engine: dict = field(default_factory=dict)
     opening: dict = field(default_factory=dict)
+    # Most recent opponent clock observation at this exact position. This is
+    # intentionally distinct from the reviewed player's clock and may be null.
+    opponent_clock_before: float | None = None
     human_policy: dict = field(default_factory=dict)
     fast_policy: dict = field(default_factory=dict)
 
@@ -220,7 +223,8 @@ def parse_game(row: dict, target: str, config: ReviewConfig = CONFIG, *, exclusi
             decisions.append(Decision(ply, board.fullmove_number, board.fen(), node.move.uci(),
                                       before, after, think, legal, in_check, capture, phase, forced,
                                       phase != 'opening' and not forced and trivial is None, reliable, board.gives_check(node.move),
-                                      trivial_kind=trivial,clock_valid=clock_valid,opening=opening))
+                                      trivial_kind=trivial,clock_valid=clock_valid,opening=opening,
+                                      opponent_clock_before=previous[not side]))
         previous[side] = after  # a missing clock breaks that side's chain; never span missing moves
         previous_capture_square = node.move.to_square if capture else None
         moves.append(node.move.uci())
@@ -363,9 +367,9 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG):
 
 
 def collection_limit(config=CONFIG):
-    # Older callers/tests use max_games as a small explicit fixture limit.
-    return max(1, min(500, config.history_games if config.max_games in (100, 200) else config.max_games))
+    # Respect explicit fixture caps while allowing all 500 latest rated games in production.
+    return max(1, min(500, config.history_games if config.max_games in (100, 200, 500) else config.max_games))
 
 
 def primary_limit(config=CONFIG):
-    return max(1, min(200, config.primary_engine_games, config.max_games))
+    return max(1, min(500, config.primary_engine_games, config.max_games))

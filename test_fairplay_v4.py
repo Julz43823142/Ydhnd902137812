@@ -196,8 +196,9 @@ class ExtendedHistory(unittest.TestCase):
         api=Mock();api.get.return_value={'username':TARGET}
         a._game_cache.clear()
         try:
+            legacy=replace(CONFIG,max_games=200,history_games=200,primary_engine_games=100)
             with patch.object(a,'collect_games',return_value=(games,{},False)),patch.object(a,'EngineScanner',Scanner):
-                result=a.review(TARGET,lambda _:None,api_factory=lambda _:api)
+                result=a.review(TARGET,lambda _:None,config=legacy,api_factory=lambda _:api)
             self.assertEqual(calls.count(CONFIG.fast_nodes),100)
             self.assertEqual(calls.count(CONFIG.historical_probe_nodes),0)
             self.assertLessEqual(calls.count(CONFIG.deep_nodes),CONFIG.deep_max_games)
@@ -230,7 +231,7 @@ class ExtendedHistory(unittest.TestCase):
         self.assertFalse(partial)
 
     def test_configurable_collection_limit_and_primary_limit(self):
-        self.assertEqual(data.collection_limit(CONFIG),200);self.assertEqual(data.primary_limit(CONFIG),100)
+        self.assertEqual(data.collection_limit(CONFIG),500);self.assertEqual(data.primary_limit(CONFIG),500)
         self.assertEqual(data.collection_limit(replace(CONFIG,history_games=250)),250)
         self.assertEqual(data.collection_limit(replace(CONFIG,max_games=2)),2)
         self.assertEqual(data.collection_limit(replace(CONFIG,history_games=900)),500)

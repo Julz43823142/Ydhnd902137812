@@ -76,6 +76,15 @@ jobs:
           python -m pip install -r requirements-fairplay-human.txt
           python scripts/prepare_fairplay_maia.py /tmp/sharkbot-maia/maia3-5m.pt --github-env
 
+      - name: Prepare supplementary Maia-3 23M and 79M local policies
+        # Independent research-only observations; if unavailable, report
+        # "unavailable" rather than altering LOW/HIGH outcomes.
+        continue-on-error: true
+        run: |
+          python -m pip install git+https://github.com/CSSLab/maia3.git@1e13597c42d4858b7cfd7cfdae01e297263364b2
+          python scripts/prepare_fairplay_maia_23m.py /tmp/sharkbot-maia/maia3-23m.pt --github-env
+          python scripts/prepare_fairplay_maia_79m.py /tmp/sharkbot-maia/maia3-79m.pt --github-env
+
       - name: Restore official Stockfish 19 binary
         continue-on-error: true
         uses: actions/cache@v4
@@ -185,10 +194,15 @@ jobs:
         run: python bot.py
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
-          # Full 100-game Stockfish depth-18 + per-position Maia review.
+          # Full depth-18 Stockfish evaluation of the latest 500 eligible rated games; bounded Maia observations.
           # Opt-in only; inactive until this PR is independently merged.
           FAIRPLAY_FULL_DEPTH18: "1"
           FAIRPLAY_REQUIRE_MAIA: "1"
+          # Deterministic supplementary model observations on up to 48
+          # temporally spread depth-completed games; never raise verdicts.
+          FAIRPLAY_EXTERNAL_MODELS: "maia3_23m,maia3_79m,lc0,chessmimic,allie,allie_v2,allie_2,maia4all,kaladin,irwin"
+          FAIRPLAY_EXTERNAL_MAX_POSITIONS: "48"
+          FAIRPLAY_EXTERNAL_MAX_SECONDS: "600"
           SHARKMEISTER_USER_ID: "362606514764251137"
           TWITCH_EVENTSUB_ENABLED: "1"
           TWITCH_CLIENT_ID: ${{ vars.TWITCH_CLIENT_ID }}

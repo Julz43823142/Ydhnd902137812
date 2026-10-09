@@ -198,7 +198,7 @@ class CoverageAndReview(unittest.TestCase):
         self.assertEqual(coverage["available_archive_months"],4)
         self.assertEqual(coverage["visited_archive_months"],2)
         self.assertEqual(coverage["unvisited_archive_months"],2)
-        self.assertEqual(coverage["requested_primary_limit"],100)
+        self.assertEqual(coverage["requested_primary_limit"],500)
         self.assertEqual(len(rows),2)
 
     def test_six_game_learned_reference_route_remains_available(self):

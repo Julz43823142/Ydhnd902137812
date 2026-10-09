@@ -851,7 +851,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                        if checkpoint is not None else {})
         neural_reference=(
             __import__('fairplay_maia').annotate_history(
-                analyzed,full_coverage=full_depth_mode,**resume_kwargs)
+                analyzed,full_coverage=False,**resume_kwargs)
             if (primary_complete and time.monotonic()<deadline
                 and not (deadline.cancel is not None and deadline.cancel.is_set()))
             else {'available':False,'positions':0,
@@ -969,7 +969,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 raise ReviewError('The complete depth-18 Maia comparison did not finish; no review was issued.')
         deep_finished=time.monotonic()
         if full_depth_mode and (deep_incomplete or not primary_complete or any(not g.deep for g in analyzed)):
-            raise ReviewError('All 100 available primary games must complete depth 18 before a priority can be issued.')
+            raise ReviewError(f'All {len(primary)} eligible primary games must complete depth 18 before a priority can be issued.')
         progress(f'Deep confirmation: {sum(g.deep for g in candidates)} / {len(candidates)}')
         with _game_cache_lock:
             for game in analyzed:
@@ -1057,6 +1057,9 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             'maia_checkpoint_sha256_prefix':MODEL_SHA256[:12],
             'parsed_primary_games':len(primary),
             'deep_completed_games':sum(g.deep for g in analyzed),
+            'required_primary_depth':18 if full_depth_mode else None,
+            'required_full_coverage':bool(full_depth_mode),
+            'human_policy_sampling':'stratified bounded positions (not all moves)',
             'depth18_completed_positions':sum(
                 d.metrics.get('search_depth',0)>=18 for g in analyzed if g.deep
                 for d in g.decisions) if full_depth_mode else None,

@@ -5,14 +5,14 @@ CHANNEL_ID = 1311445685492781186
 NAMESPACE = 'shark:fairplay:'
 DISCLAIMER = ('Automated fair-play screening only. This result is not proof of cheating '
               'and must not be used as the sole basis for punishment. Human review is mandatory.')
-VERSION = 'fairplay-v18.2-evidence-accounting'
+VERSION = 'fairplay-v19.0-500-full-depth-audit'
 
 
 @dataclass(frozen=True)
 class ReviewConfig:
-    max_games: int = 200  # explicit small fixture/benchmark override remains supported
-    history_games: int = 200
-    primary_engine_games: int = 100
+    max_games: int = 500  # production: latest 500 eligible rated games; fixture overrides supported
+    history_games: int = 500
+    primary_engine_games: int = 500
     historical_probe_nodes: int = 2_000
     historical_probe_moves: int = 4
     historical_probe_budget_fraction: float = .12
@@ -41,7 +41,7 @@ class ReviewConfig:
     high_critical_score: float = .65
     very_high_score: float = .88
     deep_multipv: int = 5
-    max_archives: int = 36
+    max_archives: int = 240  # Search available monthly archives back to Chess.com's beginning
     max_plies: int = 600
     min_plies: int = 24
     opening_plies: int = 20

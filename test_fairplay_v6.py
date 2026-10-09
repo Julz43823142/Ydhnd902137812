@@ -69,7 +69,8 @@ class RatedOnly(unittest.TestCase):
             def analyse(self,g,nodes):calls.append((g.identity,nodes))
             def close(self):pass
         api=Mock();api.get.return_value={'username':TARGET}
-        config=replace(CONFIG,deep_games=0,historical_target_games=0,historical_probe_budget_fraction=0)
+        config=replace(CONFIG,max_games=200,history_games=200,primary_engine_games=100,
+                       deep_games=0,historical_target_games=0,historical_probe_budget_fraction=0)
         with patch.object(analysis,'collect_games',return_value=(list(reversed(history)),{},False)),patch.object(analysis,'EngineScanner',Scanner):
             result=analysis.review(TARGET,lambda _:None,config,api_factory=lambda _:api)
         expected=[g.identity for g in history if g.rated is True][-100:]
