@@ -25,11 +25,17 @@ def install():
         # deleted. Optional sidecars cannot influence the screening priority.
         from fairplay_multimodel import run_external_models
         try:
-            result.diagnostics["independent_model_observations"] = run_external_models(result)
+            observations = run_external_models(result)
+            result.diagnostics["independent_model_observations"] = observations
+            from fairplay_model_readiness import summarize_model_audit
+            result.diagnostics["model_coverage_summary"] = summarize_model_audit(observations)
         except Exception:
             result.diagnostics["independent_model_observations"] = {
                 "role": "Optional research-only comparisons; scoring unchanged",
                 "status": "unavailable"}
+            result.diagnostics["model_coverage_summary"] = {
+                "status": "unavailable", "reason": "optional_model_runner_failed",
+                "scoring_influence": False}
         try:
             result.diagnostics["_private_evidence"] = evidence(result)
         except Exception:

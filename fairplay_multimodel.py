@@ -256,11 +256,13 @@ def run_external_models(result, *, env=None, engine_factory=None, http_post=None
         "positions_selected": len(picks),
         "statuses": {},
         "models": {},
+        "runtime_budget_seconds": runtime,
+        "budget_policy": "remaining time divided among remaining supported providers",
     }
     if not requested:
         return audit
     cutoff = clock() + runtime
-    for name in requested:
+    for model_index, name in enumerate(requested):
         if name in INCOMPATIBLE:
             audit["statuses"][name] = {"status": "incompatible", "reason": INCOMPATIBLE[name]}
             continue
@@ -274,6 +276,10 @@ def run_external_models(result, *, env=None, engine_factory=None, http_post=None
         if clock() >= cutoff:
             audit["statuses"][name] = {"status": "skipped", "reason": "runtime budget exhausted"}
             continue
+        # Fair-share remaining time: one expensive model cannot consume the
+        # whole optional research allowance before the other providers run.
+        remaining = sum(candidate in KNOWN for candidate in requested[model_index:])
+        provider_deadline = min(cutoff, clock() + max(1, (cutoff - clock()) / max(1, remaining)))
         observations = []
         engine = None
         human_model = None
@@ -302,7 +308,7 @@ def run_external_models(result, *, env=None, engine_factory=None, http_post=None
                 if not isinstance(info, dict) or (info.get("move_models") or {}).get("count", 0) < 1:
                     raise RuntimeError("ChessMimic model artifacts unavailable")
             for index, game, decision in picks:
-                if clock() >= cutoff:
+                if clock() >= provider_deadline:
                     status = "partial"
                     break
                 board = chess.Board(decision.fen)
@@ -417,16 +423,27 @@ def run_external_models(result, *, env=None, engine_factory=None, http_post=None
                     if decision.clock_valid and decision.think is not None:
                         row["actual_think_seconds"] = round(float(decision.think), 3)
                 observations.append(row)
-        except Exception:
+        except Exception as error:
             status = "failed"
+            # Never disclose FEN, player name, local paths or HTTP bodies
+            # from an exception in the owner audit. Preserve only its type.
+            failure_type = type(error).__name__
         finally:
             if engine is not None:
                 try:
                     engine.quit()
                 except Exception:
                     pass
-        # Never compute an agreement fraction for failed/empty model runs.
-        audit["statuses"][name] = {"status": status, "positions": len(observations)}
+        # A configured model with no legal predictions is NOT evaluated.
+        if status == "evaluated" and not observations:
+            status = "no_positions"
+        audit["statuses"][name] = {
+            "status": status, "positions": len(observations),
+            "backend": config["kind"],
+            "requested_positions": len(picks),
+        }
+        if status == "failed":
+            audit["statuses"][name]["error_type"] = failure_type
         if observations:
             audit["models"][name] = {
                 "url": MODEL_URLS[name],
