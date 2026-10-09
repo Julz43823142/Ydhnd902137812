@@ -49,7 +49,9 @@ def panel_embed():
 
 def progress_embed(target, stage, value=None, timing=None):
     value=estimate(stage) if value is None else value
-    description=bar(value)+"\n\n"+label(stage)
+    stopped=stage.startswith(('❌', 'Stopped by moderator'))
+    description=('**Review stopped — no result.**\n\n'+label(stage) if stopped
+                 else bar(value)+"\n\n"+label(stage))
     if timing is not None:description+='\n'+timing.summary(stage)
     embed = discord.Embed(title=REPORT_PREFIX+target, description=description, color=0x427CBA)
     embed.set_footer(text="Work progress (stage-weighted), not percent of elapsed time · ETA covers current phase only")
@@ -763,7 +765,7 @@ class FairPlayService:
             job.progress_percent=max(job.progress_percent,estimate(stage))
             card = (embed.copy() if embed is not None else progress_embed(job.target,stage,job.progress_percent,job.timing))
             if embed is not None and stage=='Complete':
-                card.add_field(name='Totale scantijd',value=duration(job.timing_elapsed()),inline=False)
+                card.add_field(name='Total scan time',value=duration(job.timing_elapsed()),inline=False)
             card.set_footer(text=(card.footer.text or '')+f' · Review ID: {job.token}')
             if job.message is None:
                 job.delivery_unknown = True
@@ -810,7 +812,8 @@ class FairPlayService:
             job.timing=LiveTiming()
             future = loop.run_in_executor(self.executor,run_review)
             while not future.done():
-                if not job.cancel_requested and (job.stage!=last or (job.message is not None and time.monotonic()-job.last_progress_edit>=15)):
+                if (not job.cancel_requested and job.stage!='Fetching profile…' and
+                        (job.stage!=last or (job.message is not None and time.monotonic()-job.last_progress_edit>=15))):
                     if await self.safe_progress(job,job.stage):last = job.stage
                 await asyncio.wait({future},timeout=3)
             result = await future

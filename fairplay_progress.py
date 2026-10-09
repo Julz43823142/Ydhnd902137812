@@ -8,7 +8,7 @@ def estimate(stage):
     if stage.startswith('Fast engine scan:'):
         match = re.search(r'(\d+)\s*/\s*(\d+)', stage)
         return 15+int(60*min(1, int(match[1])/max(1, int(match[2])))) if match else 15
-    if stage.startswith('Deep confirmation:'):
+    if stage.startswith(('Deep confirmation:', 'Depth-18 rapid/blitz')):
         match = re.search(r'(\d+)\s*/\s*(\d+)', stage)
         return 80+int(17*min(1, int(match[1])/max(1, int(match[2])))) if match else 80
     return {'Fetching profile…':3, 'Collecting rated games…':10,
@@ -35,7 +35,7 @@ def duration(seconds):
     seconds=max(0,int(seconds))
     hours,rem=divmod(seconds,3600)
     minutes,secs=divmod(rem,60)
-    return (f'{hours}u {minutes:02d}m' if hours else
+    return (f'{hours}h {minutes:02d}m' if hours else
             f'{minutes}m {secs:02d}s' if minutes else f'{secs}s')
 
 
@@ -81,18 +81,20 @@ class LiveTiming:
                 self.last_eta=(phase,remaining)
             elif self.phase_done>=self.phase_total:
                 self.last_eta=None
-        elif stage.startswith(('Building report', 'Comparing personal timing')):
+        elif stage.startswith(('Building report', 'Comparing personal timing', '❌', 'Stopped by moderator')):
             self.last_eta=None
 
     def summary(self,stage,now=None):
         import time
         now=time.monotonic() if now is None else now
         elapsed=max(0,now-self.started)
-        line='Bezig: **'+duration(elapsed)+'**'
+        line='Elapsed: **'+duration(elapsed)+'**'
+        if stage.startswith(('❌', 'Stopped by moderator')):
+            return line+' · Review stopped; no result was issued.'
         if self.last_eta is not None:
             phase,remaining=self.last_eta
-            line+=' · Geschat resterend in '+('diepe analyse' if phase=='deep' else 'snelle analyse')+': **~'+duration(remaining)+'**'
-            line+=' (variabel; niet de totale resterende scantijd)'
+            line+=' · Estimated time left in '+('deep analysis' if phase=='deep' else 'fast analysis')+': **~'+duration(remaining)+'**'
+            line+=' (variable; not a total scan ETA)'
         else:
-            line+=' · Resterende tijd: **nog niet betrouwbaar te schatten**'
+            line+=' · Time remaining: **not yet reliably estimated**'
         return line
