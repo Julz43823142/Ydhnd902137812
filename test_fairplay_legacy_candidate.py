@@ -87,7 +87,7 @@ class IndependentCandidateSelection(unittest.TestCase):
             return {'kind':'chronological','time_class':'blitz' if control=='180+0' else 'rapid',
                     'time_control':control,'rated':True,'persistent':persistent,
                     'strength':1-i*.01,'end':1700000000+i,
-                    'ids':list(range(i,i+8))}
+                    'high_qualifying':True,'ids':list(range(i,i+8))}
         dominant=[candidate(i,'180+0') for i in range(8)]
         minority=candidate(9,'600+0')
         selected=select_gate_candidates(dominant,dominant+[minority],config)
@@ -95,6 +95,20 @@ class IndependentCandidateSelection(unittest.TestCase):
         self.assertIs(selected[0],dominant[0])
         self.assertIn(minority,selected)
         self.assertEqual(sum(row['time_class']=='rapid' for row in selected),1)
+
+    def test_undercovered_window_does_not_mask_a_qualified_same_control_candidate(self):
+        from dataclasses import replace
+        from fairplay_config import CONFIG
+        config=replace(CONFIG,baseline_candidate_limit=2)
+        original={'kind':'chronological','time_class':'blitz','time_control':'180+0',
+                  'rated':True,'persistent':True,'high_qualifying':False}
+        other={'kind':'chronological','time_class':'rapid','time_control':'600+0',
+               'rated':True,'persistent':True,'high_qualifying':True}
+        improved={**original,'high_qualifying':True,'kind':'complete period'}
+        selected=select_gate_candidates([original,other],[original,other,improved],config)
+        self.assertIn(improved,selected)
+        self.assertIn(other,selected)
+        self.assertNotIn(original,selected)
 
     def test_nonpersistent_ranked_excerpt_cannot_take_a_gate_slot(self):
         from dataclasses import replace
