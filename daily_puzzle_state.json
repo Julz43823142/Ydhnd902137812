@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/WxQ0z",
     "title": "Lichess • 1495",
     "fen": "2rq1rk1/Q3ppbp/6p1/n2pPb2/3Pn3/2N1BN1P/PP2BPP1/R4RK1 b - - 0 15",
-    "current_fen": "2rq1rk1/Q3ppbp/6p1/n2pPb2/3Pn3/2N1BN1P/PP2BPP1/R4RK1 b - - 0 15",
-    "last_move_uci": "b7a7",
+    "current_fen": "Q2q1rk1/4ppbp/6p1/n2pPb2/3Pn3/2N1BN1P/PP2BPP1/R4RK1 b - - 0 16",
+    "last_move_uci": "a7a8",
     "pgn": "Ra8 Qxa8 Qxa8",
     "all_moves": [
       {
@@ -43,26 +43,59 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_WxQ0z_1791583080837",
-    "last_activity_at": "2026-10-09T21:58:00.837138+00:00",
+    "last_activity_at": "2026-10-09T21:58:09.267162+00:00",
     "rating": 1495,
     "rp_band": 0,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
-    "message_ids": {},
-    "message_id": null,
+    "message_ids": {
+      "1468320170891022417": 1558237159826133124
+    },
+    "message_id": 1558237159826133124,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "attempted_users": {
+      "442597396195704832": {
+        "name": "Thice",
+        "move": "ra8",
+        "correct": true,
+        "timestamp": "2026-10-09T21:58:09.268118+00:00"
+      }
+    },
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "board_attachment_filenames": {
+      "1468320170891022417": "random_puzzle.png"
+    },
+    "last_card_activity_at": "2026-10-09T21:58:09.267162+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1791583089.2681296,
+        "fen_before": "2rq1rk1/Q3ppbp/6p1/n2pPb2/3Pn3/2N1BN1P/PP2BPP1/R4RK1 b - - 0 15",
+        "expected": {
+          "uci": "c8a8",
+          "san": "Ra8",
+          "color": "black"
+        },
+        "accepted_uci": "c8a8"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "Ra8",
+        "uci": "c8a8",
+        "principal": true
+      }
+    ],
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Qxa8"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
