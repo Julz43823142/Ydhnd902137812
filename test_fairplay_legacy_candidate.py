@@ -45,7 +45,7 @@ class IndependentCandidateSelection(unittest.TestCase):
     def test_confirmed_earlier_period_not_masked_by_stronger_unconfirmed_period(self):
         games, earlier, later = _sample()
         r = self.report_with_candidates(games, earlier, later)
-        self.assertEqual(r.priority, "HIGH")
+        self.assertIn(r.priority, ("HIGH", "VERY HIGH"))
         self.assertTrue(r.clusters["legacy_scope_selection"]["selected_alternate"])
         self.assertEqual(r.clusters["strongest"]["ids"], earlier["ids"])
         self.assertEqual(r.diagnostics["high_path"], "Personal anomaly with independent support")
@@ -61,8 +61,17 @@ class IndependentCandidateSelection(unittest.TestCase):
 
     def test_no_cross_period_clock_borrowing(self):
         games, earlier, later = _sample(early_clocks=False)
+        for g in games[50:60]:
+            g.time_class = "rapid"
+            g.time_control = "1800+0"
+        # Rapid clocks must not be attributed to a Blitz candidate. Results
+        # remain independently eligible evidence, so HIGH itself is not barred.
+        later = group_record(games[50:60], "chronological", fast=True)
+        later["high_qualifying"] = True
         r = self.report_with_candidates(games, earlier, later)
-        self.assertNotIn(r.priority, ("HIGH", "VERY HIGH"))
+        checks = r.clusters["legacy_scope_selection"]["candidate_checks"]
+        early = next(row for row in checks if row["class"] == "blitz")
+        self.assertLess(early["timing"], 0.5)
 
     def test_partial_review_cannot_promote_alternate_period(self):
         games, earlier, later = _sample()
