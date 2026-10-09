@@ -2,7 +2,7 @@
 import math
 import statistics
 import time
-from concurrent.futures import as_completed
+from concurrent.futures import wait, FIRST_COMPLETED
 from dataclasses import dataclass
 import chess
 import chess.engine
@@ -98,38 +98,62 @@ def complete(games,nodes,deadline,*,executor=None,pool=None,scanner=None,fast=Fa
         else:
             d.metrics['policy_search']=saved
             completed+=1
+    # Recording every counterfactual used to re-encrypt the entire growing
+    # checkpoint. Buffer small batches, but always flush on exit/failure.
+    buffered=0;last_flush=time.monotonic()
+    def persist(game,d,result):
+        nonlocal buffered,last_flush
+        if checkpoint is None:return
+        checkpoint.record_counterfactual(target,game,d,
+            'policy-fast' if fast else 'policy-deep',result,persist=False)
+        buffered+=1
+        if buffered>=64 or time.monotonic()-last_flush>=15:
+            checkpoint.flush(force=False)
+            buffered=0;last_flush=time.monotonic()
     try:
         if executor is not None and pool is not None:
+            max_workers=max(1,int(getattr(executor,'_max_workers',getattr(pool,'size',1))))
+            capacity=min(64,max_workers*3)
+            work_iter=iter(pending)
             futures={}
-            try:
-                for game,d in pending:
+            def submit_available():
+                while len(futures)<capacity:
+                    try:game,d=next(work_iter)
+                    except StopIteration:break
                     futures[executor.submit(pool._run_with_scanner,deadline,
                         lambda worker,d=d:search_alternatives(worker,d,nodes))]=(game,d)
-            except Exception:
-                interrupted=True
-                for pending in futures:pending.cancel()
-            for future in as_completed(futures):
-                try:
-                    game,d=futures[future]
-                    result=future.result()
-                    d.metrics['policy_search']=result;completed+=1
-                    if checkpoint is not None:
-                        checkpoint.record_counterfactual(target,game,d,
-                            'policy-fast' if fast else 'policy-deep',result)
-                except Exception:
-                    if not interrupted:
+            submit_available()
+            while futures:
+                finished,_=wait(tuple(futures),return_when=FIRST_COMPLETED)
+                for future in finished:
+                    game,d=futures.pop(future)
+                    try:
+                        result=future.result()
+                        d.metrics['policy_search']=result;completed+=1
+                        persist(game,d,result)
+                    except Exception:
                         interrupted=True
-                        for pending in futures:pending.cancel()
+                if interrupted:
+                    for running in futures:running.cancel()
+                else:submit_available()
         else:
             for game,d in pending:
                 check_deadline(deadline)
                 result=(pool._run_with_scanner(deadline,lambda worker:search_alternatives(worker,d,nodes))
                         if pool is not None else search_alternatives(scanner,d,nodes))
                 d.metrics['policy_search']=result;completed+=1
-                if checkpoint is not None:
-                    checkpoint.record_counterfactual(target,game,d,
-                        'policy-fast' if fast else 'policy-deep',result)
-    except Exception:interrupted=True
+                persist(game,d,result)
+    except Exception:
+        interrupted=True
+        # Keep draining already-running searches before clearing incomplete data.
+        if executor is not None and pool is not None:
+            for running in futures:running.cancel()
+            for running in futures:
+                try:running.result()
+                except Exception:pass
+    finally:
+        if checkpoint is not None and buffered:
+            checkpoint.flush()
     if interrupted:
         for _,d in work:
             d.metrics.pop('policy_search',None);d.fast_policy={}

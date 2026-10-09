@@ -100,4 +100,34 @@ class PolicySearchTests(unittest.TestCase):
         self.assertGreaterEqual(engine.observed,1200)
 
 
+
+class PolicyCheckpointBatchTests(unittest.TestCase):
+    def test_counterfactual_checkpoint_flushes_once_for_small_batch(self):
+        from fairplay_policy import complete
+        from unittest.mock import patch
+        class Checkpoint:
+            def __init__(self):self.records=[];self.flushes=0
+            def restore_counterfactual(self,*args):return None
+            def record_counterfactual(self,*args,**kwargs):
+                self.records.append((args,kwargs));return True
+            def flush(self,**kwargs):self.flushes+=1;return True
+        checkpoint=Checkpoint()
+        game=SimpleNamespace(decisions=[])
+        for _ in range(10):
+            d=move();d.human_policy={'e2e4':1.0};d.fast_policy={}
+            game.decisions.append(d)
+        contract={'mode':'nodes','requested':CONFIG.fast_nodes,'completed':True,'exact':True}
+        def search(*_):
+            return {'nodes':CONFIG.fast_nodes,'scores':{},'search_contract':contract}
+        with patch('fairplay_policy.search_alternatives',side_effect=search), \
+             patch('fairplay_maia.refresh_game'), \
+             patch('fairplay_maia.policy_evidence',return_value={}):
+            status=complete([game],CONFIG.fast_nodes,ScanDeadline(time.monotonic()+60),
+                scanner=object(),checkpoint=checkpoint,target='synthetic',fast=True)
+        self.assertTrue(status['complete'])
+        self.assertEqual(len(checkpoint.records),10)
+        self.assertTrue(all(kw.get('persist') is False for _,kw in checkpoint.records))
+        self.assertEqual(checkpoint.flushes,1)
+
+
 if __name__=='__main__':unittest.main()
