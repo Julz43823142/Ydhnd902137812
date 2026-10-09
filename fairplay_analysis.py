@@ -1046,8 +1046,10 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             search_profile=engine_profile(scanners) if scanners else {}
         # No account identifiers, FENs, URLs or case labels in run metadata.
         from fairplay_maia import MODEL_SHA256, MODEL_REVISION, MODEL_NAME
+        commit=os.environ.get('GITHUB_SHA','').lower()
+        revision=commit[:12] if len(commit)==40 and all(c in '0123456789abcdef' for c in commit) else None
         result.diagnostics['run_contract']={
-            'version':VERSION,'engine':engine_name,
+            'version':VERSION,'code_revision':revision,'engine':engine_name,
             'fast':{'mode':'nodes','budget':config.fast_nodes,'multipv':config.fast_multipv},
             'deep':{'mode':'depth' if full_depth_mode else 'nodes',
                     'budget':18 if full_depth_mode else config.deep_nodes,'multipv':config.deep_multipv},
