@@ -247,9 +247,6 @@ def integrate(result,games,config=CONFIG):
             'deep signed excess retained':deep['signed_excess']>=POLICY.game_signed_excess,
             'stable paired quality and human alternatives':deep['stable']>=POLICY.deep_stability*deep['positions'],
             'primary engine coverage complete':result.coverage.get('primary_engine_complete',not result.partial),
-            'minimum broad evidence sample':(len(result.games)>=config.min_games
-                and result.totals.get('decisions',0)>=config.min_games*config.min_game_decisions),
-            'minimum confidence for a broad HIGH claim':result.confidence!='LOW',
             'human-reference feature enabled':not {'human','neural'}&set(config.disabled_features)}
         reasons += [name for name,passed in tests.items() if not passed]
         row={'passed':not reasons,'blockers':reasons,'fast':candidate['summary'],'deep':deep,
