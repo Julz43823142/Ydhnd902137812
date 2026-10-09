@@ -16,19 +16,20 @@ import shutil
 import sys
 import time
 from urllib.parse import urlsplit
-from urllib.request import Request, urlopen
+from urllib.request import Request, build_opener, HTTPRedirectHandler, ProxyHandler
 
 import chess
 import chess.engine
 
 KNOWN = (
     "maia3_23m", "maia3_79m", "lc0", "chessmimic",
-    "allie", "allie_v2", "maia4all",
+    "allie", "allie_v2", "allie_2", "maia4all",
 )
-BRIDGE_NAMES = {"allie", "allie_v2", "maia4all"}
+BRIDGE_NAMES = {"allie", "allie_v2", "allie_2", "maia4all"}
 BRIDGE_ENV = {
     "allie": "FAIRPLAY_ALLIE_BRIDGE_URL",
     "allie_v2": "FAIRPLAY_ALLIE_V2_BRIDGE_URL",
+    "allie_2": "FAIRPLAY_ALLIE_2_BRIDGE_URL",
     "maia4all": "FAIRPLAY_MAIA4ALL_BRIDGE_URL",
 }
 WEIGHTS_ENV = {
@@ -42,6 +43,9 @@ MODEL_URLS = {
     "chessmimic": "https://github.com/thomasj02/1e4_ai",
     "allie": "https://github.com/ippolito-cmu/allie",
     "allie_v2": "https://github.com/y0mingzhang/allie-v2",
+    # Official successor published in October 2026: distinct 5.6B MoE, not
+    # the old vLLM/Qwen checkpoint. Never conflate their source or results.
+    "allie_2": "https://github.com/y0mingzhang/allie",
     "maia4all": "https://github.com/CSSLab/maia4all",
 }
 # Kaladin/Irwin depend on Lichess-specific private insights and moderation
@@ -140,12 +144,24 @@ def _san_history(game, decision):
     return sans
 
 
+class _RejectRedirects(HTTPRedirectHandler):
+    """No HTTP 30x can forward account positions to another destination."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        raise ValueError("Local model services must never redirect requests")
+
+
+# Ignore HTTP(S)_PROXY environment variables for private local positions.
+# Explicit local_base_url() guards the origin; no redirect is followed.
+_LOCAL_OPENER = build_opener(ProxyHandler({}), _RejectRedirects())
+
+
 def _post_local(url, payload, timeout=8):
     raw = json.dumps(payload, separators=(",", ":"), allow_nan=False).encode()
     if len(raw) > 32768:
         raise ValueError("oversized model request")
     req = Request(url, data=raw, headers={"Content-Type": "application/json"}, method="POST")
-    with urlopen(req, timeout=timeout) as response:
+    with _LOCAL_OPENER.open(req, timeout=timeout) as response:
         if getattr(response, "status", 200) != 200:
             raise ValueError("model service unavailable")
         body = response.read(16385)
@@ -155,7 +171,7 @@ def _post_local(url, payload, timeout=8):
 
 
 def _get_local(url, timeout=5):
-    with urlopen(url, timeout=timeout) as response:
+    with _LOCAL_OPENER.open(url, timeout=timeout) as response:
         if getattr(response, "status", 200) != 200:
             raise ValueError("model service unavailable")
         body = response.read(16385)
@@ -268,11 +284,23 @@ def run_external_models(result, *, env=None, engine_factory=None, http_post=None
                     pv = info.get("pv", ()) if isinstance(info, dict) else ()
                     prediction = _valid_move(board, pv[0].uci()) if pv else None
                 else:
+                    # ChessMimic conditions move/time prediction on BOTH clocks.
+                    # Never fabricate the opponent clock from the player's
+                    # clock; the Chess.com PGN can omit clock observations.
+                    own_clock = decision.clock_before
+                    opposing_clock = getattr(decision, "opponent_clock_before", None)
+                    valid_own = (isinstance(own_clock, (int, float))
+                        and not isinstance(own_clock, bool)
+                        and math.isfinite(own_clock) and own_clock >= 0)
+                    valid_opponent = (isinstance(opposing_clock, (int, float))
+                        and not isinstance(opposing_clock, bool)
+                        and math.isfinite(opposing_clock) and opposing_clock >= 0)
                     payload = {
                         "fen": decision.fen,
                         "rating": int(game.rating or 1500),
-                        "clock_time": float(decision.clock_before or 300),
-                        "opponent_clock_time": float(decision.clock_before or 300),
+                        "clock_time": float(own_clock) if valid_own else None,
+                        "opponent_clock_time": (float(opposing_clock)
+                                                if valid_opponent else None),
                         "increment": int(game.time_control.split("+")[1])
                             if "+" in game.time_control and game.time_control.split("+")[1].isdigit() else 0,
                     }
@@ -300,6 +328,14 @@ def run_external_models(result, *, env=None, engine_factory=None, http_post=None
                 row = {"game_index": index, "ply": decision.ply,
                        "played": played, "predicted": prediction,
                        "top1_agreement": prediction == played}
+                if config["kind"] in ("chessmimic", "bridge"):
+                    row["own_clock_observed"] = bool(valid_own)
+                    row["opponent_clock_observed"] = bool(valid_opponent)
+                if name == "chessmimic":
+                    # Upstream /get_move can select an opening/database move
+                    # before calling the neural network. Its response does not
+                    # attest which inference path was used.
+                    row["source"] = "chessmimic move service (neural or opening DB)"
                 if (isinstance(reported_time, (int, float))
                         and not isinstance(reported_time, bool)
                         and math.isfinite(reported_time) and reported_time >= 0):
