@@ -151,6 +151,40 @@ def group_record(group, kind, config=CONFIG, fast=False):
                           and (sustained>=math.ceil(len(group)*config.persistence_fraction) or pooled)}
 
 
+def select_gate_candidates(ranked_persistent, all_candidates, config=CONFIG):
+    """Preserve eligible same-control discovery across a bounded candidate cap.
+
+    Tens of overlapping Blitz windows may otherwise consume every one of the
+    global top-N slots, preventing a separate Rapid or exact-control period
+    from ever reaching its own unchanged HIGH gates. This only selects what to
+    *test*, not what qualifies. Chronology, deep search, personal comparison
+    and independent corroboration still decide the priority.
+    """
+    limit=max(1,int(config.baseline_candidate_limit))
+    selected=list(ranked_persistent[:limit])
+    def cohort(row):
+        return (row['time_class'],row['time_control'],row['rated'])
+    counts=defaultdict(int)
+    for row in selected:counts[cohort(row)]+=1
+    # Original strength ordering determines the representative within a
+    # control. Never promote a ranked/nonpersistent excerpt into a gate.
+    for row in all_candidates:
+        if not row['persistent'] or counts[cohort(row)]:
+            continue
+        if len(selected)<limit:
+            selected.append(row)
+        else:
+            # Replace the weakest *redundant* window, preserving the first
+            # globally strongest period and at least one from every cohort.
+            victim=next((i for i in range(len(selected)-1,0,-1)
+                         if counts[cohort(selected[i])]>1),None)
+            if victim is None:break
+            counts[cohort(selected[victim])]-=1
+            selected[victim]=row
+        counts[cohort(row)]+=1
+    return selected
+
+
 def find_clusters(games, config=CONFIG, fast=False):
     from fairplay_convergence import discover_convergence
     # Retain known fully analyzed short/easy games in the timeline. Their actual
@@ -209,11 +243,14 @@ def find_clusters(games, config=CONFIG, fast=False):
                 if len(recurrence_groups)<40:
                     recurrence_groups.append({'time_class':lo['time_class'],'time_control':lo['time_control'],
                                               'rated':lo['rated'],'ids':lo['ids']+hi['ids']})
-    finalists=[r for r in candidates if r['persistent']][:config.baseline_candidate_limit]
-    for row in finalists:
+    ranked_persistent=[r for r in candidates if r['persistent']]
+    finalists=ranked_persistent[:config.baseline_candidate_limit]
+    gate_candidates=select_gate_candidates(finalists,candidates,config)
+    for row in gate_candidates:
         row['personal']=baseline_comparison(row,games,config,fast=fast)
         row['high_qualifying']=high_cluster_qualification(row,games,config)
     finalists.sort(key=lambda r:(r['high_qualifying'],r['personal']['established'],r['strength'],r['end']),reverse=True)
+    gate_candidates.sort(key=lambda r:(r['high_qualifying'],r['personal']['established'],r['strength'],r['end']),reverse=True)
     best=finalists[0] if finalists else None
     discovery=max((r for r in candidates if r['kind']!='ranked'
                    and r['metrics']['eligible_games']>=config.high_cluster_games
@@ -222,10 +259,10 @@ def find_clusters(games, config=CONFIG, fast=False):
     return {'strongest': best, 'strongest_engine': max(candidates,key=lambda r:r['engine_score'],default=None),
             'strongest_critical': max(candidates,key=lambda r:r['critical_score'],default=None),
             'independent': independent, 'recurrence': recurrence, 'recurrence_groups':recurrence_groups,
-            # Keep all already bounded, independently qualified discovery
-            # candidates for *scoring*; the first twelve remain presentation.
-            # Otherwise overlapping windows can crowd out an eligible class.
-            'gate_candidates':finalists,
+            # Candidate scoring and the twelve display rows are independent.
+            # Under the same global cap, reserve one qualifying discovery
+            # opportunity for each represented exact-control cohort.
+            'gate_candidates':gate_candidates,
             'candidates': finalists[:12] if finalists else candidates[:12], 'discovery':discovery,
             'convergence':discover_convergence(games,config)}
 
