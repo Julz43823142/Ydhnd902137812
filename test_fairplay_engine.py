@@ -98,10 +98,10 @@ class PoolRecoveryTests(unittest.TestCase):
         self.assertFalse(pool.failed.is_set())
         self.assertEqual(pool.available.qsize(),1)
 
-    def test_fast_and_deep_both_use_single_pv(self):
+    def test_fast_single_pv_deep_multi_pv_for_critical_evidence(self):
         from fairplay_config import CONFIG
         self.assertEqual(CONFIG.fast_multipv,1)
-        self.assertEqual(CONFIG.deep_multipv,1)
+        self.assertEqual(CONFIG.deep_multipv,5)
 
 
 class SinglePVConservativePriorityTests(unittest.TestCase):
@@ -116,11 +116,11 @@ class SinglePVConservativePriorityTests(unittest.TestCase):
                   baseline_anomaly=True,baseline_available=True,
                   baseline_confirmed=True)
         result=priority_model((1.0,1.0,1.0,1.0,1.0),config=CONFIG,**args)
-        self.assertNotIn(result,('HIGH','VERY HIGH'))
-        # Legacy multi-candidate configuration keeps the old gating behavior.
-        legacy=replace(CONFIG,deep_multipv=5)
-        self.assertIn(priority_model((1.0,1.0,1.0,1.0,1.0),config=legacy,**args),
-                      ('HIGH','VERY HIGH'))
+        self.assertIn(result,('HIGH','VERY HIGH'))
+        # A single-PV deep pass cannot support critical candidate-gap claims.
+        single=replace(CONFIG,deep_multipv=1)
+        self.assertNotIn(priority_model((1.0,1.0,1.0,1.0,1.0),config=single,**args),
+                         ('HIGH','VERY HIGH'))
 
 
 class PartialBatchTests(unittest.TestCase):

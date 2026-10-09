@@ -5,7 +5,7 @@ CHANNEL_ID = 1311445685492781186
 NAMESPACE = 'shark:fairplay:'
 DISCLAIMER = ('Automated fair-play screening only. This result is not proof of cheating '
               'and must not be used as the sole basis for punishment. Human review is mandatory.')
-VERSION = 'fairplay-v19.3-singlepv-fast-deep-worker-retry'
+VERSION = 'fairplay-v19.4-fast-singlepv-deep-multipv5-priority-restore'
 
 
 @dataclass(frozen=True)
@@ -40,7 +40,7 @@ class ReviewConfig:
     high_engine_score: float = .65
     high_critical_score: float = .65
     very_high_score: float = .88
-    deep_multipv: int = 1  # single principal variation in both passes
+    deep_multipv: int = 5  # preserve candidate gaps and critical/unique evidence for HIGH priorities
     max_archives: int = 240  # Search available monthly archives back to Chess.com's beginning
     max_plies: int = 600
     min_plies: int = 24
