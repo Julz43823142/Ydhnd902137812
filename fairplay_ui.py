@@ -41,7 +41,7 @@ def public_text(value):
 def panel_embed():
     embed = discord.Embed(title=PANEL_TITLE, color=0x427CBA,
         description='Want to review a suspicious Chess.com account?\n\n'
-                    "Submit a Chess.com username. SharkBot reviews up to 500 latest eligible rated standard live games. Rapid and blitz receive depth-18 Stockfish analysis; bullet uses quicker depth-12 screening. Thinking time and human-move evidence are examined where available.\n\n"
+                    "Submit a Chess.com username. SharkBot reviews up to 500 latest eligible rated standard live games. Rapid and blitz receive depth-18 Stockfish analysis; bullet uses quicker depth-12 screening. Fast screening uses one best line and separately checks the played move; deep confirmation retains alternative candidates. Thinking time and human-move evidence are examined where available.\n\n"
                     '**This is an automated screening tool — not proof of cheating.**')
     embed.set_footer(text=PANEL_MARKER)
     return embed
@@ -107,6 +107,8 @@ def result_embed(result: ReviewResult):
     depth_contract=result.diagnostics.get('run_contract',{})
     if depth_contract.get('required_primary_depth_by_class'):
         sample+='\nStockfish depth: Rapid/Blitz 18 · Bullet 12 (screening; lower precision)'
+    if depth_contract.get('fast',{}).get('multipv') == 1:
+        sample+='\nFast: MultiPV 1 + played-move check · Deep: MultiPV 5'
     if coverage.get('history_probed'):
         sample += f'\nRecent rated primary sample: {coverage["primary_fast_scanned"]}/{coverage["primary_collected"]} · historical discovery probes: {coverage.get("history_probed",0)}'
     sample += f'\nSkipped unrated games while collecting history: {result.skipped.get("unrated",0)} · unknown rated status: {result.skipped.get("rated_status_unknown",0)}'
