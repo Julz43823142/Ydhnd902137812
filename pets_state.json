@@ -372,7 +372,7 @@
         "fed_at": 1791504865.9465923,
         "feed_day": "2026-10-09",
         "happiness": 100,
-        "happy_at": 1791336558.9922016,
+        "happy_at": 1791504922.1396122,
         "id": "a694b65e5fd547a48c21a63fe10808a2",
         "name": "",
         "owner_history": [
@@ -385,9 +385,9 @@
         ],
         "puzzle": {
           "day": "2026-10-09",
-          "fen": "8/p7/1p3R2/1k6/8/6P1/P1p4P/7K b - - 1 46",
+          "fen": "8/p7/1p3R2/1k6/8/6P1/P6P/2q4K w - - 0 47",
           "id": "KrfoG",
-          "index": 4,
+          "index": 5,
           "moves": [
             "d4c3",
             "d1d6",
@@ -396,10 +396,10 @@
             "c2c1q"
           ]
         },
-        "puzzle_day": "2026-10-07",
+        "puzzle_day": "2026-10-09",
         "rarity": "uncommon",
         "species": "Penguin",
-        "xp": 580,
+        "xp": 600,
         "xp_day": "2026-10-08"
       }
     ]
