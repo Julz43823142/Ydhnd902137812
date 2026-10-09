@@ -998,6 +998,12 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             'context_history_complete':not archive_partial,
             'optional_context_partial':archive_partial and not primary_archive_partial,
             'context_only':len(context_only),
+            'available_archive_months':collection_coverage.get('available_archive_months'),
+            'visited_archive_months':collection_coverage.get('visited_archive_months'),
+            'unvisited_archive_months':collection_coverage.get('unvisited_archive_months'),
+            'eligible_games_capped':collection_coverage.get('eligible_games_capped'),
+            'requested_context_limit':collection_limit(config),
+            'requested_primary_limit':primary_limit(config),
         }
         # Missing *older* optional archives must not veto independent HIGH
         # evidence in a fully scanned primary sample. Preserve the missing
