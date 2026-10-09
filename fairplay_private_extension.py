@@ -11,6 +11,12 @@ def install():
         return
     original_capture = ui.capture_human_examples
     original_view = ui.ReportView
+    old_panel = ui.panel_embed
+    def new_panel():
+        card = old_panel()
+        card.description = card.description.replace('up to 200', 'up to 500').replace('latest 100', 'latest 500').replace('then deeply reviews selected games', 'then reviews all selected games to depth 18')
+        return card
+    ui.panel_embed = new_panel
 
     def capture(result, limit=4):
         try:
