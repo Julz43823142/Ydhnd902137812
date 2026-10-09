@@ -30,6 +30,9 @@ class MixedDepthTests(unittest.TestCase):
     def test_all_500_primary_games_are_preserved_with_mixed_depth(self):
         records = [game(i, deep=False) for i in range(500)]
         for i, item in enumerate(records):
+            # Distinct from existing 500-game test IDs: the process-local
+            # warm cache must not hide any of this run's 500 fast searches.
+            item.identity = f'bullet-fast-{i}'
             item.rated = True
             item.time_class = ("bullet" if i % 2 == 0 else
                                "rapid" if i % 3 else "blitz")
