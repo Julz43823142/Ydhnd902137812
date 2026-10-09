@@ -193,6 +193,7 @@ class CheckpointStore:
                 return False
             contract = item.get("metrics", {}).get("search_contract", {})
             valid = (contract.get("completed") is True
+                     and contract.get("exact") is not False
                      and contract.get("mode") == ("depth" if phase == "deep" and full_depth else "nodes")
                      and contract.get("requested") == (
                          18 if phase == "deep" and full_depth else
