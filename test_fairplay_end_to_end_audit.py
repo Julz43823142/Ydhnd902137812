@@ -30,6 +30,32 @@ from test_fairplay_maia import decision, distribution
 from test_fairplay_v4 import game, report
 
 
+class BoundedCandidateCoverage(unittest.TestCase):
+    def record(self,ids, *, control="180+0"):
+        return {"ids":ids,"kind":"chronological","time_class":"blitz",
+                "time_control":control,"rated":True,"persistent":True,
+                "high_qualifying":True}
+
+    def test_disjoint_eligible_period_survives_64_overlapping_windows(self):
+        from fairplay_clusters import select_gate_candidates
+        config=replace(CONFIG,baseline_candidate_limit=4)
+        ranked=[self.record(list(range(i,i+12))) for i in range(4)]
+        distant=self.record(list(range(80,92)))
+        selected=select_gate_candidates(ranked,ranked+[distant],config)
+        self.assertEqual(len(selected),4)
+        self.assertIs(selected[0],ranked[0])
+        self.assertIn(distant,selected)
+
+    def test_nonredundant_independent_periods_keep_their_slots(self):
+        from fairplay_clusters import select_gate_candidates
+        config=replace(CONFIG,baseline_candidate_limit=3)
+        ranked=[self.record(list(range(i*20,i*20+10))) for i in range(3)]
+        last=self.record(list(range(70,80)))
+        selected=select_gate_candidates(ranked,ranked+[last],config)
+        self.assertEqual(selected,ranked)
+        self.assertNotIn(last,selected)
+
+
 class MaiaIntegrity(unittest.TestCase):
     def test_model_warm_start_passes_existing_checkpoint_path(self):
         with tempfile.TemporaryDirectory() as directory:
