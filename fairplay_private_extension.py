@@ -56,6 +56,20 @@ def install():
             button.callback = deliver
             self.add_item(button)
 
+    base_process = ui.FairPlayService.process
+
+    async def process_with_durable_audit(self, job):
+        await base_process(self, job)
+        if not job.report_published or job.message is None:
+            return
+        entry = self.results.get(job.message.id)
+        bundle = entry[1].diagnostics.get("_private_evidence") if entry else None
+        if bundle:
+            durable = await asyncio.to_thread(
+                OwnerEvidenceStore().save, job.message.id, bundle)
+            entry[1].diagnostics["_private_evidence_durable"] = bool(durable)
+
+    ui.FairPlayService.process = process_with_durable_audit
     ui.capture_human_examples = capture
     ui.ReportView = OwnerView
     ui._owner_export_installed = True
