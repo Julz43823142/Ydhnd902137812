@@ -120,91 +120,178 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
         if row['rating_gain'] is not None:ctx_score=max(ctx_score,clamp(row['rating_gain']/600)*.35*weight)
     for (kind,_),group in buckets(useful).items():
         ctx_score=max(ctx_score,result_support(group,config)['score']*(.35 if kind=='bullet' else 1))
-    # Independent recurrence needs a contrasting surrounding baseline. Hundreds
-    # of equally excellent games do not become 'multiple suspicious clusters'.
-    baseline = [g for g in useful if (g.metrics.get('top1') or 0)<.65 and (g.metrics.get('critical_top1') or 0)<.65]
-    comparable_baseline=[g for g in baseline if strongest and g.time_class==strongest['time_class']
-                         and g.time_control==strongest['time_control'] and g.rated==strongest['rated']]
-    period_recurrence=any(strongest and row['time_class']==strongest['time_class']
-                          and row['time_control']==strongest['time_control'] and row['rated']==strongest['rated']
-                          and set(row['ids']) & set(strongest['ids']) for row in clusters['recurrence_groups'])
-    recurrence = period_recurrence and len(comparable_baseline)>=config.cluster_min_games
-    # Recurrence is replication, reported separately from engine regime change.
-    clusters['recurrence'] = recurrence
-    comparison=baseline_comparison(strongest,timeline,config,fast=True)
-    clusters['personal']=comparison
-    # Absence of a qualifying period blocks HIGH, but must not erase large
-    # same-control aggregate signals from a descriptive MODERATE review.
-    fallback=max(buckets(timeline).values(),key=lambda group:descriptive_group_rank(group,profile,personal,config),default=[])
-    reference=[g for g in games if strongest and g.time_class==strongest['time_class'] and g.time_control==strongest['time_control']] if strongest else fallback
-    stable_strong=comparison['stable'] or stable_history(reference,config)
-    independent_timing = any(row['state'] in ('Moderate','Strong','Very Strong') and row['time_class']!='bullet' for row in personal)
-    within_shift=sum(g.metrics['timing'].get('regime_shift',False) and g.time_class!='bullet' for g in useful)>=5
-    if within_shift:perf_score=max(perf_score,.55)
-    # Supporting evidence must overlap the engine period and comparison group.
-    # A rapid clock anomaly cannot confirm unrelated blitz precision.
-    scope=[g for g in timeline if strongest and g.identity in strongest['ids']] if strongest else fallback
-    controls=[g for g in timeline if g.identity in set(comparison['baseline_ids'])]
-    if controls and scope:
-        bp,hp=timing_profile(controls,config),timing_profile(scope,config)
-        comparison['timing']={'baseline':bp,'cluster':hp,'deltas':{k:(hp['comparison'][k]-bp['comparison'][k] if hp['comparison'][k] is not None and bp['comparison'][k] is not None else None) for k in bp['comparison']}}
-    scope_ids={g.identity for g in scope}
-    scope_key=comparison_control(scope[0]) if scope else None
-    scope_class=scope[0].time_class if scope else None
-    matching_personal=[]
-    for row in personal:
-        if row['time_class']!=scope_class or row['time_control']!=scope_key:continue
-        # The headline state can come from a different chronological group.
-        # Attribute it only to its own IDs, never to the ranked group by proxy.
-        ranked={**row,'state':row.get('ranked_state',row['state'])}
-        for candidate in (ranked,row.get('chronological_shift')):
-            if candidate and len(scope_ids & set(candidate.get('high_ids',[])))>=min(config.cluster_min_games,len(scope)//2):
-                matching_personal.append(candidate)
-    scope_cadence=cadence_recurrence(scope,config)
-    scope_trivial=trivial_delay_summary(scope,config)
-    scope_floor=clock_delay_evidence(scope,config)
-    gate_timing=max(({'Slight':.25,'Moderate':.5,'Strong':.75,'Very Strong':.9}.get(r['state'],0) for r in matching_personal),default=0)
-    if scope_cadence['recurrent']:gate_timing=max(gate_timing,.75 if scope_cadence['games']>=10 else .55)
-    if scope_trivial['recurrent']:gate_timing=max(gate_timing,.7 if scope_trivial['same_cadence_games']>=10 else .55)
-    gate_timing=max(gate_timing,scope_floor['score'])
-    if scope_class=='bullet':gate_timing*=.35
-    gate_shift=0.0  # Engine-derived change cannot independently corroborate engine precision.
 
-    if sum(g.metrics['timing'].get('regime_shift',False) and g.time_class!='bullet' for g in scope)>=5:
-        gate_timing=max(gate_timing,.55)
-    scoped_results=result_support(scope,config)
-    gate_context=scoped_results['score'] if scope_class!='bullet' else 0
-    scope_behavior=bool(any(r['state'] in ('Moderate','Strong','Very Strong') for r in matching_personal)
-                        or recurrence or scope_floor['elevated'] or scope_trivial['recurrent'])
-    if stable_strong and not scope_behavior:
-        gate_timing=gate_context=0
-    scores=(engine_score,critical_score,timing_score,perf_score,ctx_score)
-    # Confirmation is about this particular period. Do not borrow higher scores
-    # or clocks from an unrelated time-control/rated bucket.
-    scoped_e,scoped_c=evidence(summary(scope),rating=median([g.rating for g in scope if g.rating is not None]),config=config)
-    if scope_class=='bullet':scoped_e*=.35;scoped_c*=.35
-    deep_e,deep_c=evidence(deep_confirmation.get('metrics',{}),rating=median([g.rating for g in scope if g.rating is not None]),config=config,shrink=False)
-    if scope_class=='bullet':deep_e*=.35;deep_c*=.35
-    primary_e,primary_c=(min(scoped_e,deep_e),min(scoped_c,deep_c)) if deep_confirmed else (scoped_e,scoped_c)
-    if stable_strong and not scope_behavior:
-        # Stable expert precision without a behavioral discrepancy is reported
-        # descriptively; it does not earn MODERATE from correlated hit rates.
-        primary_e=primary_c=0
-    gate_scores=(primary_e,primary_c,gate_timing,gate_shift,gate_context)
+    # Gate selection is NOT the same as selecting the visually strongest
+    # fast cluster. A top-ranked period can fail paired depth or same-period
+    # corroboration while another already-discovered period passes *all*
+    # unchanged HIGH requirements. Evaluate them independently, without
+    # borrowing clocks, results, controls, or deep evidence between periods.
+    base_perf_score=perf_score
     disabled=set(config.disabled_features)
-    if 'timing' in disabled:gate_timing=0.0
-    if 'results' in disabled:gate_context=0.0
-    if 'recurrence' in disabled:recurrence=False
-    if 'personal' in disabled:
-        comparison={**comparison,'sufficient':False,'established':False}
-    gate_scores=(primary_e,primary_c,gate_timing,gate_shift,gate_context)
-    priority=priority_model(gate_scores,games=len(useful),decisions=totals['decisions'],critical=summary(scope)['critical'],
-                           confidence=confidence,deep_confirmed=deep_confirmed,partial=partial,config=config,
-                           persistent=bool(strongest and strongest['persistent']),recurrence=recurrence,
-                           cluster_games=strongest['metrics']['eligible_games'] if strongest else 0,deep_cluster_games=deep_confirmation['games'],
-                           cluster_decisions=summary(scope)['decisions'],cluster_qualified=bool(strongest and strongest.get('high_qualifying')),
-                           baseline_available=comparison['sufficient'],baseline_anomaly=comparison['established'],
-                           baseline_confirmed=deep_confirmation.get('anomaly_confirmed',False))
+    # This descriptive fallback does not depend on the candidate; compute it
+    # once rather than repeating a relatively expensive timing comparison.
+    descriptive_fallback=max(
+        buckets(timeline).values(),
+        key=lambda group:descriptive_group_rank(group,profile,personal,config),
+        default=[])
+    def assess_legacy_scope(strongest):
+        deep_confirmation=confirm_cluster(strongest,timeline,config)
+        deep_confirmed=deep_confirmation['confirmed']
+        perf_score=base_perf_score
+        # Independent recurrence needs a contrasting surrounding baseline. Hundreds
+        # of equally excellent games do not become 'multiple suspicious clusters'.
+        baseline = [g for g in useful if (g.metrics.get('top1') or 0)<.65 and (g.metrics.get('critical_top1') or 0)<.65]
+        comparable_baseline=[g for g in baseline if strongest and g.time_class==strongest['time_class']
+                             and g.time_control==strongest['time_control'] and g.rated==strongest['rated']]
+        period_recurrence=any(strongest and row['time_class']==strongest['time_class']
+                              and row['time_control']==strongest['time_control'] and row['rated']==strongest['rated']
+                              and set(row['ids']) & set(strongest['ids']) for row in clusters['recurrence_groups'])
+        recurrence = period_recurrence and len(comparable_baseline)>=config.cluster_min_games
+        # Recurrence is replication, reported separately from engine regime change.
+        comparison=baseline_comparison(strongest,timeline,config,fast=True)
+        # Absence of a qualifying period blocks HIGH, but must not erase large
+        # same-control aggregate signals from a descriptive MODERATE review.
+        fallback=descriptive_fallback
+        reference=[g for g in games if strongest and g.time_class==strongest['time_class'] and g.time_control==strongest['time_control']] if strongest else fallback
+        stable_strong=comparison['stable'] or stable_history(reference,config)
+        independent_timing = any(row['state'] in ('Moderate','Strong','Very Strong') and row['time_class']!='bullet' for row in personal)
+        within_shift=sum(g.metrics['timing'].get('regime_shift',False) and g.time_class!='bullet' for g in useful)>=5
+        if within_shift:perf_score=max(perf_score,.55)
+        # Supporting evidence must overlap the engine period and comparison group.
+        # A rapid clock anomaly cannot confirm unrelated blitz precision.
+        scope=[g for g in timeline if strongest and g.identity in strongest['ids']] if strongest else fallback
+        controls=[g for g in timeline if g.identity in set(comparison['baseline_ids'])]
+        if controls and scope:
+            bp,hp=timing_profile(controls,config),timing_profile(scope,config)
+            comparison['timing']={'baseline':bp,'cluster':hp,'deltas':{k:(hp['comparison'][k]-bp['comparison'][k] if hp['comparison'][k] is not None and bp['comparison'][k] is not None else None) for k in bp['comparison']}}
+        scope_ids={g.identity for g in scope}
+        scope_key=comparison_control(scope[0]) if scope else None
+        scope_class=scope[0].time_class if scope else None
+        matching_personal=[]
+        for row in personal:
+            if row['time_class']!=scope_class or row['time_control']!=scope_key:continue
+            # The headline state can come from a different chronological group.
+            # Attribute it only to its own IDs, never to the ranked group by proxy.
+            ranked={**row,'state':row.get('ranked_state',row['state'])}
+            for candidate in (ranked,row.get('chronological_shift')):
+                if candidate and len(scope_ids & set(candidate.get('high_ids',[])))>=min(config.cluster_min_games,len(scope)//2):
+                    matching_personal.append(candidate)
+        scope_cadence=cadence_recurrence(scope,config)
+        scope_trivial=trivial_delay_summary(scope,config)
+        scope_floor=clock_delay_evidence(scope,config)
+        gate_timing=max(({'Slight':.25,'Moderate':.5,'Strong':.75,'Very Strong':.9}.get(r['state'],0) for r in matching_personal),default=0)
+        if scope_cadence['recurrent']:gate_timing=max(gate_timing,.75 if scope_cadence['games']>=10 else .55)
+        if scope_trivial['recurrent']:gate_timing=max(gate_timing,.7 if scope_trivial['same_cadence_games']>=10 else .55)
+        gate_timing=max(gate_timing,scope_floor['score'])
+        if scope_class=='bullet':gate_timing*=.35
+        gate_shift=0.0  # Engine-derived change cannot independently corroborate engine precision.
+
+        if sum(g.metrics['timing'].get('regime_shift',False) and g.time_class!='bullet' for g in scope)>=5:
+            gate_timing=max(gate_timing,.55)
+        scoped_results=result_support(scope,config)
+        gate_context=scoped_results['score'] if scope_class!='bullet' else 0
+        scope_behavior=bool(any(r['state'] in ('Moderate','Strong','Very Strong') for r in matching_personal)
+                            or recurrence or scope_floor['elevated'] or scope_trivial['recurrent'])
+        if stable_strong and not scope_behavior:
+            gate_timing=gate_context=0
+        scores=(engine_score,critical_score,timing_score,perf_score,ctx_score)
+        # Confirmation is about this particular period. Do not borrow higher scores
+        # or clocks from an unrelated time-control/rated bucket.
+        scoped_e,scoped_c=evidence(summary(scope),rating=median([g.rating for g in scope if g.rating is not None]),config=config)
+        if scope_class=='bullet':scoped_e*=.35;scoped_c*=.35
+        deep_e,deep_c=evidence(deep_confirmation.get('metrics',{}),rating=median([g.rating for g in scope if g.rating is not None]),config=config,shrink=False)
+        if scope_class=='bullet':deep_e*=.35;deep_c*=.35
+        primary_e,primary_c=(min(scoped_e,deep_e),min(scoped_c,deep_c)) if deep_confirmed else (scoped_e,scoped_c)
+        if stable_strong and not scope_behavior:
+            # Stable expert precision without a behavioral discrepancy is reported
+            # descriptively; it does not earn MODERATE from correlated hit rates.
+            primary_e=primary_c=0
+        gate_scores=(primary_e,primary_c,gate_timing,gate_shift,gate_context)
+        disabled=set(config.disabled_features)
+        if 'timing' in disabled:gate_timing=0.0
+        if 'results' in disabled:gate_context=0.0
+        if 'recurrence' in disabled:recurrence=False
+        if 'personal' in disabled:
+            comparison={**comparison,'sufficient':False,'established':False}
+        gate_scores=(primary_e,primary_c,gate_timing,gate_shift,gate_context)
+        priority=priority_model(gate_scores,games=len(useful),decisions=totals['decisions'],critical=summary(scope)['critical'],
+                               confidence=confidence,deep_confirmed=deep_confirmed,partial=partial,config=config,
+                               persistent=bool(strongest and strongest['persistent']),recurrence=recurrence,
+                               cluster_games=strongest['metrics']['eligible_games'] if strongest else 0,deep_cluster_games=deep_confirmation['games'],
+                               cluster_decisions=summary(scope)['decisions'],cluster_qualified=bool(strongest and strongest.get('high_qualifying')),
+                               baseline_available=comparison['sufficient'],baseline_anomaly=comparison['established'],
+                               baseline_confirmed=deep_confirmation.get('anomaly_confirmed',False))
+
+        return {'strongest':strongest,'priority':priority,'deep_confirmation':deep_confirmation,'deep_confirmed':deep_confirmed,'comparison':comparison,'recurrence':recurrence,'scope':scope,'scope_class':scope_class,'scope_behavior':scope_behavior,'stable_strong':stable_strong,'independent_timing':independent_timing,'within_shift':within_shift,'gate_scores':gate_scores,'scores':scores,'gate_timing':gate_timing,'gate_context':gate_context,'scoped_results':scoped_results,'perf_score':perf_score,'fallback':fallback,'reference':reference,'matching_personal':matching_personal}
+
+    original_strongest=strongest
+    candidate_pool=clusters.get('gate_candidates',clusters['candidates'])
+    evaluable=[original_strongest]
+    evaluable.extend(row for row in candidate_pool
+                     if row is not original_strongest and row.get('persistent')
+                     and row.get('high_qualifying'))
+    assessments=[assess_legacy_scope(row) for row in evaluable]
+    # Incomplete scans cannot acquire new HIGH claims from alternate windows.
+    allow_alternate=(not partial and
+                     (coverage_state or {}).get('primary_engine_complete',True))
+    original_ids=set(original_strongest['ids']) if original_strongest else set()
+    accepted=next((
+        row for index,row in enumerate(assessments)
+        if row['priority'] in ('HIGH','VERY HIGH')
+        and (index==0 or not (original_ids & set(row['strongest']['ids'])))
+        # An already-qualifying original should remain the selected view.
+        and (index==0 or assessments[0]['priority'] not in ('HIGH','VERY HIGH'))
+    ),None) if allow_alternate else None
+    chosen_scope=accepted or assessments[0]
+    strongest=chosen_scope['strongest']
+    priority=chosen_scope['priority']
+    deep_confirmation=chosen_scope['deep_confirmation']
+    deep_confirmed=chosen_scope['deep_confirmed']
+    comparison=chosen_scope['comparison']
+    recurrence=chosen_scope['recurrence']
+    scope=chosen_scope['scope']
+    scope_class=chosen_scope['scope_class']
+    scope_behavior=chosen_scope['scope_behavior']
+    stable_strong=chosen_scope['stable_strong']
+    independent_timing=chosen_scope['independent_timing']
+    within_shift=chosen_scope['within_shift']
+    gate_scores=chosen_scope['gate_scores']
+    scores=chosen_scope['scores']
+    gate_timing=chosen_scope['gate_timing']
+    gate_context=chosen_scope['gate_context']
+    scoped_results=chosen_scope['scoped_results']
+    perf_score=chosen_scope['perf_score']
+    fallback=chosen_scope['fallback']
+    reference=chosen_scope['reference']
+    matching_personal=chosen_scope['matching_personal']
+    clusters['strongest']=strongest
+    clusters['deep']=deep_confirmation
+    clusters['personal']=comparison
+    clusters['recurrence']=recurrence
+    clusters['legacy_scope_selection']={
+        'candidates_evaluated':len(assessments),
+        'qualifying_high_candidates':sum(row['priority'] in ('HIGH','VERY HIGH') for row in assessments),
+        'selected_alternate':strongest is not original_strongest,
+        'original_priority':assessments[0]['priority'],
+        'selected_priority':priority,
+        'incomplete_scan_guard':not allow_alternate,
+        # Each candidate is independent; identifiers, PGNs and FENs are
+        # deliberately absent. This makes an unexpected LOW review auditable.
+        'candidate_checks':[
+            {'class':row['strongest']['time_class'] if row['strongest'] else 'none',
+             'kind':row['strongest']['kind'] if row['strongest'] else 'none',
+             'games':len(row['scope']),
+             'deep_confirmed':row['deep_confirmed'],
+             'baseline_confirmed':row['deep_confirmation'].get('anomaly_confirmed',False),
+             'timing':round(row['gate_timing'],3),
+             'results':round(row['gate_context'],3),
+             'priority':row['priority'],
+             'blockers':high_block_reasons(
+                 row['priority'],row['comparison'],row['deep_confirmation'],
+                 row['strongest'],row['gate_timing'],row['gate_context'],
+                 row['recurrence'],len(useful),config)}
+            for row in assessments],
+    }
     # Deep evidence can lower a shallow anomaly; selecting unaffected games is
     # not permission to claim confirmation. Every gate uses the actual cluster.
     reasons=[]

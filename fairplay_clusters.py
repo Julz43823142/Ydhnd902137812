@@ -222,6 +222,10 @@ def find_clusters(games, config=CONFIG, fast=False):
     return {'strongest': best, 'strongest_engine': max(candidates,key=lambda r:r['engine_score'],default=None),
             'strongest_critical': max(candidates,key=lambda r:r['critical_score'],default=None),
             'independent': independent, 'recurrence': recurrence, 'recurrence_groups':recurrence_groups,
+            # Keep all already bounded, independently qualified discovery
+            # candidates for *scoring*; the first twelve remain presentation.
+            # Otherwise overlapping windows can crowd out an eligible class.
+            'gate_candidates':finalists,
             'candidates': finalists[:12] if finalists else candidates[:12], 'discovery':discovery,
             'convergence':discover_convergence(games,config)}
 
