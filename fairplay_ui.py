@@ -645,6 +645,8 @@ class Job:
     progress_percent: int = 0
     message: object = None
     stop: threading.Event = field(default_factory=threading.Event)
+    cancel_requested: bool = False  # explicit /stopfairplay; not a runner handoff
+    report_published: bool = False  # do not retroactively cancel a delivered review
     message_deleted: bool = False
     delivery_unknown: bool = False
     token: str = field(default_factory=lambda:uuid.uuid4().hex[:12])
@@ -657,6 +659,7 @@ class FairPlayService:
         self.executor = ThreadPoolExecutor(max_workers=MAX_CONCURRENT_SCANS,thread_name_prefix='fairplay')
         self.queue = asyncio.Queue(maxsize=MAX_JOBS)
         self.jobs = {}
+        self.active_job = None  # The one scan currently using the engine executor.
         self.results = OrderedDict()
         self.cache = OrderedDict()
         self.last_human = time.time()
@@ -670,6 +673,27 @@ class FairPlayService:
         self.closed = False
 
     def note_human(self):self.last_human = time.time()
+
+    async def stop_current(self):
+        """Request cancellation only for the running scan; leave queued jobs alone.
+
+        Do not cancel the asyncio queue worker or Stockfish pool: the engine
+        thread must drain before the next scan starts. Unlike normal runner
+        shutdown, an intentional stop must not be auto-resumed next boot.
+        """
+        if self.closed:return 'unavailable'
+        job=self.active_job
+        if job is None or job.report_published:return 'idle'
+        if job.cancel_requested:return 'already'
+        job.cancel_requested=True
+        job.stop.set()
+        if self.checkpoints is not None and self.checkpoints.enabled:
+            try:
+                persisted=await asyncio.to_thread(self.checkpoints.cancel,job.target)
+            except Exception:
+                persisted=False
+            if not persisted:return 'checkpoint_unconfirmed'
+        return 'stopping'
 
     def result_for(self,message_id):
         self.expire_cache()
@@ -746,15 +770,18 @@ class FairPlayService:
     async def process(self,job):
         loop = asyncio.get_running_loop()
         def progress(stage):
-            if not self.closed:loop.call_soon_threadsafe(setattr,job,'stage',stage)
+            if not self.closed and not job.cancel_requested:
+                loop.call_soon_threadsafe(setattr,job,'stage',stage)
         future = None
         last = None
         try:
+            if job.cancel_requested:return
             def run_review():
                 kwargs={'cancel':job.stop}
                 if self.analyzer is review and self.checkpoints is not None:
                     kwargs['checkpoint']=self.checkpoints
                 result=self.analyzer(job.target,progress,**kwargs)
+                if job.cancel_requested:return result
                 # Policy scoring can inspect thousands of engine-reviewed
                 # positions. Do this in the scan executor, never Discord's
                 # event loop, before sensitive decisions are discarded.
@@ -766,20 +793,24 @@ class FairPlayService:
                 return result
             future = loop.run_in_executor(self.executor,run_review)
             while not future.done():
-                if job.stage!='Fetching profile…' and job.stage!=last:
+                if not job.cancel_requested and job.stage!='Fetching profile…' and job.stage!=last:
                     if await self.safe_progress(job,job.stage):last = job.stage
                 await asyncio.wait({future},timeout=3)
             result = await future
+            if job.cancel_requested:return  # A late completed scan is NOT a report.
             # All detailed position caches remain bounded in the engine worker.
             # Discord detail pages need game summaries, not thousands of FENs.
             for game in result.games:game.decisions.clear()
             if await self.safe_progress(job,'Complete',view=ReportView(result.username),embed=result_embed(result)):
+                if job.cancel_requested:return
                 self.results[job.message.id] = (time.time(),result)
                 self.cache[job.target] = (time.time(),result,job.message)
+                job.report_published=True
                 self.expire_cache()
                 if getattr(self,'checkpoints',None) is not None:
                     await asyncio.to_thread(self.checkpoints.finish,job.target)
         except AccountNotFound:
+            if job.cancel_requested:return
             if getattr(self,'checkpoints',None) is not None:
                 await asyncio.to_thread(self.checkpoints.suspend,job.target)
             try:
@@ -787,6 +818,7 @@ class FairPlayService:
                     await job.ctx.followup.send('❌ **Chess.com account not found**\nCheck the username and try again.',ephemeral=True)
             except discord.HTTPException:pass
         except ReviewError as error:
+            if job.cancel_requested:return
             if getattr(self,'checkpoints',None) is not None:
                 await asyncio.to_thread(self.checkpoints.suspend,job.target)
             if job.message is not None:await self.safe_progress(job,'❌ '+str(error))
@@ -804,6 +836,7 @@ class FairPlayService:
             except Exception:pass
             raise
         except Exception:
+            if job.cancel_requested:return
             if getattr(self,'checkpoints',None) is not None:
                 await asyncio.to_thread(self.checkpoints.suspend,job.target)
             # Deliberately do not log exception values/targets/reports.
@@ -813,13 +846,30 @@ class FairPlayService:
                     if job.ctx is not None:
                         await job.ctx.followup.send('Analysis could not finish safely. Please try again later.',ephemeral=True)
                 except discord.HTTPException:pass
+        finally:
+            if job.cancel_requested:
+                try:
+                    if job.message is not None:
+                        await self.safe_progress(job,'Stopped by moderator')
+                    elif job.ctx is not None:
+                        await job.ctx.followup.send(
+                            'Fair Play review stopped by a moderator.',ephemeral=True)
+                except discord.HTTPException:
+                    pass
+                finally:
+                    # Remove the encrypted resume state only after the engine
+                    # future has settled; queued scans remain intact.
+                    if self.checkpoints is not None:
+                        await asyncio.to_thread(self.checkpoints.finish,job.target)
 
     async def run_queue(self):
         while not self.closed and not self.client.is_closed():
             job = await self.queue.get()
+            self.active_job=job
             try:
                 await self.process(job)
             finally:
+                if self.active_job is job:self.active_job=None
                 self.jobs.pop(job.target,None)
                 self.queue.task_done()
 
@@ -894,6 +944,35 @@ class FairPlayService:
         if getattr(self,'checkpoints',None) is not None:
             await asyncio.to_thread(self.checkpoints.flush)
         await asyncio.to_thread(close_shared_engine_pool)
+
+
+async def stop_current_review(ctx):
+    """Moderator-only slash entrypoint for the existing active review."""
+    if not await channel_check(ctx):return
+    from shark_admin import ADMIN_ID
+    permissions=getattr(ctx.user,'guild_permissions',None)
+    authorized=(ctx.user.id==ADMIN_ID or
+                bool(getattr(permissions,'administrator',False)) or
+                bool(getattr(permissions,'manage_guild',False)))
+    if not authorized:
+        await ctx.response.send_message(
+            'Only Sharkmeister or a server moderator with Manage Server permission can stop a Fair Play review.',
+            ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
+        return
+    await ctx.response.defer(ephemeral=True,thinking=True)
+    if _service is None or _service.closed:
+        text='Fair Play is reconnecting; no active review can be stopped.'
+    else:
+        _service.note_human()
+        status=await _service.stop_current()
+        text={
+            'idle':'No Fair Play review is currently running. Queued reviews were left unchanged.',
+            'already':'A stop was already requested for the active Fair Play review.',
+            'unavailable':'Fair Play is shutting down; no stop request was applied.',
+            'stopping':'Stop requested for the active Fair Play review. The engine will finish its in-flight search; queued reviews remain untouched. The stopped scan will not resume automatically.',
+            'checkpoint_unconfirmed':'Stop requested for the active Fair Play review, but durable cancellation could not be confirmed. The bot will retry checkpoint cleanup when the engine exits; queued reviews remain untouched.',
+        }[status]
+    await ctx.followup.send(text,ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
 
 
 async def submit(ctx,target):

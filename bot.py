@@ -722,6 +722,12 @@ async def fairplay_command(interaction: discord.Interaction, username: str):
     if await channel_check(interaction):await submit(interaction,username)
 
 
+@command_tree.command(name='stopfairplay',description='Stop the currently running Fair Play review (server moderators only).')
+async def stopfairplay_command(interaction: discord.Interaction):
+    from fairplay_ui import stop_current_review
+    await stop_current_review(interaction)
+
+
 @command_tree.command(name='usage', description='View private Sharkmeister feature usage analytics.')
 async def private_usage_command(interaction: discord.Interaction):
     if interaction.channel_id in (GUESS_GAMES_CHANNEL_ID,1546155761405788230):return

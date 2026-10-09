@@ -148,6 +148,10 @@ class CheckpointStore:
             return False
         with self.lock:
             job = self.state["jobs"].setdefault(target, {"positions": {}, "contract": None})
+            # An in-flight Discord update cannot resurrect a /stopfairplay
+            # cancellation as a resumable job.
+            if job.get("status") == "cancelled":
+                return False
             job["status"] = "running"
             if message_id is not None:
                 job["message_id"] = int(message_id)
@@ -216,7 +220,7 @@ class CheckpointStore:
             return False
         with self.lock:
             job = self.state["jobs"].get(target)
-            if not job or not job.get("contract"):
+            if not job or not job.get("contract") or job.get("status") == "cancelled":
                 return False
             key = self._key(game, decision, phase)
             job["positions"][key] = {"metrics": copy.deepcopy(decision.metrics)}
@@ -239,7 +243,7 @@ class CheckpointStore:
             return False
         with self.lock:
             job = self.state["jobs"].get(target)
-            if not job or not job.get("contract"):
+            if not job or not job.get("contract") or job.get("status") == "cancelled":
                 return False
             key = self._key(game, decision, "maia")
             if key not in job["positions"]:
@@ -254,7 +258,7 @@ class CheckpointStore:
             return False
         with self.lock:
             job = self.state["jobs"].get(target)
-            if not job or not job.get("contract"):
+            if not job or not job.get("contract") or job.get("status") == "cancelled":
                 return False
             changed = False
             for game, decision in pairs:
@@ -291,7 +295,7 @@ class CheckpointStore:
             return False
         with self.lock:
             job = self.state["jobs"].get(target)
-            if not job or not job.get("contract"):
+            if not job or not job.get("contract") or job.get("status") == "cancelled":
                 return False
             job["positions"][self._key(game, decision, phase)] = {
                 "search": copy.deepcopy(result)}
@@ -302,6 +306,22 @@ class CheckpointStore:
         with self.lock:
             return self._write(force=True) if self.enabled else False
 
+    def cancel(self, target):
+        """Persist a non-resumable stop without discarding in-flight engine work.
+
+        This status is distinct from a runner handoff or transient failure.
+        The scan worker removes the checkpoint entirely after it has drained.
+        """
+        if not self.enabled:
+            return False
+        with self.lock:
+            job = self.state["jobs"].get(target)
+            if job is None:
+                return True  # Already finished; no job can be restored.
+            job["status"] = "cancelled"
+            job["updated"] = time.time()
+            return self._write(force=True)
+
     def suspend(self, target):
         """Keep reusable work, but do not restart a known failed scan forever."""
         if not self.enabled:
@@ -310,6 +330,8 @@ class CheckpointStore:
             job = self.state["jobs"].get(target)
             if job is None:
                 return False
+            if job.get("status") == "cancelled":
+                return self._write(force=True)
             job["status"] = "suspended"
             job["updated"] = time.time()
             return self._write(force=True)
