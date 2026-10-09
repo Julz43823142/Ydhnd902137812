@@ -103,8 +103,15 @@ def summarize(game: GameSample, config=CONFIG):
     unique = [d for d in critical if d.metrics['unique']]
     losses = [d.metrics['cpl'] for d in moves]
     quiet = [d for d in moves if not (d.capture or d.check or d.gives_check)]
-    compared = [d for d in moves if getattr(d,'fast_engine',{})
-                and d.metrics.get('nodes',0)>d.fast_engine.get('nodes',0)]
+    compared = [d for d in moves if getattr(d,'fast_engine',{}) and (
+                d.metrics.get('nodes',0)>d.fast_engine.get('nodes',0)
+                or (d.metrics.get('search_contract',{}).get('mode')=='depth'
+                    and d.metrics.get('search_contract',{}).get('completed') is True
+                    and d.metrics.get('search_depth',0)>=
+                        d.metrics.get('search_contract',{}).get('requested',float('inf'))))]
+    # A completed fixed-depth analysis need not consume more nodes than its
+    # preceding fixed-node screening. Count actual depth comparisons instead
+    # of silently reporting zero paired positions.
     consecutive = run = 0
     for d in moves:
         # Count consecutive critical opportunities; a noncritical move is not
