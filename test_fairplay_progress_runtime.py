@@ -39,6 +39,13 @@ class ScanTimingTests(unittest.TestCase):
         self.assertEqual(estimate(stage.format(100)),97)
         self.assertEqual(estimate('Complete'),100)
 
+    def test_error_card_has_no_false_eighty_percent_completion(self):
+        from fairplay_ui import progress_embed
+        failed=progress_embed('Synthetic','❌ Stockfish failed',80,LiveTiming())
+        self.assertIn('Review stopped — no result.',failed.description)
+        self.assertNotIn('**80%**',failed.description)
+        self.assertNotIn('▰',failed.description)
+
     def test_duration_english(self):
         self.assertEqual(duration(44*60+16),'44m 16s')
         self.assertEqual(duration(3600+5*60),'1h 05m')

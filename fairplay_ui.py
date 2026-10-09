@@ -812,7 +812,8 @@ class FairPlayService:
             job.timing=LiveTiming()
             future = loop.run_in_executor(self.executor,run_review)
             while not future.done():
-                if not job.cancel_requested and (job.stage!=last or (job.message is not None and time.monotonic()-job.last_progress_edit>=15)):
+                if (not job.cancel_requested and job.stage!='Fetching profile…' and
+                        (job.stage!=last or (job.message is not None and time.monotonic()-job.last_progress_edit>=15))):
                     if await self.safe_progress(job,job.stage):last = job.stage
                 await asyncio.wait({future},timeout=3)
             result = await future
