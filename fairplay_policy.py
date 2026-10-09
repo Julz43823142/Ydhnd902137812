@@ -49,7 +49,7 @@ def alternatives(d, config=POLICY):
     return selected
 
 def search_alternatives(scanner,d,nodes):
-    from fairplay_analysis import score_cp
+    from fairplay_analysis import score_cp, scan_engine_timeout
     values={};board=chess.Board(d.fen)
     depth_search=isinstance(nodes,chess.engine.Limit) and nodes.depth is not None
     limit=nodes if depth_search else chess.engine.Limit(nodes=nodes)
@@ -58,6 +58,9 @@ def search_alternatives(scanner,d,nodes):
         move=chess.Move.from_uci(uci)
         if move not in board.legal_moves:raise ValueError('Invalid local policy root')
         if 'Clear Hash' in scanner.engine.options:scanner.engine.configure({'Clear Hash':None})
+        # Root searches are independent tasks and must not inherit a fast
+        # position's stale timeout when the budget is depth-18 or deep nodes.
+        scanner.engine.timeout=scan_engine_timeout(limit,scanner.config)
         started=time.monotonic()
         line=scanner.engine.analyse(board,limit,root_moves=[move])
         if (depth_search and (not isinstance(line,dict) or
