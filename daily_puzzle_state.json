@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/FTkTg",
     "title": "Lichess • 1353",
     "fen": "r6k/2pb2RP/p2q3P/1pnn1pB1/8/P1P5/1P4Q1/2K1R3 b - - 5 34",
-    "current_fen": "r6k/2pb2RP/p2q3P/1p1n1pB1/8/P1Pn4/1P4Q1/1K2R3 b - - 7 35",
-    "last_move_uci": "c1b1",
+    "current_fen": "r6k/2pb2RP/p2q3P/1p1n1pB1/8/P1P5/1P4Q1/1K2n3 w - - 0 36",
+    "last_move_uci": "d3e1",
     "pgn": "Nd3+ Kb1 Nxe1",
     "all_moves": [
       {
@@ -38,44 +38,44 @@
     "player_color": "black",
     "player_move_count": 2,
     "posted_at": "2026-10-09T21:55:10.960054+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_FTkTg_1791582910960",
-    "last_activity_at": "2026-10-09T21:55:18.707196+00:00",
+    "last_activity_at": "2026-10-09T21:55:23.180489+00:00",
     "rating": 1353,
     "rp_band": 0,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 2,
-    "next_player_index": 1,
-    "solved": false,
+    "next_solution_index": 3,
+    "next_player_index": 2,
+    "solved": true,
     "message_ids": {
-      "1468320170891022417": 1558236444047183933
+      "1468320170891022417": 1558236463970127926
     },
-    "message_id": 1558236444047183933,
+    "message_id": 1558236463970127926,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "nd3",
+        "move": "nxe1",
         "correct": true,
-        "timestamp": "2026-10-09T21:55:18.708389+00:00"
+        "timestamp": "2026-10-09T21:55:23.181664+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
     "first_move_user_name": "Thice",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
-    "last_card_activity_at": "2026-10-09T21:55:18.707196+00:00",
+    "last_card_activity_at": "2026-10-09T21:55:23.180489+00:00",
     "recent_accepted_moves": [
       {
         "accepted_at": 1791582918.7084053,
@@ -86,6 +86,16 @@
           "color": "black"
         },
         "accepted_uci": "c5d3"
+      },
+      {
+        "accepted_at": 1791582923.1816814,
+        "fen_before": "r6k/2pb2RP/p2q3P/1p1n1pB1/8/P1Pn4/1P4Q1/1K2R3 b - - 7 35",
+        "expected": {
+          "uci": "d3e1",
+          "san": "Nxe1",
+          "color": "black"
+        },
+        "accepted_uci": "d3e1"
       }
     ],
     "accepted_solution_moves": [
@@ -93,11 +103,22 @@
         "san": "Nd3+",
         "uci": "c5d3",
         "principal": true
+      },
+      {
+        "san": "Nxe1",
+        "uci": "d3e1",
+        "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kb1"
+    "last_feedback": "✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1779 points.**\n🔥 **Daily Activity Bonus: +10 coins**\n\nPuzzle Elo: **2567**\n\n💡 **Solution:** Nd3+ Nxe1\n\n🏆 **Your ranking**\n**#1 🐶 Thice — 1779 points ← you**\n**#2 🍅 TheMakina — 1557 points**",
+    "completion_solver_id": "442597396195704832",
+    "completion_solver_name": "Thice",
+    "activity_bonus_users": [
+      "442597396195704832"
+    ],
+    "auto_next_started": true
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-09",
