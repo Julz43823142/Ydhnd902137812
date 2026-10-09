@@ -185,7 +185,7 @@ jobs:
         run: python bot.py
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
-          # Full 100-game Stockfish depth-18 + per-position Maia review.
+          # Full depth-18 Stockfish evaluation of the latest 500 eligible rated games; bounded Maia observations.
           # Opt-in only; inactive until this PR is independently merged.
           FAIRPLAY_FULL_DEPTH18: "1"
           FAIRPLAY_REQUIRE_MAIA: "1"
