@@ -664,8 +664,10 @@ def run_position_batch(executor, pool, work, nodes, deadline, progress, stage,
             except BaseException:pass
         raise
     finally:
-        if checkpoint is not None and buffered:
-            checkpoint.flush()  # Force a durable handoff before returning.
+        if checkpoint is not None and pending:
+            # Even an exact multiple of 64 must be pushed on handoff; the
+            # preceding throttled flush may not have reached the remote yet.
+            checkpoint.flush()
     return {key for key,count in expected.items() if done_by_game.get(key)==count},interrupted
 
 
