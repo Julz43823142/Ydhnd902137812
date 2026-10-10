@@ -308,6 +308,31 @@ def result_embed(result: ReviewResult):
                        'HIGH route impossible even if all eligible moves are '
                        'correct. LOW does not establish honest play.')[:1024],
                 inline=False)
+    burst=result.diagnostics.get('ten_game_burst') or {}
+    if burst.get('schema')=='fairplay-v28-ten-game-burst-v1':
+        row=burst.get('best')
+        if row and burst.get('coverage_gate_passed') and burst.get('feature_gate_passed'):
+            summary=(
+                f"**HIGH-eligible ten-game incident** in "
+                f"{row['class'].title()} ({row['time_control']}). "
+                f"Deep hard moves **{row['deep_hits']}/{row['deep_opportunities']}**"
+                f" across **{row['deep_hit_games']}/10** games, "
+                f"with **{row['deep_quiet_hits']}** quiet exceptional moves. "
+                f"Fast/deep quality agreement "
+                f"**{row['paired_quality_fraction']:.0%}**. "
+                "Both fixed five-game halves contributed. "
+                "Manual review required; not proof of cheating.")
+        else:
+            summary=(
+                f"Examined **{burst.get('windows_examined',0)}** intact "
+                "ten-game windows from recent same-control rapid/blitz "
+                f"history; **{burst.get('fast_discovery_windows',0)}** "
+                "qualified for FAST investigation and "
+                f"**{burst.get('deep_confirmed_windows',0)}** "
+                "met all independent deep HIGH evidence requirements. "
+                "Win streaks alone never qualify.")
+        embed.add_field(name='Ten-game incident analysis (HIGH only with deep proof)',
+                        value=summary[:1024],inline=False)
     embed.add_field(name='Signals',value='\n'.join(f'**{key}:** {value}' for key,value in result.families.items()),inline=False)
     embed.add_field(name='Review notes',value='\n'.join('• '+value for value in result.reasons)[:1024],inline=False)
     if result.priority=='LOW':
