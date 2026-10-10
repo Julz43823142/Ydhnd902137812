@@ -462,7 +462,9 @@ class StrictProductionMaiaCoverage(unittest.TestCase):
     def covered(cls):
         games=[causal_game(i,decisions=8) for i in range(50)]
         for g in games:
-            for d in g.decisions:d.human_policy={'g1f3':1.0}
+            for d in g.decisions:
+                legal=[move.uci() for move in chess.Board(d.fen).legal_moves]
+                d.human_policy={move:1.0/len(legal) for move in legal}
         return games,cls.complete_report(games)
 
     def test_exact_maia_policy_coverage_is_accepted(self):
@@ -493,6 +495,14 @@ class StrictProductionMaiaCoverage(unittest.TestCase):
         from fairplay_data import ReviewError
         games,report=self.covered()
         games[49].decisions[-1].human_policy={}
+        with self.assertRaises(ReviewError):
+            require_recent_maia_coverage(report,games)
+
+    def test_truthy_but_invalid_maia_policy_is_not_complete(self):
+        from fairplay_analysis import require_recent_maia_coverage
+        from fairplay_data import ReviewError
+        games,report=self.covered()
+        games[0].decisions[0].human_policy={'illegal':1.0}
         with self.assertRaises(ReviewError):
             require_recent_maia_coverage(report,games)
 
