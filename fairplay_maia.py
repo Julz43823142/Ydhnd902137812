@@ -287,8 +287,9 @@ def annotate_history(games,predictor=None,*,full_coverage=False,recent_full_ids=
                      if g.moves and g.rating is not None
                      and g.opponent_rating is not None]
     expected_recent=sum(len(g.decisions) for g in rating_complete)
-    chosen=selection(games,full_coverage=full_coverage,
-                     recent_full_ids=recent_full_ids)
+    chosen=(selection(games,full_coverage=full_coverage,
+                      recent_full_ids=recent_full_ids)
+            if recent_set else selection(games,full_coverage=full_coverage))
     actual_recent=sum(getattr(g,'identity',None) in recent_set
                       for g,d,ctx in chosen)
     coverage={
