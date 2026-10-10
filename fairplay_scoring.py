@@ -31,7 +31,7 @@ def priority_model(scores, *, games, decisions, critical, confidence, deep_confi
     # evidence and strong behavioral corroboration. A missing baseline is not a delta.
     absolute_path=extreme and period_games>=10 and (not baseline_available or recurrence) and (timing>=.75 or recurrence)
     # HIGH requires the existing independently checked multi-candidate
-    # critical-position evidence, retained by the deep MultiPV-5 pass.
+    # critical-position evidence, retained by the deep MultiPV-3 pass.
     high_ok=(config.deep_multipv >= 3 and primary and supporting and persistent and cluster_qualified and sample_ok
              and deep_confirmed and confidence!='LOW' and (personal_path or absolute_path))
     if (high_ok and strong and max(timing,context)>=.75 and (personal_path or recurrence)
