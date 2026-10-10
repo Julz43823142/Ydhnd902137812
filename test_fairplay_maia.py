@@ -131,12 +131,14 @@ class CausalSelection(unittest.TestCase):
             for d in game.decisions:d.metrics.update(cpl=900,scaled_loss=.8,high_information=False)
         self.assertEqual(baseline,[d.ply for _,d,_ in maia.selection(self.games)])
 
-    def test_full_coverage_predicts_all_eligible_positions_instead_of_eight(self):
+    def test_full_coverage_predicts_all_eligible_positions_instead_of_sixteen(self):
         ordinary=maia.selection(self.games)
         full=maia.selection(self.games,full_coverage=True)
         expected=sum(len(g.decisions) for g in self.games if g.moves and g.rating is not None
                      and g.opponent_rating is not None)
-        self.assertLessEqual(len(ordinary),8*len(self.games))
+        # The v25 position quota rose from 8 to 16; full coverage still
+        # evaluates every eligible decision and neither mode selects by CPL.
+        self.assertLessEqual(len(ordinary),16*len(self.games))
         self.assertEqual(len(full),expected)
         self.assertGreaterEqual(len(full),len(ordinary))
 

@@ -8,6 +8,7 @@ from dataclasses import replace
 from fairplay_config import CONFIG
 from fairplay_human import period_summary, absolute_qualified, absolute_blockers, period_raw_excess_floor
 from fairplay_acute import acute_blockers, acute_deep_confirmation
+from fairplay_confirmation import paired_quality_confirmation
 
 
 def class_absolute(summary,kind,config=CONFIG):
@@ -108,12 +109,14 @@ def deep_confirmation(period,games,config=CONFIG):
     members=[g for g in games if g.identity in period['ids'] and g.deep]
     paired=period_summary(members,config,fast=True);deep=period_summary(members,config)
     n=deep['opportunities'];stable=deep['stable_opportunities']
+    reliability=paired_quality_confirmation(deep,config.human_stability_fraction)
     retention=(deep['hits']/paired['hits']) if paired['hits'] else 0
     qualified=(len(members)>=config.human_deep_games and deep['contributors']>=config.human_deep_games
         and n>=config.human_deep_opportunities and deep['hit_lower']>=config.human_deep_hit_lower
-        and stable/max(1,n)>=config.human_stability_fraction and retention>=config.human_retention)
+        and reliability['coverage_passed'] and reliability['fraction_passed']
+        and retention>=config.human_retention)
     # Stable opportunities must include successes, not merely stable misses.
-    qualified=qualified and deep['stable_hits']>=config.human_deep_opportunities*.6
+    qualified=qualified and reliability['hits']>=config.human_deep_opportunities*.6
     absolute=bool(qualified and period.get('absolute',True)
         and deep['information']>=config.human_absolute_information_floor
         and deep.get('quality_excess',0)>=period_raw_excess_floor(deep,config)
@@ -134,15 +137,19 @@ def deep_confirmation(period,games,config=CONFIG):
         and deep['hard_lower']>=config.human_deep_hit_lower
         and deep['hard_hits']/max(1,hard_n)-baseline['hard_hits']/max(1,baseline['hard_opportunities'])>=.25
         and (deep.get('observed_quality') or 0)-(baseline.get('observed_quality') or 0)>=.18
-        and hard_retention>=config.human_retention and deep['hard_stable']/max(1,hard_n)>=config.human_stability_fraction)
+        and hard_retention>=config.human_retention
+        and reliability['coverage_passed'] and reliability['fraction_passed'])
     return {'qualified':bool(absolute or personal),'absolute':absolute,'personal':bool(personal),
             'games':len(members),'summary':deep,'paired_fast':paired,'retention':retention,
-            'stability_fraction':stable/max(1,n),
+            'stability_fraction':reliability['fraction'],
+            'legacy_geometric_stability_fraction':stable/max(1,n),
+            'paired_search_coverage_fraction':reliability['coverage'],
             'blockers':[label for label,ok in {
                 'deep contributor games':len(members)>=config.human_deep_games and deep['contributors']>=config.human_deep_games,
                 'deep opportunity coverage':n>=config.human_deep_opportunities,
                 'deep anomaly hit lower bound':deep['hit_lower']>=config.human_deep_hit_lower,
-                'deep semantic-quality stability':stable/max(1,n)>=config.human_stability_fraction,
+                'paired search-quality coverage':reliability['coverage_passed'],
+                'deep semantic-quality stability':reliability['fraction_passed'],
                 'fast to deep retention':retention>=config.human_retention,
                 'deep rating-adjusted information':deep['information']>=config.human_absolute_information_floor,
                 'deep raw quality excess beyond ceiling guard':deep.get('quality_excess',0)>=period_raw_excess_floor(deep,config),
@@ -190,6 +197,7 @@ def sparse_deep_blockers(period,proof,config=CONFIG):
     """Paired deep retention for the distributed MODERATE route."""
     if not proof:return ['paired deep review unavailable']
     s=proof.get('summary',{});paired=proof.get('paired_fast',{})
+    reliability=paired_quality_confirmation(s,config.human_sparse_deep_stability)
     n=s.get('opportunities',0);retention=s.get('hits',0)/max(1,paired.get('hits',0))
     hit_game_retention=s.get('hit_games',0)/max(1,paired.get('hit_games',0))
     spread=sparse_distribution(period,s)
@@ -201,8 +209,9 @@ def sparse_deep_blockers(period,proof,config=CONFIG):
         'deep multi-hit contributor breadth':s.get('contributors',0)>=config.human_sparse_deep_contributors,
         'deep hit-bearing games in both period halves':min(spread['left_hits'],spread['right_hits'])>=config.human_sparse_deep_min_half_hit_games,
         'deep anomaly hit lower bound':s.get('hit_lower',0)>=config.human_sparse_deep_hit_lower,
-        'deep stable high-information decisions':s.get('stable_hits',0)>=config.human_sparse_deep_stable_hits,
-        'deep semantic-quality stability':s.get('stable_opportunities',0)/max(1,n)>=config.human_sparse_deep_stability,
+        'deep stable high-information decisions':reliability['hits']>=config.human_sparse_deep_stable_hits,
+        'paired search-quality coverage':reliability['coverage_passed'],
+        'deep semantic-quality stability':reliability['fraction_passed'],
         'fast to deep hit retention':retention>=config.human_sparse_deep_retention,
         'fast to deep hit-game retention':hit_game_retention>=config.human_sparse_deep_hit_game_retention,
         'deep rating-adjusted information':s.get('information',0)>=config.human_sparse_information_floor,

@@ -19,7 +19,8 @@ def sample(index,*,strong=True,deep=True,count=6):
         d.human_policy=distribution(d,rare=strong)
         d.metrics.update(nodes=CONFIG.deep_nodes if deep else CONFIG.fast_nodes,actual_cp=0,
             policy_search={'nodes':CONFIG.deep_nodes if deep else CONFIG.fast_nodes,'scores':{}},
-            search_stability={'stable':True})
+            search_stability={'stable':True, 'compared':True,
+                              'objective_quality_preserved':True})
         d.fast_policy=policy_evidence(d,d.human_policy)
         decisions.append(d)
     return SimpleNamespace(identity=str(index),ended=index*3600,time_class='blitz',rated=True,
@@ -111,7 +112,9 @@ class DistributedEvidence(unittest.TestCase):
     def test_deep_quality_drift_blocks(self):
         games=[sample(i) for i in range(6)]
         for g in games:
-            for d in g.decisions:d.metrics['search_stability']['stable']=False
+            for d in g.decisions:
+                d.metrics['search_stability']['stable']=False
+                d.metrics['search_stability']['objective_quality_preserved']=False
         self.assertEqual(policy.integrate(result(),games).priority,'LOW')
 
     def test_bullet_and_mixed_classes_cannot_manufacture_period(self):

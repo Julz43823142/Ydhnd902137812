@@ -143,12 +143,25 @@ def annotate_game(game, config=CONFIG, model=None):
     selective_signal=bool(inversion_strength>=.20 and
                           (curve['hard']['anomaly_strength'] or 0)>=config.human_period_excess)
     stable = [m for m in capped if m.get('search_stability', {}).get('stable')]
+    # A reliability measure must not require the *player* to find the
+    # engine's best move. Otherwise a played blunder counts as an unstable
+    # Stockfish search, double-counting the existing anomaly-hit gate.
+    # Deep difficulty/opportunity eligibility was established above; the
+    # paired search only checks whether both budgets agree on the *played
+    # move's objective loss*. Fast difficulty may legitimately differ.
+    measured = [m for m in capped if m.get('search_stability', {}).get('compared') is True]
+    reliable = [m for m in measured
+                if m.get('search_stability', {}).get('objective_quality_preserved') is True]
     result = {
         'model':FALLBACK.name if failures else model.name, 'model_failures':failures, 'rank':ranks,
         'opportunities':len(capped), 'raw_opportunities':len(opportunities),
         'hits':sum(m.get('high_information', False) for m in capped),
         'quiet_hits':sum(m.get('informative_quiet_hit', False) for m in capped),
+        # Preserve the historical stricter measure as a separate diagnostic.
         'stable_opportunities':len(stable), 'stable_hits':sum(m.get('high_information', False) for m in stable),
+        'paired_evaluated_opportunities':len(measured),
+        'quality_stable_opportunities':len(reliable),
+        'quality_stable_hits':sum(m.get('high_information', False) for m in reliable),
         'hard_opportunities':len(capped), 'hard_hits':sum(m.get('cpl', 1000)<=15 for m in capped),
         'hard_stable':len(stable),
         'information':statistics.mean(m['human_information'] for m in capped) if capped else 0,
@@ -196,6 +209,9 @@ def period_summary(games, config=CONFIG, *, fast=False):
         'opportunity_games':len(eligible),
         'stable_opportunities':sum(m.get('stable_opportunities', 0) for g, m in rows),
         'stable_hits':sum(m.get('stable_hits', 0) for g, m in rows),
+        'paired_evaluated_opportunities':sum(m.get('paired_evaluated_opportunities', 0) for g, m in rows),
+        'quality_stable_opportunities':sum(m.get('quality_stable_opportunities', 0) for g, m in rows),
+        'quality_stable_hits':sum(m.get('quality_stable_hits', 0) for g, m in rows),
         'hard_opportunities':hard_n, 'hard_hits':hard_hits,
         'hard_lower':lower_bound(hard_hits/hard_n if hard_n else None, hard_n, config.rate_lower_bound_z),
         'hard_contributors':sum(m.get('hard_hits', 0)>=1 for g, m in rows),

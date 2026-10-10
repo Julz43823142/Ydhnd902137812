@@ -181,7 +181,10 @@ def game_summary(game,*,fast=False):
         if (not fast and game.deep and old.get('eligible')
             and abs(r['observed_quality']-old.get('observed_quality',-1))<=.10
             and abs(r['expected_quality_upper_bound']-old.get('expected_quality_upper_bound',-1))<=.15
-            and d.metrics.get('search_stability',{}).get('stable')):stable+=1
+            # Policy search already checks observed quality and alternative
+            # probabilities; paired Stockfish reliability must not require an
+            # additional best-move hit or fast/deep difficulty agreement.
+            and d.metrics.get('search_stability',{}).get('objective_quality_preserved')):stable+=1
     hits=sum(r['observed_quality']>=.85 and r['quality_excess_lower_bound']>=POLICY.move_excess for r in rows)
     signed=statistics.mean(r['signed_quality_excess'] for r in rows) if rows else 0
     info=statistics.mean(r['information'] for r in rows) if rows else 0
