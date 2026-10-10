@@ -138,6 +138,30 @@ def summarize_intermit(games, *, minimum_game_decisions=8):
                 "Predefined fast-only window search. Deep follow-up includes "
                 "mistakes, sparse games and non-hits; no independent calibration."),
         }
+    # Fixed chronological halves are selected before observing success. This
+    # detects *possible changes* in the player's own gameplay distribution,
+    # without choosing the best streak or borrowing isolated wins. Adjacent
+    # games stay paired by identical time control and original archive index.
+    halves = []
+    for kind, control, run in _runs(games):
+        if len(run) < 12:
+            continue
+        midpoint = len(run) // 2
+        earlier, later = run[:midpoint], run[midpoint:]
+        a, b = _aggregate(earlier), _aggregate(later)
+        if a["opportunities"] < 5 or b["opportunities"] < 5:
+            continue
+        halves.append({
+            "time_class": kind, "games": len(run),
+            "earlier": a, "later": b,
+            "deep_hit_rate_difference": round(
+                b["hits"] / b["opportunities"]
+                - a["hits"] / a["opportunities"], 4),
+            "note": "Fixed chronological halves; descriptive, not a cheating test.",
+        })
+    summary["predeclared_half_comparisons"] = sorted(
+        halves, key=lambda x: (-x["games"], x["time_class"]))[:6]
+
     summary["maia_rating_domain"] = {
         "below_600_chesscom_rating_games": sum(
             isinstance(getattr(g, "rating", None), (int, float))
