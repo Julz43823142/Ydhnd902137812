@@ -246,7 +246,7 @@
     "player_color": "black",
     "player_move_count": 4,
     "posted_at": "2026-10-10T07:48:22.784949+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -268,7 +268,8 @@
     "board_attachment_filenames": {
       "1468320170891022417": "daily_puzzle.png"
     },
-    "chat_since_refresh": 0
+    "chat_since_refresh": 0,
+    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Rb7 Bb2+ Bd4+ Rxd7"
   },
   "lichess_rating_used": {
     "2000": [
