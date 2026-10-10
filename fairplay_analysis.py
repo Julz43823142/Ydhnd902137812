@@ -331,8 +331,12 @@ class BoundedNodeEngine(chess.engine.SimpleEngine):
         return self.timeout
 
 
-def scan_engine_timeout(limit, config=CONFIG):
-    """Use search-phase-specific, bounded timeouts without weakening evidence."""
+def scan_engine_timeout(limit, config=CONFIG, *, retry=False):
+    """Bound searches; give a genuinely timed-out search a larger retry budget.
+
+    Retrying depth-18 MultiPV with exactly the same wall-clock limit can
+    deterministically fail on a legitimately expensive position.
+    """
     if limit.depth is not None:
         key,default,minimum,maximum='FAIRPLAY_DEPTH18_ENGINE_TIMEOUT_SECONDS',1200,60,7200
     elif limit.nodes == config.deep_nodes:
@@ -343,7 +347,10 @@ def scan_engine_timeout(limit, config=CONFIG):
         requested=int(os.getenv(key,str(default)))
     except ValueError:
         requested=default
-    return max(minimum,min(maximum,requested))
+    seconds=max(minimum,min(maximum,requested))
+    # The normal attempt retains its original budget. Only a retry after a
+    # TimeoutError gets more time, bounded by the existing phase maximum.
+    return min(maximum,seconds*3) if retry else seconds
 
 
 class EngineScanner:
@@ -351,6 +358,7 @@ class EngineScanner:
     def __init__(self, deadline, config=CONFIG, factory=None):
         self.deadline, self.config = deadline, config
         self.last_search = {}  # diagnostic category/budget only; never FEN/user
+        self.retry_after_timeout = False  # scoped to a single pool action
         self.profile = {'multipv_seconds':0.0, 'root_seconds':0.0, 'multipv_searches':0, 'root_searches':0,
                         'fast_multipv_seconds':0.0, 'fast_root_seconds':0.0, 'deep_multipv_seconds':0.0, 'deep_root_seconds':0.0}
         self.engine = (factory or (lambda:chess_play._create_stockfish_engine(allow_install=False,engine_class=(__import__('fairplay_engine').CompactNodeEngine if os.name=='posix' else BoundedNodeEngine))))()
@@ -395,10 +403,12 @@ class EngineScanner:
         multipv=self.config.deep_multipv if depth_search or nodes==self.config.deep_nodes else self.config.fast_multipv
         limit=nodes if depth_search else chess.engine.Limit(nodes=nodes)
         # The worker owns this engine exclusively for both candidate and root searches.
-        self.engine.timeout=scan_engine_timeout(limit,self.config)
+        self.engine.timeout=scan_engine_timeout(
+            limit,self.config,retry=self.retry_after_timeout)
         self.last_search={'phase':'deep-candidates' if depth_search or nodes==self.config.deep_nodes else 'fast-candidates',
                           'budget':nodes.depth if depth_search else nodes,
-                          'multipv':multipv,'started':time.monotonic()}
+                          'multipv':multipv,'started':time.monotonic(),
+                          'timeout_seconds':self.engine.timeout}
         search_started=time.monotonic()
         lines = self.engine.analyse(board,limit,multipv=multipv)
         spent=time.monotonic()-search_started
@@ -417,7 +427,8 @@ class EngineScanner:
             # after-move horizon differences being mistaken for CPL.
             self.last_search={'phase':'deep-played-root' if depth_search or nodes==self.config.deep_nodes else 'fast-played-root',
                               'budget':nodes.depth if depth_search else nodes,
-                              'multipv':1,'started':time.monotonic()}
+                              'multipv':1,'started':time.monotonic(),
+                              'timeout_seconds':self.engine.timeout}
             search_started=time.monotonic()
             actual = self.engine.analyse(board,limit,root_moves=[move])
             if depth_search and int(actual.get('depth',0) or 0)<nodes.depth:
@@ -606,6 +617,7 @@ class SharedEnginePool:
     def _run_with_scanner(self,deadline,action):
         # Retry one failed position after replacing a broken engine worker.
         # Never record incomplete searches or silently drop evidence.
+        retry_after_timeout=False
         for attempt in range(2):
             while True:
                 if self.closed or self.failed.is_set():
@@ -618,8 +630,10 @@ class SharedEnginePool:
             reusable=True
             try:
                 scanner.deadline=deadline
+                scanner.retry_after_timeout=retry_after_timeout
                 return action(scanner)
             except (chess.engine.EngineError,TimeoutError,OSError) as error:
+                retry_after_timeout=isinstance(error,TimeoutError)
                 reusable=False
                 try:scanner.close()
                 except Exception:pass
@@ -651,14 +665,16 @@ class SharedEnginePool:
                 started=search.get('started')
                 seconds=(round(max(0,time.monotonic()-started),1)
                          if isinstance(started,(int,float)) else 'unknown')
+                timeout_seconds=search.get('timeout_seconds','unknown')
                 print(f'Fair Play engine worker {reason}; '
                       f'{"restarted" if recovered else "restart-failed"} '
                       f'(attempt {attempt+1}/2; phase={phase}; '
-                      f'budget={budget}; multipv={multipv}; seconds={seconds})',
-                      flush=True)
+                      f'budget={budget}; multipv={multipv}; seconds={seconds}; '
+                      f'timeout_seconds={timeout_seconds})',flush=True)
                 if not recovered or attempt==1:raise
             finally:
                 scanner.deadline=None
+                scanner.retry_after_timeout=False
                 if reusable and not self.closed:self.available.put(scanner)
 
     def run(self,game,nodes,deadline):
@@ -772,12 +788,15 @@ def run_position_batch(executor, pool, work, nodes, deadline, progress, stage,
             else:
                 submit_available()
     except BaseException:
-        for pending in futures:pending.cancel()
-        # Match the existing shutdown guarantee: no background mutation after
-        # the caller handles the failure. Node searches have bounded timeouts.
-        for pending in futures:
-            try:pending.result()
-            except BaseException:pass
+        for outstanding in futures:outstanding.cancel()
+        # Drain running work before propagating failure. Successful *exact*
+        # positions must survive in the encrypted checkpoint even when
+        # another engine times out, so the next scan does not repeat them.
+        for outstanding,(game,decision) in futures.items():
+            try:completed=outstanding.result()
+            except BaseException:continue
+            if completed and checkpoint is not None:
+                checkpoint.record(target,game,decision,phase,persist=False)
         raise
     finally:
         if checkpoint is not None and pending:

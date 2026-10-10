@@ -99,6 +99,26 @@ class PolicySearchTests(unittest.TestCase):
         self.assertEqual(result['scores']['e2e4'],42)
         self.assertGreaterEqual(engine.observed,1200)
 
+    def test_policy_roots_escalate_only_on_retry_after_timeout(self):
+        class Engine:
+            options={}
+            timeout=8
+            def analyse(self,board,limit,root_moves):
+                self.observed=self.timeout
+                return {'pv':[root_moves[0]],'depth':18,
+                    'score':chess.engine.PovScore(chess.engine.Cp(42),board.turn)}
+        engine=Engine()
+        scanner=SimpleNamespace(engine=engine,config=CONFIG,name='synthetic',
+            retry_after_timeout=True,deadline=ScanDeadline(time.monotonic()+30),
+            profile={'root_seconds':0.,'root_searches':0,
+                     'deep_root_seconds':0.,'fast_root_seconds':0.})
+        d=move()
+        d.human_policy={'e2e4':1.}
+        d.metrics={'competitive':True,'useful':True,'candidates':[]}
+        result=search_alternatives(scanner,d,chess.engine.Limit(depth=18))
+        self.assertEqual(result['scores']['e2e4'],42)
+        self.assertEqual(engine.observed,3600)
+        self.assertEqual(scanner.last_search['timeout_seconds'],3600)
 
 
 class PolicyCheckpointBatchTests(unittest.TestCase):
