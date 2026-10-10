@@ -44,10 +44,12 @@ Discord token.
    and successful shard totals are printed safely in the one Discord report,
    and the central bot recomputes only the missing games. No unverified
    engine result is counted as complete.
-8. Hard upper time for each worker: ~45min internal budget, 48min Action
-   timeout. Coordinator exits early when all workers explicitly fail, waits
-   at most ~8min for no worker progress to begin, or at most ~15min since
-   last progress after partial work. It can still recover locally.
+8. Each worker has a 35-minute engine budget plus time to upload its
+   encrypted result, under a 48-minute GitHub Action limit. The coordinator
+   waits at most 45 minutes from dispatch, exits earlier when all workers
+   explicitly fail, gives an absent worker up to 8 minutes to begin work,
+   and treats 15 minutes without additional progress as stalled. It can
+   still recover all missing games locally.
 
 ## Evidence quality correction
 
