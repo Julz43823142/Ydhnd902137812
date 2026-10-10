@@ -195,9 +195,64 @@ def result_embed(result: ReviewResult):
                             + (f" · {record.get('objective_quality_preserved',0)} quality preserved"
                                if stability_audit.get('schema')=='sharkbot-paired-stability-audit-v2' else ''))
         if rows:
+            # 'Evidence-grade stable' is the stricter historical geometry
+            # diagnostic. v26 correctly gates the reliability of Stockfish
+            # searches independently from the player's hit rate. Never
+            # display old geometry failures as failed search comparisons.
+            note=('\nEvidence-grade geometry is stricter than search-quality '
+                  'consistency. Neither proves misconduct.')
+            if str(getattr(result,'version','')).startswith('fairplay-v26'):
+                period=(result.diagnostics.get('gameplay') or {}).get('best') or {}
+                deep=(period.get('deep') or {}).get('summary') or {}
+                if 'quality_stable_opportunities' in deep:
+                    note+=(f"\nSelected period: "
+                           f"{deep.get('quality_stable_opportunities',0)}/"
+                           f"{deep.get('opportunities',0)} deep opportunities "
+                           "with consistent fast/deep move-loss estimates; "
+                           f"{deep.get('paired_evaluated_opportunities',0)} "
+                           "paired comparisons completed. "
+                           "HIGH still requires independent difficulty/hit "
+                           "coverage and contributor gates.")
             embed.add_field(name='Paired engine evidence (not proof of cheating)',
-                            value=('\n'.join(rows)+'\nEvidence-grade stability also requires the position to remain informative; '
-                                   'quality preserved is a separate measure. Neither proves misconduct.')[:1024],inline=False)
+                            value=('\n'.join(rows)+note)[:1024],inline=False)
+    intermittent=result.diagnostics.get('intermittent_coverage_audit') or {}
+    if intermittent.get('schema')=='sharkbot-intermittent-coverage-v1':
+        observed=intermittent.get('deep_sample') or {}
+        played=observed.get('games',0)
+        qualified=observed.get('fully_scored_games',0)
+        details=(f"Deep-reviewed games: **{played}** · "
+                 f"general scoring eligible (8+ useful choices): **{qualified}**. "
+                 "Shorter games still contribute to the chronological research "
+                 "audit and existing gameplay confirmation routes; they are not "
+                 "automatically suspicious or automatically innocent.")
+        candidate=intermittent.get('chronological_research_candidate')
+        if candidate:
+            deep=candidate.get('deep') or {}
+            details+=(f"\nResearch-only {candidate.get('time_class','unknown')} "
+                      f"{candidate.get('games',0)}-game window: "
+                      f"**{deep.get('hits',0)}/{deep.get('opportunities',0)}** "
+                      "deep human-anomaly hits/opportunities. "
+                      "Window selection and low-Elo reference uncertainty "
+                      "prevent this from independently raising priority.")
+        else:
+            details+='\nNo adequately covered fast-selected research window.'
+        halves=intermittent.get('predeclared_half_comparisons') or []
+        if halves:
+            row=halves[0]
+            earlier=row.get('earlier') or {}
+            later=row.get('later') or {}
+            details+=(f"\nFixed chronological {row.get('time_class','unknown')} halves: "
+                      f"{earlier.get('hits',0)}/{earlier.get('opportunities',0)} "
+                      f"versus {later.get('hits',0)}/{later.get('opportunities',0)} "
+                      "difficult-decision anomaly hits; descriptive only.")
+        domain=intermittent.get('maia_rating_domain') or {}
+        if domain.get('below_600_chesscom_rating_games',0):
+            details+=(f"\nMaia rating calibration warning: "
+                      f"{domain.get('below_600_chesscom_rating_games',0)} "
+                      "deep games have Chess.com ratings below 600; "
+                      "Lichess-based Maia expectations are not calibrated for this range.")
+        embed.add_field(name='Short-game coverage & intermittent research (not a verdict)',
+                        value=details[:1024],inline=False)
     embed.add_field(name='Signals',value='\n'.join(f'**{key}:** {value}' for key,value in result.families.items()),inline=False)
     embed.add_field(name='Review notes',value='\n'.join('• '+value for value in result.reasons)[:1024],inline=False)
     if result.priority=='LOW':

@@ -1315,6 +1315,12 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         result=(integrate_policy(result,scoring_games,config,
                                  strict_original_sequence=True)
                 if v21_mode else integrate_policy(result,scoring_games,config))
+        # Review all verified deep-reviewed games, including short games with
+        # fewer than eight useful moves. The audit is aggregate-only and cannot
+        # elevate priority; fast evidence selects any diagnostic period.
+        from fairplay_intermit_audit import summarize_intermit
+        result.diagnostics['intermittent_coverage_audit']=summarize_intermit(
+            scoring_games, minimum_game_decisions=config.min_game_decisions)
         # Research-only threshold sensitivity. Report gate margins without
         # changing the already final LOW/MODERATE/HIGH/VERY HIGH priority.
         from fairplay_shadow_stability import summarize_shadow_stability
