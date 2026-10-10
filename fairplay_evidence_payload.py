@@ -69,6 +69,31 @@ def evidence(result):
     return (header, *chunks)
 
 
+
+def owner_zip(files, *, max_bytes=MAX_BYTES):
+    """One downloadable, verified owner archive; retain original SHA-256 chain.
+
+    The original gzipped 25-game parts and manifest remain separately stored
+    for resumable encrypted audit retention. A too-large archive returns None
+    and the UI falls back to the existing individual parts.
+    """
+    import io
+    import zipfile
+    if not files or len(files)<2 or files[0][0]!="fairplay-manifest.json.gz":
+        return None
+    verify(files[0][1],files[1:])
+    stream=io.BytesIO()
+    with zipfile.ZipFile(stream,"w",compression=zipfile.ZIP_STORED,
+                         allowZip64=False) as archive:
+        for name,blob in files:
+            if (not isinstance(name,str) or "/" in name or "\\" in name
+                    or not name.endswith(".json.gz")):
+                raise ValueError("Invalid owner evidence filename")
+            archive.writestr(name,blob)
+    packed=stream.getvalue()
+    return ("fairplay-owner-evidence.zip",packed) if len(packed)<=max_bytes else None
+
+
 def verify(manifest_file, chunks):
     meta = json.loads(gzip.decompress(manifest_file))
     if meta.get("schema") != SCHEMA or len(meta["files"]) != len(chunks):
