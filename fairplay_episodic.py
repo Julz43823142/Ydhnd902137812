@@ -177,7 +177,8 @@ def episodic_audit(games, config):
             "Within-player conditional exchangeability is not a calibrated "
             "fair-play null. Heterogeneous decision difficulty, opponent skill "
             "and selective engine assistance are alternative explanations. "
-            "This flags manual review only; never HIGH or proof."),
+            "This is an audit-only research hypothesis; no priority changes, "
+            "accusations or sanctions may follow from this statistic."),
     }
 
 
