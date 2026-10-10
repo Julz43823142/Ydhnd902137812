@@ -296,13 +296,17 @@ def annotate_history(games,predictor=None,*,full_coverage=False,recent_full_ids=
         'recent_full_games_rating_eligible':len(rating_complete),
         'recent_full_positions_expected':expected_recent,
         'recent_full_positions_selected':actual_recent,
+        'recent_full_positions_completed':0,
         'recent_full_missing_rating_games':len(recent_games)-len(rating_complete),
-        'recent_full_complete':len(rating_complete)==len(recent_games)
+        'recent_full_selection_complete':len(rating_complete)==len(recent_games)
             and actual_recent==expected_recent,
+        # Selection is NOT completed inference. Set true only once *all*
+        # validated policies are populated; a failed later batch stays false.
+        'recent_full_complete':False,
         'recent_full_all_decisions_including_openings':bool(recent_set),
         'older_model_positions_sampled':len(chosen)-actual_recent,
     }
-    if recent_set and not coverage['recent_full_complete']:
+    if recent_set and not coverage['recent_full_selection_complete']:
         return {
             'available':False,'positions':0,**coverage,
             'reason':'Recent 50 Maia full-position coverage is incomplete: missing public ratings or legal move history. No partial Maia reference may influence HIGH.'}
@@ -342,6 +346,8 @@ def annotate_history(games,predictor=None,*,full_coverage=False,recent_full_ids=
         for game in games:refresh_game(game)
         return {'available':True,'model':MODEL_NAME,'positions':len(chosen),
             **coverage,
+            'recent_full_positions_completed':actual_recent,
+            'recent_full_complete':bool(recent_set and coverage['recent_full_selection_complete']),
             'games':sum(bool(g.human_reference.get('positions')) for g in games),
             'cache_hits':len(chosen)-len(missing),'seconds':time.monotonic()-start,
             'role':'Learned human-policy comparison with Stockfish counterfactuals and paired deep confirmation; not a calibrated misconduct probability.'}
