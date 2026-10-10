@@ -280,23 +280,6 @@ def result_embed(result: ReviewResult):
                        'HIGH route impossible even if all eligible moves are '
                        'correct. LOW does not establish honest play.')[:1024],
                 inline=False)
-        episode=(feasibility.get('episodic') or {})
-        if episode.get('exploratory_flag'):
-            flagged=next((r for r in episode.get('strata',[])
-                          if r.get('exploratory_flag')),None)
-            if flagged:
-                embed.add_field(
-                    name='Concentrated episode — manual review only',
-                    value=(f"**{flagged.get('time_class','').title()}** "
-                           f"({flagged.get('control','')}) · "
-                           f"{flagged.get('max_hits_in_one_game',0)} "
-                           "difficult-decision hits in one game · "
-                           f"adjusted conditional concentration "
-                           f"{flagged.get('adjusted_tail',1.0):.3%}. "
-                           "Exploratory within-player statistic, NOT a "
-                           "probability of cheating. No HIGH or sanction "
-                           "can follow from this test alone."),
-                    inline=False)
     embed.add_field(name='Signals',value='\n'.join(f'**{key}:** {value}' for key,value in result.families.items()),inline=False)
     embed.add_field(name='Review notes',value='\n'.join('• '+value for value in result.reasons)[:1024],inline=False)
     if result.priority=='LOW':
