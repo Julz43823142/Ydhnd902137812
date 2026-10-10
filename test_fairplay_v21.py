@@ -176,6 +176,11 @@ class ScopedEndToEnd(unittest.TestCase):
                 self.pv_calls.append((limit.depth,limit.nodes,multipv))
                 payload=super().analyse(board,limit,multipv=multipv,
                                        root_moves=root_moves)
+                # The generic fake engine returns 3 variants for PV1 too.
+                # Enforce real UCI MultiPV semantics so this test would catch
+                # the historic PV1/PV3 candidate-geometry false negative.
+                if isinstance(payload,list):
+                    payload=payload[:multipv or 1]
                 for line in payload if isinstance(payload,list) else [payload]:
                     line["depth"]=limit.depth or 10
                     line["nodes"]=CONFIG.fast_nodes if limit.nodes else 800000
