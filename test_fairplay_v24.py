@@ -171,5 +171,37 @@ class ChessFraudGameBenchmark(unittest.TestCase):
         self.assertEqual(player_games(rows), [])
 
 
+class ShadowStabilityAudit(unittest.TestCase):
+    def test_threshold_sweep_never_mutates_priority(self):
+        from types import SimpleNamespace
+        from fairplay_shadow_stability import summarize_shadow_stability
+        period = {"ids": ["synthetic-1", "synthetic-2"], "qualified": True,
+                  "class": "blitz", "acute": False,
+                  "deep": {"stability_fraction": .72,
+                           "summary": {"opportunities": 20},
+                           "blockers": ["deep semantic-quality stability"]}}
+        result = SimpleNamespace(priority="LOW", diagnostics={
+            "gameplay": {"best": period, "best_broad": period, "best_high": period}})
+        report = summarize_shadow_stability(result)
+        self.assertFalse(report["scoring_influence"])
+        self.assertEqual(len(report["cases"]), 1)
+        self.assertTrue(report["cases"][0]["threshold_probe"]["0.70"]["stability_gate_pass"])
+        self.assertFalse(report["cases"][0]["threshold_probe"]["0.75"]["stability_gate_pass"])
+        self.assertEqual(result.priority, "LOW")
+        self.assertNotIn("synthetic-1", str(report))
+
+    def test_other_blockers_are_not_overridden_by_stability(self):
+        from types import SimpleNamespace
+        from fairplay_shadow_stability import summarize_shadow_stability
+        period = {"ids": ["synthetic-2"], "qualified": True, "class": "bullet",
+                  "deep": {"stability_fraction": .92,
+                           "summary": {"opportunities": 12},
+                           "blockers": ["insufficient deep opportunities"]}}
+        result = SimpleNamespace(priority="LOW", diagnostics={"gameplay": {"best": period}})
+        report = summarize_shadow_stability(result)
+        self.assertTrue(report["cases"][0]["threshold_probe"]["0.80"]["stability_gate_pass"])
+        self.assertFalse(report["cases"][0]["threshold_probe"]["0.80"]["candidate_gate_set_pass"])
+
+
 if __name__ == "__main__":
     unittest.main()
