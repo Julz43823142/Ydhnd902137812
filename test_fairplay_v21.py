@@ -161,5 +161,63 @@ class MultiPV3CheckpointTests(unittest.TestCase):
                           replace(CONFIG,fast_multipv=3),False))
 
 
+class ScopedEndToEnd(unittest.TestCase):
+    def test_real_review_pipeline_has_paired_pv3_not_silent_pv1_deep_false_negative(self):
+        import chess
+        from unittest.mock import Mock
+        import fairplay_analysis as analysis
+        from test_fairplay import TARGET, sample_row, FakeEngine
+
+        class SyntheticDepthEngine(FakeEngine):
+            def __init__(self):
+                super().__init__()
+                self.pv_calls=[]
+            def analyse(self,board,limit,multipv=None,root_moves=None):
+                self.pv_calls.append((limit.depth,limit.nodes,multipv))
+                payload=super().analyse(board,limit,multipv=multipv,
+                                       root_moves=root_moves)
+                for line in payload if isinstance(payload,list) else [payload]:
+                    line["depth"]=limit.depth or 10
+                    line["nodes"]=CONFIG.fast_nodes if limit.nodes else 800000
+                return payload
+
+        class FakeAPI:
+            def __init__(self,deadline):
+                self.deadline=deadline
+            def get(self,target,suffix="",**kwargs):
+                if not suffix:return {"username":TARGET}
+                if suffix.endswith("/archives"):
+                    return {"archives":[f"https://api.chess.com/pub/player/{TARGET}/games/2026/10"]}
+                if suffix=="/stats":return {}
+                return {"games":[sample_row(i) for i in range(1,11)]}
+            def close(self):pass
+
+        analysis._game_cache.clear()
+        engine=SyntheticDepthEngine()
+        with patch.dict(os.environ,{"FAIRPLAY_V21":"1","FAIRPLAY_FULL_DEPTH18":"1",
+                                    "FAIRPLAY_REQUIRE_MAIA":"0"}):
+            result=analysis.review(TARGET,lambda _:None,api_factory=FakeAPI,
+                                   engine_factory=lambda:engine)
+        self.assertEqual(result.coverage["broad_fast_scanned"],10)
+        self.assertEqual(result.diagnostics["v21_selection"]["recent_peer_deep_games"],10)
+        self.assertTrue(result.diagnostics["run_contract"]["required_selected_full_depth"])
+        self.assertFalse(result.diagnostics["run_contract"]["required_full_coverage"])
+        self.assertTrue(any(nodes==CONFIG.fast_nodes and pv==1
+                            for depth,nodes,pv in engine.pv_calls))
+        self.assertTrue(any(nodes==CONFIG.fast_nodes and pv==3
+                            for depth,nodes,pv in engine.pv_calls))
+        self.assertTrue(any(depth==18 and pv==3
+                            for depth,nodes,pv in engine.pv_calls))
+        eligible=[d for g in result.games for d in g.decisions
+                  if d.fast_engine.get("search_contract",{}).get("mode")=="nodes"]
+        self.assertTrue(eligible)
+        self.assertTrue(all(d.fast_engine["search_contract"]["multipv"]==3
+                            for d in eligible))
+        self.assertTrue(all(d.metrics["search_contract"]["multipv"]==3
+                            for d in eligible if d.metrics.get("search_contract",{}).get("mode")=="depth"))
+        self.assertEqual(result.diagnostics["v21_selection"]["deep_games_completed"],10)
+        engine.quit.assert_called_once()
+
+
 if __name__=="__main__":
     unittest.main()
