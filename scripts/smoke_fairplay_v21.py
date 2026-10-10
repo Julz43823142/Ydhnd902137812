@@ -4,6 +4,7 @@ Uses only deterministic synthetic PGN positions. No Chess.com accounts or
 network calls, and cannot issue review priorities.
 """
 import chess.engine
+import time
 import sys
 from pathlib import Path
 
@@ -23,7 +24,7 @@ def main():
                    and d.legal>=CONFIG.critical_legal),None)
     if decision is None:
         raise AssertionError("Synthetic fixture lacks candidate-rich move")
-    worker=EngineScanner(None,CONFIG)
+    worker=EngineScanner(time.monotonic()+120,CONFIG)
     try:
         assert worker.analyse_decision(game,decision,CONFIG.fast_nodes)
         shallow=decision.metrics.copy()
