@@ -162,5 +162,3 @@ def summarize_research(games, config=CONFIG):
                 "Absent clocks or Maia policies never count as negative evidence.",
                 "Maia rarity and engine quality are correlated gameplay features.",
                 "No website has publicly provided Chess.com enforcement internals.")}
-
-
