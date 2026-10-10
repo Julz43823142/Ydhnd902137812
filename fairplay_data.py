@@ -154,7 +154,8 @@ class QuietGameBuilder(chess.pgn.GameBuilder):
         self.game.errors.append(error)
 
 
-def parse_game(row: dict, target: str, config: ReviewConfig = CONFIG, *, exclusions=None) -> GameSample | None:
+def parse_game(row: dict, target: str, config: ReviewConfig = CONFIG, *, exclusions=None,
+               allow_short=False) -> GameSample | None:
     def reject(reason):
         if exclusions is not None:exclusions[reason] += 1
         return None
@@ -229,8 +230,14 @@ def parse_game(row: dict, target: str, config: ReviewConfig = CONFIG, *, exclusi
         previous_capture_square = node.move.to_square if capture else None
         moves.append(node.move.uci())
         board.push(node.move)
-    if ply < config.min_plies:return reject('too_short')
-    if sum(d.useful for d in decisions) < config.min_game_decisions:return reject('insufficient_decisions')
+    # The latest-50 comprehensive scope includes legal, finished short rated
+    # games. This changes *selection coverage*, not their evidential weight:
+    # opening/forced moves remain excluded from scoring and cannot add hits.
+    # A finished game with no played target decision has nothing to evaluate.
+    if not decisions:return reject('no_player_decisions')
+    if ply < config.min_plies and not allow_short:return reject('too_short')
+    if (sum(d.useful for d in decisions) < config.min_game_decisions
+            and not allow_short):return reject('insufficient_decisions')
     won = game.headers['Result'] == ('1-0' if color else '0-1')
     lost = game.headers['Result'] == ('0-1' if color else '1-0')
     if (own['result'] == 'win') != won or (other['result'] == 'win') != lost:
@@ -304,7 +311,8 @@ class PubAPI:
         raise ReviewError('Chess.com is busy or unreachable. Please try again later.')
 
 
-def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG):
+def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG,
+                  *, include_latest_fifty_short=False):
     payload = api.get(target, '/games/archives')
     if payload is None:raise ReviewError('No public game archives are available for this account.')
     months = set()
@@ -338,7 +346,9 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG):
             for row in rows:
                 check_deadline(api.deadline)
                 if not isinstance(row, dict):skipped['other_invalid'] += 1;continue
-                try:sample = parse_game(row, target, config, exclusions=skipped)
+                try:sample = parse_game(
+                    row,target,config,exclusions=skipped,
+                    allow_short=include_latest_fifty_short and len(samples)<50)
                 except (ValueError, TypeError, KeyError, IndexError, RecursionError):
                     skipped['invalid_pgn'] += 1;sample = None
                 if sample is None:continue

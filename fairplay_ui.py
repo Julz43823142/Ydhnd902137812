@@ -126,8 +126,23 @@ def result_embed(result: ReviewResult):
     v21=result.diagnostics.get('v21_selection',{})
     if v21:
         sample += (f"\nScoped deep coverage: {v21['deep_games_completed']}/"
-                   f"{v21['recent_peer_deep_games']+v21['historical_extra_deep_games']} "
+                   f"{v21['recent_peer_deep_games']+v21['historical_extra_deep_games']+v21.get('recent_tail_nonpeer_deep_games',0)} "
                    "selected games; 500-wide coverage is FAST-ONLY outside scope.")
+        if 'recent_20_rated_deep_coverage' in v21:
+            last=min(20,v21['broad_fast_games'])
+            sample+=(f"\nLatest rated games covered at deep budget: "
+                     f"**{v21['recent_20_rated_deep_coverage']}/{last}**"
+                     f" · {v21.get('recent_tail_nonpeer_deep_games',0)} "
+                     "recent non-peer games included. "
+                     "Weak-opponent wins are not engine-cheat evidence.")
+    if 'latest_50_games_required' in v21:
+        latest_total=v21.get('latest_50_games_required',0)
+        sample+=(f"\nLast {latest_total} rated games: "
+                 f"**{v21.get('latest_50_depth_completed',0)}/{latest_total}** "
+                 "full Stockfish depth 18/12; "
+                 f"**{v21.get('latest_50_maia_all_decisions',0)}/"
+                 f"{v21.get('latest_50_maia_expected',0)}** "
+                 "Maia policy positions")
     if coverage.get('history_probed'):
         sample += f'\nRecent rated primary sample: {coverage["primary_fast_scanned"]}/{coverage["primary_collected"]} · historical discovery probes: {coverage.get("history_probed",0)}'
     sample += f'\nSkipped unrated games while collecting history: {result.skipped.get("unrated",0)} · unknown rated status: {result.skipped.get("rated_status_unknown",0)}'
@@ -136,7 +151,7 @@ def result_embed(result: ReviewResult):
     if coverage.get('requested_primary_limit'):
         if v21:
             scope.append(f"Review scope: up to {coverage['requested_primary_limit']} rated games fast-screened; "
-                         f"{v21['deep_games_completed']} peer-matched/stratified games deep-reviewed; "
+                         f"{v21['deep_games_completed']} selected peer/stratified/recent-tail games deep-reviewed; "
                          "the other fast games are NOT depth-confirmed.")
         else:
             scope.append(f"Engine scope: latest up to {coverage['requested_primary_limit']} eligible rated games. "
@@ -154,6 +169,108 @@ def result_embed(result: ReviewResult):
     if dates:sample += f'\nEngine-covered dates: <t:{min(dates)}:d> → <t:{max(dates)}:d>'
     embed.add_field(name='Sample',value=sample[:1024],inline=False)
     if scope:embed.add_field(name='Review scope — bounded archive',value='\n'.join(scope)[:1024],inline=False)
+    recent=result.diagnostics.get('recent_tail_audit') or {}
+    if recent.get('schema')=='sharkbot-recent-tail-audit-v1':
+        tail=recent.get('last_20') or {}
+        short=recent.get('last_10') or {}
+        if tail.get('games'):
+            embed.add_field(
+                name='Latest rated results & opponent strength (descriptive only)',
+                value=(f"Latest {tail['games']}: "
+                       f"**{tail.get('wins',0)}W/{tail.get('draws',0)}D/{tail.get('losses',0)}L**"
+                       f" · deep-reviewed **{tail.get('deep_reviewed',0)}/{tail['games']}**"
+                       f" · {tail.get('opponent_more_than_500_weaker',0)} opponents more than "
+                       "500 Elo weaker.\n"
+                       f"Latest {short.get('games',0)}: "
+                       f"**{short.get('wins',0)}W/{short.get('draws',0)}D/"
+                       f"{short.get('losses',0)}L**"
+                       f" · deep-reviewed **{short.get('deep_reviewed',0)}/"
+                       f"{short.get('games',0)}**"
+                       f" · {short.get('opponent_more_than_500_weaker',0)} weak opponents. "
+                       "Win streaks are not proof of engine use; evaluate "
+                       "post-opening choices and comparable opposition.")[:1024],
+                inline=False)
+    streak=result.diagnostics.get('accuracy_streak_audit') or {}
+    if streak.get('schema')=='sharkbot-accuracy-streak-audit-v1':
+        candidate=streak.get('best') or {}
+        headline=(f"**{streak.get('last_50_accuracy_reported',0)}/"
+                  f"{streak.get('latest_rated_scope',0)}** latest rated games "
+                  "have officially reported Accuracy. ")
+        pair=streak.get('low_rating_90_plus_pairs') or {}
+        pairs=pair.get('best') or {}
+        if pair.get('observed_pairs'):
+            headline+=(f"Low-rating 90+ Accuracy: "
+                       f"**{pair.get('observed_pairs',0)}** consecutive "
+                       "two-game pairs at rating 300–600; "
+                       f"**{pair.get('review_context_pairs',0)}** have "
+                       "sufficient meaningful decisions, full deep reviews "
+                       "and comparable opponents. ")
+            if pairs.get('older_accuracy_mean') is not None:
+                headline+=(f"Prior same-class Accuracy "
+                           f"**{pairs['older_accuracy_mean']:.1f}** "
+                           f"({pairs.get('older_reported_accuracy_games',0)} "
+                           "reported games). ")
+        if candidate:
+            headline+=(f"Strongest 10-game observed streak "
+                       f"({candidate.get('time_class','').title()}): "
+                       f"**{candidate.get('win_games',0)}/10 wins**, "
+                       f"**{candidate.get('accuracy_95_plus_games',0)}/10** "
+                       "reported at 95+ Accuracy. ")
+            if candidate.get('baseline_sufficient'):
+                headline+=(f"Before that: mean Accuracy "
+                           f"**{candidate.get('older_accuracy_mean',0):.1f}** "
+                           f"across {candidate.get('older_accuracy_reported_games',0)} "
+                           "reported older games of the same time class. ")
+            else:
+                headline+="Older Accuracy baseline insufficient or selectively reported. "
+            if streak.get('followup_alert'):
+                headline+=(
+                    "**FOLLOW-UP FLAG:** high-Accuracy/win burst also departs "
+                    "from earlier results against reasonably comparable "
+                    "opponents; inspect independent Stockfish/Maia evidence. ")
+            else:
+                headline+=(
+                    "No corroborated results-streak flag: historical coverage, "
+                    "rating-adjusted opposition or magnitude of change is "
+                    "insufficient. ")
+            headline+=(f"Already deep-reviewed: "
+                       f"**{candidate.get('deep_reviewed_games',0)}/10**; "
+                       f"hard-move evidence "
+                       f"**{candidate.get('deep_human_anomaly_hits',0)}/"
+                       f"{candidate.get('deep_hard_opportunities',0)}**.")
+        else:
+            headline+=("No 10-game same-time-class window with at least "
+                       "9 wins and 8 published Accuracy values of 95+. "
+                       "Missing reported Accuracy cannot count as low Accuracy.")
+        embed.add_field(name='95+ Accuracy and win streak — investigation cue',
+                        value=(headline+
+                               "\nAccuracy reporting is often incomplete. "
+                               "This is not cheating proof and NEVER changes "
+                               "LOW/MODERATE/HIGH by itself.")[:1024],inline=False)
+    if v21 and 'latest_50_games_required' in v21:
+        latest=v21['latest_50_games_required']
+        done=v21.get('latest_50_depth_completed',0)
+        count=v21.get('latest_50_stockfish_positions',0)
+        verified=v21.get('latest_50_stockfish_depth_verified_positions',0)
+        exact=v21.get('latest_50_stockfish_depth_exact_positions',0)
+        model=v21.get('latest_50_maia_all_decisions',0)
+        expected=v21.get('latest_50_maia_expected',0)
+        complete=v21.get('latest_50_maia_complete',False)
+        model_desc=(f"**{model}/{expected}** policy evaluations "
+                    + ("(complete)" if complete else "(INCOMPLETE/UNAVAILABLE)"))
+        embed.add_field(
+            name='Latest 50 — complete Stockfish & Maia coverage',
+            value=(f"Rated games deep-reviewed: **{done}/{latest}** "
+                   "(rapid/blitz depth 18, bullet depth 12). "
+                   f"Stockfish position contracts at full depth: "
+                   f"**{verified}/{count}**, exact **{exact}/{count}**. "
+                   f"Maia-3: {model_desc}. "
+                   "Opening, short, forced and weak moves are included in "
+                   "coverage but excluded from cheating-hit evidence when "
+                   "they are not competitive. Older games remain stratified. "
+                   "Missing ratings cannot be imputed. HIGH still requires "
+                   "independently distributed deep-confirmed anomaly evidence.")[:1024],
+            inline=False)
     history=result.diagnostics.get('public_history_stats',{})
     if history:
         period_lines=[]
@@ -253,6 +370,58 @@ def result_embed(result: ReviewResult):
                       "Lichess-based Maia expectations are not calibrated for this range.")
         embed.add_field(name='Short-game coverage & intermittent research (not a verdict)',
                         value=details[:1024],inline=False)
+    feasibility=(result.diagnostics.get('opportunity_feasibility_audit') or {})
+    if feasibility.get('schema')=='sharkbot-opportunity-feasibility-v1':
+        class_rows=[]
+        for kind in ('blitz','rapid','bullet'):
+            cls=((feasibility.get('feasibility') or {}).get(kind) or {})
+            fast=cls.get('fast') or {}
+            deep=cls.get('deep') or {}
+            if not fast.get('deep_reviewed_games'):continue
+            missing=[]
+            if not fast.get('absolute_route_exposure_possible'):
+                missing.append(
+                    f"fast opportunities {fast.get('opportunities',0)}/"
+                    f"{fast.get('required_opportunities',0)}; possible "
+                    f"2-hit games {fast.get('max_two_hit_contributor_games',0)}/"
+                    f"{fast.get('required_contributor_games',0)}")
+            if not deep.get('games_capable_of_acute_minimum'):
+                missing.append('no game reaches the acute minimum')
+            if missing:
+                class_rows.append(f"**{kind.title()}:** "+'; '.join(missing))
+        if class_rows:
+            embed.add_field(
+                name='Evidence opportunity limits (not a clearance)',
+                value=('\n'.join(class_rows) +
+                       '\nInsufficient eligible opportunities can make a '
+                       'HIGH route impossible even if all eligible moves are '
+                       'correct. LOW does not establish honest play.')[:1024],
+                inline=False)
+    burst=result.diagnostics.get('ten_game_burst') or {}
+    if burst.get('schema')=='fairplay-v28-ten-game-burst-v1':
+        row=burst.get('best')
+        if row and burst.get('coverage_gate_passed') and burst.get('feature_gate_passed'):
+            summary=(
+                f"**HIGH-eligible ten-game incident** in "
+                f"{row['class'].title()} ({row['time_control']}). "
+                f"Deep hard moves **{row['deep_hits']}/{row['deep_opportunities']}**"
+                f" across **{row['deep_hit_games']}/10** games, "
+                f"with **{row['deep_quiet_hits']}** quiet exceptional moves. "
+                f"Fast/deep quality agreement "
+                f"**{row['paired_quality_fraction']:.0%}**. "
+                "Both fixed five-game halves contributed. "
+                "Manual review required; not proof of cheating.")
+        else:
+            summary=(
+                f"Examined **{burst.get('windows_examined',0)}** intact "
+                "ten-game windows from recent same-control rapid/blitz "
+                f"history; **{burst.get('fast_discovery_windows',0)}** "
+                "qualified for FAST investigation and "
+                f"**{burst.get('deep_confirmed_windows',0)}** "
+                "met all independent deep HIGH evidence requirements. "
+                "Win streaks alone never qualify.")
+        embed.add_field(name='Ten-game incident analysis (HIGH only with deep proof)',
+                        value=summary[:1024],inline=False)
     embed.add_field(name='Signals',value='\n'.join(f'**{key}:** {value}' for key,value in result.families.items()),inline=False)
     embed.add_field(name='Review notes',value='\n'.join('• '+value for value in result.reasons)[:1024],inline=False)
     if result.priority=='LOW':
