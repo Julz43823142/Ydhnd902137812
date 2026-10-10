@@ -145,6 +145,22 @@ def result_embed(result: ReviewResult):
     if dates:sample += f'\nEngine-covered dates: <t:{min(dates)}:d> → <t:{max(dates)}:d>'
     embed.add_field(name='Sample',value=sample[:1024],inline=False)
     if scope:embed.add_field(name='Review scope — bounded archive',value='\n'.join(scope)[:1024],inline=False)
+    history=result.diagnostics.get('public_history_stats',{})
+    if history:
+        period_lines=[]
+        for span in ('7d','30d','90d','365d'):
+            rows=history.get('periods',{}).get(span,{})
+            details=[]
+            for kind in ('blitz','rapid','bullet'):
+                item=rows.get(kind,{})
+                if not item.get('rated_games'):continue
+                details.append(f"{kind.title()}: {item['rated_games']} rated / {item['wins']}W "
+                               f"(Accuracy reported {item['official_accuracy_coverage']})")
+            period_lines.append(f"**{span}:** "+('; '.join(details) if details else 'No sampled rated games'))
+        embed.add_field(name='Public rating & accuracy timeline (descriptive only)',
+                        value=('\n'.join(period_lines)+
+                               '\nAccuracy values may be missing or review-selected; never an accusation.')[:1024],
+                        inline=False)
     embed.add_field(name='Signals',value='\n'.join(f'**{key}:** {value}' for key,value in result.families.items()),inline=False)
     embed.add_field(name='Review notes',value='\n'.join('• '+value for value in result.reasons)[:1024],inline=False)
     if result.priority=='LOW':
