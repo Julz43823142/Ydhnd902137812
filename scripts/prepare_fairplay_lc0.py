@@ -108,7 +108,11 @@ def provision_source(root):
     if revision != SOURCE_SHA:
         raise RuntimeError("Lc0 upstream release commit does not match pinned SHA")
     if not (binary.is_file() and os.access(binary, os.X_OK)):
-        subprocess.run(["./build.sh", "-Dgtest=false"],
+        # Native (-march=native) binaries may SIGILL on a different runner
+        # when Actions restores its cache. Never reuse old native object files
+        # after rebuilding: Meson/Ninja would otherwise only relink them.
+        shutil.rmtree(source / "build" / "release", ignore_errors=True)
+        subprocess.run(["./build.sh", "-Dgtest=false", "-Dnative_arch=false"],
                        cwd=source, check=True, timeout=900)
     if not (binary.is_file() and os.access(binary, os.X_OK)):
         raise RuntimeError("Lc0 build did not create an executable")
