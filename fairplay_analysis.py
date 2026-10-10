@@ -1365,6 +1365,12 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         # in a visible read-only audit, never in engine-cheating score gates.
         from fairplay_recent import summarize_recent
         result.diagnostics['recent_tail_audit']=summarize_recent(analyzed)
+        # Published 95+ Accuracy plus 9/10-win runs are a descriptive
+        # investigative flag only, benchmarked against strictly older games
+        # and opponent Elo. Full latest50 deep selection happened *before*
+        # this check; Accuracy must never steer engine sampling or HIGH.
+        from fairplay_streak import accuracy_streak_audit
+        result.diagnostics['accuracy_streak_audit']=accuracy_streak_audit(analyzed)
         from fairplay_policy import integrate as integrate_policy
         result=(integrate_policy(result,scoring_games,config,
                                  strict_original_sequence=True)
