@@ -16,6 +16,7 @@ import io
 import json
 import os
 import re
+import secrets
 import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import fields
@@ -188,7 +189,7 @@ class EncryptedGitStore:
         if blob.returncode or not re.fullmatch(rb"[0-9a-f]{40}",blob.stdout.strip()):
             raise ReviewError("Cannot record encrypted compute artifact.")
         hash_=blob.stdout.decode().strip()
-        for attempt in range(12):
+        for attempt in range(20):
             head=self._head()
             entries={}
             if head:
@@ -220,13 +221,13 @@ class EncryptedGitStore:
                        f"{commit.stdout.decode().strip()}:refs/heads/{BRANCH}"])
             if push.returncode==0:return True
             # One worker may have pushed between fetch and push.
-            time.sleep(min(.15*(attempt+1),1))
+            time.sleep(min(.15*(attempt+1),1.5) + secrets.randbelow(250)/1000)
         raise ReviewError("Encrypted compute exchange could not be persisted after retries.")
 
     def remove(self,names):
         """Drop active ref payloads after verification (old commits remain encrypted)."""
         for name in names:self._filename(name)
-        for attempt in range(12):
+        for attempt in range(20):
             head=self._head()
             if not head:return
             tree=_git(["ls-tree",head])
@@ -249,7 +250,7 @@ class EncryptedGitStore:
             if _git(["push","-q",self.remote,
                      f"{commit.stdout.decode().strip()}:refs/heads/{BRANCH}"]).returncode==0:
                 return
-            time.sleep(.15*(attempt+1))
+            time.sleep(min(.15*(attempt+1),1.5) + secrets.randbelow(250)/1000)
 
 
 def request_ticket(secret,target,games,revision):
