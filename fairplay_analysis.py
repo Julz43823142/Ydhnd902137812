@@ -1118,7 +1118,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 raise ReviewError('The complete Maia fast reference did not finish; no review was issued.')
         progress('Analyzing sessions and repertoire…')
         from fairplay_sequence import class_periods, adaptive_deep_games, confirmation_extension
-        gameplay_periods=class_periods(v21_deep if v21_mode else analyzed,config)
+        gameplay_periods=class_periods(v21_deep if v21_mode else analyzed,config,
+                                      strict_original_sequence=v21_mode)
         candidates=(list(v21_deep) if v21_mode else
                     list(analyzed) if full_depth_mode else
                     allocate_policy(analyzed,adaptive_deep_games(analyzed,config,periods=gameplay_periods),config))
