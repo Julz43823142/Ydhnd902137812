@@ -11,7 +11,7 @@ VERSION = 'fairplay-v21-500-wide-100-peer-25-discovery-maia-eta'
 @dataclass(frozen=True)
 class ReviewConfig:
     max_games: int = 500  # production: latest 500 eligible rated games; fixture overrides supported
-    history_games: int = 1000  # v21: older metadata for 100 matching-rated backfills; legacy mode caps at 500
+    history_games: int = 500  # v21 explicitly extends metadata collection to 1000; legacy contracts remain 500
     primary_engine_games: int = 500
     historical_probe_nodes: int = 2_000
     historical_probe_moves: int = 4
