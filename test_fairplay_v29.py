@@ -191,12 +191,36 @@ class LatestFiftyMaia(unittest.TestCase):
         self.assertTrue(actual['recent_full_complete'])
         self.assertEqual(actual['recent_full_positions_expected'],18)
         self.assertEqual(actual['recent_full_positions_selected'],18)
+        self.assertEqual(actual['recent_full_positions_completed'],18)
         self.assertEqual(actual['recent_full_missing_rating_games'],0)
         self.assertEqual(actual['older_model_positions_sampled'],0)
         self.assertTrue(all(d.human_policy for g in games for d in g.decisions))
         self.assertTrue(all(0<n<=64 for n in calls))
         # Opening best-move likelihoods do not create HIGH cheating hits.
         self.assertTrue(all((g.human_reference.get('eligible',0)==0) for g in games))
+
+    def test_failed_later_maia_batch_never_reports_complete_coverage(self):
+        games=[causal_game(777,decisions=70)]
+        calls=[0]
+        def predictor(rows):
+            calls[0]+=1
+            if calls[0]==2:
+                raise RuntimeError('intentional synthetic second-batch failure')
+            out=[]
+            for row in rows:
+                legal=list(chess.Board(row['history'][-1]).legal_moves)
+                out.append({mv.uci():1/len(legal) for mv in legal})
+            return out
+        result=maia.annotate_history(games,predictor=predictor,
+            recent_full_ids={games[0].identity})
+        self.assertEqual(calls[0],2)
+        self.assertFalse(result['available'])
+        self.assertTrue(result['recent_full_selection_complete'])
+        self.assertFalse(result['recent_full_complete'])
+        self.assertEqual(result['recent_full_positions_selected'],70)
+        self.assertEqual(result['recent_full_positions_completed'],0)
+        self.assertEqual(result['positions'],0)
+        self.assertTrue(all(not d.human_policy for d in games[0].decisions))
 
     def test_hit_labels_cannot_cherry_pick_recent_maia_position_subset(self):
         games=[causal_game(i,decisions=6,useful=True) for i in range(5)]
