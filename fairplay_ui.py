@@ -219,6 +219,15 @@ def result_embed(result: ReviewResult):
                       "prevent this from independently raising priority.")
         else:
             details+='\nNo adequately covered fast-selected research window.'
+        halves=intermittent.get('predeclared_half_comparisons') or []
+        if halves:
+            row=halves[0]
+            earlier=row.get('earlier') or {}
+            later=row.get('later') or {}
+            details+=(f"\nFixed chronological {row.get('time_class','unknown')} halves: "
+                      f"{earlier.get('hits',0)}/{earlier.get('opportunities',0)} "
+                      f"versus {later.get('hits',0)}/{later.get('opportunities',0)} "
+                      "difficult-decision anomaly hits; descriptive only.")
         domain=intermittent.get('maia_rating_domain') or {}
         if domain.get('below_600_chesscom_rating_games',0):
             details+=(f"\nMaia rating calibration warning: "
