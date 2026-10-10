@@ -356,5 +356,89 @@ class AccuracyAndResultsWarning(unittest.TestCase):
         self.assertEqual(report['last_10_accuracy_reported'],7)
 
 
+class LowRatingTwoGameAccuracyWarning(unittest.TestCase):
+    """Only a non-scoring observation; never manufacture HIGH priority."""
+
+    @staticmethod
+    def games(*, count=30):
+        games=[]
+        for i in range(count):
+            games.append(SimpleNamespace(
+                identity=f"anonymous-low-{i}",ended=1700000000+i*3600,
+                rated=True,probe_only=False,time_class="blitz",
+                time_control="180+0",rating=500,opponent_rating=510,
+                accuracy=70 if i<count-2 else 94,
+                result="Loss" if i<count-2 else "Win",
+                score=float(i>=count-2),deep=True,
+                fast_metrics={"decisions":16},metrics={"decisions":16}))
+        return games
+
+    def test_two_high_accuracy_games_at_500_are_visible_but_never_scored(self):
+        from fairplay_streak import accuracy_streak_audit
+        report=accuracy_streak_audit(self.games())
+        pairs=report['low_rating_90_plus_pairs']
+        self.assertEqual(pairs['observed_pairs'],1)
+        self.assertEqual(pairs['review_context_pairs'],1)
+        self.assertTrue(pairs['review_context_flag'])
+        self.assertEqual(pairs['best']['older_accuracy_mean'],70)
+        self.assertEqual(pairs['best']['older_reported_accuracy_games'],20)
+        self.assertFalse(pairs['scoring_influence'])
+        self.assertFalse(report['scoring_influence'])
+        self.assertNotIn('anonymous-low-',str(report))
+
+    def test_short_and_weak_opponent_games_observed_but_not_review_corroborated(self):
+        from fairplay_streak import accuracy_streak_audit
+        short=self.games()
+        short[-1].fast_metrics['decisions']=2
+        short_report=accuracy_streak_audit(short)['low_rating_90_plus_pairs']
+        self.assertEqual(short_report['observed_pairs'],1)
+        self.assertEqual(short_report['review_context_pairs'],0)
+        weak=self.games()
+        weak[-1].opponent_rating=100
+        weak_report=accuracy_streak_audit(weak)['low_rating_90_plus_pairs']
+        self.assertEqual(weak_report['observed_pairs'],1)
+        self.assertEqual(weak_report['review_context_pairs'],0)
+
+    def test_rating_above_600_or_missing_official_accuracy_cannot_fake_pair(self):
+        from fairplay_streak import accuracy_streak_audit
+        higher=self.games()
+        higher[-1].rating=601
+        self.assertEqual(accuracy_streak_audit(higher)
+                         ['low_rating_90_plus_pairs']['observed_pairs'],0)
+        missing=self.games()
+        missing[-1].accuracy=None
+        self.assertEqual(accuracy_streak_audit(missing)
+                         ['low_rating_90_plus_pairs']['observed_pairs'],0)
+
+    def test_nonconsecutive_accuracy_or_different_time_class_is_not_pair(self):
+        from fairplay_streak import accuracy_streak_audit
+        gap=self.games()
+        gap[-2].accuracy=75
+        gap[-3].accuracy=95
+        self.assertEqual(accuracy_streak_audit(gap)
+                         ['low_rating_90_plus_pairs']['observed_pairs'],0)
+        mixed=self.games()
+        mixed[-1].time_class="rapid"
+        self.assertEqual(accuracy_streak_audit(mixed)
+                         ['low_rating_90_plus_pairs']['observed_pairs'],0)
+
+    def test_unreviewed_game_is_not_supported_despite_90_accuracy(self):
+        from fairplay_streak import accuracy_streak_audit
+        rows=self.games()
+        rows[-1].deep=False
+        result=accuracy_streak_audit(rows)['low_rating_90_plus_pairs']
+        self.assertEqual(result['observed_pairs'],1)
+        self.assertEqual(result['review_context_pairs'],0)
+
+    def test_old_two_game_pair_outside_last_fifty_does_not_reappear(self):
+        from fairplay_streak import accuracy_streak_audit
+        rows=self.games(count=65)
+        for i,g in enumerate(rows):
+            g.accuracy=95 if i in (5,6) else 65
+        report=accuracy_streak_audit(rows)
+        self.assertEqual(report['latest_rated_scope'],50)
+        self.assertEqual(report['low_rating_90_plus_pairs']['observed_pairs'],0)
+
+
 if __name__=='__main__':
     unittest.main()
