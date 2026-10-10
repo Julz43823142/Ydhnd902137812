@@ -44,6 +44,34 @@ def episodic_group():
 
 
 class EpisodicCoverage(unittest.TestCase):
+    def test_last_twenty_outcomes_and_rating_gap_are_descriptive_only(self):
+        from fairplay_recent import summarize_recent
+        games=[]
+        for i in range(30):
+            gap=600 if i>=23 else 50
+            row=SimpleNamespace(
+                identity=f"anonymous-{i}", rated=True, probe_only=False,
+                ended=i, time_class="rapid", time_control="1800+0",
+                rating=800,opponent_rating=800-gap,
+                result="Win" if i>=20 else "Loss",
+                score=float(i>=20),deep=i<23,
+                metrics={"critical":2,"decisions":8},
+                fast_metrics={"decisions":8})
+            games.append(row)
+        report=summarize_recent(games)
+        last=report["last_20"]
+        last10=report["last_10"]
+        self.assertFalse(report["scoring_influence"])
+        self.assertEqual(last["games"],20)
+        self.assertEqual(last["wins"],10)
+        self.assertEqual(last["deep_reviewed"],13)
+        self.assertEqual(last["opponent_more_than_500_weaker"],7)
+        self.assertEqual(last10["games"],10)
+        self.assertEqual(last10["wins"],10)
+        self.assertEqual(last10["deep_reviewed"],3)
+        self.assertEqual(last10["opponent_more_than_500_weaker"],7)
+        self.assertNotIn("anonymous-",str(report))
+
     def test_exact_hypergeometric_one_five_opportunity_game(self):
         probability = conditional_scan_probability([5] + [2] * 12 + [1] * 22, 20)
         self.assertAlmostEqual(
