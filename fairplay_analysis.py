@@ -864,12 +864,14 @@ def require_recent_maia_coverage(reference, latest_games):
         raise ReviewError(
             'The latest fifty rated games did not receive complete valid Maia-3 '
             'policy inference; no Fair Play priority was issued.')
+    from fairplay_maia import valid_policy
     for game in latest_games:
         if (game.rating is None or game.opponent_rating is None
-                or any(not decision.human_policy for decision in game.decisions)):
+                or any(not valid_policy(decision,decision.human_policy)
+                       for decision in game.decisions)):
             raise ReviewError(
-                'Maia-3 policy evidence is missing from a latest-fifty player '
-                'decision; no Fair Play priority was issued.')
+                'Maia-3 policy evidence is missing or invalid for a latest-fifty '
+                'player decision; no Fair Play priority was issued.')
 
 
 def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI, engine_factory=None,
