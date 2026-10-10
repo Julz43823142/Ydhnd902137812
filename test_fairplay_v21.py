@@ -40,6 +40,57 @@ class PeerSelectionTests(unittest.TestCase):
         self.assertEqual(len({g.identity for g in plan.primary}),500)
         self.assertTrue(set(g.identity for g in plan.core)<=set(g.identity for g in plan.primary))
 
+    def test_last_twenty_outside_peer_rating_are_still_deep_reviewed(self):
+        # Reproduce the missed recent 7 games: 140 historical comparable
+        # opponents, then seven rated wins against opponents >500 Elo weaker.
+        # The 14-worker budget is unchanged; these occupy unused extra slots.
+        games=[game(i,rating=780,opponent=770,accuracy=None)
+               for i in range(140)]
+        games += [game(i,rating=780,opponent=100+i%10,accuracy=99)
+                  for i in range(140,147)]
+        plan=discovery_extras(broad_and_core(
+            games,broad_count=500,deep_count=200),max_extra=50)
+        self.assertEqual(len(plan.primary),147)
+        self.assertEqual(len(plan.core),140)
+        self.assertEqual(len(plan.recent_tail),7)
+        self.assertEqual(len(plan.reserve),0)
+        self.assertEqual(len(plan.deep),147)
+        self.assertEqual(set(g.identity for g in plan.recent_tail),
+                         {g.identity for g in games[-7:]})
+        self.assertEqual({g.identity for g in games[-20:]}.intersection(
+                         {g.identity for g in plan.deep}),
+                         {g.identity for g in games[-20:]})
+
+    def test_latest_tail_uses_existing_extra_budget_not_extra_workers(self):
+        games=[game(i,opponent=1300 if i>=970 else 2300)
+               for i in range(1000)]
+        plan=discovery_extras(broad_and_core(games),max_extra=25)
+        self.assertEqual(len(plan.core),100)
+        self.assertTrue(all(is_peer_game(g) for g in plan.core))
+        self.assertEqual(len(plan.recent_tail),20)
+        self.assertEqual(len(plan.reserve),5)
+        self.assertEqual(len(plan.deep),125)
+        self.assertEqual(len(plan.primary),500)
+        self.assertEqual({g.identity for g in plan.recent_tail},
+                         {g.identity for g in games[-20:]})
+        self.assertEqual(len({g.identity for g in plan.deep}),125)
+
+    def test_latest_tail_is_selected_without_outcome_or_accuracy_labels(self):
+        games=[game(i,opponent=2300 if i<130 else 1000,
+                    accuracy=0 if i%2 else 99)
+               for i in range(150)]
+        plan=discovery_extras(broad_and_core(
+            games,broad_count=150,deep_count=100),max_extra=25)
+        self.assertEqual({g.identity for g in plan.recent_tail},
+                         {g.identity for g in games[-20:]})
+        for g in games[-20:]:
+            g.accuracy=100-g.accuracy
+            g.result='Loss' if g.result=='Win' else 'Win'
+        second=discovery_extras(broad_and_core(
+            games,broad_count=150,deep_count=100),max_extra=25)
+        self.assertEqual([g.identity for g in plan.deep],
+                         [g.identity for g in second.deep])
+
     def test_100_plus_up_to_25_without_accuracy_selection_or_duplicates(self):
         games=[game(i,accuracy=99 if i%4==0 else None) for i in range(700)]
         plan=discovery_extras(broad_and_core(games))
