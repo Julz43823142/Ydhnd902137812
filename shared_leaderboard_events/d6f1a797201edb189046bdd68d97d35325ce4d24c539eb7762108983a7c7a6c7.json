@@ -1,0 +1,27 @@
+{
+  "after_coins": 90.27,
+  "before_coins": 90.27,
+  "created_at": 1791669618,
+  "created_at_ns": 1791669618658462980,
+  "details": {
+    "badge": "🧡",
+    "claim_day": "2026-10-11",
+    "holiday": null,
+    "quantity": 1,
+    "rarity": "common",
+    "rarity_label": "Common",
+    "rewards": [
+      {
+        "badge": "🧡",
+        "rarity": "common",
+        "rarity_label": "Common"
+      }
+    ],
+    "spent": 0
+  },
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "daily-mystery-box",
+  "transaction_id": "daily-mystery-box:442597396195704832:2026-10-11",
+  "user_id": "442597396195704832"
+}
