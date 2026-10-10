@@ -262,8 +262,21 @@ def validate_response(originals,payload,*,ticket,index,revision,engine):
                 source.moves!=game.moves or
                 len(source.decisions)!=len(game.decisions)):
             raise ReviewError("Worker response does not match original game structure.")
+        # No remote worker is permitted to alter immutable game metadata,
+        # ratings, clocks, time-control, game sequence or PV3 fast findings.
+        # Maia policy is added centrally *after* dispatch, so it is excluded.
+        immutable_game=(f.name for f in fields(GameSample)
+                        if f.name not in ("decisions","metrics","deep","human_reference"))
+        if any(normalize(getattr(source,name))!=normalize(getattr(game,name))
+               for name in immutable_game):
+            raise ReviewError("Compute worker altered original game metadata.")
         depth=CONFIG.bullet_deep_depth if game.time_class=="bullet" else 18
+        immutable_move=(f.name for f in fields(Decision)
+                        if f.name not in ("metrics","human_policy","fast_policy","fast_engine"))
         for before,after in zip(source.decisions,game.decisions):
+            if any(normalize(getattr(before,name))!=normalize(getattr(after,name))
+                   for name in immutable_move):
+                raise ReviewError("Compute worker altered original position context.")
             if (before.ply,before.fen,before.move)!=(after.ply,after.fen,after.move):
                 raise ReviewError("Worker response position mismatch.")
             if normalize(before.fast_engine)!=after.fast_engine:
