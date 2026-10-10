@@ -1,4 +1,4 @@
-"""Ten temporary, encrypted Stockfish compute shards; one authoritative report.
+"""Fourteen temporary, encrypted Stockfish compute shards; one authoritative report.
 
 The Discord process alone fetches accounts, selects samples, runs Maia, scores
 the complete sample and publishes results. Remote jobs are *compute-only*.
@@ -30,7 +30,7 @@ from fairplay_evidence_payload import normalize
 
 BRANCH = "fairplay-distributed-work"
 SCHEMA = "sharkbot-fairplay-distributed-v1"
-WORKERS = 10
+WORKERS = 14
 REQUEST_LIFETIME = 3 * 3600
 MAX_CIPHERTEXT = 24 * 1024 * 1024
 MAX_DECOMPRESSED = 80 * 1024 * 1024
@@ -38,7 +38,7 @@ POLL_SECONDS = 15
 NO_WORKER_SECONDS = 480
 MAX_WAIT_SECONDS = 2700
 WORKER_RUNTIME_SECONDS = 2100  # remote engine budget leaves time for upload
-_FILENAME = re.compile(r"(?:req|res|progress)_[0-9a-f]{24}(?:_[0-9])?\.enc\Z")
+_FILENAME = re.compile(r"(?:req|res|progress)_[0-9a-f]{24}(?:_(?:[0-9]|1[0-3]))?\.enc\Z")
 
 
 def safe_error_code(error):
@@ -344,7 +344,7 @@ def _dispatch(ticket,revision,token,repo):
 
 
 def start(games,target,*,revision,engine,store=None,env=None):
-    """Start ten shards before main-thread Maia; return ticket for later join.
+    """Start fourteen shards before main-thread Maia; return ticket for later join.
 
     A failed dispatch returns None: the central scan performs the *exact same*
     depth18/depth12 searches locally and does not publish partial evidence.
@@ -563,7 +563,7 @@ def worker(ticket,index,*,env=None,store=None,clock=None):
             "games":[serialize_game(g) for g in tasks]})
         return {"positions":total,"games":len(tasks),"shard":index}
     except Exception:
-        # Keep failures isolated from the other nine shards, and let the
+        # Keep failures isolated from other shards, and let the
         # coordinator immediately recover missing games on its local pool.
         try:
             store.put(artifact_name("progress",ticket,index),{
