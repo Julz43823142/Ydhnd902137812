@@ -4,12 +4,12 @@ A rate gate that demands multi-hit games from >=60% of opportunity games can
 be *structurally impossible* when most low-rated games contain 1 difficult
 position. Such a gate must be reported as unavailable, not fair-play evidence.
 
-The complementary episodic route is LOW -> MODERATE human-review triage only.
+The complementary episodic route is a research diagnostic only.
 It conditions on the total observed hard-move anomaly hits within one
 time-control stratum and uses an exact combinatorial scan test for >=5 hits
 in any single game, correcting for ALL pre-eligible strata. It is a
 within-player exchangeability diagnostic, NOT a probability of cheating and
-NOT calibrated against independently labeled fair play. It never grants HIGH.
+NOT calibrated against independently labeled fair play. It never changes priority.
 """
 from __future__ import annotations
 
@@ -170,7 +170,7 @@ def episodic_audit(games, config):
             record["deep_confirmed_episodic_games"] >= 1
             and record["adjusted_tail"] <= EPISODIC_ALPHA)
     return {
-        "schema": SCHEMA, "scoring_influence": "MODERATE_MANUAL_TRIAGE_ONLY",
+        "schema": SCHEMA, "scoring_influence": False,
         "comparisons": comparisons, "strata": tested,
         "exploratory_flag": any(row["exploratory_flag"] for row in tested),
         "interpretation": (
@@ -186,17 +186,11 @@ def integrate(result, games, config):
         "schema": SCHEMA,
         "feasibility": opportunity_feasibility(games, config),
         "episodic": episodic_audit(games, config),
+        "scoring_influence": False,
+        "note": ("This is a research audit only. Corrected depth-mode "
+                 "opponent-error context must be applied before comparing "
+                 "episodes. No automated elevation without independent "
+                 "fair/assisted calibration."),
     }
     result.diagnostics["opportunity_feasibility_audit"] = report
-    if result.priority == "LOW" and report["episodic"]["exploratory_flag"]:
-        result.priority = "MODERATE"
-        result.diagnostics["moderate_path"] = "Deep-confirmed concentrated episodic gameplay (exploratory)"
-        result.reasons = [
-            "A concentrated series of difficult, quality-preserving decisions "
-            "in one game is unusual compared with the player's own measured "
-            "opportunities, accounting for inspected time-control strata.",
-            "This is exploratory MODERATE manual-review triage. Its conditional "
-            "reference is not independently calibrated and cannot establish "
-            "misconduct, raise HIGH or justify an automated sanction.",
-        ]
     return result
