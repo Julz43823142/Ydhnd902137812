@@ -38,7 +38,7 @@ def _expected(game):
     return None
 
 
-def low_rating_accuracy_pairs(scope):
+def low_rating_accuracy_pairs(scope, history=None):
     """Read-only 90+ Accuracy *consecutive* game pairs around 500 Elo.
 
     The pair itself is merely observed. Calling it supported review context
@@ -68,8 +68,16 @@ def low_rating_accuracy_pairs(scope):
             _expected(g) is not None
             and g.opponent_rating >= g.rating-300
             for g in (first,second))
+        preceding=[g for g in (history if history is not None else scope)
+                   if g.ended<first.ended and g.time_class==first.time_class][-20:]
+        prior=[_accuracy(g) for g in preceding]
+        prior=[x for x in prior if x is not None]
+        older_mean=statistics.mean(prior) if len(prior)>=8 else None
         row={
             'time_class':first.time_class,
+            'older_reported_accuracy_games':len(prior),
+            'older_accuracy_mean':round(older_mean,2)
+                if older_mean is not None else None,
             'games':2,'accuracy_90_plus_games':2,
             'mean_accuracy':round((_accuracy(first)+_accuracy(second))/2,2),
             'deep_reviewed_games':sum(bool(getattr(g,'deep',False))
@@ -79,6 +87,8 @@ def low_rating_accuracy_pairs(scope):
             'end_time':int(second.ended),
         }
         observations.append(row)
+        # A pair may be flagged for *manual inspection* without a historical
+        # baseline; that uncertainty is shown, never interpreted as proof.
         if enough_decisions and comparable_opposition and row['deep_reviewed_games']==2:
             supported.append(row)
     return {
@@ -194,7 +204,7 @@ def accuracy_streak_audit(games):
                            r['win_games'],r['end_time']),default=None)
     return {
         'schema':SCHEMA,
-        'low_rating_90_plus_pairs':low_rating_accuracy_pairs(scope),
+        'low_rating_90_plus_pairs':low_rating_accuracy_pairs(scope, ordered),
         'latest_rated_scope':len(scope),
         'last_50_accuracy_reported':sum(_accuracy(g) is not None for g in scope),
         'last_10_accuracy_reported':sum(_accuracy(g) is not None for g in scope[-10:]),
