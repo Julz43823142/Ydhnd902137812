@@ -1315,9 +1315,10 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         result=(integrate_policy(result,scoring_games,config,
                                  strict_original_sequence=True)
                 if v21_mode else integrate_policy(result,scoring_games,config))
-        # An independent, non-punitive episodic triage path protects against
-        # structurally impossible high-confidence evidence requirements in
-        # opportunity-sparse games. Never raises HIGH or authorizes sanctions.
+        # Research-only opportunity-coverage and episodic feasibility audit.
+        # The historical deep context error can mimic suspicious episodes;
+        # independent calibration is required before any new scoring route.
+        # This module NEVER changes LOW/MODERATE/HIGH/VERY HIGH.
         from fairplay_episodic import integrate as integrate_episodic
         result=integrate_episodic(result,scoring_games,config)
         # Review all verified deep-reviewed games, including short games with
