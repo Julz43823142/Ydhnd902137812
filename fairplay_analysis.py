@@ -876,8 +876,13 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         canonical = username(profile['username'])
         if canonical!=target:raise ReviewError('The public profile does not match the requested account.')
         profile = neutral_profile_context(profile)
-        history, skipped, archive_partial = collect_games(
-            api,canonical,progress,config,include_latest_fifty_short=v21_mode)
+        if v21_mode:
+            history, skipped, archive_partial = collect_games(
+                api,canonical,progress,config,include_latest_fifty_short=True)
+        else:
+            # Legacy/custom collectors keep their original public contract.
+            history, skipped, archive_partial = collect_games(
+                api,canonical,progress,config)
         # Enforce eligibility even when a collector adapter is used.
         history=sorted([g for g in history if g.rated is True],key=lambda g:(g.ended,g.identity))[-collection_limit(config):]
         if not history:raise ReviewError('No eligible rated standard live games with enough meaningful moves were found.')
