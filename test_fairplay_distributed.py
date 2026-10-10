@@ -1,4 +1,4 @@
-"""v22 five-job compute isolation and complete central evidence regressions.
+"""v23 ten-job compute isolation and complete central evidence regressions.
 
 Synthetic accounts/PGNs only; offline except the localhost file-based git
 transport. No live Chess.com, Discord or GitHub dispatches.
@@ -47,12 +47,12 @@ def completed(game, engine="Stockfish synthetic"):
 
 
 class Sharding(unittest.TestCase):
-    def test_five_shards_balanced_and_complete(self):
+    def test_ten_shards_balanced_and_complete(self):
         games=[sample(i+1) for i in range(17)]
         # Add varying length to prove position rather than game-count balance.
         for i,g in enumerate(games):g.decisions=g.decisions[:10+i]
         distributed=shard_games(games)
-        self.assertEqual(len(distributed),5)
+        self.assertEqual(len(distributed),WORKERS)
         self.assertEqual(set(g.identity for group in distributed for g in group),
                          set(g.identity for g in games))
         self.assertEqual(len([g for group in distributed for g in group]),len(games))
@@ -149,7 +149,7 @@ class MemoryStore:
 
 class Coordinator(unittest.TestCase):
     @patch("fairplay_distributed._dispatch")
-    def test_dispatch_one_workflow_not_five_and_reuses_resumable_ticket(self,dispatch):
+    def test_dispatch_one_workflow_not_ten_and_reuses_resumable_ticket(self,dispatch):
         store=MemoryStore()
         games=[sample(i) for i in range(1,12)]
         env={"FAIRPLAY_DISTRIBUTED":"1","FAIRPLAY_DISTRIBUTED_KEY":SECRET,
@@ -158,11 +158,11 @@ class Coordinator(unittest.TestCase):
         handle=start(games,TARGET,revision="b"*40,engine="Stockfish synthetic",
                      store=store,env=env)
         self.assertIsNotNone(handle)
-        self.assertEqual(len(handle["shards"]),5)
+        self.assertEqual(len(handle["shards"]),WORKERS)
         self.assertEqual(dispatch.call_count,1)
         self.assertEqual(len(store.data),1)
         payload=next(iter(store.data.values()))
-        self.assertEqual(len(payload["games"]),5)
+        self.assertEqual(len(payload["games"]),WORKERS)
         # A planned runner handoff must not dispatch the same job again.
         restarted=start(games,TARGET,revision="b"*40,engine="Stockfish synthetic",
                         store=store,env=env)
@@ -186,7 +186,7 @@ class Coordinator(unittest.TestCase):
         output=join(handle,events.append,time.monotonic()+60,max_wait=30)
         self.assertEqual(len(output),len(games))
         self.assertEqual(set(output),{g.identity for g in games})
-        self.assertEqual(len(store.deleted),11)
+        self.assertEqual(len(store.deleted),1+2*WORKERS)
         self.assertNotIn("priority",str(output))
         self.assertTrue(events)
         self.assertIn("positions",events[-1])
