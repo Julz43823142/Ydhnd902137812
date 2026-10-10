@@ -194,6 +194,8 @@ def result_embed(result: ReviewResult):
         latest=v21['latest_50_games_required']
         done=v21.get('latest_50_depth_completed',0)
         count=v21.get('latest_50_stockfish_positions',0)
+        verified=v21.get('latest_50_stockfish_depth_verified_positions',0)
+        exact=v21.get('latest_50_stockfish_depth_exact_positions',0)
         model=v21.get('latest_50_maia_all_decisions',0)
         expected=v21.get('latest_50_maia_expected',0)
         complete=v21.get('latest_50_maia_complete',False)
@@ -203,7 +205,8 @@ def result_embed(result: ReviewResult):
             name='Latest 50 — complete Stockfish & Maia coverage',
             value=(f"Rated games deep-reviewed: **{done}/{latest}** "
                    "(rapid/blitz depth 18, bullet depth 12). "
-                   f"Subject-move positions searched at full depth: **{count}**. "
+                   f"Stockfish position contracts at full depth: "
+                   f"**{verified}/{count}**, exact **{exact}/{count}**. "
                    f"Maia-3: {model_desc}. "
                    "Opening, short, forced and weak moves are included in "
                    "coverage but excluded from cheating-hit evidence when "
