@@ -15,8 +15,11 @@ WINDOWS = (3, 5, 8, 10, 15)
 
 
 def _metric(game, *, fast=False):
-    return (getattr(game, "fast_metrics", None) or getattr(game, "metrics", {}) or {}
-            if fast else getattr(game, "metrics", {}) or {})
+    if fast:
+        # Never replace a missing fast measurement with a future deep result:
+        # that would select the research window using the outcome under test.
+        return getattr(game, "fast_metrics", None) or {}
+    return getattr(game, "metrics", {}) or {}
 
 
 def _observation(game, *, fast=False):
