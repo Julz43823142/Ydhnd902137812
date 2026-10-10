@@ -150,7 +150,21 @@ def carry_policy_after_deep(source, confirmed):
     else:confirmed.human_reference={}
 
 
-def selection(games,*,full_coverage=False):
+def selection(games,*,full_coverage=False,recent_full_ids=None):
+    # In latest-fifty exhaustive mode, Maia policy is evaluated for EVERY
+    # legally replayable player decision in that scope, including early and
+    # weak moves, not just geometry-ranked or engine-matching decisions.
+    # Those positions are NOT subject to the historical 1600-sample cap.
+    # Older comparison games continue to share the old bounded cap, with the
+    # first claim on the budget going to the latest-fifty complete set.
+    if recent_full_ids and not full_coverage:
+        wanted=set(recent_full_ids)
+        recent=[g for g in games if g.identity in wanted]
+        older=[g for g in games if g.identity not in wanted]
+        complete=selection(recent,full_coverage=True)
+        budget=(1600 if os.getenv('FAIRPLAY_DISTRIBUTED')=='1' else MAX_POSITIONS)
+        sampled=selection(older,full_coverage=False)
+        return complete+sampled[:max(0,budget-len(complete))]
     # Compare successes and misses: selection uses position geometry, never
     # CPL, top-1, high-information hits, account names or validation labels.
     eligible=[g for g in games if g.moves and g.rating is not None and g.opponent_rating is not None]
@@ -251,7 +265,7 @@ def warm_worker():
     return True
 
 
-def annotate_history(games,predictor=None,*,full_coverage=False,checkpoint=None,target=None):
+def annotate_history(games,predictor=None,*,full_coverage=False,recent_full_ids=None,checkpoint=None,target=None):
     global _worker
     start=time.monotonic()
     for game in games:
@@ -263,8 +277,35 @@ def annotate_history(games,predictor=None,*,full_coverage=False,checkpoint=None,
     owns_worker=predictor is None
     if predictor is None and (not model_path or not Path(model_path).is_file()):
         return {'available':False,'positions':0,'reason':'Local Maia checkpoint is not installed; Stockfish and the explicit heuristic remain active.'}
-    chosen=selection(games,full_coverage=full_coverage)
-    if not chosen:return {'available':False,'positions':0,'reason':'No positions with verified causal history and both ratings.'}
+    recent_set=set(recent_full_ids or ())
+    recent_games=[g for g in games if g.identity in recent_set]
+    # Maia is rating-conditioned; a missing rating cannot be silently
+    # imputed. Even the all-position requirement is explicitly limited to
+    # causally replayable games with both public ratings.
+    rating_complete=[g for g in recent_games
+                     if g.moves and g.rating is not None
+                     and g.opponent_rating is not None]
+    expected_recent=sum(len(g.decisions) for g in rating_complete)
+    chosen=selection(games,full_coverage=full_coverage,
+                     recent_full_ids=recent_full_ids)
+    actual_recent=sum(g.identity in recent_set for g,d,ctx in chosen)
+    coverage={
+        'recent_full_games_requested':len(recent_games),
+        'recent_full_games_rating_eligible':len(rating_complete),
+        'recent_full_positions_expected':expected_recent,
+        'recent_full_positions_selected':actual_recent,
+        'recent_full_missing_rating_games':len(recent_games)-len(rating_complete),
+        'recent_full_complete':len(rating_complete)==len(recent_games)
+            and actual_recent==expected_recent,
+        'recent_full_all_decisions_including_openings':bool(recent_set),
+        'older_model_positions_sampled':len(chosen)-actual_recent,
+    }
+    if recent_set and not coverage['recent_full_complete']:
+        return {
+            'available':False,'positions':0,**coverage,
+            'reason':'Recent 50 Maia full-position coverage is incomplete: missing public ratings or legal move history. No partial Maia reference may influence HIGH.'}
+    if not chosen:return {'available':False,'positions':0,**coverage,
+        'reason':'No positions with verified causal history and both ratings.'}
     try:
         with _lock:
             if predictor is None:
@@ -298,6 +339,7 @@ def annotate_history(games,predictor=None,*,full_coverage=False,checkpoint=None,
             while len(_cache)>2400:_cache.popitem(last=False)
         for game in games:refresh_game(game)
         return {'available':True,'model':MODEL_NAME,'positions':len(chosen),
+            **coverage,
             'games':sum(bool(g.human_reference.get('positions')) for g in games),
             'cache_hits':len(chosen)-len(missing),'seconds':time.monotonic()-start,
             'role':'Learned human-policy comparison with Stockfish counterfactuals and paired deep confirmation; not a calibrated misconduct probability.'}
@@ -312,7 +354,8 @@ def annotate_history(games,predictor=None,*,full_coverage=False,checkpoint=None,
                 decision.fast_policy={}
                 decision.metrics.pop('policy_search',None)
         if owns_worker and _worker is not None:close_worker()
-        return {'available':False,'positions':0,'seconds':time.monotonic()-start,'failure_kind':type(error).__name__,
+        return {'available':False,'positions':0,**coverage,
+                'seconds':time.monotonic()-start,'failure_kind':type(error).__name__,
                 'reason':'Local human reference unavailable; Stockfish review completed without invented model results.'}
 
 
