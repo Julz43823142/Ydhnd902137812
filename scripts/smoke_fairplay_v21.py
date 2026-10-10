@@ -4,6 +4,10 @@ Uses only deterministic synthetic PGN positions. No Chess.com accounts or
 network calls, and cannot issue review priorities.
 """
 import chess.engine
+import sys
+from pathlib import Path
+
+sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 
 from fairplay_analysis import EngineScanner
 from fairplay_config import CONFIG
