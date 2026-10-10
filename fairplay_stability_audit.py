@@ -7,7 +7,7 @@ but unstable ones by time control and the selected chronological candidate.
 """
 from collections import Counter
 
-SCHEMA = "sharkbot-paired-stability-audit-v1"
+SCHEMA = "sharkbot-paired-stability-audit-v2"
 ALLOWED = frozenset({
     "unverified_depth_or_fast_contract",
     "candidate_quality_changed",
@@ -42,6 +42,15 @@ def summarise_stability(games, period_ids=()):
                 row["eligible"]+=1
                 if record.get("compared") is True:
                     row["compared"]+=1
+                    # These are separate *descriptive* predicates: the played
+                    # move can retain quality while the position becomes easy.
+                    if record.get("objective_quality_preserved") is True:
+                        row["objective_quality_preserved"]+=1
+                    if record.get("evidential_geometry_preserved") is True:
+                        row["evidential_geometry_preserved"]+=1
+                    if (record.get("objective_quality_preserved") is True
+                            and record.get("evidential_geometry_preserved") is True):
+                        row["both_quality_and_geometry_preserved"]+=1
                     if record.get("stable") is True:
                         row["stable"]+=1
                     else:
@@ -57,15 +66,23 @@ def summarise_stability(games, period_ids=()):
         summary[kind]={
             "eligible":row["eligible"],"compared":compared,
             "stable":row["stable"],"unstable":row["unstable"],
+            "objective_quality_preserved":row["objective_quality_preserved"],
+            "evidential_geometry_preserved":row["evidential_geometry_preserved"],
+            "both_quality_and_geometry_preserved":row["both_quality_and_geometry_preserved"],
             "unmeasured":row["unmeasured"],
             "comparable_fraction":round(compared/max(1,row["eligible"]),4),
             "stable_among_compared":(round(row["stable"]/compared,4)
                                      if compared else None),
+            "quality_preserved_among_compared":(round(row["objective_quality_preserved"]/compared,4)
+                                                 if compared else None),
+            "geometry_preserved_among_compared":(round(row["evidential_geometry_preserved"]/compared,4)
+                                                  if compared else None),
             "reasons":dict(sorted(reasons[kind].items())),
         }
     return {"schema":SCHEMA,"scoring_influence":False,
             "scope":"complete selected deep sample and selected chronological period",
             "classes":{k:summary[k] for k in ("blitz","rapid","bullet")},
             "selected_period":summary["selected_period"],
-            "note":"Missing comparisons are unknown, not stable or evidence of fair play; "
-                   "stability concerns reliability of engine evidence, not player guilt."}
+            "note":"Quality preservation and evidence-grade geometry are different. "
+                   "Missing comparisons are unknown, not evidence of fair play. "
+                   "This audit never changes a player's priority."}

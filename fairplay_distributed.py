@@ -1,4 +1,4 @@
-"""Ten temporary, encrypted Stockfish compute shards; one authoritative report.
+"""Fourteen temporary, encrypted Stockfish compute shards; one authoritative report.
 
 The Discord process alone fetches accounts, selects samples, runs Maia, scores
 the complete sample and publishes results. Remote jobs are *compute-only*.
@@ -16,6 +16,7 @@ import io
 import json
 import os
 import re
+import secrets
 import time
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import fields
@@ -30,7 +31,7 @@ from fairplay_evidence_payload import normalize
 
 BRANCH = "fairplay-distributed-work"
 SCHEMA = "sharkbot-fairplay-distributed-v1"
-WORKERS = 10
+WORKERS = 14
 REQUEST_LIFETIME = 3 * 3600
 MAX_CIPHERTEXT = 24 * 1024 * 1024
 MAX_DECOMPRESSED = 80 * 1024 * 1024
@@ -38,7 +39,7 @@ POLL_SECONDS = 15
 NO_WORKER_SECONDS = 480
 MAX_WAIT_SECONDS = 2700
 WORKER_RUNTIME_SECONDS = 2100  # remote engine budget leaves time for upload
-_FILENAME = re.compile(r"(?:req|res|progress)_[0-9a-f]{24}(?:_[0-9])?\.enc\Z")
+_FILENAME = re.compile(r"(?:req|res|progress)_[0-9a-f]{24}(?:_(?:[0-9]|1[0-3]))?\.enc\Z")
 
 
 def safe_error_code(error):
@@ -188,7 +189,7 @@ class EncryptedGitStore:
         if blob.returncode or not re.fullmatch(rb"[0-9a-f]{40}",blob.stdout.strip()):
             raise ReviewError("Cannot record encrypted compute artifact.")
         hash_=blob.stdout.decode().strip()
-        for attempt in range(12):
+        for attempt in range(20):
             head=self._head()
             entries={}
             if head:
@@ -220,13 +221,13 @@ class EncryptedGitStore:
                        f"{commit.stdout.decode().strip()}:refs/heads/{BRANCH}"])
             if push.returncode==0:return True
             # One worker may have pushed between fetch and push.
-            time.sleep(min(.15*(attempt+1),1))
+            time.sleep(min(.15*(attempt+1),1.5) + secrets.randbelow(250)/1000)
         raise ReviewError("Encrypted compute exchange could not be persisted after retries.")
 
     def remove(self,names):
         """Drop active ref payloads after verification (old commits remain encrypted)."""
         for name in names:self._filename(name)
-        for attempt in range(12):
+        for attempt in range(20):
             head=self._head()
             if not head:return
             tree=_git(["ls-tree",head])
@@ -249,7 +250,7 @@ class EncryptedGitStore:
             if _git(["push","-q",self.remote,
                      f"{commit.stdout.decode().strip()}:refs/heads/{BRANCH}"]).returncode==0:
                 return
-            time.sleep(.15*(attempt+1))
+            time.sleep(min(.15*(attempt+1),1.5) + secrets.randbelow(250)/1000)
 
 
 def request_ticket(secret,target,games,revision):
@@ -344,7 +345,7 @@ def _dispatch(ticket,revision,token,repo):
 
 
 def start(games,target,*,revision,engine,store=None,env=None):
-    """Start ten shards before main-thread Maia; return ticket for later join.
+    """Start fourteen shards before main-thread Maia; return ticket for later join.
 
     A failed dispatch returns None: the central scan performs the *exact same*
     depth18/depth12 searches locally and does not publish partial evidence.
@@ -563,7 +564,7 @@ def worker(ticket,index,*,env=None,store=None,clock=None):
             "games":[serialize_game(g) for g in tasks]})
         return {"positions":total,"games":len(tasks),"shard":index}
     except Exception:
-        # Keep failures isolated from the other nine shards, and let the
+        # Keep failures isolated from other shards, and let the
         # coordinator immediately recover missing games on its local pool.
         try:
             store.put(artifact_name("progress",ticket,index),{

@@ -1315,6 +1315,10 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         result=(integrate_policy(result,scoring_games,config,
                                  strict_original_sequence=True)
                 if v21_mode else integrate_policy(result,scoring_games,config))
+        # Research-only threshold sensitivity. Report gate margins without
+        # changing the already final LOW/MODERATE/HIGH/VERY HIGH priority.
+        from fairplay_shadow_stability import summarize_shadow_stability
+        result.diagnostics['shadow_stability_audit']=summarize_shadow_stability(result)
         # Explain which paired comparisons are missing versus genuinely
         # unstable. This does not modify either thresholds or priority.
         from fairplay_stability_audit import summarise_stability

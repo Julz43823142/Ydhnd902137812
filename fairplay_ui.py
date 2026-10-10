@@ -183,7 +183,7 @@ def result_embed(result: ReviewResult):
                                "All selected games must complete before one joint assessment."),
                         inline=False)
     stability_audit=result.diagnostics.get('paired_stability_audit') or {}
-    if stability_audit.get('schema')=='sharkbot-paired-stability-audit-v1':
+    if stability_audit.get('schema') in ('sharkbot-paired-stability-audit-v1','sharkbot-paired-stability-audit-v2'):
         stats=stability_audit.get('classes') or {}
         rows=[]
         for kind in ('blitz','rapid','bullet'):
@@ -191,10 +191,13 @@ def result_embed(result: ReviewResult):
             if record.get('eligible',0):
                 rows.append(f"**{kind.title()}:** {record.get('compared',0)}/"
                             f"{record.get('eligible',0)} depth pairs measured · "
-                            f"{record.get('stable',0)} stable")
+                            f"{record.get('stable',0)} evidence-grade stable"
+                            + (f" · {record.get('objective_quality_preserved',0)} quality preserved"
+                               if stability_audit.get('schema')=='sharkbot-paired-stability-audit-v2' else ''))
         if rows:
             embed.add_field(name='Paired engine evidence (not proof of cheating)',
-                            value='\n'.join(rows)[:1024],inline=False)
+                            value=('\n'.join(rows)+'\nEvidence-grade stability also requires the position to remain informative; '
+                                   'quality preserved is a separate measure. Neither proves misconduct.')[:1024],inline=False)
     embed.add_field(name='Signals',value='\n'.join(f'**{key}:** {value}' for key,value in result.families.items()),inline=False)
     embed.add_field(name='Review notes',value='\n'.join('• '+value for value in result.reasons)[:1024],inline=False)
     if result.priority=='LOW':
