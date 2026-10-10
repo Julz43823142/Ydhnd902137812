@@ -18,10 +18,13 @@ class ReviewPlan:
     reserve: tuple
     metadata_games: int
     primary_limit: int
+    # Last-20 non-peer games must not silently disappear because the opponent
+    # is >500 Elo weaker. They consume EXISTING extra-discovery slots.
+    recent_tail: tuple = ()
 
     @property
     def deep(self):
-        return self.core+self.reserve
+        return self.core+self.reserve+self.recent_tail
 
 
 def is_peer_game(game, *, max_lower_gap=500):
@@ -52,16 +55,31 @@ def broad_and_core(history, *, broad_count=500, deep_count=100):
 
 
 def discovery_extras(plan, *, max_extra=25):
-    """Stratified extension: suspicious *periods* and unselected controls.
+    """Stratified extension: recent tail, suspicious periods and controls.
 
     Fast PV1 gives CPL and top1 but no candidate spread, so it must not be
     described as critical/human anomaly proof. Selection does NOT use Chess.com
     Accuracy or the existing outcome's cheating label.
     """
     core={g.identity for g in plan.core}
-    older=[g for g in plan.primary if g.identity not in core and is_peer_game(g)]
-    if not older or max_extra<=0:return ReviewPlan(plan.primary,plan.core,(),
-                                                   plan.metadata_games,plan.primary_limit)
+    # Selection is chronological and outcome/Accuracy-blind. The last twenty
+    # rated games are ALWAYS eligible for full-depth work even if the opponent
+    # was >500 Elo weaker or rating metadata is missing. The 100/200 peer core
+    # remains unchanged, while these missing recent games use up-to-20 slots
+    # of the pre-existing 25/50 stratified EXTRA budget.
+    recent=sorted((g for g in plan.primary if g.rated is True
+                   and not getattr(g, "probe_only", False)),
+                  key=lambda g:(g.ended,g.identity))[-20:]
+    missing=[g for g in recent if g.identity not in core]
+    tail=tuple(missing[-min(len(missing),max(0,max_extra)):])
+    tail_ids={g.identity for g in tail}
+    older=[g for g in plan.primary
+           if g.identity not in core and g.identity not in tail_ids
+           and is_peer_game(g)]
+    extra_budget=max(0,max_extra-len(tail))
+    if not older or extra_budget<=0:
+        return ReviewPlan(plan.primary,plan.core,(),
+                          plan.metadata_games,plan.primary_limit,tail)
     # Walk contiguous same-control windows, emphasizing persistent *within*
     # window relative changes, not highest raw wins/Accuracy. Signals are
     # discovery-only and cannot earn HIGH without full-depth confirmation.
@@ -84,7 +102,7 @@ def discovery_extras(plan, *, max_extra=25):
             candidates.append((score,key,window))
     # Half discovery, half evenly-spaced controls; overlapping findings count
     # once. Controls deliberately preserve both errors and strong games.
-    allocation=min(max_extra,len(older))
+    allocation=min(extra_budget,len(older))
     discovery_limit=allocation//2
     controls=allocation-discovery_limit
     ordered=[]
@@ -111,7 +129,7 @@ def discovery_extras(plan, *, max_extra=25):
     # Deep scope deliberately includes all selected misses and weak games.
     return ReviewPlan(plan.primary,plan.core,tuple(sorted(ordered,
                       key=lambda g:(g.ended,g.identity))),plan.metadata_games,
-                      plan.primary_limit)
+                      plan.primary_limit,tail)
 
 
 WINDOWS=(7,30,90,365)
