@@ -1118,8 +1118,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 raise ReviewError('The complete Maia fast reference did not finish; no review was issued.')
         progress('Analyzing sessions and repertoire…')
         from fairplay_sequence import class_periods, adaptive_deep_games, confirmation_extension
-        gameplay_periods=class_periods(v21_deep if v21_mode else analyzed,config,
-                                      strict_original_sequence=v21_mode)
+        gameplay_periods=(class_periods(v21_deep,config,strict_original_sequence=True)
+                          if v21_mode else class_periods(analyzed,config))
         candidates=(list(v21_deep) if v21_mode else
                     list(analyzed) if full_depth_mode else
                     allocate_policy(analyzed,adaptive_deep_games(analyzed,config,periods=gameplay_periods),config))
@@ -1279,8 +1279,9 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                             coverage_state=coverage_state,context_games=history,
                             gameplay_periods=gameplay_periods)
         from fairplay_policy import integrate as integrate_policy
-        result=integrate_policy(result,scoring_games,config,
-                                strict_original_sequence=v21_mode)
+        result=(integrate_policy(result,scoring_games,config,
+                                 strict_original_sequence=True)
+                if v21_mode else integrate_policy(result,scoring_games,config))
         # Astra evidence accounting is strictly observational. Production
         # eligibility, confidence and classifications were already frozen.
         from fairplay_evidence_audit import audit_engine_sample
