@@ -1437,7 +1437,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 'latest_50_stockfish_positions':latest_fifty_depth_total,
                 'latest_50_stockfish_depth_verified_positions':latest_fifty_depth_verified,
                 'latest_50_stockfish_depth_exact_positions':latest_fifty_depth_exact,
-                'latest_50_maia_all_decisions':neural_reference.get('recent_full_positions_selected',0),
+                'latest_50_maia_all_decisions':neural_reference.get('recent_full_positions_completed',0),
                 'latest_50_maia_expected':neural_reference.get('recent_full_positions_expected',0),
                 'latest_50_maia_complete':neural_reference.get('recent_full_complete',False),
                 'recent_20_rated_deep_coverage':sum(
@@ -1514,7 +1514,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             'latest_50_stockfish_positions_verified':latest_fifty_depth_verified if v21_mode else None,
             'latest_50_stockfish_positions_exact':latest_fifty_depth_exact if v21_mode else None,
             'latest_50_maia_positions_completed':neural_reference.get(
-                'recent_full_positions_selected') if v21_mode else None,
+                'recent_full_positions_completed') if v21_mode else None,
             'latest_50_maia_positions_expected':neural_reference.get(
                 'recent_full_positions_expected') if v21_mode else None,
             'latest_50_maia_coverage_complete':neural_reference.get(
