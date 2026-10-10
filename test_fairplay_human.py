@@ -300,7 +300,14 @@ class HumanEvidence(unittest.TestCase):
         deep_summary.update(games=6,opportunities=16,hits=11,hit_games=6,single_hit_games=2,
                             contributors=4,contributor_ids=[ids[i] for i in (0,2,22,24)],
                             hit_game_ids=[ids[i] for i in (0,1,2,22,23,24)],
-                            hit_lower=.50,stable_opportunities=13,stable_hits=8,information=.22,
+                            hit_lower=.50,stable_opportunities=13,stable_hits=8,
+                            # The v26 paired-search gate uses explicit
+                            # verified quality-consistency counters. The
+                            # synthetic fixture must supply both complete
+                            # paired coverage and independently measured hits.
+                            paired_evaluated_opportunities=16,
+                            quality_stable_opportunities=13,
+                            quality_stable_hits=8,information=.22,
                             quality_excess=.10,anomaly_strength=.27)
         proof={'qualified':False,'absolute':False,'personal':False,'games':6,
                'summary':deep_summary,'paired_fast':{'hits':14,'hit_games':8},'retention':11/14,
@@ -333,7 +340,11 @@ class HumanEvidence(unittest.TestCase):
                        contributors=4,contributor_ids=[ids[i] for i in (0,2,17,19)],
                        hit_game_ids=[ids[i] for i in (0,1,2,17,18,19)],
                        hit_lower=.50,stable_opportunities=13 if stable else 9,
-                       stable_hits=8,information=.22,quality_excess=.10,anomaly_strength=.27)
+                       stable_hits=8,
+                       paired_evaluated_opportunities=16,
+                       quality_stable_opportunities=13 if stable else 9,
+                       quality_stable_hits=8,
+                       information=.22,quality_excess=.10,anomaly_strength=.27)
         return {'qualified':False,'absolute':False,'personal':False,'games':7,
                 'summary':summary,'paired_fast':{'hits':14,'hit_games':8},
                 'retention':11/14,'stability_fraction':summary['stable_opportunities']/16,
