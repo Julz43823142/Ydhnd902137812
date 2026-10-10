@@ -98,6 +98,41 @@ class PoolRecoveryTests(unittest.TestCase):
         self.assertFalse(pool.failed.is_set())
         self.assertEqual(pool.available.qsize(),1)
 
+    def test_only_timeout_retries_get_extra_search_time(self):
+        from fairplay_analysis import scan_engine_timeout
+        from fairplay_config import CONFIG
+        depth=chess.engine.Limit(depth=18)
+        normal=scan_engine_timeout(depth,CONFIG)
+        self.assertEqual(scan_engine_timeout(depth,CONFIG,retry=True),
+                         min(7200,normal*3))
+        self.assertEqual(scan_engine_timeout(depth,CONFIG),normal)
+
+        pool,original=self.setup_pool()
+        replacement=Mock();replacement.name='Synthetic'
+        seen=[]
+        def action(worker):
+            seen.append(worker.retry_after_timeout)
+            if worker is original:raise TimeoutError('slow position')
+            return 'completed'
+        with patch('fairplay_analysis.EngineScanner',return_value=replacement):
+            self.assertEqual(pool._run_with_scanner(
+                ScanDeadline(time.monotonic()+10),action),'completed')
+        self.assertEqual(seen,[False,True])
+        self.assertFalse(replacement.retry_after_timeout)
+
+    def test_other_engine_errors_keep_original_retry_budget(self):
+        pool,original=self.setup_pool()
+        replacement=Mock();replacement.name='Synthetic'
+        seen=[]
+        def action(worker):
+            seen.append(worker.retry_after_timeout)
+            if worker is original:raise chess.engine.EngineError('synthetic')
+            return 'completed'
+        with patch('fairplay_analysis.EngineScanner',return_value=replacement):
+            self.assertEqual(pool._run_with_scanner(
+                ScanDeadline(time.monotonic()+10),action),'completed')
+        self.assertEqual(seen,[False,False])
+
     def test_fast_single_pv_deep_multi_pv_for_critical_evidence(self):
         from fairplay_config import CONFIG
         self.assertEqual(CONFIG.fast_multipv,1)
@@ -164,6 +199,32 @@ class PartialBatchTests(unittest.TestCase):
             [(SimpleNamespace(),object()) for _ in range(200)],24000,None,lambda _:None,'Fast engine scan')
         self.assertTrue(partial);self.assertEqual(done,set())
         self.assertLessEqual(sum(f.cancel_calls for f in pending),2*len(pending))
+
+    def test_timeout_checkpoints_other_finished_positions(self):
+        from concurrent.futures import Future
+        from types import SimpleNamespace
+        from fairplay_analysis import run_position_batch
+        saved=[]
+        class Checkpoint:
+            def restore(self,*args):return False
+            def record(self,*args,**kwargs):saved.append((args,kwargs))
+            def flush(self,**kwargs):pass
+        stalled,completed=object(),object()
+        class InlineExecutor:
+            _max_workers=2
+            def submit(self,fn,game,decision,*args):
+                future=Future()
+                if decision is stalled:future.set_exception(TimeoutError('synthetic'))
+                else:future.set_result(True)
+                return future
+        with self.assertRaises(TimeoutError):
+            run_position_batch(InlineExecutor(),SimpleNamespace(run_decision=None),
+                [(SimpleNamespace(),stalled),(SimpleNamespace(),completed)],
+                24000,None,lambda _:None,'Fast engine scan',
+                checkpoint=Checkpoint(),target='synthetic',phase='fast')
+        self.assertEqual(len(saved),1)
+        self.assertIs(saved[0][0][2],completed)
+        self.assertIs(saved[0][1]['persist'],False)
 
     def test_completed_batch_is_not_marked_partial(self):
         from concurrent.futures import Future
