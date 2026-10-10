@@ -22,8 +22,9 @@ EPISODIC_ALPHA = .01  # exploratory, family-wise across eligible strata
 
 
 def _human(game, fast=False):
-    data = (getattr(game, "fast_metrics", None) or getattr(game, "metrics", {}) or {}
-            if fast else getattr(game, "metrics", {}) or {})
+    # Never borrow the deep outcome for a missing fast confirmation.
+    data = ((getattr(game, "fast_metrics", None) or {}) if fast
+            else (getattr(game, "metrics", {}) or {}))
     return data.get("human") or {}
 
 
@@ -148,7 +149,8 @@ def episodic_audit(games, config):
             if (not fast or fast[1] < 2 or fast[0] < 2):
                 continue
             if (human.get("paired_evaluated_opportunities", 0) < n
-                    or human.get("quality_stable_hits", 0) < EPISODIC_HITS):
+                    or human.get("quality_stable_hits", 0) < EPISODIC_HITS
+                    or human.get("quality_stable_hits", 0) > k):
                 continue
             confirmed += 1
         tested.append({
