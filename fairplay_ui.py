@@ -253,6 +253,50 @@ def result_embed(result: ReviewResult):
                       "Lichess-based Maia expectations are not calibrated for this range.")
         embed.add_field(name='Short-game coverage & intermittent research (not a verdict)',
                         value=details[:1024],inline=False)
+    feasibility=(result.diagnostics.get('opportunity_feasibility_audit') or {})
+    if feasibility.get('schema')=='sharkbot-opportunity-feasibility-v1':
+        class_rows=[]
+        for kind in ('blitz','rapid','bullet'):
+            cls=((feasibility.get('feasibility') or {}).get(kind) or {})
+            fast=cls.get('fast') or {}
+            deep=cls.get('deep') or {}
+            if not fast.get('deep_reviewed_games'):continue
+            missing=[]
+            if not fast.get('absolute_route_exposure_possible'):
+                missing.append(
+                    f"fast opportunities {fast.get('opportunities',0)}/"
+                    f"{fast.get('required_opportunities',0)}; possible "
+                    f"2-hit games {fast.get('max_two_hit_contributor_games',0)}/"
+                    f"{fast.get('required_contributor_games',0)}")
+            if not deep.get('games_capable_of_acute_minimum'):
+                missing.append('no game reaches the acute minimum')
+            if missing:
+                class_rows.append(f"**{kind.title()}:** "+'; '.join(missing))
+        if class_rows:
+            embed.add_field(
+                name='Evidence opportunity limits (not a clearance)',
+                value=('\n'.join(class_rows) +
+                       '\nInsufficient eligible opportunities can make a '
+                       'HIGH route impossible even if all eligible moves are '
+                       'correct. LOW does not establish honest play.')[:1024],
+                inline=False)
+        episode=(feasibility.get('episodic') or {})
+        if episode.get('exploratory_flag'):
+            flagged=next((r for r in episode.get('strata',[])
+                          if r.get('exploratory_flag')),None)
+            if flagged:
+                embed.add_field(
+                    name='Concentrated episode — manual review only',
+                    value=(f"**{flagged.get('time_class','').title()}** "
+                           f"({flagged.get('control','')}) · "
+                           f"{flagged.get('max_hits_in_one_game',0)} "
+                           "difficult-decision hits in one game · "
+                           f"adjusted conditional concentration "
+                           f"{flagged.get('adjusted_tail',1.0):.3%}. "
+                           "Exploratory within-player statistic, NOT a "
+                           "probability of cheating. No HIGH or sanction "
+                           "can follow from this test alone."),
+                    inline=False)
     embed.add_field(name='Signals',value='\n'.join(f'**{key}:** {value}' for key,value in result.families.items()),inline=False)
     embed.add_field(name='Review notes',value='\n'.join('• '+value for value in result.reasons)[:1024],inline=False)
     if result.priority=='LOW':
