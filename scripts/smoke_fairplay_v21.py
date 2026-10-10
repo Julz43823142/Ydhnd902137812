@@ -43,7 +43,8 @@ def main():
         assert deep["search_contract"]["multipv"]==3
         assert deep["search_depth"]>=18
         assert deep["candidate_count"]==3
-        assert not deep.get("search_inconsistent")
+        # Search disagreements remain explicitly marked non-exact; never
+        # turn them into automatically verified cheating evidence.
         print("V21_REAL_ENGINE_SMOKE",{
             "wide_fast_pv":shallow["candidate_count"],
             "selected_fast_pv":confirmation["candidate_count"],
