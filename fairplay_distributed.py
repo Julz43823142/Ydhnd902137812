@@ -12,6 +12,7 @@ import copy
 import gzip
 import hashlib
 import hmac
+import io
 import json
 import os
 import re
@@ -93,8 +94,10 @@ def unpack(blob, secret):
         raise ReviewError("Invalid encrypted compute artifact.")
     try:
         compressed=cipher(secret).decrypt(blob)
-        # Bound decompression even for authenticated-but-corrupt old packets.
-        obj=gzip.decompress(compressed)
+        # Bound memory *during* decompression, not only afterwards. Even
+        # authenticated compressed input must not create an oversized JSON.
+        with gzip.GzipFile(fileobj=io.BytesIO(compressed)) as stream:
+            obj=stream.read(MAX_DECOMPRESSED+1)
         if len(obj)>MAX_DECOMPRESSED:
             raise ValueError("Decoded artifact oversized")
         return json.loads(obj)
@@ -529,7 +532,7 @@ def worker(ticket,index,*,env=None,store=None,clock=None):
         matched=re.search(r"(\d+)\s*/\s*(\d+) positions",stage)
         if not matched:return
         done=int(matched[1])
-        if clock()-last_status[0]<50 and done<total:return
+        if clock()-last_status[0]<90 and done<total:return
         last_status[0]=clock()
         try:
             store.put(artifact_name("progress",ticket,index),{
