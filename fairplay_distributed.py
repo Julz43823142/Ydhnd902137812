@@ -1,4 +1,4 @@
-"""Five temporary, encrypted Stockfish compute shards; one authoritative report.
+"""Ten temporary, encrypted Stockfish compute shards; one authoritative report.
 
 The Discord process alone fetches accounts, selects samples, runs Maia, scores
 the complete sample and publishes results. Remote jobs are *compute-only*.
@@ -29,14 +29,14 @@ from fairplay_evidence_payload import normalize
 
 BRANCH = "fairplay-distributed-work"
 SCHEMA = "sharkbot-fairplay-distributed-v1"
-WORKERS = 5
+WORKERS = 10
 REQUEST_LIFETIME = 3 * 3600
 MAX_CIPHERTEXT = 24 * 1024 * 1024
 MAX_DECOMPRESSED = 80 * 1024 * 1024
-POLL_SECONDS = 12
-NO_WORKER_SECONDS = 240
-MAX_WAIT_SECONDS = 2400
-_FILENAME = re.compile(r"(?:req|res|progress)_[0-9a-f]{24}(?:_[0-4])?\.enc\Z")
+POLL_SECONDS = 15
+NO_WORKER_SECONDS = 480
+MAX_WAIT_SECONDS = 2700
+_FILENAME = re.compile(r"(?:req|res|progress)_[0-9a-f]{24}(?:_[0-9])?\.enc\Z")
 
 
 def key_material(env=None):
@@ -294,9 +294,10 @@ def validate_response(originals,payload,*,ticket,index,revision,engine):
     return returned
 
 
-def _dispatch(ticket,token,repo):
-    if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+",repo):
-        raise ReviewError("Invalid GitHub repository for Fair Play compute.")
+def _dispatch(ticket,revision,token,repo):
+    if (not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+",repo)
+            or not re.fullmatch(r"[0-9a-f]{40}",revision)):
+        raise ReviewError("Invalid repository or code revision for Fair Play compute.")
     import requests
     url=f"https://api.github.com/repos/{repo}/actions/workflows/fairplay_distributed.yml/dispatches"
     try:
@@ -304,7 +305,11 @@ def _dispatch(ticket,token,repo):
             "Authorization":"Bearer "+token,
             "Accept":"application/vnd.github+json",
             "X-GitHub-Api-Version":"2022-11-28"},
-            json={"ref":"main","inputs":{"ticket":ticket}},timeout=15,allow_redirects=False)
+            # Workflow definition comes from main; the worker checkout pins
+            # itself to the still-running coordinator's immutable commit.
+            json={"ref":"main","inputs":{"ticket":ticket,
+                                           "revision":revision}},
+            timeout=15,allow_redirects=False)
         if response.status_code!=204:
             raise ReviewError("GitHub cannot dispatch Fair Play compute workers.")
     except requests.RequestException:
@@ -312,7 +317,7 @@ def _dispatch(ticket,token,repo):
 
 
 def start(games,target,*,revision,engine,store=None,env=None):
-    """Start five shards before main-thread Maia; return ticket for later join.
+    """Start ten shards before main-thread Maia; return ticket for later join.
 
     A failed dispatch returns None: the central scan performs the *exact same*
     depth18/depth12 searches locally and does not publish partial evidence.
@@ -348,7 +353,7 @@ def start(games,target,*,revision,engine,store=None,env=None):
         else:
             store.put(request_file,payload)
             fresh_request=True
-            _dispatch(ticket,token,repo)
+            _dispatch(ticket,revision,token,repo)
     except (ReviewError,TypeError,ValueError):
         if fresh_request:
             try:store.remove([request_file])
@@ -359,7 +364,7 @@ def start(games,target,*,revision,engine,store=None,env=None):
 
 
 def join(handle,progress,deadline,*,max_wait=MAX_WAIT_SECONDS,clock=None,sleep=None):
-    """One barrier; no per-shard cheating scores; return None for safe local fallback.
+    """One barrier; no per-shard cheating scores; return verified games or local recovery.
 
     Returns a map of complete validated remote games even if a single worker
     failed, so the central scan can locally recover missing games only.
@@ -374,7 +379,11 @@ def join(handle,progress,deadline,*,max_wait=MAX_WAIT_SECONDS,clock=None,sleep=N
     result={}
     last_progress={i:0 for i in range(len(handle["shards"]))}
     last_seen=clock()
-    end=min(float(deadline),clock()+max_wait)
+    dead=set()
+    handle["stats"]={"shards":len(handle["shards"]),"completed":0,
+                     "failed":0,"stalled":0,"remote_positions":0,
+                     "reason":"pending"}
+    end=min(float(deadline),handle["started"]+max_wait)
     while clock()<end:
         check_deadline(deadline)
         try:
@@ -444,16 +453,22 @@ def worker(ticket,index,*,env=None,store=None,clock=None):
     store=store or EncryptedGitStore(secret)
     rows=store.read_many([artifact_name("req",ticket)])
     request=rows.get(artifact_name("req",ticket))
+    # INPUT_REVISION is the pinned git checkout, while GITHUB_SHA identifies
+    # the dispatch workflow definition on main and may have changed since
+    # the controller started. Requiring GITHUB_SHA caused ten live failures.
+    source_revision=env.get("INPUT_REVISION") or env.get("GITHUB_SHA")
     if (not isinstance(request,dict) or request.get("schema")!=SCHEMA
             or request.get("ticket")!=ticket or request.get("version")!=VERSION
-            or request.get("revision")!=env.get("GITHUB_SHA")
+            or not isinstance(source_revision,str)
+            or re.fullmatch(r"[0-9a-f]{40}",source_revision) is None
+            or request.get("revision")!=source_revision
             or request.get("config")!=repr(CONFIG) or
             not isinstance(request.get("games"),list) or
             len(request["games"])!=WORKERS or
             not 0<=time.time()-request.get("created",0)<REQUEST_LIFETIME):
         raise ReviewError("Unavailable, mismatched or expired compute workload.")
     tasks=[deserialize_game(row) for row in request["games"][index]]
-    if len(tasks)>75 or not all(g.rated is True for g in tasks):
+    if len(tasks)>50 or not all(g.rated is True for g in tasks):
         raise ReviewError("Invalid bounded and rated compute workload.")
     # Workers only compute exact Stockfish; no Chess.com fetch, no Discord,
     # no scoring, no policy reranking and no GitHub release/deployment actions.
