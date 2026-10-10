@@ -1293,8 +1293,11 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             'eligible_games_capped':collection_coverage.get('eligible_games_capped'),
             'requested_context_limit':collection_limit(config),
             'requested_primary_limit':primary_limit(config),
-            'deep_scope':('200 recent peer games + up to 50 stratified historical peer games' if distributed_mode
-                          else '100 recent peer games + up to 25 stratified historical peer games') if v21_mode
+            'deep_scope':('up to 200 rated peer games + up to 50 extra games, reserving '
+                          'missing games from the latest 20 rated games regardless of opponent Elo'
+                          if distributed_mode else
+                          'up to 100 rated peer games + up to 25 extra games, reserving '
+                          'missing games from the latest 20 rated games regardless of opponent Elo') if v21_mode
                           else 'full legacy deep scope',
             'deep_scope_required':len(v21_deep) if v21_mode else len(primary) if full_depth_mode else None,
             'deep_scope_complete':all(g.deep for g in v21_deep) if v21_mode else None,
@@ -1311,10 +1314,20 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                             engine_name,profile,time.monotonic()-started,config,
                             coverage_state=coverage_state,context_games=history,
                             gameplay_periods=gameplay_periods)
+        # Temporal outcome streaks and extremely mismatched opposition belong
+        # in a visible read-only audit, never in engine-cheating score gates.
+        from fairplay_recent import summarize_recent
+        result.diagnostics['recent_tail_audit']=summarize_recent(analyzed)
         from fairplay_policy import integrate as integrate_policy
         result=(integrate_policy(result,scoring_games,config,
                                  strict_original_sequence=True)
                 if v21_mode else integrate_policy(result,scoring_games,config))
+        # Research-only opportunity-coverage and episodic feasibility audit.
+        # The historical deep context error can mimic suspicious episodes;
+        # independent calibration is required before any new scoring route.
+        # This module NEVER changes LOW/MODERATE/HIGH/VERY HIGH.
+        from fairplay_episodic import integrate as integrate_episodic
+        result=integrate_episodic(result,scoring_games,config)
         # Review all verified deep-reviewed games, including short games with
         # fewer than eight useful moves. The audit is aggregate-only and cannot
         # elevate priority; fast evidence selects any diagnostic period.
@@ -1367,6 +1380,10 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             result.diagnostics['v21_selection']={
                 'broad_fast_games':len(primary),
                 'recent_peer_deep_games':len(v21_plan.core),
+                'recent_tail_nonpeer_deep_games':len(v21_plan.recent_tail),
+                'recent_20_rated_deep_coverage':sum(
+                    g.identity in {x.identity for x in v21_plan.deep}
+                    for g in sorted(analyzed,key=lambda g:(g.ended,g.identity))[-20:]),
                 'historical_extra_deep_games':len(v21_plan.reserve),
                 'deep_games_completed':sum(g.deep for g in v21_deep),
                 'eligible_rated_metadata_games':len(history),

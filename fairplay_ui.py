@@ -126,8 +126,15 @@ def result_embed(result: ReviewResult):
     v21=result.diagnostics.get('v21_selection',{})
     if v21:
         sample += (f"\nScoped deep coverage: {v21['deep_games_completed']}/"
-                   f"{v21['recent_peer_deep_games']+v21['historical_extra_deep_games']} "
+                   f"{v21['recent_peer_deep_games']+v21['historical_extra_deep_games']+v21.get('recent_tail_nonpeer_deep_games',0)} "
                    "selected games; 500-wide coverage is FAST-ONLY outside scope.")
+        if 'recent_20_rated_deep_coverage' in v21:
+            last=min(20,v21['broad_fast_games'])
+            sample+=(f"\nLatest rated games covered at deep budget: "
+                     f"**{v21['recent_20_rated_deep_coverage']}/{last}**"
+                     f" · {v21.get('recent_tail_nonpeer_deep_games',0)} "
+                     "recent non-peer games included. "
+                     "Weak-opponent wins are not engine-cheat evidence.")
     if coverage.get('history_probed'):
         sample += f'\nRecent rated primary sample: {coverage["primary_fast_scanned"]}/{coverage["primary_collected"]} · historical discovery probes: {coverage.get("history_probed",0)}'
     sample += f'\nSkipped unrated games while collecting history: {result.skipped.get("unrated",0)} · unknown rated status: {result.skipped.get("rated_status_unknown",0)}'
@@ -136,7 +143,7 @@ def result_embed(result: ReviewResult):
     if coverage.get('requested_primary_limit'):
         if v21:
             scope.append(f"Review scope: up to {coverage['requested_primary_limit']} rated games fast-screened; "
-                         f"{v21['deep_games_completed']} peer-matched/stratified games deep-reviewed; "
+                         f"{v21['deep_games_completed']} selected peer/stratified/recent-tail games deep-reviewed; "
                          "the other fast games are NOT depth-confirmed.")
         else:
             scope.append(f"Engine scope: latest up to {coverage['requested_primary_limit']} eligible rated games. "
@@ -154,6 +161,27 @@ def result_embed(result: ReviewResult):
     if dates:sample += f'\nEngine-covered dates: <t:{min(dates)}:d> → <t:{max(dates)}:d>'
     embed.add_field(name='Sample',value=sample[:1024],inline=False)
     if scope:embed.add_field(name='Review scope — bounded archive',value='\n'.join(scope)[:1024],inline=False)
+    recent=result.diagnostics.get('recent_tail_audit') or {}
+    if recent.get('schema')=='sharkbot-recent-tail-audit-v1':
+        tail=recent.get('last_20') or {}
+        short=recent.get('last_10') or {}
+        if tail.get('games'):
+            embed.add_field(
+                name='Latest rated results & opponent strength (descriptive only)',
+                value=(f"Latest {tail['games']}: "
+                       f"**{tail.get('wins',0)}W/{tail.get('draws',0)}D/{tail.get('losses',0)}L**"
+                       f" · deep-reviewed **{tail.get('deep_reviewed',0)}/{tail['games']}**"
+                       f" · {tail.get('opponent_more_than_500_weaker',0)} opponents more than "
+                       "500 Elo weaker.\n"
+                       f"Latest {short.get('games',0)}: "
+                       f"**{short.get('wins',0)}W/{short.get('draws',0)}D/"
+                       f"{short.get('losses',0)}L**"
+                       f" · deep-reviewed **{short.get('deep_reviewed',0)}/"
+                       f"{short.get('games',0)}**"
+                       f" · {short.get('opponent_more_than_500_weaker',0)} weak opponents. "
+                       "Win streaks are not proof of engine use; evaluate "
+                       "post-opening choices and comparable opposition.")[:1024],
+                inline=False)
     history=result.diagnostics.get('public_history_stats',{})
     if history:
         period_lines=[]
@@ -253,6 +281,33 @@ def result_embed(result: ReviewResult):
                       "Lichess-based Maia expectations are not calibrated for this range.")
         embed.add_field(name='Short-game coverage & intermittent research (not a verdict)',
                         value=details[:1024],inline=False)
+    feasibility=(result.diagnostics.get('opportunity_feasibility_audit') or {})
+    if feasibility.get('schema')=='sharkbot-opportunity-feasibility-v1':
+        class_rows=[]
+        for kind in ('blitz','rapid','bullet'):
+            cls=((feasibility.get('feasibility') or {}).get(kind) or {})
+            fast=cls.get('fast') or {}
+            deep=cls.get('deep') or {}
+            if not fast.get('deep_reviewed_games'):continue
+            missing=[]
+            if not fast.get('absolute_route_exposure_possible'):
+                missing.append(
+                    f"fast opportunities {fast.get('opportunities',0)}/"
+                    f"{fast.get('required_opportunities',0)}; possible "
+                    f"2-hit games {fast.get('max_two_hit_contributor_games',0)}/"
+                    f"{fast.get('required_contributor_games',0)}")
+            if not deep.get('games_capable_of_acute_minimum'):
+                missing.append('no game reaches the acute minimum')
+            if missing:
+                class_rows.append(f"**{kind.title()}:** "+'; '.join(missing))
+        if class_rows:
+            embed.add_field(
+                name='Evidence opportunity limits (not a clearance)',
+                value=('\n'.join(class_rows) +
+                       '\nInsufficient eligible opportunities can make a '
+                       'HIGH route impossible even if all eligible moves are '
+                       'correct. LOW does not establish honest play.')[:1024],
+                inline=False)
     embed.add_field(name='Signals',value='\n'.join(f'**{key}:** {value}' for key,value in result.families.items()),inline=False)
     embed.add_field(name='Review notes',value='\n'.join('• '+value for value in result.reasons)[:1024],inline=False)
     if result.priority=='LOW':
