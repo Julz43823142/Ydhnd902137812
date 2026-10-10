@@ -135,6 +135,14 @@ def result_embed(result: ReviewResult):
                      f" · {v21.get('recent_tail_nonpeer_deep_games',0)} "
                      "recent non-peer games included. "
                      "Weak-opponent wins are not engine-cheat evidence.")
+    if 'latest_50_games_required' in v21:
+        latest_total=v21.get('latest_50_games_required',0)
+        sample+=(f"\nLast {latest_total} rated games: "
+                 f"**{v21.get('latest_50_depth_completed',0)}/{latest_total}** "
+                 "full Stockfish depth 18/12; "
+                 f"**{v21.get('latest_50_maia_all_decisions',0)}/"
+                 f"{v21.get('latest_50_maia_expected',0)}** "
+                 "Maia policy positions")
     if coverage.get('history_probed'):
         sample += f'\nRecent rated primary sample: {coverage["primary_fast_scanned"]}/{coverage["primary_collected"]} · historical discovery probes: {coverage.get("history_probed",0)}'
     sample += f'\nSkipped unrated games while collecting history: {result.skipped.get("unrated",0)} · unknown rated status: {result.skipped.get("rated_status_unknown",0)}'
@@ -182,6 +190,27 @@ def result_embed(result: ReviewResult):
                        "Win streaks are not proof of engine use; evaluate "
                        "post-opening choices and comparable opposition.")[:1024],
                 inline=False)
+    if v21 and 'latest_50_games_required' in v21:
+        latest=v21['latest_50_games_required']
+        done=v21.get('latest_50_depth_completed',0)
+        count=v21.get('latest_50_stockfish_positions',0)
+        model=v21.get('latest_50_maia_all_decisions',0)
+        expected=v21.get('latest_50_maia_expected',0)
+        complete=v21.get('latest_50_maia_complete',False)
+        model_desc=(f"**{model}/{expected}** policy evaluations "
+                    + ("(complete)" if complete else "(INCOMPLETE/UNAVAILABLE)"))
+        embed.add_field(
+            name='Latest 50 — complete Stockfish & Maia coverage',
+            value=(f"Rated games deep-reviewed: **{done}/{latest}** "
+                   "(rapid/blitz depth 18, bullet depth 12). "
+                   f"Subject-move positions searched at full depth: **{count}**. "
+                   f"Maia-3: {model_desc}. "
+                   "Opening, short, forced and weak moves are included in "
+                   "coverage but excluded from cheating-hit evidence when "
+                   "they are not competitive. Older games remain stratified. "
+                   "Missing ratings cannot be imputed. HIGH still requires "
+                   "independently distributed deep-confirmed anomaly evidence.")[:1024],
+            inline=False)
     history=result.diagnostics.get('public_history_stats',{})
     if history:
         period_lines=[]
