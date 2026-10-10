@@ -289,7 +289,8 @@ def annotate_history(games,predictor=None,*,full_coverage=False,recent_full_ids=
     expected_recent=sum(len(g.decisions) for g in rating_complete)
     chosen=selection(games,full_coverage=full_coverage,
                      recent_full_ids=recent_full_ids)
-    actual_recent=sum(g.identity in recent_set for g,d,ctx in chosen)
+    actual_recent=sum(getattr(g,'identity',None) in recent_set
+                      for g,d,ctx in chosen)
     coverage={
         'recent_full_games_requested':len(recent_games),
         'recent_full_games_rating_eligible':len(rating_complete),
