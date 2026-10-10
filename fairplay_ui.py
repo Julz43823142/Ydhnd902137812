@@ -195,9 +195,26 @@ def result_embed(result: ReviewResult):
                             + (f" · {record.get('objective_quality_preserved',0)} quality preserved"
                                if stability_audit.get('schema')=='sharkbot-paired-stability-audit-v2' else ''))
         if rows:
+            # 'Evidence-grade stable' is the stricter historical geometry
+            # diagnostic. v26 correctly gates the reliability of Stockfish
+            # searches independently from the player's hit rate. Never
+            # display old geometry failures as failed search comparisons.
+            note=('\nEvidence-grade geometry is stricter than search-quality '
+                  'consistency. Neither proves misconduct.')
+            if str(getattr(result,'version','')).startswith('fairplay-v26'):
+                period=(result.diagnostics.get('gameplay') or {}).get('best') or {}
+                deep=(period.get('deep') or {}).get('summary') or {}
+                if 'quality_stable_opportunities' in deep:
+                    note+=(f"\nSelected period: "
+                           f"{deep.get('quality_stable_opportunities',0)}/"
+                           f"{deep.get('opportunities',0)} deep opportunities "
+                           "with consistent fast/deep move-loss estimates; "
+                           f"{deep.get('paired_evaluated_opportunities',0)} "
+                           "paired comparisons completed. "
+                           "HIGH still requires independent difficulty/hit "
+                           "coverage and contributor gates.")
             embed.add_field(name='Paired engine evidence (not proof of cheating)',
-                            value=('\n'.join(rows)+'\nEvidence-grade stability also requires the position to remain informative; '
-                                   'quality preserved is a separate measure. Neither proves misconduct.')[:1024],inline=False)
+                            value=('\n'.join(rows)+note)[:1024],inline=False)
     intermittent=result.diagnostics.get('intermittent_coverage_audit') or {}
     if intermittent.get('schema')=='sharkbot-intermittent-coverage-v1':
         observed=intermittent.get('deep_sample') or {}
