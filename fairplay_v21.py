@@ -10,6 +10,8 @@ import statistics
 import time
 from dataclasses import dataclass
 
+LATEST_FULL_DEEP_GAMES = 50
+
 
 @dataclass(frozen=True)
 class ReviewPlan:
@@ -37,21 +39,26 @@ def is_peer_game(game, *, max_lower_gap=500):
 
 
 def broad_and_core(history, *, broad_count=500, deep_count=100):
-    """Fill 100 with older rated peers, without losing broad 500-game coverage.
+    """Reserve the latest fifty rated games for complete depth confirmation.
 
-    A synthetic fixture may have fewer eligible games. Never invent matches,
-    include casual/unknown-rated games, or duplicate a single game.
+    Core peers and non-peer recent games share the EXISTING 100/200 deep slots.
+    This preserves an older opponent-matched comparison sample and retains the
+    500-game fast scope. No result, win streak, Accuracy, CPL or account name
+    participates in the choice. A small local-fixture budget cannot claim
+    fifty-game coverage unless it actually has fifty deep slots.
     """
     chronological=sorted((g for g in history if g.rated is True
                           and not getattr(g,"probe_only",False)),
                          key=lambda g:(g.ended,g.identity))
+    count=max(0,min(LATEST_FULL_DEEP_GAMES,deep_count,broad_count))
+    tail=tuple(g for g in chronological[-count:] if not is_peer_game(g)) if count else ()
     peers=[g for g in reversed(chronological) if is_peer_game(g)]
-    core=tuple(reversed(peers[:max(0,deep_count)]))
-    ids={g.identity for g in core}
-    newest=[g for g in reversed(chronological) if g.identity not in ids]
-    rest=list(reversed(newest[:max(0,broad_count-len(core))]))
-    primary=tuple(sorted((*rest,*core),key=lambda g:(g.ended,g.identity)))
-    return ReviewPlan(primary,core,(),len(chronological),broad_count)
+    core=tuple(reversed(peers[:max(0,deep_count-len(tail))]))
+    selected={g.identity for g in (*core,*tail)}
+    newest=[g for g in reversed(chronological) if g.identity not in selected]
+    rest=list(reversed(newest[:max(0,broad_count-len(selected))]))
+    primary=tuple(sorted((*rest,*core,*tail),key=lambda g:(g.ended,g.identity)))
+    return ReviewPlan(primary,core,(),len(chronological),broad_count,tail)
 
 
 def discovery_extras(plan, *, max_extra=25):
@@ -62,21 +69,15 @@ def discovery_extras(plan, *, max_extra=25):
     Accuracy or the existing outcome's cheating label.
     """
     core={g.identity for g in plan.core}
-    # Selection is chronological and outcome/Accuracy-blind. The last twenty
-    # rated games are ALWAYS eligible for full-depth work even if the opponent
-    # was >500 Elo weaker or rating metadata is missing. The 100/200 peer core
-    # remains unchanged, while these missing recent games use up-to-20 slots
-    # of the pre-existing 25/50 stratified EXTRA budget.
-    recent=sorted((g for g in plan.primary if g.rated is True
-                   and not getattr(g, "probe_only", False)),
-                  key=lambda g:(g.ended,g.identity))[-20:]
-    missing=[g for g in recent if g.identity not in core]
-    tail=tuple(missing[-min(len(missing),max(0,max_extra)):])
+    # Non-peer recent rated games already consume core slots. All 25/50
+    # additional discovery slots remain available for historical peer and
+    # negative-control games; never double-count the recent tail.
+    tail=tuple(plan.recent_tail)
     tail_ids={g.identity for g in tail}
     older=[g for g in plan.primary
            if g.identity not in core and g.identity not in tail_ids
            and is_peer_game(g)]
-    extra_budget=max(0,max_extra-len(tail))
+    extra_budget=max(0,max_extra)
     if not older or extra_budget<=0:
         return ReviewPlan(plan.primary,plan.core,(),
                           plan.metadata_games,plan.primary_limit,tail)
