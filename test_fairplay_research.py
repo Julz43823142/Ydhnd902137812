@@ -5,10 +5,10 @@ import unittest
 from fairplay_research import _window_max, summarize_research
 
 
-def decision(*, rare=True, clock=True, useful=True):
+def decision(*, rare=True, clock=True, useful=True, think=1.0):
     return SimpleNamespace(
         move="e2e4", phase="middlegame", forced=False, trivial_kind=None,
-        clock_valid=clock, think=1.0 if clock else None,
+        clock_valid=clock, think=think if clock else None,
         human_policy={"e2e4": .01, "d2d4":.99} if rare else {},
         metrics={"useful":useful, "search_contract":{"completed":True,"exact":True},
                  "quality_excess":.32, "near_best":True, "difficulty":.9})
@@ -17,7 +17,8 @@ def decision(*, rare=True, clock=True, useful=True):
 def game(i, *, kind="blitz", control="180+0", clock=True):
     return SimpleNamespace(identity=f"secret-person-{i}", ended=i, rated=True,
         probe_only=False, deep=True, time_class=kind, time_control=control,
-        decisions=[decision(clock=clock) for _ in range(8)])
+        decisions=([decision(clock=clock,rare=False,think=4.0) for _ in range(6)]
+                   +[decision(clock=clock,think=.5) for _ in range(2)])
 
 
 class ResearchAuditTests(unittest.TestCase):
@@ -28,8 +29,8 @@ class ResearchAuditTests(unittest.TestCase):
         self.assertFalse(a["scoring_influence"])
         self.assertEqual(a["compared_games"],20)
         row=a["buckets"]["blitz | 180+0"]
-        self.assertEqual(row["maia_covered_moves"],160)
-        self.assertEqual(row["joint_fast_rare_high_quality_moves"],160)
+        self.assertEqual(row["maia_covered_moves"],40)
+        self.assertEqual(row["joint_fast_rare_high_quality_moves"],40)
         self.assertEqual(row["game_block_quality_interval"],[.32,.32])
         self.assertIsNotNone(row["max_window_shuffle_fraction"])
         self.assertNotIn("secret-person",str(a))
