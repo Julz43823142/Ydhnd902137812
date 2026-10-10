@@ -118,7 +118,9 @@ class ReliableTiming(LiveTiming):
         self.rate={}
         self.last_phase=None
         self.last_calibrated=None
-        self.expected_deep_games=125
+        import os
+        self.expected_deep_games=(250 if os.getenv('FAIRPLAY_DISTRIBUTED')=='1'
+                                  else 125)
 
     def observe(self,stage,now=None):
         import time
