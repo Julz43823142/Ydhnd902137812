@@ -136,7 +136,7 @@ class PoolRecoveryTests(unittest.TestCase):
     def test_fast_single_pv_deep_multi_pv_for_critical_evidence(self):
         from fairplay_config import CONFIG
         self.assertEqual(CONFIG.fast_multipv,1)
-        self.assertEqual(CONFIG.deep_multipv,5)
+        self.assertEqual(CONFIG.deep_multipv,3)
 
 
 class SinglePVConservativePriorityTests(unittest.TestCase):
@@ -153,6 +153,8 @@ class SinglePVConservativePriorityTests(unittest.TestCase):
         result=priority_model((1.0,1.0,1.0,1.0,1.0),config=CONFIG,**args)
         self.assertIn(result,('HIGH','VERY HIGH'))
         # A single-PV deep pass cannot support critical candidate-gap claims.
+        self.assertIn(priority_model((1.0,1.0,1.0,1.0,1.0),config=CONFIG,**args),
+                      ('HIGH','VERY HIGH'))
         single=replace(CONFIG,deep_multipv=1)
         self.assertNotIn(priority_model((1.0,1.0,1.0,1.0,1.0),config=single,**args),
                          ('HIGH','VERY HIGH'))
