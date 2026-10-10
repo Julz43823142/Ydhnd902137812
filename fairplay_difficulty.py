@@ -64,10 +64,28 @@ def annotate(decision, config=CONFIG):
 def stability(decision, config=CONFIG):
     fast = decision.fast_engine
     m = decision.metrics
-    # Fixed-depth full coverage counts as a real deep comparison; depth-18
-    # searches may use fewer or more nodes than the legacy 320k budget.
-    compared = ((m.get('nodes', 0)>=config.deep_nodes or m.get('search_depth',0)>=18)
-                and fast.get('nodes', 0)==config.fast_nodes)
+    # A completed, exact depth-12 bullet search is just as valid a
+    # paired-depth comparison as a completed depth-18 blitz/rapid search.
+    # v22 implicitly required depth >=18 (or 320k nodes), leaving almost
+    # every bullet position unconfirmed even when it reached depth 12.
+    contract=m.get('search_contract') or {}
+    request=contract.get('requested')
+    search_depth=m.get('search_depth',0)
+    contracted=(contract.get('mode')=='depth'
+                and contract.get('completed') is True
+                and contract.get('exact') is True
+                and isinstance(request,int) and not isinstance(request,bool)
+                and request in (config.bullet_deep_depth,18)
+                and isinstance(search_depth,int) and search_depth>=request)
+    # Compatibility for independently tested legacy fixed-node policies.
+    legacy=(not contract and m.get('nodes',0)>=config.deep_nodes)
+    compared=bool((contracted or legacy)
+                  and fast.get('nodes',0)==config.fast_nodes
+                  and not m.get('search_inconsistent')
+                  and not fast.get('search_inconsistent')
+                  and (not fast.get('search_contract')
+                       or (fast['search_contract'].get('completed') is True
+                           and fast['search_contract'].get('exact') is True)))
     rank, old = m.get('rank'), fast.get('rank')
     best = compared and m.get('best')==fast.get('best')
     rank_ok = compared and rank is not None and old is not None and abs(rank-old)<=1
@@ -108,8 +126,20 @@ def stability(decision, config=CONFIG):
         'state':comparison.quality.state.value,'reason':comparison.quality.reason.value,
         'same_rank':comparison.same_rank,'same_best_move':comparison.same_best_move,
         'near_best_preserved':comparison.near_best_preserved}
+    # Separate missing contract coverage from genuinely unstable geometry:
+    # neither should silently become evidence of fair play.
+    blocked=([] if stable else
+             (['unverified_depth_or_fast_contract'] if not compared else
+              [name for name,ok in (
+                  ('candidate_quality_changed',bool(cpl_ok and scaled_ok)),
+                  ('evidential_geometry_changed',bool(geometry)),
+                  ('rank_or_best_changed',bool(rank_ok or near)),
+                  ('played_move_no_longer_equivalent',bool(near or exact))
+              ) if not ok]))
     m['search_stability'] = {'compared':bool(compared), 'best':bool(best), 'rank':bool(rank_ok),
-        'cpl':bool(cpl_ok), 'gap':bool(gap_ok), 'semantic_quality':semantic, 'stable':stable}
+        'cpl':bool(cpl_ok), 'gap':bool(gap_ok), 'semantic_quality':semantic, 'stable':stable,
+        'paired_depth':request if contracted else None,
+        'blockers':blocked}
     return stable
 
 
