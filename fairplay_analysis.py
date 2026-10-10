@@ -1405,7 +1405,10 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                                                 if v21_mode else None),
             'required_full_coverage':bool(full_depth_mode and not v21_mode),
             'required_selected_full_depth':bool(full_depth_mode and v21_mode),
-            'human_policy_sampling':'up to 800 stratified positions across 100+25 deeply reviewed peer games' if v21_mode else 'stratified bounded positions (not all moves)',
+            'human_policy_sampling':('up to 1600 stratified positions across 200+50 deep peer games'
+                                     if distributed_mode else
+                                     'up to 800 stratified positions across 100+25 deep peer games')
+                                     if v21_mode else 'stratified bounded positions (not all moves)',
             'depth18_completed_positions':sum(
                 d.metrics.get('search_depth',0)>=18 for g in analyzed if g.deep and g.time_class!='bullet'
                 for d in g.decisions) if full_depth_mode else None,
