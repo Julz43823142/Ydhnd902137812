@@ -1269,17 +1269,29 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         # evidence in a fully scanned primary sample. Preserve the missing
         # historical context as a separate, explicit coverage warning.
         primary_partial=partial or primary_archive_partial or deep_incomplete
-        result=score_review(canonical,analyzed,len(history),skipped,primary_partial,
+        # Shallow PV1 history has no measurable candidate spread. Never let it
+        # dilute PV3 quality statistics or earn deep-confirmed priority. Its
+        # exact 500-game broad scan remains available for discovery and audit.
+        scoring_games=v21_deep if v21_mode else analyzed
+        result=score_review(canonical,scoring_games,len(history),skipped,primary_partial,
                             engine_name,profile,time.monotonic()-started,config,
                             coverage_state=coverage_state,context_games=history,
                             gameplay_periods=gameplay_periods)
         from fairplay_policy import integrate as integrate_policy
-        result=integrate_policy(result,analyzed,config)
+        result=integrate_policy(result,scoring_games,config)
         # Astra evidence accounting is strictly observational. Production
         # eligibility, confidence and classifications were already frozen.
         from fairplay_evidence_audit import audit_engine_sample
         result.diagnostics['evidence_audit']=audit_engine_sample(
-            analyzed,config,period_ids=(result.diagnostics.get('gameplay',{}).get('best') or {}).get('ids',()))
+            scoring_games,config,period_ids=(result.diagnostics.get('gameplay',{}).get('best') or {}).get('ids',()))
+        if v21_mode:
+            # Explicitly expose BOTH denominators; the 500 broad positions
+            # must not be mistaken for 500 depth18-confirmed games.
+            result.coverage.update(fast_scanned=len(analyzed),
+                                   broad_fast_scanned=len(analyzed),
+                                   deep_scope_games=len(scoring_games),
+                                   deep_scope_used=result.coverage.get('used',0))
+            result.games=list(analyzed)  # owner evidence retains both tiers
         result.coverage.update(primary_collected=len(primary),primary_fast_scanned=min(len(analyzed),len(primary)) if not primary_complete else len(primary),
                                history_probed=len(probes),history_fast_scanned=sum(g not in primary for g in analyzed),
                                history_probe_complete=probe_complete,deep_incomplete=deep_incomplete,
