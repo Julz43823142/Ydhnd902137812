@@ -5,6 +5,7 @@ replications. Every member must contribute; clocks/results are not mandatory.
 """
 from fairplay_config import CONFIG
 from fairplay_human import period_summary
+from fairplay_confirmation import paired_quality_confirmation
 
 
 def acute_blockers(games, config=CONFIG, *, fast=True):
@@ -35,16 +36,21 @@ def acute_deep_confirmation(period, games, config=CONFIG):
     paired = period_summary(members, config, fast=True)
     deep = period_summary(members, config)
     retention = deep['hits']/max(1, paired['hits'])
-    stable = deep['stable_opportunities']/max(1, deep['opportunities'])
+    reliability = paired_quality_confirmation(deep,config.acute_stability_fraction)
+    stable = reliability['fraction']
     blockers = acute_blockers(members, config, fast=False)
     if len(members)!=len(period['ids']):
         blockers.append('every candidate game must be fully deep-reviewed')
-    if stable<config.acute_stability_fraction:
+    if not reliability['coverage_passed']:
+        blockers.append('paired search-quality coverage')
+    if not reliability['fraction_passed']:
         blockers.append('deep semantic-quality stability')
     if retention<config.acute_retention:
         blockers.append('fast to deep anomaly retention')
-    if deep['stable_hits']<config.acute_hit_fraction*deep['opportunities']:
+    if reliability['hits']<config.acute_hit_fraction*deep['opportunities']:
         blockers.append('distributed deep-stable anomaly hits')
     return {'qualified':not blockers, 'absolute':False, 'personal':False, 'acute':not blockers,
             'games':len(members), 'summary':deep, 'paired_fast':paired,
-            'retention':retention, 'stability_fraction':stable, 'blockers':blockers}
+            'retention':retention, 'stability_fraction':stable,
+            'legacy_geometric_stability_fraction':deep['stable_opportunities']/max(1,deep['opportunities']),
+            'paired_search_coverage_fraction':reliability['coverage'], 'blockers':blockers}
