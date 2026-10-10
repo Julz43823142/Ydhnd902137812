@@ -152,14 +152,41 @@ class TenGameBurst(unittest.TestCase):
         result=integrate(_result(),games)
         self.assertEqual(result.priority,'HIGH')
 
-    def test_old_wins_outside_thirty_day_recent_scope_not_scanned(self):
-        games=[_game(i) for i in range(10)]
-        newer=_game(10)
-        newer.ended+=40*86400
-        # The ten-game sequence was historically strong but is not a
-        # recent-ten-game incident relative to the latest observed games.
-        report=analyze(games+[newer])
+    def test_early_ten_game_cheating_burst_within_latest_fifty_is_not_lost(self):
+        games=[_game(i) for i in range(50)]
+        for g in games[10:]:
+            g.fast_metrics['human']['hits']=0
+            g.metrics['human']['hits']=0
+            g.metrics['human']['quality_stable_hits']=0
+            g.metrics['human']['quiet_hits']=0
+        # The strong ten-game event was followed by forty ordinary games.
+        # A last-20-only detector silently misses it despite full deep data.
+        report=analyze(games)
+        self.assertEqual(report['rated_latest_scope'],50)
+        self.assertEqual(report['windows_examined'],41)
+        self.assertTrue(report['qualified'])
+        self.assertEqual(report['best']['deep_hits'],30)
+
+    def test_burst_older_than_actual_last_fifty_is_excluded(self):
+        games=[_game(i) for i in range(60)]
+        for g in games[10:]:
+            g.fast_metrics['human']['hits']=0
+            g.metrics['human']['hits']=0
+            g.metrics['human']['quality_stable_hits']=0
+            g.metrics['human']['quiet_hits']=0
+        report=analyze(games)
         self.assertFalse(report['qualified'])
+        self.assertEqual(report['recent_rated_games_selected'],50)
+
+    def test_elapsed_calendar_gap_does_not_drop_first_part_of_latest_fifty(self):
+        games=[_game(i) for i in range(50)]
+        for g in games[10:]:
+            g.ended+=90*86400
+            g.fast_metrics['human']['hits']=0
+            g.metrics['human']['hits']=0
+            g.metrics['human']['quality_stable_hits']=0
+            g.metrics['human']['quiet_hits']=0
+        self.assertTrue(analyze(games)['qualified'])
 
     def test_genuinely_suspicious_ten_games_can_span_low_opponent_rating(self):
         games=[_game(i,peer=False) for i in range(10)]
