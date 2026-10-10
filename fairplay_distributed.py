@@ -271,8 +271,8 @@ def validate_response(originals,payload,*,ticket,index,revision,engine):
                for name in immutable_game):
             raise ReviewError("Compute worker altered original game metadata.")
         depth=CONFIG.bullet_deep_depth if game.time_class=="bullet" else 18
-        immutable_move=(f.name for f in fields(Decision)
-                        if f.name not in ("metrics","human_policy","fast_policy","fast_engine"))
+        immutable_move=tuple(f.name for f in fields(Decision)
+                             if f.name not in ("metrics","human_policy","fast_policy","fast_engine"))
         for before,after in zip(source.decisions,game.decisions):
             if any(normalize(getattr(before,name))!=normalize(getattr(after,name))
                    for name in immutable_move):
