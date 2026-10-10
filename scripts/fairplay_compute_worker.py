@@ -16,7 +16,7 @@ from fairplay_distributed import WORKERS, worker, safe_error_code
 def main():
     ticket=os.getenv("INPUT_TICKET","")
     index=os.getenv("INPUT_SHARD","")
-    if re.fullmatch(r"[0-9a-f]{24}",ticket) is None or index not in ("0","1","2","3","4"):
+    if re.fullmatch(r"[0-9a-f]{24}",ticket) is None or index not in {str(i) for i in range(WORKERS)}:
         raise SystemExit("Invalid bounded compute workload parameters.")
     try:
         result=worker(ticket,int(index))
