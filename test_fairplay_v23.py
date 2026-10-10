@@ -131,7 +131,8 @@ class BulletStability(unittest.TestCase):
         game=sample(87,bullet=True)
         decision=next(d for d in game.decisions if d.useful)
         for_fast={"nodes":CONFIG.fast_nodes,"rank":1,"best":decision.move,
-                  "cpl":5,"scaled_loss":.01,"search_inconsistent":False,
+                  "cpl":5,"scaled_loss":.01,"useful":True,
+                  "search_inconsistent":False,
                   "played_boundary_cp":90,"difficulty":.9,"competitive":True,
                   "search_contract":{"engine":"Stockfish synthetic",
                      "mode":"nodes","requested":CONFIG.fast_nodes,
