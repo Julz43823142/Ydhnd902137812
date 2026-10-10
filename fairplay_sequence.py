@@ -22,7 +22,7 @@ def class_absolute(summary,kind,config=CONFIG):
         and summary['information']>=config.bullet_human_information)
 
 
-def class_periods(games, config=CONFIG):
+def class_periods(games, config=CONFIG, *, strict_original_sequence=False):
     groups={kind:[] for kind in ('rapid','blitz','bullet')}
     seen=set()
     for game in sorted(games,key=lambda g:(g.ended,g.identity)):
@@ -62,6 +62,15 @@ def class_periods(games, config=CONFIG):
                 options.append(('acute_candidate',group[start:start+width]))
         identities=set()
         for mode,part in options:
+            if strict_original_sequence and len(part)>1:
+                # A v21 100+25 deep subset is deliberately discontinuous in
+                # the original archive. Skipped intervening rated peer games
+                # cannot magically become a contiguous HIGH evidence period.
+                if any(a.time_control!=b.time_control or
+                       getattr(a,'control_index',None) is None or
+                       getattr(b,'control_index',None) != a.control_index+1
+                       for a,b in zip(part,part[1:])):
+                    continue
             ids=tuple(g.identity for g in part)
             acute = mode=='acute_candidate';replication_half = mode=='replication_half'
             identity_key=(ids,replication_half)

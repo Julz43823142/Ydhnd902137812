@@ -367,7 +367,13 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG):
 
 
 def collection_limit(config=CONFIG):
-    # Respect explicit fixture caps while allowing all 500 latest rated games in production.
+    # v21 may backfill the 100 recent peer games from older history while
+    # preserving 500 fully fast-screened games. No optional history gets a
+    # cheating score without actual engine evidence.
+    import os
+    if config == CONFIG and os.getenv("FAIRPLAY_V21") == "1" and os.getenv("FAIRPLAY_FULL_DEPTH18") == "1":
+        return 1000  # v21-only cap; 500 fast-screened, older archives for peer backfill
+    # Older modes and synthetic override fixtures preserve their contracts.
     return max(1, min(500, config.history_games if config.max_games in (100, 200, 500) else config.max_games))
 
 

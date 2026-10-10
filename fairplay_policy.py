@@ -223,7 +223,7 @@ def blockers(s):
     return [name for name,passed in tests.items() if not passed]
 
 
-def periods(games):
+def periods(games, *, strict_original_sequence=False):
     """Fixed chronological blocks plus latest window; never ranked game sets."""
     output=[]
     summaries={id(g):game_summary(g,fast=True) for g in games}
@@ -234,7 +234,14 @@ def periods(games):
         for width in (*POLICY.windows,len(group)):
             if width<POLICY.contributor_games or width>len(group):continue
             for offset in sorted(set([*range(0,len(group)-width+1,width),len(group)-width])):
-                members=group[offset:offset+width];ids=tuple(g.identity for g in members)
+                members=group[offset:offset+width]
+                if strict_original_sequence and any(
+                        a.time_control!=b.time_control or
+                        getattr(a,'control_index',None) is None or
+                        getattr(b,'control_index',None)!=a.control_index+1
+                        for a,b in zip(members,members[1:])):
+                    continue
+                ids=tuple(g.identity for g in members)
                 if ids in seen:continue
                 seen.add(ids);s=combine([(g,summaries[id(g)]) for g in members])
                 output.append({'ids':ids,'class':kind,'summary':s,'blockers':blockers(s)})
@@ -262,12 +269,12 @@ def allocate(games,plan,config=CONFIG):
             selected.append(game);covered+=exposure(game)
     return selected
 
-def integrate(result,games,config=CONFIG):
+def integrate(result,games,config=CONFIG,*,strict_original_sequence=False):
     best=None
     best_ids=()
     deep_rows={id(g):game_summary(g) for g in games if g.deep}
     fast_rows={id(g):game_summary(g,fast=True) for g in games if g.deep}
-    for candidate in periods(games):
+    for candidate in periods(games,strict_original_sequence=strict_original_sequence):
         members=[g for g in games if g.identity in candidate['ids'] and g.deep]
         deep=combine([(g,deep_rows[id(g)]) for g in members]);paired=combine([(g,fast_rows[id(g)]) for g in members])
         reasons=list(candidate['blockers'])

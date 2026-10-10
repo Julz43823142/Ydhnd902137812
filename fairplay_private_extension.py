@@ -3,7 +3,7 @@ import io
 import asyncio
 from fairplay_export_persistence import OwnerEvidenceStore
 import discord
-from fairplay_evidence_payload import evidence
+from fairplay_evidence_payload import evidence, owner_zip
 from shark_admin import ADMIN_ID
 
 
@@ -16,7 +16,10 @@ def install():
     old_panel = ui.panel_embed
     def new_panel():
         card = old_panel()
-        card.description = card.description.replace('up to 200', 'up to 500').replace('latest 100', 'latest 500').replace('then deeply reviews selected games', 'then reviews all selected games to depth 18')
+        # v21 panel text is written in fairplay_ui; do not overwrite scoped
+        # 100+25 claims with the legacy "all 500 depth18" promise.
+        if 'deeply reviews selected games' in card.description:
+            card.description=card.description.replace('up to 200','up to 500')
         return card
     ui.panel_embed = new_panel
 
@@ -72,7 +75,15 @@ def install():
                         "Full evidence unavailable or expired. No partial audit was sent.",
                         ephemeral=True)
                     return
-                for name, payload in files:
+                # One verified ZIP is much easier for the owner to share.
+                # Discord's historical 8 MB ceiling remains a safe default;
+                # only if the bundle exceeds it send the exact old parts.
+                try:
+                    archive=owner_zip(files)
+                except (ValueError,KeyError,TypeError):
+                    archive=None
+                outgoing=(archive,) if archive else files
+                for name,payload in outgoing:
                     await ctx.followup.send(
                         file=discord.File(io.BytesIO(payload), filename=name),
                         ephemeral=True, allowed_mentions=discord.AllowedMentions.none())

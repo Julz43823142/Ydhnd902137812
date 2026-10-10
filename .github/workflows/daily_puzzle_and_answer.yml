@@ -216,6 +216,7 @@ jobs:
           # Full depth-18 Stockfish evaluation of the latest 500 eligible rated games; bounded Maia observations.
           # Opt-in only; inactive until this PR is independently merged.
           FAIRPLAY_FULL_DEPTH18: "1"
+          FAIRPLAY_V21: "1"
           FAIRPLAY_REQUIRE_MAIA: "1"
           # Deterministic supplementary model observations on up to 48
           # temporally spread depth-completed games; never raise verdicts.

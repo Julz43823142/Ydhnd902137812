@@ -177,13 +177,14 @@ class CheckpointStore:
         with self.lock:
             return [
                 {"target": target, "message_id": item.get("message_id"),
-                 "token": item.get("token"), "stage": item.get("stage", "Restoring scan…")}
+                 "token": item.get("token"), "stage": item.get("stage", "Restoring scan…"),
+                 "timing": item.get("timing") if isinstance(item.get("timing"),dict) else None}
                 for target, item in sorted(self.state["jobs"].items(),
                                            key=lambda pair: pair[1].get("updated", 0))
                 if item.get("status") == "running"
             ]
 
-    def note(self, target, *, message_id=None, token=None, stage=None, force=True):
+    def note(self, target, *, message_id=None, token=None, stage=None, force=True, timing=None):
         if not self.enabled:
             return False
         with self.lock:
@@ -199,6 +200,9 @@ class CheckpointStore:
                 job["token"] = str(token)[:32]
             if stage:
                 job["stage"] = str(stage)[:160]
+            if isinstance(timing,dict) and timing.get("schema")==1:
+                # Bounded counters and measured rates only, no player details.
+                job["timing"] = copy.deepcopy(timing)
             job["updated"] = time.time()
             return self._write(force=force)
 
@@ -242,15 +246,18 @@ class CheckpointStore:
                               if getattr(game, 'time_class', None) == 'bullet' else 18)
             required = (required_depth if phase == 'deep' and full_depth else
                         config.deep_nodes if phase == 'deep' else config.fast_nodes)
+            # The 500-game broad screening (PV1) cannot be restored as a PV3
+            # evidential recheck. Keep the phases separately and verify PV count.
+            multipv_ok = (contract.get("multipv") == 3 if phase == "fast-pv3" else True)
             valid = (contract.get("completed") is True
                      and contract.get("exact") is not False
                      and contract.get("mode") == ("depth" if phase == "deep" and full_depth else "nodes")
                      and contract.get("requested") == required)
-            if not valid or (phase == "deep" and full_depth and
+            if not valid or not multipv_ok or (phase == "deep" and full_depth and
                              item["metrics"].get("search_depth", 0) < required_depth):
                 return False
             decision.metrics = copy.deepcopy(item["metrics"])
-            if phase == "fast":
+            if phase in ("fast", "fast-pv3"):
                 decision.fast_engine = copy.deepcopy(item["metrics"])
             return True
 

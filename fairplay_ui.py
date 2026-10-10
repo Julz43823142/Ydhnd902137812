@@ -5,6 +5,7 @@ gives the active review exclusive access to the shared Stockfish pool. No Discor
 token, ledger, wallet or punishments.
 """
 import asyncio
+import os
 import threading
 import time
 import uuid
@@ -20,7 +21,7 @@ from fairplay_analysis import (ReviewResult, review, review_interest,
                                available_engine_cpus, available_engine_memory_mb)
 from fairplay_config import CHANNEL_ID, DISCLAIMER, NAMESPACE, CONFIG
 from fairplay_data import AccountNotFound, ReviewError, username
-from fairplay_progress import estimate, bar, label, duration, LiveTiming
+from fairplay_progress import estimate, bar, label, duration, LiveTiming, ReliableTiming
 from fairplay_checkpoint import CheckpointStore
 
 RESERVED = '🛡️ This channel is reserved for Fair Play reviews.'
@@ -41,7 +42,7 @@ def public_text(value):
 def panel_embed():
     embed = discord.Embed(title=PANEL_TITLE, color=0x427CBA,
         description='Want to review a suspicious Chess.com account?\n\n'
-                    "Submit a Chess.com username. SharkBot reviews up to 500 latest eligible rated standard live games. Rapid and blitz receive depth-18 Stockfish analysis; bullet uses quicker depth-12 screening. Fast screening uses one best line and checks the played move separately; deep confirmation evaluates five candidate lines to retain LOW/MODERATE/HIGH/VERY HIGH evidence. Thinking time and human-move evidence are examined where available.\n\n"
+                    "Submit a Chess.com username. SharkBot screens up to 500 rated live games (fast MultiPV 1), deeply reviews the latest 100 comparable-opponent rated games and up to 25 stratified historical games (fast MultiPV 3 then depth 18 rapid/blitz or depth 12 bullet). Historical metadata extends to 1,000 eligible rated games when available. Only the selected deep games have full candidate and Maia comparison; evidence gaps are shown, not treated as normal behavior.\n\n"
                     '**This is an automated screening tool — not proof of cheating.**')
     embed.set_footer(text=PANEL_MARKER)
     return embed
@@ -111,16 +112,28 @@ def result_embed(result: ReviewResult):
     depth_contract=result.diagnostics.get('run_contract',{})
     if depth_contract.get('required_primary_depth_by_class'):
         sample+='\nStockfish depth: Rapid/Blitz 18 · Bullet 12 (screening; lower precision)'
+    elif depth_contract.get('selected_required_depth_by_class'):
+        sample+='\nSelected deep sample only: Rapid/Blitz depth 18 · Bullet depth 12'
     if depth_contract.get('fast',{}).get('multipv') == 1:
-        sample+='\nFast: MultiPV 1 + played-move check · Deep: MultiPV 5 (four priority levels)'
+        sample+='\nBroad: MultiPV 1 + played-move check · Selected fast + deep: MultiPV 3' if depth_contract.get('required_selected_full_depth') else '\nFast: MultiPV 1 + played-move check · Deep: MultiPV 3'
+    v21=result.diagnostics.get('v21_selection',{})
+    if v21:
+        sample += (f"\nScoped deep coverage: {v21['deep_games_completed']}/"
+                   f"{v21['recent_peer_deep_games']+v21['historical_extra_deep_games']} "
+                   "selected games; 500-wide coverage is FAST-ONLY outside scope.")
     if coverage.get('history_probed'):
         sample += f'\nRecent rated primary sample: {coverage["primary_fast_scanned"]}/{coverage["primary_collected"]} · historical discovery probes: {coverage.get("history_probed",0)}'
     sample += f'\nSkipped unrated games while collecting history: {result.skipped.get("unrated",0)} · unknown rated status: {result.skipped.get("rated_status_unknown",0)}'
     if coverage.get('history_probe_complete') is False:sample += '\nExtended-history discovery is incomplete; primary coverage is shown separately.'
     scope=[]
     if coverage.get('requested_primary_limit'):
-        scope.append(f"Engine scope: latest up to {coverage['requested_primary_limit']} eligible rated games. "
-                     "An account with thousands of games is NOT exhaustively analyzed.")
+        if v21:
+            scope.append(f"Review scope: up to {coverage['requested_primary_limit']} rated games fast-screened; "
+                         f"{v21['deep_games_completed']} peer-matched/stratified games deep-reviewed; "
+                         "the other fast games are NOT depth-confirmed.")
+        else:
+            scope.append(f"Engine scope: latest up to {coverage['requested_primary_limit']} eligible rated games. "
+                         "An account with thousands of games is NOT exhaustively analyzed.")
     if coverage.get('available_archive_months') is not None:
         scope.append(f"Archive months visited: {coverage.get('visited_archive_months',0)}/"
                      f"{coverage['available_archive_months']}; "
@@ -134,6 +147,22 @@ def result_embed(result: ReviewResult):
     if dates:sample += f'\nEngine-covered dates: <t:{min(dates)}:d> → <t:{max(dates)}:d>'
     embed.add_field(name='Sample',value=sample[:1024],inline=False)
     if scope:embed.add_field(name='Review scope — bounded archive',value='\n'.join(scope)[:1024],inline=False)
+    history=result.diagnostics.get('public_history_stats',{})
+    if history:
+        period_lines=[]
+        for span in ('7d','30d','90d','365d'):
+            rows=history.get('periods',{}).get(span,{})
+            details=[]
+            for kind in ('blitz','rapid','bullet'):
+                item=rows.get(kind,{})
+                if not item.get('rated_games'):continue
+                details.append(f"{kind.title()}: {item['rated_games']} rated / {item['wins']}W "
+                               f"(Accuracy reported {item['official_accuracy_coverage']})")
+            period_lines.append(f"**{span}:** "+('; '.join(details) if details else 'No sampled rated games'))
+        embed.add_field(name='Public rating & accuracy timeline (descriptive only)',
+                        value=('\n'.join(period_lines)+
+                               '\nAccuracy values may be missing or review-selected; never an accusation.')[:1024],
+                        inline=False)
     embed.add_field(name='Signals',value='\n'.join(f'**{key}:** {value}' for key,value in result.families.items()),inline=False)
     embed.add_field(name='Review notes',value='\n'.join('• '+value for value in result.reasons)[:1024],inline=False)
     if result.priority=='LOW':
@@ -778,9 +807,11 @@ class FairPlayService:
             if getattr(self,'checkpoints',None) is not None:
                 # Persist Discord message identity, so startup resumes by
                 # editing the existing card rather than posting a fresh panel.
+                metadata=({"timing":job.timing.snapshot()}
+                          if isinstance(job.timing,ReliableTiming) else {})
                 await asyncio.to_thread(
                     self.checkpoints.note,job.target,message_id=job.message.id,
-                    token=job.token,stage=stage,force=False)
+                    token=job.token,stage=stage,force=False,**metadata)
             return True
         except discord.NotFound:job.message_deleted = True
         except discord.HTTPException:pass  # retry later; never create a second progress card
@@ -832,7 +863,11 @@ class FairPlayService:
                     # delivery of a fully completed screening result.
                     result.diagnostics['manual_maia_examples']=[]
                 return result
-            job.timing=LiveTiming()
+            if os.getenv("FAIRPLAY_V21")=="1" and os.getenv("FAIRPLAY_FULL_DEPTH18")=="1":
+                if not isinstance(job.timing,ReliableTiming):
+                    job.timing=ReliableTiming()
+            else:
+                job.timing=LiveTiming()
             future = loop.run_in_executor(self.executor,run_review)
             while not future.done():
                 if (not job.cancel_requested and job.stage!='Fetching profile…' and
@@ -1061,7 +1096,10 @@ async def startup(client):
             try:target=username(target)
             except ReviewError:continue
             if target in _service.jobs:continue
-            job = Job(target,None,stage='Resuming interrupted scan…',
+            timing=(ReliableTiming.from_checkpoint(item.get('timing'))
+                    if os.getenv('FAIRPLAY_V21')=='1' and os.getenv('FAIRPLAY_FULL_DEPTH18')=='1'
+                    else LiveTiming())
+            job = Job(target,None,stage='Resuming interrupted scan…',timing=timing,
                       token=item.get('token') or uuid.uuid4().hex[:12])
             if item.get('message_id'):
                 job.message = channel.get_partial_message(int(item['message_id']))

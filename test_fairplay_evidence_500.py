@@ -64,7 +64,7 @@ class OwnerOnly(unittest.IsolatedAsyncioTestCase):
         interaction.response.send_message.assert_awaited_once()
         self.assertTrue(interaction.response.send_message.call_args.kwargs["ephemeral"])
 
-    async def test_only_exact_owner_id_gets_gzip_attachments(self):
+    async def test_only_exact_owner_id_gets_verified_single_zip_attachment(self):
         reviewed = report([game(4)])
         reviewed.diagnostics["_private_evidence"] = evidence(reviewed)
         old = ui._service
@@ -81,11 +81,10 @@ class OwnerOnly(unittest.IsolatedAsyncioTestCase):
             await button.callback(interaction)
             interaction.response.defer.assert_awaited_once_with(
                 ephemeral=True, thinking=True)
-            self.assertEqual(interaction.followup.send.await_count,
-                             len(reviewed.diagnostics["_private_evidence"]))
-            for call in interaction.followup.send.call_args_list:
-                self.assertTrue(call.kwargs["ephemeral"])
-                self.assertTrue(call.kwargs["file"].filename.endswith(".json.gz"))
+            self.assertEqual(interaction.followup.send.await_count,1)
+            call=interaction.followup.send.call_args
+            self.assertTrue(call.kwargs["ephemeral"])
+            self.assertEqual(call.kwargs["file"].filename,"fairplay-owner-evidence.zip")
         finally:
             ui._service = old
 

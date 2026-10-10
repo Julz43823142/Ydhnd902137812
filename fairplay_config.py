@@ -5,13 +5,13 @@ CHANNEL_ID = 1311445685492781186
 NAMESPACE = 'shark:fairplay:'
 DISCLAIMER = ('Automated fair-play screening only. This result is not proof of cheating '
               'and must not be used as the sole basis for punishment. Human review is mandatory.')
-VERSION = 'fairplay-v20-multipv3-research-owner-diagnostics'
+VERSION = 'fairplay-v21-500-wide-100-peer-25-discovery-maia-eta'
 
 
 @dataclass(frozen=True)
 class ReviewConfig:
     max_games: int = 500  # production: latest 500 eligible rated games; fixture overrides supported
-    history_games: int = 500
+    history_games: int = 500  # v21 explicitly extends metadata collection to 1000; legacy contracts remain 500
     primary_engine_games: int = 500
     historical_probe_nodes: int = 2_000
     historical_probe_moves: int = 4
