@@ -36,6 +36,7 @@ MAX_DECOMPRESSED = 80 * 1024 * 1024
 POLL_SECONDS = 15
 NO_WORKER_SECONDS = 480
 MAX_WAIT_SECONDS = 2700
+WORKER_RUNTIME_SECONDS = 2100  # remote engine budget leaves time for upload
 _FILENAME = re.compile(r"(?:req|res|progress)_[0-9a-f]{24}(?:_[0-9])?\.enc\Z")
 
 
@@ -520,7 +521,7 @@ def worker(ticket,index,*,env=None,store=None,clock=None):
     workers=min(4,max(1,available_engine_cpus()))
     pool=SharedEnginePool(CONFIG,size=workers)
     started=clock()
-    deadline=started+MAX_WAIT_SECONDS
+    deadline=started+WORKER_RUNTIME_SECONDS
     total=sum(len(g.decisions) for g in tasks)
     last_status=[started-100]
     def notify(stage):
