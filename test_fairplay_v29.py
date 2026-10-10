@@ -139,11 +139,11 @@ class LatestFiftyMaia(unittest.TestCase):
         with patch.dict(os.environ,{'FAIRPLAY_DISTRIBUTED':'1'}):
             selected=maia.selection(games+older,recent_full_ids={
                 g.identity for g in games})
-        self.assertEqual(len(selected),2000)
-        self.assertEqual(len({g.identity for g,d,ctx in selected}),50)
+        self.assertEqual(len(selected),2320)
+        self.assertEqual(len({g.identity for g,d,ctx in selected}),70)
         self.assertEqual(sum(g.identity in {row.identity for row in older}
-                             for g,d,ctx in selected),0)
-        self.assertEqual(len({(g.identity,d.ply) for g,d,ctx in selected}),2000)
+                             for g,d,ctx in selected),320)
+        self.assertEqual(len({(g.identity,d.ply) for g,d,ctx in selected}),2320)
 
     def test_remaining_sampled_budget_only_applies_to_older_control_games(self):
         games=[causal_game(i,decisions=20) for i in range(50)]
@@ -153,8 +153,11 @@ class LatestFiftyMaia(unittest.TestCase):
             selected=maia.selection(games+older,recent_full_ids=recent)
         recent_count=sum(g.identity in recent for g,d,ctx in selected)
         self.assertEqual(recent_count,1000)
-        self.assertLessEqual(len(selected),1600)
-        self.assertGreater(len(selected),1000)
+        self.assertEqual(len(selected),2120)
+        self.assertEqual(len(selected)-recent_count,1120)
+        # Older controls retain their original <=1600 position budget,
+        # irrespective of how many recent positions require full Maia.
+        self.assertLessEqual(len(selected)-recent_count,1600)
 
     def test_missing_public_rating_cannot_claim_full_model_coverage(self):
         games=[causal_game(i,decisions=4) for i in range(3)]
