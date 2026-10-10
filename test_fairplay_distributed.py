@@ -209,9 +209,18 @@ class IsolatedGitRef(unittest.TestCase):
             subprocess.run(["git","init","-q",str(working)],check=True)
             subprocess.run(["git","-C",str(working),"remote","add","origin",str(remote)],
                            check=True)
-            original=os.getcwd()
-            try:
-                os.chdir(working)
+            # Never mutate process-wide CWD during unittest discovery.
+            # Other tests own their own temporary git/checkpoint directories.
+            def isolated_git(args,data=None):
+                env=os.environ.copy()
+                env.setdefault("GIT_AUTHOR_NAME","Synthetic CI Fair Play worker")
+                env.setdefault("GIT_AUTHOR_EMAIL","synthetic@example.invalid")
+                env.setdefault("GIT_COMMITTER_NAME","Synthetic CI Fair Play worker")
+                env.setdefault("GIT_COMMITTER_EMAIL","synthetic@example.invalid")
+                return subprocess.run(["git","-C",str(working),*args],
+                    input=data,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,
+                    check=False,timeout=25,env=env)
+            with patch("fairplay_distributed._git",side_effect=isolated_git):
                 store=EncryptedGitStore(SECRET,remote="origin")
                 ticket="a"*24
                 names=[artifact_name("req",ticket),
@@ -221,14 +230,13 @@ class IsolatedGitRef(unittest.TestCase):
                     store.put(name,{"schema":SCHEMA,"counter":i,
                                     "game_id":TARGET})
                 self.assertEqual(set(store.read_many(names)),set(names))
-                content=subprocess.run(["git","show","refs/remotes/origin/fairplay-distributed-work:"+
-                                         names[0]],check=True,capture_output=True).stdout
+                content=subprocess.run(["git","-C",str(working),"show",
+                    "refs/remotes/origin/fairplay-distributed-work:"+names[0]],
+                    check=True,capture_output=True).stdout
                 self.assertNotIn(TARGET.encode(),content)
                 self.assertNotIn(b'"game_id"',content)
                 store.remove(names[:2])
                 self.assertEqual(set(store.read_many(names)),{names[2]})
-            finally:
-                os.chdir(original)
 
 
 if __name__=="__main__":
