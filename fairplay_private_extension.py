@@ -23,6 +23,15 @@ def install():
     def capture(result, limit=4):
         # Executed in the Fair Play scan thread before the full move trees are
         # deleted. Optional sidecars cannot influence the screening priority.
+        # Whole-game resampling and same-position joint signals are diagnostic
+        # only; they cannot alter HIGH/VERY HIGH gates or make an accusation.
+        try:
+            from fairplay_research import summarize_research
+            result.diagnostics["research_validation"]=summarize_research(result.games)
+        except Exception:
+            result.diagnostics["research_validation"]={
+                "scoring_influence":False,"status":"unavailable",
+                "reason":"optional_research_summary_failed"}
         from fairplay_multimodel import run_external_models
         try:
             observations = run_external_models(result)

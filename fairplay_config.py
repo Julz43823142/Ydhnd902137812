@@ -5,7 +5,7 @@ CHANNEL_ID = 1311445685492781186
 NAMESPACE = 'shark:fairplay:'
 DISCLAIMER = ('Automated fair-play screening only. This result is not proof of cheating '
               'and must not be used as the sole basis for punishment. Human review is mandatory.')
-VERSION = 'fairplay-v19.5-depth-timeouts-english-progress'
+VERSION = 'fairplay-v20-multipv3-research-owner-diagnostics'
 
 
 @dataclass(frozen=True)
@@ -40,7 +40,7 @@ class ReviewConfig:
     high_engine_score: float = .65
     high_critical_score: float = .65
     very_high_score: float = .88
-    deep_multipv: int = 5  # preserve candidate gaps and critical/unique evidence for HIGH priorities
+    deep_multipv: int = 3  # three exact candidates for critical/unique evidence; fast searches stay at MultiPV 1
     max_archives: int = 240  # Search available monthly archives back to Chess.com's beginning
     max_plies: int = 600
     min_plies: int = 24

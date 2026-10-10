@@ -43,7 +43,7 @@ class CheckpointStore:
                        ("origin" if os.getenv("GITHUB_ACTIONS") == "true" else ""))
         self.path = Path(path or os.getenv("FAIRPLAY_CHECKPOINT_FILE", ".fairplay_checkpoint.enc"))
         self.lock = threading.RLock()
-        self.state = {"jobs": {}}
+        self.state = {"jobs": {}, "failures": {}}
         self.last_remote = 0.0
         self.remote_ok = not bool(self.remote)
         self.cipher = (Fernet(base64.urlsafe_b64encode(hashlib.sha256(
@@ -79,6 +79,15 @@ class CheckpointStore:
                     and 0 <= now - float(val.get("updated", 0)) < MAX_AGE
                     and isinstance(val.get("positions", {}), dict)
                 }
+                failures=decoded.get("failures", {})
+                if isinstance(failures, dict):
+                    self.state["failures"]={
+                        key:val for key,val in failures.items()
+                        if isinstance(key,str) and len(key)==12
+                        and all(letter in "0123456789abcdef" for letter in key)
+                        and isinstance(val,dict) and isinstance(val.get("report"),dict)
+                        and 0<=now-float(val.get("at",0))<MAX_AGE
+                    }
         except (InvalidToken, ValueError, TypeError, KeyError):
             # Never execute untrusted serialized code; invalid/old encrypted
             # snapshots cannot influence the review.
@@ -132,6 +141,37 @@ class CheckpointStore:
                 return True
         self.remote_ok = False
         return False
+
+    def record_failure(self, token, report):
+        """Persist an owner-only, sanitized failure audit outside resumable jobs.
+
+        The public repository receives only Fernet ciphertext. Old checkpoint
+        snapshots with no 'failures' key remain compatible. This is independent
+        of job suspension and survives the next Actions runner.
+        """
+        if not self.enabled or not isinstance(report,dict):return False
+        if not isinstance(token,str) or len(token)!=12 or any(
+                letter not in "0123456789abcdef" for letter in token):
+            return False
+        with self.lock:
+            self.state["failures"][token]={"at":time.time(),
+                                           "report":copy.deepcopy(report)}
+            items=sorted(self.state["failures"].items(),
+                         key=lambda pair:pair[1]["at"],reverse=True)
+            self.state["failures"]=dict(items[:32])
+            return self._write(force=True)
+
+    def get_failure(self, token):
+        with self.lock:
+            row=self.state["failures"].get(str(token))
+            return copy.deepcopy(row["report"]) if row else None
+
+    def recent_failures(self, limit=5):
+        with self.lock:
+            rows=sorted(self.state["failures"].items(),
+                        key=lambda pair:pair[1]["at"],reverse=True)
+            return [(token,copy.deepcopy(item["report"])) for token,item in
+                    rows[:max(1,min(10,int(limit)))]]
 
     def pending(self):
         with self.lock:

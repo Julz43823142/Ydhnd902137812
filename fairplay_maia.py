@@ -135,11 +135,16 @@ def carry_policy_after_deep(source, confirmed):
     Cached decisions can predate model availability or use a different sampled
     subset. They must never restore stale policy observations into a new scan.
     """
-    policies={(d.ply,d.fen,d.move):d.human_policy for d in source.decisions if d.human_policy}
+    # A complete 500-game review may hold tens of thousands of decisions.
+    # Index both fast and human policies once instead of scanning the source
+    # game's moves for each confirmed move (formerly quadratic per game).
+    keyed={(d.ply,d.fen,d.move):d for d in source.decisions}
+    policies={key:d.human_policy for key,d in keyed.items() if d.human_policy}
     for decision in confirmed.decisions:
-        decision.human_policy=dict(policies.get((decision.ply,decision.fen,decision.move),{}))
-        decision.fast_policy=dict(next((getattr(d,'fast_policy',{}) or {} for d in source.decisions
-            if (d.ply,d.fen,d.move)==(decision.ply,decision.fen,decision.move)),{}))
+        key=(decision.ply,decision.fen,decision.move)
+        matched=keyed.get(key)
+        decision.human_policy=dict(policies.get(key,{}))
+        decision.fast_policy=dict(getattr(matched,'fast_policy',{}) or {}) if matched is not None else {}
         decision.metrics.pop('policy_search',None)
     if policies:refresh_game(confirmed)
     else:confirmed.human_reference={}

@@ -108,7 +108,11 @@ def provision_source(root):
     if revision != SOURCE_SHA:
         raise RuntimeError("Lc0 upstream release commit does not match pinned SHA")
     if not (binary.is_file() and os.access(binary, os.X_OK)):
-        subprocess.run(["./build.sh", "-Dgtest=false"],
+        # Native (-march=native) binaries may SIGILL on a different runner
+        # when Actions restores its cache. Never reuse old native object files
+        # after rebuilding: Meson/Ninja would otherwise only relink them.
+        shutil.rmtree(source / "build" / "release", ignore_errors=True)
+        subprocess.run(["./build.sh", "-Dgtest=false", "-Dnative_arch=false"],
                        cwd=source, check=True, timeout=900)
     if not (binary.is_file() and os.access(binary, os.X_OK)):
         raise RuntimeError("Lc0 build did not create an executable")
@@ -157,7 +161,20 @@ def prepare(root, *, installed_binary=None, installed_weights=None,
         raise RuntimeError("Lc0 network file not installed")
     if expected_sha256 and sha != expected_sha256.lower():
         raise RuntimeError("Lc0 network SHA-256 mismatch")
-    name = smoke(binary, weights)
+    try:
+        name = smoke(binary, weights)
+    except Exception as error:
+        # A cached native build can use instructions absent from a different
+        # GitHub-hosted CPU (SIGILL/exit -4). Keep the pinned source and network
+        # but rebuild just the incompatible executable on this runner.
+        import chess.engine
+        cached = root / "source" / "build" / "release" / "lc0"
+        if (not provision or installed_binary or binary != cached
+                or not isinstance(error,(chess.engine.EngineTerminatedError,OSError))):
+            raise
+        binary.unlink(missing_ok=True)
+        binary = provision_source(root)
+        name = smoke(binary, weights)
     if github_env:
         with open(github_env, "a", encoding="utf-8") as handle:
             for key, value in (("FAIRPLAY_LC0_BIN", str(binary.resolve())),

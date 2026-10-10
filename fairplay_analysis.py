@@ -600,6 +600,7 @@ class SharedEnginePool:
         self.closed=False
         self.failed=threading.Event()
         self.restarts=0  # aggregate engine health, not user data
+        self.last_failure=None  # last bounded engine event for private owner audit
         self.position_cache=ExactPositionCache()
         try:
             for _ in range(self.size):
@@ -666,6 +667,21 @@ class SharedEnginePool:
                 seconds=(round(max(0,time.monotonic()-started),1)
                          if isinstance(started,(int,float)) else 'unknown')
                 timeout_seconds=search.get('timeout_seconds','unknown')
+                # Structured categories only. Never retain FEN, move, target,
+                # raw exception text or subprocess stderr in diagnostics.
+                self.last_failure={
+                    'category':reason,
+                    'phase':phase if phase in (
+                        'fast-candidates','fast-played-root','deep-candidates',
+                        'deep-played-root','maia-counterfactual') else 'unknown',
+                    'attempt':attempt+1,
+                    'budget':budget if isinstance(budget,(int,float)) else 'unknown',
+                    'multipv':multipv if isinstance(multipv,int) else 'unknown',
+                    'elapsed_seconds':seconds,
+                    'timeout_seconds':timeout_seconds if isinstance(
+                        timeout_seconds,(int,float)) else 'unknown',
+                    'worker_restarted':recovered,
+                    'terminal':not recovered or attempt==1}
                 print(f'Fair Play engine worker {reason}; '
                       f'{"restarted" if recovered else "restart-failed"} '
                       f'(attempt {attempt+1}/2; phase={phase}; '
@@ -853,6 +869,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         try:
             if use_shared:
                 shared_pool=shared_pool or get_shared_engine_pool(config)
+                shared_pool.last_failure=None  # no diagnostics from a previous review
                 requested_workers=shared_pool.size
                 engine_name=shared_pool.name
                 shared_profile_before=engine_profile(shared_pool.scanners)

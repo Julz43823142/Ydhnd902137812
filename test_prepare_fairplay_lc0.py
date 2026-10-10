@@ -78,6 +78,31 @@ class LeelaProvisioningTests(unittest.TestCase):
                     opener=lambda *_args, **_kw: Response(b"x" * (MAX_NET_BYTES + 1)))
             self.assertFalse(output.exists())
 
+    def test_incompatible_cached_cpu_binary_is_rebuilt_once(self):
+        import chess.engine
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp)
+            binary=root/"source"/"build"/"release"/"lc0"
+            binary.parent.mkdir(parents=True)
+            binary.write_text("#!/bin/sh\n",encoding="utf-8")
+            binary.chmod(0o755)
+            net=root/"network.pb.gz"
+            net.write_bytes(b"synthetic net")
+            rebuilt=[]
+            def fake_rebuild(location):
+                rebuilt.append(location)
+                binary.write_text("#!/bin/sh\n",encoding="utf-8")
+                binary.chmod(0o755)
+                return binary
+            with patch("scripts.prepare_fairplay_lc0.smoke",side_effect=[
+                    chess.engine.EngineTerminatedError("incompatible CPU"),
+                    "Lc0 compatible"]), patch(
+                    "scripts.prepare_fairplay_lc0.provision_source",
+                    side_effect=fake_rebuild):
+                result=prepare(root,provision=True,installed_weights=str(net))
+            self.assertTrue(result["ready"])
+            self.assertEqual(rebuilt,[root])
+
     def test_probe_failure_never_exports_environment(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
