@@ -190,6 +190,49 @@ def result_embed(result: ReviewResult):
                        "Win streaks are not proof of engine use; evaluate "
                        "post-opening choices and comparable opposition.")[:1024],
                 inline=False)
+    streak=result.diagnostics.get('accuracy_streak_audit') or {}
+    if streak.get('schema')=='sharkbot-accuracy-streak-audit-v1':
+        candidate=streak.get('best') or {}
+        headline=(f"**{streak.get('last_50_accuracy_reported',0)}/"
+                  f"{streak.get('latest_rated_scope',0)}** latest rated games "
+                  "have officially reported Accuracy. ")
+        if candidate:
+            headline+=(f"Strongest 10-game observed streak "
+                       f"({candidate.get('time_class','').title()}): "
+                       f"**{candidate.get('win_games',0)}/10 wins**, "
+                       f"**{candidate.get('accuracy_95_plus_games',0)}/10** "
+                       "reported at 95+ Accuracy. ")
+            if candidate.get('baseline_sufficient'):
+                headline+=(f"Before that: mean Accuracy "
+                           f"**{candidate.get('older_accuracy_mean',0):.1f}** "
+                           f"across {candidate.get('older_accuracy_reported_games',0)} "
+                           "reported older games of the same time class. ")
+            else:
+                headline+="Older Accuracy baseline insufficient or selectively reported. "
+            if streak.get('followup_alert'):
+                headline+=(
+                    "**FOLLOW-UP FLAG:** high-Accuracy/win burst also departs "
+                    "from earlier results against reasonably comparable "
+                    "opponents; inspect independent Stockfish/Maia evidence. ")
+            else:
+                headline+=(
+                    "No corroborated results-streak flag: historical coverage, "
+                    "rating-adjusted opposition or magnitude of change is "
+                    "insufficient. ")
+            headline+=(f"Already deep-reviewed: "
+                       f"**{candidate.get('deep_reviewed_games',0)}/10**; "
+                       f"hard-move evidence "
+                       f"**{candidate.get('deep_human_anomaly_hits',0)}/"
+                       f"{candidate.get('deep_hard_opportunities',0)}**.")
+        else:
+            headline+=("No 10-game same-time-class window with at least "
+                       "9 wins and 8 published Accuracy values of 95+. "
+                       "Missing reported Accuracy cannot count as low Accuracy.")
+        embed.add_field(name='95+ Accuracy and win streak — investigation cue',
+                        value=(headline+
+                               "\nAccuracy reporting is often incomplete. "
+                               "This is not cheating proof and NEVER changes "
+                               "LOW/MODERATE/HIGH by itself.")[:1024],inline=False)
     if v21 and 'latest_50_games_required' in v21:
         latest=v21['latest_50_games_required']
         done=v21.get('latest_50_depth_completed',0)
