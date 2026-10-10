@@ -1354,20 +1354,24 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             'required_primary_depth':(18 if full_depth_mode and not any(g.time_class=='bullet' for g in primary)
                                       else None),
             'required_primary_depth_by_class':({'bullet':config.bullet_deep_depth,'blitz':18,'rapid':18}
-                                               if full_depth_mode else None),
+                                               if full_depth_mode and not v21_mode else None),
+            'selected_required_depth_by_class':({'bullet':config.bullet_deep_depth,'blitz':18,'rapid':18}
+                                                if v21_mode else None),
             'required_full_coverage':bool(full_depth_mode and not v21_mode),
             'required_selected_full_depth':bool(full_depth_mode and v21_mode),
             'human_policy_sampling':'up to 800 stratified positions across 100+25 deeply reviewed peer games' if v21_mode else 'stratified bounded positions (not all moves)',
             'depth18_completed_positions':sum(
                 d.metrics.get('search_depth',0)>=18 for g in analyzed if g.deep and g.time_class!='bullet'
                 for d in g.decisions) if full_depth_mode else None,
-            'depth18_total_positions':sum(len(g.decisions) for g in analyzed if g.time_class!='bullet')
+            'depth18_total_positions':sum(len(g.decisions) for g in
+                    (v21_deep if v21_mode else analyzed) if g.time_class!='bullet')
                 if full_depth_mode else None,
             'bullet_depth12_completed_positions':sum(
                 d.metrics.get('search_depth',0)>=config.bullet_deep_depth
                 for g in analyzed if g.deep and g.time_class=='bullet' for d in g.decisions)
                 if full_depth_mode else None,
-            'bullet_depth12_total_positions':sum(len(g.decisions) for g in analyzed if g.time_class=='bullet')
+            'bullet_depth12_total_positions':sum(len(g.decisions) for g in
+                    (v21_deep if v21_mode else analyzed) if g.time_class=='bullet')
                 if full_depth_mode else None,
             'skipped_by_fixed_reason':dict(sorted(skipped.items())),
             'archive_failures':skipped.get('unavailable_archive',0),
