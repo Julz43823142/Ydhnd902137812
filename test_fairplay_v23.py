@@ -22,10 +22,10 @@ from test_fairplay_distributed import (MemoryStore, SECRET, completed, sample, T
 
 class PinnedWorker(unittest.TestCase):
     def test_ten_workers_and_deterministic_balancing(self):
-        self.assertEqual(WORKERS,10)
+        self.assertEqual(WORKERS,14)
         games=[sample(i) for i in range(1,26)]
         groups=shard_games(games)
-        self.assertEqual(len(groups),10)
+        self.assertEqual(len(groups),14)
         self.assertEqual([g.identity for group in groups for g in group].__len__(),len(games))
         self.assertEqual({g.identity for group in groups for g in group},{g.identity for g in games})
 
@@ -38,7 +38,7 @@ class PinnedWorker(unittest.TestCase):
         handle=start([sample(i) for i in range(1,15)],TARGET,
                      revision="b"*40,engine="Stockfish synthetic",
                      store=store,env=env)
-        self.assertEqual(len(handle["shards"]),10)
+        self.assertEqual(len(handle["shards"]),14)
         dispatch.assert_called_once_with(handle["ticket"],"b"*40,
                                          "synthetic-token","synthetic/repo")
 
@@ -73,8 +73,8 @@ class PinnedWorker(unittest.TestCase):
         self.assertIn("secrets.FAIRPLAY_DISTRIBUTED_KEY || secrets.FAIRPLAY_CHECKPOINT_KEY || secrets.DISCORD_TOKEN",workflow)
         self.assertIn("ref: ${{ inputs.revision }}",workflow)
         self.assertIn("fetch-depth: 1",workflow)
-        self.assertIn("max-parallel: 10",workflow)
-        self.assertIn("shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]",workflow)
+        self.assertIn("max-parallel: 14",workflow)
+        self.assertIn("shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]",workflow)
 
     def test_public_failure_codes_are_constant_strings(self):
         self.assertEqual(safe_error_code(ReviewError(
@@ -123,7 +123,7 @@ class Recovery(unittest.TestCase):
         result=join(handle,lambda _:None,time.monotonic()+60,max_wait=40)
         self.assertEqual(set(result),{g.identity for g in groups[0]})
         self.assertEqual(handle["stats"]["completed"],1)
-        self.assertEqual(handle["stats"]["failed"],9)
+        self.assertEqual(handle["stats"]["failed"],WORKERS-1)
 
 
 class BulletStability(unittest.TestCase):
