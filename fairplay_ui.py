@@ -676,6 +676,7 @@ class FairPlayService:
         self.active_job = None  # The one scan currently using the engine executor.
         self.results = OrderedDict()
         self.cache = OrderedDict()
+        self.failures = OrderedDict()  # sanitized audit only; persistent copy is encrypted
         self.last_human = time.time()
         self.restore_grace = time.time()+60
         self.panel_id = None
@@ -785,6 +786,28 @@ class FairPlayService:
         except discord.HTTPException:pass  # retry later; never create a second progress card
         return False
 
+    async def save_failure(self, job, error):
+        """Best-effort owner-only audit; a reporting error must never mask failure."""
+        try:
+            from fairplay_failure import failure_record, owner_failure_notice
+            from fairplay_analysis import _shared_engine_pool
+            report=failure_record(job,error,pool=_shared_engine_pool,
+                                  checkpoints=self.checkpoints)
+            self.failures[job.token]=report
+            self.failures.move_to_end(job.token)
+            while len(self.failures)>32:self.failures.popitem(last=False)
+            durable=False
+            if self.checkpoints is not None:
+                try:
+                    durable=await asyncio.to_thread(
+                        self.checkpoints.record_failure,job.token,report)
+                except Exception:
+                    durable=False
+            await owner_failure_notice(self.client,report,durable=durable)
+        except Exception:
+            # Diagnostic delivery is supplementary; never log raw exceptions.
+            print('Fair Play private failure diagnostic unavailable.',flush=True)
+
     async def process(self,job):
         loop = asyncio.get_running_loop()
         def progress(stage):
@@ -829,8 +852,9 @@ class FairPlayService:
                 self.expire_cache()
                 if getattr(self,'checkpoints',None) is not None:
                     await asyncio.to_thread(self.checkpoints.finish,job.target)
-        except AccountNotFound:
+        except AccountNotFound as error:
             if job.cancel_requested:return
+            await self.save_failure(job,error)
             if getattr(self,'checkpoints',None) is not None:
                 await asyncio.to_thread(self.checkpoints.suspend,job.target)
             try:
@@ -839,6 +863,7 @@ class FairPlayService:
             except discord.HTTPException:pass
         except ReviewError as error:
             if job.cancel_requested:return
+            await self.save_failure(job,error)
             if getattr(self,'checkpoints',None) is not None:
                 await asyncio.to_thread(self.checkpoints.suspend,job.target)
             if job.message is not None:await self.safe_progress(job,'❌ '+str(error))
@@ -855,8 +880,9 @@ class FairPlayService:
                 if future is not None:await asyncio.wait_for(asyncio.shield(future),timeout=20)
             except Exception:pass
             raise
-        except Exception:
+        except Exception as error:
             if job.cancel_requested:return
+            await self.save_failure(job,error)
             if getattr(self,'checkpoints',None) is not None:
                 await asyncio.to_thread(self.checkpoints.suspend,job.target)
             # Deliberately do not log exception values/targets/reports.
@@ -1021,6 +1047,9 @@ async def startup(client):
     if _service is not None and not _service.closed:return
     client.add_view(SubmitView())
     client.add_view(ReportView())
+    # Persistent DM button works after a planned GitHub Actions handoff.
+    from fairplay_failure import FailureView
+    client.add_view(FailureView())
     try:channel = client.get_channel(CHANNEL_ID) or await client.fetch_channel(CHANNEL_ID)
     except discord.HTTPException:
         print('Fair Play channel unavailable; normal SharkBot startup continues.',flush=True);return
