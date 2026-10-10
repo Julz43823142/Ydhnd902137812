@@ -91,6 +91,20 @@ class IntermittentCoverage(unittest.TestCase):
         report = summarize_intermit(good + [bad, casual])
         self.assertEqual(report["deep_sample"]["games"], 5)
 
+    def test_fixed_chronological_halves_keep_misses_and_do_not_leak(self):
+        games = [make_game(i, decisions=3, opportunities=3,
+                           fast_hits=1, deep_hits=(0 if i < 8 else 2))
+                 for i in range(16)]
+        report = summarize_intermit(games)
+        item = report["predeclared_half_comparisons"][0]
+        self.assertEqual(item["games"], 16)
+        self.assertEqual(item["earlier"]["hits"], 0)
+        self.assertEqual(item["later"]["hits"], 16)
+        self.assertEqual(item["earlier"]["opportunities"], 24)
+        self.assertEqual(item["later"]["opportunities"], 24)
+        self.assertEqual(item["deep_hit_rate_difference"], round(16/24, 4))
+        self.assertNotIn("synthetic-secret", str(report))
+
     def test_model_rating_warning_is_descriptive_only(self):
         games = [make_game(i, rating=200 if i<3 else 1800) for i in range(6)]
         report = summarize_intermit(games)
