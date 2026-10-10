@@ -180,7 +180,7 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: /tmp/sharkbot-fairplay-lc0
-          key: fairplay-lc0-v0.32.1-smallnet-v1
+          key: fairplay-lc0-v0.32.1-smallnet-portable-v2
       - name: Build pinned official Leela and download official small net
         run: python scripts/prepare_fairplay_lc0.py --provision --github-env
       - name: Confirm real Lc0 legal move inference (not mocked)
