@@ -62,7 +62,7 @@ def progress_embed(target, stage, value=None, timing=None):
                  else bar(value)+"\n\n"+label(stage))
     if timing is not None:description+='\n'+timing.summary(stage)
     embed = discord.Embed(title=REPORT_PREFIX+target, description=description, color=0x427CBA)
-    embed.set_footer(text="Work progress (stage-weighted), not time percentage · ETA is approximate across phases")
+    embed.set_footer(text="Work progress (stage-weighted), not percent of elapsed time · ETA is approximate across phases")
     embed.add_field(name='⚠️ Automated screening only', value=DISCLAIMER, inline=False)
     return embed
 
