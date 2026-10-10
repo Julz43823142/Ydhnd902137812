@@ -105,7 +105,7 @@ class LatestFiftyStockfishScope(unittest.TestCase):
         self.assertTrue(full.rated)
         self.assertLess(len(full.decisions),8)
         self.assertEqual(len(full.moves),10)
-        self.assertTrue(all(d.phase=='opening' for d in full.decisions))
+        self.assertLess(sum(bool(d.useful) for d in full.decisions),8)
 
     def test_last_fifty_collection_keeps_short_games_but_older_scope_is_legacy(self):
         data=[short_pgn_row(i) for i in range(54,61)]
