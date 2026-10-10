@@ -177,7 +177,7 @@ def selection(games,*,full_coverage=False):
             move=chess.Move.from_uci(uci)
             if move not in board.legal_moves:break
             board.push(move);history.append(board.fen())
-    return selected if full_coverage else selected[:MAX_POSITIONS]
+    return selected if full_coverage else selected[:budget]
 
 
 class LocalPolicyWorker:
