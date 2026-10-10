@@ -312,6 +312,7 @@ def start(games,target,*,revision,engine,store=None,env=None):
              "engine":engine,"config":repr(CONFIG),"version":VERSION,
              "created":time.time(),"games":[[serialize_game(g) for g in shard]
                                              for shard in shards]}
+    fresh_request=False
     try:
         old=store.read_many([request_file]).get(request_file)
         if old is not None:
@@ -325,8 +326,12 @@ def start(games,target,*,revision,engine,store=None,env=None):
                 return None
         else:
             store.put(request_file,payload)
+            fresh_request=True
             _dispatch(ticket,token,repo)
     except (ReviewError,TypeError,ValueError):
+        if fresh_request:
+            try:store.remove([request_file])
+            except ReviewError:pass
         return None
     return {"ticket":ticket,"shards":shards,"revision":revision,"engine":engine,
             "store":store,"started":time.monotonic(),"created":payload["created"]}
@@ -346,6 +351,7 @@ def join(handle,progress,deadline,*,max_wait=MAX_WAIT_SECONDS,clock=None,sleep=N
     statuses=[artifact_name("progress",ticket,i) for i in range(len(handle["shards"]))]
     total=sum(len(g.decisions) for shard in handle["shards"] for g in shard)
     result={}
+    last_progress={i:0 for i in range(len(handle["shards"]))}
     last_seen=clock()
     end=min(float(deadline),clock()+max_wait)
     while clock()<end:
@@ -355,6 +361,7 @@ def join(handle,progress,deadline,*,max_wait=MAX_WAIT_SECONDS,clock=None,sleep=N
         except ReviewError:
             break
         done_positions=0
+        invalid_response=False
         for index,shard in enumerate(handle["shards"]):
             name=names[index]
             if index in result:
@@ -368,6 +375,7 @@ def join(handle,progress,deadline,*,max_wait=MAX_WAIT_SECONDS,clock=None,sleep=N
                     last_seen=clock()
                     done_positions+=sum(len(g.decisions) for g in result[index])
                 except ReviewError:
+                    invalid_response=True
                     break  # no false certification on corrupt result
             else:
                 row=records.get(statuses[index],{})
@@ -378,11 +386,17 @@ def join(handle,progress,deadline,*,max_wait=MAX_WAIT_SECONDS,clock=None,sleep=N
                     expected=sum(len(g.decisions) for g in shard)
                     if isinstance(got,int) and 0<=got<=expected:
                         done_positions+=got
-                        if got>0:last_seen=clock()
+                        if got>last_progress[index]:
+                            last_progress[index]=got
+                            last_seen=clock()
+        if invalid_response:
+            break
         progress(f"Depth-18 rapid/blitz · depth-12 bullet: {done_positions} / {total} positions")
         if len(result)==len(handle["shards"]):break
         if clock()-handle["started"]>=NO_WORKER_SECONDS and not result and done_positions==0:
             break
+        if clock()-last_seen>900:
+            break  # stalled workers; safely recover remaining games locally
         sleep(min(POLL_SECONDS,max(0,end-clock())))
     completed={}
     for index,group in result.items():
