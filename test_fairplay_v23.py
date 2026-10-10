@@ -27,7 +27,7 @@ class PinnedWorker(unittest.TestCase):
         groups=shard_games(games)
         self.assertEqual(len(groups),10)
         self.assertEqual([g.identity for group in groups for g in group].__len__(),len(games))
-        self.assertEqual({g.identity for group in groups},{g.identity for g in games})
+        self.assertEqual({g.identity for group in groups for g in group},{g.identity for g in games})
 
     @patch("fairplay_distributed._dispatch")
     def test_one_dispatch_with_original_commit_not_current_main(self, dispatch):
@@ -71,7 +71,7 @@ class PinnedWorker(unittest.TestCase):
                                        "FAIRPLAY_DISTRIBUTED_KEY":"c"}),"c")
         workflow=Path(".github/workflows/fairplay_distributed.yml").read_text()
         self.assertIn("secrets.FAIRPLAY_DISTRIBUTED_KEY || secrets.FAIRPLAY_CHECKPOINT_KEY || secrets.DISCORD_TOKEN",workflow)
-        self.assertIn("ref: \${{ inputs.revision }}",workflow)
+        self.assertIn("ref: ${{ inputs.revision }}",workflow)
         self.assertIn("fetch-depth: 1",workflow)
         self.assertIn("max-parallel: 10",workflow)
         self.assertIn("shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]",workflow)
