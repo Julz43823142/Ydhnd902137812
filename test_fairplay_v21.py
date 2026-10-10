@@ -63,6 +63,41 @@ class PeerSelectionTests(unittest.TestCase):
         self.assertEqual(len(selected.primary),len([g for g in games if g.rated is True]))
 
 
+class MaiaSamplingTests(unittest.TestCase):
+    def test_125_selected_games_use_multiple_causal_positions_per_game(self):
+        import chess
+        from fairplay_maia import selection
+        opening=("e2e4","e7e5","g1f3","b8c6","f1c4","g8f6",
+                 "d2d3","f8c5","c2c3","d7d6","e1g1","e8g8")
+        games=[]
+        for i in range(125):
+            board=chess.Board()
+            decisions=[]
+            for ply,uci in enumerate(opening,1):
+                decisions.append(SimpleNamespace(
+                    ply=ply,fen=board.fen(),phase="middlegame",
+                    metrics={"useful":True,"competitive":True,
+                             "spread":120,"post_opponent_error":False,
+                             "easy_conversion":False}))
+                move=chess.Move.from_uci(uci)
+                self.assertIn(move,board.legal_moves)
+                board.push(move)
+            games.append(SimpleNamespace(identity=f"synthetic-{i}",
+                rating=2200,opponent_rating=2230,moves=opening,
+                decisions=decisions))
+        selected=selection(games)
+        self.assertGreaterEqual(len(selected),125*4)
+        self.assertLessEqual(len(selected),800)
+        per_game={}
+        for source,decision,context in selected:
+            per_game[source.identity]=per_game.get(source.identity,0)+1
+            self.assertEqual(context["rating"],2200)
+            self.assertEqual(context["opponent_rating"],2230)
+            self.assertIn("history",context)
+        self.assertEqual(len(per_game),125)
+        self.assertGreaterEqual(min(per_game.values()),4)
+
+
 class PublishedStatsTests(unittest.TestCase):
     def test_accuracy_is_optional_and_periods_keep_rating_adjusted_denominators(self):
         epoch=1700000000
