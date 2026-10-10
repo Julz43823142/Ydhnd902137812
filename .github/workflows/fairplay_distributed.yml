@@ -1,10 +1,14 @@
-name: Fair Play Compute (five isolated shards)
+name: Fair Play Compute (ten isolated shards)
 
 on:
   workflow_dispatch:
     inputs:
       ticket:
         description: "Opaque 24-hex job reference; encrypted game data never enters workflow inputs"
+        required: true
+        type: string
+      revision:
+        description: "Exact trusted coordinator git commit SHA (40 lowercase hex)"
         required: true
         type: string
 
@@ -14,31 +18,44 @@ permissions:
 
 jobs:
   compute:
-    # Requests run against the trusted published main branch only.
+    # GitHub dispatch owns main; checkout pins *code* to the requesting bot.
     if: github.ref == 'refs/heads/main'
     name: Stockfish shard ${{ matrix.shard }}
     runs-on: ubuntu-latest
     timeout-minutes: 48
     strategy:
       fail-fast: false
-      max-parallel: 5
+      max-parallel: 10
       matrix:
-        shard: [0, 1, 2, 3, 4]
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     env:
       # Inject only the compute encryption key, not a Discord-bot identity
       # variable. Owner should provision FAIRPLAY_DISTRIBUTED_KEY to avoid
       # reusing the Discord token as the encryption fallback.
       FAIRPLAY_DISTRIBUTED_KEY: ${{ secrets.FAIRPLAY_DISTRIBUTED_KEY || secrets.DISCORD_TOKEN }}
       INPUT_TICKET: ${{ inputs.ticket }}
+      INPUT_REVISION: ${{ inputs.revision }}
       INPUT_SHARD: ${{ matrix.shard }}
       PYTHONDONTWRITEBYTECODE: "1"
       PYTHONUNBUFFERED: "1"
     steps:
-      - name: Checkout approved Fair Play code
+      - name: Validate opaque inputs
+        shell: bash
+        run: |
+          [[ "$INPUT_TICKET" =~ ^[0-9a-f]{24}$ ]] || exit 1
+          [[ "$INPUT_REVISION" =~ ^[0-9a-f]{40}$ ]] || exit 1
+      - name: Checkout exactly the coordinator's code revision
         uses: actions/checkout@v6
         with:
-          fetch-depth: 0
+          # Full history caused 3–45-minute checkout delays in production.
+          # The workers only need this immutable commit and selected git refs.
+          ref: ${{ inputs.revision }}
+          fetch-depth: 1
           persist-credentials: true
+      - name: Verify exact immutable code SHA
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = "$INPUT_REVISION" || exit 1
       - name: Python 3.11
         uses: actions/setup-python@v6
         with:
