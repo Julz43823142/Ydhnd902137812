@@ -72,6 +72,61 @@ class PairedReliability(unittest.TestCase):
         self.assertAlmostEqual(result["legacy_geometric_stability_fraction"], 2 / 8)
         self.assertEqual(result["paired_search_coverage_fraction"], 1.0)
 
+    def test_15_game_strong_case_had_one_structural_reliability_blocker(self):
+        # Independently constructed synthetic aggregate: 53 difficult
+        # opportunities, 41 anomalous hits, 44 paired-quality-consistent
+        # positions and only 31 old geometric 'stable' positions.
+        games = []
+        for i in range(15):
+            if i < 8:
+                opp, hits, reliable = 4, 4, 4
+            elif i == 8:
+                opp, hits, reliable = 3, 3, 3
+            else:
+                opp, hits, reliable = 3, 1, (2 if i >= 12 else 1)
+            g = game(i, opportunities=opp, hits=hits,
+                     paired=opp, consistent=reliable, good_hits=hits)
+            g.metrics["human"]["information"] = 0.304
+            g.metrics["human"]["quality_excess"] = 0.1168
+            g.metrics["human"]["anomaly_strength"] = 0.419
+            g.fast_metrics["human"] = copy.deepcopy(g.metrics["human"])
+            # Preserve the old geometric metric as a non-scoring audit.
+            g.metrics["human"]["stable_opportunities"] = 3 if i < 8 else 1
+            g.metrics["human"]["stable_hits"] = min(
+                hits, g.metrics["human"]["stable_opportunities"])
+            games.append(g)
+        from fairplay_human import period_summary
+        s = period_summary(games)
+        self.assertEqual(s["opportunities"], 53)
+        self.assertEqual(s["hits"], 41)
+        self.assertEqual(s["contributors"], 9)
+        self.assertEqual(s["quality_stable_opportunities"], 44)
+        self.assertEqual(s["quality_stable_hits"], 41)
+        self.assertEqual(s["stable_opportunities"], 31)
+        reviewed = deep_confirmation(candidate(games), games)
+        self.assertTrue(reviewed["absolute"], reviewed["blockers"])
+        self.assertGreaterEqual(reviewed["stability_fraction"], .75)
+        self.assertLess(reviewed["legacy_geometric_stability_fraction"], .75)
+
+    def test_15_game_sparse_case_stays_unqualified_after_correct_reliability(self):
+        games = []
+        for i in range(15):
+            opp, hits = (6, 4) if i < 2 else (1, 1 if i < 7 else 0)
+            reliable = 5 if i < 2 else (1 if i < 11 else 0)
+            g = game(i, opportunities=opp, hits=hits,
+                     paired=opp, consistent=reliable, good_hits=hits)
+            g.fast_metrics["human"] = copy.deepcopy(g.metrics["human"])
+            games.append(g)
+        from fairplay_human import period_summary
+        s = period_summary(games)
+        self.assertEqual((s["opportunities"], s["hits"], s["contributors"]), (25, 13, 2))
+        self.assertEqual(s["quality_stable_opportunities"], 19)
+        reviewed = deep_confirmation(candidate(games), games)
+        self.assertFalse(reviewed["qualified"])
+        self.assertIn("deep contributor games", reviewed["blockers"])
+        self.assertIn("deep anomaly hit lower bound", reviewed["blockers"])
+        self.assertNotIn("deep semantic-quality stability", reviewed["blockers"])
+
     def test_incomplete_paired_contract_blocks_high_regardless_of_hits(self):
         games = [game(i, paired=0, consistent=0, good_hits=0) for i in range(8)]
         result = deep_confirmation(candidate(games), games)
