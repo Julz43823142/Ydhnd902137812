@@ -10,7 +10,7 @@ import sys
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 
-from fairplay_distributed import worker
+from fairplay_distributed import WORKERS, worker, safe_error_code
 
 
 def main():
