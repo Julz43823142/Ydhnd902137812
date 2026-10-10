@@ -40,6 +40,22 @@ class IntermittentCoverage(unittest.TestCase):
         self.assertEqual(report["classes"]["blitz"]["hits"], 3)
         self.assertNotIn("synthetic-secret", str(report))
 
+    def test_official_scoring_gate_requires_fast_and_deep_minimum(self):
+        games = [make_game(i, decisions=8, opportunities=3)
+                 for i in range(4)]
+        # Distinct fast/deep search results may gain or lose one useful move.
+        games[0].fast_metrics["decisions"] = 7
+        games[1].metrics["decisions"] = 7
+        # The official scorer uses deep as fallback when fast_metrics is empty.
+        games[3].fast_metrics = {}
+        report = summarize_intermit(games)["deep_sample"]
+        self.assertEqual(report["fast_minimum_games"], 3)
+        self.assertEqual(report["deep_minimum_games"], 3)
+        self.assertEqual(report["fully_scored_games"], 2)
+        self.assertEqual(report["fast_pass_only_games"], 1)
+        self.assertEqual(report["deep_pass_only_games"], 1)
+        self.assertEqual(report["below_general_game_minimum"], 2)
+
     def test_fast_selected_period_deep_keeps_all_misses(self):
         games = [make_game(i, fast_hits=1 if 2 <= i <= 6 else 0,
                            deep_hits=1 if i in (2, 4) else 0)
