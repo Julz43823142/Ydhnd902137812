@@ -21,6 +21,39 @@ def opponent_context(games):
             'actual_score':statistics.mean([g.score for g in rated]) if rated else None}
 
 
+def same_verified_search_budget(left, right):
+    """Compare search *contracts*, never achieved node counts at fixed depth.
+
+    A depth-18/12 search completes after different numbers of nodes in
+    different positions. Matching those node totals suppressed essentially
+    every post-opponent-error observation in the deep pass. Missing, partial,
+    non-exact or mismatched contracts fail closed. Legacy fixed-node fixtures
+    without contracts retain their previous equal-node behavior.
+    """
+    a = left.get('search_contract') or {}
+    b = right.get('search_contract') or {}
+    if a or b:
+        if not a or not b:return False
+        mode=a.get('mode')
+        request=a.get('requested')
+        if (mode not in ('nodes','depth')
+                or mode!=b.get('mode') or request!=b.get('requested')
+                or not isinstance(request,int) or isinstance(request,bool) or request<=0
+                or not a.get('completed') or not b.get('completed')
+                or a.get('exact') is not True or b.get('exact') is not True
+                or a.get('engine')!=b.get('engine')
+                or a.get('multipv')!=b.get('multipv')):
+            return False
+        if mode=='depth':
+            return (isinstance(left.get('search_depth'),int)
+                    and isinstance(right.get('search_depth'),int)
+                    and left['search_depth']>=request
+                    and right['search_depth']>=request)
+        return True
+    return (left.get('nodes') is not None and
+            left.get('nodes')==right.get('nodes'))
+
+
 def position_context(game, config=CONFIG):
     """Annotate existing evaluations; idempotent across fast/deep re-summaries.
 
@@ -42,7 +75,7 @@ Hard decisions remain evidence even against a very weak opponent.
         m['unique']=m['position_base_unique'];m['weight']=m['position_base_weight']
         before=m['before_cp'];swing=None
         if (previous is not None and previous.ply+2==d.ply
-                and previous.metrics.get('nodes')==m.get('nodes') and m.get('nodes') is not None
+                and same_verified_search_budget(previous.metrics,m)
                 and not previous.metrics.get('search_inconsistent') and not m.get('search_inconsistent')
                 and max(abs(before),abs(previous.metrics['actual_cp']))<9000):
             swing=before-previous.metrics['actual_cp']

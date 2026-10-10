@@ -876,7 +876,13 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         canonical = username(profile['username'])
         if canonical!=target:raise ReviewError('The public profile does not match the requested account.')
         profile = neutral_profile_context(profile)
-        history, skipped, archive_partial = collect_games(api,canonical,progress,config)
+        if v21_mode:
+            history, skipped, archive_partial = collect_games(
+                api,canonical,progress,config,include_latest_fifty_short=True)
+        else:
+            # Legacy/custom collectors keep their original public contract.
+            history, skipped, archive_partial = collect_games(
+                api,canonical,progress,config)
         # Enforce eligibility even when a collector adapter is used.
         history=sorted([g for g in history if g.rated is True],key=lambda g:(g.ended,g.identity))[-collection_limit(config):]
         if not history:raise ReviewError('No eligible rated standard live games with enough meaningful moves were found.')
@@ -916,12 +922,21 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         collected_at=time.monotonic()
         limit = primary_limit(config)
         v21_plan = None
+        latest_fifty=()
+        latest_fifty_ids=set()
         if v21_mode:
-            from fairplay_v21 import broad_and_core
+            from fairplay_v21 import broad_and_core, LATEST_FULL_DEEP_GAMES
             v21_plan=broad_and_core(history,broad_count=limit,
                                      deep_count=200 if distributed_mode else 100)
             primary=list(v21_plan.primary)
-            progress(f'Review plan: {len(primary)} broad games; {len(v21_plan.core)} peer-matched deep games')
+            latest_fifty=tuple(primary[-LATEST_FULL_DEEP_GAMES:])
+            latest_fifty_ids={g.identity for g in latest_fifty}
+            missing=latest_fifty_ids-{g.identity for g in v21_plan.deep}
+            if missing:
+                raise ReviewError('Latest fifty rated games cannot all be deep-reviewed within the selected compute scope.')
+            progress(f'Review plan: {len(primary)} broad games; '
+                     f'{len(latest_fifty)} recent games reserved for full depth '
+                     f'with {len(v21_plan.core)} peer-matched deep controls')
         else:
             primary = history[-limit:]
         analyzed,probes = [],{}
@@ -1046,6 +1061,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                                       max_extra=50 if distributed_mode else 25)
             chosen_ids={g.identity for g in v21_plan.deep}
             v21_deep=[g for g in analyzed if g.identity in chosen_ids]
+            if not latest_fifty_ids.issubset({g.identity for g in v21_deep}):
+                raise ReviewError('Full latest-fifty coverage was lost before MultiPV-3 fast verification.')
             work=[(game,decision) for game in v21_deep
                   for decision in game.decisions
                   if decision.metrics and decision.metrics.get('useful')]
@@ -1112,7 +1129,9 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         neural_reference=(
             __import__('fairplay_maia').annotate_history(
                 v21_deep if v21_mode else analyzed,
-                full_coverage=False,**resume_kwargs)
+                full_coverage=False,
+                recent_full_ids=latest_fifty_ids if v21_mode else None,
+                **resume_kwargs)
             if (primary_complete and time.monotonic()<deadline
                 and not (deadline.cancel is not None and deadline.cancel.is_set()))
             else {'available':False,'positions':0,
@@ -1257,6 +1276,34 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                     and not neural_reference['deep_counterfactual']['complete']):
                 raise ReviewError('The complete depth-18 Maia comparison did not finish; no review was issued.')
         deep_finished=time.monotonic()
+        latest_fifty_depth_total=0
+        latest_fifty_depth_verified=0
+        latest_fifty_depth_exact=0
+        if v21_mode:
+            for game in v21_deep:
+                if game.identity not in latest_fifty_ids:
+                    continue
+                requested=(config.bullet_deep_depth if game.time_class=='bullet'
+                           else 18)
+                for decision in game.decisions:
+                    latest_fifty_depth_total+=1
+                    contract=decision.metrics.get('search_contract') or {}
+                    valid=(contract.get('mode')=='depth'
+                           and contract.get('requested')==requested
+                           and contract.get('multipv')==config.deep_multipv
+                           and contract.get('completed') is True
+                           and decision.metrics.get('search_depth',0)>=requested)
+                    if valid:
+                        latest_fifty_depth_verified+=1
+                        if contract.get('exact') is True:
+                            latest_fifty_depth_exact+=1
+            # A game marked deep=True must never mask individual positions
+            # skipped or lost on an external shard/checkpoint. Report NO
+            # account verdict until every latest-fifty player move was searched.
+            if (latest_fifty_depth_verified!=latest_fifty_depth_total
+                    or sum(g.deep for g in v21_deep
+                           if g.identity in latest_fifty_ids)!=len(latest_fifty)):
+                raise ReviewError('The latest fifty rated games did not receive complete Stockfish depth-18/depth-12 evidence; no verdict was issued.')
         if full_depth_mode and (deep_incomplete or not primary_complete or any(not g.deep for g in candidates)):
             raise ReviewError(f'All {len(primary)} primary games must complete their required engine depths before a priority can be issued.')
         progress(f'Deep confirmation: {sum(g.deep for g in candidates)} / {len(candidates)}')
@@ -1293,8 +1340,11 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             'eligible_games_capped':collection_coverage.get('eligible_games_capped'),
             'requested_context_limit':collection_limit(config),
             'requested_primary_limit':primary_limit(config),
-            'deep_scope':('200 recent peer games + up to 50 stratified historical peer games' if distributed_mode
-                          else '100 recent peer games + up to 25 stratified historical peer games') if v21_mode
+            'deep_scope':('up to 200 rated peer games + up to 50 extra games, reserving '
+                          'missing games from the latest 20 rated games regardless of opponent Elo'
+                          if distributed_mode else
+                          'up to 100 rated peer games + up to 25 extra games, reserving '
+                          'missing games from the latest 20 rated games regardless of opponent Elo') if v21_mode
                           else 'full legacy deep scope',
             'deep_scope_required':len(v21_deep) if v21_mode else len(primary) if full_depth_mode else None,
             'deep_scope_complete':all(g.deep for g in v21_deep) if v21_mode else None,
@@ -1311,10 +1361,31 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                             engine_name,profile,time.monotonic()-started,config,
                             coverage_state=coverage_state,context_games=history,
                             gameplay_periods=gameplay_periods)
+        # Temporal outcome streaks and extremely mismatched opposition belong
+        # in a visible read-only audit, never in engine-cheating score gates.
+        from fairplay_recent import summarize_recent
+        result.diagnostics['recent_tail_audit']=summarize_recent(analyzed)
+        # Published 95+ Accuracy plus 9/10-win runs are a descriptive
+        # investigative flag only, benchmarked against strictly older games
+        # and opponent Elo. Full latest50 deep selection happened *before*
+        # this check; Accuracy must never steer engine sampling or HIGH.
+        from fairplay_streak import accuracy_streak_audit
+        result.diagnostics['accuracy_streak_audit']=accuracy_streak_audit(analyzed)
         from fairplay_policy import integrate as integrate_policy
         result=(integrate_policy(result,scoring_games,config,
                                  strict_original_sequence=True)
                 if v21_mode else integrate_policy(result,scoring_games,config))
+        # Research-only opportunity-coverage and episodic feasibility audit.
+        # The historical deep context error can mimic suspicious episodes;
+        # independent calibration is required before any new scoring route.
+        # This module NEVER changes LOW/MODERATE/HIGH/VERY HIGH.
+        from fairplay_episodic import integrate as integrate_episodic
+        result=integrate_episodic(result,scoring_games,config)
+        # A strictly scoped HIGH route for short but *distributed* recent
+        # ten-game episodes. Uses deep paired search and independent halves;
+        # no performance, Elo-win-streak or published Accuracy shortcut.
+        from fairplay_burst import integrate as integrate_burst
+        result=integrate_burst(result,scoring_games,config)
         # Review all verified deep-reviewed games, including short games with
         # fewer than eight useful moves. The audit is aggregate-only and cannot
         # elevate priority; fast evidence selects any diagnostic period.
@@ -1367,6 +1438,22 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             result.diagnostics['v21_selection']={
                 'broad_fast_games':len(primary),
                 'recent_peer_deep_games':len(v21_plan.core),
+                'recent_tail_nonpeer_deep_games':len(v21_plan.recent_tail),
+                'latest_50_games_required':len(latest_fifty),
+                'latest_50_deep_selected':sum(
+                    g.identity in {x.identity for x in v21_plan.deep}
+                    for g in latest_fifty),
+                'latest_50_depth_completed':sum(
+                    g.deep for g in v21_deep if g.identity in latest_fifty_ids),
+                'latest_50_stockfish_positions':latest_fifty_depth_total,
+                'latest_50_stockfish_depth_verified_positions':latest_fifty_depth_verified,
+                'latest_50_stockfish_depth_exact_positions':latest_fifty_depth_exact,
+                'latest_50_maia_all_decisions':neural_reference.get('recent_full_positions_completed',0),
+                'latest_50_maia_expected':neural_reference.get('recent_full_positions_expected',0),
+                'latest_50_maia_complete':neural_reference.get('recent_full_complete',False),
+                'recent_20_rated_deep_coverage':sum(
+                    g.identity in {x.identity for x in v21_plan.deep}
+                    for g in sorted(analyzed,key=lambda g:(g.ended,g.identity))[-20:]),
                 'historical_extra_deep_games':len(v21_plan.reserve),
                 'deep_games_completed':sum(g.deep for g in v21_deep),
                 'eligible_rated_metadata_games':len(history),
@@ -1375,9 +1462,15 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 'early_mode_fast_pv':config.fast_multipv,
                 'selected_fast_pv':3,'selected_deep_pv':config.deep_multipv,
                 'no_accuracy_cherry_picking':True,
-                'scope_note':('500 games fast-screened, up to 250 peer games full-depth.'
+                'scope_note':('500 rated games fast-screened, latest 50 rated games '
+                              'always full-depth (including short games), plus '
+                              'remaining peer controls and historical discovery; '
+                              'at most 250 selected games in distributed mode.'
                               if distributed_mode else
-                              '500 games fast-screened, up to 125 peer games full-depth.')
+                              '500 rated games fast-screened, latest 50 rated games '
+                              'always full-depth (including short games), plus '
+                              'remaining peer controls and historical discovery; '
+                              'at most 125 selected games in local mode.')
                               + ' No full-depth claim for other games.'}
             result.diagnostics['distributed_compute']={
                 'enabled':distributed_mode,
@@ -1424,6 +1517,19 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             'maia_checkpoint_sha256_prefix':MODEL_SHA256[:12],
             'parsed_primary_games':len(primary),
             'deep_completed_games':sum(g.deep for g in analyzed),
+            'latest_50_full_depth_games':sum(
+                g.deep for g in analyzed if g.identity in latest_fifty_ids)
+                if v21_mode else None,
+            'latest_50_total_games':len(latest_fifty) if v21_mode else None,
+            'latest_50_stockfish_positions_total':latest_fifty_depth_total if v21_mode else None,
+            'latest_50_stockfish_positions_verified':latest_fifty_depth_verified if v21_mode else None,
+            'latest_50_stockfish_positions_exact':latest_fifty_depth_exact if v21_mode else None,
+            'latest_50_maia_positions_completed':neural_reference.get(
+                'recent_full_positions_completed') if v21_mode else None,
+            'latest_50_maia_positions_expected':neural_reference.get(
+                'recent_full_positions_expected') if v21_mode else None,
+            'latest_50_maia_coverage_complete':neural_reference.get(
+                'recent_full_complete') if v21_mode else None,
             'required_primary_depth':(18 if full_depth_mode and not any(g.time_class=='bullet' for g in primary)
                                       else None),
             'required_primary_depth_by_class':({'bullet':config.bullet_deep_depth,'blitz':18,'rapid':18}
@@ -1432,10 +1538,11 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                                                 if v21_mode else None),
             'required_full_coverage':bool(full_depth_mode and not v21_mode),
             'required_selected_full_depth':bool(full_depth_mode and v21_mode),
-            'human_policy_sampling':('up to 1600 stratified positions across 200+50 deep peer games'
-                                     if distributed_mode else
-                                     'up to 800 stratified positions across 100+25 deep peer games')
-                                     if v21_mode else 'stratified bounded positions (not all moves)',
+            'human_policy_sampling':('EVERY legally replayable Maia position in latest '
+                                     '50 rated games plus bounded stratified older controls '
+                                     '(no 1600 cap on latest50)'
+                                     if v21_mode else
+                                     'stratified bounded positions (not all moves)'),
             'depth18_completed_positions':sum(
                 d.metrics.get('search_depth',0)>=18 for g in analyzed if g.deep and g.time_class!='bullet'
                 for d in g.decisions) if full_depth_mode else None,

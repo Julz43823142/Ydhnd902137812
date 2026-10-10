@@ -99,6 +99,66 @@ class Positions(unittest.TestCase):
         self.assertTrue(second.metrics['equal_to_winning'])
         self.assertFalse(second.metrics['competitive'])
 
+    def test_verified_depth_contract_detects_opponent_error_despite_different_nodes(self):
+        g=played(0)
+        first,second=copy.deepcopy(g.decisions[:2])
+        first.ply=21;second.ply=23
+        contract={'mode':'depth','requested':18,'completed':True,'exact':True,
+                  'engine':'Stockfish 19','multipv':3}
+        first.metrics.update(before_cp=0,actual_cp=0,nodes=111_111,
+                             search_depth=18,search_contract=dict(contract))
+        second.metrics.update(before_cp=450,actual_cp=420,nodes=983_233,
+                              search_depth=18,search_contract=dict(contract))
+        g.decisions=[first,second]
+        position_context(g)
+        self.assertEqual(second.metrics['opponent_swing_cp'],450)
+        self.assertTrue(second.metrics['post_opponent_error'])
+        self.assertFalse(second.metrics['competitive'])
+        again=copy.deepcopy(second.metrics)
+        position_context(g)
+        self.assertEqual(again,second.metrics)
+
+    def test_depth12_bullet_is_a_verified_same_budget(self):
+        g=played(0)
+        first,second=copy.deepcopy(g.decisions[:2])
+        first.ply=21;second.ply=23
+        contract={'mode':'depth','requested':12,'completed':True,'exact':True,
+                  'engine':'Stockfish 19','multipv':3}
+        first.metrics.update(before_cp=0,actual_cp=0,nodes=121_000,
+                             search_depth=12,search_contract=dict(contract))
+        second.metrics.update(before_cp=400,actual_cp=300,nodes=789_000,
+                              search_depth=12,search_contract=dict(contract))
+        g.decisions=[first,second]
+        position_context(g)
+        self.assertTrue(second.metrics['post_opponent_error'])
+
+    def test_incomplete_mismatched_or_unreached_depth_never_invents_opponent_error(self):
+        contract={'mode':'depth','requested':18,'completed':True,'exact':True,
+                  'engine':'Stockfish 19','multipv':3}
+        for field,value in [('completed',False),('exact',False),
+                            ('requested',12),('engine','other'),('multipv',1)]:
+            with self.subTest(field=field):
+                g=played(0)
+                first,second=copy.deepcopy(g.decisions[:2])
+                first.ply=21;second.ply=23
+                first.metrics.update(before_cp=0,actual_cp=0,nodes=111,
+                                     search_depth=18,search_contract=dict(contract))
+                altered=dict(contract);altered[field]=value
+                second.metrics.update(before_cp=450,actual_cp=400,nodes=222,
+                                      search_depth=18,search_contract=altered)
+                g.decisions=[first,second];position_context(g)
+                self.assertIsNone(second.metrics['opponent_swing_cp'])
+                self.assertFalse(second.metrics['post_opponent_error'])
+        g=played(0)
+        first,second=copy.deepcopy(g.decisions[:2])
+        first.ply=21;second.ply=23
+        first.metrics.update(before_cp=0,actual_cp=0,nodes=111,
+                             search_depth=18,search_contract=dict(contract))
+        second.metrics.update(before_cp=450,actual_cp=400,nodes=222,
+                              search_depth=16,search_contract=dict(contract))
+        g.decisions=[first,second];position_context(g)
+        self.assertIsNone(second.metrics['opponent_swing_cp'])
+
     def test_gaps_missing_and_mate_scores_do_not_manufacture_opponent_errors(self):
         for nodes,ply,actual in ((CONFIG.deep_nodes,23,0),(CONFIG.fast_nodes,25,0),(CONFIG.fast_nodes,23,-10000)):
             g=played(0);first,second=copy.deepcopy(g.decisions[:2]);first.ply=21;second.ply=ply
