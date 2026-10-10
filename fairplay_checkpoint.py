@@ -242,15 +242,18 @@ class CheckpointStore:
                               if getattr(game, 'time_class', None) == 'bullet' else 18)
             required = (required_depth if phase == 'deep' and full_depth else
                         config.deep_nodes if phase == 'deep' else config.fast_nodes)
+            # The 500-game broad screening (PV1) cannot be restored as a PV3
+            # evidential recheck. Keep the phases separately and verify PV count.
+            multipv_ok = (contract.get("multipv") == 3 if phase == "fast-pv3" else True)
             valid = (contract.get("completed") is True
                      and contract.get("exact") is not False
                      and contract.get("mode") == ("depth" if phase == "deep" and full_depth else "nodes")
                      and contract.get("requested") == required)
-            if not valid or (phase == "deep" and full_depth and
+            if not valid or not multipv_ok or (phase == "deep" and full_depth and
                              item["metrics"].get("search_depth", 0) < required_depth):
                 return False
             decision.metrics = copy.deepcopy(item["metrics"])
-            if phase == "fast":
+            if phase in ("fast", "fast-pv3"):
                 decision.fast_engine = copy.deepcopy(item["metrics"])
             return True
 
