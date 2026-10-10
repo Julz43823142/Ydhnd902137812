@@ -12,7 +12,7 @@ import time
 import threading
 from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor, as_completed, CancelledError, wait, FIRST_COMPLETED
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Callable
 
 import chess
@@ -386,7 +386,7 @@ class EngineScanner:
             try:self.engine.close()
             except Exception:pass
 
-    def analyse_decision(self, game, decision, nodes):
+    def analyse_decision(self, game, decision, nodes, *, fast_multipv_override=None):
         check_deadline(self.deadline)
         # Full-depth mode measures every played subject move, including book/
         # forced moves. Existing scoring still excludes non-evidential moves.
@@ -400,7 +400,9 @@ class EngineScanner:
         if 'Clear Hash' in self.engine.options:self.engine.configure({'Clear Hash':None})
         richer = (decision.metrics.get('critical') or (decision.metrics.get('gap') is not None
                    and decision.metrics['gap']<25 and decision.metrics.get('cpl',100)<=25))
-        multipv=self.config.deep_multipv if depth_search or nodes==self.config.deep_nodes else self.config.fast_multipv
+        multipv=(self.config.deep_multipv if depth_search or nodes==self.config.deep_nodes
+                 else (fast_multipv_override if fast_multipv_override is not None
+                       else self.config.fast_multipv))
         limit=nodes if depth_search else chess.engine.Limit(nodes=nodes)
         # The worker owns this engine exclusively for both candidate and root searches.
         self.engine.timeout=scan_engine_timeout(
@@ -697,18 +699,22 @@ class SharedEnginePool:
         self._run_with_scanner(deadline,lambda scanner:scanner.analyse(game,nodes))
         return game
 
-    def run_decision(self,game,decision,nodes,deadline):
+    def run_decision(self,game,decision,nodes,deadline,fast_multipv_override=None):
         # Reuse only exact same FEN, move, side, budget, MultiPV, context.
         check_deadline(deadline)
         cache=getattr(self,'position_cache',None)
-        key=position_cache_key(game,decision,nodes,self.config) if cache is not None else None
+        search_config=(replace(self.config,fast_multipv=fast_multipv_override)
+                       if fast_multipv_override is not None else self.config)
+        key=position_cache_key(game,decision,nodes,search_config) if cache is not None else None
         cached=cache.get(key) if cache is not None else None
         if cached is not None:
             decision.metrics=cached
             if nodes==self.config.fast_nodes:decision.fast_engine=deepcopy(cached)
             return True
         result=self._run_with_scanner(
-            deadline,lambda scanner:scanner.analyse_decision(game,decision,nodes))
+            deadline,lambda scanner:(scanner.analyse_decision(game,decision,nodes)
+                if fast_multipv_override is None else scanner.analyse_decision(
+                    game,decision,nodes,fast_multipv_override=fast_multipv_override)))
         if result and cache is not None:cache.put(key,decision.metrics)
         return result
 
@@ -743,7 +749,8 @@ def close_shared_engine_pool():
 
 def run_position_batch(executor, pool, work, nodes, deadline, progress, stage,
                        checkpoint=None, target=None, phase=None, checkpoint_config=CONFIG,
-                       checkpoint_full_depth=False, budget_for_game=None):
+                       checkpoint_full_depth=False, budget_for_game=None,
+                       fast_multipv_override=None):
     """Drain running tasks and preserve only fully completed games at a deadline.
 
     A cancelled/failed position never becomes invented engine evidence. Workers
@@ -772,7 +779,12 @@ def run_position_batch(executor, pool, work, nodes, deadline, progress, stage,
             try:game,decision=next(pending_iter)
             except StopIteration:break
             budget=budget_for_game(game) if budget_for_game else nodes
-            futures[executor.submit(pool.run_decision,game,decision,budget,deadline)]=(game,decision)
+            if fast_multipv_override is None:
+                future=executor.submit(pool.run_decision,game,decision,budget,deadline)
+            else:
+                future=executor.submit(pool.run_decision,game,decision,budget,deadline,
+                                       fast_multipv_override)
+            futures[future]=(game,decision)
     submit_available()
     # Avoid encrypting and rewriting the entire growing checkpoint per position.
     # Bound the undurable tail and flush completed work even when interrupted.
