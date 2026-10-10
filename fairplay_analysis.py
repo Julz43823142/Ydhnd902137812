@@ -1314,6 +1314,10 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                             engine_name,profile,time.monotonic()-started,config,
                             coverage_state=coverage_state,context_games=history,
                             gameplay_periods=gameplay_periods)
+        # Temporal outcome streaks and extremely mismatched opposition belong
+        # in a visible read-only audit, never in engine-cheating score gates.
+        from fairplay_recent import summarize_recent
+        result.diagnostics['recent_tail_audit']=summarize_recent(analyzed)
         from fairplay_policy import integrate as integrate_policy
         result=(integrate_policy(result,scoring_games,config,
                                  strict_original_sequence=True)
