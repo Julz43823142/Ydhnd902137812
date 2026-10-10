@@ -844,6 +844,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
     import copy
     started = time.monotonic()
     full_depth_mode=(os.getenv('FAIRPLAY_FULL_DEPTH18')=='1' and config==CONFIG)
+    v21_mode=bool(full_depth_mode and os.getenv('FAIRPLAY_V21')=='1')
     # Full depth 18 may legitimately take longer than four hours. A zero
     # configured ceiling means no scan-level time limit; runner rotations are
     # handled by durable checkpoints instead of returning a partial verdict.
@@ -911,7 +912,14 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             for index,game in enumerate(group):game.control_index=index
         collected_at=time.monotonic()
         limit = primary_limit(config)
-        primary = history[-limit:]
+        v21_plan = None
+        if v21_mode:
+            from fairplay_v21 import broad_and_core
+            v21_plan=broad_and_core(history,broad_count=limit,deep_count=100)
+            primary=list(v21_plan.primary)
+            progress(f'Review plan: {len(primary)} broad games; {len(v21_plan.core)} peer-matched deep games')
+        else:
+            primary = history[-limit:]
         analyzed,probes = [],{}
         cached_deep = {}
         partial = False
@@ -1021,6 +1029,62 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 partial=True;break
         primary_complete=len(analyzed)==len(primary)
         progress(f'Fast engine scan: {len(analyzed)} / {len(primary)}')
+        v21_deep=[]
+        v21_candidate_positions=0
+        if v21_mode and primary_complete:
+            # Run the 500-game wide screen first. Then combine 100 recent
+            # comparable-rating peer games with up to 25 stratified historical
+            # periods/controls. Selection NEVER uses published Chess.com Accuracy.
+            from fairplay_v21 import discovery_extras
+            v21_plan=discovery_extras(v21_plan,max_extra=25)
+            chosen_ids={g.identity for g in v21_plan.deep}
+            v21_deep=[g for g in analyzed if g.identity in chosen_ids]
+            work=[(game,decision) for game in v21_deep
+                  for decision in game.decisions
+                  if decision.metrics and decision.metrics.get('useful')]
+            v21_candidate_positions=len(work)
+            progress(f'Fast candidate verification: 0 / {len(work)} positions')
+            if work:
+                if use_shared and engine_executor is not None and shared_pool.supports_decision_tasks:
+                    _,v21_interrupted=run_position_batch(
+                        engine_executor,shared_pool,work,config.fast_nodes,
+                        deadline,progress,'Fast candidate verification',
+                        checkpoint=checkpoint,target=target,phase='fast-pv3',
+                        checkpoint_config=replace(config,fast_multipv=3),
+                        checkpoint_full_depth=False,fast_multipv_override=3)
+                else:
+                    v21_interrupted=False
+                    # Test/custom scanner fallback preserves the same evidence
+                    # semantics. Never treat a PV1 restored move as PV3.
+                    for i,(game,decision) in enumerate(work,1):
+                        check_deadline(deadline)
+                        if (checkpoint is not None and checkpoint.restore(
+                                target,game,decision,'fast-pv3',
+                                replace(config,fast_multipv=3),False)):
+                            pass
+                        else:
+                            if use_shared and shared_pool is not None:
+                                shared_pool.run_decision(game,decision,config.fast_nodes,
+                                                         deadline,3)
+                            else:
+                                scanner.analyse_decision(game,decision,config.fast_nodes,
+                                    fast_multipv_override=3)
+                            if checkpoint is not None:
+                                checkpoint.record(target,game,decision,'fast-pv3')
+                        if i%max(1,len(work)//100)==0:
+                            progress(f'Fast candidate verification: {i} / {len(work)} positions')
+                if v21_interrupted:
+                    raise ReviewError('MultiPV-3 fast candidate verification was interrupted; no v21 review result was issued.')
+            # Paired semantic checks now have the same number of candidate
+            # variations in both passes. Store the exact fast snapshot before
+            # depth18 overwrites the played-position metrics.
+            for game in v21_deep:
+                summarize(game,config)
+                for decision in game.decisions:
+                    if decision.metrics:
+                        decision.fast_engine=deepcopy(decision.metrics)
+                game.fast_metrics={k:deepcopy(v) for k,v in game.metrics.items() if k!='timing'}
+            progress(f'Fast candidate verification: {len(work)} / {len(work)} positions')
         fast_finished=time.monotonic()
         historical_targets=[]
         probe_complete=True
@@ -1033,7 +1097,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                        if checkpoint is not None else {})
         neural_reference=(
             __import__('fairplay_maia').annotate_history(
-                analyzed,full_coverage=False,**resume_kwargs)
+                v21_deep if v21_mode else analyzed,
+                full_coverage=False,**resume_kwargs)
             if (primary_complete and time.monotonic()<deadline
                 and not (deadline.cancel is not None and deadline.cancel.is_set()))
             else {'available':False,'positions':0,
@@ -1045,7 +1110,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         if neural_reference.get('available'):
             progress('Comparing human alternatives…')
             neural_reference['fast_counterfactual']=complete_policy(
-                analyzed,config.fast_nodes,deadline,executor=engine_executor,
+                v21_deep if v21_mode else analyzed,config.fast_nodes,deadline,executor=engine_executor,
                 pool=shared_pool if use_shared else None,scanner=scanner,fast=True,
                 **resume_kwargs)
             if (full_depth_mode and os.getenv('FAIRPLAY_REQUIRE_MAIA')=='1'
@@ -1053,8 +1118,9 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 raise ReviewError('The complete Maia fast reference did not finish; no review was issued.')
         progress('Analyzing sessions and repertoire…')
         from fairplay_sequence import class_periods, adaptive_deep_games, confirmation_extension
-        gameplay_periods=class_periods(analyzed,config)
-        candidates=(list(analyzed) if full_depth_mode else
+        gameplay_periods=class_periods(v21_deep if v21_mode else analyzed,config)
+        candidates=(list(v21_deep) if v21_mode else
+                    list(analyzed) if full_depth_mode else
                     allocate_policy(analyzed,adaptive_deep_games(analyzed,config,periods=gameplay_periods),config))
         deep_budget=chess.engine.Limit(depth=18) if full_depth_mode else config.deep_nodes
         game_deep_budget=(lambda game:full_depth_budget(game,config)) if full_depth_mode else (lambda game:deep_budget)
@@ -1159,7 +1225,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                     and not neural_reference['deep_counterfactual']['complete']):
                 raise ReviewError('The complete depth-18 Maia comparison did not finish; no review was issued.')
         deep_finished=time.monotonic()
-        if full_depth_mode and (deep_incomplete or not primary_complete or any(not g.deep for g in analyzed)):
+        if full_depth_mode and (deep_incomplete or not primary_complete or any(not g.deep for g in candidates)):
             raise ReviewError(f'All {len(primary)} primary games must complete their required engine depths before a priority can be issued.')
         progress(f'Deep confirmation: {sum(g.deep for g in candidates)} / {len(candidates)}')
         with _game_cache_lock:
@@ -1195,6 +1261,9 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             'eligible_games_capped':collection_coverage.get('eligible_games_capped'),
             'requested_context_limit':collection_limit(config),
             'requested_primary_limit':primary_limit(config),
+            'deep_scope':'100 recent peer games + up to 25 stratified historical peer games' if v21_mode else 'full legacy deep scope',
+            'deep_scope_required':len(v21_deep) if v21_mode else len(primary) if full_depth_mode else None,
+            'deep_scope_complete':all(g.deep for g in v21_deep) if v21_mode else None,
         }
         # Missing *older* optional archives must not veto independent HIGH
         # evidence in a fully scanned primary sample. Preserve the missing
@@ -1223,6 +1292,27 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                         'timing_baselines':[{'class':kind,'control':control,
                             'profile':timing_profile(group,config)}
                             for (kind,control),group in buckets(history).items()]}
+        if v21_mode:
+            from fairplay_v21 import public_history_stats
+            public_stats=None
+            try:
+                public_stats=api.get(canonical,'/stats')
+            except Exception:
+                pass  # optional public metadata does not affect the review
+            result.diagnostics['public_history_stats']=public_history_stats(
+                history,public_stats=public_stats)
+            result.diagnostics['v21_selection']={
+                'broad_fast_games':len(primary),
+                'recent_peer_deep_games':len(v21_plan.core),
+                'historical_extra_deep_games':len(v21_plan.reserve),
+                'deep_games_completed':sum(g.deep for g in v21_deep),
+                'eligible_rated_metadata_games':len(history),
+                'peer_max_lower_rating_gap':500,
+                'selected_fast_pv3_positions':v21_candidate_positions,
+                'early_mode_fast_pv':config.fast_multipv,
+                'selected_fast_pv':3,'selected_deep_pv':config.deep_multipv,
+                'no_accuracy_cherry_picking':True,
+                'scope_note':'500 games fast-screened, up to 125 peer games full-depth. No full-depth claim for other games.'}
         progress('Building report…')
         result.elapsed=time.monotonic()-started
         try:
@@ -1253,8 +1343,9 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                                       else None),
             'required_primary_depth_by_class':({'bullet':config.bullet_deep_depth,'blitz':18,'rapid':18}
                                                if full_depth_mode else None),
-            'required_full_coverage':bool(full_depth_mode),
-            'human_policy_sampling':'stratified bounded positions (not all moves)',
+            'required_full_coverage':bool(full_depth_mode and not v21_mode),
+            'required_selected_full_depth':bool(full_depth_mode and v21_mode),
+            'human_policy_sampling':'up to 800 stratified positions across 100+25 deeply reviewed peer games' if v21_mode else 'stratified bounded positions (not all moves)',
             'depth18_completed_positions':sum(
                 d.metrics.get('search_depth',0)>=18 for g in analyzed if g.deep and g.time_class!='bullet'
                 for d in g.decisions) if full_depth_mode else None,
@@ -1284,6 +1375,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 for key,value in shared_pool.position_cache.snapshot().items() if key!='entries'}
                 if use_shared and shared_pool is not None and getattr(shared_pool,'position_cache',None) is not None else None),
             'full_depth18_mode':full_depth_mode,
+            'v21_scoped_review':v21_mode,
+            'selected_fast_pv3_positions':v21_candidate_positions,
             'full_depth18_games_completed':sum(g.deep for g in analyzed if g.time_class!='bullet') if full_depth_mode else None,
             'bullet_depth12_games_completed':sum(g.deep for g in analyzed if g.time_class=='bullet') if full_depth_mode else None,
             'effective_cpu_capacity':available_engine_cpus(),
