@@ -278,7 +278,8 @@ def annotate_history(games,predictor=None,*,full_coverage=False,recent_full_ids=
     if predictor is None and (not model_path or not Path(model_path).is_file()):
         return {'available':False,'positions':0,'reason':'Local Maia checkpoint is not installed; Stockfish and the explicit heuristic remain active.'}
     recent_set=set(recent_full_ids or ())
-    recent_games=[g for g in games if g.identity in recent_set]
+    recent_games=[g for g in games if recent_set
+                  and getattr(g,'identity',None) in recent_set]
     # Maia is rating-conditioned; a missing rating cannot be silently
     # imputed. Even the all-position requirement is explicitly limited to
     # causally replayable games with both public ratings.
