@@ -5,7 +5,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 import unittest
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
 import discord
 
@@ -109,6 +109,36 @@ class OwnerAccess(unittest.IsolatedAsyncioTestCase):
         ctx.response.send_message.assert_awaited_once()
         self.assertTrue(ctx.response.send_message.call_args.kwargs["ephemeral"])
         self.assertNotEqual(ctx.user.id,ADMIN_ID)
+
+
+class ServiceFailureDelivery(unittest.IsolatedAsyncioTestCase):
+    async def test_terminal_error_saves_and_privately_dms_owner_without_public_card(self):
+        from fairplay_ui import FairPlayService, Job
+        owner=SimpleNamespace(send=AsyncMock())
+        client=SimpleNamespace(get_user=lambda user_id:owner,
+                               fetch_user=AsyncMock())
+        checkpoints=SimpleNamespace(enabled=True,remote_ok=True,
+                                    record_failure=Mock(return_value=True))
+        channel=SimpleNamespace(send=AsyncMock())
+        service=FairPlayService(client,channel,checkpoints=checkpoints)
+        job=Job("synthetic-account",None,stage="Depth-18 rapid/blitz 12/90")
+        failure=ReviewError("A Stockfish search timed out despite worker recovery.")
+        try:
+            with patch("fairplay_analysis._shared_engine_pool",
+                       SimpleNamespace(last_failure={
+                           "category":"timeout","phase":"deep-candidates",
+                           "attempt":2,"budget":18,"multipv":3,
+                           "timeout_seconds":3600,"terminal":True})):
+                await service.save_failure(job,failure)
+            self.assertIn(job.token,service.failures)
+            checkpoints.record_failure.assert_called_once()
+            owner.send.assert_awaited_once()
+            self.assertIsInstance(owner.send.call_args.kwargs["view"],FailureView)
+            self.assertEqual(owner.send.call_args.kwargs["embed"].footer.text,
+                             "Review ID: "+job.token)
+            channel.send.assert_not_awaited()
+        finally:
+            service.executor.shutdown(wait=True)
 
 
 if __name__=="__main__":
