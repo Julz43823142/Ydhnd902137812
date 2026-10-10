@@ -59,13 +59,13 @@ class EpisodicCoverage(unittest.TestCase):
         self.assertGreater(blitz["required_contributor_games"],
                            blitz["max_two_hit_contributor_games"])
 
-    def test_exact_episode_promotes_only_to_moderate(self):
+    def test_exact_episode_is_research_only_and_cannot_override_low(self):
         group = episodic_group()
         result = SimpleNamespace(priority="LOW", reasons=[], diagnostics={})
         result = integrate(result, group, CONFIG)
-        self.assertEqual(result.priority, "MODERATE")
-        self.assertEqual(result.diagnostics["moderate_path"],
-                         "Deep-confirmed concentrated episodic gameplay (exploratory)")
+        self.assertEqual(result.priority, "LOW")
+        self.assertFalse(result.diagnostics["opportunity_feasibility_audit"]["scoring_influence"])
+        self.assertNotIn("moderate_path", result.diagnostics)
         scan = result.diagnostics["opportunity_feasibility_audit"]["episodic"]
         self.assertEqual(scan["comparisons"], 1)
         self.assertTrue(scan["exploratory_flag"])
