@@ -107,6 +107,11 @@ def stability(decision, config=CONFIG):
     semantic = bool(near and cpl_ok and scaled_ok and geometry)
     exact = bool(compared and rank_ok and cpl_ok and gap_ok and (best or near) and geometry)
     stable = semantic or exact
+    # Separate move-quality agreement from the stricter requirement that the
+    # position remains evidentially difficult at *both* search budgets. Neither
+    # diagnostic changes the established HIGH/LOW stability decision.
+    objective_quality_preserved = bool(compared and cpl_ok and scaled_ok)
+    evidential_geometry_preserved = bool(compared and geometry)
     # Independent semantic quality check; not an extra scoring family.
     from fairplay_evidence_audit import SearchObservation, compare_search_quality
     def observation(snapshot):
@@ -138,6 +143,8 @@ def stability(decision, config=CONFIG):
               ) if not ok]))
     m['search_stability'] = {'compared':bool(compared), 'best':bool(best), 'rank':bool(rank_ok),
         'cpl':bool(cpl_ok), 'gap':bool(gap_ok), 'semantic_quality':semantic, 'stable':stable,
+        'objective_quality_preserved':objective_quality_preserved,
+        'evidential_geometry_preserved':evidential_geometry_preserved,
         'paired_depth':request if contracted else None,
         'blockers':blocked}
     return stable
