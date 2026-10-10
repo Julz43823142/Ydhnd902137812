@@ -728,6 +728,12 @@ async def stopfairplay_command(interaction: discord.Interaction):
     await stop_current_review(interaction)
 
 
+@command_tree.command(name='fairplaydiagnostic',description='Owner-only review failure insights (use a Review ID or list recent failures).')
+async def fairplaydiagnostic_command(interaction: discord.Interaction, review_id: str = ''):
+    from fairplay_failure import owner_diagnostics
+    await owner_diagnostics(interaction,review_id)
+
+
 @command_tree.command(name='usage', description='View private Sharkmeister feature usage analytics.')
 async def private_usage_command(interaction: discord.Interaction):
     if interaction.channel_id in (GUESS_GAMES_CHANNEL_ID,1546155761405788230):return
