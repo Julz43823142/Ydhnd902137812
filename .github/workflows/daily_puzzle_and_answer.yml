@@ -91,7 +91,7 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: /tmp/sharkbot-fairplay-lc0
-          key: fairplay-lc0-v0.32.1-smallnet-v1
+          key: fairplay-lc0-v0.32.1-smallnet-portable-v2
 
       - name: Provision independent Lc0 CPU inference (optional)
         # Leela is observational only; build or network failure must not
