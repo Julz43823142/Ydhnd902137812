@@ -254,6 +254,12 @@ def validate_response(originals,payload,*,ticket,index,revision,engine):
         raise ReviewError("Worker response does not match the requested games.")
     for source,game in zip(originals,returned):
         if (source.ended!=game.ended or source.color!=game.color or
+                source.time_class!=game.time_class or
+                source.time_control!=game.time_control or
+                source.rating!=game.rating or
+                source.opponent_rating!=game.opponent_rating or
+                source.rated!=game.rated or source.result!=game.result or
+                source.moves!=game.moves or
                 len(source.decisions)!=len(game.decisions)):
             raise ReviewError("Worker response does not match original game structure.")
         depth=CONFIG.bullet_deep_depth if game.time_class=="bullet" else 18
