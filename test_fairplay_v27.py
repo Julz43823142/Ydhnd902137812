@@ -45,7 +45,7 @@ def episodic_group():
 
 class EpisodicCoverage(unittest.TestCase):
     def test_exact_hypergeometric_one_five_opportunity_game(self):
-        probability = conditional_scan_probability([5, 2, 3, 1, 4, 36], 20)
+        probability = conditional_scan_probability([5] + [2] * 12 + [1] * 22, 20)
         self.assertAlmostEqual(
             probability, math.comb(20, 5) / math.comb(51, 5), places=12)
 
