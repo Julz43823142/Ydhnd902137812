@@ -18,7 +18,7 @@ def game(i, *, kind="blitz", control="180+0", clock=True):
     return SimpleNamespace(identity=f"secret-person-{i}", ended=i, rated=True,
         probe_only=False, deep=True, time_class=kind, time_control=control,
         decisions=([decision(clock=clock,rare=False,think=4.0) for _ in range(6)]
-                   +[decision(clock=clock,think=.5) for _ in range(2)])
+                   +[decision(clock=clock,think=.5) for _ in range(2)]))
 
 
 class ResearchAuditTests(unittest.TestCase):
