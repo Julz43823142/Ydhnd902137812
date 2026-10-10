@@ -40,9 +40,16 @@ def public_text(value):
 
 
 def panel_embed():
+    parallel=os.getenv("FAIRPLAY_DISTRIBUTED")=="1"
+    scope=("up to 200 comparable-opponent rated games and 50 stratified historical games, "
+           "with five on-demand encrypted Stockfish compute jobs"
+           if parallel else
+           "up to 100 comparable-opponent rated games and 25 stratified historical games")
     embed = discord.Embed(title=PANEL_TITLE, color=0x427CBA,
         description='Want to review a suspicious Chess.com account?\n\n'
-                    "Submit a Chess.com username. SharkBot screens up to 500 rated live games (fast MultiPV 1), deeply reviews the latest 100 comparable-opponent rated games and up to 25 stratified historical games (fast MultiPV 3 then depth 18 rapid/blitz or depth 12 bullet). Historical metadata extends to 1,000 eligible rated games when available. Only the selected deep games have full candidate and Maia comparison; evidence gaps are shown, not treated as normal behavior.\n\n"
+                    "Submit a Chess.com username. SharkBot screens up to 500 rated live games (fast MultiPV 1), then deeply reviews "
+                    +scope+". Fast and deep candidate verification use MultiPV 3, depth 18 rapid/blitz and depth 12 bullet. "
+                    "History metadata extends to 1,000 rated games when available. Only confirmed deep games support the final score.\n\n"
                     '**This is an automated screening tool — not proof of cheating.**')
     embed.set_footer(text=PANEL_MARKER)
     return embed
@@ -55,7 +62,7 @@ def progress_embed(target, stage, value=None, timing=None):
                  else bar(value)+"\n\n"+label(stage))
     if timing is not None:description+='\n'+timing.summary(stage)
     embed = discord.Embed(title=REPORT_PREFIX+target, description=description, color=0x427CBA)
-    embed.set_footer(text="Work progress (stage-weighted), not percent of elapsed time · ETA covers current phase only")
+    embed.set_footer(text="Work progress (stage-weighted), not time percentage · ETA is approximate across phases")
     embed.add_field(name='⚠️ Automated screening only', value=DISCLAIMER, inline=False)
     return embed
 
@@ -162,6 +169,14 @@ def result_embed(result: ReviewResult):
         embed.add_field(name='Public rating & accuracy timeline (descriptive only)',
                         value=('\n'.join(period_lines)+
                                '\nAccuracy values may be missing or review-selected; never an accusation.')[:1024],
+                        inline=False)
+    parallel=result.diagnostics.get('distributed_compute',{})
+    if parallel.get('enabled'):
+        embed.add_field(name='Distributed Stockfish compute',
+                        value=(f"Five compute jobs requested: **{parallel.get('jobs_requested',0)}** · "
+                               f"Remotely verified games: **{parallel.get('games_verified_remotely',0)}** · "
+                               f"Locally recovered games: **{parallel.get('games_recomputed_locally',0)}**. "
+                               "All 250 selected games must be complete before one joint assessment."),
                         inline=False)
     embed.add_field(name='Signals',value='\n'.join(f'**{key}:** {value}' for key,value in result.families.items()),inline=False)
     embed.add_field(name='Review notes',value='\n'.join('• '+value for value in result.reasons)[:1024],inline=False)
