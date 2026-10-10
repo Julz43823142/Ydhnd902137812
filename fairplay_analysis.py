@@ -845,6 +845,9 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
     started = time.monotonic()
     full_depth_mode=(os.getenv('FAIRPLAY_FULL_DEPTH18')=='1' and config==CONFIG)
     v21_mode=bool(full_depth_mode and os.getenv('FAIRPLAY_V21')=='1')
+    distributed_mode=bool(v21_mode and os.getenv('FAIRPLAY_DISTRIBUTED')=='1'
+                          and engine_factory is None and engine_pool is None
+                          and os.getenv('GITHUB_ACTIONS')=='true')
     # Full depth 18 may legitimately take longer than four hours. A zero
     # configured ceiling means no scan-level time limit; runner rotations are
     # handled by durable checkpoints instead of returning a partial verdict.
@@ -915,7 +918,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         v21_plan = None
         if v21_mode:
             from fairplay_v21 import broad_and_core
-            v21_plan=broad_and_core(history,broad_count=limit,deep_count=100)
+            v21_plan=broad_and_core(history,broad_count=limit,
+                                     deep_count=200 if distributed_mode else 100)
             primary=list(v21_plan.primary)
             progress(f'Review plan: {len(primary)} broad games; {len(v21_plan.core)} peer-matched deep games')
         else:
@@ -1031,12 +1035,15 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         progress(f'Fast engine scan: {len(analyzed)} / {len(primary)}')
         v21_deep=[]
         v21_candidate_positions=0
+        distributed_handle=None
+        distributed_completed={}
         if v21_mode and primary_complete:
             # Run the 500-game wide screen first. Then combine 100 recent
             # comparable-rating peer games with up to 25 stratified historical
             # periods/controls. Selection NEVER uses published Chess.com Accuracy.
             from fairplay_v21 import discovery_extras
-            v21_plan=discovery_extras(v21_plan,max_extra=25)
+            v21_plan=discovery_extras(v21_plan,
+                                      max_extra=50 if distributed_mode else 25)
             chosen_ids={g.identity for g in v21_plan.deep}
             v21_deep=[g for g in analyzed if g.identity in chosen_ids]
             work=[(game,decision) for game in v21_deep
@@ -1085,6 +1092,13 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                         decision.fast_engine=deepcopy(decision.metrics)
                 game.fast_metrics={k:deepcopy(v) for k,v in game.metrics.items() if k!='timing'}
             progress(f'Fast candidate verification: {len(work)} / {len(work)} positions')
+            if distributed_mode and v21_deep:
+                from fairplay_distributed import start as start_distributed
+                # Dispatch BEFORE Maia, so the five external Stockfish runners
+                # work while the controller computes human-policy alternatives.
+                distributed_handle=start_distributed(
+                    v21_deep,target,revision=os.getenv('GITHUB_SHA',''),
+                    engine=engine_name)
         fast_finished=time.monotonic()
         historical_targets=[]
         probe_complete=True
@@ -1125,8 +1139,17 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                     allocate_policy(analyzed,adaptive_deep_games(analyzed,config,periods=gameplay_periods),config))
         deep_budget=chess.engine.Limit(depth=18) if full_depth_mode else config.deep_nodes
         game_deep_budget=(lambda game:full_depth_budget(game,config)) if full_depth_mode else (lambda game:deep_budget)
-        deep_started=time.monotonic()
+        deep_started=(distributed_handle["started"]
+                      if distributed_handle is not None else time.monotonic())
         deep_incomplete=False
+        if distributed_handle is not None:
+            from fairplay_distributed import join as join_distributed
+            # A missing or corrupt shard is NEVER assumed complete. Continue
+            # with the existing local depth-18/depth-12 path for those games.
+            distributed_completed=join_distributed(
+                distributed_handle,progress,deadline)
+            progress(f'Fair Play compute: {len(distributed_completed)} / '
+                     f'{len(v21_deep)} remotely confirmed games')
         index=0
         def deep_scan(game,worker=None):
             confirmed=copy.deepcopy(game)
@@ -1164,6 +1187,9 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                     for game in batch:
                         confirmed=copy.deepcopy(game)
                         confirmed_batch.append(confirmed)
+                        if game.identity in distributed_completed:
+                            confirmed_batch[-1]=copy.deepcopy(distributed_completed[game.identity])
+                            continue
                         if game.identity in cached_deep:
                             decisions,metrics=cached_deep[game.identity]
                             confirmed.decisions=copy.deepcopy(decisions)
@@ -1186,7 +1212,9 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                         batch=[game for game,_ in complete_pairs]
                         confirmed_batch=[confirmed for _,confirmed in complete_pairs]
                     for game,confirmed in zip(batch,confirmed_batch):
-                        if game.identity not in cached_deep:summarize(confirmed,config)
+                        if (game.identity not in cached_deep and
+                                game.identity not in distributed_completed):
+                            summarize(confirmed,config)
                 elif engine_executor is None:
                     confirmed_batch=[deep_scan(batch[0],scanner)]
                 else:
@@ -1262,7 +1290,9 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             'eligible_games_capped':collection_coverage.get('eligible_games_capped'),
             'requested_context_limit':collection_limit(config),
             'requested_primary_limit':primary_limit(config),
-            'deep_scope':'100 recent peer games + up to 25 stratified historical peer games' if v21_mode else 'full legacy deep scope',
+            'deep_scope':('200 recent peer games + up to 50 stratified historical peer games' if distributed_mode
+                          else '100 recent peer games + up to 25 stratified historical peer games') if v21_mode
+                          else 'full legacy deep scope',
             'deep_scope_required':len(v21_deep) if v21_mode else len(primary) if full_depth_mode else None,
             'deep_scope_complete':all(g.deep for g in v21_deep) if v21_mode else None,
         }
@@ -1327,7 +1357,20 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 'early_mode_fast_pv':config.fast_multipv,
                 'selected_fast_pv':3,'selected_deep_pv':config.deep_multipv,
                 'no_accuracy_cherry_picking':True,
-                'scope_note':'500 games fast-screened, up to 125 peer games full-depth. No full-depth claim for other games.'}
+                'scope_note':('500 games fast-screened, up to 250 peer games full-depth.'
+                              if distributed_mode else
+                              '500 games fast-screened, up to 125 peer games full-depth.')
+                              + ' No full-depth claim for other games.'}
+            result.diagnostics['distributed_compute']={
+                'enabled':distributed_mode,
+                'jobs_requested':5 if distributed_handle is not None else 0,
+                'games_verified_remotely':len(distributed_completed),
+                'games_recomputed_locally':sum(g.identity not in distributed_completed for g in v21_deep)
+                    if distributed_mode else 0,
+                'distributed_time_seconds':round(time.monotonic()-distributed_handle['started'],1)
+                    if distributed_handle is not None else None,
+                'one_authoritative_report':True,
+                'no_independent_worker_scoring':True}
         progress('Building report…')
         result.elapsed=time.monotonic()-started
         try:
