@@ -90,6 +90,8 @@ jobs:
         run: python scripts/smoke_fairplay_equivalence.py
       - name: Verify real v21 MultiPV 1 / MultiPV 3 / depth 18 contract
         run: python scripts/smoke_fairplay_v21.py
+      - name: Verify real isolated v22 worker and full engine depth contract
+        run: python scripts/smoke_fairplay_distributed.py
       - name: Compare compact and standard fixed-node transports
         env:
           BASELINE_STOCKFISH_PATH: /tmp/stockfish19-official/Stockfish/src/stockfish
