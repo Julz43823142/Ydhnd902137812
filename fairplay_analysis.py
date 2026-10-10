@@ -1271,6 +1271,34 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                     and not neural_reference['deep_counterfactual']['complete']):
                 raise ReviewError('The complete depth-18 Maia comparison did not finish; no review was issued.')
         deep_finished=time.monotonic()
+        latest_fifty_depth_total=0
+        latest_fifty_depth_verified=0
+        latest_fifty_depth_exact=0
+        if v21_mode:
+            for game in v21_deep:
+                if game.identity not in latest_fifty_ids:
+                    continue
+                requested=(config.bullet_deep_depth if game.time_class=='bullet'
+                           else 18)
+                for decision in game.decisions:
+                    latest_fifty_depth_total+=1
+                    contract=decision.metrics.get('search_contract') or {}
+                    valid=(contract.get('mode')=='depth'
+                           and contract.get('requested')==requested
+                           and contract.get('multipv')==config.deep_multipv
+                           and contract.get('completed') is True
+                           and decision.metrics.get('search_depth',0)>=requested)
+                    if valid:
+                        latest_fifty_depth_verified+=1
+                        if contract.get('exact') is True:
+                            latest_fifty_depth_exact+=1
+            # A game marked deep=True must never mask individual positions
+            # skipped or lost on an external shard/checkpoint. Report NO
+            # account verdict until every latest-fifty player move was searched.
+            if (latest_fifty_depth_verified!=latest_fifty_depth_total
+                    or sum(g.deep for g in v21_deep
+                           if g.identity in latest_fifty_ids)!=len(latest_fifty)):
+                raise ReviewError('The latest fifty rated games did not receive complete Stockfish depth-18/depth-12 evidence; no verdict was issued.')
         if full_depth_mode and (deep_incomplete or not primary_complete or any(not g.deep for g in candidates)):
             raise ReviewError(f'All {len(primary)} primary games must complete their required engine depths before a priority can be issued.')
         progress(f'Deep confirmation: {sum(g.deep for g in candidates)} / {len(candidates)}')
@@ -1406,8 +1434,9 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                     for g in latest_fifty),
                 'latest_50_depth_completed':sum(
                     g.deep for g in v21_deep if g.identity in latest_fifty_ids),
-                'latest_50_stockfish_positions':sum(
-                    len(g.decisions) for g in v21_deep if g.identity in latest_fifty_ids),
+                'latest_50_stockfish_positions':latest_fifty_depth_total,
+                'latest_50_stockfish_depth_verified_positions':latest_fifty_depth_verified,
+                'latest_50_stockfish_depth_exact_positions':latest_fifty_depth_exact,
                 'latest_50_maia_all_decisions':neural_reference.get('recent_full_positions_selected',0),
                 'latest_50_maia_expected':neural_reference.get('recent_full_positions_expected',0),
                 'latest_50_maia_complete':neural_reference.get('recent_full_complete',False),
@@ -1481,6 +1510,9 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 g.deep for g in analyzed if g.identity in latest_fifty_ids)
                 if v21_mode else None,
             'latest_50_total_games':len(latest_fifty) if v21_mode else None,
+            'latest_50_stockfish_positions_total':latest_fifty_depth_total if v21_mode else None,
+            'latest_50_stockfish_positions_verified':latest_fifty_depth_verified if v21_mode else None,
+            'latest_50_stockfish_positions_exact':latest_fifty_depth_exact if v21_mode else None,
             'latest_50_maia_positions_completed':neural_reference.get(
                 'recent_full_positions_selected') if v21_mode else None,
             'latest_50_maia_positions_expected':neural_reference.get(
