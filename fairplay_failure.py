@@ -196,9 +196,9 @@ async def owner_diagnostics(ctx, review_id=""):
            f"{(row.get('git_commit') or 'unknown')[:12]} · "
            f"{row.get('elapsed_text','unknown')}" for token,row in recent]
     await ctx.followup.send(
-        "Recent encrypted Fair Play diagnostics (newest first):\\n"
-        +"\\n".join(lines)
-        +"\\nUse /fairplaydiagnostic with the Review ID to receive a JSON export.",
+        "Recent encrypted Fair Play diagnostics (newest first):\n"
+        +"\n".join(lines)
+        +"\nUse /fairplaydiagnostic with the Review ID to receive a JSON export.",
         ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
 
 
@@ -236,6 +236,6 @@ async def owner_failure_notice(client, record, *, durable):
         await owner.send(embed=embed,view=FailureView(),
                          allowed_mentions=discord.AllowedMentions.none())
         return True
-    except (discord.Forbidden,discord.HTTPException):
+    except (discord.Forbidden,discord.HTTPException,AttributeError):
         # Never post owner metadata to the public Fair Play channel.
         return False
