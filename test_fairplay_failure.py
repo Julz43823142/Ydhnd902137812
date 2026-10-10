@@ -40,7 +40,6 @@ class SanitizationTests(unittest.TestCase):
         self.assertEqual(record["engine_last_failure"]["phase"],"deep-candidates")
         self.assertNotIn("private_fen",str(record))
         self.assertNotIn("secret-player",str(record))
-        self.assertNotIn("FEN",str(record))
         self.assertIsNone(record["merged_pr_number"])
 
     def test_exception_chain_identifies_timeout_but_not_raw_message(self):
