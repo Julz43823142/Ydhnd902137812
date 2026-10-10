@@ -42,7 +42,7 @@ def public_text(value):
 def panel_embed():
     parallel=os.getenv("FAIRPLAY_DISTRIBUTED")=="1"
     scope=("up to 200 comparable-opponent rated games and 50 stratified historical games, "
-           "with five on-demand encrypted Stockfish compute jobs"
+           "with ten on-demand encrypted Stockfish compute jobs"
            if parallel else
            "up to 100 comparable-opponent rated games and 25 stratified historical games")
     embed = discord.Embed(title=PANEL_TITLE, color=0x427CBA,
@@ -173,11 +173,28 @@ def result_embed(result: ReviewResult):
     parallel=result.diagnostics.get('distributed_compute',{})
     if parallel.get('enabled'):
         embed.add_field(name='Distributed Stockfish compute',
-                        value=(f"Five compute jobs requested: **{parallel.get('jobs_requested',0)}** · "
-                               f"Remotely verified games: **{parallel.get('games_verified_remotely',0)}** · "
-                               f"Locally recovered games: **{parallel.get('games_recomputed_locally',0)}**. "
-                               "All 250 selected games must be complete before one joint assessment."),
+                        value=(f"Requested workers: **{parallel.get('jobs_requested',0)}** · "
+                               f"Verified shards: **{parallel.get('shards_completed',0)}** · "
+                               f"Failed/stalled shards: **{parallel.get('shards_failed',0)}/"
+                               f"{parallel.get('shards_stalled',0)}**\n"
+                               f"Remote games: **{parallel.get('games_verified_remotely',0)}** · "
+                               f"Local recovery: **{parallel.get('games_recomputed_locally',0)}** · "
+                               f"State: **{parallel.get('compute_status','unknown')}**. "
+                               "All selected games must complete before one joint assessment."),
                         inline=False)
+    stability_audit=result.diagnostics.get('paired_stability_audit') or {}
+    if stability_audit.get('schema')=='sharkbot-paired-stability-audit-v1':
+        stats=stability_audit.get('classes') or {}
+        rows=[]
+        for kind in ('blitz','rapid','bullet'):
+            record=stats.get(kind) or {}
+            if record.get('eligible',0):
+                rows.append(f"**{kind.title()}:** {record.get('compared',0)}/"
+                            f"{record.get('eligible',0)} depth pairs measured · "
+                            f"{record.get('stable',0)} stable")
+        if rows:
+            embed.add_field(name='Paired engine evidence (not proof of cheating)',
+                            value='\n'.join(rows)[:1024],inline=False)
     embed.add_field(name='Signals',value='\n'.join(f'**{key}:** {value}' for key,value in result.families.items()),inline=False)
     embed.add_field(name='Review notes',value='\n'.join('• '+value for value in result.reasons)[:1024],inline=False)
     if result.priority=='LOW':

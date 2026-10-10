@@ -1,4 +1,4 @@
-"""Five temporary, encrypted Stockfish compute shards; one authoritative report.
+"""Ten temporary, encrypted Stockfish compute shards; one authoritative report.
 
 The Discord process alone fetches accounts, selects samples, runs Maia, scores
 the complete sample and publishes results. Remote jobs are *compute-only*.
@@ -12,6 +12,7 @@ import copy
 import gzip
 import hashlib
 import hmac
+import io
 import json
 import os
 import re
@@ -29,14 +30,38 @@ from fairplay_evidence_payload import normalize
 
 BRANCH = "fairplay-distributed-work"
 SCHEMA = "sharkbot-fairplay-distributed-v1"
-WORKERS = 5
+WORKERS = 10
 REQUEST_LIFETIME = 3 * 3600
 MAX_CIPHERTEXT = 24 * 1024 * 1024
 MAX_DECOMPRESSED = 80 * 1024 * 1024
-POLL_SECONDS = 12
-NO_WORKER_SECONDS = 240
-MAX_WAIT_SECONDS = 2400
-_FILENAME = re.compile(r"(?:req|res|progress)_[0-9a-f]{24}(?:_[0-4])?\.enc\Z")
+POLL_SECONDS = 15
+NO_WORKER_SECONDS = 480
+MAX_WAIT_SECONDS = 2700
+WORKER_RUNTIME_SECONDS = 2100  # remote engine budget leaves time for upload
+_FILENAME = re.compile(r"(?:req|res|progress)_[0-9a-f]{24}(?:_[0-9])?\.enc\Z")
+
+
+def safe_error_code(error):
+    """Report only fixed, public-safe constants, never exception messages.
+
+    The five v22 runners failed with a generic line, hiding the pinned-SHA
+    and possible key mismatch. These codes reveal neither target nor FEN.
+    """
+    if isinstance(error, ReviewError):
+        fixed={
+            "Unavailable, mismatched or expired compute workload.":"request_or_revision",
+            "Invalid or corrupt encrypted compute artifact.":"encrypted_packet",
+            "Compute exchange git remote unavailable.":"git_remote",
+            "Cannot fetch encrypted compute exchange.":"git_fetch",
+            "Worker Stockfish version does not match coordinator.":"engine_version",
+            "Remote Stockfish work incomplete.":"incomplete_depth",
+            "Encrypted compute exchange could not be persisted after retries.":"git_push_conflict",
+            "Pinned worker git revision differs from the input.":"pinned_code_mismatch",
+        }
+        return fixed.get(str(error),"compute_validation")
+    if isinstance(error, TimeoutError):return "worker_timeout"
+    if isinstance(error, OSError):return "worker_os"
+    return "worker_runtime"
 
 
 def key_material(env=None):
@@ -69,8 +94,10 @@ def unpack(blob, secret):
         raise ReviewError("Invalid encrypted compute artifact.")
     try:
         compressed=cipher(secret).decrypt(blob)
-        # Bound decompression even for authenticated-but-corrupt old packets.
-        obj=gzip.decompress(compressed)
+        # Bound memory *during* decompression, not only afterwards. Even
+        # authenticated compressed input must not create an oversized JSON.
+        with gzip.GzipFile(fileobj=io.BytesIO(compressed)) as stream:
+            obj=stream.read(MAX_DECOMPRESSED+1)
         if len(obj)>MAX_DECOMPRESSED:
             raise ValueError("Decoded artifact oversized")
         return json.loads(obj)
@@ -294,9 +321,10 @@ def validate_response(originals,payload,*,ticket,index,revision,engine):
     return returned
 
 
-def _dispatch(ticket,token,repo):
-    if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+",repo):
-        raise ReviewError("Invalid GitHub repository for Fair Play compute.")
+def _dispatch(ticket,revision,token,repo):
+    if (not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+",repo)
+            or not re.fullmatch(r"[0-9a-f]{40}",revision)):
+        raise ReviewError("Invalid repository or code revision for Fair Play compute.")
     import requests
     url=f"https://api.github.com/repos/{repo}/actions/workflows/fairplay_distributed.yml/dispatches"
     try:
@@ -304,7 +332,11 @@ def _dispatch(ticket,token,repo):
             "Authorization":"Bearer "+token,
             "Accept":"application/vnd.github+json",
             "X-GitHub-Api-Version":"2022-11-28"},
-            json={"ref":"main","inputs":{"ticket":ticket}},timeout=15,allow_redirects=False)
+            # Workflow definition comes from main; the worker checkout pins
+            # itself to the still-running coordinator's immutable commit.
+            json={"ref":"main","inputs":{"ticket":ticket,
+                                           "revision":revision}},
+            timeout=15,allow_redirects=False)
         if response.status_code!=204:
             raise ReviewError("GitHub cannot dispatch Fair Play compute workers.")
     except requests.RequestException:
@@ -312,7 +344,7 @@ def _dispatch(ticket,token,repo):
 
 
 def start(games,target,*,revision,engine,store=None,env=None):
-    """Start five shards before main-thread Maia; return ticket for later join.
+    """Start ten shards before main-thread Maia; return ticket for later join.
 
     A failed dispatch returns None: the central scan performs the *exact same*
     depth18/depth12 searches locally and does not publish partial evidence.
@@ -348,7 +380,7 @@ def start(games,target,*,revision,engine,store=None,env=None):
         else:
             store.put(request_file,payload)
             fresh_request=True
-            _dispatch(ticket,token,repo)
+            _dispatch(ticket,revision,token,repo)
     except (ReviewError,TypeError,ValueError):
         if fresh_request:
             try:store.remove([request_file])
@@ -359,7 +391,7 @@ def start(games,target,*,revision,engine,store=None,env=None):
 
 
 def join(handle,progress,deadline,*,max_wait=MAX_WAIT_SECONDS,clock=None,sleep=None):
-    """One barrier; no per-shard cheating scores; return None for safe local fallback.
+    """One barrier; no per-shard cheating scores; return verified games or local recovery.
 
     Returns a map of complete validated remote games even if a single worker
     failed, so the central scan can locally recover missing games only.
@@ -374,11 +406,16 @@ def join(handle,progress,deadline,*,max_wait=MAX_WAIT_SECONDS,clock=None,sleep=N
     result={}
     last_progress={i:0 for i in range(len(handle["shards"]))}
     last_seen=clock()
-    end=min(float(deadline),clock()+max_wait)
+    dead=set()
+    handle["stats"]={"shards":len(handle["shards"]),"completed":0,
+                     "failed":0,"stalled":0,"remote_positions":0,
+                     "reason":"pending"}
+    end=min(float(deadline),handle["started"]+max_wait)
     while clock()<end:
         check_deadline(deadline)
         try:
-            outstanding=[i for i in range(len(handle["shards"])) if i not in result]
+            outstanding=[i for i in range(len(handle["shards"]))
+                         if i not in result and i not in dead]
             # A completed response can contain megabytes of engine data.
             # Decrypt each finished shard only ONCE, not on every 12s poll.
             records=handle["store"].read_many(
@@ -389,6 +426,8 @@ def join(handle,progress,deadline,*,max_wait=MAX_WAIT_SECONDS,clock=None,sleep=N
         invalid_response=False
         for index,shard in enumerate(handle["shards"]):
             name=names[index]
+            if index in dead:
+                continue
             if index in result:
                 done_positions+=sum(len(g.decisions) for g in result[index])
                 continue
@@ -400,13 +439,22 @@ def join(handle,progress,deadline,*,max_wait=MAX_WAIT_SECONDS,clock=None,sleep=N
                     last_seen=clock()
                     done_positions+=sum(len(g.decisions) for g in result[index])
                 except ReviewError:
-                    invalid_response=True
-                    break  # no false certification on corrupt result
+                    dead.add(index)
+                    handle["stats"]["reason"]="invalid_evidence"
+                    # Recompute just this game group locally, not valid shards.
+                    continue
             else:
                 row=records.get(statuses[index],{})
                 if (isinstance(row,dict) and row.get("schema")==SCHEMA and
                         row.get("ticket")==ticket and row.get("index")==index and
                         row.get("revision")==handle["revision"]):
+                    if row.get("state")=="failed":
+                        # Only authenticated, fixed status codes; never include
+                        # raw failure exceptions, FENs or account information.
+                        dead.add(index)
+                        handle["stats"]["reason"]="worker_failed"
+                        last_seen=clock()
+                        continue
                     got=row.get("done")
                     expected=sum(len(g.decisions) for g in shard)
                     if isinstance(got,int) and 0<=got<=expected:
@@ -417,16 +465,23 @@ def join(handle,progress,deadline,*,max_wait=MAX_WAIT_SECONDS,clock=None,sleep=N
         if invalid_response:
             break
         progress(f"Depth-18 rapid/blitz · depth-12 bullet: {done_positions} / {total} positions")
-        if len(result)==len(handle["shards"]):break
+        if len(result)+len(dead)==len(handle["shards"]):
+            break
         if clock()-handle["started"]>=NO_WORKER_SECONDS and not result and done_positions==0:
+            handle["stats"]["reason"]="startup_timeout"
             break
         if clock()-last_seen>900:
+            handle["stats"]["reason"]="progress_timeout"
             break  # stalled workers; safely recover remaining games locally
         sleep(min(POLL_SECONDS,max(0,end-clock())))
     completed={}
     for index,group in result.items():
         for game in group:completed[game.identity]=game
+    handle["stats"].update(completed=len(result),failed=len(dead),
+        stalled=max(0,len(handle["shards"])-len(result)-len(dead)),
+        remote_positions=sum(len(g.decisions) for group in result.values() for g in group))
     if len(result)==len(handle["shards"]):
+        handle["stats"]["reason"]="all_verified"
         try:handle["store"].remove(
             [artifact_name("req",ticket)]+names+statuses)
         except ReviewError:pass
@@ -444,16 +499,22 @@ def worker(ticket,index,*,env=None,store=None,clock=None):
     store=store or EncryptedGitStore(secret)
     rows=store.read_many([artifact_name("req",ticket)])
     request=rows.get(artifact_name("req",ticket))
+    # INPUT_REVISION is the pinned git checkout, while GITHUB_SHA identifies
+    # the dispatch workflow definition on main and may have changed since
+    # the controller started. Requiring GITHUB_SHA caused ten live failures.
+    source_revision=env.get("INPUT_REVISION") or env.get("GITHUB_SHA")
     if (not isinstance(request,dict) or request.get("schema")!=SCHEMA
             or request.get("ticket")!=ticket or request.get("version")!=VERSION
-            or request.get("revision")!=env.get("GITHUB_SHA")
+            or not isinstance(source_revision,str)
+            or re.fullmatch(r"[0-9a-f]{40}",source_revision) is None
+            or request.get("revision")!=source_revision
             or request.get("config")!=repr(CONFIG) or
             not isinstance(request.get("games"),list) or
             len(request["games"])!=WORKERS or
             not 0<=time.time()-request.get("created",0)<REQUEST_LIFETIME):
         raise ReviewError("Unavailable, mismatched or expired compute workload.")
     tasks=[deserialize_game(row) for row in request["games"][index]]
-    if len(tasks)>75 or not all(g.rated is True for g in tasks):
+    if len(tasks)>50 or not all(g.rated is True for g in tasks):
         raise ReviewError("Invalid bounded and rated compute workload.")
     # Workers only compute exact Stockfish; no Chess.com fetch, no Discord,
     # no scoring, no policy reranking and no GitHub release/deployment actions.
@@ -463,7 +524,7 @@ def worker(ticket,index,*,env=None,store=None,clock=None):
     workers=min(4,max(1,available_engine_cpus()))
     pool=SharedEnginePool(CONFIG,size=workers)
     started=clock()
-    deadline=started+MAX_WAIT_SECONDS
+    deadline=started+WORKER_RUNTIME_SECONDS
     total=sum(len(g.decisions) for g in tasks)
     last_status=[started-100]
     def notify(stage):
@@ -471,12 +532,13 @@ def worker(ticket,index,*,env=None,store=None,clock=None):
         matched=re.search(r"(\d+)\s*/\s*(\d+) positions",stage)
         if not matched:return
         done=int(matched[1])
-        if clock()-last_status[0]<50 and done<total:return
+        if clock()-last_status[0]<90 and done<total:return
         last_status[0]=clock()
         try:
             store.put(artifact_name("progress",ticket,index),{
                 "schema":SCHEMA,"ticket":ticket,"revision":request["revision"],
-                "index":index,"done":done,"total":total})
+                "index":index,"state":"running",
+                "done":done,"total":total})
         except ReviewError:
             pass  # Progress is advisory. Final output is mandatory.
     try:
@@ -500,5 +562,15 @@ def worker(ticket,index,*,env=None,store=None,clock=None):
             "revision":request["revision"],"engine":name,
             "games":[serialize_game(g) for g in tasks]})
         return {"positions":total,"games":len(tasks),"shard":index}
+    except Exception:
+        # Keep failures isolated from the other nine shards, and let the
+        # coordinator immediately recover missing games on its local pool.
+        try:
+            store.put(artifact_name("progress",ticket,index),{
+                "schema":SCHEMA,"ticket":ticket,"revision":request["revision"],
+                "index":index,"state":"failed","done":0,"total":total})
+        except Exception:
+            pass
+        raise
     finally:
         pool.close()

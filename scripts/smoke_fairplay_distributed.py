@@ -14,7 +14,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from fairplay_analysis import EngineScanner
 from fairplay_config import CONFIG, VERSION
 from fairplay_data import parse_game
-from fairplay_distributed import SCHEMA, artifact_name, serialize_game, validate_response, worker
+from fairplay_distributed import SCHEMA, WORKERS, artifact_name, serialize_game, validate_response, worker
 from scripts.smoke_stockfish_reviews import fixture, TARGET
 
 
@@ -47,13 +47,14 @@ def main():
     store.put(artifact_name("req",ticket),{
         "schema":SCHEMA,"ticket":ticket,"version":VERSION,
         "revision":revision,"config":repr(CONFIG),"engine":engine,
-        "created":time.time(),"games":[[serialize_game(game)],[],[],[],[]]})
+        "created":time.time(),"games":[[serialize_game(game)]]+[[] for _ in range(WORKERS-1)]})
     previous=os.environ.get("GITHUB_SHA")
     try:
-        os.environ["GITHUB_SHA"]=revision
+        os.environ["GITHUB_SHA"]="c"*40
         outcome=worker(ticket,0,store=store,
                        env={"FAIRPLAY_DISTRIBUTED_KEY":"synthetic-local-secret",
-                            "GITHUB_SHA":revision})
+                            "INPUT_REVISION":revision,
+                            "GITHUB_SHA":"c"*40})
     finally:
         if previous is None:os.environ.pop("GITHUB_SHA",None)
         else:os.environ["GITHUB_SHA"]=previous

@@ -1094,7 +1094,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             progress(f'Fast candidate verification: {len(work)} / {len(work)} positions')
             if distributed_mode and v21_deep:
                 from fairplay_distributed import start as start_distributed
-                # Dispatch BEFORE Maia, so the five external Stockfish runners
+                # Dispatch BEFORE Maia, so ten external Stockfish runners
                 # work while the controller computes human-policy alternatives.
                 distributed_handle=start_distributed(
                     v21_deep,target,revision=os.getenv('GITHUB_SHA',''),
@@ -1315,6 +1315,11 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         result=(integrate_policy(result,scoring_games,config,
                                  strict_original_sequence=True)
                 if v21_mode else integrate_policy(result,scoring_games,config))
+        # Explain which paired comparisons are missing versus genuinely
+        # unstable. This does not modify either thresholds or priority.
+        from fairplay_stability_audit import summarise_stability
+        result.diagnostics['paired_stability_audit']=summarise_stability(
+            scoring_games,(result.diagnostics.get('gameplay',{}).get('best') or {}).get('ids',()))
         # Astra evidence accounting is strictly observational. Production
         # eligibility, confidence and classifications were already frozen.
         from fairplay_evidence_audit import audit_engine_sample
@@ -1366,7 +1371,16 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                               + ' No full-depth claim for other games.'}
             result.diagnostics['distributed_compute']={
                 'enabled':distributed_mode,
-                'jobs_requested':5 if distributed_handle is not None else 0,
+                'jobs_requested':__import__('fairplay_distributed').WORKERS
+                    if distributed_handle is not None else 0,
+                'shards_completed':(distributed_handle.get('stats') or {}).get('completed',0)
+                    if distributed_handle is not None else 0,
+                'shards_failed':(distributed_handle.get('stats') or {}).get('failed',0)
+                    if distributed_handle is not None else 0,
+                'shards_stalled':(distributed_handle.get('stats') or {}).get('stalled',0)
+                    if distributed_handle is not None else 0,
+                'compute_status':(distributed_handle.get('stats') or {}).get('reason','not_dispatched')
+                    if distributed_handle is not None else 'not_dispatched',
                 'games_verified_remotely':len(distributed_completed),
                 'games_recomputed_locally':sum(g.identity not in distributed_completed for g in v21_deep)
                     if distributed_mode else 0,
