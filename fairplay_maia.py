@@ -155,16 +155,16 @@ def selection(games,*,full_coverage=False,recent_full_ids=None):
     # legally replayable player decision in that scope, including early and
     # weak moves, not just geometry-ranked or engine-matching decisions.
     # Those positions are NOT subject to the historical 1600-sample cap.
-    # Older comparison games continue to share the old bounded cap, with the
-    # first claim on the budget going to the latest-fifty complete set.
+    # Older comparison games KEEP their independent former bounded sample;
+    # the latest fifty may not crowd out the baseline evidence used to
+    # discover a recent regime change. The combined count can exceed 1600.
     if recent_full_ids and not full_coverage:
         wanted=set(recent_full_ids)
         recent=[g for g in games if g.identity in wanted]
         older=[g for g in games if g.identity not in wanted]
         complete=selection(recent,full_coverage=True)
-        budget=(1600 if os.getenv('FAIRPLAY_DISTRIBUTED')=='1' else MAX_POSITIONS)
         sampled=selection(older,full_coverage=False)
-        return complete+sampled[:max(0,budget-len(complete))]
+        return complete+sampled
     # Compare successes and misses: selection uses position geometry, never
     # CPL, top-1, high-information hits, account names or validation labels.
     eligible=[g for g in games if g.moves and g.rating is not None and g.opponent_rating is not None]
