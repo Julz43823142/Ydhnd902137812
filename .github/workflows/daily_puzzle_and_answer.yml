@@ -213,14 +213,14 @@ jobs:
         run: python bot.py
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
-          # Broad MultiPV1 screening of 500 rated games, with v22-selected
-          # deep PV3 across up to 250 games and bounded Maia observations.
-          # Opt-in only; inactive until this PR is independently merged.
+          # Broad MultiPV1 screening of 500 rated games, with up to 250
+          # selected deep MultiPV3 games and bounded Maia observations.
+          # v23 pins the external compute checkout to this controller SHA.
           FAIRPLAY_FULL_DEPTH18: "1"
           FAIRPLAY_V21: "1"
-          # v22: dispatch five independent encrypted Stockfish compute shards.
-          # Merge/approval remains owner-only; the compute workflow is idle
-          # until this controller explicitly dispatches a reviewed job.
+          # v23: on-demand encrypted compute over ten separate runner jobs.
+          # One controlling Discord process, one authoritative review report.
+          # Workers remain idle unless a Fair Play review dispatches them.
           FAIRPLAY_DISTRIBUTED: "1"
           GITHUB_TOKEN: ${{ github.token }}
           FAIRPLAY_DISTRIBUTED_KEY: ${{ secrets.FAIRPLAY_DISTRIBUTED_KEY }}
