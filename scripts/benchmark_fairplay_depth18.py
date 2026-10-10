@@ -33,16 +33,19 @@ def main():
         for decision in positions:
             board = chess.Board(decision.fen)
             row = {'ply': decision.ply}
-            for name, limit in (('current_24k', chess.engine.Limit(nodes=CONFIG.fast_nodes)),
-                                ('depth_18', chess.engine.Limit(depth=18))):
+            for name, limit, multipv in (
+                ('current_24k', chess.engine.Limit(nodes=CONFIG.fast_nodes),CONFIG.fast_multipv),
+                ('depth_18', chess.engine.Limit(depth=18),CONFIG.deep_multipv),
+                ('depth_18_reference_pv5', chess.engine.Limit(depth=18),5)):
                 engine.configure({'Clear Hash': None})
                 start = time.monotonic()
                 try:
-                    infos = engine.analyse(board, limit, multipv=CONFIG.fast_multipv)
+                    infos = engine.analyse(board, limit, multipv=multipv)
                     duration = time.monotonic() - start
                     row[name] = {
                         'seconds': round(duration, 4),
-                        'depth': infos[0].get('depth'),
+                        'multipv':multipv,
+                        'depth': min(info.get('depth',0) for info in infos),
                         'nodes': infos[0].get('nodes'),
                         'best': infos[0]['pv'][0].uci(),
                     }
@@ -62,13 +65,17 @@ def main():
     fast = [r['current_24k']['seconds'] for r in observations]
     deep = [r['depth_18']['seconds'] for r in observations]
     nodes = [r['depth_18']['nodes'] for r in observations]
+    reference=[r['depth_18_reference_pv5']['seconds'] for r in observations]
     result = {
-        'source': 'synthetic PGN; pinned Stockfish 19; Threads=1; MultiPV=5',
+        'source': 'synthetic PGN; pinned Stockfish 19; Threads=1; paired MultiPV 3 versus 5',
         'positions': len(observations),
         'fast_median_seconds': statistics.median(fast),
         'depth18_median_seconds': statistics.median(deep),
         'fast_sum_seconds': sum(fast),
         'depth18_sum_seconds': sum(deep),
+        'depth18_multipv':CONFIG.deep_multipv,
+        'depth18_reference_pv5_sum_seconds':sum(reference),
+        'candidate_search_pv3_vs_pv5_speedup':round(sum(reference)/sum(deep),3),
         'wall_work_ratio': sum(deep) / sum(fast),
         'depth18_median_nodes': statistics.median(nodes),
         'depth18_max_seconds': max(deep),
