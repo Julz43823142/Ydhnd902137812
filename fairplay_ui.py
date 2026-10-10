@@ -126,8 +126,15 @@ def result_embed(result: ReviewResult):
     v21=result.diagnostics.get('v21_selection',{})
     if v21:
         sample += (f"\nScoped deep coverage: {v21['deep_games_completed']}/"
-                   f"{v21['recent_peer_deep_games']+v21['historical_extra_deep_games']} "
+                   f"{v21['recent_peer_deep_games']+v21['historical_extra_deep_games']+v21.get('recent_tail_nonpeer_deep_games',0)} "
                    "selected games; 500-wide coverage is FAST-ONLY outside scope.")
+        if 'recent_20_rated_deep_coverage' in v21:
+            last=min(20,v21['broad_fast_games'])
+            sample+=(f"\nLatest rated games covered at deep budget: "
+                     f"**{v21['recent_20_rated_deep_coverage']}/{last}**"
+                     f" · {v21.get('recent_tail_nonpeer_deep_games',0)} "
+                     "recent non-peer games included. "
+                     "Weak-opponent wins are not engine-cheat evidence.")
     if coverage.get('history_probed'):
         sample += f'\nRecent rated primary sample: {coverage["primary_fast_scanned"]}/{coverage["primary_collected"]} · historical discovery probes: {coverage.get("history_probed",0)}'
     sample += f'\nSkipped unrated games while collecting history: {result.skipped.get("unrated",0)} · unknown rated status: {result.skipped.get("rated_status_unknown",0)}'
@@ -136,7 +143,7 @@ def result_embed(result: ReviewResult):
     if coverage.get('requested_primary_limit'):
         if v21:
             scope.append(f"Review scope: up to {coverage['requested_primary_limit']} rated games fast-screened; "
-                         f"{v21['deep_games_completed']} peer-matched/stratified games deep-reviewed; "
+                         f"{v21['deep_games_completed']} selected peer/stratified/recent-tail games deep-reviewed; "
                          "the other fast games are NOT depth-confirmed.")
         else:
             scope.append(f"Engine scope: latest up to {coverage['requested_primary_limit']} eligible rated games. "
