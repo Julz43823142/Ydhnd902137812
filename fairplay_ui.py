@@ -161,6 +161,27 @@ def result_embed(result: ReviewResult):
     if dates:sample += f'\nEngine-covered dates: <t:{min(dates)}:d> → <t:{max(dates)}:d>'
     embed.add_field(name='Sample',value=sample[:1024],inline=False)
     if scope:embed.add_field(name='Review scope — bounded archive',value='\n'.join(scope)[:1024],inline=False)
+    recent=result.diagnostics.get('recent_tail_audit') or {}
+    if recent.get('schema')=='sharkbot-recent-tail-audit-v1':
+        tail=recent.get('last_20') or {}
+        short=recent.get('last_10') or {}
+        if tail.get('games'):
+            embed.add_field(
+                name='Latest rated results & opponent strength (descriptive only)',
+                value=(f"Latest {tail['games']}: "
+                       f"**{tail.get('wins',0)}W/{tail.get('draws',0)}D/{tail.get('losses',0)}L**"
+                       f" · deep-reviewed **{tail.get('deep_reviewed',0)}/{tail['games']}**"
+                       f" · {tail.get('opponent_more_than_500_weaker',0)} opponents more than "
+                       "500 Elo weaker.\n"
+                       f"Latest {short.get('games',0)}: "
+                       f"**{short.get('wins',0)}W/{short.get('draws',0)}D/"
+                       f"{short.get('losses',0)}L**"
+                       f" · deep-reviewed **{short.get('deep_reviewed',0)}/"
+                       f"{short.get('games',0)}**"
+                       f" · {short.get('opponent_more_than_500_weaker',0)} weak opponents. "
+                       "Win streaks are not proof of engine use; evaluate "
+                       "post-opening choices and comparable opposition.")[:1024],
+                inline=False)
     history=result.diagnostics.get('public_history_stats',{})
     if history:
         period_lines=[]
