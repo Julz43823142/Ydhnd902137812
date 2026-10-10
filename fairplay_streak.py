@@ -38,6 +38,64 @@ def _expected(game):
     return None
 
 
+def low_rating_accuracy_pairs(scope):
+    """Read-only 90+ Accuracy *consecutive* game pairs around 500 Elo.
+
+    The pair itself is merely observed. Calling it supported review context
+    also requires real move opportunities, an earlier quality reference, and
+    opposition within a comparable rating range. No probabilistic cheating
+    interpretation and no independent contribution to HIGH.
+    """
+    observations=[]
+    supported=[]
+    for first,second in zip(scope,scope[1:]):
+        if (first.time_class != second.time_class
+                or first.time_class not in ('rapid','blitz','bullet')):
+            continue
+        if not all(_accuracy(g) is not None and _accuracy(g)>=90
+                   for g in (first,second)):
+            continue
+        if not all(isinstance(g.rating,int) and not isinstance(g.rating,bool)
+                   and 300 <= g.rating <= 600 for g in (first,second)):
+            continue
+        def informative(g):
+            metrics=(getattr(g,'fast_metrics',None)
+                     or getattr(g,'metrics',None) or {})
+            number=metrics.get('decisions',0)
+            return isinstance(number,int) and not isinstance(number,bool) and number>=8
+        enough_decisions=all(informative(g) for g in (first,second))
+        comparable_opposition=all(
+            _expected(g) is not None
+            and g.opponent_rating >= g.rating-300
+            for g in (first,second))
+        row={
+            'time_class':first.time_class,
+            'games':2,'accuracy_90_plus_games':2,
+            'mean_accuracy':round((_accuracy(first)+_accuracy(second))/2,2),
+            'deep_reviewed_games':sum(bool(getattr(g,'deep',False))
+                                      for g in (first,second)),
+            'both_games_have_eight_useful_decisions':enough_decisions,
+            'opponent_strength_comparable':comparable_opposition,
+            'end_time':int(second.ended),
+        }
+        observations.append(row)
+        if enough_decisions and comparable_opposition and row['deep_reviewed_games']==2:
+            supported.append(row)
+    return {
+        'observed_pairs':len(observations),
+        'review_context_pairs':len(supported),
+        'review_context_flag':bool(supported),
+        'best':max(supported or observations,
+                   key=lambda r:(r['deep_reviewed_games'],
+                                 r['mean_accuracy'],r['end_time']),default=None),
+        'scoring_influence':False,
+        'interpretation':(
+            'Two official 90+ Accuracy reports near 500 Elo are unusual enough '
+            'to inspect, but their base rate is unknown and position difficulty '
+            'varies. This cannot by itself elevate priority.'),
+    }
+
+
 def accuracy_streak_audit(games):
     """Return anonymized aggregate observations; no FENs, IDs or user names."""
     by_id={}
@@ -136,6 +194,7 @@ def accuracy_streak_audit(games):
                            r['win_games'],r['end_time']),default=None)
     return {
         'schema':SCHEMA,
+        'low_rating_90_plus_pairs':low_rating_accuracy_pairs(scope),
         'latest_rated_scope':len(scope),
         'last_50_accuracy_reported':sum(_accuracy(g) is not None for g in scope),
         'last_10_accuracy_reported':sum(_accuracy(g) is not None for g in scope[-10:]),
