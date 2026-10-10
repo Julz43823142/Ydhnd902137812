@@ -387,7 +387,8 @@ def join(handle,progress,deadline,*,max_wait=MAX_WAIT_SECONDS,clock=None,sleep=N
     while clock()<end:
         check_deadline(deadline)
         try:
-            outstanding=[i for i in range(len(handle["shards"])) if i not in result]
+            outstanding=[i for i in range(len(handle["shards"]))
+                         if i not in result and i not in dead]
             # A completed response can contain megabytes of engine data.
             # Decrypt each finished shard only ONCE, not on every 12s poll.
             records=handle["store"].read_many(
@@ -398,6 +399,8 @@ def join(handle,progress,deadline,*,max_wait=MAX_WAIT_SECONDS,clock=None,sleep=N
         invalid_response=False
         for index,shard in enumerate(handle["shards"]):
             name=names[index]
+            if index in dead:
+                continue
             if index in result:
                 done_positions+=sum(len(g.decisions) for g in result[index])
                 continue
@@ -409,13 +412,22 @@ def join(handle,progress,deadline,*,max_wait=MAX_WAIT_SECONDS,clock=None,sleep=N
                     last_seen=clock()
                     done_positions+=sum(len(g.decisions) for g in result[index])
                 except ReviewError:
-                    invalid_response=True
-                    break  # no false certification on corrupt result
+                    dead.add(index)
+                    handle["stats"]["reason"]="invalid_evidence"
+                    # Recompute just this game group locally, not valid shards.
+                    continue
             else:
                 row=records.get(statuses[index],{})
                 if (isinstance(row,dict) and row.get("schema")==SCHEMA and
                         row.get("ticket")==ticket and row.get("index")==index and
                         row.get("revision")==handle["revision"]):
+                    if row.get("state")=="failed":
+                        # Only authenticated, fixed status codes; never include
+                        # raw failure exceptions, FENs or account information.
+                        dead.add(index)
+                        handle["stats"]["reason"]="worker_failed"
+                        last_seen=clock()
+                        continue
                     got=row.get("done")
                     expected=sum(len(g.decisions) for g in shard)
                     if isinstance(got,int) and 0<=got<=expected:
@@ -426,16 +438,23 @@ def join(handle,progress,deadline,*,max_wait=MAX_WAIT_SECONDS,clock=None,sleep=N
         if invalid_response:
             break
         progress(f"Depth-18 rapid/blitz · depth-12 bullet: {done_positions} / {total} positions")
-        if len(result)==len(handle["shards"]):break
+        if len(result)+len(dead)==len(handle["shards"]):
+            break
         if clock()-handle["started"]>=NO_WORKER_SECONDS and not result and done_positions==0:
+            handle["stats"]["reason"]="startup_timeout"
             break
         if clock()-last_seen>900:
+            handle["stats"]["reason"]="progress_timeout"
             break  # stalled workers; safely recover remaining games locally
         sleep(min(POLL_SECONDS,max(0,end-clock())))
     completed={}
     for index,group in result.items():
         for game in group:completed[game.identity]=game
+    handle["stats"].update(completed=len(result),failed=len(dead),
+        stalled=max(0,len(handle["shards"])-len(result)-len(dead)),
+        remote_positions=sum(len(g.decisions) for group in result.values() for g in group))
     if len(result)==len(handle["shards"]):
+        handle["stats"]["reason"]="all_verified"
         try:handle["store"].remove(
             [artifact_name("req",ticket)]+names+statuses)
         except ReviewError:pass
@@ -491,7 +510,8 @@ def worker(ticket,index,*,env=None,store=None,clock=None):
         try:
             store.put(artifact_name("progress",ticket,index),{
                 "schema":SCHEMA,"ticket":ticket,"revision":request["revision"],
-                "index":index,"done":done,"total":total})
+                "index":index,"state":"running",
+                "done":done,"total":total})
         except ReviewError:
             pass  # Progress is advisory. Final output is mandatory.
     try:
@@ -515,5 +535,15 @@ def worker(ticket,index,*,env=None,store=None,clock=None):
             "revision":request["revision"],"engine":name,
             "games":[serialize_game(g) for g in tasks]})
         return {"positions":total,"games":len(tasks),"shard":index}
+    except Exception:
+        # Keep failures isolated from the other nine shards, and let the
+        # coordinator immediately recover missing games on its local pool.
+        try:
+            store.put(artifact_name("progress",ticket,index),{
+                "schema":SCHEMA,"ticket":ticket,"revision":request["revision"],
+                "index":index,"state":"failed","done":0,"total":total})
+        except Exception:
+            pass
+        raise
     finally:
         pool.close()
