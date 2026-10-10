@@ -112,6 +112,8 @@ def result_embed(result: ReviewResult):
     depth_contract=result.diagnostics.get('run_contract',{})
     if depth_contract.get('required_primary_depth_by_class'):
         sample+='\nStockfish depth: Rapid/Blitz 18 · Bullet 12 (screening; lower precision)'
+    elif depth_contract.get('selected_required_depth_by_class'):
+        sample+='\nSelected deep sample only: Rapid/Blitz depth 18 · Bullet depth 12'
     if depth_contract.get('fast',{}).get('multipv') == 1:
         sample+='\nBroad: MultiPV 1 + played-move check · Selected fast + deep: MultiPV 3' if depth_contract.get('required_selected_full_depth') else '\nFast: MultiPV 1 + played-move check · Deep: MultiPV 3'
     v21=result.diagnostics.get('v21_selection',{})
