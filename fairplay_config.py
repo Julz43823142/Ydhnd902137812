@@ -40,7 +40,7 @@ class ReviewConfig:
     high_engine_score: float = .65
     high_critical_score: float = .65
     very_high_score: float = .88
-    deep_multipv: int = 5  # preserve candidate gaps and critical/unique evidence for HIGH priorities
+    deep_multipv: int = 3  # three exact candidates for critical/unique evidence; fast searches stay at MultiPV 1
     max_archives: int = 240  # Search available monthly archives back to Chess.com's beginning
     max_plies: int = 600
     min_plies: int = 24
