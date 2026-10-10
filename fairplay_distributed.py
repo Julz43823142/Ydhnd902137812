@@ -266,6 +266,8 @@ def validate_response(originals,payload,*,ticket,index,revision,engine):
         for before,after in zip(source.decisions,game.decisions):
             if (before.ply,before.fen,before.move)!=(after.ply,after.fen,after.move):
                 raise ReviewError("Worker response position mismatch.")
+            if normalize(before.fast_engine)!=after.fast_engine:
+                raise ReviewError("Worker altered the verified fast MultiPV-3 evidence.")
             contract=after.metrics.get("search_contract",{})
             if (contract.get("engine")!=engine or contract.get("mode")!="depth"
                     or contract.get("requested")!=depth
