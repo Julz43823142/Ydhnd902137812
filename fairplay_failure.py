@@ -170,6 +170,38 @@ async def send_report(ctx, review_id):
         ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
 
 
+async def owner_diagnostics(ctx, review_id=""):
+    """Private fallback if DM delivery was blocked, including after a restart."""
+    if ctx.user.id != ADMIN_ID:
+        await ctx.response.send_message(
+            "Only Sharkmeister can view Fair Play diagnostics.",ephemeral=True)
+        return
+    review_id=str(review_id or "").strip().lower()
+    if review_id:
+        await send_report(ctx,review_id)
+        return
+    await ctx.response.defer(ephemeral=True,thinking=True)
+    service=_store_for_interaction()
+    if service is None:
+        await ctx.followup.send("Fair Play is not yet initialized.",ephemeral=True)
+        return
+    if service.checkpoints is not None:
+        recent=await asyncio.to_thread(service.checkpoints.recent_failures,5)
+    else:
+        recent=list(reversed(list(service.failures.items())))[:5]
+    if not recent:
+        await ctx.followup.send("No failed reviews have been recorded yet.",ephemeral=True)
+        return
+    lines=[f"`{token}` · {row.get('reason_code','unknown')} · "
+           f"{(row.get('git_commit') or 'unknown')[:12]} · "
+           f"{row.get('elapsed_text','unknown')}" for token,row in recent]
+    await ctx.followup.send(
+        "Recent encrypted Fair Play diagnostics (newest first):\\n"
+        +"\\n".join(lines)
+        +"\\nUse /fairplaydiagnostic with the Review ID to receive a JSON export.",
+        ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
+
+
 class FailureView(discord.ui.View):
     """Persistent in owner DM; cannot reveal reports to another Discord account."""
     def __init__(self):
