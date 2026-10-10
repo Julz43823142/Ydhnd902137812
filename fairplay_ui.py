@@ -196,6 +196,20 @@ def result_embed(result: ReviewResult):
         headline=(f"**{streak.get('last_50_accuracy_reported',0)}/"
                   f"{streak.get('latest_rated_scope',0)}** latest rated games "
                   "have officially reported Accuracy. ")
+        pair=streak.get('low_rating_90_plus_pairs') or {}
+        pairs=pair.get('best') or {}
+        if pair.get('observed_pairs'):
+            headline+=(f"Low-rating 90+ Accuracy: "
+                       f"**{pair.get('observed_pairs',0)}** consecutive "
+                       "two-game pairs at rating 300–600; "
+                       f"**{pair.get('review_context_pairs',0)}** have "
+                       "sufficient meaningful decisions, full deep reviews "
+                       "and comparable opponents. ")
+            if pairs.get('older_accuracy_mean') is not None:
+                headline+=(f"Prior same-class Accuracy "
+                           f"**{pairs['older_accuracy_mean']:.1f}** "
+                           f"({pairs.get('older_reported_accuracy_games',0)} "
+                           "reported games). ")
         if candidate:
             headline+=(f"Strongest 10-game observed streak "
                        f"({candidate.get('time_class','').title()}): "
