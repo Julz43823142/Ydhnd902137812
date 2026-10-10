@@ -34,8 +34,14 @@ class PeerSelectionTests(unittest.TestCase):
                for i in range(1000)]
         plan=broad_and_core(games)
         self.assertEqual(len(plan.primary),500)
-        self.assertEqual(len(plan.core),100)
+        # The latest fifty are mandatory even against non-peer opponents;
+        # fifty older peers preserve a disjoint comparison sample.
+        self.assertEqual(len(plan.core),50)
+        self.assertEqual(len(plan.recent_tail),50)
+        self.assertEqual(len(plan.deep),100)
         self.assertTrue(all(is_peer_game(g) for g in plan.core))
+        self.assertEqual({g.identity for g in plan.recent_tail},
+                         {g.identity for g in games[-50:]})
         self.assertLess(max(g.ended for g in plan.core),max(g.ended for g in plan.primary))
         self.assertEqual(len({g.identity for g in plan.primary}),500)
         self.assertTrue(set(g.identity for g in plan.core)<=set(g.identity for g in plan.primary))
@@ -65,14 +71,14 @@ class PeerSelectionTests(unittest.TestCase):
         games=[game(i,opponent=1300 if i>=970 else 2300)
                for i in range(1000)]
         plan=discovery_extras(broad_and_core(games),max_extra=25)
-        self.assertEqual(len(plan.core),100)
+        self.assertEqual(len(plan.core),70)
         self.assertTrue(all(is_peer_game(g) for g in plan.core))
-        self.assertEqual(len(plan.recent_tail),20)
-        self.assertEqual(len(plan.reserve),5)
+        self.assertEqual(len(plan.recent_tail),30)
+        self.assertEqual(len(plan.reserve),25)
         self.assertEqual(len(plan.deep),125)
         self.assertEqual(len(plan.primary),500)
         self.assertEqual({g.identity for g in plan.recent_tail},
-                         {g.identity for g in games[-20:]})
+                         {g.identity for g in games[-30:]})
         self.assertEqual(len({g.identity for g in plan.deep}),125)
 
     def test_latest_tail_is_selected_without_outcome_or_accuracy_labels(self):
