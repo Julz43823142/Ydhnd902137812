@@ -55,8 +55,8 @@ def accuracy_streak_audit(games):
     observed=0
     for offset in range(max(0,len(scope)-WINDOW_GAMES+1)):
         subset=scope[offset:offset+WINDOW_GAMES]
-        # Compare like time classes only; mixed time controls might have very
-        # different score ranges and cannot form a reliable Accuracy signal.
+        # Avoid comparing bullet Accuracy to rapid/blitz Accuracy. Exact
+        # clock-control differences inside one class are still a caveat.
         kinds={g.time_class for g in subset}
         if len(kinds)!=1 or next(iter(kinds)) not in ('rapid','blitz','bullet'):
             continue
@@ -137,6 +137,8 @@ def accuracy_streak_audit(games):
     return {
         'schema':SCHEMA,
         'latest_rated_scope':len(scope),
+        'last_50_accuracy_reported':sum(_accuracy(g) is not None for g in scope),
+        'last_10_accuracy_reported':sum(_accuracy(g) is not None for g in scope[-10:]),
         'window_games':WINDOW_GAMES,
         'high_win_accuracy_windows_observed':observed,
         'supported_followup_windows':len(flagged),
