@@ -198,6 +198,35 @@ def result_embed(result: ReviewResult):
             embed.add_field(name='Paired engine evidence (not proof of cheating)',
                             value=('\n'.join(rows)+'\nEvidence-grade stability also requires the position to remain informative; '
                                    'quality preserved is a separate measure. Neither proves misconduct.')[:1024],inline=False)
+    intermittent=result.diagnostics.get('intermittent_coverage_audit') or {}
+    if intermittent.get('schema')=='sharkbot-intermittent-coverage-v1':
+        observed=intermittent.get('deep_sample') or {}
+        played=observed.get('games',0)
+        qualified=observed.get('fully_scored_games',0)
+        details=(f"Deep-reviewed games: **{played}** · "
+                 f"general scoring eligible (8+ useful choices): **{qualified}**. "
+                 "Shorter games still contribute to the chronological research "
+                 "audit and existing gameplay confirmation routes; they are not "
+                 "automatically suspicious or automatically innocent.")
+        candidate=intermittent.get('chronological_research_candidate')
+        if candidate:
+            deep=candidate.get('deep') or {}
+            details+=(f"\nResearch-only {candidate.get('time_class','unknown')} "
+                      f"{candidate.get('games',0)}-game window: "
+                      f"**{deep.get('hits',0)}/{deep.get('opportunities',0)}** "
+                      "deep human-anomaly hits/opportunities. "
+                      "Window selection and low-Elo reference uncertainty "
+                      "prevent this from independently raising priority.")
+        else:
+            details+='\nNo adequately covered fast-selected research window.'
+        domain=intermittent.get('maia_rating_domain') or {}
+        if domain.get('below_600_chesscom_rating_games',0):
+            details+=(f"\nMaia rating calibration warning: "
+                      f"{domain.get('below_600_chesscom_rating_games',0)} "
+                      "deep games have Chess.com ratings below 600; "
+                      "Lichess-based Maia expectations are not calibrated for this range.")
+        embed.add_field(name='Short-game coverage & intermittent research (not a verdict)',
+                        value=details[:1024],inline=False)
     embed.add_field(name='Signals',value='\n'.join(f'**{key}:** {value}' for key,value in result.families.items()),inline=False)
     embed.add_field(name='Review notes',value='\n'.join('• '+value for value in result.reasons)[:1024],inline=False)
     if result.priority=='LOW':
