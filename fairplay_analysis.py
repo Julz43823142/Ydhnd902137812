@@ -1212,8 +1212,11 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                         batch=[game for game,_ in complete_pairs]
                         confirmed_batch=[confirmed for _,confirmed in complete_pairs]
                     for game,confirmed in zip(batch,confirmed_batch):
-                        if (game.identity not in cached_deep and
-                                game.identity not in distributed_completed):
+                        if game.identity in distributed_completed:
+                            # Never trust a remote per-game aggregate. Rebuild
+                            # it locally from individually verified positions.
+                            summarize(confirmed,config)
+                        elif game.identity not in cached_deep:
                             summarize(confirmed,config)
                 elif engine_executor is None:
                     confirmed_batch=[deep_scan(batch[0],scanner)]
