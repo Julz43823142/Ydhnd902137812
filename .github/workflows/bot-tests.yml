@@ -54,7 +54,7 @@ jobs:
         run: python -m pip install -r requirements.txt
       - name: Verify positive and false-positive legacy HIGH selection
         run: |
-          python -m unittest -v test_fairplay_legacy_candidate test_fairplay_end_to_end_audit test_fairplay_stop test_fairplay_evidence_500 test_fairplay_evidence_store test_fairplay_multimodel test_fairplay_model_runtime test_fairplay_model_readiness test_prepare_fairplay_lc0 test_fairplay_500_execution test_fairplay_v21 test_fairplay_lichess_baseline test_fairplay_bullet_fast
+          python -m unittest -v test_fairplay_legacy_candidate test_fairplay_end_to_end_audit test_fairplay_stop test_fairplay_evidence_500 test_fairplay_evidence_store test_fairplay_multimodel test_fairplay_model_runtime test_fairplay_model_readiness test_prepare_fairplay_lc0 test_fairplay_500_execution test_fairplay_v21 test_fairplay_distributed test_fairplay_lichess_baseline test_fairplay_bullet_fast
           python -m unittest -v \
             test_fairplay_v6.PersonalCalibration.test_deep_baseline_improvement_erases_fast_anomaly \
             test_fairplay_status.AccountStatusIndependence.test_full_scoring_is_identical_with_hidden_open_or_closed_status \
@@ -69,7 +69,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install engine review dependencies
-        run: python -m pip install python-chess requests
+        run: python -m pip install python-chess requests cryptography
       - uses: actions/cache@v4
         with:
           path: /tmp/stockfish19-official/Stockfish/src/stockfish
@@ -90,6 +90,8 @@ jobs:
         run: python scripts/smoke_fairplay_equivalence.py
       - name: Verify real v21 MultiPV 1 / MultiPV 3 / depth 18 contract
         run: python scripts/smoke_fairplay_v21.py
+      - name: Verify real isolated v22 worker and full engine depth contract
+        run: python scripts/smoke_fairplay_distributed.py
       - name: Compare compact and standard fixed-node transports
         env:
           BASELINE_STOCKFISH_PATH: /tmp/stockfish19-official/Stockfish/src/stockfish

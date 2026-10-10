@@ -1,0 +1,57 @@
+name: Fair Play Compute (five isolated shards)
+
+on:
+  workflow_dispatch:
+    inputs:
+      ticket:
+        description: "Opaque 24-hex job reference; encrypted game data never enters workflow inputs"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  compute:
+    # Requests run against the trusted published main branch only.
+    if: github.ref == 'refs/heads/main'
+    name: Stockfish shard ${{ matrix.shard }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 48
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        shard: [0, 1, 2, 3, 4]
+    env:
+      # Inject only the compute encryption key, not a Discord-bot identity
+      # variable. Owner should provision FAIRPLAY_DISTRIBUTED_KEY to avoid
+      # reusing the Discord token as the encryption fallback.
+      FAIRPLAY_DISTRIBUTED_KEY: ${{ secrets.FAIRPLAY_DISTRIBUTED_KEY || secrets.DISCORD_TOKEN }}
+      INPUT_TICKET: ${{ inputs.ticket }}
+      INPUT_SHARD: ${{ matrix.shard }}
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - name: Checkout approved Fair Play code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Python 3.11
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install compute-only dependencies
+        run: python -m pip install python-chess requests cryptography
+      - uses: actions/cache@v4
+        with:
+          path: /tmp/stockfish19-official-pgo/Stockfish/src/stockfish
+          key: stockfish-${{ runner.os }}-${{ runner.arch }}-edb0d9db6731067ec50ce619ff372b463bc4dd5d-pgo-v1
+      - name: Prepare pinned official Stockfish 19
+        env:
+          STOCKFISH_PATH: /tmp/stockfish19-official-pgo/Stockfish/src/stockfish
+        run: python scripts/prepare_stockfish.py --github-env --profile-build
+      - name: Run encrypted compute-only shard
+        run: python scripts/fairplay_compute_worker.py

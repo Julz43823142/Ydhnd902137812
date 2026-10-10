@@ -213,10 +213,17 @@ jobs:
         run: python bot.py
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
-          # Full depth-18 Stockfish evaluation of the latest 500 eligible rated games; bounded Maia observations.
+          # Broad MultiPV1 screening of 500 rated games, with v22-selected
+          # deep PV3 across up to 250 games and bounded Maia observations.
           # Opt-in only; inactive until this PR is independently merged.
           FAIRPLAY_FULL_DEPTH18: "1"
           FAIRPLAY_V21: "1"
+          # v22: dispatch five independent encrypted Stockfish compute shards.
+          # Merge/approval remains owner-only; the compute workflow is idle
+          # until this controller explicitly dispatches a reviewed job.
+          FAIRPLAY_DISTRIBUTED: "1"
+          GITHUB_TOKEN: ${{ github.token }}
+          FAIRPLAY_DISTRIBUTED_KEY: ${{ secrets.FAIRPLAY_DISTRIBUTED_KEY }}
           FAIRPLAY_REQUIRE_MAIA: "1"
           # Deterministic supplementary model observations on up to 48
           # temporally spread depth-completed games; never raise verdicts.

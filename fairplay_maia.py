@@ -154,7 +154,10 @@ def selection(games,*,full_coverage=False):
     # Compare successes and misses: selection uses position geometry, never
     # CPL, top-1, high-information hits, account names or validation labels.
     eligible=[g for g in games if g.moves and g.rating is not None and g.opponent_rating is not None]
-    quota=(None if full_coverage else max(1,min(8,MAX_POSITIONS//max(1,len(eligible)))))
+    # Five compute shards permit a wider position-policy comparison on the
+    # selected deep sample. Fixed geometry sampling remains label-blind.
+    budget=(1600 if os.getenv('FAIRPLAY_DISTRIBUTED')=='1' else MAX_POSITIONS)
+    quota=(None if full_coverage else max(1,min(8,budget//max(1,len(eligible)))))
     selected=[]
     for game in eligible:
         choices=(list(game.decisions) if full_coverage else
@@ -174,7 +177,7 @@ def selection(games,*,full_coverage=False):
             move=chess.Move.from_uci(uci)
             if move not in board.legal_moves:break
             board.push(move);history.append(board.fen())
-    return selected if full_coverage else selected[:MAX_POSITIONS]
+    return selected if full_coverage else selected[:budget]
 
 
 class LocalPolicyWorker:
