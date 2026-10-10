@@ -1279,7 +1279,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                             coverage_state=coverage_state,context_games=history,
                             gameplay_periods=gameplay_periods)
         from fairplay_policy import integrate as integrate_policy
-        result=integrate_policy(result,scoring_games,config)
+        result=integrate_policy(result,scoring_games,config,
+                                strict_original_sequence=v21_mode)
         # Astra evidence accounting is strictly observational. Production
         # eligibility, confidence and classifications were already frozen.
         from fairplay_evidence_audit import audit_engine_sample
