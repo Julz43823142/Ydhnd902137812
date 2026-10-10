@@ -1328,6 +1328,11 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         # This module NEVER changes LOW/MODERATE/HIGH/VERY HIGH.
         from fairplay_episodic import integrate as integrate_episodic
         result=integrate_episodic(result,scoring_games,config)
+        # A strictly scoped HIGH route for short but *distributed* recent
+        # ten-game episodes. Uses deep paired search and independent halves;
+        # no performance, Elo-win-streak or published Accuracy shortcut.
+        from fairplay_burst import integrate as integrate_burst
+        result=integrate_burst(result,scoring_games,config)
         # Review all verified deep-reviewed games, including short games with
         # fewer than eight useful moves. The audit is aggregate-only and cannot
         # elevate priority; fast evidence selects any diagnostic period.
