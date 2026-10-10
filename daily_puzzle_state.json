@@ -10539,11 +10539,13 @@
     "schema": 1
   },
   "twitch_live_notifications_v1": {
-    "message_ids": [],
+    "message_ids": [
+      "1558562370144702558"
+    ],
     "last_cleanup_at": "2026-10-10T16:25:03.961000+00:00",
     "last_cleanup_date": "2026-10-01",
-    "last_started_at": "2026-10-10T13:44:45Z",
-    "last_sent_at": "2026-10-10T13:45:13.040729+00:00",
+    "last_started_at": "2026-10-10T19:29:55Z",
+    "last_sent_at": "2026-10-10T19:30:27.741223+00:00",
     "channel_id": "1320033128676589669"
   },
   "seasonal_bot_profile_v1": {
