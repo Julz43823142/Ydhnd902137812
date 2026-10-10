@@ -178,68 +178,89 @@
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
-    "url": "https://www.chess.com/daily/2026-10-09",
-    "title": "So Surprising! 🥳",
-    "fen": "1n2q3/pB1n3p/P2Qp2k/4P1p1/6rb/2BN3K/1PP4P/R4R2 b - - 0 23",
-    "current_fen": "1n2q3/pB1n3p/P2Qp2k/4P1p1/6rb/2BN3K/1PP4P/R4R2 b - - 0 23",
+    "url": "https://www.chess.com/daily/2026-10-10",
+    "title": "Thief in the Knight",
+    "fen": "k7/p2N1p2/2p5/5p1p/2P2P1P/b5P1/Pr3P2/K4R2 b - - 0 1",
+    "current_fen": "k7/p2N1p2/2p5/5p1p/2P2P1P/b5P1/Pr3P2/K4R2 b - - 0 1",
     "last_move_uci": null,
-    "pgn": "[White \"Happy Birthday GM So\"]\n[Black \"Wesley So Blitz Inspiration\"]\n[Result \"*\"]\n[FEN \"1n2q3/pB1n3p/P2Qp2k/4P1p1/6rb/2BN3K/1PP4P/R4R2 b - - 0 23\"]\n\n23... Bf2 24. Kxg4 Qh5# *",
+    "pgn": "[Result \"*\"]\n[FEN \"k7/p2N1p2/2p5/5p1p/2P2P1P/b5P1/Pr3P2/K4R2 b - - 0 1\"]\n\n1... Rb7 2. Rd1 Bb2+ 3. Kb1 Bd4+ 4. Kc2 Rxd7 *",
     "all_moves": [
       {
-        "uci": "h4f2",
-        "san": "Bf2",
+        "uci": "b2b7",
+        "san": "Rb7",
         "color": "black"
       },
       {
-        "uci": "h3g4",
-        "san": "Kxg4",
+        "uci": "f1d1",
+        "san": "Rd1",
         "color": "white"
       },
       {
-        "uci": "e8h5",
-        "san": "Qh5#",
+        "uci": "a3b2",
+        "san": "Bb2+",
+        "color": "black"
+      },
+      {
+        "uci": "a1b1",
+        "san": "Kb1",
+        "color": "white"
+      },
+      {
+        "uci": "b2d4",
+        "san": "Bd4+",
+        "color": "black"
+      },
+      {
+        "uci": "b1c2",
+        "san": "Kc2",
+        "color": "white"
+      },
+      {
+        "uci": "b7d7",
+        "san": "Rxd7",
         "color": "black"
       }
     ],
     "player_moves": [
       {
-        "uci": "h4f2",
-        "san": "Bf2",
+        "uci": "b2b7",
+        "san": "Rb7",
         "color": "black"
       },
       {
-        "uci": "e8h5",
-        "san": "Qh5#",
+        "uci": "a3b2",
+        "san": "Bb2+",
+        "color": "black"
+      },
+      {
+        "uci": "b2d4",
+        "san": "Bd4+",
+        "color": "black"
+      },
+      {
+        "uci": "b7d7",
+        "san": "Rxd7",
         "color": "black"
       }
     ],
     "player_color": "black",
-    "player_move_count": 2,
-    "posted_at": "2026-10-09T07:43:41.438894+00:00",
-    "answer_posted": true,
+    "player_move_count": 4,
+    "posted_at": "2026-10-10T07:48:22.784949+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "daily_1791531821438",
+    "puzzle_id": "daily_1791618502784",
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_id": 1558022127633047552,
+    "message_id": null,
     "attempted_users": {},
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "message_ids": {
-      "1468320170891022417": 1558022127633047552
-    },
-    "channel_id": 1468320170891022417,
-    "board_attachment_filenames": {
-      "1468320170891022417": "daily_puzzle.png"
-    },
-    "chat_since_refresh": 0,
-    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Bf2 Qh5#"
+    "helper_candidate_users": []
   },
   "lichess_rating_used": {
     "2000": [
