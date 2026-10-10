@@ -78,9 +78,27 @@ def summarize_intermit(games, *, minimum_game_decisions=8):
                if getattr(g, "deep", False) and getattr(g, "rated", None) is True
                and not getattr(g, "probe_only", False)]
     overall = _aggregate(scanned)
-    fully_scored = sum(_observation(g)["meaningful"] >= minimum_game_decisions
-                       for g in scanned)
+    # Match score_review's *actual* two-pass per-game eligibility gate.
+    # A deep-only count can rise above eight when the position classification
+    # changes at depth 18/12, yet its FAST pass remains under eight. Such games
+    # do not contribute to the official 'gameplay-scoring games' total.
+    def fast_for_scoring(game):
+        return (getattr(game, "fast_metrics", None)
+                or getattr(game, "metrics", {}) or {})
+    fast_qualified = {
+        g.identity for g in scanned
+        if int(fast_for_scoring(g).get("decisions") or 0) >= minimum_game_decisions
+    }
+    deep_qualified = {
+        g.identity for g in scanned
+        if _observation(g)["meaningful"] >= minimum_game_decisions
+    }
+    fully_scored = len(fast_qualified & deep_qualified)
     overall.update(fully_scored_games=fully_scored,
+                   fast_minimum_games=len(fast_qualified),
+                   deep_minimum_games=len(deep_qualified),
+                   fast_pass_only_games=len(fast_qualified - deep_qualified),
+                   deep_pass_only_games=len(deep_qualified - fast_qualified),
                    below_general_game_minimum=len(scanned) - fully_scored,
                    general_game_minimum=minimum_game_decisions)
     summary = {"schema": SCHEMA, "scoring_influence": False,
