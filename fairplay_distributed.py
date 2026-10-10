@@ -39,6 +39,29 @@ MAX_WAIT_SECONDS = 2700
 _FILENAME = re.compile(r"(?:req|res|progress)_[0-9a-f]{24}(?:_[0-9])?\.enc\Z")
 
 
+def safe_error_code(error):
+    """Report only fixed, public-safe constants, never exception messages.
+
+    The five v22 runners failed with a generic line, hiding the pinned-SHA
+    and possible key mismatch. These codes reveal neither target nor FEN.
+    """
+    if isinstance(error, ReviewError):
+        fixed={
+            "Unavailable, mismatched or expired compute workload.":"request_or_revision",
+            "Invalid or corrupt encrypted compute artifact.":"encrypted_packet",
+            "Compute exchange git remote unavailable.":"git_remote",
+            "Cannot fetch encrypted compute exchange.":"git_fetch",
+            "Worker Stockfish version does not match coordinator.":"engine_version",
+            "Remote Stockfish work incomplete.":"incomplete_depth",
+            "Encrypted compute exchange could not be persisted after retries.":"git_push_conflict",
+            "Pinned worker git revision differs from the input.":"pinned_code_mismatch",
+        }
+        return fixed.get(str(error),"compute_validation")
+    if isinstance(error, TimeoutError):return "worker_timeout"
+    if isinstance(error, OSError):return "worker_os"
+    return "worker_runtime"
+
+
 def key_material(env=None):
     env = os.environ if env is None else env
     return (env.get("FAIRPLAY_DISTRIBUTED_KEY") or env.get("FAIRPLAY_CHECKPOINT_KEY")
