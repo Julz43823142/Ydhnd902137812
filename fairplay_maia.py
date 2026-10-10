@@ -154,10 +154,11 @@ def selection(games,*,full_coverage=False):
     # Compare successes and misses: selection uses position geometry, never
     # CPL, top-1, high-information hits, account names or validation labels.
     eligible=[g for g in games if g.moves and g.rating is not None and g.opponent_rating is not None]
-    # Five compute shards permit a wider position-policy comparison on the
-    # selected deep sample. Fixed geometry sampling remains label-blind.
+    # The distributed depth workers run concurrently with local Maia inference.
+    # A slightly wider per-game geometry sample reduces blind spots in short
+    # intermittent periods. It never selects positions by played-move quality.
     budget=(1600 if os.getenv('FAIRPLAY_DISTRIBUTED')=='1' else MAX_POSITIONS)
-    quota=(None if full_coverage else max(1,min(8,budget//max(1,len(eligible)))))
+    quota=(None if full_coverage else max(1,min(16,budget//max(1,len(eligible)))))
     selected=[]
     for game in eligible:
         choices=(list(game.decisions) if full_coverage else
