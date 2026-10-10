@@ -157,7 +157,20 @@ def prepare(root, *, installed_binary=None, installed_weights=None,
         raise RuntimeError("Lc0 network file not installed")
     if expected_sha256 and sha != expected_sha256.lower():
         raise RuntimeError("Lc0 network SHA-256 mismatch")
-    name = smoke(binary, weights)
+    try:
+        name = smoke(binary, weights)
+    except Exception as error:
+        # A cached native build can use instructions absent from a different
+        # GitHub-hosted CPU (SIGILL/exit -4). Keep the pinned source and network
+        # but rebuild just the incompatible executable on this runner.
+        import chess.engine
+        cached = root / "source" / "build" / "release" / "lc0"
+        if (not provision or installed_binary or binary != cached
+                or not isinstance(error,(chess.engine.EngineTerminatedError,OSError))):
+            raise
+        binary.unlink(missing_ok=True)
+        binary = provision_source(root)
+        name = smoke(binary, weights)
     if github_env:
         with open(github_env, "a", encoding="utf-8") as handle:
             for key, value in (("FAIRPLAY_LC0_BIN", str(binary.resolve())),
