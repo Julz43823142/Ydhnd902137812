@@ -378,7 +378,11 @@ def join(handle,progress,deadline,*,max_wait=MAX_WAIT_SECONDS,clock=None,sleep=N
     while clock()<end:
         check_deadline(deadline)
         try:
-            records=handle["store"].read_many(names+statuses)
+            outstanding=[i for i in range(len(handle["shards"])) if i not in result]
+            # A completed response can contain megabytes of engine data.
+            # Decrypt each finished shard only ONCE, not on every 12s poll.
+            records=handle["store"].read_many(
+                [names[i] for i in outstanding]+[statuses[i] for i in outstanding])
         except ReviewError:
             break
         done_positions=0
