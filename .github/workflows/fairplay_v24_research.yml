@@ -1,0 +1,70 @@
+name: Fair Play v24 research (manual, aggregate-only)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Never start this workload automatically during a live Discord scan.
+# Up to two on-demand research jobs leave capacity for the primary bot.
+concurrency:
+  group: sharkbot-fairplay-v24-research
+  cancel-in-progress: false
+
+jobs:
+  research:
+    name: Research ${{ matrix.task }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        task: [calibration-tests, chessfraud, model-regressions]
+    env:
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONPATH: ${{ github.workspace }}
+      TASK: ${{ matrix.task }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install only the research dependencies needed for this task
+        shell: bash
+        run: |
+          if [[ "$TASK" == chessfraud ]]; then
+            python -m pip install 'datasets>=3.0,<5'
+          else
+            python -m pip install -r requirements.txt
+          fi
+      - name: Run research-only task
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "$TASK" in
+            calibration-tests)
+              python -m unittest -v test_fairplay_v24 test_fairplay_v23
+              ;;
+            chessfraud)
+              python -m scripts.benchmark_chessfraud \
+                --allow-download --output "$RUNNER_TEMP/chessfraud-aggregates.json"
+              ;;
+            model-regressions)
+              python -m unittest -v \
+                test_fairplay_multimodel test_fairplay_model_runtime \
+                test_fairplay_model_readiness test_fairplay_policy
+              ;;
+            *) exit 2 ;;
+          esac
+      - name: Upload aggregate-only ChessFraud benchmark
+        if: matrix.task == 'chessfraud'
+        uses: actions/upload-artifact@v4
+        with:
+          name: chessfraud-v24-aggregates
+          path: ${{ runner.temp }}/chessfraud-aggregates.json
+          if-no-files-found: error
+          retention-days: 14
