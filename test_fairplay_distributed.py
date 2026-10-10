@@ -200,7 +200,9 @@ class Coordinator(unittest.TestCase):
 
 class IsolatedGitRef(unittest.TestCase):
     def test_encrypted_compare_and_swap_preserves_other_worker_results(self):
-        with tempfile.TemporaryDirectory() as temporary:
+        # Use a process-independent scratch root: other bot fixtures patch
+        # tempfile defaults and may clean up their own nested worktrees.
+        with tempfile.TemporaryDirectory(dir=os.environ.get('RUNNER_TEMP','/tmp')) as temporary:
             remote=Path(temporary)/"remote.git"
             working=Path(temporary)/"working"
             subprocess.run(["git","init","--bare","-q",str(remote)],check=True)
