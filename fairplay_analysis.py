@@ -1293,8 +1293,11 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             'eligible_games_capped':collection_coverage.get('eligible_games_capped'),
             'requested_context_limit':collection_limit(config),
             'requested_primary_limit':primary_limit(config),
-            'deep_scope':('200 recent peer games + up to 50 stratified historical peer games' if distributed_mode
-                          else '100 recent peer games + up to 25 stratified historical peer games') if v21_mode
+            'deep_scope':('up to 200 rated peer games + up to 50 extra games, reserving '
+                          'missing games from the latest 20 rated games regardless of opponent Elo'
+                          if distributed_mode else
+                          'up to 100 rated peer games + up to 25 extra games, reserving '
+                          'missing games from the latest 20 rated games regardless of opponent Elo') if v21_mode
                           else 'full legacy deep scope',
             'deep_scope_required':len(v21_deep) if v21_mode else len(primary) if full_depth_mode else None,
             'deep_scope_complete':all(g.deep for g in v21_deep) if v21_mode else None,
@@ -1373,6 +1376,10 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             result.diagnostics['v21_selection']={
                 'broad_fast_games':len(primary),
                 'recent_peer_deep_games':len(v21_plan.core),
+                'recent_tail_nonpeer_deep_games':len(v21_plan.recent_tail),
+                'recent_20_rated_deep_coverage':sum(
+                    g.identity in {x.identity for x in v21_plan.deep}
+                    for g in sorted(analyzed,key=lambda g:(g.ended,g.identity))[-20:]),
                 'historical_extra_deep_games':len(v21_plan.reserve),
                 'deep_games_completed':sum(g.deep for g in v21_deep),
                 'eligible_rated_metadata_games':len(history),
