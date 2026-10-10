@@ -7,8 +7,9 @@ therefore untestable by either route, even with exceptionally precise moves.
 
 Here ten consecutive rated games from the same time-control stratum are
 scored together. Two disjoint, fixed five-game halves must each contain
-substantial paired fast/deep hard-decision evidence. The last 20 games of each
-stratum are the search universe (at most eleven ten-game windows), and only
+substantial paired fast/deep hard-decision evidence. ALL latest fifty rated
+games are the search universe (up to forty-one contiguous ten-game windows);
+only
 FAST data may establish a discovery candidate. Deep proof is independently
 recomputed on the exact entire window, including missed moves.
 
@@ -26,9 +27,7 @@ from fairplay_confirmation import paired_quality_confirmation
 from fairplay_human import period_summary
 
 WINDOW_GAMES = 10
-RECENT_PER_CONTROL = 20
-RECENT_MAX_SPAN_SECONDS = 30 * 86400
-MAX_END_OFFSET_SECONDS = 30 * 86400
+LATEST_RATED_SCOPE = 50
 
 
 def _verified_entry(game):
@@ -134,9 +133,17 @@ def _deep_proof(games, config):
 def analyze(games, *, config=CONFIG):
     """Predeclared recent same-control sliding windows, no outcomes/rank picks."""
     groups = defaultdict(list)
-    newest = max((g.ended for g in games if isinstance(getattr(g, 'ended', None), (int,float))
-                  and math.isfinite(g.ended)), default=0)
-    for g in games:
+    # V29 first guarantees every one of the latest 50 rated games was selected
+    # for deep analysis. Scope the chronology to those fifty across ALL time
+    # controls, not the latest twenty in each time-control class. This catches
+    # a ten-game incident at the BEGINNING of the fifty-game period.
+    eligible=[g for g in games if getattr(g,'rated',None) is True
+              and not getattr(g,'probe_only',False)
+              and isinstance(getattr(g,'ended',None),(int,float))
+              and math.isfinite(g.ended)]
+    latest=sorted({g.identity:g for g in eligible}.values(),
+                  key=lambda g:(g.ended,g.identity))[-LATEST_RATED_SCOPE:]
+    for g in latest:
         if _verified_entry(g):
             groups[(g.time_class, g.time_control)].append(g)
     examined = 0
@@ -147,14 +154,9 @@ def analyze(games, *, config=CONFIG):
         # contributor games or duplicated-window evidence.
         unique = {g.identity: g for g in group}
         ordered = sorted(unique.values(), key=lambda g:(g.ended,g.identity))
-        for start in range(max(0,len(ordered)-RECENT_PER_CONTROL),
-                           len(ordered)-WINDOW_GAMES+1):
+        for start in range(0,len(ordered)-WINDOW_GAMES+1):
             window = ordered[start:start+WINDOW_GAMES]
             if len(window)!=WINDOW_GAMES:
-                continue
-            if window[-1].ended-window[0].ended > RECENT_MAX_SPAN_SECONDS:
-                continue
-            if newest-window[-1].ended > MAX_END_OFFSET_SECONDS:
                 continue
             # Prevent 10 apparent consecutive *selected* games from bridging
             # an unreviewed rated same-control game. The original archive
@@ -181,6 +183,8 @@ def analyze(games, *, config=CONFIG):
     return {
         'schema':'fairplay-v28-ten-game-burst-v1',
         'window_games':WINDOW_GAMES,
+        'rated_latest_scope':LATEST_RATED_SCOPE,
+        'recent_rated_games_selected':len(latest),
         'windows_examined':examined,
         'fast_discovery_windows':fast_discovered,
         'deep_confirmed_windows':len(fully_confirmed),
