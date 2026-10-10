@@ -60,9 +60,11 @@ def search_alternatives(scanner,d,nodes):
         if 'Clear Hash' in scanner.engine.options:scanner.engine.configure({'Clear Hash':None})
         # Root searches are independent tasks and must not inherit a fast
         # position's stale timeout when the budget is depth-18 or deep nodes.
-        scanner.engine.timeout=scan_engine_timeout(limit,scanner.config)
+        scanner.engine.timeout=scan_engine_timeout(
+            limit,scanner.config,retry=getattr(scanner,'retry_after_timeout',False))
         scanner.last_search={'phase':'maia-counterfactual','budget':nodes.depth if depth_search else nodes,
-                             'multipv':1,'started':time.monotonic()}
+                             'multipv':1,'started':time.monotonic(),
+                             'timeout_seconds':scanner.engine.timeout}
         started=time.monotonic()
         line=scanner.engine.analyse(board,limit,root_moves=[move])
         if (depth_search and (not isinstance(line,dict) or
