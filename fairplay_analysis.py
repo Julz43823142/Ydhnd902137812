@@ -1477,6 +1477,9 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         # this check; Accuracy must never steer engine sampling or HIGH.
         from fairplay_streak import accuracy_streak_audit
         result.diagnostics['accuracy_streak_audit']=accuracy_streak_audit(analyzed)
+        if include_unrated:
+            from fairplay_streak import unrated_accuracy_audit
+            result.diagnostics['unrated_accuracy_audit']=unrated_accuracy_audit(analyzed)
         from fairplay_policy import integrate as integrate_policy
         result=(integrate_policy(result,scoring_games,config,
                                  strict_original_sequence=True)
