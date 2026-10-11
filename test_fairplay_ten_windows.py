@@ -174,7 +174,8 @@ class Contract(unittest.TestCase):
             fen=chess.STARTING_FEN,
             metrics={'search_contract':{
                 'mode':'depth','requested':18,'multipv':3,
-                'completed':True,'exact':True},'search_depth':18},
+                'completed':True,'exact':True},'search_depth':18,
+                'useful':True,'human_opportunity':True},
             human_policy={m:1/len(legal) for m in legal},
             clock_valid=False)
         self.game.decisions=[self.decision]
@@ -190,6 +191,15 @@ class Contract(unittest.TestCase):
     def test_deep_depth12_does_not_count_as_depth18(self):
         self.decision.metrics['search_contract']['requested']=12
         self.decision.metrics['search_depth']=12
+        self.assertFalse(_complete_game(self.game,CONFIG))
+
+    def test_unreliable_non_scoring_move_reaches_depth_but_cannot_block_window(self):
+        self.decision.metrics['search_contract']['exact']=False
+        self.decision.metrics['useful']=False
+        self.decision.metrics['human_opportunity']=False
+        self.assertTrue(_complete_game(self.game,CONFIG))
+        # Mislabeling this position as scored evidence must reject it.
+        self.decision.metrics['high_information']=True
         self.assertFalse(_complete_game(self.game,CONFIG))
 
     def test_gap_diagnostic_distinguishes_stockfish_from_missing_maia(self):
