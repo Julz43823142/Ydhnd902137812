@@ -11,6 +11,8 @@ def estimate(stage):
     if stage.startswith('Fast candidate verification:'):
         match=re.search(r'(\d+)\s*/\s*(\d+)',stage)
         return 75+int(4*min(1,int(match[1])/max(1,int(match[2])))) if match else 75
+    if stage.startswith(('Deep Maia alternatives', 'Fast Maia alternatives')):
+        return 98 if stage.startswith('Deep Maia') else 78
     if stage.startswith(('Deep confirmation:', 'Depth-18 rapid/blitz')):
         match = re.search(r'(\d+)\s*/\s*(\d+)', stage)
         return 80+int(17*min(1, int(match[1])/max(1, int(match[2])))) if match else 80
