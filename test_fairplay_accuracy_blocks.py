@@ -63,7 +63,7 @@ class AccuracyBlocks(unittest.TestCase):
         rows.extend(game(i,99,opponent=200) for i in range(40,50))
         audit,candidates=inspect(rows)
         self.assertFalse(candidates)
-        self.assertFalse(audit['best']['comparison_supported'])
+        self.assertEqual(audit['discovery_windows'],0)
 
     def test_no_fabricated_missing_accuracy_or_baseline(self):
         rows=[game(i,None) for i in range(40)]
