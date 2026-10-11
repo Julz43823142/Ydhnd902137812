@@ -1378,26 +1378,17 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             latest_fifty_maia_completed=sum(
                 valid_policy(d,d.human_policy)
                 for g in latest_fifty for d in g.decisions)
-            # Mandatory suspect periods can fall outside the newest fifty.
-            # Each move needs exact depth-18 evidence and a valid Maia policy.
-            if require_maia and accuracy_discovery['selected_ids']:
-                flagged=[g for g in v21_deep
-                         if g.identity in accuracy_discovery['selected_ids']]
-                for game in flagged:
-                    if not game.deep or not game.decisions:
-                        raise ReviewError('Ten-game Accuracy window depth evidence is incomplete.')
-                    for decision in game.decisions:
-                        contract=decision.metrics.get('search_contract') or {}
-                        if not (contract.get('mode')=='depth'
-                                and contract.get('requested')==18
-                                and contract.get('multipv')==config.deep_multipv
-                                and contract.get('completed') is True
-                                and contract.get('exact') is True
-                                and decision.metrics.get('search_depth',0)>=18
-                                and valid_policy(decision,decision.human_policy)):
-                            raise ReviewError(
-                                'Selected ten-game period lacks exact depth-18 or Maia evidence; '
-                                'no Fair Play priority was issued.')
+            # The latest fifty remains a mandatory *whole-scan* coverage gate.
+            # Extra Accuracy-discovered ten-game windows instead have their own
+            # strict independent HIGH gates in fairplay_ten_windows._complete_game.
+            # A bounded/inexact single Stockfish PV or missing local policy in
+            # one optional historical window must not abort an otherwise valid
+            # review after 16+ minutes. That window is excluded from HIGH and
+            # explicitly marked INSUFFICIENT DATA if no other route qualifies.
+            # Do not change a failed comparison into a made-up passing result.
+            selected={g.identity for g in v21_deep}
+            if accuracy_discovery['selected_ids']-selected:
+                raise ReviewError('A mandatory Accuracy window was not selected for deep analysis.')
         if full_depth_mode and (deep_incomplete or not primary_complete or any(not g.deep for g in candidates)):
             raise ReviewError(f'All {len(primary)} primary games must complete their required engine depths before a priority can be issued.')
         progress(f'Deep confirmation: {sum(g.deep for g in candidates)} / {len(candidates)}')

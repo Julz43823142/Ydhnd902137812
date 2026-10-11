@@ -161,6 +161,32 @@ def _complete_game(game, config):
     return True
 
 
+def _window_evidence_gaps(games, config):
+    """Aggregate diagnostic counts; never expose FENs, moves or identities."""
+    from fairplay_maia import valid_policy
+    missing_games=sum(g is None or not _verified_entry(g)
+                      or not getattr(g,'decisions',None) for g in games)
+    inexact_positions=0
+    missing_policies=0
+    for game in games:
+        if game is None:
+            continue
+        for decision in getattr(game,'decisions',()):
+            contract=decision.metrics.get('search_contract') or {}
+            if not (contract.get('mode')=='depth'
+                    and contract.get('requested')==18
+                    and contract.get('multipv')==config.deep_multipv
+                    and contract.get('completed') is True
+                    and contract.get('exact') is True
+                    and decision.metrics.get('search_depth',0)>=18):
+                inexact_positions+=1
+            if not valid_policy(decision,decision.human_policy):
+                missing_policies+=1
+    return {'missing_or_unverified_games':missing_games,
+            'nonexact_stockfish_positions':inexact_positions,
+            'missing_maia_policies':missing_policies}
+
+
 def _engine_proof(games, config):
     deep=period_summary(games,config)
     fast=period_summary(games,config,fast=True)
@@ -243,7 +269,8 @@ def integrate(result, games, discovery, config=CONFIG):
                 'missing_accuracy_games':candidate['missing_accuracy_games'],
                 'window_end_time':candidate['end'],
                 'full_depth_and_maia':False,'engine_pass':False,
-                'maia_pass':False,'qualified':False})
+                'maia_pass':False,'qualified':False,
+                'evidence_gaps':_window_evidence_gaps(rows,config)})
             continue
         engine,engine_evidence=_engine_proof(rows,config)
         maia,maia_evidence=_maia_proof(rows)
@@ -266,13 +293,18 @@ def integrate(result, games, discovery, config=CONFIG):
               and result.coverage.get('primary_engine_complete',False)
               and result.coverage.get('required_deep_complete',False))
     enabled=not {'human','neural','difficulty','accuracy_window_high'} & set(config.disabled_features)
-    passed=bool(qualified and complete and enabled and not incomplete)
+    # Each independently confirmed ten-game window can justify HIGH even
+    # when ANOTHER candidate lacks an exact search. The latter must not veto
+    # genuine confirmed evidence from an unrelated window. It also must not
+    # be silently treated as a negative finding.
+    passed=bool(qualified and complete and enabled)
     audit={'schema':discovery['schema'],
            'rated_blitz_rapid_games_in_scope':discovery['rated_blitz_rapid_games_in_scope'],
            'windows_examined':discovery['windows_examined'],
            'accuracy_candidates':len(discovery['candidates']),
            'fully_verified_candidates':len(windows)-incomplete,
            'unverified_candidates':incomplete,'confirmed_engine_maia_windows':qualified,
+           'unverified_windows_are_not_negative_evidence':True,
            'selected_games':len(discovery['selected_ids']),
            'high_path_passed':passed,'window_details':windows[:25],
            'selection_uses_accuracy':True,'priority_uses_accuracy':False,
@@ -293,6 +325,16 @@ def integrate(result, games, discovery, config=CONFIG):
             [] if passed else
             ['No ten-game block has both full-depth Stockfish and complete '
              'Maia game-capped evidence, or mandatory coverage is incomplete.'])}
+    if incomplete and not passed and result.priority in ('LOW','INSUFFICIENT DATA'):
+        # A broken/uncertain candidate is NOT a completed LOW check.
+        # Keep the no-verdict state visible rather than losing the whole
+        # report or clearing a suspicious period by default.
+        result.priority='INSUFFICIENT DATA'
+        result.reasons=[
+            f'{incomplete} selected ten-game window(s) lacked complete exact '
+            'Stockfish and Maia evidence; no LOW conclusion can be drawn '
+            'from those windows. A new or resumed scan is required.',
+            'Published Accuracy is a discovery clue, not proof of cheating.']
     if passed and result.priority in ('LOW','MODERATE','INSUFFICIENT DATA'):
         result.priority='HIGH'
         result.deep_confirmed=True
