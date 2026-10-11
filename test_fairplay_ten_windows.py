@@ -75,9 +75,10 @@ class Discovery(unittest.TestCase):
         report=discover(games,include_recent_rated=True)
         self.assertEqual(report['windows_examined'],1)
         self.assertEqual(report['windows_blocked_by_opponent_gap'],1)
-        self.assertEqual(report['recent_rated_fallback_windows'],0)
+        self.assertEqual(report['recent_rated_fallback_windows'],1)
         self.assertEqual(report['accuracy_candidates'],0)
-        self.assertFalse(report['candidates'])
+        self.assertEqual(report['context_only_windows'],1)
+        self.assertFalse(report['candidates'][0]['priority_eligible'])
 
     def test_recent_rated_mixed_clock_controls_not_falsely_combined(self):
         games=[rated_game(i,None,control='180+0' if i<5 else '300+0')
@@ -105,7 +106,10 @@ class Discovery(unittest.TestCase):
 
     def test_does_not_score_perfect_games_against_weak_opponents(self):
         games=[rated_game(i,99.,own=700,opponent=200) for i in range(20)]
-        self.assertEqual(discover(games)['accuracy_candidates'],0)
+        report=discover(games)
+        self.assertEqual(report['accuracy_candidates'],11)
+        self.assertEqual(report['context_only_windows'],11)
+        self.assertTrue(all(not c['priority_eligible'] for c in report['candidates']))
 
     def test_bullet_is_excluded_even_at_one_hundred(self):
         games=[rated_game(i,100.,kind='bullet',control='60+0')

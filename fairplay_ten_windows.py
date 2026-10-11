@@ -24,6 +24,25 @@ THRESHOLD=85.0
 MIN_REPORTED=8  # Selection only; never impute unpublished Accuracy
 RATING_GAP=250
 MAX_DEEP=300
+SHIFT_MIN_REFERENCE=10
+SHIFT_MIN_MEDIAN=80.0
+SHIFT_MIN_GAIN=15.0
+SHIFT_MAD_MULTIPLIER=3.0
+
+
+def _accuracy_shift(known, reference):
+    """Discovery only: a robust, non-overlapping published-score shift.
+
+    Missing scores remain missing. These descriptive thresholds allocate
+    review work; they are not calibrated significance or priority thresholds.
+    """
+    if len(known)<MIN_REPORTED or len(reference)<SHIFT_MIN_REFERENCE:
+        return False, None, None
+    baseline=statistics.median(reference)
+    mad=statistics.median(abs(v-baseline) for v in reference)
+    recent=statistics.median(known)
+    return (recent>=SHIFT_MIN_MEDIAN
+            and recent-baseline>=max(SHIFT_MIN_GAIN,SHIFT_MAD_MULTIPLIER*mad)), baseline, mad
 
 
 def discover(games, *, scope=SCOPE, include_recent_unrated=False,
@@ -31,7 +50,8 @@ def discover(games, *, scope=SCOPE, include_recent_unrated=False,
     """Predeclare candidates using public game metadata, never Stockfish hits.
 
     A sliding window must be consecutive in its *original* exact-control
-    chronology and at least eight games must have similarly rated opponents.
+    chronology. Fewer than eight comparable opponents permits investigation
+    but never the ten-game HIGH route; preserve that distinction in the audit.
     Unknown Chess.com Accuracy is missing, never an inferred zero.
     """
     unique={}
@@ -63,7 +83,7 @@ def discover(games, *, scope=SCOPE, include_recent_unrated=False,
                       and isinstance(getattr(g,'ended',None),(int,float))
                       and math.isfinite(g.ended)),
                      key=lambda g:(g.ended,g.identity))
-    newest_ten_rated_ids={g.identity for g in rated_all[-WINDOW:]}
+    recent_rated_ids={g.identity for g in rated_all[-50:]}
     eligible=ordered[-scope:]
     groups={}
     for g in eligible:
@@ -100,10 +120,9 @@ def discover(games, *, scope=SCOPE, include_recent_unrated=False,
             # it to a signed-in reviewer. Eight or nine published scores may
             # select ALL ten games for independent full-depth analysis. No
             # missing score is assigned a value or enters the average.
-            if peer_count<8:
-                insufficient_peer_windows+=1
-                continue
-            peer_eligible_windows+=1
+            peer_eligible=peer_count>=8
+            if not peer_eligible:insufficient_peer_windows+=1
+            else:peer_eligible_windows+=1
             mean=statistics.mean(known) if known else None
             score_selected=(len(known)>=MIN_REPORTED and mean>=THRESHOLD)
             # If published Accuracy is missing, do not declare the player
@@ -113,31 +132,47 @@ def discover(games, *, scope=SCOPE, include_recent_unrated=False,
             recent_unrated=(include_recent_unrated and rated is False and
                             all(g.identity in recent_any_ids for g in segment))
             recent_rated=(include_recent_rated and rated is True
-                          and len(newest_ten_rated_ids)==WINDOW
-                          and {g.identity for g in segment}==newest_ten_rated_ids)
-            if not score_selected and not recent_unrated and not recent_rated:
-                missing_accuracy_windows+=1
-                continue
+                          and all(g.identity in recent_rated_ids for g in segment))
+            own_ratings=[g.rating for g in segment if peer(g)]
+            opponent_ratings=[g.opponent_rating for g in segment if peer(g)]
+            own_reference=statistics.median(own_ratings) if own_ratings else None
+            opponent_reference=statistics.median(opponent_ratings) if opponent_ratings else None
             older=[g for g in ordered if g.ended<segment[0].ended
                    and (g.rated,g.time_class,g.time_control)==(rated,kind,control)
-                   and peer(g)]
+                   and peer(g) and own_reference is not None
+                   and abs(g.rating-own_reference)<=RATING_GAP
+                   and abs(g.opponent_rating-opponent_reference)<=RATING_GAP]
             reference=[_accuracy(g) for g in older[-40:]]
             reference=[v for v in reference if v is not None]
             baseline=statistics.mean(reference) if len(reference)>=10 else None
-            # Extra metadata context has no authority to invalidate
-            # independent ten-game gameplay evidence.
+            shift_selected,reference_median,reference_mad=_accuracy_shift(known,reference)
+            # Relative discovery still needs comparable opponents. A jump in
+            # easy wins against much weaker opponents is not a personal shift.
+            shift_selected=shift_selected and peer_eligible
+            if not score_selected and not shift_selected and not recent_unrated and not recent_rated:
+                if peer_eligible:missing_accuracy_windows+=1
+                continue
+            # Selection allocates analysis. Opponent-matched evidence remains
+            # necessary for this specialized priority route.
             row={'ids':tuple(g.identity for g in segment),
                  'rated':rated,'time_class':kind,'time_control':control,
                  'start':int(segment[0].ended),'end':int(segment[-1].ended),
                  'mean_accuracy':round(mean,2) if mean is not None else None,
                  'selection_reason':('published_accuracy' if score_selected
+                                     else 'personal_accuracy_shift' if shift_selected
                                      else 'recent_rated_deep' if recent_rated
                                      else 'recent_unrated_deep'),
                  'peer_games':peer_count,
+                 'priority_eligible':peer_eligible,
+                 'selection_only_blockers':([] if peer_eligible else
+                     ['Fewer than eight comparable opponents; investigated for context only.']),
                  'published_accuracy_games':len(known),
                  'missing_accuracy_games':WINDOW-len(known),
                  'prior_accuracy':round(baseline,2) if baseline is not None else None,
                  'prior_games':len(reference),
+                 'prior_median_accuracy':reference_median,
+                 'prior_accuracy_mad':reference_mad,
+                 'personal_accuracy_shift_selected':bool(shift_selected),
                  'accuracy_shift':round(mean-baseline,2)
                     if mean is not None and baseline is not None else None}
             candidates.append(row)
@@ -153,6 +188,9 @@ def discover(games, *, scope=SCOPE, include_recent_unrated=False,
             'peer_eligible_windows_missing_accuracy_trigger':missing_accuracy_windows,
             'accuracy_candidates':sum(
                 row['selection_reason']=='published_accuracy' for row in candidates),
+            'personal_accuracy_shift_windows':sum(
+                row['selection_reason']=='personal_accuracy_shift' for row in candidates),
+            'context_only_windows':sum(not row['priority_eligible'] for row in candidates),
             'recent_rated_fallback_windows':sum(
                 row['selection_reason']=='recent_rated_deep' for row in candidates),
             'recent_unrated_fallback_windows':sum(
@@ -163,7 +201,9 @@ def discover(games, *, scope=SCOPE, include_recent_unrated=False,
                 'At least eight published Accuracy scores averaging 85+ '
                 'select all ten rated OR unrated games for full-depth review. Missing scores '
                 'are not estimated and Accuracy never sets HIGH. The newest '
-                'peer-rated ten-game block is also checked without Accuracy. Unrated '
+                'fifty rated games supply same-control windows even without Accuracy. '
+                'Large robust personal Accuracy shifts can also select review. '
+                'Windows without eight comparable opponents are context-only. Unrated '
                 'windows in the newest fifty games are also investigated '
                 'using real engine and Maia evidence if scores are missing.')}
 
@@ -286,19 +326,26 @@ def _engine_proof(games, config):
     fast=period_summary(games,config,fast=True)
     confirmation=paired_quality_confirmation(deep,0.85,coverage_floor=0.95)
     halves=[period_summary(games[i:i+5],config) for i in (0,5)]
-    ok=(deep['opportunities']>=20 and deep['hits']>=14
-        and deep['hit_games']>=7 and deep['quiet_hits']>=4
-        and deep['information']>=0.20 and deep['quality_excess']>=0.11
-        and all(h['opportunities']>=8 and h['hits']>=5
-                and h['hit_games']>=3 for h in halves)
-        and fast['opportunities']>=20 and fast['hits']>=12
-        and deep['hits']>=0.8*fast['hits']
-        and confirmation['coverage_passed']
-        and confirmation['fraction_passed']
-        and confirmation['hits']>=12)
-    return bool(ok),{'opportunities':deep['opportunities'],
+    gates={
+        'At least 20 difficult opportunities':deep['opportunities']>=20,
+        'At least 14 high-information hits':deep['hits']>=14,
+        'Hits in at least seven games':deep['hit_games']>=7,
+        'At least four quiet high-information hits':deep['quiet_hits']>=4,
+        'Bounded information at least 0.20':deep['information']>=0.20,
+        'Signed quality excess at least 0.11':deep['quality_excess']>=0.11,
+        'Evidence in both chronological halves':all(
+            h['opportunities']>=8 and h['hits']>=5 and h['hit_games']>=3 for h in halves),
+        'Fast reference has 20 opportunities and 12 hits':fast['opportunities']>=20 and fast['hits']>=12,
+        'Deep retains at least 80% of fast hits':deep['hits']>=0.8*fast['hits'],
+        'Paired search coverage':confirmation['coverage_passed'],
+        'Paired search agreement':confirmation['fraction_passed'],
+        'At least 12 paired confirmed hits':confirmation['hits']>=12,
+    }
+    return all(gates.values()),{'opportunities':deep['opportunities'],
         'hits':deep['hits'],'hit_games':deep['hit_games'],
         'quiet_hits':deep['quiet_hits'],
+        'signed_quality_excess':deep['quality_excess'],
+        'blockers':[name for name,passed in gates.items() if not passed],
         'paired_agreement':round(confirmation['fraction'],4)}
 
 
@@ -307,14 +354,19 @@ def _maia_proof(games):
     # contribute to a Maia discrepancy. Misses remain in game denominators.
     deep=policy_summarize(games)
     fast=policy_summarize(games,fast=True)
-    ok=(deep['contributors']>=6 and deep['contributor_weight']>=5.5
-        and deep['effective_positions']>=20
-        and deep['signed_excess']>=0.15 and deep['information']>=0.10
-        and deep['stable']>=0.70*deep['positions']
-        and deep['positions']>=24 and
-        deep['signed_excess']>=0.75*fast['signed_excess'])
-    return bool(ok),{'contributors':deep['contributors'],
+    gates={
+        'At least six Maia contributor games':deep['contributors']>=6,
+        'At least 5.5 contributor equivalents':deep['contributor_weight']>=5.5,
+        'At least 20 game-capped comparisons':deep['effective_positions']>=20,
+        'Signed Maia quality excess at least 0.15':deep['signed_excess']>=0.15,
+        'Maia information at least 0.10':deep['information']>=0.10,
+        'At least 70% stable comparisons':deep['stable']>=0.70*deep['positions'],
+        'At least 24 comparable positions':deep['positions']>=24,
+        'Deep retains 75% of fast signed Maia excess':deep['signed_excess']>=0.75*fast['signed_excess'],
+    }
+    return all(gates.values()),{'contributors':deep['contributors'],
         'positions':deep['positions'],
+        'blockers':[name for name,passed in gates.items() if not passed],
         'signed_excess':round(deep['signed_excess'],4),
         'information':round(deep['information'],4)}
 
@@ -354,11 +406,18 @@ def integrate(result, games, discovery, config=CONFIG):
     windows=[]
     qualified=0
     incomplete=0
+    incomplete_eligible=0
     for candidate in sorted(discovery['candidates'],key=lambda c:-c['end']):
         rows=[index.get(ident) for ident in candidate['ids']]
+        peer_eligible=candidate.get('priority_eligible',candidate.get('peer_games',0)>=8)
+        context={'selection_reason':candidate.get('selection_reason'),
+                 'peer_games':candidate.get('peer_games',0),
+                 'priority_eligible':peer_eligible,
+                 'selection_only_blockers':candidate.get('selection_only_blockers',[])}
         if not all(g is not None and _complete_game(g,config) for g in rows):
             incomplete+=1
-            windows.append({'rated':candidate['rated'],
+            incomplete_eligible+=int(peer_eligible)
+            windows.append({**context,'rated':candidate['rated'],
                 'mean_accuracy':candidate['mean_accuracy'],
                 'published_accuracy_games':candidate['published_accuracy_games'],
                 'missing_accuracy_games':candidate['missing_accuracy_games'],
@@ -369,16 +428,16 @@ def integrate(result, games, discovery, config=CONFIG):
             continue
         engine,engine_evidence=_engine_proof(rows,config)
         maia,maia_evidence=_maia_proof(rows)
-        qualified+=int(engine and maia)
+        qualified+=int(engine and maia and peer_eligible)
         clocks=clock_window_evidence(rows)
-        windows.append({'rated':candidate['rated'],
+        windows.append({**context,'rated':candidate['rated'],
             'mean_accuracy':candidate['mean_accuracy'],
             'published_accuracy_games':candidate['published_accuracy_games'],
             'missing_accuracy_games':candidate['missing_accuracy_games'],
             'window_end_time':candidate['end'],
             'clock_audit':clocks,
             'full_depth_and_maia':True,'engine_pass':engine,
-            'maia_pass':maia,'qualified':bool(engine and maia),
+            'maia_pass':maia,'qualified':bool(engine and maia and peer_eligible),
             'engine':engine_evidence,'maia':maia_evidence,
             'reliable_clock_samples':clocks['reliable_clocks'],
             'player_moves_without_reliable_clock':(
@@ -402,6 +461,8 @@ def integrate(result, games, discovery, config=CONFIG):
                discovery['rated_blitz_rapid_games_in_scope']),
            'windows_examined':discovery['windows_examined'],
            'accuracy_candidates':discovery['accuracy_candidates'],
+           'personal_accuracy_shift_windows':discovery.get('personal_accuracy_shift_windows',0),
+           'context_only_windows':discovery.get('context_only_windows',0),
            'recent_unrated_fallback_windows':discovery.get(
                'recent_unrated_fallback_windows',0),
            'recent_rated_fallback_windows':discovery.get(
@@ -415,6 +476,7 @@ def integrate(result, games, discovery, config=CONFIG):
            'total_candidates':len(discovery['candidates']),
            'fully_verified_candidates':len(windows)-incomplete,
            'unverified_candidates':incomplete,'confirmed_engine_maia_windows':qualified,
+           'unverified_priority_eligible_candidates':incomplete_eligible,
            'unverified_windows_are_not_negative_evidence':True,
            'selected_games':len(discovery['selected_ids']),
            'high_path_passed':passed,'window_details':windows[:25],
@@ -430,9 +492,9 @@ def integrate(result, games, discovery, config=CONFIG):
                           'never invented.'),
            'scope_note':('Up to 250 rated or unrated blitz/rapid games in the latest 500-game '
                          'primary scope; separate rated-status, exact-control windows, '
-                         'at least eight peer-rated opponents. Published '
+                         'at least eight peer-rated opponents for this HIGH route. Published '
                          'Accuracy can preselect older windows; the newest '
-                         'unrated windows can be tested using real deep '
+                         'rated and unrated windows can be tested using real deep '
                          'gameplay even without published Accuracy. '
                          'Missing scores are never imputed.'),
            'calibration_note':('HIGH is an investigative priority. False-positive '
@@ -442,15 +504,15 @@ def integrate(result, games, discovery, config=CONFIG):
     result.diagnostics.setdefault('high_paths',{})['Ten-game paired Stockfish + Maia HIGH']={
         'passed':passed,'blockers':(
             [] if passed else
-            ['No ten-game block has both full-depth Stockfish and complete '
-             'Maia game-capped evidence, or mandatory coverage is incomplete.'])}
-    if incomplete and not passed and result.priority in ('LOW','INSUFFICIENT DATA'):
+            ['No ten-game block meets all comparable-opponent, paired '
+             'Stockfish/Maia and mandatory-coverage requirements.'])}
+    if incomplete_eligible and not passed and result.priority in ('LOW','INSUFFICIENT DATA'):
         # A broken/uncertain candidate is NOT a completed LOW check.
         # Keep the no-verdict state visible rather than losing the whole
         # report or clearing a suspicious period by default.
         result.priority='INSUFFICIENT DATA'
         result.reasons=[
-            f'{incomplete} selected ten-game window(s) lacked complete exact '
+            f'{incomplete_eligible} selected ten-game window(s) lacked complete exact '
             'Stockfish and Maia evidence; no LOW conclusion can be drawn '
             'from those windows. A new or resumed scan is required.',
             'Published Accuracy is a discovery clue, not proof of cheating.']

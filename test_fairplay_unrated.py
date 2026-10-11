@@ -85,13 +85,21 @@ class UnratedTenGameWindows(unittest.TestCase):
         self.assertIsNone(candidate['prior_accuracy'])
         self.assertEqual(candidate['prior_games'],0)
 
-    def test_bullet_and_mismatched_opponents_cannot_make_discovery(self):
+    def test_bullet_excluded_and_mismatched_opponents_are_context_only(self):
         bullet=[rated_game(i,99.,rated=False,kind='bullet',control='60+0')
                 for i in range(10)]
         mismatched=[rated_game(i,99.,rated=False,own=700,opponent=200)
                     for i in range(10)]
         self.assertEqual(discover(bullet)['accuracy_candidates'],0)
-        self.assertEqual(discover(mismatched)['accuracy_candidates'],0)
+        discovered=discover(mismatched)
+        self.assertEqual(discovered['accuracy_candidates'],1)
+        self.assertEqual(discovered['context_only_windows'],1)
+        self.assertFalse(discovered['candidates'][0]['priority_eligible'])
+        games=[engine_game(i) for i in range(10)]
+        for g in games:g.rated=False;g.rating=700;g.opponent_rating=200;g.decisions=[]
+        with patch('fairplay_ten_windows._complete_game',return_value=True),patch(
+                'fairplay_ten_windows.policy_summarize',side_effect=strong_policy):
+            self.assertEqual(integrate(_result(),games,discovered).priority,'LOW')
 
     def test_50_rated_guarantee_and_250_unrated_windows_fit_depth_budget(self):
         # The latest 250 are unrated; the fifty earlier rated games must

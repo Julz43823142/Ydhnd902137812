@@ -209,10 +209,14 @@ def result_embed(result: ReviewResult):
         peers=window_audit.get('windows_with_at_least_eight_peers')
         peer_blocked=window_audit.get('windows_blocked_by_opponent_gap')
         if recent_rated:
-            message+=f"\nLatest rated peer window(s) reviewed without Accuracy: **{recent_rated}**."
+            message+=f"\nRecent rated window(s) selected without Accuracy: **{recent_rated}**."
+        shifts=window_audit.get('personal_accuracy_shift_windows',0)
+        if shifts:message+=f"\nPersonal Accuracy shifts selected: **{shifts}**."
         if isinstance(peers,int) and isinstance(peer_blocked,int):
             message+=(f"\nComparable-opponent windows: **{peers}**; "
-                      f"excluded by rating gap: **{peer_blocked}**.")
+                      f"ineligible for this HIGH route by rating gap: **{peer_blocked}**.")
+        context_only=window_audit.get('context_only_windows',0)
+        if context_only:message+=f" Investigated for context only: **{context_only}**."
         if not total_candidates:
             message+=" No block qualified for extra review; this is not proof of fair play."
         if count and latest_mean is not None:
@@ -283,6 +287,16 @@ def result_embed(result: ReviewResult):
     return embed
 
 
+def _bounded_detail_embed(embed):
+    """Apply Discord's limits to every detail view, including early returns."""
+    embed.set_footer(text=DISCLAIMER)
+    trimmed=False
+    while (len(embed)>5800 or len(embed.fields)>25) and embed.fields:
+        embed.remove_field(len(embed.fields)-1);trimmed=True
+    if trimmed:embed.set_footer(text=DISCLAIMER+' Additional detail rows omitted to fit Discord’s card limit.')
+    return embed
+
+
 def detail_embed(result, mode):
     embed = discord.Embed(title=f'{mode} — {result.username}',color=0x427CBA)
     if mode=='Human Moves':
@@ -333,13 +347,11 @@ def detail_embed(result, mode):
                 'Platform ratings and time controls differ. Samples include misses; this reference can allocate '
                 'extra full-game deep review. Distributed model discrepancies can raise review priority only after '
                 'paired Stockfish confirmation; unsearched alternatives and model uncertainty reduce evidence.',inline=False)
-        embed.set_footer(text=DISCLAIMER)
-        return embed
+        return _bounded_detail_embed(embed)
     if mode=='Review Gates':
         embed.description='Each HIGH route has its own requirements. Timing/results are optional for the absolute and acute gameplay routes. PASS is review evidence, not a misconduct verdict.'
         add_gate_fields(embed,result)
-        embed.set_footer(text=DISCLAIMER)
-        return embed
+        return _bounded_detail_embed(embed)
     if mode!='Highest-Signal Games':add_convergence_fields(embed,result)
     if mode=='Highest-Signal Games':
         joint=result.clusters.get('convergence',{})
@@ -402,7 +414,7 @@ def detail_embed(result, mode):
             timings=episode.get('clock_audit')
             if not timings:
                 continue
-            embed.add_field(name='Suspect ten-game block — move-clock audit',
+            embed.add_field(name='Reviewed ten-game block — move-clock audit',
                 value=(f"Ends <t:{episode.get('window_end_time',0)}:d> · "
                        f"mean published Accuracy: {str(episode['mean_accuracy'])+'%' if episode.get('mean_accuracy') is not None else 'not reported'} "
                        f"({episode.get('published_accuracy_games',0)}/10 reported).\n"
@@ -545,13 +557,7 @@ def detail_embed(result, mode):
                       f'Critical top-1 {percentage(deep["critical_top1"])} / {deep["critical"]} positions')
         for kind,a in result.classes.items():
             embed.add_field(name=kind.title(),value=f'{a["games"]} games · {a["decisions"]} decisions · median CPL {number(a["median_cpl"])} · top-1 {percentage(a["top1"])} · critical top-1 {percentage(a["critical_top1"])}',inline=False)
-    embed.set_footer(text=DISCLAIMER)
-    # Discord enforces 6000 characters across all embed components.
-    trimmed = False
-    while (len(embed)>5800 or len(embed.fields)>25) and embed.fields:
-        embed.remove_field(len(embed.fields)-1);trimmed=True
-    if trimmed:embed.set_footer(text=DISCLAIMER+' Additional detail rows omitted to fit Discord’s card limit.')
-    return embed
+    return _bounded_detail_embed(embed)
 
 
 def add_convergence_fields(embed,result):
@@ -638,9 +644,28 @@ def add_baseline_fields(embed,result):
 
 
 def add_gate_fields(embed,result):
+    if result.priority in ('HIGH','VERY HIGH') and result.diagnostics.get('high_path'):
+        embed.add_field(name='HIGH trigger',value=result.diagnostics['high_path'][:1024],inline=False)
+    episodes=(result.diagnostics.get('ten_accuracy_windows') or {}).get('window_details') or []
+    for episode in episodes[:2]:
+        engine=episode.get('engine') or {};maia=episode.get('maia') or {}
+        blockers=(episode.get('selection_only_blockers',[])
+                  +engine.get('blockers',[])+maia.get('blockers',[]))
+        text=(f"Ends <t:{episode.get('window_end_time',0)}:d> · "
+              f"Full depth + Maia: {episode.get('full_depth_and_maia',False)} · "
+              f"Comparable opponents: {episode.get('peer_games',0)}/10\n"
+              f"Engine hits/opportunities: {engine.get('hits','Unavailable')}/{engine.get('opportunities','Unavailable')} · "
+              f"Maia contributor games: {maia.get('contributors','Unavailable')}\n"
+              f"Signed engine / Maia excess: {number(engine.get('signed_quality_excess'))} / "
+              f"{number(maia.get('signed_excess'))}\n")
+        if not episode.get('full_depth_and_maia'):
+            text+='Coverage incomplete; this window is not a negative finding.'
+        elif blockers:text+='\n'.join('• '+b for b in blockers)
+        else:text+='All ten-game route requirements passed.'
+        embed.add_field(name='Recent ten-game evidence',value=text[:1024],inline=False)
     add_gameplay_fields(embed,result)
     if result.diagnostics.get('high_paths'):
-        if result.priority in ('HIGH','VERY HIGH'):
+        if result.priority in ('HIGH','VERY HIGH') and not result.diagnostics.get('high_path'):
             embed.add_field(name='HIGH trigger',value=result.diagnostics.get('high_path') or 'Required evidence established.',inline=False)
         for name,row in result.diagnostics['high_paths'].items():
             status='PASS' if row['passed'] else 'FAIL'
@@ -652,7 +677,6 @@ def add_gate_fields(embed,result):
             embed.add_field(name=name+' — '+status,value=explanation[:1024],inline=False)
         return
     if result.diagnostics.get('gameplay',{}).get('qualified'):
-        embed.add_field(name='HIGH trigger',value=result.diagnostics['high_path'],inline=False)
         return
     # The convergent route has its own explicitly displayed period and gates;
     # unrelated legacy-cluster failures must not contradict its HIGH trigger.
