@@ -26,7 +26,7 @@ RATING_GAP=250
 MAX_DEEP=300
 
 
-def discover(games, *, scope=SCOPE):
+def discover(games, *, scope=SCOPE, include_recent_unrated=False):
     """Predeclare candidates using public game metadata, never Stockfish hits.
 
     A sliding window must be consecutive in its *original* exact-control
@@ -44,6 +44,17 @@ def discover(games, *, scope=SCOPE):
                 and bool(getattr(g,'time_control',''))):
             unique[g.identity]=g
     ordered=sorted(unique.values(),key=lambda g:(g.ended,g.identity))
+    # These are the newest fifty games of either rating status, including
+    # bullet, which the mixed-status production plan reserves for full-depth
+    # review. An unrated window here can be examined even when the public
+    # API omits Chess.com Accuracy entirely.
+    recent_live=sorted(
+        (g for g in games if isinstance(getattr(g,'rated',None),bool)
+         and not getattr(g,'probe_only',False)
+         and isinstance(getattr(g,'ended',None),(int,float))
+         and math.isfinite(g.ended)),
+        key=lambda g:(g.ended,g.identity))[-50:]
+    recent_any_ids={g.identity for g in recent_live}
     eligible=ordered[-scope:]
     groups={}
     for g in eligible:
@@ -77,10 +88,17 @@ def discover(games, *, scope=SCOPE):
             # it to a signed-in reviewer. Eight or nine published scores may
             # select ALL ten games for independent full-depth analysis. No
             # missing score is assigned a value or enters the average.
-            if len(known)<MIN_REPORTED or peer_count<8:
+            if peer_count<8:
                 continue
-            mean=statistics.mean(known)
-            if mean<THRESHOLD:
+            mean=statistics.mean(known) if known else None
+            score_selected=(len(known)>=MIN_REPORTED and mean>=THRESHOLD)
+            # If published Accuracy is missing, do not declare the player
+            # innocent on that basis. Newest unrated games are already
+            # depth-reserved independently of Accuracy; test their paired
+            # Stockfish+Maia gameplay without inventing an Accuracy value.
+            recent_unrated=(include_recent_unrated and rated is False and
+                            all(g.identity in recent_any_ids for g in segment))
+            if not score_selected and not recent_unrated:
                 continue
             older=[g for g in ordered if g.ended<segment[0].ended
                    and (g.rated,g.time_class,g.time_control)==(rated,kind,control)
@@ -93,12 +111,16 @@ def discover(games, *, scope=SCOPE):
             row={'ids':tuple(g.identity for g in segment),
                  'rated':rated,'time_class':kind,'time_control':control,
                  'start':int(segment[0].ended),'end':int(segment[-1].ended),
-                 'mean_accuracy':round(mean,2),'peer_games':peer_count,
+                 'mean_accuracy':round(mean,2) if mean is not None else None,
+                 'selection_reason':('published_accuracy' if score_selected
+                                     else 'recent_unrated_deep'),
+                 'peer_games':peer_count,
                  'published_accuracy_games':len(known),
                  'missing_accuracy_games':WINDOW-len(known),
                  'prior_accuracy':round(baseline,2) if baseline is not None else None,
                  'prior_games':len(reference),
-                 'accuracy_shift':round(mean-baseline,2) if baseline is not None else None}
+                 'accuracy_shift':round(mean-baseline,2)
+                    if mean is not None and baseline is not None else None}
             candidates.append(row)
             selected.update(row['ids'])
     return {'schema':'fairplay-ten-window-discovery-v1',
@@ -107,12 +129,18 @@ def discover(games, *, scope=SCOPE):
             'total_blitz_rapid_games_in_scope':len(eligible),
             'window_games':WINDOW,'scope_limit':scope,
             'windows_examined':len(windows),
-            'accuracy_candidates':len(candidates),
+            'accuracy_candidates':sum(
+                row['selection_reason']=='published_accuracy' for row in candidates),
+            'recent_unrated_fallback_windows':sum(
+                row['selection_reason']=='recent_unrated_deep' for row in candidates),
+            'total_candidates':len(candidates),
             'selected_ids':selected,'candidates':candidates,
             'selection_note':(
                 'At least eight published Accuracy scores averaging 85+ '
                 'select all ten rated OR unrated games for full-depth review. Missing scores '
-                'are not estimated and Accuracy never sets HIGH.')}
+                'are not estimated and Accuracy never sets HIGH. Unrated '
+                'windows in the newest fifty games are also investigated '
+                'using real engine and Maia evidence if scores are missing.')}
 
 
 def extend_plan(plan, discovery, latest_fifty_ids, *, max_deep=MAX_DEEP):
@@ -348,7 +376,10 @@ def integrate(result, games, discovery, config=CONFIG):
                'total_blitz_rapid_games_in_scope',
                discovery['rated_blitz_rapid_games_in_scope']),
            'windows_examined':discovery['windows_examined'],
-           'accuracy_candidates':len(discovery['candidates']),
+           'accuracy_candidates':discovery['accuracy_candidates'],
+           'recent_unrated_fallback_windows':discovery.get(
+               'recent_unrated_fallback_windows',0),
+           'total_candidates':len(discovery['candidates']),
            'fully_verified_candidates':len(windows)-incomplete,
            'unverified_candidates':incomplete,'confirmed_engine_maia_windows':qualified,
            'unverified_windows_are_not_negative_evidence':True,
