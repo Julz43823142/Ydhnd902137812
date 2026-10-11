@@ -38,6 +38,10 @@ def main():
     if usable is None:
         raise RuntimeError("Synthetic fixture lacks a useful decision.")
     game.decisions=[usable]
+    unrated=copy.deepcopy(game)
+    unrated.identity='synthetic-unrated-compute'
+    unrated.rated=False
+    games=[game,unrated]
     scanner=EngineScanner(time.monotonic()+120,CONFIG)
     try:engine=scanner.name
     finally:scanner.close()
@@ -47,7 +51,7 @@ def main():
     store.put(artifact_name("req",ticket),{
         "schema":SCHEMA,"ticket":ticket,"version":VERSION,
         "revision":revision,"config":repr(CONFIG),"engine":engine,
-        "created":time.time(),"games":[[serialize_game(game)]]+[[] for _ in range(WORKERS-1)]})
+        "created":time.time(),"games":[[serialize_game(g) for g in games]]+[[] for _ in range(WORKERS-1)]})
     previous=os.environ.get("GITHUB_SHA")
     try:
         os.environ["GITHUB_SHA"]="c"*40
@@ -60,11 +64,12 @@ def main():
         else:os.environ["GITHUB_SHA"]=previous
     response=store.read_many([artifact_name("res",ticket,0)])[
         artifact_name("res",ticket,0)]
-    checked=validate_response([game],response,ticket=ticket,index=0,
+    checked=validate_response(games,response,ticket=ticket,index=0,
                               revision=revision,engine=engine)
-    if not checked[0].deep or outcome["positions"]!=1:
+    if (not all(g.deep for g in checked) or outcome["positions"]!=2
+            or [g.rated for g in checked]!=[True,False]):
         raise RuntimeError("Real compute shard did not return verified deep results.")
-    print("V22_REAL_COMPUTE_SMOKE passed: 1 synthetic decision, verified PV3 depth18.",
+    print("V22_REAL_COMPUTE_SMOKE passed: 2 synthetic rated/unrated decisions, verified PV3 depth18.",
           flush=True)
 
 

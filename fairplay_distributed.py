@@ -56,6 +56,7 @@ def safe_error_code(error):
             "Cannot fetch encrypted compute exchange.":"git_fetch",
             "Worker Stockfish version does not match coordinator.":"engine_version",
             "Remote Stockfish work incomplete.":"incomplete_depth",
+            "Invalid bounded compute workload.":"workload_validation",
             "Encrypted compute exchange could not be persisted after retries.":"git_push_conflict",
             "Pinned worker git revision differs from the input.":"pinned_code_mismatch",
         }
@@ -412,6 +413,7 @@ def join(handle,progress,deadline,*,max_wait=MAX_WAIT_SECONDS,clock=None,sleep=N
                      "failed":0,"stalled":0,"remote_positions":0,
                      "reason":"pending"}
     end=min(float(deadline),handle["started"]+max_wait)
+    joined_at=clock()
     while clock()<end:
         check_deadline(deadline)
         try:
@@ -480,6 +482,8 @@ def join(handle,progress,deadline,*,max_wait=MAX_WAIT_SECONDS,clock=None,sleep=N
         for game in group:completed[game.identity]=game
     handle["stats"].update(completed=len(result),failed=len(dead),
         stalled=max(0,len(handle["shards"])-len(result)-len(dead)),
+        join_wait_seconds=round(max(0,clock()-joined_at),3),
+        elapsed_seconds=round(max(0,clock()-handle['started']),3),
         remote_positions=sum(len(g.decisions) for group in result.values() for g in group))
     if len(result)==len(handle["shards"]):
         handle["stats"]["reason"]="all_verified"
@@ -514,19 +518,12 @@ def worker(ticket,index,*,env=None,store=None,clock=None):
             len(request["games"])!=WORKERS or
             not 0<=time.time()-request.get("created",0)<REQUEST_LIFETIME):
         raise ReviewError("Unavailable, mismatched or expired compute workload.")
-    tasks=[deserialize_game(row) for row in request["games"][index]]
-    if len(tasks)>50 or not all(g.rated is True for g in tasks):
-        raise ReviewError("Invalid bounded and rated compute workload.")
-    # Workers only compute exact Stockfish; no Chess.com fetch, no Discord,
-    # no scoring, no policy reranking and no GitHub release/deployment actions.
-    from fairplay_analysis import (SharedEnginePool, available_engine_cpus,
-                                   run_position_batch, full_depth_budget, summarize)
-    import chess.engine
-    workers=min(4,max(1,available_engine_cpus()))
-    pool=SharedEnginePool(CONFIG,size=workers)
+    # Validation and pool creation belong inside the failure-reporting scope.
+    # The coordinator now explicitly includes rated AND unrated games. Workers
+    # compute both; only the central scorer decides their evidentiary scope.
+    pool=None
+    total=0
     started=clock()
-    deadline=started+WORKER_RUNTIME_SECONDS
-    total=sum(len(g.decisions) for g in tasks)
     last_status=[started-100]
     def notify(stage):
         import re
@@ -543,6 +540,19 @@ def worker(ticket,index,*,env=None,store=None,clock=None):
         except ReviewError:
             pass  # Progress is advisory. Final output is mandatory.
     try:
+        rows=request["games"][index]
+        if not isinstance(rows,list) or len(rows)>50:
+            raise ReviewError("Invalid bounded compute workload.")
+        tasks=[deserialize_game(row) for row in rows]
+        if not all(isinstance(g.rated,bool) for g in tasks):
+            raise ReviewError("Invalid bounded compute workload.")
+        total=sum(len(g.decisions) for g in tasks)
+        from fairplay_analysis import (SharedEnginePool, available_engine_cpus,
+                                       run_position_batch, full_depth_budget, summarize)
+        import chess.engine
+        workers=min(4,max(1,available_engine_cpus()))
+        pool=SharedEnginePool(CONFIG,size=workers)
+        deadline=started+WORKER_RUNTIME_SECONDS
         if tasks:
             work=[(g,d) for g in tasks for d in g.decisions]
             with ThreadPoolExecutor(max_workers=workers) as executor:
@@ -563,15 +573,16 @@ def worker(ticket,index,*,env=None,store=None,clock=None):
             "revision":request["revision"],"engine":name,
             "games":[serialize_game(g) for g in tasks]})
         return {"positions":total,"games":len(tasks),"shard":index}
-    except Exception:
+    except Exception as error:
         # Keep failures isolated from other shards, and let the
         # coordinator immediately recover missing games on its local pool.
         try:
             store.put(artifact_name("progress",ticket,index),{
                 "schema":SCHEMA,"ticket":ticket,"revision":request["revision"],
-                "index":index,"state":"failed","done":0,"total":total})
+                "index":index,"state":"failed","done":0,"total":total,
+                "reason":safe_error_code(error)})
         except Exception:
             pass
         raise
     finally:
-        pool.close()
+        if pool is not None:pool.close()

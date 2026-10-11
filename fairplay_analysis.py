@@ -1222,7 +1222,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 progress=progress,**resume_kwargs)
             if ((require_maia or (full_depth_mode and os.getenv('FAIRPLAY_REQUIRE_MAIA')=='1'))
                     and not neural_reference['fast_counterfactual']['complete']):
-                raise ReviewError('The complete Maia fast reference did not finish; no review was issued.')
+                raise ReviewError('The complete fast Maia counterfactual search did not finish; no review was issued.')
         progress('Analyzing sessions and repertoire…')
         from fairplay_sequence import class_periods, adaptive_deep_games, confirmation_extension
         gameplay_periods=(class_periods([g for g in v21_deep if g.rated is True],
@@ -1605,7 +1605,9 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 'games_verified_remotely':len(distributed_completed),
                 'games_recomputed_locally':sum(g.identity not in distributed_completed for g in v21_deep)
                     if distributed_mode else 0,
-                'distributed_time_seconds':round(time.monotonic()-distributed_handle['started'],1)
+                'distributed_time_seconds':(distributed_handle.get('stats') or {}).get('elapsed_seconds')
+                    if distributed_handle is not None else None,
+                'distributed_join_wait_seconds':(distributed_handle.get('stats') or {}).get('join_wait_seconds')
                     if distributed_handle is not None else None,
                 'one_authoritative_report':True,
                 'no_independent_worker_scoring':True}

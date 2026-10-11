@@ -239,5 +239,67 @@ class IsolatedGitRef(unittest.TestCase):
                 self.assertEqual(set(store.read_many(names)),{names[2]})
 
 
+class WorkerMixedStatusRegression(unittest.TestCase):
+    def request(self, games):
+        store=MemoryStore()
+        ticket='c'*24
+        store.put(artifact_name('req',ticket),{
+            'schema':SCHEMA,'ticket':ticket,'revision':'b'*40,
+            'version':VERSION,'config':repr(CONFIG),'engine':'Stockfish synthetic',
+            'created':time.time(),
+            'games':[[serialize_game(g) for g in games]]+[[] for _ in range(WORKERS-1)]})
+        return ticket,store,{'INPUT_REVISION':'b'*40,'FAIRPLAY_DISTRIBUTED_KEY':SECRET}
+
+    def test_rated_and_unrated_compute_preserves_status_and_validates(self):
+        from fairplay_distributed import worker
+        games=[sample(1),sample(2)];games[1].rated=False
+        ticket,store,env=self.request(games)
+        pool=Mock();pool.name='Stockfish synthetic'
+        def run(executor,pool,work,*args,**kwargs):
+            unique={g.identity:g for g,d in work}
+            for g in unique.values():
+                measured=completed(g)
+                g.decisions=measured.decisions
+            return set(map(id,unique.values())),False
+        with patch('fairplay_analysis.SharedEnginePool',return_value=pool), \
+             patch('fairplay_analysis.run_position_batch',side_effect=run), \
+             patch('fairplay_analysis.summarize'):
+            result=worker(ticket,0,env=env,store=store)
+        response=store.data[artifact_name('res',ticket,0)]
+        returned=validate_response(games,response,ticket=ticket,index=0,
+                                  revision='b'*40,engine='Stockfish synthetic')
+        self.assertEqual([g.rated for g in returned],[True,False])
+        self.assertEqual(result['games'],2)
+        pool.close.assert_called_once()
+
+    def test_bad_game_status_reports_failure_before_engine_start(self):
+        from fairplay_distributed import worker
+        game=sample();game.rated=None
+        ticket,store,env=self.request([game])
+        with patch('fairplay_analysis.SharedEnginePool') as pool:
+            with self.assertRaises(ReviewError):worker(ticket,0,env=env,store=store)
+        pool.assert_not_called()
+        status=store.data[artifact_name('progress',ticket,0)]
+        self.assertEqual(status['state'],'failed')
+        self.assertEqual(status['reason'],'workload_validation')
+        handle={'ticket':ticket,'shards':[[game]],'revision':'b'*40,
+                'engine':'Stockfish synthetic','store':store,'started':time.monotonic()}
+        with patch('fairplay_distributed.time.sleep') as sleep:
+            self.assertEqual(join(handle,lambda _:None,time.monotonic()+60),{})
+        sleep.assert_not_called()
+        self.assertEqual(handle['stats']['failed'],1)
+        self.assertEqual(handle['stats']['stalled'],0)
+        self.assertLess(handle['stats']['elapsed_seconds'],5)
+
+    def test_pool_startup_failure_is_reported(self):
+        from fairplay_distributed import worker
+        ticket,store,env=self.request([sample()])
+        with patch('fairplay_analysis.SharedEnginePool',side_effect=OSError('synthetic')):
+            with self.assertRaises(OSError):worker(ticket,0,env=env,store=store)
+        status=store.data[artifact_name('progress',ticket,0)]
+        self.assertEqual(status['state'],'failed')
+        self.assertEqual(status['reason'],'worker_os')
+
+
 if __name__=="__main__":
     unittest.main()

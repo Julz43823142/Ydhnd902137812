@@ -255,6 +255,11 @@ def fixed_replication_status(periods,config=CONFIG,*,require_deep=False):
         halves=sorted(halves,key=lambda p:(p.get('start',0),p.get('end',0)))
         if len(halves)!=2:continue
         blockers=[]
+        left,right=halves
+        if set(left.get('ids',())) & set(right.get('ids',())):
+            blockers.append('fixed halves must contain disjoint games')
+        if left.get('end',0)>right.get('start',0):
+            blockers.append('fixed halves must not overlap in chronology')
         for index,period in enumerate(halves,1):
             blockers.extend(f'half {index}: {value}' for value in sparse_review_blockers(period,config))
             if require_deep:
@@ -488,7 +493,7 @@ def integrate_gameplay(result,games,config=CONFIG,*,periods=None):
         result.priority='HIGH';result.deep_confirmed=True
         result.diagnostics.update(high_path='Replicated fixed-half gameplay (timing not required)',high_blocked=[])
         result.reasons=[
-            'Two pre-defined chronological halves independently showed broad high-information gameplay evidence '
+            'Two disjoint chronological halves showed broad above-reference gameplay evidence '
             'and both retained it under paired deep review.',
             'The halves are temporal replication inside one correlated gameplay family, not independent probabilities. '
             'Timing or result anomalies are not required; human review remains mandatory.']
@@ -521,6 +526,14 @@ def integrate_gameplay(result,games,config=CONFIG,*,periods=None):
         'confirmed_periods':len(confirmed),'replicated_disjoint_periods':replicated,'funnel':evidence_funnel(games,config),
         'fixed_half_replication':{'passed':fixed_replication_allowed,
             'class':fixed_replication.get('class'),'half_games':[len(p.get('ids',[])) for p in fixed_replication.get('halves',[])],
+            'half_evidence':[{
+                'games':len(p.get('ids',[])),
+                'fast_opportunities':p.get('summary',{}).get('opportunities',0),
+                'fast_signed_quality_excess':p.get('summary',{}).get('quality_excess'),
+                'deep_games':p.get('deep',{}).get('games',0),
+                'deep_opportunities':p.get('deep',{}).get('summary',{}).get('opportunities',0),
+                'deep_signed_quality_excess':p.get('deep',{}).get('summary',{}).get('quality_excess'),
+            } for p in fixed_replication.get('halves',[])],
             'blockers':[] if fixed_replication_allowed else list(dict.fromkeys(replication_blockers))},
         'distributed_moderate':{'passed':sparse_allowed,'blockers':[] if sparse_allowed else list(dict.fromkeys(sparse_blockers)),
             'candidate_games':len(sparse_review['ids']) if sparse_review else 0,

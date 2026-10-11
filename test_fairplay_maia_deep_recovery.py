@@ -125,6 +125,11 @@ class OwnerFailureAndProgress(unittest.TestCase):
         self.assertIn('Maia counterfactuals',timer.summary(stage,now=110))
         self.assertEqual(estimate('Complete'),100)
 
+    def test_fast_counterfactual_failure_is_not_misreported_as_inference(self):
+        self.assertEqual(classify(ReviewError(
+            'The complete fast Maia counterfactual search did not finish; no review was issued.')),
+            'maia_fast_counterfactual_incomplete')
+
     def test_distinguish_missing_model_from_failed_deep_root_search(self):
         self.assertEqual(classify(ReviewError(
             'The complete deep Maia counterfactual search did not finish; no review was issued.')),

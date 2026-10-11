@@ -696,7 +696,7 @@ def add_gameplay_fields(embed,result):
               f'Opportunity-bearing games: {s.get("opportunity_games",0)} · hit-bearing games: {s.get("hit_games",0)} · single-hit games: {s.get("single_hit_games",0)}\n'
               f'Bounded information: {number(s.get("information"))}\n'
               f'Expected / observed quality: {number(s.get("quality_reference"))} / {number(s.get("observed_quality"))}\n'
-              f'Raw quality excess / headroom anomaly: {number(s.get("quality_excess"))} / {number(s.get("anomaly_strength"))}\n'
+              f'Signed quality excess / headroom anomaly: {number(s.get("quality_excess"))} / {number(s.get("anomaly_strength"))}\n'
               f'Descriptive move accuracy: {number(s.get("accuracy_index"))} · selective-assistance games: {s.get("selective_games",0)}\n'
               f'Difficulty inversion strength: {number(s.get("inversion_strength"))} · deep-stable high-information decisions: {deep.get("stable_hits",0)}\n'
               f'Gameplay class: {best.get("class","unavailable")} · controls: {", ".join(best.get("controls",[])) or "unavailable"}\n'
