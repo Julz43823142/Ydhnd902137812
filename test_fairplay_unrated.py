@@ -122,6 +122,41 @@ class UnratedTenGameWindows(unittest.TestCase):
         # full-ten-game deep review requirement.
         self.assertEqual(discover(games)['accuracy_candidates'],0)
 
+    def test_four_public_scores_are_enough_for_independent_recent_unrated_review(self):
+        # Chess.com frequently omits public Accuracy for unreviewed games.
+        # The mandatory newest-fifty deep work permits a policy-based check
+        # without treating the other six absent values as poor scores.
+        games=[rated_game(i,None,rated=False) for i in range(6)]
+        games.extend(rated_game(i,97.,rated=False) for i in range(6,10))
+        report=discover(games,include_recent_unrated=True)
+        self.assertEqual(report['accuracy_candidates'],0)
+        self.assertEqual(report['recent_unrated_fallback_windows'],1)
+        self.assertEqual(report['total_candidates'],1)
+        self.assertEqual(report['candidates'][0]['mean_accuracy'],97.)
+        self.assertEqual(report['candidates'][0]['published_accuracy_games'],4)
+        self.assertEqual(len(report['selected_ids']),10)
+
+    def test_zero_public_accuracy_still_tests_latest_unrated_moves(self):
+        games=[rated_game(i,None,rated=False) for i in range(10)]
+        recent=discover(games,include_recent_unrated=True)
+        self.assertEqual(recent['recent_unrated_fallback_windows'],1)
+        self.assertIsNone(recent['candidates'][0]['mean_accuracy'])
+        self.assertIsNone(recent['candidates'][0]['accuracy_shift'])
+        self.assertEqual(discover(games)['total_candidates'],0)
+        for g in games:g.rated=True
+        self.assertEqual(
+            discover(games,include_recent_unrated=True)['total_candidates'],0)
+
+    def test_old_unrated_windows_without_scores_are_not_promoted(self):
+        games=[rated_game(i,None,rated=False) for i in range(100)]
+        # The newest fifty alone qualify for the no-Accuracy fallback.
+        # Earlier unrated windows still require published Accuracy.
+        report=discover(games,include_recent_unrated=True)
+        self.assertGreater(report['recent_unrated_fallback_windows'],0)
+        self.assertTrue(all(
+            all(int(ident.split('-')[-1])>=50 for ident in c['ids'])
+            for c in report['candidates']))
+
     def test_unrated_joint_move_evidence_can_raise_only_to_high(self):
         games=[engine_game(i) for i in range(10)]
         for g in games:g.rated=False;g.rating=g.opponent_rating=700;g.decisions=[]
