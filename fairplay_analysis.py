@@ -989,7 +989,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             # Published Accuracy only selects ten-game groups for mandatory
             # full-depth review; it cannot by itself promote review priority.
             from fairplay_ten_windows import discover
-            accuracy_discovery=discover(primary)
+            accuracy_discovery=discover(primary,include_recent_unrated=include_unrated)
             latest_fifty=tuple(g for g in primary if g.rated is True)[-LATEST_FULL_DEEP_GAMES:]
             latest_fifty_ids={g.identity for g in latest_fifty}
             full_policy_ids=latest_fifty_ids|accuracy_discovery['selected_ids']
