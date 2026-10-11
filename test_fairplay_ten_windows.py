@@ -197,6 +197,9 @@ class Contract(unittest.TestCase):
         self.decision.metrics['search_contract']['exact']=False
         self.decision.metrics['useful']=False
         self.decision.metrics['human_opportunity']=False
+        # Only a real declared search inconsistency can be excluded.
+        self.assertFalse(_complete_game(self.game,CONFIG))
+        self.decision.metrics['search_inconsistent']=True
         self.assertTrue(_complete_game(self.game,CONFIG))
         # Mislabeling this position as scored evidence must reject it.
         self.decision.metrics['high_information']=True
