@@ -172,6 +172,30 @@ def result_embed(result: ReviewResult):
                    f"{ten.get('draws',0)} draws, "
                    f"{ten.get('losses',0)} losses**"),
             inline=False)
+    blocks=result.diagnostics.get('accuracy_blocks') or {}
+    if blocks.get('schema')=='fairplay-accuracy-blocks-v1':
+        best=blocks.get('best') or {}
+        alert_count=blocks.get('discovery_windows',0)
+        lines=[f"**{blocks.get('windows_evaluated',0)}** ten-game blocks "
+               f"across **{blocks.get('rated_blitz_rapid_games',0)}** rated "
+               "blitz/rapid games (bullet excluded)."]
+        if best.get('mean_accuracy') is not None:
+            lines.append(
+                f"Highest signal: **{best['mean_accuracy']:.1f}% Accuracy**"
+                +(f" vs earlier **{best['older_mean_accuracy']:.1f}%**"
+                  if best.get('older_mean_accuracy') is not None else
+                  " (older comparison unavailable)")
+                +f"; **{best.get('similar_rating_opponents',0)}/10**"
+                 " similar-rated opponents.")
+        lines.append(f"Personal-baseline shifts flagged: **{alert_count}**."
+                     +(" Full Stockfish + Maia corroboration is required for HIGH."
+                       if alert_count else " No supported shift was confirmed."))
+        shift=result.diagnostics.get('recent_engine_shift') or {}
+        if alert_count:
+            lines.append(f"Dual-model confirmations: **{shift.get('windows_confirmed',0)}**"
+                         f" / **{shift.get('windows_attempted',0)}** attempted.")
+        embed.add_field(name='Accuracy over time',value='\n'.join(lines)[:700],
+                        inline=False)
     streak=result.diagnostics.get('accuracy_streak_audit') or {}
     if streak.get('schema')=='sharkbot-accuracy-streak-audit-v1':
         parts=[]
