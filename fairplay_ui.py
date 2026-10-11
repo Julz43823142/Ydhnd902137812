@@ -141,6 +141,15 @@ def result_embed(result: ReviewResult):
                   f"{v21.get('latest_50_maia_all_decisions',0)}/"
                   f"{v21.get('latest_50_maia_expected',0)}**")
     embed.add_field(name='Games analyzed',value=summary,inline=False)
+    # Preserve bounded-history disclosure in plain English. A sample of 100
+    # games is not a statement about every game ever played by this account.
+    if coverage.get('requested_primary_limit'):
+        scope=('Only the selected games were reviewed; '
+               'the full account history was NOT exhaustively analyzed.')
+        missing_months=coverage.get('unvisited_archive_months')
+        if isinstance(missing_months,int) and missing_months>0:
+            scope+=f" {missing_months} older archive months were not checked."
+        embed.add_field(name='Limits',value=scope,inline=False)
     recent=result.diagnostics.get('recent_tail_audit') or {}
     ten=recent.get('last_10') or {}
     if ten.get('games'):
@@ -170,7 +179,9 @@ def result_embed(result: ReviewResult):
             brief=brief[:237].rsplit(' ',1)[0]+'...'
         embed.add_field(name='Why this result?',value=brief,inline=False)
     embed.add_field(name='Important',value=SHORT_SCREENING_NOTICE,inline=False)
-    embed.set_footer(text='For more information, use the buttons below.')
+    revision=(result.diagnostics.get('run_contract') or {}).get('code_revision')
+    suffix=(f" · Code {revision}" if revision else "")
+    embed.set_footer(text='More details: buttons below'+suffix)
     return embed
 
 
