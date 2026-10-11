@@ -83,11 +83,14 @@ def analyze(games, config):
     checks['ten complete recent deep searches']=all(
         _verified_entry(g) and _counts(g) is not None
         and _counts(g,fast=True) is not None for g in recent)
-    checks['twelve complete older paired comparison games']=sum(
-        _verified_entry(g) and _counts(g) is not None
-        and _counts(g,fast=True) is not None for g in baseline)>=12
+    # Never omit missing older games just to make the baseline look weaker.
+    # Every game used as a personal control must have authentic paired data.
+    checks['every older control has complete paired deep searches']=bool(
+        len(baseline)>=12 and all(
+            _verified_entry(g) and _counts(g) is not None
+            and _counts(g,fast=True) is not None for g in baseline))
     if not (checks['ten complete recent deep searches']
-            and checks['twelve complete older paired comparison games']):
+            and checks['every older control has complete paired deep searches']):
         return {'schema':'fairplay-recent-engine-shift-v1','qualified':False,
                 'blockers':[key for key,val in checks.items() if not val],
                 'recent_games':len(recent),'baseline_games':len(baseline),
