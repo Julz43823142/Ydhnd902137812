@@ -229,5 +229,32 @@ class DecisionSafety(unittest.TestCase):
         self.assertFalse(result.diagnostics['ten_accuracy_windows']['high_path_passed'])
 
 
+
+class RecentShortCollection(unittest.TestCase):
+    def test_v30_includes_short_rated_blitz_games_beyond_first_fifty(self):
+        import math
+        from fairplay_data import collect_games
+        from test_fairplay_v29 import short_pgn_row
+        from test_fairplay import sample_row, TARGET
+        data=[short_pgn_row(i) for i in range(1,71)]
+        data.extend(sample_row(i) for i in range(71,101))
+        class API:
+            deadline=math.inf
+            def get(self,target,suffix,**kwargs):
+                if suffix=='/games/archives':
+                    return {'archives':[
+                        f'https://api.chess.com/pub/player/{target}/games/2023/11']}
+                if suffix=='/games/2023/11':
+                    return {'games':data}
+                raise AssertionError(suffix)
+        scan,_,_=collect_games(
+            API(),TARGET,lambda _:None,
+            include_latest_fifty_short=True,
+            include_recent_nonbullet_short_count=250)
+        self.assertEqual(len(scan),100)
+        self.assertEqual(sum(len(g.moves)==10 for g in scan),70)
+        self.assertTrue(all(g.rated is True for g in scan))
+
+
 if __name__=='__main__':
     unittest.main()
