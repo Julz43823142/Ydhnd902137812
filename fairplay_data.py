@@ -155,15 +155,16 @@ class QuietGameBuilder(chess.pgn.GameBuilder):
 
 
 def parse_game(row: dict, target: str, config: ReviewConfig = CONFIG, *, exclusions=None,
-               allow_short=False) -> GameSample | None:
+               allow_short=False, include_unrated=False) -> GameSample | None:
     def reject(reason):
         if exclusions is not None:exclusions[reason] += 1
         return None
     if row.get('rules', 'chess') != 'chess':return reject('variant')
     if row.get('time_class') == 'daily':return reject('daily')
     if row.get('time_class') not in ('rapid', 'blitz', 'bullet'):return reject('unsupported_time_class')
-    if row.get('rated') is False:return reject('unrated')
-    if row.get('rated') is not True:return reject('rated_status_unknown')
+    rated_status=row.get('rated')
+    if not isinstance(rated_status,bool):return reject('rated_status_unknown')
+    if rated_status is False and not include_unrated:return reject('unrated')
     end = finite_number(row.get('end_time'))
     if end is None or end <= 0:
         return reject('other_invalid')
@@ -230,7 +231,7 @@ def parse_game(row: dict, target: str, config: ReviewConfig = CONFIG, *, exclusi
         previous_capture_square = node.move.to_square if capture else None
         moves.append(node.move.uci())
         board.push(node.move)
-    # The latest-50 comprehensive scope includes legal, finished short rated
+    # The latest-50 comprehensive scope includes legal, finished short
     # games. This changes *selection coverage*, not their evidential weight:
     # opening/forced moves remain excluded from scoring and cannot add hits.
     # A finished game with no played target decision has nothing to evaluate.
@@ -313,7 +314,8 @@ class PubAPI:
 
 def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG,
                   *, include_latest_fifty_short=False,
-                  include_recent_nonbullet_short_count=0):
+                  include_recent_nonbullet_short_count=0,
+                  include_unrated=False):
     payload = api.get(target, '/games/archives')
     if payload is None:raise ReviewError('No public game archives are available for this account.')
     months = set()
@@ -330,7 +332,8 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG,
         for year, month in ordered[:config.max_archives]:
             check_deadline(api.deadline)
             visited_months += 1
-            progress('Collecting rated games…')
+            progress('Collecting rated and unrated games…' if include_unrated
+                     else 'Collecting rated games…')
             try:data = api.get(target, f'/games/{year:04d}/{month:02d}')
             except DeadlineReached:raise
             except ReviewError:data = None  # archive failure is explicit missing coverage, never suspicion
@@ -358,7 +361,8 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG,
                         and row.get('time_class') in ('blitz','rapid')
                         and recent_standard<include_recent_nonbullet_short_count))
                 try:sample = parse_game(
-                    row,target,config,exclusions=skipped,allow_short=allow_short)
+                    row,target,config,exclusions=skipped,allow_short=allow_short,
+                    include_unrated=include_unrated)
                 except (ValueError, TypeError, KeyError, IndexError, RecursionError):
                     skipped['invalid_pgn'] += 1;sample = None
                 if sample is None:continue
