@@ -103,8 +103,13 @@ def annotate_game(game, config=CONFIG, model=None):
         hit = (opportunity and observed>=.85 and excess>=raw_threshold
                and anomaly>=hit_threshold)
         quiet = not (d.capture or d.check or d.gives_check)
+        # Positive-tail information can locate selective assistance, but an
+        # aggregate claiming above-reference quality must also retain misses.
+        # E[max(0, observed - expected)] is positive even for ordinary noisy
+        # play below its reference; it cannot serve as signed mean excess.
         m.update(expected_human_quality=expected, observed_move_quality=observed,
-                 quality_excess=excess, quality_residual=residual,
+                 quality_excess=observed-expected, positive_quality_excess=excess,
+                 quality_residual=residual,
                  anomaly_strength=anomaly, anomaly_hit_threshold=hit_threshold,
                  raw_excess_threshold=raw_threshold,
                  move_accuracy=accuracy_index(m.get('scaled_loss')),
@@ -166,6 +171,7 @@ def annotate_game(game, config=CONFIG, model=None):
         'hard_stable':len(stable),
         'information':statistics.mean(m['human_information'] for m in capped) if capped else 0,
         'quality_excess':statistics.mean(m['quality_excess'] for m in capped) if capped else 0,
+        'positive_quality_excess':statistics.mean(m['positive_quality_excess'] for m in capped) if capped else 0,
         'quality_residual':statistics.mean(m['quality_residual'] for m in capped) if capped else 0,
         'anomaly_strength':statistics.mean(m['anomaly_strength'] for m in capped) if capped else 0,
         'accuracy_index':statistics.mean([m['move_accuracy'] for m in capped if m.get('move_accuracy') is not None])
@@ -202,6 +208,7 @@ def period_summary(games, config=CONFIG, *, fast=False):
         'hit_games':len(hit_games), 'hit_game_ids':[g.identity for g in hit_games],
         'single_hit_games':len(single_hit_games),
         'information':average('information') or 0, 'quality_excess':average('quality_excess') or 0,
+        'positive_quality_excess':average('positive_quality_excess') or 0,
         'quality_residual':average('quality_residual') or 0, 'anomaly_strength':average('anomaly_strength') or 0,
         'accuracy_index':average('accuracy_index'),
         'observed_quality':average('observed_quality'), 'quality_reference':average('quality_reference'),
