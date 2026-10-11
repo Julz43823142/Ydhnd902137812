@@ -251,16 +251,46 @@ class DecisionSafety(unittest.TestCase):
             self.assertEqual(integrate(_result(complete=False),self.games,
                                        self.discovery).priority,'LOW')
 
-    def test_one_model_incomplete_cannot_promote(self):
+    def test_one_model_incomplete_is_inconclusive_not_false_low(self):
         with patch('fairplay_ten_windows._complete_game',return_value=False):
             result=integrate(_result(),self.games,self.discovery)
-        self.assertEqual(result.priority,'LOW')
+        self.assertEqual(result.priority,'INSUFFICIENT DATA')
+        self.assertEqual(result.diagnostics['ten_accuracy_windows']
+                         ['unverified_candidates'],1)
+        self.assertIn('lacked complete exact',result.reasons[0])
+
+    def test_failed_optional_window_does_not_block_separately_verified_high(self):
+        games=[engine_game(i) for i in range(20)]
+        for g in games:
+            g.rating=g.opponent_rating=700
+            g.decisions=[]
+        older=dict(self.discovery['candidates'][0])
+        recent=dict(self.discovery['candidates'][0])
+        older['ids']=tuple(g.identity for g in games[:10])
+        older['end']=100
+        recent['ids']=tuple(g.identity for g in games[10:])
+        recent['end']=200
+        discovery={**self.discovery,'candidates':[older,recent]}
+        with patch('fairplay_ten_windows._complete_game',
+                   side_effect=lambda g,c: g.identity!='fixture-4'),patch(
+                'fairplay_ten_windows.policy_summarize',side_effect=strong_policy):
+            result=integrate(_result(),games,discovery)
+        self.assertEqual(result.priority,'HIGH')
+        audit=result.diagnostics['ten_accuracy_windows']
+        self.assertEqual(audit['unverified_candidates'],1)
+        self.assertEqual(audit['confirmed_engine_maia_windows'],1)
+        self.assertTrue(audit['high_path_passed'])
+
+    def test_incomplete_optional_window_cannot_override_other_high(self):
+        with patch('fairplay_ten_windows._complete_game',return_value=False):
+            result=integrate(_result(priority='HIGH'),self.games,self.discovery)
+        self.assertEqual(result.priority,'HIGH')
         self.assertEqual(result.diagnostics['ten_accuracy_windows']
                          ['unverified_candidates'],1)
 
     def test_accuracy_only_never_promotes_to_high_or_very_high(self):
         result=integrate(_result(),[],self.discovery)
-        self.assertEqual(result.priority,'LOW')
+        self.assertEqual(result.priority,'INSUFFICIENT DATA')
         self.assertFalse(result.diagnostics['ten_accuracy_windows']['high_path_passed'])
 
 
