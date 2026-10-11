@@ -1429,6 +1429,11 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         # no performance, Elo-win-streak or published Accuracy shortcut.
         from fairplay_burst import integrate as integrate_burst
         result=integrate_burst(result,scoring_games,config)
+        # Fixed latest-ten vs older-control change point. A HIGH review route
+        # requires independently paired Stockfish evidence across both halves.
+        # Chess.com Accuracy, wins and player identity cannot set its score.
+        from fairplay_recent_shift import integrate as integrate_recent_shift
+        result=integrate_recent_shift(result,scoring_games,config)
         # Review all verified deep-reviewed games, including short games with
         # fewer than eight useful moves. The audit is aggregate-only and cannot
         # elevate priority; fast evidence selects any diagnostic period.
