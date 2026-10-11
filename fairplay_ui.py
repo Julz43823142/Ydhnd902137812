@@ -187,7 +187,9 @@ def result_embed(result: ReviewResult):
                  f"Full Stockfish + Maia review: **{done}/{count}** windows. "
                  f"Confirmed joint gameplay evidence: **{confirmed}**.")
         if count and latest_mean:
-            message+=f"\nTop selected average: **{latest_mean:.1f}%**."
+            message+=f"\nTop published-score mean: **{latest_mean:.1f}%**."
+            if any(row.get('missing_accuracy_games',0) for row in mean_rows):
+                message+=" Some Accuracy reports were missing; no scores were invented."
         embed.add_field(name='Ten-game Accuracy review',
                         value=message[:480],inline=False)
     streak=result.diagnostics.get('accuracy_streak_audit') or {}
@@ -198,6 +200,12 @@ def result_embed(result: ReviewResult):
                             value=(f"**{count95}/10** rated games with published "
                                    "Accuracy of 95%+. Review moves, not just scores."),
                             inline=False)
+        last20=streak.get('last_20_accuracy_95_plus',0)
+        if isinstance(last20,int) and last20>=5:
+            embed.add_field(name='Latest 20 Accuracy',
+                value=(f"**{last20}/20** rated games had published "
+                       "95%+ Accuracy (all time classes). This is a review flag, not proof."),
+                inline=False)
         parts=[]
         if streak.get('followup_alert'):
             parts.append('Unusual 95+ Accuracy and win streak: **check the games**.')
@@ -340,6 +348,25 @@ def detail_embed(result, mode):
                       f'{result.coverage.get("history_probed",0)} discovery probes · {result.coverage.get("history_fast_scanned",0)} targeted full historical scans\n'
                       'A large lower-anomaly baseline does not dilute a localized high-signal period.')
     elif mode=='Timing':
+        episodes=(result.diagnostics.get('ten_accuracy_windows') or {}).get('window_details') or []
+        for episode in episodes[:2]:
+            timings=episode.get('clock_audit')
+            if not timings:
+                continue
+            embed.add_field(name='Suspect ten-game block — move-clock audit',
+                value=(f"Ends <t:{episode.get('window_end_time',0)}:d> · "
+                       f"mean published Accuracy: {episode.get('mean_accuracy',0)}% "
+                       f"({episode.get('published_accuracy_games',0)}/10 reported).\n"
+                       f"Player moves: {timings['player_moves']} · reliable clocks: "
+                       f"{timings['reliable_clocks']} · no delta: "
+                       f"{timings['missing_clock_deltas']} · unreliable: "
+                       f"{timings['unreliable_clock_deltas']}\n"
+                       f"Median think time: {number(timings['median_seconds'])}s; "
+                       f"difficult: {number(timings['median_difficult_seconds'])}s; "
+                       f"engine-anomalous: {number(timings['median_engine_anomaly_seconds'])}s.\n"
+                       "Times use PGN remaining clocks + increment, not literal move "
+                       "timestamps. Timing alone cannot set HIGH.")[:1024],
+                inline=False)
         eligible = [g for g in (result.timeline or result.games) if g.metrics['timing']['count']>=15]
         regular = [g for g in eligible if g.metrics['timing'].get('elevated')]
         embed.description = (f'Games with ≥15 usable clock decisions: **{len(eligible)}**\n'

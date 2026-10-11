@@ -20,6 +20,7 @@ from fairplay_policy import summarize as policy_summarize
 WINDOW=10
 SCOPE=250
 THRESHOLD=85.0
+MIN_REPORTED=8  # Selection only; never impute unpublished Accuracy
 RATING_GAP=250
 MAX_DEEP=300
 
@@ -71,9 +72,11 @@ def discover(games, *, scope=SCOPE):
                     and 100<=g.rating<=4000 and 100<=g.opponent_rating<=4000
                     and abs(g.rating-g.opponent_rating)<=RATING_GAP)
             peer_count=sum(peer(g) for g in segment)
-            # All ten valid Accuracy values avoid cherry-picking the few
-            # Chess.com reports which happen to be available.
-            if len(known)!=WINDOW or peer_count<8:
+            # Public archives often omit Accuracy even if Chess.com displayed
+            # it to a signed-in reviewer. Eight or nine published scores may
+            # select ALL ten games for independent full-depth analysis. No
+            # missing score is assigned a value or enters the average.
+            if len(known)<MIN_REPORTED or peer_count<8:
                 continue
             mean=statistics.mean(known)
             if mean<THRESHOLD:
@@ -90,6 +93,8 @@ def discover(games, *, scope=SCOPE):
                  'time_class':kind,'time_control':control,
                  'start':int(segment[0].ended),'end':int(segment[-1].ended),
                  'mean_accuracy':round(mean,2),'peer_games':peer_count,
+                 'published_accuracy_games':len(known),
+                 'missing_accuracy_games':WINDOW-len(known),
                  'prior_accuracy':round(baseline,2) if baseline is not None else None,
                  'prior_games':len(reference),
                  'accuracy_shift':round(mean-baseline,2) if baseline is not None else None}
@@ -101,7 +106,10 @@ def discover(games, *, scope=SCOPE):
             'windows_examined':len(windows),
             'accuracy_candidates':len(candidates),
             'selected_ids':selected,'candidates':candidates,
-            'selection_note':'Chess.com Accuracy selects full reviews but does not score cheating.'}
+            'selection_note':(
+                'At least eight published Accuracy scores averaging 85+ '
+                'select all ten games for full-depth review. Missing scores '
+                'are not estimated and Accuracy never sets HIGH.')}
 
 
 def extend_plan(plan, discovery, latest_fifty_ids, *, max_deep=MAX_DEEP):
@@ -191,32 +199,67 @@ def _maia_proof(games):
         'information':round(deep['information'],4)}
 
 
+def clock_window_evidence(games):
+    """Count every player move; timing is inferred from PGN clocks, not timestamps."""
+    decisions=[d for game in games for d in game.decisions]
+    available=[d for d in decisions if isinstance(getattr(d,'think',None),(int,float))
+               and not isinstance(d.think,bool)
+               and math.isfinite(d.think) and d.think>=0]
+    reliable=[d for d in available if getattr(d,'clock_valid',False)]
+    difficult=[d.think for d in reliable if d.metrics.get('human_opportunity')]
+    anomalous=[d.think for d in reliable if d.metrics.get('high_information')]
+    other=[d.think for d in reliable if not d.metrics.get('high_information')]
+    def median(values):
+        return round(statistics.median(values),2) if values else None
+    return {
+        'player_moves':len(decisions),
+        'clock_deltas_inferred':len(available),
+        'reliable_clocks':len(reliable),
+        'missing_clock_deltas':len(decisions)-len(available),
+        'unreliable_clock_deltas':len(available)-len(reliable),
+        'median_seconds':median([d.think for d in reliable]),
+        'median_difficult_seconds':median(difficult),
+        'median_engine_anomaly_seconds':median(anomalous),
+        'median_other_seconds':median(other),
+        'difficult_moves_with_clocks':len(difficult),
+        'engine_anomalies_with_clocks':len(anomalous),
+        'source':'PGN remaining clocks plus increment, not literal move timestamps',
+        'scoring_influence':False,
+    }
+
+
 def integrate(result, games, discovery, config=CONFIG):
     """Independent review classification; no Accuracy/Elo route to HIGH."""
     index={g.identity:g for g in games}
     windows=[]
     qualified=0
     incomplete=0
-    for candidate in discovery['candidates']:
+    for candidate in sorted(discovery['candidates'],key=lambda c:-c['end']):
         rows=[index.get(ident) for ident in candidate['ids']]
         if not all(g is not None and _complete_game(g,config) for g in rows):
             incomplete+=1
             windows.append({'mean_accuracy':candidate['mean_accuracy'],
+                'published_accuracy_games':candidate['published_accuracy_games'],
+                'missing_accuracy_games':candidate['missing_accuracy_games'],
+                'window_end_time':candidate['end'],
                 'full_depth_and_maia':False,'engine_pass':False,
                 'maia_pass':False,'qualified':False})
             continue
         engine,engine_evidence=_engine_proof(rows,config)
         maia,maia_evidence=_maia_proof(rows)
         qualified+=int(engine and maia)
-        clock_samples=sum(bool(getattr(d,'clock_valid',False))
-                          for game in rows for d in game.decisions)
-        total_clocks=sum(len(game.decisions) for game in rows)
+        clocks=clock_window_evidence(rows)
         windows.append({'mean_accuracy':candidate['mean_accuracy'],
+            'published_accuracy_games':candidate['published_accuracy_games'],
+            'missing_accuracy_games':candidate['missing_accuracy_games'],
+            'window_end_time':candidate['end'],
+            'clock_audit':clocks,
             'full_depth_and_maia':True,'engine_pass':engine,
             'maia_pass':maia,'qualified':bool(engine and maia),
             'engine':engine_evidence,'maia':maia_evidence,
-            'reliable_clock_samples':clock_samples,
-            'player_moves_without_reliable_clock':total_clocks-clock_samples,
+            'reliable_clock_samples':clocks['reliable_clocks'],
+            'player_moves_without_reliable_clock':(
+                clocks['missing_clock_deltas']+clocks['unreliable_clock_deltas']),
             'earlier_mean_accuracy':candidate['prior_accuracy'],
             'accuracy_shift':candidate['accuracy_shift']})
     complete=(not result.partial
@@ -239,8 +282,8 @@ def integrate(result, games, discovery, config=CONFIG):
                           'never invented.'),
            'scope_note':('Up to 250 rated blitz/rapid games in the latest 500-game '
                          'primary scope; ten consecutive same-control games, '
-                         'at least eight peer-rated opponents and all ten '
-                         'official Accuracy reports.'),
+                         'at least eight peer-rated opponents and at least eight '
+                         'published Accuracy reports. Missing scores are never imputed.'),
            'calibration_note':('HIGH is an investigative priority. False-positive '
                                'rates are not established without labelled '
                                'fair-player and confirmed-engine holdouts.')}
