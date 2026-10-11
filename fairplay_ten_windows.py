@@ -107,6 +107,7 @@ def discover(games, *, scope=SCOPE):
                  'start':int(segment[0].ended),'end':int(segment[-1].ended),
                  'mean_accuracy':round(mean,2),'peer_games':peer_count,
                  'published_accuracy_games':len(known),
+                 'published_95_plus':sum(x>=95 for x in known),
                  'missing_accuracy_games':WINDOW-len(known),
                  'prior_accuracy':round(baseline,2) if baseline is not None else None,
                  'prior_games':len(reference),
@@ -363,6 +364,7 @@ def integrate(result, games, discovery, config=CONFIG):
                 'latest_ten_control_probe':bool(candidate.get('latest_ten_control_probe')),
                 'selection_reason':candidate.get('selection_reason','published-accuracy'),
                 'published_accuracy_games':candidate['published_accuracy_games'],
+                'published_95_plus':candidate.get('published_95_plus'),
                 'missing_accuracy_games':candidate['missing_accuracy_games'],
                 'window_end_time':candidate['end'],
                 'full_depth_and_maia':False,'engine_pass':False,
@@ -377,6 +379,7 @@ def integrate(result, games, discovery, config=CONFIG):
             'latest_ten_control_probe':bool(candidate.get('latest_ten_control_probe')),
             'selection_reason':candidate.get('selection_reason','published-accuracy'),
             'published_accuracy_games':candidate['published_accuracy_games'],
+                'published_95_plus':candidate.get('published_95_plus'),
             'missing_accuracy_games':candidate['missing_accuracy_games'],
             'window_end_time':candidate['end'],
             'clock_audit':clocks,
@@ -419,6 +422,7 @@ def integrate(result, games, discovery, config=CONFIG):
            'high_path_passed':passed,'window_details':windows[:25],
            'selection_uses_accuracy':True,'priority_uses_accuracy':False,
            'latest_ten_always_checks_gameplay':True,
+           'latest_ten_requires_published_accuracy':False,
            'timing_note':('Game end-time chronology and the validity/coverage of PGN '
                           'remaining-clock samples are checked. Absolute '
                           'per-move timestamps are not available and are '
