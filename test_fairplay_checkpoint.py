@@ -169,6 +169,10 @@ class CheckpointTests(unittest.TestCase):
         self.bind(first)
         game=game_with_positions(1)
         game.decisions[0].human_policy={"e2e4":1.0}
+        game.decisions[0].phase='middlegame'
+        game.decisions[0].forced=False
+        game.decisions[0].trivial_kind=None
+        game.decisions[0].metrics.update(useful=True,competitive=True,difficulty=.75)
         seen=[]
         def search(scanner, decision, nodes):
             seen.append(nodes)
@@ -184,6 +188,10 @@ class CheckpointTests(unittest.TestCase):
             first.flush()
             new=game_with_positions(1)
             new.decisions[0].human_policy={"e2e4":1.0}
+            new.decisions[0].phase='middlegame'
+            new.decisions[0].forced=False
+            new.decisions[0].trivial_kind=None
+            new.decisions[0].metrics.update(useful=True,competitive=True,difficulty=.75)
             second=self.store()
             two=fairplay_policy.complete([new],CONFIG.fast_nodes,
                 ScanDeadline(time.monotonic()+60),scanner=object(),
