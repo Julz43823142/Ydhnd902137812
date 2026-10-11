@@ -178,7 +178,8 @@ def result_embed(result: ReviewResult):
         confirmed=window_audit.get('confirmed_engine_maia_windows',0)
         done=window_audit.get('fully_verified_candidates',0)
         mean_rows=window_audit.get('window_details') or []
-        latest_mean=max((row.get('mean_accuracy',0) for row in mean_rows),
+        latest_mean=max((row.get('mean_accuracy') for row in mean_rows
+                         if isinstance(row.get('mean_accuracy'),(int,float))),
                         default=0)
         message=(f"**{window_audit.get('windows_examined',0)}** ten-game windows "
                  f"from **{window_audit.get('rated_blitz_rapid_games_in_scope',0)}** "
@@ -192,6 +193,28 @@ def result_embed(result: ReviewResult):
                 message+=" Some Accuracy reports were missing; no scores were invented."
         embed.add_field(name='Ten-game Accuracy review',
                         value=message[:480],inline=False)
+        recent_reviews=window_audit.get('latest_ten_details') or []
+        if recent_reviews:
+            # Missing Chess.com Accuracy cannot suppress the latest-ten check.
+            recent_review=recent_reviews[0]
+            if recent_review.get('full_depth_and_maia'):
+                stockfish='PASS' if recent_review.get('engine_pass') else 'not confirmed'
+                maia='PASS' if recent_review.get('maia_pass') else 'not confirmed'
+                state=f'Stockfish: **{stockfish}** · Maia: **{maia}**.'
+                if not (recent_review.get('engine_pass') and recent_review.get('maia_pass')):
+                    evidence=(recent_review.get('engine') or {}).get('failed_checks') or []
+                    if not evidence:
+                        evidence=(recent_review.get('maia') or {}).get('failed_checks') or []
+                    if evidence:state+=' Main gap: '+str(evidence[0])+'.'
+            else:
+                state='Full-depth Stockfish/Maia evidence is incomplete.'
+            published=recent_review.get('published_accuracy_games',0)
+            n95=recent_review.get('published_95_plus')
+            detail=(f'Last ten rated games at one clock setting. '
+                    f'Published Accuracy: **{published}/10**')
+            if isinstance(n95,int):detail+=f' · 95%+: **{n95}**'
+            embed.add_field(name='Latest ten: independent check',
+                            value=(detail+'\n'+state)[:430],inline=False)
     streak=result.diagnostics.get('accuracy_streak_audit') or {}
     if streak.get('schema')=='sharkbot-accuracy-streak-audit-v1':
         count95=streak.get('last_10_accuracy_95_plus',0)
