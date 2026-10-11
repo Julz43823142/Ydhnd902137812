@@ -175,14 +175,28 @@ def result_embed(result: ReviewResult):
     streak=result.diagnostics.get('accuracy_streak_audit') or {}
     if streak.get('schema')=='sharkbot-accuracy-streak-audit-v1':
         parts=[]
+        observed=streak.get('last_10_accuracy_reported',0)
+        high=streak.get('last_10_accuracy_95_plus',0)
+        if isinstance(observed,int) and isinstance(high,int) and high>=2:
+            parts.append(f"Latest 10: **{high}/{observed}** published Accuracy "
+                         "scores at 95%+. This alone does not prove cheating.")
         if streak.get('followup_alert'):
             parts.append('Unusual 95+ Accuracy and win streak: **check the games**.')
         pair=streak.get('low_rating_90_plus_pairs') or {}
         if pair.get('observed_pairs'):
             parts.append(f"Two-game 90+ Accuracy streaks at low rating: "
                          f"**{pair['observed_pairs']}**.")
+        shift=result.diagnostics.get('recent_engine_shift') or {}
+        if high>=2 and shift.get('schema')=='fairplay-recent-engine-shift-v1':
+            if shift.get('qualified') and shift.get('coverage_gate_passed'):
+                parts.append('Recent Stockfish change: **confirmed for manual review**.')
+            else:
+                blockers=shift.get('blockers') or []
+                if blockers:
+                    parts.append('Recent Stockfish change: not confirmed ('+
+                                 str(blockers[0])[:110]+').')
         if parts:
-            embed.add_field(name='Extra flags',value='\n'.join(parts)[:500],
+            embed.add_field(name='Recent warning',value='\n'.join(parts)[:500],
                             inline=False)
     notes=[str(text).strip() for text in (result.reasons or ()) if str(text).strip()]
     if notes:
