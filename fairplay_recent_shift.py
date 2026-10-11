@@ -1,182 +1,166 @@
-"""Conservative HIGH manual-review route for a recent *engine-confirmed* shift.
+"""Manual HIGH review for a recent Accuracy-discovered ten-game episode.
 
-Unlike published Chess.com Accuracy, this evaluates difficult competitive
-decisions with paired fast/deep Stockfish searches, and compares the ten most
-recent rated games with an earlier same-control period. Outcomes, Accuracy,
-account names and Maia confidence do not score. No automatic sanctions.
+The discovery window must have a strictly older, comparable-rated personal
+baseline, but Chess.com Accuracy and outcomes DO NOT score as gameplay
+evidence. Every game in the window (good and bad moves) needs depth-confirmed
+paired Stockfish evidence and separately evaluated Maia-3 counterfactuals.
+The sources share Stockfish alternatives and are not independent misconduct
+probabilities. Uncalibrated: NEVER use for automatic sanctions.
 """
 from __future__ import annotations
-
-import math
-import statistics
 
 from fairplay_burst import _verified_entry
 from fairplay_confirmation import paired_quality_confirmation
 from fairplay_human import period_summary
+from fairplay_policy import summarize as maia_summary
 
-WINDOW = 10
-BASELINE = 20
-LATEST = 50
-
-
-def _counts(game, fast=False):
-    metrics=(game.fast_metrics if fast else game.metrics) or {}
-    row=metrics.get('human') or {}
-    names=('opportunities', 'hits', 'quiet_hits', 'quality_stable_hits',
-           'quality_stable_opportunities', 'paired_evaluated_opportunities')
-    if any(not isinstance(row.get(k),int) or isinstance(row[k],bool)
-           or row[k]<0 for k in names):
-        return None
-    if not (row['hits']<=row['opportunities']
-            and row['quiet_hits']<=row['hits']
-            and row['quality_stable_hits']<=row['quality_stable_opportunities']
-            <=row['paired_evaluated_opportunities']<=row['opportunities']):
-        return None
-    return row
+SCHEMA='fairplay-recent-engine-shift-v2'
+MAX_WINDOWS=2
 
 
-def _opponent_context(games):
-    expected=[]
-    for game in games:
-        own,opponent=game.rating,game.opponent_rating
-        if (not isinstance(own,int) or isinstance(own,bool)
-                or not isinstance(opponent,int) or isinstance(opponent,bool)
-                or not 100<=own<=4000 or not 100<=opponent<=4000):
-            return None
-        expected.append(1/(1+10**((opponent-own)/400)))
-    return sum(expected)/len(expected)
+def _valid_human_rows(games):
+    for g in games:
+        if not _verified_entry(g):
+            return False
+        for source in (g.fast_metrics,g.metrics):
+            h=(source or {}).get('human') or {}
+            for key in ('opportunities','hits','quiet_hits','quality_stable_hits',
+                        'quality_stable_opportunities','paired_evaluated_opportunities'):
+                if not isinstance(h.get(key),int) or isinstance(h[key],bool) or h[key]<0:
+                    return False
+            if not (h['hits']<=h['opportunities']
+                    and h['quiet_hits']<=h['hits']
+                    and h['quality_stable_hits']<=h['quality_stable_opportunities']
+                    <=h['paired_evaluated_opportunities']<=h['opportunities']):
+                return False
+    return True
 
 
-def analyze(games, config):
-    """Predeclared latest-ten vs previous-twenty same-control change point.
-
-    Require the most recent ten *overall* rated games to belong to one exact
-    time control. We do not scan many possible endings until one passes.
-    An earlier baseline must be sufficiently observed; absent data cannot be
-    treated as a low personal reference.
-    """
-    eligible={g.identity:g for g in games
-              if getattr(g,'rated',None) is True
-              and not getattr(g,'probe_only',False)
-              and isinstance(getattr(g,'identity',None),str)
-              and isinstance(getattr(g,'ended',None),(int,float))
-              and math.isfinite(g.ended)}
-    ordered=sorted(eligible.values(),key=lambda g:(g.ended,g.identity))
-    latest=ordered[-LATEST:]
-    recent=latest[-WINDOW:]
+def evidence(games,config):
+    """Full window scoring. All gates must pass; no partial/unknown positives."""
     checks={}
-    if len(recent)!=WINDOW:
-        return {'schema':'fairplay-recent-engine-shift-v1','qualified':False,
-                'blockers':['Fewer than ten rated games in reviewed scope.'],
-                'recent_games':len(recent),'scoring_source':'paired Stockfish gameplay only'}
-    kinds={(g.time_class,g.time_control) for g in recent}
-    same_control=len(kinds)==1 and recent[0].time_class in ('blitz','rapid')
-    consecutive=(same_control and all(
-        b.control_index==a.control_index+1
-        for a,b in zip(recent,recent[1:])))
-    checks['ten consecutive rated games at one blitz/rapid control']=bool(consecutive)
-    controls=[g for g in ordered if g.ended<recent[0].ended
-              and (g.time_class,g.time_control)==
-                  (recent[0].time_class,recent[0].time_control)]
-    baseline=controls[-BASELINE:]
-    checks['at least twelve earlier same-control comparison games']=len(baseline)>=12
-    checks['ten complete recent deep searches']=all(
-        _verified_entry(g) and _counts(g) is not None
-        and _counts(g,fast=True) is not None for g in recent)
-    # Never omit missing older games just to make the baseline look weaker.
-    # Every game used as a personal control must have authentic paired data.
-    checks['every older control has complete paired deep searches']=bool(
-        len(baseline)>=12 and all(
-            _verified_entry(g) and _counts(g) is not None
-            and _counts(g,fast=True) is not None for g in baseline))
-    if not (checks['ten complete recent deep searches']
-            and checks['every older control has complete paired deep searches']):
-        return {'schema':'fairplay-recent-engine-shift-v1','qualified':False,
-                'blockers':[key for key,val in checks.items() if not val],
-                'recent_games':len(recent),'baseline_games':len(baseline),
-                'scoring_source':'paired Stockfish gameplay only'}
-    deep=period_summary(recent,config)
-    fast=period_summary(recent,config,fast=True)
-    older=period_summary(baseline,config)
-    confirmation=paired_quality_confirmation(deep,0.85,coverage_floor=0.95)
-    recent_rate=deep['hits']/deep['opportunities'] if deep['opportunities'] else 0
-    baseline_rate=older['hits']/older['opportunities'] if older['opportunities'] else 1
-    halves=[period_summary(recent[i:i+5],config) for i in (0,5)]
-    halves_ok=all(
-        s['opportunities']>=8 and s['hits']>=5 and s['hit_games']>=3
-        for s in halves)
-    fast_rate=fast['hits']/fast['opportunities'] if fast['opportunities'] else 0
-    rating_expected=_opponent_context(recent)
+    if len(games)!=10 or not _valid_human_rows(games):
+        return {'passed':False,'blockers':['Ten complete paired deep Stockfish games required.']}
+    games=sorted(games,key=lambda g:(g.ended,g.identity))
+    checks['same exact rapid/blitz control and consecutive rated games']=(
+        len({(g.time_class,g.time_control) for g in games})==1
+        and games[0].time_class in ('rapid','blitz')
+        and all(b.control_index==a.control_index+1 for a,b in zip(games,games[1:])))
+    deep=period_summary(games,config)
+    fast=period_summary(games,config,fast=True)
+    paired=paired_quality_confirmation(deep,.85,coverage_floor=.95)
+    halves=[period_summary(games[i:i+5],config) for i in (0,5)]
     checks.update({
-        'at least twenty recent competitive choices':deep['opportunities']>=20,
-        'recent engine anomalies across seven games':
-            deep['hits']>=14 and deep['hit_games']>=7,
-        'both nonoverlapping five-game halves contribute':halves_ok,
-        'deep anomalous choices survive fast and deep comparison':
-            confirmation['coverage_passed'] and confirmation['fraction_passed']
-            and confirmation['hits']>=12,
-        'fast search independently detects recent anomaly':
-            fast['opportunities']>=20 and fast_rate>=0.60
-            and deep['hits']>=0.8*fast['hits'],
-        'at least four quiet difficult anomalies':deep['quiet_hits']>=4,
-        'recent engine anomaly rate at least sixty percent':recent_rate>=0.60,
-        'at least thirty older competitive decisions':older['opportunities']>=30,
-        'older anomaly rate at most thirty percent':baseline_rate<=0.30,
-        'large recent-vs-older change in engine decisions':
-            recent_rate-baseline_rate>=0.35,
-        'recent opponents not overwhelmingly mismatched':
-            rating_expected is not None and rating_expected<=0.80,
-        'paired deep engine work complete on recent and comparison games':
-            all(g.deep for g in baseline),
+        'twenty competitive deep engine opportunities':deep['opportunities']>=20,
+        'fourteen confirmed anomalous moves across seven games':(
+            deep['hits']>=14 and deep['hit_games']>=7),
+        'both five-game halves contain anomalous play':all(
+            half['opportunities']>=8 and half['hits']>=6
+            and half['hit_games']>=3 for half in halves),
+        'twelve fast engine anomalies corroborate deep choices':(
+            fast['opportunities']>=20 and fast['hits']>=12
+            and deep['hits']>=.8*fast['hits']),
+        'paired fast/deep searches confirm objective move quality':(
+            paired['coverage_passed'] and paired['fraction_passed']
+            and paired['hits']>=12),
+        'quiet difficult choices are spread across games':(
+            deep['quiet_hits']>=5
+            and sum((g.metrics['human']['quiet_hits']>=1) for g in games)>=4),
+        'sizeable raw quality excess, not just top-move matching':(
+            deep['quality_excess']>=.12 and deep['information']>=.16
+            and deep['anomaly_strength']>=.27),
     })
-    report={
-        'schema':'fairplay-recent-engine-shift-v1',
-        'qualified':all(checks.values()),
-        'blockers':[name for name,passed in checks.items() if not passed],
+    # A missing Maia probability, counterfactual root search, or deep/fast
+    # stability observation makes game_summary noncontributing. It cannot be
+    # replaced by high Accuracy, wins, or a guessed model response.
+    learned=maia_summary(games)
+    learned_halves=[maia_summary(games[i:i+5]) for i in (0,5)]
+    checks.update({
+        'Maia-3 identifies six distributed anomalous contributor games':(
+            learned['contributors']>=6 and learned['contributor_weight']>=5),
+        'Maia-3 compares twenty game-capped difficult decisions':(
+            learned['effective_positions']>=20),
+        'Maia-3 signed human-policy quality discrepancy retained':(
+            learned['signed_excess']>=.16 and learned['information']>=.10),
+        'Maia-3 comparison stable under paired deep Stockfish searches':(
+            learned['positions']>=20
+            and learned['stable']>=.70*learned['positions']),
+        'both halves independently contain Maia-3 evidence':all(
+            half['contributors']>=2
+            and half['effective_positions']>=7
+            and half['signed_excess']>=.10
+            and half['information']>=.07
+            for half in learned_halves),
+    })
+    return {
+        'passed':all(checks.values()),
+        'blockers':[name for name,ok in checks.items() if not ok],
         'checks':checks,
-        'recent_games':len(recent),
-        'baseline_games':len(baseline),
-        'recent_opportunities':deep['opportunities'],
-        'recent_anomalies':deep['hits'],
-        'recent_hit_games':deep['hit_games'],
-        'older_opportunities':older['opportunities'],
-        'older_anomalies':older['hits'],
-        'recent_hit_rate':round(recent_rate,4),
-        'older_hit_rate':round(baseline_rate,4),
-        'paired_coverage':round(confirmation['coverage'],4),
-        'paired_quality_agreement':round(confirmation['fraction'],4),
-        'opponent_expected_score':round(rating_expected,4) if rating_expected is not None else None,
-        'scoring_source':'paired Stockfish gameplay only; Accuracy/wins not scored',
-        'calibration_note':(
-            'This is a conservative manual-review rule, not an empirically '
-            'calibrated probability of misconduct. Verify on independently '
-            'labelled fair-play holdouts before relying on false-positive rates.'),
+        'stockfish_opportunities':deep['opportunities'],
+        'stockfish_anomalous_moves':deep['hits'],
+        'stockfish_hit_games':deep['hit_games'],
+        'stockfish_quality_stable_hits':paired['hits'],
+        'maia_contributor_games':learned['contributors'],
+        'maia_effective_positions':round(learned['effective_positions'],2),
+        'maia_signed_excess':round(learned['signed_excess'],4),
     }
-    return report
 
 
-def integrate(result, games, config):
-    report=analyze(games,config)
+def integrate(result,games,config,accuracy_candidates=()):
+    """Only the two newest predeclared baseline-supported windows can score."""
+    by_id={g.identity:g for g in games}
+    candidates=list(accuracy_candidates)[:MAX_WINDOWS]
+    attempts=[]
     coverage_ok=(not result.partial
                  and result.coverage.get('primary_engine_complete',False)
                  and result.coverage.get('required_deep_complete',False))
-    feature_ok=not {'human','difficulty','recent_shift_high'} & set(config.disabled_features)
-    report['coverage_gate_passed']=bool(coverage_ok)
-    report['feature_gate_passed']=bool(feature_ok)
-    passed=bool(report['qualified'] and coverage_ok and feature_ok)
-    if not coverage_ok:report['blockers'].append('Primary/deep engine coverage incomplete')
-    if not feature_ok:report['blockers'].append('Recent shift feature disabled')
-    result.diagnostics['recent_engine_shift']=report
-    result.diagnostics.setdefault('high_paths',{})['Recent confirmed engine shift HIGH']={
-        'passed':passed,'blockers':report['blockers']}
-    if passed and result.priority in ('LOW','MODERATE','INSUFFICIENT DATA'):
+    feature_ok=not {'human','neural','difficulty','recent_shift_high'} & set(config.disabled_features)
+    for candidate in candidates:
+        ids=tuple(candidate['ids'])
+        window=[by_id[k] for k in ids if k in by_id]
+        if len(window)!=10:
+            proof={'passed':False,
+                   'blockers':['Selected ten-game Accuracy discovery was not fully deep reviewed.']}
+        else:
+            proof=evidence(window,config)
+        attempts.append({
+            'time_class':candidate['time_class'],
+            'window_end_time':candidate['window_end_time'],
+            'mean_accuracy':candidate['mean_accuracy'],
+            'accuracy_rise':candidate['accuracy_rise'],
+            'deep_reviewed':len(window),
+            **proof,
+        })
+    qualified=bool(coverage_ok and feature_ok
+                   and any(r['passed'] for r in attempts))
+    if qualified and result.priority in ('LOW','MODERATE','INSUFFICIENT DATA'):
         result.priority='HIGH'
         result.deep_confirmed=True
-        result.diagnostics['high_path']='Recent paired-Stockfish gameplay regime shift'
+        result.diagnostics['high_path']='Accuracy-discovered, Stockfish+Maia-confirmed recent gameplay shift'
         result.diagnostics['high_blocked']=[]
         result.reasons=[
-            'The latest ten rated games show a large sustained rise in difficult '
-            'engine-confirmed decisions against an earlier same-control baseline.',
-            'Independent five-game halves and paired full-depth searches support '
-            'manual review. Published Accuracy and game results did not set HIGH.']
+            'A ten-game rated blitz/rapid Accuracy shift against a comparable '
+            'personal baseline led to a full-game investigation.',
+            'Difficult competitive decisions across both halves were corroborated '
+            'by paired deep Stockfish and Maia-3 human-policy comparisons. '
+            'HIGH requires manual game review; this is not proof of cheating.']
+    report={
+        'schema':SCHEMA,'qualified':qualified,
+        'windows_attempted':len(attempts),
+        'windows_confirmed':sum(r['passed'] for r in attempts),
+        'attempts':attempts,
+        'coverage_gate_passed':bool(coverage_ok),
+        'feature_gate_passed':bool(feature_ok),
+        'source':'Chess.com Accuracy only selects windows; Stockfish+Maia issue review priority',
+        'caveat':'Uncalibrated correlated evidence; no automated sanction or misconduct probability.',
+    }
+    result.diagnostics['recent_engine_shift']=report
+    result.diagnostics.setdefault('high_paths',{})['Accuracy-shift + Stockfish + Maia HIGH']={
+        'passed':qualified,
+        'blockers':(
+            ['Insufficient engine coverage'] if not coverage_ok else []
+        )+(['Required feature disabled'] if not feature_ok else [])+
+        (attempts[0]['blockers'] if attempts and not qualified else
+         ['No fully corroborated ten-game discovery.'] if not qualified else []),
+    }
     return result
