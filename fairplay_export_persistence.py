@@ -27,8 +27,10 @@ class OwnerEvidenceStore:
         payload = None
         if self.remote:
             remote_ref = f"refs/remotes/{self.remote}/{REF}"
-            if _git(["fetch", "-q", self.remote,
-                     f"refs/heads/{REF}:{remote_ref}"]).returncode == 0:
+            # Read the current encrypted snapshot, not every historical blob.
+            # The forced local tracking update does not force any remote push.
+            if _git(["fetch", "--depth=1", "--no-tags", "-q", self.remote,
+                     f"+refs/heads/{REF}:{remote_ref}"]).returncode == 0:
                 fetch = _git(["show", f"{remote_ref}:{PATH}"])
                 if fetch.returncode == 0:
                     payload = fetch.stdout
@@ -60,7 +62,7 @@ class OwnerEvidenceStore:
         if not self.remote:
             return True
         remote_ref=f"refs/remotes/{self.remote}/{REF}"
-        _git(["fetch","-q",self.remote,f"refs/heads/{REF}:{remote_ref}"])
+        _git(["fetch","--depth=1","--no-tags","-q",self.remote,f"+refs/heads/{REF}:{remote_ref}"])
         parent=_git(["rev-parse",remote_ref])
         blob=_git(["hash-object","-w","--stdin"],ciphertext)
         if blob.returncode:return False

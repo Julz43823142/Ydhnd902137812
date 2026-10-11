@@ -52,6 +52,7 @@ jobs:
           # Full history caused 3–45-minute checkout delays in production.
           # The workers only need this immutable commit and selected git refs.
           ref: ${{ inputs.revision }}
+          filter: blob:none
           fetch-depth: 1
           persist-credentials: true
       - name: Verify exact immutable code SHA

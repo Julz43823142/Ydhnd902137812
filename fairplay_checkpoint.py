@@ -55,8 +55,10 @@ class CheckpointStore:
     def _load(self):
         data = None
         if self.remote:
-            fetch = _git(["fetch", "-q", self.remote,
-                          f"refs/heads/{BRANCH}:refs/remotes/{self.remote}/{BRANCH}"])
+            # Snapshot reads do not need old ciphertext history. '+' updates
+            # only the local tracking ref; remote history is never rewritten.
+            fetch = _git(["fetch", "--depth=1", "--no-tags", "-q", self.remote,
+                          f"+refs/heads/{BRANCH}:refs/remotes/{self.remote}/{BRANCH}"])
             if fetch.returncode == 0:
                 source = _git(["show", f"refs/remotes/{self.remote}/{BRANCH}:{FILE}"])
                 if source.returncode == 0:
@@ -112,8 +114,8 @@ class CheckpointStore:
         # All branch contents are encrypted; update an isolated ref so a
         # checkpoint write cannot trigger Daily Puzzle's push-on-main workflow.
         for _ in range(3):
-            fetch = _git(["fetch", "-q", self.remote,
-                          f"refs/heads/{BRANCH}:refs/remotes/{self.remote}/{BRANCH}"])
+            fetch = _git(["fetch", "--depth=1", "--no-tags", "-q", self.remote,
+                          f"+refs/heads/{BRANCH}:refs/remotes/{self.remote}/{BRANCH}"])
             parent = None
             if fetch.returncode == 0:
                 ref = _git(["rev-parse", f"refs/remotes/{self.remote}/{BRANCH}"])
