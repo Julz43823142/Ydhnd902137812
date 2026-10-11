@@ -921,6 +921,11 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         # Enforce eligibility even when a collector adapter is used.
         history=sorted([g for g in history if g.rated is True],key=lambda g:(g.ended,g.identity))[-collection_limit(config):]
         if not history:raise ReviewError('No eligible rated standard live games with enough meaningful moves were found.')
+        # Metadata-only ten-game Accuracy discovery across 250 rated
+        # blitz/rapid games. Deep review still measures EVERY game and move,
+        # not a cherry-picked group of accurate decisions.
+        from fairplay_accuracy_blocks import inspect as inspect_accuracy_blocks
+        accuracy_blocks_audit,accuracy_windows=inspect_accuracy_blocks(history)
         check_deadline(deadline)
         use_shared=(engine_factory is None and engine_workers is None and config==CONFIG)
         try:
@@ -1093,7 +1098,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             # periods/controls. Selection NEVER uses published Chess.com Accuracy.
             from fairplay_v21 import discovery_extras
             v21_plan=discovery_extras(v21_plan,
-                                      max_extra=50 if distributed_mode else 25)
+                                      max_extra=50 if distributed_mode else 25,
+                                      accuracy_windows=accuracy_windows)
             chosen_ids={g.identity for g in v21_plan.deep}
             v21_deep=[g for g in analyzed if g.identity in chosen_ids]
             if not latest_fifty_ids.issubset({g.identity for g in v21_deep}):
@@ -1414,6 +1420,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         # this check; Accuracy must never steer engine sampling or HIGH.
         from fairplay_streak import accuracy_streak_audit
         result.diagnostics['accuracy_streak_audit']=accuracy_streak_audit(analyzed)
+        result.diagnostics['accuracy_blocks']=accuracy_blocks_audit
         from fairplay_policy import integrate as integrate_policy
         result=(integrate_policy(result,scoring_games,config,
                                  strict_original_sequence=True)
@@ -1429,11 +1436,12 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         # no performance, Elo-win-streak or published Accuracy shortcut.
         from fairplay_burst import integrate as integrate_burst
         result=integrate_burst(result,scoring_games,config)
-        # Fixed latest-ten vs older-control change point. A HIGH review route
-        # requires independently paired Stockfish evidence across both halves.
-        # Chess.com Accuracy, wins and player identity cannot set its score.
-        from fairplay_recent_shift import integrate as integrate_recent_shift
-        result=integrate_recent_shift(result,scoring_games,config)
+        # Accuracy selects a full-window candidate, never the verdict. A HIGH
+        # manual review requires BOTH paired Stockfish and Maia-3 evidence.
+        if v21_mode:
+            from fairplay_recent_shift import integrate as integrate_recent_shift
+            result=integrate_recent_shift(
+                result,scoring_games,config,accuracy_candidates=accuracy_windows)
         # Review all verified deep-reviewed games, including short games with
         # fewer than eight useful moves. The audit is aggregate-only and cannot
         # elevate priority; fast evidence selects any diagnostic period.
