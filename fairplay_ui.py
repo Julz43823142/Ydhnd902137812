@@ -181,14 +181,18 @@ def result_embed(result: ReviewResult):
         latest_mean=max((row['mean_accuracy'] for row in mean_rows
                          if isinstance(row.get('mean_accuracy'),(int,float))),
                         default=None)
+        fallback=window_audit.get('recent_unrated_fallback_windows',0)
+        total_candidates=window_audit.get('total_candidates',count)
         message=(f"**{window_audit.get('windows_examined',0)}** ten-game windows "
                  f"from **{window_audit.get('rated_blitz_rapid_games_in_scope',0)} rated** "
                  f"+ **{window_audit.get('unrated_blitz_rapid_games_in_scope',0)} unrated** "
                  "blitz/rapid games (bullet excluded; separate groups).\n"
-                 f"Average Accuracy 85%+ with similar-Elo opponents: **{count}**.\n"
-                 f"Full Stockfish + Maia review: **{done}/{count}** windows. "
+                 f"High-Accuracy windows: **{count}**."
+                 +(f" Unrated windows checked despite missing Accuracy: **{fallback}**."
+                   if fallback else "")
+                 +f"\nFull Stockfish + Maia review: **{done}/{total_candidates}** windows. "
                  f"Confirmed joint gameplay evidence: **{confirmed}**.")
-        if count and latest_mean:
+        if count and latest_mean is not None:
             message+=f"\nTop published-score mean: **{latest_mean:.1f}%**."
             if any(row.get('missing_accuracy_games',0) for row in mean_rows):
                 message+=" Some Accuracy reports were missing; no scores were invented."
