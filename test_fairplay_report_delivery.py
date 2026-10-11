@@ -64,6 +64,25 @@ class CompactResultCard(unittest.TestCase):
         card=result_embed(case)
         self.assertNotIn('Extra flags',[field.name for field in card.fields])
 
+    def test_four_recent_95_accuracy_scores_visible_without_invented_high(self):
+        case=self.fixture()
+        case.diagnostics['accuracy_streak_audit']={
+            'schema':'sharkbot-accuracy-streak-audit-v1',
+            'last_10_accuracy_reported':4,
+            'last_10_accuracy_95_plus':4,
+            'followup_alert':False,
+            'low_rating_90_plus_pairs':{'observed_pairs':0}}
+        case.diagnostics['recent_engine_shift']={
+            'schema':'fairplay-recent-engine-shift-v1',
+            'qualified':False,
+            'blockers':['Earlier paired Stockfish baseline not established'],
+        }
+        card=result_embed(case)
+        self.assertIn('4/4',str(card.to_dict()))
+        self.assertIn('not confirmed',str(card.to_dict()))
+        self.assertEqual(case.priority,'LOW')
+        self.assertLess(len(card),2000)
+
     def test_progress_card_is_short_english(self):
         card=progress_embed('synthetic-account','Building report…',99)
         self.assertLess(len(card),700)
