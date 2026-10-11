@@ -61,7 +61,7 @@ def broad_and_core(history, *, broad_count=500, deep_count=100):
     return ReviewPlan(primary,core,(),len(chronological),broad_count,tail)
 
 
-def discovery_extras(plan, *, max_extra=25):
+def discovery_extras(plan, *, max_extra=25, accuracy_windows=()):
     """Stratified extension: recent tail, suspicious periods and controls.
 
     Fast PV1 gives CPL and top1 but no candidate spread, so it must not be
@@ -81,6 +81,29 @@ def discovery_extras(plan, *, max_extra=25):
     if not older or extra_budget<=0:
         return ReviewPlan(plan.primary,plan.core,(),
                           plan.metadata_games,plan.primary_limit,tail)
+    # Accuracy discoveries allocate ONLY optional deep slots. The newest
+    # fifty remain mandatory, and the entire ten-game candidate (including
+    # mistakes) must fit or be left unconfirmed; never select only good games.
+    # Controls and position-based discovery retain the remaining allocation.
+    by_id={g.identity:g for g in older}
+    primary_ids={g.identity for g in plan.primary}
+    selected={g.identity for g in (*plan.core,*plan.recent_tail)}
+    priority=[]
+    priority_ids=set()
+    priority_limit=min(20,extra_budget//2 if extra_budget>=40 else
+                       min(10,extra_budget//2))
+    for window in accuracy_windows:
+        ids=tuple(window.get('ids',()))
+        if (len(ids)!=10 or len(set(ids))!=10
+                or not set(ids).issubset(primary_ids)):continue
+        needed=[by_id[ident] for ident in ids if ident not in selected]
+        if len(needed)>priority_limit-len(priority):continue
+        if len(needed)!=len(set(g.identity for g in needed)):continue
+        for game in needed:
+            if game.identity not in priority_ids:
+                priority.append(game)
+                priority_ids.add(game.identity)
+        if len(priority)>=priority_limit:break
     # Walk contiguous same-control windows, emphasizing persistent *within*
     # window relative changes, not highest raw wins/Accuracy. Signals are
     # discovery-only and cannot earn HIGH without full-depth confirmation.
@@ -104,16 +127,17 @@ def discovery_extras(plan, *, max_extra=25):
     # Half discovery, half evenly-spaced controls; overlapping findings count
     # once. Controls deliberately preserve both errors and strong games.
     allocation=min(extra_budget,len(older))
-    discovery_limit=allocation//2
-    controls=allocation-discovery_limit
-    ordered=[]
-    seen=set()
+    ordered=list(priority)
+    seen=set(priority_ids)
+    remaining_allocation=max(0,allocation-len(ordered))
+    discovery_limit=remaining_allocation//2
+    controls=remaining_allocation-discovery_limit
     for _,_,window in sorted(candidates,key=lambda item:(-item[0],item[1])):
         for game in window:
-            if len(ordered)>=discovery_limit:break
+            if len(ordered)>=len(priority)+discovery_limit:break
             if game.identity in seen:continue
             ordered.append(game);seen.add(game.identity)
-        if len(ordered)>=discovery_limit:break
+        if len(ordered)>=len(priority)+discovery_limit:break
     # Choose deterministic chronological quantiles from *unselected* history.
     remaining=[g for g in older if g.identity not in seen]
     if controls and remaining:
