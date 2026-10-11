@@ -181,7 +181,8 @@ def result_embed(result: ReviewResult):
                "blitz/rapid games (bullet excluded)."]
         if best.get('mean_accuracy') is not None:
             lines.append(
-                f"Highest signal: **{best['mean_accuracy']:.1f}% Accuracy**"
+                f"Highest signal: **{best['mean_accuracy']:.1f}% Accuracy** "
+                f"(reported in **{best.get('accuracy_reported',0)}/10** games)"
                 +(f" vs earlier **{best['older_mean_accuracy']:.1f}%**"
                   if best.get('older_mean_accuracy') is not None else
                   " (older comparison unavailable)")
@@ -211,14 +212,15 @@ def result_embed(result: ReviewResult):
             parts.append(f"Two-game 90+ Accuracy streaks at low rating: "
                          f"**{pair['observed_pairs']}**.")
         shift=result.diagnostics.get('recent_engine_shift') or {}
-        if high>=2 and shift.get('schema')=='fairplay-recent-engine-shift-v1':
-            if shift.get('qualified') and shift.get('coverage_gate_passed'):
-                parts.append('Recent Stockfish change: **confirmed for manual review**.')
+        if high>=2 and shift.get('schema')=='fairplay-recent-engine-shift-v2':
+            if shift.get('qualified'):
+                parts.append('Recent Stockfish + Maia shift: **confirmed for manual review**.')
             else:
-                blockers=shift.get('blockers') or []
-                if blockers:
-                    parts.append('Recent Stockfish change: not confirmed ('+
-                                 str(blockers[0])[:110]+').')
+                attempts=shift.get('attempts') or []
+                blockers=attempts[0].get('blockers',[]) if attempts else []
+                reason=(str(blockers[0])[:100] if blockers else
+                        'no baseline-supported, fully deep-reviewed window')
+                parts.append('Dual-model shift: not established ('+reason+').')
         if parts:
             embed.add_field(name='Recent warning',value='\n'.join(parts)[:500],
                             inline=False)
