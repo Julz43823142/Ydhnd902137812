@@ -67,6 +67,8 @@ def classify(error):
             return "stockfish_search_timeout"
         if message.startswith("Stockfish failed"):
             return "engine_transport_or_process_failure"
+        if "Maia" in message and "counterfactual" in message:
+            return "maia_deep_counterfactual_incomplete"
         if "Maia" in message:
             return "maia_reference_incomplete"
         if "runtime limit" in message:
