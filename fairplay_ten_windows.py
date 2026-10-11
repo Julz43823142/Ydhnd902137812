@@ -259,24 +259,36 @@ def _window_evidence_gaps(games, config):
 
 
 def _engine_proof(games, config):
+    """Return each gate so a LOW result explains the *missing evidence*."""
     deep=period_summary(games,config)
     fast=period_summary(games,config,fast=True)
     confirmation=paired_quality_confirmation(deep,0.85,coverage_floor=0.95)
     halves=[period_summary(games[i:i+5],config) for i in (0,5)]
-    ok=(deep['opportunities']>=20 and deep['hits']>=14
-        and deep['hit_games']>=7 and deep['quiet_hits']>=4
-        and deep['information']>=0.20 and deep['quality_excess']>=0.11
-        and all(h['opportunities']>=8 and h['hits']>=5
-                and h['hit_games']>=3 for h in halves)
-        and fast['opportunities']>=20 and fast['hits']>=12
-        and deep['hits']>=0.8*fast['hits']
-        and confirmation['coverage_passed']
-        and confirmation['fraction_passed']
-        and confirmation['hits']>=12)
-    return bool(ok),{'opportunities':deep['opportunities'],
+    checks={
+        '20+ difficult competitive decisions':deep['opportunities']>=20,
+        '14+ engine anomaly hits':deep['hits']>=14,
+        'anomaly hits across 7+ games':deep['hit_games']>=7,
+        '4+ quiet high-information moves':deep['quiet_hits']>=4,
+        'engine information effect >=0.20':deep['information']>=0.20,
+        'raw quality excess >=0.11':deep['quality_excess']>=0.11,
+        'both five-game halves contribute':all(
+            h['opportunities']>=8 and h['hits']>=5
+            and h['hit_games']>=3 for h in halves),
+        '20+ fast difficult decisions':fast['opportunities']>=20,
+        '12+ fast anomaly hits':fast['hits']>=12,
+        '80% deep retention of fast-hit evidence':deep['hits']>=0.8*fast['hits'],
+        '95% paired search measurement coverage':confirmation['coverage_passed'],
+        '85% fast/deep objective quality agreement':confirmation['fraction_passed'],
+        '12+ stable anomaly hits':confirmation['hits']>=12,
+    }
+    return all(checks.values()), {
+        'opportunities':deep['opportunities'],
         'hits':deep['hits'],'hit_games':deep['hit_games'],
         'quiet_hits':deep['quiet_hits'],
-        'paired_agreement':round(confirmation['fraction'],4)}
+        'paired_agreement':round(confirmation['fraction'],4),
+        'paired_coverage':round(confirmation['coverage'],4),
+        'fast_hits':fast['hits'],
+        'failed_checks':[name for name,ok in checks.items() if not ok]}
 
 
 def _maia_proof(games):
@@ -284,16 +296,24 @@ def _maia_proof(games):
     # contribute to a Maia discrepancy. Misses remain in game denominators.
     deep=policy_summarize(games)
     fast=policy_summarize(games,fast=True)
-    ok=(deep['contributors']>=6 and deep['contributor_weight']>=5.5
-        and deep['effective_positions']>=20
-        and deep['signed_excess']>=0.15 and deep['information']>=0.10
-        and deep['stable']>=0.70*deep['positions']
-        and deep['positions']>=24 and
-        deep['signed_excess']>=0.75*fast['signed_excess'])
-    return bool(ok),{'contributors':deep['contributors'],
+    checks={
+        '6+ Maia discrepancy contributor games':deep['contributors']>=6,
+        '5.5+ Maia contributor equivalents':deep['contributor_weight']>=5.5,
+        '20+ game-capped Maia decisions':deep['effective_positions']>=20,
+        'signed Maia quality excess >=0.15':deep['signed_excess']>=0.15,
+        'Maia information effect >=0.10':deep['information']>=0.10,
+        '70% stable paired human alternatives':
+            deep['stable']>=0.70*deep['positions'],
+        '24+ Maia comparison positions':deep['positions']>=24,
+        'Maia discrepancy persists under deeper Stockfish':
+            deep['signed_excess']>=0.75*fast['signed_excess'],
+    }
+    return all(checks.values()), {
+        'contributors':deep['contributors'],
         'positions':deep['positions'],
         'signed_excess':round(deep['signed_excess'],4),
-        'information':round(deep['information'],4)}
+        'information':round(deep['information'],4),
+        'failed_checks':[name for name,ok in checks.items() if not ok]}
 
 
 def clock_window_evidence(games):
@@ -411,11 +431,26 @@ def integrate(result, games, discovery, config=CONFIG):
                                'rates are not established without labelled '
                                'fair-player and confirmed-engine holdouts.')}
     result.diagnostics['ten_accuracy_windows']=audit
+    latest_details=audit['latest_ten_details']
+    recent_diagnostics=next((w for w in latest_details if w.get('full_depth_and_maia')),None)
+    if passed:
+        blockers=[]
+    elif recent_diagnostics is not None:
+        blockers=(
+            ['Stockfish: '+b for b in recent_diagnostics.get('engine',{}).get('failed_checks',[])]
+            +['Maia: '+b for b in recent_diagnostics.get('maia',{}).get('failed_checks',[])]
+        )[:8]
+        if not blockers:
+            blockers=['No jointly corroborated ten-game window.']
+    elif latest_details:
+        blockers=['Latest ten: incomplete verified Stockfish or Maia position coverage.']
+    else:
+        blockers=['No comparable, consecutive latest-ten blitz/rapid window '
+                  'or Accuracy-selected older window was eligible.']
+    if not complete:blockers.append('Required full-depth or primary coverage incomplete.')
+    if not enabled:blockers.append('Required human/gameplay features disabled.')
     result.diagnostics.setdefault('high_paths',{})['Ten-game paired Stockfish + Maia HIGH']={
-        'passed':passed,'blockers':(
-            [] if passed else
-            ['No ten-game block has both full-depth Stockfish and complete '
-             'Maia game-capped evidence, or mandatory coverage is incomplete.'])}
+        'passed':passed,'blockers':blockers}
     # A missing ordinary latest-ten probe is diagnostic unless high Accuracy
     # was actually published in >=4 games. Otherwise an unrelated unreliable
     # position would turn an ordinary, well-reviewed LOW into INSUFFICIENT.
