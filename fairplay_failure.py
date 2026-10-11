@@ -18,7 +18,9 @@ from fairplay_data import AccountNotFound, DeadlineReached, ReviewError
 from shark_admin import ADMIN_ID
 
 TOKEN_RE = re.compile(r"^[0-9a-f]{12}$")
-STAGES = (("Depth-18", "depth18"), ("Deep confirmation", "deep"),
+STAGES = (("Deep Maia alternatives", "maia_deep"),
+          ("Fast Maia alternatives", "maia_fast"),
+          ("Depth-18", "depth18"), ("Deep confirmation", "deep"),
           ("Fast engine scan", "fast"), ("Comparing human alternatives", "maia"),
           ("Building human-move", "human"), ("Collecting rated games", "collect"),
           ("Fetching profile", "profile"), ("Building report", "report"),
