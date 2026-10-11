@@ -191,6 +191,10 @@ def result_embed(result: ReviewResult):
         if len(brief)>240:
             brief=brief[:237].rsplit(' ',1)[0]+'...'
         embed.add_field(name='Why this result?',value=brief,inline=False)
+    if isinstance(used,int):
+        embed.add_field(name='Scoring sample',
+                        value=f"**{used}** of **{review_games}** screened games used.",
+                        inline=False)
     embed.add_field(name='Important',value=SHORT_SCREENING_NOTICE,inline=False)
     revision=(result.diagnostics.get('run_contract') or {}).get('code_revision')
     suffix=(f" · Code {revision}" if revision else "")
