@@ -1095,7 +1095,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         if v21_mode and primary_complete:
             # Run the 500-game wide screen first. Then combine 100 recent
             # comparable-rating peer games with up to 25 stratified historical
-            # periods/controls. Selection NEVER uses published Chess.com Accuracy.
+            # periods/controls. The optional Accuracy-discovery window may
+            # receive paired full-game verification; Accuracy never scores HIGH.
             from fairplay_v21 import discovery_extras
             v21_plan=discovery_extras(v21_plan,
                                       max_extra=50 if distributed_mode else 25,
@@ -1416,8 +1417,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         result.diagnostics['recent_tail_audit']=summarize_recent(analyzed)
         # Published 95+ Accuracy plus 9/10-win runs are a descriptive
         # investigative flag only, benchmarked against strictly older games
-        # and opponent Elo. Full latest50 deep selection happened *before*
-        # this check; Accuracy must never steer engine sampling or HIGH.
+        # and opponent Elo. Full latest50 is reserved regardless of Accuracy;
+        # only optional historical windows may be queued for deeper review.
         from fairplay_streak import accuracy_streak_audit
         result.diagnostics['accuracy_streak_audit']=accuracy_streak_audit(analyzed)
         result.diagnostics['accuracy_blocks']=accuracy_blocks_audit
