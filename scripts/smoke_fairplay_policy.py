@@ -5,6 +5,7 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from fairplay_analysis import review,close_shared_engine_pool
 from fairplay_config import CONFIG
 from fairplay_maia import policy_evidence
+from fairplay_policy import _needs_counterfactual
 from scripts.smoke_stockfish_reviews import FixtureAPI,TARGET
 
 def main():
@@ -22,6 +23,12 @@ def main():
             for d in game.decisions:
                 if not d.human_policy:continue
                 assert d.fast_policy is not None
+                # Full-game Maia predictions include openings and forced moves,
+                # while costly Stockfish root searches are needed only where
+                # that alternative could supply fair-play evidence.
+                if not _needs_counterfactual(d):
+                    assert not d.metrics.get('policy_search')
+                    continue
                 extra=d.metrics.get('policy_search',{})
                 assert extra.get('nodes')==CONFIG.deep_nodes
                 row=policy_evidence(d,d.human_policy)

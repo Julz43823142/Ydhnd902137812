@@ -86,12 +86,42 @@ def search_alternatives(scanner,d,nodes):
     return ({'depth':nodes.depth,'scores':values,'search_contract':contract} if depth_search else
             {'nodes':nodes,'scores':values,'search_contract':contract})
 
+def _needs_counterfactual(decision):
+    """Counterfactuals are evidence only at nontrivial competitive decisions.
+
+    Maia itself is still evaluated on EVERY required player position. Running
+    root Stockfish for openings, forced moves and won endgames cannot add
+    evidence because policy_evidence explicitly excludes those positions.
+    """
+    m=decision.metrics or {}
+    return bool(decision.human_policy
+                and m.get('useful') and m.get('competitive')
+                and isinstance(m.get('difficulty'),(int,float))
+                and m['difficulty']>=POLICY.difficulty
+                and not decision.forced and not decision.trivial_kind
+                and decision.phase!='opening'
+                and not m.get('post_opponent_error')
+                and not m.get('easy_conversion')
+                and not m.get('simple_threat_response')
+                and not m.get('automatic_material_gain'))
+
+
 def complete(games,nodes,deadline,*,executor=None,pool=None,scanner=None,fast=False,
-             checkpoint=None,target=None):
+             checkpoint=None,target=None,progress=None):
     """Reuse the bounded pool. Drain all tasks; incomplete optional data cannot score."""
     from fairplay_maia import refresh_game,policy_evidence
-    work=[(g,d) for g in games for d in g.decisions if d.human_policy]
+    work=[(g,d) for g in games for d in g.decisions if _needs_counterfactual(d)]
     started=time.monotonic();completed=0;interrupted=False
+    failure_types={}
+    phase='Fast Maia alternatives' if fast else 'Deep Maia alternatives'
+    last_reported=started
+    def report_progress(force=False):
+        nonlocal last_reported
+        now=time.monotonic()
+        if progress is not None and (force or now-last_reported>=15):
+            progress(f'{phase}: {completed} / {len(work)} positions')
+            last_reported=now
+    report_progress(force=True)
     pending=[]
     for game,d in work:
         d.metrics.pop('policy_search',None)
@@ -120,12 +150,19 @@ def complete(games,nodes,deadline,*,executor=None,pool=None,scanner=None,fast=Fa
             capacity=min(64,max_workers*3)
             work_iter=iter(pending)
             futures={}
+            retried=set()
+            retry_queue=[]
+            def submit(game,d):
+                futures[executor.submit(pool._run_with_scanner,deadline,
+                    lambda worker,d=d:search_alternatives(worker,d,nodes))]=(game,d)
             def submit_available():
                 while len(futures)<capacity:
-                    try:game,d=next(work_iter)
-                    except StopIteration:break
-                    futures[executor.submit(pool._run_with_scanner,deadline,
-                        lambda worker,d=d:search_alternatives(worker,d,nodes))]=(game,d)
+                    if retry_queue:
+                        game,d=retry_queue.pop(0)
+                    else:
+                        try:game,d=next(work_iter)
+                        except StopIteration:break
+                    submit(game,d)
             submit_available()
             while futures:
                 finished,_=wait(tuple(futures),return_when=FIRST_COMPLETED)
@@ -133,10 +170,24 @@ def complete(games,nodes,deadline,*,executor=None,pool=None,scanner=None,fast=Fa
                     game,d=futures.pop(future)
                     try:
                         result=future.result()
-                        d.metrics['policy_search']=result;completed+=1
                         persist(game,d,result)
-                    except Exception:
-                        interrupted=True
+                        d.metrics['policy_search']=result
+                        completed+=1
+                    except Exception as error:
+                        category=type(error).__name__
+                        failure_types[category]=failure_types.get(category,0)+1
+                        # The engine pool already restarts/retries a failed UCI
+                        # worker. Give a transient root search one additional
+                        # independent attempt, but never hide permanent failures
+                        # or treat missing positions as completed evidence.
+                        retryable=(isinstance(error,(chess.engine.EngineError,TimeoutError,OSError))
+                                   and id(d) not in retried)
+                        if retryable:
+                            retried.add(id(d))
+                            retry_queue.append((game,d))
+                        else:
+                            interrupted=True
+                    report_progress()
                 if interrupted:
                     for running in futures:running.cancel()
                 else:submit_available()
@@ -145,10 +196,14 @@ def complete(games,nodes,deadline,*,executor=None,pool=None,scanner=None,fast=Fa
                 check_deadline(deadline)
                 result=(pool._run_with_scanner(deadline,lambda worker:search_alternatives(worker,d,nodes))
                         if pool is not None else search_alternatives(scanner,d,nodes))
-                d.metrics['policy_search']=result;completed+=1
                 persist(game,d,result)
-    except Exception:
+                d.metrics['policy_search']=result
+                completed+=1
+                report_progress()
+    except Exception as error:
         interrupted=True
+        category=type(error).__name__
+        failure_types[category]=failure_types.get(category,0)+1
         # Keep draining already-running searches before clearing incomplete data.
         if executor is not None and pool is not None:
             for running in futures:running.cancel()
@@ -166,7 +221,11 @@ def complete(games,nodes,deadline,*,executor=None,pool=None,scanner=None,fast=Fa
         if fast:
             for d in game.decisions:
                 d.fast_policy=policy_evidence(d,d.human_policy) if d.human_policy and not interrupted else {}
-    return {'complete':not interrupted,'positions':completed,'seconds':time.monotonic()-started}
+    report_progress(force=True)
+    return {'complete':not interrupted,'positions':completed,
+            'expected_positions':len(work),
+            'failure_categories':failure_types,
+            'seconds':time.monotonic()-started}
 
 def game_summary(game,*,fast=False):
     from fairplay_maia import policy_evidence

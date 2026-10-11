@@ -18,7 +18,9 @@ from fairplay_data import AccountNotFound, DeadlineReached, ReviewError
 from shark_admin import ADMIN_ID
 
 TOKEN_RE = re.compile(r"^[0-9a-f]{12}$")
-STAGES = (("Depth-18", "depth18"), ("Deep confirmation", "deep"),
+STAGES = (("Deep Maia alternatives", "maia_deep"),
+          ("Fast Maia alternatives", "maia_fast"),
+          ("Depth-18", "depth18"), ("Deep confirmation", "deep"),
           ("Fast engine scan", "fast"), ("Comparing human alternatives", "maia"),
           ("Building human-move", "human"), ("Collecting rated games", "collect"),
           ("Fetching profile", "profile"), ("Building report", "report"),
@@ -65,6 +67,8 @@ def classify(error):
             return "stockfish_search_timeout"
         if message.startswith("Stockfish failed"):
             return "engine_transport_or_process_failure"
+        if "Maia" in message and "counterfactual" in message:
+            return "maia_deep_counterfactual_incomplete"
         if "Maia" in message:
             return "maia_reference_incomplete"
         if "runtime limit" in message:

@@ -11,6 +11,8 @@ def estimate(stage):
     if stage.startswith('Fast candidate verification:'):
         match=re.search(r'(\d+)\s*/\s*(\d+)',stage)
         return 75+int(4*min(1,int(match[1])/max(1,int(match[2])))) if match else 75
+    if stage.startswith(('Deep Maia alternatives', 'Fast Maia alternatives')):
+        return 98 if stage.startswith('Deep Maia') else 78
     if stage.startswith(('Deep confirmation:', 'Depth-18 rapid/blitz')):
         match = re.search(r'(\d+)\s*/\s*(\d+)', stage)
         return 80+int(17*min(1, int(match[1])/max(1, int(match[2])))) if match else 80
@@ -84,7 +86,7 @@ class LiveTiming:
                 self.last_eta=(phase,remaining)
             elif self.phase_done>=self.phase_total:
                 self.last_eta=None
-        elif stage.startswith(('Building report', 'Comparing personal timing', '❌', 'Stopped by moderator')):
+        elif stage.startswith(('Building report', 'Comparing personal timing', 'Fast Maia alternatives', 'Deep Maia alternatives', '❌', 'Stopped by moderator')):
             self.last_eta=None
 
     def summary(self,stage,now=None):
@@ -197,6 +199,8 @@ class ReliableTiming(LiveTiming):
         # not part of the estimated depth-search runtime.
         if stage.startswith(("Building report","Complete","Posting final report")):
             return label+" · Finalizing the report…"
+        if stage.startswith(("Fast Maia alternatives","Deep Maia alternatives")):
+            return label+" · Checking Maia counterfactuals; completion time is variable."
         wide=self.phases.get("wide")
         if not wide or "wide" not in self.rate:
             return label+" · Time remaining: not yet available."
