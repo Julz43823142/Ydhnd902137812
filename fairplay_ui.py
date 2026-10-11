@@ -375,7 +375,7 @@ def detail_embed(result, mode):
                 continue
             embed.add_field(name='Suspect ten-game block — move-clock audit',
                 value=(f"Ends <t:{episode.get('window_end_time',0)}:d> · "
-                       f"mean published Accuracy: {episode.get('mean_accuracy') if episode.get('mean_accuracy') is not None else 'not reported'}% "
+                       f"mean published Accuracy: {str(episode['mean_accuracy'])+'%' if episode.get('mean_accuracy') is not None else 'not reported'} "
                        f"({episode.get('published_accuracy_games',0)}/10 reported).\n"
                        f"Player moves: {timings['player_moves']} · reliable clocks: "
                        f"{timings['reliable_clocks']} · no delta: "
