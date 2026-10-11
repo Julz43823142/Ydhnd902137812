@@ -422,9 +422,9 @@
         ],
         "puzzle": {
           "day": "2026-10-11",
-          "fen": "2q2rk1/5ppp/p2p4/1p1Nb3/3pP3/1B3Q1P/PP3PP1/6K1 w - - 0 24",
+          "fen": "2q2r1k/4Nppp/p2p4/1p2b3/3pP3/1B3Q1P/PP3PP1/6K1 w - - 2 25",
           "id": "qzvr1",
-          "index": 2,
+          "index": 4,
           "moves": [
             "c1c8",
             "d8c8",
