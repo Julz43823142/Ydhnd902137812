@@ -839,6 +839,41 @@ def full_depth_budget(game, config=CONFIG):
     return chess.engine.Limit(depth=(config.bullet_deep_depth if game.time_class=='bullet' else 18))
 
 
+def require_recent_maia_coverage(reference, latest_games):
+    """Fail closed on incomplete Maia coverage before issuing a v29 verdict.
+
+    All rated games in the declared latest-fifty selection are required.
+    Every actual player decision must have a valid completed Maia policy.
+    Engine-quality comparisons are checked separately after both passes.
+    """
+    if not latest_games:
+        raise ReviewError('The latest-fifty Maia scope is empty.')
+    expected_games=len(latest_games)
+    expected_positions=sum(len(game.decisions) for game in latest_games)
+    if not (isinstance(reference,dict)
+            and reference.get('available') is True
+            and reference.get('recent_full_complete') is True
+            and reference.get('recent_full_selection_complete') is True
+            and reference.get('recent_full_missing_rating_games') == 0
+            and reference.get('recent_full_games_requested') == expected_games
+            and reference.get('recent_full_games_rating_eligible') == expected_games
+            and reference.get('recent_full_positions_expected') == expected_positions
+            and reference.get('recent_full_positions_selected') == expected_positions
+            and reference.get('recent_full_positions_completed') == expected_positions
+            and expected_positions > 0):
+        raise ReviewError(
+            'The latest fifty rated games did not receive complete valid Maia-3 '
+            'policy inference; no Fair Play priority was issued.')
+    from fairplay_maia import valid_policy
+    for game in latest_games:
+        if (game.rating is None or game.opponent_rating is None
+                or any(not valid_policy(decision,decision.human_policy)
+                       for decision in game.decisions)):
+            raise ReviewError(
+                'Maia-3 policy evidence is missing or invalid for a latest-fifty '
+                'player decision; no Fair Play priority was issued.')
+
+
 def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI, engine_factory=None,
            cancel=None, engine_workers=None, engine_pool=None, checkpoint=None):
     import copy
@@ -1136,8 +1171,16 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 and not (deadline.cancel is not None and deadline.cancel.is_set()))
             else {'available':False,'positions':0,
                   'reason':'Primary engine pass incomplete or interrupted; optional human reference skipped.'})
-        if (full_depth_mode and os.getenv('FAIRPLAY_REQUIRE_MAIA')=='1'
-                and not neural_reference.get('available')):
+        # Live v29 reviews promise complete Maia inference for *every*
+        # player decision in the latest fifty, not just a visible coverage
+        # counter. Test-injected engines retain their standalone Stockfish
+        # contract; production must fail closed rather than issue a verdict
+        # when Maia inference or public rating inputs are incomplete.
+        require_maia=(v21_mode and engine_factory is None)
+        if require_maia:
+            require_recent_maia_coverage(neural_reference, latest_fifty)
+        elif (full_depth_mode and os.getenv('FAIRPLAY_REQUIRE_MAIA')=='1'
+              and not neural_reference.get('available')):
             raise ReviewError('Complete depth-18 review requires local Maia-3; the model was unavailable.')
         from fairplay_policy import complete as complete_policy, allocate as allocate_policy
         if neural_reference.get('available'):
@@ -1146,7 +1189,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 v21_deep if v21_mode else analyzed,config.fast_nodes,deadline,executor=engine_executor,
                 pool=shared_pool if use_shared else None,scanner=scanner,fast=True,
                 **resume_kwargs)
-            if (full_depth_mode and os.getenv('FAIRPLAY_REQUIRE_MAIA')=='1'
+            if ((require_maia or (full_depth_mode and os.getenv('FAIRPLAY_REQUIRE_MAIA')=='1'))
                     and not neural_reference['fast_counterfactual']['complete']):
                 raise ReviewError('The complete Maia fast reference did not finish; no review was issued.')
         progress('Analyzing sessions and repertoire…')
@@ -1272,7 +1315,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 'complete':all(row['complete'] for row in policy_reports),
                 'positions':sum(row['positions'] for row in policy_reports),
                 'seconds':sum(row['seconds'] for row in policy_reports)}
-            if (full_depth_mode and os.getenv('FAIRPLAY_REQUIRE_MAIA')=='1'
+            if ((require_maia or (full_depth_mode and os.getenv('FAIRPLAY_REQUIRE_MAIA')=='1'))
                     and not neural_reference['deep_counterfactual']['complete']):
                 raise ReviewError('The complete depth-18 Maia comparison did not finish; no review was issued.')
         deep_finished=time.monotonic()

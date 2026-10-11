@@ -440,5 +440,100 @@ class LowRatingTwoGameAccuracyWarning(unittest.TestCase):
         self.assertEqual(report['low_rating_90_plus_pairs']['observed_pairs'],0)
 
 
+class StrictProductionMaiaCoverage(unittest.TestCase):
+    """A nominally available Maia worker cannot produce a false complete v29."""
+
+    @staticmethod
+    def complete_report(games):
+        positions=sum(len(g.decisions) for g in games)
+        return {
+            'available':True,
+            'recent_full_complete':True,
+            'recent_full_selection_complete':True,
+            'recent_full_missing_rating_games':0,
+            'recent_full_games_requested':len(games),
+            'recent_full_games_rating_eligible':len(games),
+            'recent_full_positions_expected':positions,
+            'recent_full_positions_selected':positions,
+            'recent_full_positions_completed':positions,
+        }
+
+    @classmethod
+    def covered(cls):
+        games=[causal_game(i,decisions=8) for i in range(50)]
+        for g in games:
+            for d in g.decisions:
+                legal=[move.uci() for move in chess.Board(d.fen).legal_moves]
+                d.human_policy={move:1.0/len(legal) for move in legal}
+        return games,cls.complete_report(games)
+
+    def test_exact_maia_policy_coverage_is_accepted(self):
+        from fairplay_analysis import require_recent_maia_coverage
+        games, report=self.covered()
+        self.assertIsNone(require_recent_maia_coverage(report,games))
+
+    def test_missing_model_or_missing_game_blocks_verdict(self):
+        from fairplay_analysis import require_recent_maia_coverage
+        from fairplay_data import ReviewError
+        games,report=self.covered()
+        for changed in (
+                {'available':False},
+                {'recent_full_complete':False},
+                {'recent_full_selection_complete':False},
+                {'recent_full_games_requested':49},
+                {'recent_full_games_rating_eligible':49},
+                {'recent_full_missing_rating_games':1},
+                {'recent_full_positions_completed':399},
+                {'recent_full_positions_selected':399},
+                {'recent_full_positions_expected':399}):
+            bad={**report,**changed}
+            with self.subTest(changed=changed), self.assertRaises(ReviewError):
+                require_recent_maia_coverage(bad,games)
+
+    def test_report_cannot_claim_complete_if_one_policy_missing(self):
+        from fairplay_analysis import require_recent_maia_coverage
+        from fairplay_data import ReviewError
+        games,report=self.covered()
+        games[49].decisions[-1].human_policy={}
+        with self.assertRaises(ReviewError):
+            require_recent_maia_coverage(report,games)
+
+    def test_truthy_but_invalid_maia_policy_is_not_complete(self):
+        from fairplay_analysis import require_recent_maia_coverage
+        from fairplay_data import ReviewError
+        games,report=self.covered()
+        games[0].decisions[0].human_policy={'illegal':1.0}
+        with self.assertRaises(ReviewError):
+            require_recent_maia_coverage(report,games)
+
+    def test_report_cannot_claim_complete_if_one_rating_missing(self):
+        from fairplay_analysis import require_recent_maia_coverage
+        from fairplay_data import ReviewError
+        games,report=self.covered()
+        games[0].rating=None
+        with self.assertRaises(ReviewError):
+            require_recent_maia_coverage(report,games)
+
+    def test_absent_or_fabricated_coverage_counter_cannot_claim_complete(self):
+        from fairplay_analysis import require_recent_maia_coverage
+        from fairplay_data import ReviewError
+        games,report=self.covered()
+        report.pop('recent_full_positions_selected')
+        with self.assertRaises(ReviewError):
+            require_recent_maia_coverage(report,games)
+        with self.assertRaises(ReviewError):
+            require_recent_maia_coverage({},games)
+        with self.assertRaises(ReviewError):
+            require_recent_maia_coverage(report,[])
+
+    def test_completeness_is_about_decisions_not_accuracy_results_or_identity(self):
+        from fairplay_analysis import require_recent_maia_coverage
+        games,report=self.covered()
+        for i,g in enumerate(games):
+            g.accuracy=99 if i%2 else None
+            g.result='Win' if i%3 else 'Loss'
+        self.assertIsNone(require_recent_maia_coverage(report,games))
+
+
 if __name__=='__main__':
     unittest.main()
