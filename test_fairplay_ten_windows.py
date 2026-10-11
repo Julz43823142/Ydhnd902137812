@@ -110,7 +110,7 @@ class Discovery(unittest.TestCase):
 
     def test_older_block_within_last_250_remains_eligible(self):
         games=[rated_game(i,72.) for i in range(260)]
-        for i in range(15,25):games[i].accuracy=99.
+        for i in range(0,10):games[i].accuracy=99.
         info=discover(games)
         # Index 15 is outside last 250 of 260, so no complete high window.
         self.assertEqual(info['accuracy_candidates'],0)
