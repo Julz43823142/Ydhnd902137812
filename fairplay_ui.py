@@ -866,14 +866,42 @@ class FairPlayService:
             # All detailed position caches remain bounded in the engine worker.
             # Discord detail pages need game summaries, not thousands of FENs.
             for game in result.games:game.decisions.clear()
-            if await self.safe_progress(job,'Complete',view=ReportView(result.username),embed=result_embed(result)):
-                if job.cancel_requested:return
+            # The analysis has finished. Do not silently leave Discord at
+            # 99% if it rejects the report (embed limits, transient HTTP
+            # failure, permissions or message edits). Retry once with a tiny
+            # valid result, then explicitly show delivery failure.
+            job.stage='Posting final report…'
+            published=await self.safe_progress(
+                job,'Complete',view=ReportView(result.username),
+                embed=result_embed(result))
+            if not published and not job.cancel_requested and not job.message_deleted:
+                fallback=discord.Embed(
+                    title=REPORT_PREFIX+result.username,
+                    description=(f"**{result.priority} review priority**\n"
+                                 "Detailed report could not be displayed. "
+                                 "Use the buttons to open the results.\n"
+                                 + SHORT_SCREENING_NOTICE),
+                    color=0x427CBA)
+                fallback.set_footer(text='Short report (delivery fallback)')
+                published=await self.safe_progress(
+                    job,'Complete',view=ReportView(result.username),
+                    embed=fallback)
+            if published and not job.cancel_requested:
                 self.results[job.message.id] = (time.time(),result)
                 self.cache[job.target] = (time.time(),result,job.message)
                 job.report_published=True
                 self.expire_cache()
                 if getattr(self,'checkpoints',None) is not None:
                     await asyncio.to_thread(self.checkpoints.finish,job.target)
+            elif not job.cancel_requested:
+                await self.save_failure(job,ReviewError(
+                    'Discord report delivery failed after full analysis.'))
+                if getattr(self,'checkpoints',None) is not None:
+                    await asyncio.to_thread(self.checkpoints.suspend,job.target)
+                if job.message is not None:
+                    await self.safe_progress(
+                        job,'❌ Analysis completed, but Discord could not '
+                        'display the report. Please try again.')
         except AccountNotFound as error:
             if job.cancel_requested:return
             await self.save_failure(job,error)
