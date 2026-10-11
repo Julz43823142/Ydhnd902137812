@@ -192,9 +192,14 @@ class ReliableTiming(LiveTiming):
         label="Elapsed: **"+duration(elapsed)+"**"
         if stage.startswith(("❌","Stopped by moderator")):
             return label+" · Review stopped; no result was issued."
+        # Once the engine work is done, do not show the stale "calibrating
+        # Stockfish throughput" message. Report delivery is a separate phase,
+        # not part of the estimated depth-search runtime.
+        if stage.startswith(("Building report","Complete","Posting final report")):
+            return label+" · Finalizing the report…"
         wide=self.phases.get("wide")
         if not wide or "wide" not in self.rate:
-            return label+" · Total ETA: **calibrating actual Stockfish throughput…**"
+            return label+" · Time remaining: not yet available."
         # Deep searches include forced/opening positions which the intermediate
         # PV3 fast recheck skips; use a conservative overcount until known.
         candidate=self.phases.get("candidate")
