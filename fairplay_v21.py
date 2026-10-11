@@ -49,7 +49,7 @@ def broad_and_core(history, *, broad_count=500, deep_count=100,
     fifty-game coverage unless it actually has fifty deep slots.
     """
     chronological=sorted((g for g in history if
-                          (g.rated in (True,False) if include_unrated
+                          (isinstance(g.rated,bool) if include_unrated
                            else g.rated is True)
                           and not getattr(g,"probe_only",False)),
                          key=lambda g:(g.ended,g.identity))
