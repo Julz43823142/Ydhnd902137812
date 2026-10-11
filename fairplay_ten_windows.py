@@ -143,7 +143,13 @@ def extend_plan(plan, discovery, latest_fifty_ids, *, max_deep=MAX_DEEP):
 
 
 def _complete_game(game, config):
-    """Every player move has exact requested-depth Stockfish and valid Maia."""
+    """Every move reached depth 18 and Maia; only exact evidence may score.
+
+    MultiPV/root disagreement can mark an *otherwise depth-complete* move as
+    search-inconsistent. The scorer excludes those moves from competitive
+    opportunities. Do not let one ignored forced/opening/inexact position
+    veto the entire ten-game episode, but never count it as anomaly proof.
+    """
     from fairplay_maia import valid_policy
     if not _verified_entry(game) or not game.decisions:
         return False
@@ -154,10 +160,15 @@ def _complete_game(game, config):
                 and contract.get('requested')==18
                 and contract.get('multipv')==config.deep_multipv
                 and contract.get('completed') is True
-                and contract.get('exact') is True
                 and m.get('search_depth',0)>=18
                 and valid_policy(d,d.human_policy)):
             return False
+        if contract.get('exact') is not True:
+            # Depth was completed, but this particular position is unreliable.
+            # A non-exact position can never be a scored opportunity or hit.
+            if any(m.get(key) for key in (
+                    'useful','human_opportunity','high_information','critical')):
+                return False
     return True
 
 
