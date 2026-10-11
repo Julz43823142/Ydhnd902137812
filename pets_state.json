@@ -44,7 +44,7 @@
       "crown",
       "necklace"
     ],
-    "active": "cb9b79cb044049c9b7f1795d46d370f1",
+    "active": "82e287eca073433c93e30807f8b0e910",
     "expedition": {
       "end": 1791696585.3798041,
       "hours": 12,
@@ -303,6 +303,7 @@
       },
       {
         "born_at": 1791108570.1412249,
+        "died_at": 1791713375.4017603,
         "fed_at": 1791108575.4017603,
         "feed_day": "2026-10-04",
         "happiness": 100,
@@ -335,6 +336,7 @@
       },
       {
         "born_at": 1791108628.4203353,
+        "died_at": 1791713435.2517924,
         "fed_at": 1791108635.2517924,
         "feed_day": "2026-10-04",
         "happiness": 100,
@@ -443,6 +445,25 @@
         "rarity": "common",
         "species": "Dog",
         "xp": 25
+      },
+      {
+        "born_at": 1791718543.9596224,
+        "fed_at": 1791718543.9596224,
+        "happiness": 80,
+        "happy_at": 1791718543.9596224,
+        "id": "82e287eca073433c93e30807f8b0e910",
+        "name": "",
+        "owner_history": [
+          {
+            "action": "Created",
+            "at": 1791718543,
+            "owner_id": "442597396195704832",
+            "owner_name": "Thice"
+          }
+        ],
+        "rarity": "common",
+        "species": "Rabbit",
+        "xp": 0
       }
     ]
   }
