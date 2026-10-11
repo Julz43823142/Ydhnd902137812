@@ -62,8 +62,8 @@ def progress_embed(target, stage, value=None, timing=None):
                  else bar(value)+"\n\n"+label(stage))
     if timing is not None:description+='\n'+timing.summary(stage)
     embed = discord.Embed(title=REPORT_PREFIX+target, description=description, color=0x427CBA)
-    embed.set_footer(text="Work progress (stage-weighted), not percent of elapsed time · ETA is approximate across phases")
-    embed.add_field(name='⚠️ Automated screening only', value=DISCLAIMER, inline=False)
+    embed.set_footer(text="Progress is not percent of elapsed time.")
+    embed.add_field(name='Important', value=SHORT_SCREENING_NOTICE, inline=False)
     return embed
 
 
@@ -99,350 +99,106 @@ def capture_human_examples(result, limit=4):
     ]
 
 
+# A single short, plain-English notice in public cards. Detailed limitations
+# remain available from the separate Review Gates / Human Moves buttons.
+SHORT_SCREENING_NOTICE = (
+    "This is a computer check, not proof of cheating. "
+    "A person must review the games before any action."
+)
+
+
 def result_embed(result: ReviewResult):
-    icons = {'LOW':'🟢','MODERATE':'🟡','HIGH':'🟠','VERY HIGH':'🔴','INSUFFICIENT DATA':'⚪'}
-    colors = {'LOW':0x2E9E65,'MODERATE':0xE9B44C,'HIGH':0xEA8537,'VERY HIGH':0xD94F55,'INSUFFICIENT DATA':0x788491}
-    embed = discord.Embed(title=REPORT_PREFIX+result.username,color=colors[result.priority])
-    embed.description=bar(100)+'\nReview complete.'
-    embed.add_field(name='Fair Play Review Priority',value=f'{icons[result.priority]} **{result.priority}**')
-    embed.add_field(name='Data Confidence',value=result.confidence)
-    totals = result.totals
-    classes = ' • '.join(f'{kind.title()}: {data["games"]}' for kind,data in result.classes.items())
-    coverage = result.coverage
-    sample = (f'Rated context games: **{coverage.get("collected",result.selected_games)}**\n'
-              f'Full engine-reviewed: **{coverage.get("fast_scanned",totals["games"])}** · gameplay-scoring games: **{coverage.get("used",totals["games"])}**\n'
-              f'Deep-budget reviewed: **{coverage.get("deep_reviewed",result.deep_coverage["games"])}** · deep-confirmed evidence: **{"yes" if result.deep_confirmed else "not established"}** · older context-only: **{coverage.get("context_only",max(0,result.selected_games-coverage.get("fast_scanned",totals["games"])))}**\n'
-              f'Meaningful decisions: **{totals["decisions"]:,}**\n{classes}\n'
-              f'Account age: {result.context["age_days"] if result.context["age_days"] is not None else "unavailable"} days')
-    funnel=result.diagnostics.get('gameplay',{}).get('funnel',{})
-    if funnel:sample+=f'\nCompetitive decisions: {funnel["competitive"]} · high-difficulty: {funnel["high_difficulty"]}'
-    depth_contract=result.diagnostics.get('run_contract',{})
-    if depth_contract.get('required_primary_depth_by_class'):
-        sample+='\nStockfish depth: Rapid/Blitz 18 · Bullet 12 (screening; lower precision)'
-    elif depth_contract.get('selected_required_depth_by_class'):
-        sample+='\nSelected deep sample only: Rapid/Blitz depth 18 · Bullet depth 12'
-    if depth_contract.get('fast',{}).get('multipv') == 1:
-        sample+='\nBroad: MultiPV 1 + played-move check · Selected fast + deep: MultiPV 3' if depth_contract.get('required_selected_full_depth') else '\nFast: MultiPV 1 + played-move check · Deep: MultiPV 3'
-    v21=result.diagnostics.get('v21_selection',{})
-    if v21:
-        sample += (f"\nScoped deep coverage: {v21['deep_games_completed']}/"
-                   f"{v21['recent_peer_deep_games']+v21['historical_extra_deep_games']+v21.get('recent_tail_nonpeer_deep_games',0)} "
-                   "selected games; 500-wide coverage is FAST-ONLY outside scope.")
-        if 'recent_20_rated_deep_coverage' in v21:
-            last=min(20,v21['broad_fast_games'])
-            sample+=(f"\nLatest rated games covered at deep budget: "
-                     f"**{v21['recent_20_rated_deep_coverage']}/{last}**"
-                     f" · {v21.get('recent_tail_nonpeer_deep_games',0)} "
-                     "recent non-peer games included. "
-                     "Weak-opponent wins are not engine-cheat evidence.")
-    if 'latest_50_games_required' in v21:
-        latest_total=v21.get('latest_50_games_required',0)
-        sample+=(f"\nLast {latest_total} rated games: "
-                 f"**{v21.get('latest_50_depth_completed',0)}/{latest_total}** "
-                 "full Stockfish depth 18/12; "
-                 f"**{v21.get('latest_50_maia_all_decisions',0)}/"
-                 f"{v21.get('latest_50_maia_expected',0)}** "
-                 "Maia policy positions")
-    if coverage.get('history_probed'):
-        sample += f'\nRecent rated primary sample: {coverage["primary_fast_scanned"]}/{coverage["primary_collected"]} · historical discovery probes: {coverage.get("history_probed",0)}'
-    sample += f'\nSkipped unrated games while collecting history: {result.skipped.get("unrated",0)} · unknown rated status: {result.skipped.get("rated_status_unknown",0)}'
-    if coverage.get('history_probe_complete') is False:sample += '\nExtended-history discovery is incomplete; primary coverage is shown separately.'
-    scope=[]
+    """Discord-safe summary; keep technical diagnostics in the detail buttons.
+
+    Discord limits a whole embed to 6,000 characters and every field value to
+    1,024. The old summary tried to fit dozens of unbounded diagnostics and
+    could fail to edit the 99% progress card without showing a report.
+    """
+    icons = {'LOW':'🟢','MODERATE':'🟡','HIGH':'🟠',
+             'VERY HIGH':'🔴','INSUFFICIENT DATA':'⚪'}
+    colors = {'LOW':0x2E9E65,'MODERATE':0xE9B44C,'HIGH':0xEA8537,
+              'VERY HIGH':0xD94F55,'INSUFFICIENT DATA':0x788491}
+    level=result.priority if result.priority in colors else 'INSUFFICIENT DATA'
+    embed=discord.Embed(
+        title=REPORT_PREFIX+result.username,
+        description=f"{icons[level]} **{level} review priority**\n"
+                    "This is a reason to check the games, not a cheating verdict.",
+        color=colors[level])
+    coverage=result.coverage or {}
+    total=result.totals or {}
+    v21=result.diagnostics.get('v21_selection') or {}
+    review_games=coverage.get('fast_scanned',total.get('games',0))
+    deep_games=coverage.get('deep_reviewed',result.deep_coverage.get('games',0))
+    latest=v21.get('latest_50_games_required')
+    summary=(f"Games checked: **{review_games}**\n"
+             f"Deeply checked: **{deep_games}**\n"
+             f"Useful moves: **{total.get('decisions',0)}**")
+    if latest is not None:
+        summary+=(f"\nLatest rated games: **"
+                  f"{v21.get('latest_50_depth_completed',0)}/{latest}** "
+                  "fully checked with Stockfish")
+        summary+=(f"\nMaia move checks: **"
+                  f"{v21.get('latest_50_maia_all_decisions',0)}/"
+                  f"{v21.get('latest_50_maia_expected',0)}**")
+    used=coverage.get('used')
+    if isinstance(used,int):
+        summary+=(f"\nGames used for scoring: **{used}** "
+                  f"of **{review_games}** screened")
+    context=result.diagnostics.get('personal_baseline') or {}
+    rated_context=coverage.get('rated_context_games')
+    if rated_context is None:
+        rated_context=(result.diagnostics.get('collection') or {}).get('rated_context_games')
+    # The public label is retained so readers can distinguish the reviewed
+    # rated sample from a player's full account history.
+    if rated_context is None:
+        rated_context=total.get('games',review_games)
+    summary+=f"\nRated context games: **{rated_context}**"
+    embed.add_field(name='Games analyzed',value=summary,inline=False)
+    # Preserve bounded-history disclosure in plain English. A sample of 100
+    # games is not a statement about every game ever played by this account.
     if coverage.get('requested_primary_limit'):
-        if v21:
-            scope.append(f"Review scope: up to {coverage['requested_primary_limit']} rated games fast-screened; "
-                         f"{v21['deep_games_completed']} selected peer/stratified/recent-tail games deep-reviewed; "
-                         "the other fast games are NOT depth-confirmed.")
-        else:
-            scope.append(f"Engine scope: latest up to {coverage['requested_primary_limit']} eligible rated games. "
-                         "An account with thousands of games is NOT exhaustively analyzed.")
-    if coverage.get('available_archive_months') is not None:
-        scope.append(f"Archive months visited: {coverage.get('visited_archive_months',0)}/"
-                     f"{coverage['available_archive_months']}; "
-                     f"older months not visited: {coverage.get('unvisited_archive_months',0)}.")
-    if coverage.get('eligible_games_capped'):
-        scope.append('Context/history was capped by the configured game limit.')
-    if result.skipped:sample += f'\nSkipped archive/game entries: {sum(result.skipped.values())}'
-    if coverage.get('optional_context_partial'):sample += '\n⚠️ Older context is incomplete; primary engine coverage is complete.'
-    elif result.partial:sample += '\n⚠️ Partial scan / limited archive coverage. Missing data is not suspicious.'
-    dates=[g.ended for g in (result.timeline or result.games) if g.ended>0]
-    if dates:sample += f'\nEngine-covered dates: <t:{min(dates)}:d> → <t:{max(dates)}:d>'
-    embed.add_field(name='Sample',value=sample[:1024],inline=False)
-    if scope:embed.add_field(name='Review scope — bounded archive',value='\n'.join(scope)[:1024],inline=False)
+        scope=('Only the selected games were reviewed; '
+               'the full account history was NOT exhaustively analyzed.')
+        missing_months=coverage.get('unvisited_archive_months')
+        if isinstance(missing_months,int) and missing_months>0:
+            scope+=f" {missing_months} older archive months were not checked."
+        embed.add_field(name='Limits',value=scope,inline=False)
     recent=result.diagnostics.get('recent_tail_audit') or {}
-    if recent.get('schema')=='sharkbot-recent-tail-audit-v1':
-        tail=recent.get('last_20') or {}
-        short=recent.get('last_10') or {}
-        if tail.get('games'):
-            embed.add_field(
-                name='Latest rated results & opponent strength (descriptive only)',
-                value=(f"Latest {tail['games']}: "
-                       f"**{tail.get('wins',0)}W/{tail.get('draws',0)}D/{tail.get('losses',0)}L**"
-                       f" · deep-reviewed **{tail.get('deep_reviewed',0)}/{tail['games']}**"
-                       f" · {tail.get('opponent_more_than_500_weaker',0)} opponents more than "
-                       "500 Elo weaker.\n"
-                       f"Latest {short.get('games',0)}: "
-                       f"**{short.get('wins',0)}W/{short.get('draws',0)}D/"
-                       f"{short.get('losses',0)}L**"
-                       f" · deep-reviewed **{short.get('deep_reviewed',0)}/"
-                       f"{short.get('games',0)}**"
-                       f" · {short.get('opponent_more_than_500_weaker',0)} weak opponents. "
-                       "Win streaks are not proof of engine use; evaluate "
-                       "post-opening choices and comparable opposition.")[:1024],
-                inline=False)
+    ten=recent.get('last_10') or {}
+    if ten.get('games'):
+        embed.add_field(
+            name='Last 10 games',
+            value=(f"**{ten.get('wins',0)} wins, "
+                   f"{ten.get('draws',0)} draws, "
+                   f"{ten.get('losses',0)} losses**"),
+            inline=False)
     streak=result.diagnostics.get('accuracy_streak_audit') or {}
     if streak.get('schema')=='sharkbot-accuracy-streak-audit-v1':
-        candidate=streak.get('best') or {}
-        headline=(f"**{streak.get('last_50_accuracy_reported',0)}/"
-                  f"{streak.get('latest_rated_scope',0)}** latest rated games "
-                  "have officially reported Accuracy. ")
+        parts=[]
+        if streak.get('followup_alert'):
+            parts.append('Unusual 95+ Accuracy and win streak: **check the games**.')
         pair=streak.get('low_rating_90_plus_pairs') or {}
-        pairs=pair.get('best') or {}
         if pair.get('observed_pairs'):
-            headline+=(f"Low-rating 90+ Accuracy: "
-                       f"**{pair.get('observed_pairs',0)}** consecutive "
-                       "two-game pairs at rating 300–600; "
-                       f"**{pair.get('review_context_pairs',0)}** have "
-                       "sufficient meaningful decisions, full deep reviews "
-                       "and comparable opponents. ")
-            if pairs.get('older_accuracy_mean') is not None:
-                headline+=(f"Prior same-class Accuracy "
-                           f"**{pairs['older_accuracy_mean']:.1f}** "
-                           f"({pairs.get('older_reported_accuracy_games',0)} "
-                           "reported games). ")
-        if candidate:
-            headline+=(f"Strongest 10-game observed streak "
-                       f"({candidate.get('time_class','').title()}): "
-                       f"**{candidate.get('win_games',0)}/10 wins**, "
-                       f"**{candidate.get('accuracy_95_plus_games',0)}/10** "
-                       "reported at 95+ Accuracy. ")
-            if candidate.get('baseline_sufficient'):
-                headline+=(f"Before that: mean Accuracy "
-                           f"**{candidate.get('older_accuracy_mean',0):.1f}** "
-                           f"across {candidate.get('older_accuracy_reported_games',0)} "
-                           "reported older games of the same time class. ")
-            else:
-                headline+="Older Accuracy baseline insufficient or selectively reported. "
-            if streak.get('followup_alert'):
-                headline+=(
-                    "**FOLLOW-UP FLAG:** high-Accuracy/win burst also departs "
-                    "from earlier results against reasonably comparable "
-                    "opponents; inspect independent Stockfish/Maia evidence. ")
-            else:
-                headline+=(
-                    "No corroborated results-streak flag: historical coverage, "
-                    "rating-adjusted opposition or magnitude of change is "
-                    "insufficient. ")
-            headline+=(f"Already deep-reviewed: "
-                       f"**{candidate.get('deep_reviewed_games',0)}/10**; "
-                       f"hard-move evidence "
-                       f"**{candidate.get('deep_human_anomaly_hits',0)}/"
-                       f"{candidate.get('deep_hard_opportunities',0)}**.")
-        else:
-            headline+=("No 10-game same-time-class window with at least "
-                       "9 wins and 8 published Accuracy values of 95+. "
-                       "Missing reported Accuracy cannot count as low Accuracy.")
-        embed.add_field(name='95+ Accuracy and win streak — investigation cue',
-                        value=(headline+
-                               "\nAccuracy reporting is often incomplete. "
-                               "This is not cheating proof and NEVER changes "
-                               "LOW/MODERATE/HIGH by itself.")[:1024],inline=False)
-    if v21 and 'latest_50_games_required' in v21:
-        latest=v21['latest_50_games_required']
-        done=v21.get('latest_50_depth_completed',0)
-        count=v21.get('latest_50_stockfish_positions',0)
-        verified=v21.get('latest_50_stockfish_depth_verified_positions',0)
-        exact=v21.get('latest_50_stockfish_depth_exact_positions',0)
-        model=v21.get('latest_50_maia_all_decisions',0)
-        expected=v21.get('latest_50_maia_expected',0)
-        complete=v21.get('latest_50_maia_complete',False)
-        model_desc=(f"**{model}/{expected}** policy evaluations "
-                    + ("(complete)" if complete else "(INCOMPLETE/UNAVAILABLE)"))
-        embed.add_field(
-            name='Latest 50 — complete Stockfish & Maia coverage',
-            value=(f"Rated games deep-reviewed: **{done}/{latest}** "
-                   "(rapid/blitz depth 18, bullet depth 12). "
-                   f"Stockfish position contracts at full depth: "
-                   f"**{verified}/{count}**, exact **{exact}/{count}**. "
-                   f"Maia-3: {model_desc}. "
-                   "Opening, short, forced and weak moves are included in "
-                   "coverage but excluded from cheating-hit evidence when "
-                   "they are not competitive. Older games remain stratified. "
-                   "Missing ratings cannot be imputed. HIGH still requires "
-                   "independently distributed deep-confirmed anomaly evidence.")[:1024],
-            inline=False)
-    history=result.diagnostics.get('public_history_stats',{})
-    if history:
-        period_lines=[]
-        for span in ('7d','30d','90d','365d'):
-            rows=history.get('periods',{}).get(span,{})
-            details=[]
-            for kind in ('blitz','rapid','bullet'):
-                item=rows.get(kind,{})
-                if not item.get('rated_games'):continue
-                details.append(f"{kind.title()}: {item['rated_games']} rated / {item['wins']}W "
-                               f"(Accuracy reported {item['official_accuracy_coverage']})")
-            period_lines.append(f"**{span}:** "+('; '.join(details) if details else 'No sampled rated games'))
-        embed.add_field(name='Public rating & accuracy timeline (descriptive only)',
-                        value=('\n'.join(period_lines)+
-                               '\nAccuracy values may be missing or review-selected; never an accusation.')[:1024],
+            parts.append(f"Two-game 90+ Accuracy streaks at low rating: "
+                         f"**{pair['observed_pairs']}**.")
+        if parts:
+            embed.add_field(name='Extra flags',value='\n'.join(parts)[:500],
+                            inline=False)
+    notes=[str(text).strip() for text in (result.reasons or ()) if str(text).strip()]
+    if notes:
+        # No need to list every technical gate in the public report.
+        brief=notes[0]
+        if len(brief)>240:
+            brief=brief[:237].rsplit(' ',1)[0]+'...'
+        embed.add_field(name='Why this result?',value=brief,inline=False)
+    if isinstance(used,int):
+        embed.add_field(name='Scoring sample',
+                        value=f"**{used}** of **{review_games}** screened games used.",
                         inline=False)
-    parallel=result.diagnostics.get('distributed_compute',{})
-    if parallel.get('enabled'):
-        embed.add_field(name='Distributed Stockfish compute',
-                        value=(f"Requested workers: **{parallel.get('jobs_requested',0)}** · "
-                               f"Verified shards: **{parallel.get('shards_completed',0)}** · "
-                               f"Failed/stalled shards: **{parallel.get('shards_failed',0)}/"
-                               f"{parallel.get('shards_stalled',0)}**\n"
-                               f"Remote games: **{parallel.get('games_verified_remotely',0)}** · "
-                               f"Local recovery: **{parallel.get('games_recomputed_locally',0)}** · "
-                               f"State: **{parallel.get('compute_status','unknown')}**. "
-                               "All selected games must complete before one joint assessment."),
-                        inline=False)
-    stability_audit=result.diagnostics.get('paired_stability_audit') or {}
-    if stability_audit.get('schema') in ('sharkbot-paired-stability-audit-v1','sharkbot-paired-stability-audit-v2'):
-        stats=stability_audit.get('classes') or {}
-        rows=[]
-        for kind in ('blitz','rapid','bullet'):
-            record=stats.get(kind) or {}
-            if record.get('eligible',0):
-                rows.append(f"**{kind.title()}:** {record.get('compared',0)}/"
-                            f"{record.get('eligible',0)} depth pairs measured · "
-                            f"{record.get('stable',0)} evidence-grade stable"
-                            + (f" · {record.get('objective_quality_preserved',0)} quality preserved"
-                               if stability_audit.get('schema')=='sharkbot-paired-stability-audit-v2' else ''))
-        if rows:
-            # 'Evidence-grade stable' is the stricter historical geometry
-            # diagnostic. v26 correctly gates the reliability of Stockfish
-            # searches independently from the player's hit rate. Never
-            # display old geometry failures as failed search comparisons.
-            note=('\nEvidence-grade geometry is stricter than search-quality '
-                  'consistency. Neither proves misconduct.')
-            if str(getattr(result,'version','')).startswith('fairplay-v26'):
-                period=(result.diagnostics.get('gameplay') or {}).get('best') or {}
-                deep=(period.get('deep') or {}).get('summary') or {}
-                if 'quality_stable_opportunities' in deep:
-                    note+=(f"\nSelected period: "
-                           f"{deep.get('quality_stable_opportunities',0)}/"
-                           f"{deep.get('opportunities',0)} deep opportunities "
-                           "with consistent fast/deep move-loss estimates; "
-                           f"{deep.get('paired_evaluated_opportunities',0)} "
-                           "paired comparisons completed. "
-                           "HIGH still requires independent difficulty/hit "
-                           "coverage and contributor gates.")
-            embed.add_field(name='Paired engine evidence (not proof of cheating)',
-                            value=('\n'.join(rows)+note)[:1024],inline=False)
-    intermittent=result.diagnostics.get('intermittent_coverage_audit') or {}
-    if intermittent.get('schema')=='sharkbot-intermittent-coverage-v1':
-        observed=intermittent.get('deep_sample') or {}
-        played=observed.get('games',0)
-        qualified=observed.get('fully_scored_games',0)
-        details=(f"Deep-reviewed games: **{played}** · "
-                 f"general scoring eligible (8+ useful choices): **{qualified}**. "
-                 "Shorter games still contribute to the chronological research "
-                 "audit and existing gameplay confirmation routes; they are not "
-                 "automatically suspicious or automatically innocent.")
-        candidate=intermittent.get('chronological_research_candidate')
-        if candidate:
-            deep=candidate.get('deep') or {}
-            details+=(f"\nResearch-only {candidate.get('time_class','unknown')} "
-                      f"{candidate.get('games',0)}-game window: "
-                      f"**{deep.get('hits',0)}/{deep.get('opportunities',0)}** "
-                      "deep human-anomaly hits/opportunities. "
-                      "Window selection and low-Elo reference uncertainty "
-                      "prevent this from independently raising priority.")
-        else:
-            details+='\nNo adequately covered fast-selected research window.'
-        halves=intermittent.get('predeclared_half_comparisons') or []
-        if halves:
-            row=halves[0]
-            earlier=row.get('earlier') or {}
-            later=row.get('later') or {}
-            details+=(f"\nFixed chronological {row.get('time_class','unknown')} halves: "
-                      f"{earlier.get('hits',0)}/{earlier.get('opportunities',0)} "
-                      f"versus {later.get('hits',0)}/{later.get('opportunities',0)} "
-                      "difficult-decision anomaly hits; descriptive only.")
-        domain=intermittent.get('maia_rating_domain') or {}
-        if domain.get('below_600_chesscom_rating_games',0):
-            details+=(f"\nMaia rating calibration warning: "
-                      f"{domain.get('below_600_chesscom_rating_games',0)} "
-                      "deep games have Chess.com ratings below 600; "
-                      "Lichess-based Maia expectations are not calibrated for this range.")
-        embed.add_field(name='Short-game coverage & intermittent research (not a verdict)',
-                        value=details[:1024],inline=False)
-    feasibility=(result.diagnostics.get('opportunity_feasibility_audit') or {})
-    if feasibility.get('schema')=='sharkbot-opportunity-feasibility-v1':
-        class_rows=[]
-        for kind in ('blitz','rapid','bullet'):
-            cls=((feasibility.get('feasibility') or {}).get(kind) or {})
-            fast=cls.get('fast') or {}
-            deep=cls.get('deep') or {}
-            if not fast.get('deep_reviewed_games'):continue
-            missing=[]
-            if not fast.get('absolute_route_exposure_possible'):
-                missing.append(
-                    f"fast opportunities {fast.get('opportunities',0)}/"
-                    f"{fast.get('required_opportunities',0)}; possible "
-                    f"2-hit games {fast.get('max_two_hit_contributor_games',0)}/"
-                    f"{fast.get('required_contributor_games',0)}")
-            if not deep.get('games_capable_of_acute_minimum'):
-                missing.append('no game reaches the acute minimum')
-            if missing:
-                class_rows.append(f"**{kind.title()}:** "+'; '.join(missing))
-        if class_rows:
-            embed.add_field(
-                name='Evidence opportunity limits (not a clearance)',
-                value=('\n'.join(class_rows) +
-                       '\nInsufficient eligible opportunities can make a '
-                       'HIGH route impossible even if all eligible moves are '
-                       'correct. LOW does not establish honest play.')[:1024],
-                inline=False)
-    burst=result.diagnostics.get('ten_game_burst') or {}
-    if burst.get('schema')=='fairplay-v28-ten-game-burst-v1':
-        row=burst.get('best')
-        if row and burst.get('coverage_gate_passed') and burst.get('feature_gate_passed'):
-            summary=(
-                f"**HIGH-eligible ten-game incident** in "
-                f"{row['class'].title()} ({row['time_control']}). "
-                f"Deep hard moves **{row['deep_hits']}/{row['deep_opportunities']}**"
-                f" across **{row['deep_hit_games']}/10** games, "
-                f"with **{row['deep_quiet_hits']}** quiet exceptional moves. "
-                f"Fast/deep quality agreement "
-                f"**{row['paired_quality_fraction']:.0%}**. "
-                "Both fixed five-game halves contributed. "
-                "Manual review required; not proof of cheating.")
-        else:
-            summary=(
-                f"Examined **{burst.get('windows_examined',0)}** intact "
-                "ten-game windows from recent same-control rapid/blitz "
-                f"history; **{burst.get('fast_discovery_windows',0)}** "
-                "qualified for FAST investigation and "
-                f"**{burst.get('deep_confirmed_windows',0)}** "
-                "met all independent deep HIGH evidence requirements. "
-                "Win streaks alone never qualify.")
-        embed.add_field(name='Ten-game incident analysis (HIGH only with deep proof)',
-                        value=summary[:1024],inline=False)
-    embed.add_field(name='Signals',value='\n'.join(f'**{key}:** {value}' for key,value in result.families.items()),inline=False)
-    embed.add_field(name='Review notes',value='\n'.join('• '+value for value in result.reasons)[:1024],inline=False)
-    if result.priority=='LOW':
-        coverage_ok=coverage.get('primary_engine_complete',not result.partial)
-        maia=result.diagnostics.get('human_reference',{})
-        model_status=('evaluated' if maia.get('available') else 'not evaluated')
-        blocked=result.diagnostics.get('high_blocked',[])
-        explanation=('LOW means the measured evidence did not qualify for an elevated review priority; '
-                     'it does not establish fair play.\n'
-                     f'Primary engine sample: {"complete" if coverage_ok else "incomplete"} · '
-                     f'Maia reference: {model_status}.\n')
-        if blocked:
-            explanation+='Most relevant missing HIGH criteria: '+'; '.join(blocked[:2])
-        else:
-            explanation+='See Review Gates for the exact evidence requirements.'
-        embed.add_field(name='Why LOW is not a clearance',value=explanation[:1024],inline=False)
-    embed.add_field(name='⚠️ Automated screening only',value=DISCLAIMER,inline=False)
+    embed.add_field(name='Important',value=SHORT_SCREENING_NOTICE,inline=False)
     revision=(result.diagnostics.get('run_contract') or {}).get('code_revision')
-    embed.set_footer(text=(f'{result.version} · {result.engine}'
-                           + (f' · code {revision}' if revision else '')
-                           + ' · heuristic thresholds, not probabilities · details expire after restart'))
+    suffix=(f" · Code {revision}" if revision else "")
+    embed.set_footer(text='More details: buttons below'+suffix)
     return embed
 
 
@@ -1138,14 +894,42 @@ class FairPlayService:
             # All detailed position caches remain bounded in the engine worker.
             # Discord detail pages need game summaries, not thousands of FENs.
             for game in result.games:game.decisions.clear()
-            if await self.safe_progress(job,'Complete',view=ReportView(result.username),embed=result_embed(result)):
-                if job.cancel_requested:return
+            # The analysis has finished. Do not silently leave Discord at
+            # 99% if it rejects the report (embed limits, transient HTTP
+            # failure, permissions or message edits). Retry once with a tiny
+            # valid result, then explicitly show delivery failure.
+            job.stage='Posting final report…'
+            published=await self.safe_progress(
+                job,'Complete',view=ReportView(result.username),
+                embed=result_embed(result))
+            if not published and not job.cancel_requested and not job.message_deleted:
+                fallback=discord.Embed(
+                    title=REPORT_PREFIX+result.username,
+                    description=(f"**{result.priority} review priority**\n"
+                                 "Detailed report could not be displayed. "
+                                 "Use the buttons to open the results.\n"
+                                 + SHORT_SCREENING_NOTICE),
+                    color=0x427CBA)
+                fallback.set_footer(text='Short report (delivery fallback)')
+                published=await self.safe_progress(
+                    job,'Complete',view=ReportView(result.username),
+                    embed=fallback)
+            if published and not job.cancel_requested:
                 self.results[job.message.id] = (time.time(),result)
                 self.cache[job.target] = (time.time(),result,job.message)
                 job.report_published=True
                 self.expire_cache()
                 if getattr(self,'checkpoints',None) is not None:
                     await asyncio.to_thread(self.checkpoints.finish,job.target)
+            elif not job.cancel_requested:
+                await self.save_failure(job,ReviewError(
+                    'Discord report delivery failed after full analysis.'))
+                if getattr(self,'checkpoints',None) is not None:
+                    await asyncio.to_thread(self.checkpoints.suspend,job.target)
+                if job.message is not None:
+                    await self.safe_progress(
+                        job,'❌ Analysis completed, but Discord could not '
+                        'display the report. Please try again.')
         except AccountNotFound as error:
             if job.cancel_requested:return
             await self.save_failure(job,error)
