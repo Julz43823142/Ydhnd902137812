@@ -157,8 +157,10 @@ class EncryptedGitStore:
             raise ReviewError("Compute exchange git remote unavailable.")
         if not exists.stdout.strip():
             return None
-        fetch=_git(["fetch","-q",self.remote,
-                    f"refs/heads/{BRANCH}:refs/remotes/{self.remote}/{BRANCH}"])
+        # Only the current tree is needed. Force updates this LOCAL tracking
+        # ref across shallow boundaries; remote writes remain non-forced CAS.
+        fetch=_git(["fetch","--depth=1","--no-tags","-q",self.remote,
+                    f"+refs/heads/{BRANCH}:refs/remotes/{self.remote}/{BRANCH}"])
         if fetch.returncode:
             raise ReviewError("Cannot fetch encrypted compute exchange.")
         head=_git(["rev-parse",f"refs/remotes/{self.remote}/{BRANCH}"])

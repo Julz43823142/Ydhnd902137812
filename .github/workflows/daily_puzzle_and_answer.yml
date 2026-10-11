@@ -63,6 +63,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          # Preserve commit history for economy/history features without
+          # downloading every historical encrypted Fair Play blob at startup.
+          filter: blob:none
           fetch-depth: 0
 
       - uses: actions/setup-python@v6
