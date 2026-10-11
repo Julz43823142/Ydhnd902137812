@@ -208,6 +208,9 @@ def accuracy_streak_audit(games):
         'latest_rated_scope':len(scope),
         'last_50_accuracy_reported':sum(_accuracy(g) is not None for g in scope),
         'last_10_accuracy_reported':sum(_accuracy(g) is not None for g in scope[-10:]),
+        'last_10_accuracy_mean':round(statistics.mean(recent_known),2)
+            if (recent_known:=[_accuracy(g) for g in scope[-10:]
+                              if _accuracy(g) is not None]) else None,
         'last_10_accuracy_95_plus':sum(
             _accuracy(g) is not None and _accuracy(g)>=95 for g in scope[-10:]),
         'last_20_accuracy_reported':sum(

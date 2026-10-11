@@ -53,6 +53,38 @@ class Discovery(unittest.TestCase):
         self.assertGreater(candidate['accuracy_shift'],20)
         self.assertEqual(candidate['peer_games'],10)
 
+    def test_latest_ten_rated_peer_games_are_checked_even_without_accuracy(self):
+        # Chess.com publishes Accuracy for a nonrandom subset of games.
+        # Missing eight reported scores must not suppress independent engine
+        # and Maia testing of the latest ten same-control rated games.
+        games=[rated_game(i,None) for i in range(10)]
+        report=discover(games,include_recent_rated=True)
+        self.assertEqual(report['accuracy_candidates'],0)
+        self.assertEqual(report['recent_rated_fallback_windows'],1)
+        self.assertEqual(report['candidates'][0]['selection_reason'],
+                         'recent_rated_deep')
+        self.assertEqual(len(report['selected_ids']),10)
+
+    def test_700_elo_four_high_accuracy_wins_over_weak_opponents_do_not_qualify(self):
+        # Anonymized distribution based on a real audited pattern:
+        # eight >500 Elo weaker opponents, four high published Accuracy values,
+        # and very few difficult opportunities. This MUST NOT earn HIGH.
+        games=[rated_game(i,99. if i>=6 else None,own=780,
+                          opponent=760 if i in (0,5) else 150)
+               for i in range(10)]
+        report=discover(games,include_recent_rated=True)
+        self.assertEqual(report['windows_examined'],1)
+        self.assertEqual(report['windows_blocked_by_opponent_gap'],1)
+        self.assertEqual(report['recent_rated_fallback_windows'],0)
+        self.assertEqual(report['accuracy_candidates'],0)
+        self.assertFalse(report['candidates'])
+
+    def test_recent_rated_mixed_clock_controls_not_falsely_combined(self):
+        games=[rated_game(i,None,control='180+0' if i<5 else '300+0')
+               for i in range(10)]
+        report=discover(games,include_recent_rated=True)
+        self.assertEqual(report['recent_rated_fallback_windows'],0)
+
     def test_exact_85_is_selected_and_84_is_not(self):
         yes=[rated_game(i,85.) for i in range(10)]
         no=[rated_game(i,84.) for i in range(10)]
@@ -258,6 +290,30 @@ class DecisionSafety(unittest.TestCase):
         self.assertEqual(result.priority,'HIGH')
         self.assertEqual(result.diagnostics['ten_accuracy_windows']
                          ['confirmed_engine_maia_windows'],1)
+
+    def test_recent_rated_strong_joint_gameplay_can_high_without_accuracy(self):
+        discovery=discover([rated_game(i,None) for i in range(10)],
+                          include_recent_rated=True)
+        self.assertEqual(discovery['accuracy_candidates'],0)
+        self.assertEqual(discovery['recent_rated_fallback_windows'],1)
+        with patch('fairplay_ten_windows._complete_game',return_value=True),patch(
+                'fairplay_ten_windows.policy_summarize',side_effect=strong_policy):
+            result=integrate(_result(),self.games,discovery)
+        self.assertEqual(result.priority,'HIGH')
+        self.assertTrue(result.diagnostics['ten_accuracy_windows']['high_path_passed'])
+
+    def test_recent_rated_accuracy_missing_without_engine_hits_stays_low(self):
+        discovery=discover([rated_game(i,None) for i in range(10)],
+                          include_recent_rated=True)
+        games=[engine_game(i,hits=0,fast_hits=0,quiet=0) for i in range(10)]
+        for game in games:
+            game.rating=game.opponent_rating=700
+            game.decisions=[]
+        with patch('fairplay_ten_windows._complete_game',return_value=True),patch(
+                'fairplay_ten_windows.policy_summarize',side_effect=strong_policy):
+            result=integrate(_result(),games,discovery)
+        self.assertEqual(result.priority,'LOW')
+        self.assertEqual(result.diagnostics['ten_accuracy_windows']['confirmed_engine_maia_windows'],0)
 
     def test_maia_missing_remains_low_even_with_engine_hits(self):
         with patch('fairplay_ten_windows._complete_game',return_value=True),patch(

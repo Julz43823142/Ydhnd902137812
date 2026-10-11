@@ -26,7 +26,8 @@ RATING_GAP=250
 MAX_DEEP=300
 
 
-def discover(games, *, scope=SCOPE, include_recent_unrated=False):
+def discover(games, *, scope=SCOPE, include_recent_unrated=False,
+             include_recent_rated=False):
     """Predeclare candidates using public game metadata, never Stockfish hits.
 
     A sliding window must be consecutive in its *original* exact-control
@@ -55,11 +56,22 @@ def discover(games, *, scope=SCOPE, include_recent_unrated=False):
          and math.isfinite(g.ended)),
         key=lambda g:(g.ended,g.identity))[-50:]
     recent_any_ids={g.identity for g in recent_live}
+    # Latest rated games already have mandatory full-depth selection.
+    # Missing Chess.com Accuracy cannot veto independent gameplay testing.
+    rated_all=sorted((g for g in games if getattr(g,'rated',None) is True
+                      and not getattr(g,'probe_only',False)
+                      and isinstance(getattr(g,'ended',None),(int,float))
+                      and math.isfinite(g.ended)),
+                     key=lambda g:(g.ended,g.identity))
+    newest_ten_rated_ids={g.identity for g in rated_all[-WINDOW:]}
     eligible=ordered[-scope:]
     groups={}
     for g in eligible:
         groups.setdefault((g.rated,g.time_class,g.time_control),[]).append(g)
     windows=[]
+    peer_eligible_windows=0
+    insufficient_peer_windows=0
+    missing_accuracy_windows=0
     candidates=[]
     selected=set()
     for (rated,kind,control),group in sorted(groups.items()):
@@ -89,7 +101,9 @@ def discover(games, *, scope=SCOPE, include_recent_unrated=False):
             # select ALL ten games for independent full-depth analysis. No
             # missing score is assigned a value or enters the average.
             if peer_count<8:
+                insufficient_peer_windows+=1
                 continue
+            peer_eligible_windows+=1
             mean=statistics.mean(known) if known else None
             score_selected=(len(known)>=MIN_REPORTED and mean>=THRESHOLD)
             # If published Accuracy is missing, do not declare the player
@@ -98,7 +112,11 @@ def discover(games, *, scope=SCOPE, include_recent_unrated=False):
             # Stockfish+Maia gameplay without inventing an Accuracy value.
             recent_unrated=(include_recent_unrated and rated is False and
                             all(g.identity in recent_any_ids for g in segment))
-            if not score_selected and not recent_unrated:
+            recent_rated=(include_recent_rated and rated is True
+                          and len(newest_ten_rated_ids)==WINDOW
+                          and {g.identity for g in segment}==newest_ten_rated_ids)
+            if not score_selected and not recent_unrated and not recent_rated:
+                missing_accuracy_windows+=1
                 continue
             older=[g for g in ordered if g.ended<segment[0].ended
                    and (g.rated,g.time_class,g.time_control)==(rated,kind,control)
@@ -113,6 +131,7 @@ def discover(games, *, scope=SCOPE, include_recent_unrated=False):
                  'start':int(segment[0].ended),'end':int(segment[-1].ended),
                  'mean_accuracy':round(mean,2) if mean is not None else None,
                  'selection_reason':('published_accuracy' if score_selected
+                                     else 'recent_rated_deep' if recent_rated
                                      else 'recent_unrated_deep'),
                  'peer_games':peer_count,
                  'published_accuracy_games':len(known),
@@ -129,8 +148,13 @@ def discover(games, *, scope=SCOPE, include_recent_unrated=False):
             'total_blitz_rapid_games_in_scope':len(eligible),
             'window_games':WINDOW,'scope_limit':scope,
             'windows_examined':len(windows),
+            'windows_with_at_least_eight_peers':peer_eligible_windows,
+            'windows_blocked_by_opponent_gap':insufficient_peer_windows,
+            'peer_eligible_windows_missing_accuracy_trigger':missing_accuracy_windows,
             'accuracy_candidates':sum(
                 row['selection_reason']=='published_accuracy' for row in candidates),
+            'recent_rated_fallback_windows':sum(
+                row['selection_reason']=='recent_rated_deep' for row in candidates),
             'recent_unrated_fallback_windows':sum(
                 row['selection_reason']=='recent_unrated_deep' for row in candidates),
             'total_candidates':len(candidates),
@@ -138,7 +162,8 @@ def discover(games, *, scope=SCOPE, include_recent_unrated=False):
             'selection_note':(
                 'At least eight published Accuracy scores averaging 85+ '
                 'select all ten rated OR unrated games for full-depth review. Missing scores '
-                'are not estimated and Accuracy never sets HIGH. Unrated '
+                'are not estimated and Accuracy never sets HIGH. The newest '
+                'peer-rated ten-game block is also checked without Accuracy. Unrated '
                 'windows in the newest fifty games are also investigated '
                 'using real engine and Maia evidence if scores are missing.')}
 
@@ -379,6 +404,14 @@ def integrate(result, games, discovery, config=CONFIG):
            'accuracy_candidates':discovery['accuracy_candidates'],
            'recent_unrated_fallback_windows':discovery.get(
                'recent_unrated_fallback_windows',0),
+           'recent_rated_fallback_windows':discovery.get(
+               'recent_rated_fallback_windows',0),
+           'windows_with_at_least_eight_peers':discovery.get(
+               'windows_with_at_least_eight_peers',0),
+           'windows_blocked_by_opponent_gap':discovery.get(
+               'windows_blocked_by_opponent_gap',0),
+           'peer_eligible_windows_missing_accuracy_trigger':discovery.get(
+               'peer_eligible_windows_missing_accuracy_trigger',0),
            'total_candidates':len(discovery['candidates']),
            'fully_verified_candidates':len(windows)-incomplete,
            'unverified_candidates':incomplete,'confirmed_engine_maia_windows':qualified,
@@ -386,6 +419,8 @@ def integrate(result, games, discovery, config=CONFIG):
            'selected_games':len(discovery['selected_ids']),
            'high_path_passed':passed,'window_details':windows[:25],
            'selection_uses_accuracy':bool(discovery['accuracy_candidates']),
+           'selection_uses_recent_rated_coverage':bool(
+               discovery.get('recent_rated_fallback_windows')),
            'selection_uses_recent_unrated_coverage':bool(
                discovery.get('recent_unrated_fallback_windows')),
            'priority_uses_accuracy':False,

@@ -145,7 +145,10 @@ def result_embed(result: ReviewResult):
         summary+=(f"\nGames used for scoring: **{used}** "
                   f"of **{review_games}** screened")
     context=result.diagnostics.get('personal_baseline') or {}
-    rated_context=coverage.get('rated_context_games')
+    # Collected rated games and games usable for scoring have different denominators.
+    rated_context=(v21.get('eligible_rated_metadata_games')
+                   or coverage.get('rated_primary')
+                   or coverage.get('rated_context_games'))
     if rated_context is None:
         rated_context=(result.diagnostics.get('collection') or {}).get('rated_context_games')
     # The public label is retained so readers can distinguish the reviewed
@@ -172,6 +175,16 @@ def result_embed(result: ReviewResult):
                    f"{ten.get('draws',0)} draws, "
                    f"{ten.get('losses',0)} losses**"),
             inline=False)
+        weaker=ten.get('opponent_more_than_500_weaker',0)
+        critical=ten.get('deep_critical_positions')
+        context=[]
+        if isinstance(weaker,int) and weaker>0:
+            context.append(f"**{weaker}/{ten['games']}** opponents were over 500 Elo weaker")
+        if isinstance(critical,int):
+            context.append(f"**{critical}** critical positions in the last ten games")
+        if context:
+            embed.add_field(name='Latest-game context',value=' · '.join(context)[:300],
+                            inline=False)
     window_audit=result.diagnostics.get('ten_accuracy_windows') or {}
     if window_audit.get('schema')=='fairplay-ten-window-discovery-v1':
         count=window_audit.get('accuracy_candidates',0)
@@ -187,17 +200,27 @@ def result_embed(result: ReviewResult):
                  f"from **{window_audit.get('rated_blitz_rapid_games_in_scope',0)} rated** "
                  f"+ **{window_audit.get('unrated_blitz_rapid_games_in_scope',0)} unrated** "
                  "blitz/rapid games (bullet excluded; separate groups).\n"
-                 f"High-Accuracy windows: **{count}**."
+                 f"Accuracy-selected windows: **{count}**."
                  +(f" Unrated windows checked despite missing Accuracy: **{fallback}**."
                    if fallback else "")
                  +f"\nFull Stockfish + Maia review: **{done}/{total_candidates}** windows. "
                  f"Confirmed joint gameplay evidence: **{confirmed}**.")
+        recent_rated=window_audit.get('recent_rated_fallback_windows',0)
+        peers=window_audit.get('windows_with_at_least_eight_peers')
+        peer_blocked=window_audit.get('windows_blocked_by_opponent_gap')
+        if recent_rated:
+            message+=f"\nLatest rated peer window(s) reviewed without Accuracy: **{recent_rated}**."
+        if isinstance(peers,int) and isinstance(peer_blocked,int):
+            message+=(f"\nComparable-opponent windows: **{peers}**; "
+                      f"excluded by rating gap: **{peer_blocked}**.")
+        if not total_candidates:
+            message+=" No block qualified for extra review; this is not proof of fair play."
         if count and latest_mean is not None:
             message+=f"\nTop published-score mean: **{latest_mean:.1f}%**."
             if any(row.get('missing_accuracy_games',0) for row in mean_rows):
                 message+=" Some Accuracy reports were missing; no scores were invented."
         embed.add_field(name='Ten-game Accuracy review',
-                        value=message[:480],inline=False)
+                        value=message[:750],inline=False)
     unrated=result.diagnostics.get('unrated_accuracy_audit') or {}
     if unrated.get('schema')=='sharkbot-unrated-accuracy-observation-v1':
         observed=unrated.get('reported_accuracy_games',0)
@@ -216,9 +239,13 @@ def result_embed(result: ReviewResult):
     if streak.get('schema')=='sharkbot-accuracy-streak-audit-v1':
         count95=streak.get('last_10_accuracy_95_plus',0)
         if isinstance(count95,int) and count95>=2:
+            reported=streak.get('last_10_accuracy_reported',0)
+            mean=streak.get('last_10_accuracy_mean')
+            details=(f"**{reported}/10** published scores"
+                     +(f", mean **{mean:.1f}%**" if isinstance(mean,(int,float)) else ""))
             embed.add_field(name='Latest 10 Accuracy',
-                            value=(f"**{count95}/10** rated games with published "
-                                   "Accuracy of 95%+. Review moves, not just scores."),
+                            value=(f"**{count95}/10** rated games at 95%+. "
+                                   +details+". Accuracy alone is not engine proof."),
                             inline=False)
         last20=streak.get('last_20_accuracy_95_plus',0)
         if isinstance(last20,int) and last20>=5:
@@ -245,7 +272,9 @@ def result_embed(result: ReviewResult):
         embed.add_field(name='Why this result?',value=brief,inline=False)
     if isinstance(used,int):
         embed.add_field(name='Scoring sample',
-                        value=f"**{used}** of **{review_games}** screened games used.",
+                        value=(f"**{used}** of **{review_games}** screened games had enough "
+                               "informative moves for full-game scoring. Short or easy wins "
+                               "can provide little difficult-move evidence."),
                         inline=False)
     embed.add_field(name='Important',value=SHORT_SCREENING_NOTICE,inline=False)
     revision=(result.diagnostics.get('run_contract') or {}).get('code_revision')
