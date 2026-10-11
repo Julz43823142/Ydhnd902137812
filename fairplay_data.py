@@ -312,7 +312,8 @@ class PubAPI:
 
 
 def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG,
-                  *, include_latest_fifty_short=False):
+                  *, include_latest_fifty_short=False,
+                  include_recent_nonbullet_short_count=0):
     payload = api.get(target, '/games/archives')
     if payload is None:raise ReviewError('No public game archives are available for this account.')
     months = set()
@@ -346,9 +347,18 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG,
             for row in rows:
                 check_deadline(api.deadline)
                 if not isinstance(row, dict):skipped['other_invalid'] += 1;continue
+                # The extended ten-window scope needs *all* rated blitz and
+                # rapid games, including short finished games which cannot
+                # provide much suspicious-move evidence. Never silently
+                # invent consecutiveness by skipping their records.
+                recent_standard=sum(g.time_class in ('blitz','rapid')
+                                    for g in samples) if include_recent_nonbullet_short_count else 0
+                allow_short=(include_latest_fifty_short and len(samples)<50
+                    or (include_recent_nonbullet_short_count>0
+                        and row.get('time_class') in ('blitz','rapid')
+                        and recent_standard<include_recent_nonbullet_short_count))
                 try:sample = parse_game(
-                    row,target,config,exclusions=skipped,
-                    allow_short=include_latest_fifty_short and len(samples)<50)
+                    row,target,config,exclusions=skipped,allow_short=allow_short)
                 except (ValueError, TypeError, KeyError, IndexError, RecursionError):
                     skipped['invalid_pgn'] += 1;sample = None
                 if sample is None:continue
