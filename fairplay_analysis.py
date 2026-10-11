@@ -912,8 +912,14 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         if canonical!=target:raise ReviewError('The public profile does not match the requested account.')
         profile = neutral_profile_context(profile)
         if v21_mode:
+            # Production v30 must retain short rated blitz/rapid games across
+            # the 250-game discovery window; test-injected collectors retain
+            # their original v29 call contract.
+            collection_options={'include_latest_fifty_short':True}
+            if engine_factory is None and config==CONFIG:
+                collection_options['include_recent_nonbullet_short_count']=250
             history, skipped, archive_partial = collect_games(
-                api,canonical,progress,config,include_latest_fifty_short=True)
+                api,canonical,progress,config,**collection_options)
         else:
             # Legacy/custom collectors keep their original public contract.
             history, skipped, archive_partial = collect_games(
