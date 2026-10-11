@@ -172,8 +172,32 @@ def result_embed(result: ReviewResult):
                    f"{ten.get('draws',0)} draws, "
                    f"{ten.get('losses',0)} losses**"),
             inline=False)
+    window_audit=result.diagnostics.get('ten_accuracy_windows') or {}
+    if window_audit.get('schema')=='fairplay-ten-window-discovery-v1':
+        count=window_audit.get('accuracy_candidates',0)
+        confirmed=window_audit.get('confirmed_engine_maia_windows',0)
+        done=window_audit.get('fully_verified_candidates',0)
+        mean_rows=window_audit.get('window_details') or []
+        latest_mean=max((row.get('mean_accuracy',0) for row in mean_rows),
+                        default=0)
+        message=(f"**{window_audit.get('windows_examined',0)}** ten-game windows "
+                 f"from **{window_audit.get('rated_blitz_rapid_games_in_scope',0)}** "
+                 "rated blitz/rapid games (bullet excluded).\n"
+                 f"Average Accuracy 85%+ with similar-Elo opponents: **{count}**.\n"
+                 f"Full Stockfish + Maia review: **{done}/{count}** windows. "
+                 f"Confirmed joint gameplay evidence: **{confirmed}**.")
+        if count and latest_mean:
+            message+=f"\nTop selected average: **{latest_mean:.1f}%**."
+        embed.add_field(name='Ten-game Accuracy review',
+                        value=message[:480],inline=False)
     streak=result.diagnostics.get('accuracy_streak_audit') or {}
     if streak.get('schema')=='sharkbot-accuracy-streak-audit-v1':
+        count95=streak.get('last_10_accuracy_95_plus',0)
+        if isinstance(count95,int) and count95>=2:
+            embed.add_field(name='Latest 10 Accuracy',
+                            value=(f"**{count95}/10** rated games with published "
+                                   "Accuracy of 95%+. Review moves, not just scores."),
+                            inline=False)
         parts=[]
         if streak.get('followup_alert'):
             parts.append('Unusual 95+ Accuracy and win streak: **check the games**.')

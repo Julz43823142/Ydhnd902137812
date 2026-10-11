@@ -912,8 +912,14 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         if canonical!=target:raise ReviewError('The public profile does not match the requested account.')
         profile = neutral_profile_context(profile)
         if v21_mode:
+            # Production v30 must retain short rated blitz/rapid games across
+            # the 250-game discovery window; test-injected collectors retain
+            # their original v29 call contract.
+            collection_options={'include_latest_fifty_short':True}
+            if engine_factory is None and config==CONFIG:
+                collection_options['include_recent_nonbullet_short_count']=250
             history, skipped, archive_partial = collect_games(
-                api,canonical,progress,config,include_latest_fifty_short=True)
+                api,canonical,progress,config,**collection_options)
         else:
             # Legacy/custom collectors keep their original public contract.
             history, skipped, archive_partial = collect_games(
@@ -959,13 +965,22 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         v21_plan = None
         latest_fifty=()
         latest_fifty_ids=set()
+        accuracy_discovery=None
+        full_policy_ids=set()
+        latest_fifty_maia_expected=0
+        latest_fifty_maia_completed=0
         if v21_mode:
             from fairplay_v21 import broad_and_core, LATEST_FULL_DEEP_GAMES
             v21_plan=broad_and_core(history,broad_count=limit,
                                      deep_count=200 if distributed_mode else 100)
             primary=list(v21_plan.primary)
+            # Published Accuracy only selects ten-game groups for mandatory
+            # full-depth review; it cannot by itself promote review priority.
+            from fairplay_ten_windows import discover
+            accuracy_discovery=discover(primary)
             latest_fifty=tuple(primary[-LATEST_FULL_DEEP_GAMES:])
             latest_fifty_ids={g.identity for g in latest_fifty}
+            full_policy_ids=latest_fifty_ids|accuracy_discovery['selected_ids']
             missing=latest_fifty_ids-{g.identity for g in v21_plan.deep}
             if missing:
                 raise ReviewError('Latest fifty rated games cannot all be deep-reviewed within the selected compute scope.')
@@ -1094,10 +1109,12 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             from fairplay_v21 import discovery_extras
             v21_plan=discovery_extras(v21_plan,
                                       max_extra=50 if distributed_mode else 25)
+            from fairplay_ten_windows import extend_plan
+            v21_plan=extend_plan(v21_plan,accuracy_discovery,latest_fifty_ids)
             chosen_ids={g.identity for g in v21_plan.deep}
             v21_deep=[g for g in analyzed if g.identity in chosen_ids]
-            if not latest_fifty_ids.issubset({g.identity for g in v21_deep}):
-                raise ReviewError('Full latest-fifty coverage was lost before MultiPV-3 fast verification.')
+            if not full_policy_ids.issubset({g.identity for g in v21_deep}):
+                raise ReviewError('A selected ten-game window or the latest fifty lost its full-depth selection.')
             work=[(game,decision) for game in v21_deep
                   for decision in game.decisions
                   if decision.metrics and decision.metrics.get('useful')]
@@ -1165,7 +1182,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             __import__('fairplay_maia').annotate_history(
                 v21_deep if v21_mode else analyzed,
                 full_coverage=False,
-                recent_full_ids=latest_fifty_ids if v21_mode else None,
+                recent_full_ids=full_policy_ids if v21_mode else None,
                 **resume_kwargs)
             if (primary_complete and time.monotonic()<deadline
                 and not (deadline.cancel is not None and deadline.cancel.is_set()))
@@ -1178,7 +1195,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         # when Maia inference or public rating inputs are incomplete.
         require_maia=(v21_mode and engine_factory is None)
         if require_maia:
-            require_recent_maia_coverage(neural_reference, latest_fifty)
+            require_recent_maia_coverage(
+                neural_reference,[g for g in v21_deep if g.identity in full_policy_ids])
         elif (full_depth_mode and os.getenv('FAIRPLAY_REQUIRE_MAIA')=='1'
               and not neural_reference.get('available')):
             raise ReviewError('Complete depth-18 review requires local Maia-3; the model was unavailable.')
@@ -1347,6 +1365,32 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                     or sum(g.deep for g in v21_deep
                            if g.identity in latest_fifty_ids)!=len(latest_fifty)):
                 raise ReviewError('The latest fifty rated games did not receive complete Stockfish depth-18/depth-12 evidence; no verdict was issued.')
+        if v21_mode:
+            from fairplay_maia import valid_policy
+            latest_fifty_maia_expected=sum(len(g.decisions) for g in latest_fifty)
+            latest_fifty_maia_completed=sum(
+                valid_policy(d,d.human_policy)
+                for g in latest_fifty for d in g.decisions)
+            # Mandatory suspect periods can fall outside the newest fifty.
+            # Each move needs exact depth-18 evidence and a valid Maia policy.
+            if require_maia and accuracy_discovery['selected_ids']:
+                flagged=[g for g in v21_deep
+                         if g.identity in accuracy_discovery['selected_ids']]
+                for game in flagged:
+                    if not game.deep or not game.decisions:
+                        raise ReviewError('Ten-game Accuracy window depth evidence is incomplete.')
+                    for decision in game.decisions:
+                        contract=decision.metrics.get('search_contract') or {}
+                        if not (contract.get('mode')=='depth'
+                                and contract.get('requested')==18
+                                and contract.get('multipv')==config.deep_multipv
+                                and contract.get('completed') is True
+                                and contract.get('exact') is True
+                                and decision.metrics.get('search_depth',0)>=18
+                                and valid_policy(decision,decision.human_policy)):
+                            raise ReviewError(
+                                'Selected ten-game period lacks exact depth-18 or Maia evidence; '
+                                'no Fair Play priority was issued.')
         if full_depth_mode and (deep_incomplete or not primary_complete or any(not g.deep for g in candidates)):
             raise ReviewError(f'All {len(primary)} primary games must complete their required engine depths before a priority can be issued.')
         progress(f'Deep confirmation: {sum(g.deep for g in candidates)} / {len(candidates)}')
@@ -1429,6 +1473,9 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         # no performance, Elo-win-streak or published Accuracy shortcut.
         from fairplay_burst import integrate as integrate_burst
         result=integrate_burst(result,scoring_games,config)
+        if v21_mode:
+            from fairplay_ten_windows import integrate as integrate_ten_windows
+            result=integrate_ten_windows(result,scoring_games,accuracy_discovery,config)
         # Review all verified deep-reviewed games, including short games with
         # fewer than eight useful moves. The audit is aggregate-only and cannot
         # elevate priority; fast evidence selects any diagnostic period.
@@ -1491,8 +1538,12 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 'latest_50_stockfish_positions':latest_fifty_depth_total,
                 'latest_50_stockfish_depth_verified_positions':latest_fifty_depth_verified,
                 'latest_50_stockfish_depth_exact_positions':latest_fifty_depth_exact,
-                'latest_50_maia_all_decisions':neural_reference.get('recent_full_positions_completed',0),
-                'latest_50_maia_expected':neural_reference.get('recent_full_positions_expected',0),
+                'latest_50_maia_all_decisions':latest_fifty_maia_completed,
+                'latest_50_maia_expected':latest_fifty_maia_expected,
+                'accuracy_window_candidates':accuracy_discovery['accuracy_candidates'],
+                'accuracy_window_games_selected':len(accuracy_discovery['selected_ids']),
+                'accuracy_window_full_depth_selected':sum(
+                    g.identity in accuracy_discovery['selected_ids'] for g in v21_deep),
                 'latest_50_maia_complete':neural_reference.get('recent_full_complete',False),
                 'recent_20_rated_deep_coverage':sum(
                     g.identity in {x.identity for x in v21_plan.deep}
@@ -1567,10 +1618,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             'latest_50_stockfish_positions_total':latest_fifty_depth_total if v21_mode else None,
             'latest_50_stockfish_positions_verified':latest_fifty_depth_verified if v21_mode else None,
             'latest_50_stockfish_positions_exact':latest_fifty_depth_exact if v21_mode else None,
-            'latest_50_maia_positions_completed':neural_reference.get(
-                'recent_full_positions_completed') if v21_mode else None,
-            'latest_50_maia_positions_expected':neural_reference.get(
-                'recent_full_positions_expected') if v21_mode else None,
+            'latest_50_maia_positions_completed':latest_fifty_maia_completed if v21_mode else None,
+            'latest_50_maia_positions_expected':latest_fifty_maia_expected if v21_mode else None,
             'latest_50_maia_coverage_complete':neural_reference.get(
                 'recent_full_complete') if v21_mode else None,
             'required_primary_depth':(18 if full_depth_mode and not any(g.time_class=='bullet' for g in primary)
@@ -1582,8 +1631,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             'required_full_coverage':bool(full_depth_mode and not v21_mode),
             'required_selected_full_depth':bool(full_depth_mode and v21_mode),
             'human_policy_sampling':('EVERY legally replayable Maia position in latest '
-                                     '50 rated games plus bounded stratified older controls '
-                                     '(no 1600 cap on latest50)'
+                                     '50 rated games AND selected ten-game Accuracy windows '
+                                     '(no 1600 cap on required full-policy games)'
                                      if v21_mode else
                                      'stratified bounded positions (not all moves)'),
             'depth18_completed_positions':sum(
