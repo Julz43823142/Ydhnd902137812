@@ -50,6 +50,19 @@ def discover(games, *, scope=SCOPE):
     windows=[]
     candidates=[]
     selected=set()
+    # Latest fifty are already mandatory depth-18 + Maia coverage. Review
+    # their last ten per exact rapid/blitz control even when Chess.com has
+    # published fewer than eight Accuracy reports (or none at all).
+    # This is a predeclared independent gameplay check, NOT Accuracy imputation.
+    recent_all=sorted((g for g in games if getattr(g,'rated',None) is True
+                       and not getattr(g,'probe_only',False)
+                       and isinstance(getattr(g,'identity',None),str)
+                       and isinstance(getattr(g,'ended',None),(int,float))
+                       and math.isfinite(g.ended)),
+                      key=lambda g:(g.ended,g.identity))[-50:]
+    last_fifty_ids={g.identity for g in recent_all}
+    tail_candidates=[]
+    tail_skipped=[]
     for (kind,control),group in sorted(groups.items()):
         group.sort(key=lambda g:(g.ended,g.identity))
         for start in range(len(group)-WINDOW+1):
@@ -100,12 +113,57 @@ def discover(games, *, scope=SCOPE):
                  'accuracy_shift':round(mean-baseline,2) if baseline is not None else None}
             candidates.append(row)
             selected.update(row['ids'])
+    # Each eligible time control gets exactly ONE fixed latest-ten probe.
+    # A missing public Accuracy score cannot hide deep-confirmed anomalies.
+    # No additional Stockfish work is needed: every game is within latest50.
+    for (kind,control),group in sorted(groups.items()):
+        tail=group[-WINDOW:]
+        if len(tail)<WINDOW or not {g.identity for g in tail}.issubset(last_fifty_ids):
+            continue
+        contiguous=all(
+            isinstance(a.control_index,int) and not isinstance(a.control_index,bool)
+            and isinstance(b.control_index,int) and not isinstance(b.control_index,bool)
+            and b.control_index==a.control_index+1
+            for a,b in zip(tail,tail[1:]))
+        def peer(g):
+            return (isinstance(g.rating,int) and not isinstance(g.rating,bool)
+                    and isinstance(g.opponent_rating,int) and not isinstance(g.opponent_rating,bool)
+                    and 100<=g.rating<=4000 and 100<=g.opponent_rating<=4000
+                    and abs(g.rating-g.opponent_rating)<=RATING_GAP)
+        peer_count=sum(peer(g) for g in tail)
+        if not contiguous or peer_count<8:
+            tail_skipped.append({'time_class':kind,'time_control':control,
+                                 'reason':('not consecutive' if not contiguous
+                                           else 'fewer than eight similarly rated opponents')})
+            continue
+        ids=tuple(g.identity for g in tail)
+        matched=next((c for c in candidates if c['ids']==ids),None)
+        if matched is not None:
+            matched['latest_ten_control_probe']=True
+            continue
+        known=[_accuracy(g) for g in tail]
+        reported=[x for x in known if x is not None]
+        # An unknown percentage is NOT assigned 0 or 100.
+        tail_candidates.append({
+            'ids':ids,'time_class':kind,'time_control':control,
+            'start':int(tail[0].ended),'end':int(tail[-1].ended),
+            'mean_accuracy':round(statistics.mean(reported),2) if reported else None,
+            'peer_games':peer_count,'published_accuracy_games':len(reported),
+            'missing_accuracy_games':WINDOW-len(reported),
+            'published_95_plus':sum(x>=95 for x in reported),
+            'prior_accuracy':None,'prior_games':0,'accuracy_shift':None,
+            'latest_ten_control_probe':True,'selection_reason':'latest-ten-independent',
+        })
     return {'schema':'fairplay-ten-window-discovery-v1',
             'rated_blitz_rapid_games_in_scope':len(eligible),
             'window_games':WINDOW,'scope_limit':scope,
             'windows_examined':len(windows),
             'accuracy_candidates':len(candidates),
+            'latest_ten_control_probes':sum(bool(c.get('latest_ten_control_probe'))
+                                            for c in candidates)+len(tail_candidates),
+            'latest_ten_not_reviewable':tail_skipped,
             'selected_ids':selected,'candidates':candidates,
+            'latest_ten_candidates':tail_candidates,
             'selection_note':(
                 'At least eight published Accuracy scores averaging 85+ '
                 'select all ten games for full-depth review. Missing scores '
@@ -273,11 +331,17 @@ def integrate(result, games, discovery, config=CONFIG):
     windows=[]
     qualified=0
     incomplete=0
-    for candidate in sorted(discovery['candidates'],key=lambda c:-c['end']):
+    original_ids={tuple(c['ids']) for c in discovery['candidates']}
+    all_candidates=list(discovery['candidates'])+[
+        c for c in discovery.get('latest_ten_candidates',())
+        if tuple(c['ids']) not in original_ids]
+    for candidate in sorted(all_candidates,key=lambda c:-c['end']):
         rows=[index.get(ident) for ident in candidate['ids']]
         if not all(g is not None and _complete_game(g,config) for g in rows):
             incomplete+=1
             windows.append({'mean_accuracy':candidate['mean_accuracy'],
+                'latest_ten_control_probe':bool(candidate.get('latest_ten_control_probe')),
+                'selection_reason':candidate.get('selection_reason','published-accuracy'),
                 'published_accuracy_games':candidate['published_accuracy_games'],
                 'missing_accuracy_games':candidate['missing_accuracy_games'],
                 'window_end_time':candidate['end'],
@@ -290,6 +354,8 @@ def integrate(result, games, discovery, config=CONFIG):
         qualified+=int(engine and maia)
         clocks=clock_window_evidence(rows)
         windows.append({'mean_accuracy':candidate['mean_accuracy'],
+            'latest_ten_control_probe':bool(candidate.get('latest_ten_control_probe')),
+            'selection_reason':candidate.get('selection_reason','published-accuracy'),
             'published_accuracy_games':candidate['published_accuracy_games'],
             'missing_accuracy_games':candidate['missing_accuracy_games'],
             'window_end_time':candidate['end'],
@@ -315,12 +381,24 @@ def integrate(result, games, discovery, config=CONFIG):
            'rated_blitz_rapid_games_in_scope':discovery['rated_blitz_rapid_games_in_scope'],
            'windows_examined':discovery['windows_examined'],
            'accuracy_candidates':len(discovery['candidates']),
-           'fully_verified_candidates':len(windows)-incomplete,
-           'unverified_candidates':incomplete,'confirmed_engine_maia_windows':qualified,
+           'latest_ten_control_probes':discovery.get('latest_ten_control_probes',0),
+           'latest_ten_not_reviewable':discovery.get('latest_ten_not_reviewable',[]),
+           'latest_ten_reviewed':sum(bool(w.get('latest_ten_control_probe')) for w in windows),
+           'latest_ten_details':[w for w in windows if w.get('latest_ten_control_probe')][:4],
+           'total_gameplay_windows_reviewed':len(windows),
+           'fully_verified_candidates':sum(w.get('full_depth_and_maia',False)
+                                           and w['selection_reason']=='published-accuracy'
+                                           for w in windows),
+           'unverified_candidates':sum(not w['full_depth_and_maia']
+                                       and w['selection_reason']=='published-accuracy'
+                                       for w in windows),
+           'unverified_gameplay_windows':incomplete,
+           'confirmed_engine_maia_windows':qualified,
            'unverified_windows_are_not_negative_evidence':True,
            'selected_games':len(discovery['selected_ids']),
            'high_path_passed':passed,'window_details':windows[:25],
            'selection_uses_accuracy':True,'priority_uses_accuracy':False,
+           'latest_ten_always_checks_gameplay':True,
            'timing_note':('Game end-time chronology and the validity/coverage of PGN '
                           'remaining-clock samples are checked. Absolute '
                           'per-move timestamps are not available and are '
@@ -338,13 +416,26 @@ def integrate(result, games, discovery, config=CONFIG):
             [] if passed else
             ['No ten-game block has both full-depth Stockfish and complete '
              'Maia game-capped evidence, or mandatory coverage is incomplete.'])}
-    if incomplete and not passed and result.priority in ('LOW','INSUFFICIENT DATA'):
+    # A missing ordinary latest-ten probe is diagnostic unless high Accuracy
+    # was actually published in >=4 games. Otherwise an unrelated unreliable
+    # position would turn an ordinary, well-reviewed LOW into INSUFFICIENT.
+    missing_high_tail=any(
+        not row.get('full_depth_and_maia') and row.get('latest_ten_control_probe')
+        and row.get('published_accuracy_games',0)>=4
+        and row.get('mean_accuracy') is not None
+        and row['mean_accuracy']>=95
+        for row in windows)
+    accuracy_incomplete=any(
+        not row.get('full_depth_and_maia')
+        and row['selection_reason']=='published-accuracy' for row in windows)
+    if (not passed and (accuracy_incomplete or missing_high_tail)
+            and result.priority in ('LOW','INSUFFICIENT DATA')):
         # A broken/uncertain candidate is NOT a completed LOW check.
         # Keep the no-verdict state visible rather than losing the whole
         # report or clearing a suspicious period by default.
         result.priority='INSUFFICIENT DATA'
         result.reasons=[
-            f'{incomplete} selected ten-game window(s) lacked complete exact '
+            f'{sum(not w.get("full_depth_and_maia") for w in windows)} selected ten-game window(s) lacked complete exact '
             'Stockfish and Maia evidence; no LOW conclusion can be drawn '
             'from those windows. A new or resumed scan is required.',
             'Published Accuracy is a discovery clue, not proof of cheating.']
