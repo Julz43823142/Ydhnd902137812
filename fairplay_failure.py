@@ -23,6 +23,7 @@ STAGES = (("Deep Maia alternatives", "maia_deep"),
           ("Depth-18", "depth18"), ("Deep confirmation", "deep"),
           ("Fast engine scan", "fast"), ("Comparing human alternatives", "maia"),
           ("Building human-move", "human"), ("Collecting rated games", "collect"),
+          ("Collecting rated and unrated games", "collect"),
           ("Fetching profile", "profile"), ("Building report", "report"),
           ("Comparing personal timing", "timing"),
           ("Analyzing sessions", "sessions"), ("Resuming", "resume"))
