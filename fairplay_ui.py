@@ -272,8 +272,9 @@ def result_embed(result: ReviewResult):
         embed.add_field(name='Why this result?',value=brief,inline=False)
     if isinstance(used,int):
         embed.add_field(name='Scoring sample',
-                        value=(f"**{used}** games had enough informative moves for full-game scoring. "
-                               "Short or easy wins can provide little difficult-move evidence."),
+                        value=(f"**{used}** of **{review_games}** screened games had enough "
+                               "informative moves for full-game scoring. Short or easy wins "
+                               "can provide little difficult-move evidence."),
                         inline=False)
     embed.add_field(name='Important',value=SHORT_SCREENING_NOTICE,inline=False)
     revision=(result.diagnostics.get('run_contract') or {}).get('code_revision')
