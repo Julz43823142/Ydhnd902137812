@@ -157,6 +157,31 @@ class UnratedTenGameWindows(unittest.TestCase):
             all(int(ident.split('-')[-1])>=50 for ident in c['ids'])
             for c in report['candidates']))
 
+    def test_missing_public_accuracy_displays_plain_english_without_crashing(self):
+        from fairplay_ui import result_embed
+        from test_fairplay_report_delivery import CompactResultCard
+        case=CompactResultCard().fixture()
+        case.diagnostics['unrated_accuracy_audit']={
+            'schema':'sharkbot-unrated-accuracy-observation-v1',
+            'reported_accuracy_games':4,'accuracy_95_plus_games':4,
+            'reported_accuracy_mean':97.,'recent_unrated_blitz_rapid_games':10}
+        case.diagnostics['ten_accuracy_windows']={
+            'schema':'fairplay-ten-window-discovery-v1',
+            'rated_blitz_rapid_games_in_scope':50,
+            'unrated_blitz_rapid_games_in_scope':50,
+            'windows_examined':41,'accuracy_candidates':0,
+            'recent_unrated_fallback_windows':1,
+            'total_candidates':1,'fully_verified_candidates':1,
+            'confirmed_engine_maia_windows':0,
+            'window_details':[{'mean_accuracy':None}]}
+        card=result_embed(case)
+        self.assertLess(len(card),6000)
+        rendered=str(card.to_dict())
+        self.assertIn('unrated',rendered.lower())
+        self.assertIn('95%',rendered)
+        self.assertIn('missing Accuracy',rendered)
+        self.assertIn('not proof of cheating',rendered)
+
     def test_unrated_joint_move_evidence_can_raise_only_to_high(self):
         games=[engine_game(i) for i in range(10)]
         for g in games:g.rated=False;g.rating=g.opponent_rating=700;g.decisions=[]
