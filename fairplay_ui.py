@@ -178,8 +178,9 @@ def result_embed(result: ReviewResult):
         confirmed=window_audit.get('confirmed_engine_maia_windows',0)
         done=window_audit.get('fully_verified_candidates',0)
         mean_rows=window_audit.get('window_details') or []
-        latest_mean=max((row.get('mean_accuracy',0) for row in mean_rows),
-                        default=0)
+        latest_mean=max((row['mean_accuracy'] for row in mean_rows
+                         if isinstance(row.get('mean_accuracy'),(int,float))),
+                        default=None)
         message=(f"**{window_audit.get('windows_examined',0)}** ten-game windows "
                  f"from **{window_audit.get('rated_blitz_rapid_games_in_scope',0)} rated** "
                  f"+ **{window_audit.get('unrated_blitz_rapid_games_in_scope',0)} unrated** "
