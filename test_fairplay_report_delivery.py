@@ -73,13 +73,13 @@ class CompactResultCard(unittest.TestCase):
             'followup_alert':False,
             'low_rating_90_plus_pairs':{'observed_pairs':0}}
         case.diagnostics['recent_engine_shift']={
-            'schema':'fairplay-recent-engine-shift-v1',
+            'schema':'fairplay-recent-engine-shift-v2',
             'qualified':False,
-            'blockers':['Earlier paired Stockfish baseline not established'],
+            'attempts':[{'blockers':['No complete paired Stockfish and Maia confirmation']}],
         }
         card=result_embed(case)
         self.assertIn('4/4',str(card.to_dict()))
-        self.assertIn('not confirmed',str(card.to_dict()))
+        self.assertIn('not established',str(card.to_dict()))
         self.assertEqual(case.priority,'LOW')
         self.assertLess(len(card),2000)
 
