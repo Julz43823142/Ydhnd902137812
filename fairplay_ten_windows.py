@@ -164,10 +164,12 @@ def _complete_game(game, config):
                 and valid_policy(d,d.human_policy)):
             return False
         if contract.get('exact') is not True:
-            # Depth was completed, but this particular position is unreliable.
-            # A non-exact position can never be a scored opportunity or hit.
-            if any(m.get(key) for key in (
-                    'useful','human_opportunity','high_information','critical')):
+            # Accept only a *declared* paired-score inconsistency, not a
+            # missing/corrupt exactness flag. It must have been excluded
+            # upstream from every positive-evidence counter.
+            if (m.get('search_inconsistent') is not True
+                    or any(m.get(key) for key in (
+                        'useful','human_opportunity','high_information','critical'))):
                 return False
     return True
 
