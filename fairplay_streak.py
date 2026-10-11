@@ -227,3 +227,37 @@ def accuracy_streak_audit(games):
             'and selection-biased. This does NOT establish cheating, and '
             'never directly changes LOW, MODERATE, HIGH or VERY HIGH.'),
     }
+
+
+def unrated_accuracy_audit(games):
+    """Descriptive last-ten *unrated* nonbullet Accuracy visibility.
+
+    An unrated 95% game must not disappear from the report simply because it
+    cannot be combined with rated outcomes. Scores are public observations,
+    never an automatic HIGH path; the paired ten-window scorer is separate.
+    """
+    unique={}
+    for game in games:
+        if (getattr(game,'rated',None) is False
+                and not getattr(game,'probe_only',False)
+                and getattr(game,'time_class',None) in ('rapid','blitz')
+                and isinstance(getattr(game,'identity',None),str)
+                and isinstance(getattr(game,'ended',None),(int,float))
+                and math.isfinite(game.ended)):
+            unique[game.identity]=game
+    ordered=sorted(unique.values(),key=lambda g:(g.ended,g.identity))
+    recent=ordered[-10:]
+    known=[_accuracy(g) for g in recent]
+    known=[n for n in known if n is not None]
+    return {
+        'schema':'sharkbot-unrated-accuracy-observation-v1',
+        'recent_unrated_blitz_rapid_games':len(recent),
+        'reported_accuracy_games':len(known),
+        'accuracy_95_plus_games':sum(n>=95 for n in known),
+        'reported_accuracy_mean':round(statistics.mean(known),2) if known else None,
+        'recent_unrated_win_games':sum(g.result=='Win' for g in recent),
+        'scoring_influence':False,
+        'warning':('Unrated Chess.com Accuracy is an observation, not proof. '
+                   'Missing Accuracy is not treated as zero; Stockfish and Maia '
+                   'must independently confirm a suspicious move pattern.'),
+    }

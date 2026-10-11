@@ -47,9 +47,9 @@ def panel_embed():
            "up to 100 comparable-opponent rated games and 25 stratified historical games")
     embed = discord.Embed(title=PANEL_TITLE, color=0x427CBA,
         description='Want to review a suspicious Chess.com account?\n\n'
-                    "Submit a Chess.com username. SharkBot screens up to 500 rated live games (fast MultiPV 1), then deeply reviews "
+                    "Submit a Chess.com username. SharkBot screens up to 500 rated or unrated live games (fast MultiPV 1), then deeply reviews "
                     +scope+". Fast and deep candidate verification use MultiPV 3, depth 18 rapid/blitz and depth 12 bullet. "
-                    "History metadata extends to 1,000 rated games when available. Only confirmed deep games support the final score.\n\n"
+                    "History metadata extends to 1,000 live games when available. Rated and unrated ten-game Accuracy windows are reviewed separately; only confirmed deep gameplay supports HIGH.\n\n"
                     '**This is an automated screening tool — not proof of cheating.**')
     embed.set_footer(text=PANEL_MARKER)
     return embed
@@ -178,20 +178,40 @@ def result_embed(result: ReviewResult):
         confirmed=window_audit.get('confirmed_engine_maia_windows',0)
         done=window_audit.get('fully_verified_candidates',0)
         mean_rows=window_audit.get('window_details') or []
-        latest_mean=max((row.get('mean_accuracy',0) for row in mean_rows),
-                        default=0)
+        latest_mean=max((row['mean_accuracy'] for row in mean_rows
+                         if isinstance(row.get('mean_accuracy'),(int,float))),
+                        default=None)
+        fallback=window_audit.get('recent_unrated_fallback_windows',0)
+        total_candidates=window_audit.get('total_candidates',count)
         message=(f"**{window_audit.get('windows_examined',0)}** ten-game windows "
-                 f"from **{window_audit.get('rated_blitz_rapid_games_in_scope',0)}** "
-                 "rated blitz/rapid games (bullet excluded).\n"
-                 f"Average Accuracy 85%+ with similar-Elo opponents: **{count}**.\n"
-                 f"Full Stockfish + Maia review: **{done}/{count}** windows. "
+                 f"from **{window_audit.get('rated_blitz_rapid_games_in_scope',0)} rated** "
+                 f"+ **{window_audit.get('unrated_blitz_rapid_games_in_scope',0)} unrated** "
+                 "blitz/rapid games (bullet excluded; separate groups).\n"
+                 f"High-Accuracy windows: **{count}**."
+                 +(f" Unrated windows checked despite missing Accuracy: **{fallback}**."
+                   if fallback else "")
+                 +f"\nFull Stockfish + Maia review: **{done}/{total_candidates}** windows. "
                  f"Confirmed joint gameplay evidence: **{confirmed}**.")
-        if count and latest_mean:
+        if count and latest_mean is not None:
             message+=f"\nTop published-score mean: **{latest_mean:.1f}%**."
             if any(row.get('missing_accuracy_games',0) for row in mean_rows):
                 message+=" Some Accuracy reports were missing; no scores were invented."
         embed.add_field(name='Ten-game Accuracy review',
                         value=message[:480],inline=False)
+    unrated=result.diagnostics.get('unrated_accuracy_audit') or {}
+    if unrated.get('schema')=='sharkbot-unrated-accuracy-observation-v1':
+        observed=unrated.get('reported_accuracy_games',0)
+        high=unrated.get('accuracy_95_plus_games',0)
+        if high>=2:
+            mean=unrated.get('reported_accuracy_mean')
+            embed.add_field(
+                name='Recent unrated Accuracy',
+                value=(f"**{high}/{observed}** published scores were 95%+ "
+                       f"across the latest **{unrated.get('recent_unrated_blitz_rapid_games',0)}** "
+                       "unrated blitz/rapid games."
+                       +(f" Published-score mean: **{mean:.1f}%**." if mean is not None else "")
+                       +" This is a review flag, not proof."),
+                inline=False)
     streak=result.diagnostics.get('accuracy_streak_audit') or {}
     if streak.get('schema')=='sharkbot-accuracy-streak-audit-v1':
         count95=streak.get('last_10_accuracy_95_plus',0)
@@ -344,7 +364,7 @@ def detail_embed(result, mode):
         add_gate_fields(embed,result)
         if result.history:
             embed.add_field(name='Extended history',inline=False,
-                value=f'{result.history.get("collected",0)} eligible rated games · {len(result.history.get("sessions",[]))} approximate sessions\n'
+                value=f'{result.history.get("collected",0)} eligible live games · {len(result.history.get("sessions",[]))} approximate sessions\n'
                       f'{result.coverage.get("history_probed",0)} discovery probes · {result.coverage.get("history_fast_scanned",0)} targeted full historical scans\n'
                       'A large lower-anomaly baseline does not dilute a localized high-signal period.')
     elif mode=='Timing':
@@ -355,7 +375,7 @@ def detail_embed(result, mode):
                 continue
             embed.add_field(name='Suspect ten-game block — move-clock audit',
                 value=(f"Ends <t:{episode.get('window_end_time',0)}:d> · "
-                       f"mean published Accuracy: {episode.get('mean_accuracy',0)}% "
+                       f"mean published Accuracy: {str(episode['mean_accuracy'])+'%' if episode.get('mean_accuracy') is not None else 'not reported'} "
                        f"({episode.get('published_accuracy_games',0)}/10 reported).\n"
                        f"Player moves: {timings['player_moves']} · reliable clocks: "
                        f"{timings['reliable_clocks']} · no delta: "

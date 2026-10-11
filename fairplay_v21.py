@@ -38,7 +38,8 @@ def is_peer_game(game, *, max_lower_gap=500):
             and not getattr(game,"probe_only",False))
 
 
-def broad_and_core(history, *, broad_count=500, deep_count=100):
+def broad_and_core(history, *, broad_count=500, deep_count=100,
+                   include_unrated=False):
     """Reserve the latest fifty rated games for complete depth confirmation.
 
     Core peers and non-peer recent games share the EXISTING 100/200 deep slots.
@@ -47,10 +48,33 @@ def broad_and_core(history, *, broad_count=500, deep_count=100):
     participates in the choice. A small local-fixture budget cannot claim
     fifty-game coverage unless it actually has fifty deep slots.
     """
-    chronological=sorted((g for g in history if g.rated is True
+    chronological=sorted((g for g in history if
+                          (isinstance(g.rated,bool) if include_unrated
+                           else g.rated is True)
                           and not getattr(g,"probe_only",False)),
                          key=lambda g:(g.ended,g.identity))
     count=max(0,min(LATEST_FULL_DEEP_GAMES,deep_count,broad_count))
+    if include_unrated:
+        # Keep BOTH the newest fifty rated games (the existing v29 promise)
+        # and the newest fifty games of either status. Otherwise a run of
+        # unrated games could silently evict the rated depth requirement.
+        newest_any=chronological[-count:] if count else []
+        rated_games=[g for g in chronological if g.rated is True]
+        newest_rated=rated_games[-count:] if count else []
+        needed={g.identity for g in (*newest_any,*newest_rated)}
+        must=[g for g in chronological if g.identity in needed]
+        tail=tuple(g for g in must if not is_peer_game(g))
+        peers=[g for g in reversed(chronological) if is_peer_game(g)]
+        core=tuple(reversed(peers[:max(0,deep_count-len(tail))]))
+        selected={g.identity for g in (*core,*tail)}
+        if not needed.issubset(selected):
+            raise ValueError('Latest rated and mixed-status depth guarantees exceed deep capacity.')
+        newest=[g for g in reversed(chronological) if g.identity not in selected]
+        rest=list(reversed(newest[:max(0,broad_count-len(selected))]))
+        primary=tuple(sorted((*rest,*core,*tail),key=lambda g:(g.ended,g.identity)))
+        if len(primary)>broad_count:
+            raise ValueError('Mixed-status primary plan exceeds broad-game limit.')
+        return ReviewPlan(primary,core,(),len(chronological),broad_count,tail)
     tail=tuple(g for g in chronological[-count:] if not is_peer_game(g)) if count else ()
     peers=[g for g in reversed(chronological) if is_peer_game(g)]
     core=tuple(reversed(peers[:max(0,deep_count-len(tail))]))

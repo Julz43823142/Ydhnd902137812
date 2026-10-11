@@ -1,7 +1,8 @@
 """Accuracy-triggered ten-game deep review with independent gameplay HIGH gate.
 
-Screen every overlapping ten-game window of the latest 250 rated blitz/rapid
-games available in the 500-game primary sample. Accuracy only chooses complete
+Screen every overlapping ten-game window of the latest 250 rated OR unrated
+blitz/rapid games available in the 500-game primary sample. Keep the two
+populations separate; a low rated baseline cannot be transferred to unrated. Accuracy only chooses complete
 windows for deeper work. HIGH requires paired Stockfish and Maia move evidence;
 Accuracy, Elo, win streaks and clock patterns never directly promote priority.
 """
@@ -25,8 +26,8 @@ RATING_GAP=250
 MAX_DEEP=300
 
 
-def discover(games, *, scope=SCOPE):
-    """Predeclare candidates using public rated metadata, never Stockfish hits.
+def discover(games, *, scope=SCOPE, include_recent_unrated=False):
+    """Predeclare candidates using public game metadata, never Stockfish hits.
 
     A sliding window must be consecutive in its *original* exact-control
     chronology and at least eight games must have similarly rated opponents.
@@ -34,7 +35,7 @@ def discover(games, *, scope=SCOPE):
     """
     unique={}
     for g in games:
-        if (getattr(g,'rated',None) is True
+        if (isinstance(getattr(g,'rated',None),bool)
                 and not getattr(g,'probe_only',False)
                 and isinstance(getattr(g,'identity',None),str)
                 and isinstance(getattr(g,'ended',None),(int,float))
@@ -43,14 +44,25 @@ def discover(games, *, scope=SCOPE):
                 and bool(getattr(g,'time_control',''))):
             unique[g.identity]=g
     ordered=sorted(unique.values(),key=lambda g:(g.ended,g.identity))
+    # These are the newest fifty games of either rating status, including
+    # bullet, which the mixed-status production plan reserves for full-depth
+    # review. An unrated window here can be examined even when the public
+    # API omits Chess.com Accuracy entirely.
+    recent_live=sorted(
+        (g for g in games if isinstance(getattr(g,'rated',None),bool)
+         and not getattr(g,'probe_only',False)
+         and isinstance(getattr(g,'ended',None),(int,float))
+         and math.isfinite(g.ended)),
+        key=lambda g:(g.ended,g.identity))[-50:]
+    recent_any_ids={g.identity for g in recent_live}
     eligible=ordered[-scope:]
     groups={}
     for g in eligible:
-        groups.setdefault((g.time_class,g.time_control),[]).append(g)
+        groups.setdefault((g.rated,g.time_class,g.time_control),[]).append(g)
     windows=[]
     candidates=[]
     selected=set()
-    for (kind,control),group in sorted(groups.items()):
+    for (rated,kind,control),group in sorted(groups.items()):
         group.sort(key=lambda g:(g.ended,g.identity))
         for start in range(len(group)-WINDOW+1):
             segment=group[start:start+WINDOW]
@@ -76,13 +88,20 @@ def discover(games, *, scope=SCOPE):
             # it to a signed-in reviewer. Eight or nine published scores may
             # select ALL ten games for independent full-depth analysis. No
             # missing score is assigned a value or enters the average.
-            if len(known)<MIN_REPORTED or peer_count<8:
+            if peer_count<8:
                 continue
-            mean=statistics.mean(known)
-            if mean<THRESHOLD:
+            mean=statistics.mean(known) if known else None
+            score_selected=(len(known)>=MIN_REPORTED and mean>=THRESHOLD)
+            # If published Accuracy is missing, do not declare the player
+            # innocent on that basis. Newest unrated games are already
+            # depth-reserved independently of Accuracy; test their paired
+            # Stockfish+Maia gameplay without inventing an Accuracy value.
+            recent_unrated=(include_recent_unrated and rated is False and
+                            all(g.identity in recent_any_ids for g in segment))
+            if not score_selected and not recent_unrated:
                 continue
             older=[g for g in ordered if g.ended<segment[0].ended
-                   and (g.time_class,g.time_control)==(kind,control)
+                   and (g.rated,g.time_class,g.time_control)==(rated,kind,control)
                    and peer(g)]
             reference=[_accuracy(g) for g in older[-40:]]
             reference=[v for v in reference if v is not None]
@@ -90,26 +109,38 @@ def discover(games, *, scope=SCOPE):
             # Extra metadata context has no authority to invalidate
             # independent ten-game gameplay evidence.
             row={'ids':tuple(g.identity for g in segment),
-                 'time_class':kind,'time_control':control,
+                 'rated':rated,'time_class':kind,'time_control':control,
                  'start':int(segment[0].ended),'end':int(segment[-1].ended),
-                 'mean_accuracy':round(mean,2),'peer_games':peer_count,
+                 'mean_accuracy':round(mean,2) if mean is not None else None,
+                 'selection_reason':('published_accuracy' if score_selected
+                                     else 'recent_unrated_deep'),
+                 'peer_games':peer_count,
                  'published_accuracy_games':len(known),
                  'missing_accuracy_games':WINDOW-len(known),
                  'prior_accuracy':round(baseline,2) if baseline is not None else None,
                  'prior_games':len(reference),
-                 'accuracy_shift':round(mean-baseline,2) if baseline is not None else None}
+                 'accuracy_shift':round(mean-baseline,2)
+                    if mean is not None and baseline is not None else None}
             candidates.append(row)
             selected.update(row['ids'])
     return {'schema':'fairplay-ten-window-discovery-v1',
-            'rated_blitz_rapid_games_in_scope':len(eligible),
+            'rated_blitz_rapid_games_in_scope':sum(g.rated is True for g in eligible),
+            'unrated_blitz_rapid_games_in_scope':sum(g.rated is False for g in eligible),
+            'total_blitz_rapid_games_in_scope':len(eligible),
             'window_games':WINDOW,'scope_limit':scope,
             'windows_examined':len(windows),
-            'accuracy_candidates':len(candidates),
+            'accuracy_candidates':sum(
+                row['selection_reason']=='published_accuracy' for row in candidates),
+            'recent_unrated_fallback_windows':sum(
+                row['selection_reason']=='recent_unrated_deep' for row in candidates),
+            'total_candidates':len(candidates),
             'selected_ids':selected,'candidates':candidates,
             'selection_note':(
                 'At least eight published Accuracy scores averaging 85+ '
-                'select all ten games for full-depth review. Missing scores '
-                'are not estimated and Accuracy never sets HIGH.')}
+                'select all ten rated OR unrated games for full-depth review. Missing scores '
+                'are not estimated and Accuracy never sets HIGH. Unrated '
+                'windows in the newest fifty games are also investigated '
+                'using real engine and Maia evidence if scores are missing.')}
 
 
 def extend_plan(plan, discovery, latest_fifty_ids, *, max_deep=MAX_DEEP):
@@ -142,6 +173,31 @@ def extend_plan(plan, discovery, latest_fifty_ids, *, max_deep=MAX_DEEP):
     return result
 
 
+def _verified_window_entry(game):
+    """Same strict gameplay prerequisites as the rated-only burst route.
+
+    Unrated games are permitted explicitly, never by relabeling their rated
+    status or sending them through the older rated-only HIGH routes.
+    """
+    return (isinstance(getattr(game,'rated',None),bool)
+            and not getattr(game,'probe_only',False)
+            and getattr(game,'deep',False) is True
+            and getattr(game,'time_class','') in ('blitz','rapid')
+            and isinstance(getattr(game,'control_index',None),int)
+            and not isinstance(game.control_index,bool)
+            and game.control_index>=0
+            and isinstance(getattr(game,'ended',None),(int,float))
+            and math.isfinite(game.ended)
+            and bool(getattr(game,'time_control',''))
+            and isinstance(getattr(game,'rating',None),int)
+            and not isinstance(game.rating,bool) and 100<=game.rating<=4000
+            and isinstance(getattr(game,'opponent_rating',None),int)
+            and not isinstance(game.opponent_rating,bool)
+            and 100<=game.opponent_rating<=4000
+            and 'human' in (getattr(game,'fast_metrics',None) or {})
+            and 'human' in (getattr(game,'metrics',None) or {}))
+
+
 def _complete_game(game, config):
     """Every move reached depth 18 and Maia; only exact evidence may score.
 
@@ -151,7 +207,7 @@ def _complete_game(game, config):
     veto the entire ten-game episode, but never count it as anomaly proof.
     """
     from fairplay_maia import valid_policy
-    if not _verified_entry(game) or not game.decisions:
+    if not _verified_window_entry(game) or not game.decisions:
         return False
     for d in game.decisions:
         m=d.metrics or {}
@@ -177,7 +233,7 @@ def _complete_game(game, config):
 def _window_evidence_gaps(games, config):
     """Aggregate diagnostic counts; never expose FENs, moves or identities."""
     from fairplay_maia import valid_policy
-    missing_games=sum(g is None or not _verified_entry(g)
+    missing_games=sum(g is None or not _verified_window_entry(g)
                       or not getattr(g,'decisions',None) for g in games)
     inexact_positions=0
     missing_policies=0
@@ -277,7 +333,8 @@ def integrate(result, games, discovery, config=CONFIG):
         rows=[index.get(ident) for ident in candidate['ids']]
         if not all(g is not None and _complete_game(g,config) for g in rows):
             incomplete+=1
-            windows.append({'mean_accuracy':candidate['mean_accuracy'],
+            windows.append({'rated':candidate['rated'],
+                'mean_accuracy':candidate['mean_accuracy'],
                 'published_accuracy_games':candidate['published_accuracy_games'],
                 'missing_accuracy_games':candidate['missing_accuracy_games'],
                 'window_end_time':candidate['end'],
@@ -289,7 +346,8 @@ def integrate(result, games, discovery, config=CONFIG):
         maia,maia_evidence=_maia_proof(rows)
         qualified+=int(engine and maia)
         clocks=clock_window_evidence(rows)
-        windows.append({'mean_accuracy':candidate['mean_accuracy'],
+        windows.append({'rated':candidate['rated'],
+            'mean_accuracy':candidate['mean_accuracy'],
             'published_accuracy_games':candidate['published_accuracy_games'],
             'missing_accuracy_games':candidate['missing_accuracy_games'],
             'window_end_time':candidate['end'],
@@ -313,22 +371,35 @@ def integrate(result, games, discovery, config=CONFIG):
     passed=bool(qualified and complete and enabled)
     audit={'schema':discovery['schema'],
            'rated_blitz_rapid_games_in_scope':discovery['rated_blitz_rapid_games_in_scope'],
+           'unrated_blitz_rapid_games_in_scope':discovery.get('unrated_blitz_rapid_games_in_scope',0),
+           'total_blitz_rapid_games_in_scope':discovery.get(
+               'total_blitz_rapid_games_in_scope',
+               discovery['rated_blitz_rapid_games_in_scope']),
            'windows_examined':discovery['windows_examined'],
-           'accuracy_candidates':len(discovery['candidates']),
+           'accuracy_candidates':discovery['accuracy_candidates'],
+           'recent_unrated_fallback_windows':discovery.get(
+               'recent_unrated_fallback_windows',0),
+           'total_candidates':len(discovery['candidates']),
            'fully_verified_candidates':len(windows)-incomplete,
            'unverified_candidates':incomplete,'confirmed_engine_maia_windows':qualified,
            'unverified_windows_are_not_negative_evidence':True,
            'selected_games':len(discovery['selected_ids']),
            'high_path_passed':passed,'window_details':windows[:25],
-           'selection_uses_accuracy':True,'priority_uses_accuracy':False,
+           'selection_uses_accuracy':bool(discovery['accuracy_candidates']),
+           'selection_uses_recent_unrated_coverage':bool(
+               discovery.get('recent_unrated_fallback_windows')),
+           'priority_uses_accuracy':False,
            'timing_note':('Game end-time chronology and the validity/coverage of PGN '
                           'remaining-clock samples are checked. Absolute '
                           'per-move timestamps are not available and are '
                           'never invented.'),
-           'scope_note':('Up to 250 rated blitz/rapid games in the latest 500-game '
-                         'primary scope; ten consecutive same-control games, '
-                         'at least eight peer-rated opponents and at least eight '
-                         'published Accuracy reports. Missing scores are never imputed.'),
+           'scope_note':('Up to 250 rated or unrated blitz/rapid games in the latest 500-game '
+                         'primary scope; separate rated-status, exact-control windows, '
+                         'at least eight peer-rated opponents. Published '
+                         'Accuracy can preselect older windows; the newest '
+                         'unrated windows can be tested using real deep '
+                         'gameplay even without published Accuracy. '
+                         'Missing scores are never imputed.'),
            'calibration_note':('HIGH is an investigative priority. False-positive '
                                'rates are not established without labelled '
                                'fair-player and confirmed-engine holdouts.')}

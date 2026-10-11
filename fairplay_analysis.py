@@ -918,6 +918,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             collection_options={'include_latest_fifty_short':True}
             if engine_factory is None and config==CONFIG:
                 collection_options['include_recent_nonbullet_short_count']=250
+                collection_options['include_unrated']=True
             history, skipped, archive_partial = collect_games(
                 api,canonical,progress,config,**collection_options)
         else:
@@ -925,8 +926,12 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             history, skipped, archive_partial = collect_games(
                 api,canonical,progress,config)
         # Enforce eligibility even when a collector adapter is used.
-        history=sorted([g for g in history if g.rated is True],key=lambda g:(g.ended,g.identity))[-collection_limit(config):]
-        if not history:raise ReviewError('No eligible rated standard live games with enough meaningful moves were found.')
+        include_unrated=bool(v21_mode and engine_factory is None and config==CONFIG)
+        history=sorted([g for g in history if
+                       (isinstance(g.rated,bool) if include_unrated else g.rated is True)],
+                       key=lambda g:(g.ended,g.identity))[-collection_limit(config):]
+        if not history:
+            raise ReviewError('No eligible standard live games with enough meaningful moves were found.')
         check_deadline(deadline)
         use_shared=(engine_factory is None and engine_workers is None and config==CONFIG)
         try:
@@ -958,7 +963,13 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             from fairplay_maia import MODEL_SHA256
             checkpoint.bind(target,engine=engine_name,version=VERSION,config=config,
                             full_depth=full_depth_mode,maia=MODEL_SHA256)
-        for group in buckets(history).values():
+        # Rated and unrated game sequences must never be joined to invent
+        # consecutive ten-game runs, even at the same exact time control.
+        index_groups={}
+        for game in history:
+            key=(game.rated,game.time_class,game.time_control)
+            index_groups.setdefault(key,[]).append(game)
+        for group in index_groups.values():
             for index,game in enumerate(group):game.control_index=index
         collected_at=time.monotonic()
         limit = primary_limit(config)
@@ -972,13 +983,14 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         if v21_mode:
             from fairplay_v21 import broad_and_core, LATEST_FULL_DEEP_GAMES
             v21_plan=broad_and_core(history,broad_count=limit,
-                                     deep_count=200 if distributed_mode else 100)
+                                     deep_count=200 if distributed_mode else 100,
+                                     include_unrated=include_unrated)
             primary=list(v21_plan.primary)
             # Published Accuracy only selects ten-game groups for mandatory
             # full-depth review; it cannot by itself promote review priority.
             from fairplay_ten_windows import discover
-            accuracy_discovery=discover(primary)
-            latest_fifty=tuple(primary[-LATEST_FULL_DEEP_GAMES:])
+            accuracy_discovery=discover(primary,include_recent_unrated=include_unrated)
+            latest_fifty=tuple(g for g in primary if g.rated is True)[-LATEST_FULL_DEEP_GAMES:]
             latest_fifty_ids={g.identity for g in latest_fifty}
             full_policy_ids=latest_fifty_ids|accuracy_discovery['selected_ids']
             missing=latest_fifty_ids-{g.identity for g in v21_plan.deep}
@@ -1212,7 +1224,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 raise ReviewError('The complete Maia fast reference did not finish; no review was issued.')
         progress('Analyzing sessions and repertoire…')
         from fairplay_sequence import class_periods, adaptive_deep_games, confirmation_extension
-        gameplay_periods=(class_periods(v21_deep,config,strict_original_sequence=True)
+        gameplay_periods=(class_periods([g for g in v21_deep if g.rated is True],
+                                        config,strict_original_sequence=True)
                           if v21_mode else class_periods(analyzed,config))
         candidates=(list(v21_deep) if v21_mode else
                     list(analyzed) if full_depth_mode else
@@ -1441,10 +1454,18 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         # Shallow PV1 history has no measurable candidate spread. Never let it
         # dilute PV3 quality statistics or earn deep-confirmed priority. Its
         # exact 500-game broad scan remains available for discovery and audit.
-        scoring_games=v21_deep if v21_mode else analyzed
-        result=score_review(canonical,scoring_games,len(history),skipped,primary_partial,
+        # Legacy scoring routes were calibrated against rated games. Their
+        # baseline and denominator must not silently include unrated games.
+        # The separately gated ten-window route gets the FULL deep scope,
+        # including unrated games with comparable opponents.
+        scoring_games=([g for g in v21_deep if g.rated is True]
+                       if v21_mode and include_unrated else
+                       v21_deep if v21_mode else analyzed)
+        rated_history=([g for g in history if g.rated is True]
+                       if include_unrated else history)
+        result=score_review(canonical,scoring_games,len(rated_history),skipped,primary_partial,
                             engine_name,profile,time.monotonic()-started,config,
-                            coverage_state=coverage_state,context_games=history,
+                            coverage_state=coverage_state,context_games=rated_history,
                             gameplay_periods=gameplay_periods)
         # Temporal outcome streaks and extremely mismatched opposition belong
         # in a visible read-only audit, never in engine-cheating score gates.
@@ -1456,6 +1477,9 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         # this check; Accuracy must never steer engine sampling or HIGH.
         from fairplay_streak import accuracy_streak_audit
         result.diagnostics['accuracy_streak_audit']=accuracy_streak_audit(analyzed)
+        if include_unrated:
+            from fairplay_streak import unrated_accuracy_audit
+            result.diagnostics['unrated_accuracy_audit']=unrated_accuracy_audit(analyzed)
         from fairplay_policy import integrate as integrate_policy
         result=(integrate_policy(result,scoring_games,config,
                                  strict_original_sequence=True)
@@ -1473,7 +1497,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         result=integrate_burst(result,scoring_games,config)
         if v21_mode:
             from fairplay_ten_windows import integrate as integrate_ten_windows
-            result=integrate_ten_windows(result,scoring_games,accuracy_discovery,config)
+            result=integrate_ten_windows(result,v21_deep,accuracy_discovery,config)
         # Review all verified deep-reviewed games, including short games with
         # fewer than eight useful moves. The audit is aggregate-only and cannot
         # elevate priority; fast evidence selects any diagnostic period.
@@ -1548,18 +1572,19 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                     for g in sorted(analyzed,key=lambda g:(g.ended,g.identity))[-20:]),
                 'historical_extra_deep_games':len(v21_plan.reserve),
                 'deep_games_completed':sum(g.deep for g in v21_deep),
-                'eligible_rated_metadata_games':len(history),
+                'eligible_rated_metadata_games':sum(g.rated is True for g in history),
+                'eligible_unrated_metadata_games':sum(g.rated is False for g in history),
                 'peer_max_lower_rating_gap':500,
                 'selected_fast_pv3_positions':v21_candidate_positions,
                 'early_mode_fast_pv':config.fast_multipv,
                 'selected_fast_pv':3,'selected_deep_pv':config.deep_multipv,
                 'no_accuracy_cherry_picking':True,
-                'scope_note':('500 rated games fast-screened, latest 50 rated games '
+                'scope_note':('500 rated/unrated live games fast-screened, latest 50 rated games '
                               'always full-depth (including short games), plus '
                               'remaining peer controls and historical discovery; '
                               'at most 250 selected games in distributed mode.'
                               if distributed_mode else
-                              '500 rated games fast-screened, latest 50 rated games '
+                              '500 rated/unrated live games fast-screened, latest 50 rated games '
                               'always full-depth (including short games), plus '
                               'remaining peer controls and historical discovery; '
                               'at most 125 selected games in local mode.')
