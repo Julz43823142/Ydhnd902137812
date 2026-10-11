@@ -654,8 +654,8 @@ def add_gate_fields(embed,result):
         text=(f"Ends <t:{episode.get('window_end_time',0)}:d> · "
               f"Full depth + Maia: {episode.get('full_depth_and_maia',False)} · "
               f"Comparable opponents: {episode.get('peer_games',0)}/10\n"
-              f"Engine hits/opportunities: {engine.get('hits',0)}/{engine.get('opportunities',0)} · "
-              f"Maia contributor games: {maia.get('contributors',0)}\n"
+              f"Engine hits/opportunities: {engine.get('hits','Unavailable')}/{engine.get('opportunities','Unavailable')} · "
+              f"Maia contributor games: {maia.get('contributors','Unavailable')}\n"
               f"Signed engine / Maia excess: {number(engine.get('signed_quality_excess'))} / "
               f"{number(maia.get('signed_excess'))}\n")
         if not episode.get('full_depth_and_maia'):

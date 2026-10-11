@@ -91,6 +91,12 @@ class ContextOnlyGate(unittest.TestCase):
         self.assertEqual(audit['unverified_priority_eligible_candidates'],0)
         self.assertFalse(audit['window_details'][0]['full_depth_and_maia'])
         self.assertEqual(result.priority,'LOW')
+        import discord
+        from fairplay_ui import add_gate_fields
+        embed=discord.Embed()
+        add_gate_fields(embed,result)
+        self.assertIn('Unavailable/Unavailable',embed.fields[0].value)
+        self.assertIn('not a negative finding',embed.fields[0].value)
 
 
 class DetailLimits(unittest.TestCase):
