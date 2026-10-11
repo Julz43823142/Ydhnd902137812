@@ -183,11 +183,11 @@ def result_embed(result: ReviewResult):
         message=(f"**{window_audit.get('windows_examined',0)}** ten-game windows "
                  f"from **{window_audit.get('rated_blitz_rapid_games_in_scope',0)}** "
                  "rated blitz/rapid games (bullet excluded).\n"
-                 f"Average Accuracy 85%+ with similar-Elo opponents: **{count}**.\\n"
+                 f"Average Accuracy 85%+ with similar-Elo opponents: **{count}**.\n"
                  f"Full Stockfish + Maia review: **{done}/{count}** windows. "
                  f"Confirmed joint gameplay evidence: **{confirmed}**.")
         if count and latest_mean:
-            message+=f"\\nTop selected average: **{latest_mean:.1f}%**."
+            message+=f"\nTop selected average: **{latest_mean:.1f}%**."
         embed.add_field(name='Ten-game Accuracy review',
                         value=message[:480],inline=False)
     streak=result.diagnostics.get('accuracy_streak_audit') or {}
