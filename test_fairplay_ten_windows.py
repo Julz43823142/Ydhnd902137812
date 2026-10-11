@@ -81,8 +81,15 @@ class Discovery(unittest.TestCase):
         self.assertEqual(discover(games)['rated_blitz_rapid_games_in_scope'],0)
         self.assertEqual(discover(games)['accuracy_candidates'],0)
 
-    def test_missing_accuracy_never_inflates_mean(self):
+    def test_nine_published_scores_select_all_ten_without_inventing_tenth(self):
         games=[rated_game(i,95. if i<9 else None) for i in range(10)]
+        report=discover(games)
+        self.assertEqual(report['accuracy_candidates'],1)
+        self.assertEqual(report['candidates'][0]['published_accuracy_games'],9)
+        self.assertEqual(report['candidates'][0]['missing_accuracy_games'],1)
+        self.assertEqual(len(report['selected_ids']),10)
+        self.assertEqual(report['candidates'][0]['mean_accuracy'],95.)
+        games=[rated_game(i,99. if i<7 else None) for i in range(10)]
         self.assertEqual(discover(games)['accuracy_candidates'],0)
 
     def test_nonrated_and_duplicate_games_do_not_add_fake_windows(self):
@@ -90,6 +97,15 @@ class Discovery(unittest.TestCase):
         games.append(copy.deepcopy(games[-1]))
         games.append(rated_game(10,99.,rated=False))
         self.assertEqual(discover(games)['accuracy_candidates'],0)
+
+    def test_last_twenty_95_plus_with_two_missing_scores_is_selected(self):
+        games=[rated_game(i,70.) for i in range(40)]
+        games.extend(rated_game(i,98. if i not in (44,54) else None)
+                     for i in range(40,60))
+        report=discover(games)
+        self.assertGreater(report['accuracy_candidates'],0)
+        self.assertTrue({g.identity for g in games[-20:]}.issubset(
+            report['selected_ids']))
 
     def test_missing_same_control_game_cannot_make_false_consecutive_ten(self):
         games=[rated_game(i,99.) for i in range(11) if i!=5]
@@ -175,6 +191,25 @@ class Contract(unittest.TestCase):
         self.decision.metrics['search_contract']['requested']=12
         self.decision.metrics['search_depth']=12
         self.assertFalse(_complete_game(self.game,CONFIG))
+
+
+class ClockEvidence(unittest.TestCase):
+    def test_every_move_counted_and_bad_clocks_not_fabricated(self):
+        from fairplay_ten_windows import clock_window_evidence
+        d=SimpleNamespace
+        window=[SimpleNamespace(decisions=[
+            d(think=3.0,clock_valid=True,
+              metrics={'high_information':True,'human_opportunity':True}),
+            d(think=None,clock_valid=False,metrics={}),
+            d(think=130.0,clock_valid=False,metrics={})])]
+        audit=clock_window_evidence(window)
+        self.assertEqual(audit['player_moves'],3)
+        self.assertEqual(audit['clock_deltas_inferred'],2)
+        self.assertEqual(audit['reliable_clocks'],1)
+        self.assertEqual(audit['missing_clock_deltas'],1)
+        self.assertEqual(audit['unreliable_clock_deltas'],1)
+        self.assertEqual(audit['median_engine_anomaly_seconds'],3.)
+        self.assertFalse(audit['scoring_influence'])
 
 
 class DecisionSafety(unittest.TestCase):

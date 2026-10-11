@@ -210,6 +210,10 @@ def accuracy_streak_audit(games):
         'last_10_accuracy_reported':sum(_accuracy(g) is not None for g in scope[-10:]),
         'last_10_accuracy_95_plus':sum(
             _accuracy(g) is not None and _accuracy(g)>=95 for g in scope[-10:]),
+        'last_20_accuracy_reported':sum(
+            _accuracy(g) is not None for g in scope[-20:]),
+        'last_20_accuracy_95_plus':sum(
+            _accuracy(g) is not None and _accuracy(g)>=95 for g in scope[-20:]),
         'window_games':WINDOW_GAMES,
         'high_win_accuracy_windows_observed':observed,
         'supported_followup_windows':len(flagged),
