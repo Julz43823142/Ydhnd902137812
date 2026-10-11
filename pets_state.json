@@ -463,9 +463,9 @@
         ],
         "puzzle": {
           "day": "2026-10-11",
-          "fen": "5r1R/1p1b1pk1/4p3/6p1/3p4/3B1PP1/r1PK2P1/7R w - - 2 27",
+          "fen": "5r1R/1p1b1p1R/4pk2/6p1/3p4/3B1PP1/r1PK2P1/8 w - - 4 28",
           "id": "ND3qD",
-          "index": 2,
+          "index": 4,
           "moves": [
             "h6h8",
             "g8g7",
