@@ -1,8 +1,9 @@
 """Deterministic Fair Play v21 selection and public-data performance context.
 
 No punishment labels, account identity, or raw Accuracy-derived accusations.
-The extra discovery set combines contiguous changes and representative controls;
-it never selects only games with unusually high Chess.com Accuracy.
+The extra discovery set combines contiguous changes, representative controls,
+and complete ten-game Accuracy-discovered windows for deep confirmation.
+Published Accuracy never directly scores the review priority.
 """
 from __future__ import annotations
 import math
@@ -65,8 +66,9 @@ def discovery_extras(plan, *, max_extra=25, accuracy_windows=()):
     """Stratified extension: recent tail, suspicious periods and controls.
 
     Fast PV1 gives CPL and top1 but no candidate spread, so it must not be
-    described as critical/human anomaly proof. Selection does NOT use Chess.com
-    Accuracy or the existing outcome's cheating label.
+    described as critical/human anomaly proof. Accuracy-selected windows
+    consume bounded OPTIONAL slots in full, never only accurate moves, and
+    must pass independent paired Stockfish and Maia verification for HIGH.
     """
     core={g.identity for g in plan.core}
     # Non-peer recent rated games already consume core slots. All 25/50
