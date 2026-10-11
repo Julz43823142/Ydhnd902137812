@@ -1206,7 +1206,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             neural_reference['fast_counterfactual']=complete_policy(
                 v21_deep if v21_mode else analyzed,config.fast_nodes,deadline,executor=engine_executor,
                 pool=shared_pool if use_shared else None,scanner=scanner,fast=True,
-                **resume_kwargs)
+                progress=progress,**resume_kwargs)
             if ((require_maia or (full_depth_mode and os.getenv('FAIRPLAY_REQUIRE_MAIA')=='1'))
                     and not neural_reference['fast_counterfactual']['complete']):
                 raise ReviewError('The complete Maia fast reference did not finish; no review was issued.')
@@ -1328,14 +1328,21 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                          if full_depth_mode else [([g for g in analyzed if g.deep],deep_budget)])
             policy_reports=[complete_policy(group,budget,deadline,
                 executor=engine_executor,pool=shared_pool if use_shared else None,scanner=scanner,
-                **resume_kwargs) for group,budget in deep_groups if group]
+                progress=progress,**resume_kwargs) for group,budget in deep_groups if group]
             neural_reference['deep_counterfactual']={
                 'complete':all(row['complete'] for row in policy_reports),
                 'positions':sum(row['positions'] for row in policy_reports),
+                'expected_positions':sum(row.get('expected_positions',row['positions'])
+                                         for row in policy_reports),
+                'failure_categories':{
+                    category:sum(row.get('failure_categories',{}).get(category,0)
+                                 for row in policy_reports)
+                    for category in sorted({name for row in policy_reports
+                                            for name in row.get('failure_categories',{})})},
                 'seconds':sum(row['seconds'] for row in policy_reports)}
             if ((require_maia or (full_depth_mode and os.getenv('FAIRPLAY_REQUIRE_MAIA')=='1'))
                     and not neural_reference['deep_counterfactual']['complete']):
-                raise ReviewError('The complete depth-18 Maia comparison did not finish; no review was issued.')
+                raise ReviewError('The complete deep Maia counterfactual search did not finish; no review was issued.')
         deep_finished=time.monotonic()
         latest_fifty_depth_total=0
         latest_fifty_depth_verified=0
