@@ -192,6 +192,19 @@ class Contract(unittest.TestCase):
         self.decision.metrics['search_depth']=12
         self.assertFalse(_complete_game(self.game,CONFIG))
 
+    def test_gap_diagnostic_distinguishes_stockfish_from_missing_maia(self):
+        from fairplay_ten_windows import _window_evidence_gaps
+        self.assertTrue(_complete_game(self.game,CONFIG))
+        self.decision.metrics['search_contract']['exact']=False
+        gap=_window_evidence_gaps([self.game],CONFIG)
+        self.assertEqual(gap['nonexact_stockfish_positions'],1)
+        self.assertEqual(gap['missing_maia_policies'],0)
+        self.decision.metrics['search_contract']['exact']=True
+        self.decision.human_policy={'not_legal':1.0}
+        gap=_window_evidence_gaps([self.game],CONFIG)
+        self.assertEqual(gap['nonexact_stockfish_positions'],0)
+        self.assertEqual(gap['missing_maia_policies'],1)
+
 
 class ClockEvidence(unittest.TestCase):
     def test_every_move_counted_and_bad_clocks_not_fabricated(self):
