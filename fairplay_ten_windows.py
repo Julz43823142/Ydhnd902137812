@@ -385,15 +385,21 @@ def integrate(result, games, discovery, config=CONFIG):
            'unverified_windows_are_not_negative_evidence':True,
            'selected_games':len(discovery['selected_ids']),
            'high_path_passed':passed,'window_details':windows[:25],
-           'selection_uses_accuracy':True,'priority_uses_accuracy':False,
+           'selection_uses_accuracy':bool(discovery['accuracy_candidates']),
+           'selection_uses_recent_unrated_coverage':bool(
+               discovery.get('recent_unrated_fallback_windows')),
+           'priority_uses_accuracy':False,
            'timing_note':('Game end-time chronology and the validity/coverage of PGN '
                           'remaining-clock samples are checked. Absolute '
                           'per-move timestamps are not available and are '
                           'never invented.'),
            'scope_note':('Up to 250 rated or unrated blitz/rapid games in the latest 500-game '
                          'primary scope; separate rated-status, exact-control windows, '
-                         'at least eight peer-rated opponents and at least eight '
-                         'published Accuracy reports. Missing scores are never imputed.'),
+                         'at least eight peer-rated opponents. Published '
+                         'Accuracy can preselect older windows; the newest '
+                         'unrated windows can be tested using real deep '
+                         'gameplay even without published Accuracy. '
+                         'Missing scores are never imputed.'),
            'calibration_note':('HIGH is an investigative priority. False-positive '
                                'rates are not established without labelled '
                                'fair-player and confirmed-engine holdouts.')}
