@@ -266,13 +266,18 @@ def integrate(result, games, discovery, config=CONFIG):
               and result.coverage.get('primary_engine_complete',False)
               and result.coverage.get('required_deep_complete',False))
     enabled=not {'human','neural','difficulty','accuracy_window_high'} & set(config.disabled_features)
-    passed=bool(qualified and complete and enabled and not incomplete)
+    # Each independently confirmed ten-game window can justify HIGH even
+    # when ANOTHER candidate lacks an exact search. The latter must not veto
+    # genuine confirmed evidence from an unrelated window. It also must not
+    # be silently treated as a negative finding.
+    passed=bool(qualified and complete and enabled)
     audit={'schema':discovery['schema'],
            'rated_blitz_rapid_games_in_scope':discovery['rated_blitz_rapid_games_in_scope'],
            'windows_examined':discovery['windows_examined'],
            'accuracy_candidates':len(discovery['candidates']),
            'fully_verified_candidates':len(windows)-incomplete,
            'unverified_candidates':incomplete,'confirmed_engine_maia_windows':qualified,
+           'unverified_windows_are_not_negative_evidence':True,
            'selected_games':len(discovery['selected_ids']),
            'high_path_passed':passed,'window_details':windows[:25],
            'selection_uses_accuracy':True,'priority_uses_accuracy':False,
@@ -293,6 +298,16 @@ def integrate(result, games, discovery, config=CONFIG):
             [] if passed else
             ['No ten-game block has both full-depth Stockfish and complete '
              'Maia game-capped evidence, or mandatory coverage is incomplete.'])}
+    if incomplete and not passed and result.priority in ('LOW','INSUFFICIENT DATA'):
+        # A broken/uncertain candidate is NOT a completed LOW check.
+        # Keep the no-verdict state visible rather than losing the whole
+        # report or clearing a suspicious period by default.
+        result.priority='INSUFFICIENT DATA'
+        result.reasons=[
+            f'{incomplete} selected ten-game window(s) lacked complete exact '
+            'Stockfish and Maia evidence; no LOW conclusion can be drawn '
+            'from those windows. A new or resumed scan is required.',
+            'Published Accuracy is a discovery clue, not proof of cheating.']
     if passed and result.priority in ('LOW','MODERATE','INSUFFICIENT DATA'):
         result.priority='HIGH'
         result.deep_confirmed=True
