@@ -161,6 +161,32 @@ def _complete_game(game, config):
     return True
 
 
+def _window_evidence_gaps(games, config):
+    """Aggregate diagnostic counts; never expose FENs, moves or identities."""
+    from fairplay_maia import valid_policy
+    missing_games=sum(g is None or not _verified_entry(g)
+                      or not getattr(g,'decisions',None) for g in games)
+    inexact_positions=0
+    missing_policies=0
+    for game in games:
+        if game is None:
+            continue
+        for decision in getattr(game,'decisions',()):
+            contract=decision.metrics.get('search_contract') or {}
+            if not (contract.get('mode')=='depth'
+                    and contract.get('requested')==18
+                    and contract.get('multipv')==config.deep_multipv
+                    and contract.get('completed') is True
+                    and contract.get('exact') is True
+                    and decision.metrics.get('search_depth',0)>=18):
+                inexact_positions+=1
+            if not valid_policy(decision,decision.human_policy):
+                missing_policies+=1
+    return {'missing_or_unverified_games':missing_games,
+            'nonexact_stockfish_positions':inexact_positions,
+            'missing_maia_policies':missing_policies}
+
+
 def _engine_proof(games, config):
     deep=period_summary(games,config)
     fast=period_summary(games,config,fast=True)
@@ -243,7 +269,8 @@ def integrate(result, games, discovery, config=CONFIG):
                 'missing_accuracy_games':candidate['missing_accuracy_games'],
                 'window_end_time':candidate['end'],
                 'full_depth_and_maia':False,'engine_pass':False,
-                'maia_pass':False,'qualified':False})
+                'maia_pass':False,'qualified':False,
+                'evidence_gaps':_window_evidence_gaps(rows,config)})
             continue
         engine,engine_evidence=_engine_proof(rows,config)
         maia,maia_evidence=_maia_proof(rows)
