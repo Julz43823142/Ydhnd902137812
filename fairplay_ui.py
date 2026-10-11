@@ -62,7 +62,7 @@ def progress_embed(target, stage, value=None, timing=None):
                  else bar(value)+"\n\n"+label(stage))
     if timing is not None:description+='\n'+timing.summary(stage)
     embed = discord.Embed(title=REPORT_PREFIX+target, description=description, color=0x427CBA)
-    embed.set_footer(text="Progress shows the current step, not the time left.")
+    embed.set_footer(text="Progress is not percent of elapsed time.")
     embed.add_field(name='Important', value=SHORT_SCREENING_NOTICE, inline=False)
     return embed
 
@@ -140,6 +140,19 @@ def result_embed(result: ReviewResult):
         summary+=(f"\nMaia move checks: **"
                   f"{v21.get('latest_50_maia_all_decisions',0)}/"
                   f"{v21.get('latest_50_maia_expected',0)}**")
+    used=coverage.get('used')
+    if isinstance(used,int):
+        summary+=(f"\nGames used for scoring: **{used}** "
+                  f"of **{review_games}** screened")
+    context=result.diagnostics.get('personal_baseline') or {}
+    rated_context=coverage.get('rated_context_games')
+    if rated_context is None:
+        rated_context=(result.diagnostics.get('collection') or {}).get('rated_context_games')
+    # The public label is retained so readers can distinguish the reviewed
+    # rated sample from a player's full account history.
+    if rated_context is None:
+        rated_context=total.get('games',review_games)
+    summary+=f"\nRated context games: **{rated_context}**"
     embed.add_field(name='Games analyzed',value=summary,inline=False)
     # Preserve bounded-history disclosure in plain English. A sample of 100
     # games is not a statement about every game ever played by this account.
