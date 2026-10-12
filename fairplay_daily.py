@@ -40,10 +40,11 @@ def game_evidence(game):
     opportunities = opportunities[:12]
     hits = sum(m.get('near_best', False) and m.get('cpl', 9999) <= 15
                for m in opportunities)
+    measured = sum(m.get('search_stability', {}).get('compared') is True for m in opportunities)
     paired = sum(m.get('search_stability', {}).get('compared') is True
                  and m.get('search_stability', {}).get('objective_quality_preserved') is True
                  for m in opportunities)
-    return {'opportunities': len(opportunities), 'hits': hits, 'paired': paired,
+    return {'opportunities': len(opportunities), 'hits': hits, 'paired': paired, 'measured': measured,
             'rate': hits/len(opportunities) if opportunities else None}
 
 
@@ -54,6 +55,10 @@ def summarize(games, config=CONFIG):
     lo, hi = interval(hits, n, config.rate_lower_bound_z)
     return {'games': len(games), 'opportunities': n, 'hits': hits,
             'paired': sum(r['paired'] for r in rows),
+            'measured': sum(r['measured'] for r in rows),
+            'reliable_games':sum(r['opportunities']>0
+                and r['measured']>=config.daily_paired_coverage*r['opportunities']
+                and r['paired']>=config.daily_quality_stability*r['opportunities'] for r in rows),
             'lower': lo, 'upper': hi,
             'median_game_quality': median([r['rate'] for r in rows if r['rate'] is not None])
                                    if n else 0.0,
@@ -90,8 +95,10 @@ def review(games, config=CONFIG):
             'replicated difficult games': current['contributors'] == len(period),
             'difficult opportunity coverage': current['opportunities'] >= config.daily_min_opportunities,
             'deep-confirmed quality lower bound': current['lower'] >= config.daily_hit_lower,
-            'paired objective-quality coverage': current['paired'] >= .95*max(1,current['opportunities']),
-            'paired baseline coverage': previous['paired'] >= .95*max(1,previous['opportunities']),
+            'paired objective-quality coverage': current['measured'] >= config.daily_paired_coverage*max(1,current['opportunities']),
+            'paired baseline coverage': previous['measured'] >= config.daily_paired_coverage*max(1,previous['opportunities']),
+            'reliable candidate games': current['reliable_games']==len(period),
+            'baseline search reliability': previous['paired']>=config.daily_quality_stability*max(1,previous['opportunities']),
             'prior daily comparison games': len(baseline) >= config.daily_min_baseline_games,
             'prior daily opportunity coverage': previous['opportunities'] >= config.daily_min_opportunities,
             'baseline is materially different': previous['upper'] <= config.daily_baseline_upper,

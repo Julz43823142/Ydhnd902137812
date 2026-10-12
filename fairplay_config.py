@@ -16,6 +16,8 @@ class ReviewConfig:
     daily_min_baseline_games: int = 10
     daily_min_opportunities: int = 40
     daily_min_game_opportunities: int = 5
+    daily_paired_coverage: float = .95
+    daily_quality_stability: float = .75
     daily_hit_lower: float = .75
     daily_baseline_upper: float = .55
     daily_min_quality_shift: float = .30

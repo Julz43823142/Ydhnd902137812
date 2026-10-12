@@ -32,7 +32,8 @@ The initial Daily HIGH route requires:
 - every candidate game supplies at least five opportunities and >=85% near-best decisions;
 - at least 40 total opportunities;
 - the one-sided 95% Wilson quality lower bound is >= .75;
-- >=95% paired fast/deep objective-quality preservation in both groups;
+- >=95% measured paired fast/deep coverage in both groups;
+- >=75% objective-quality preservation, separately in every candidate game and the baseline;
 - at least ten prior Daily reference games with >=40 opportunities;
 - the prior group's Wilson upper bound is <= .55;
 - the median per-game near-best rate improves by >= .30.

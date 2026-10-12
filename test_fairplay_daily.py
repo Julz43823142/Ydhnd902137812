@@ -63,6 +63,15 @@ class DailyReview(unittest.TestCase):
         for d in rows[-1].decisions:d.metrics['search_stability']={}
         self.assertFalse(review(rows)['supported'])
 
+    def test_coverage_is_separate_from_quality_stability(self):
+        rows=self.sample()
+        for g in rows:
+            g.decisions[0].metrics['search_stability']['objective_quality_preserved']=False
+        self.assertTrue(review(rows)['supported'])
+        for d in rows[-1].decisions:
+            d.metrics['search_stability']['objective_quality_preserved']=False
+        self.assertFalse(review(rows)['supported'])
+
     def test_book_easy_and_noncompetitive_do_not_count(self):
         for field,value in [('easy_conversion',True),('competitive',False)]:
             rows=self.sample()
