@@ -1,12 +1,14 @@
 """Descriptive streak warning: Chess.com-reported Accuracy and rated outcomes.
 
 An Accuracy streak is a DISCOVERY clue, not a cheating verdict. Chess.com
-Accuracy may be absent, review-selected, and opponent-skill dependent. Thus
-the detector compares each *predeclared* contiguous ten-game stretch inside
-the latest fifty to STRICTLY EARLIER same-time-class games and opponent
-strength, then requires separate Stockfish/Maia evidence for HIGH.
+Accuracy may be absent, review-selected, and opponent-skill dependent. The
+descriptive audit compares each predeclared contiguous ten-game stretch
+inside the latest fifty to strictly earlier same-time-class games and opponent
+strength. A separate owner-defined triage policy can mark a large repeated
+Accuracy jump HIGH for manual inspection without engine confirmation; its
+report must make that distinction explicit.
 
-This audit never changes a priority or selects games for engine review.
+The descriptive audit itself does not change priority or engine selection.
 """
 from __future__ import annotations
 
@@ -104,6 +106,104 @@ def low_rating_accuracy_pairs(scope, history=None):
             'to inspect, but their base rate is unknown and position difficulty '
             'varies. This cannot by itself elevate priority.'),
     }
+
+
+def accuracy_opponent_context(games):
+    """Describe recent published Accuracy with same-class, earlier opposition.
+
+    Published scores are sparse and selected by Chess.com; compare opponent
+    ratings only for games with a published score so missing reports do not
+    distort either median. A separate policy can use an extreme, sustained
+    change to prioritize manual inspection, never to infer misconduct.
+    """
+    rows=[]
+    for kind in ('rapid','blitz'):
+        group=[g for g in games if g.time_class==kind]
+        recent=group[-20:]
+        older=group[:-20][-40:]
+        def reported(sample):
+            return [g for g in sample if _accuracy(g) is not None]
+        a,b=reported(recent),reported(older)
+        if len(a)<5 or len(b)<3:
+            continue
+        def opponent_median(sample):
+            ratings=[g.opponent_rating for g in sample
+                     if isinstance(getattr(g,'opponent_rating',None),int)
+                     and not isinstance(g.opponent_rating,bool)
+                     and 100<=g.opponent_rating<=4000]
+            return round(statistics.median(ratings)) if len(ratings)>=3 else None
+        current_opponent=opponent_median(a)
+        earlier_opponent=opponent_median(b)
+        rows.append({
+            'time_class':kind,
+            'recent_games':len(recent),
+            'earlier_games':len(older),
+            'recent_reported':len(a),
+            'earlier_reported':len(b),
+            'recent_accuracy_median':round(statistics.median(_accuracy(g) for g in a),1),
+            'earlier_accuracy_median':round(statistics.median(_accuracy(g) for g in b),1),
+            'recent_90_plus':sum(_accuracy(g)>=90 for g in a),
+            'recent_opponent_median':current_opponent,
+            'earlier_opponent_median':earlier_opponent,
+            'opponent_shift_large':(current_opponent is not None
+                                    and earlier_opponent is not None
+                                    and abs(current_opponent-earlier_opponent)>=250),
+        })
+    return rows
+
+
+def prioritize_accuracy_surge(result, games, config=None):
+    """Owner policy: reserve HIGH human review for a sustained score jump.
+
+    This route is deliberately distinct from engine-evidence HIGH. It never
+    asserts engine use, never reaches VERY HIGH, and states opponent and
+    missing-score caveats. It applies identically to every account.
+    """
+    rated=sorted((g for g in games if getattr(g,'rated',None) is True
+                  and not getattr(g,'probe_only',False)
+                  and isinstance(getattr(g,'ended',None),(int,float))
+                  and math.isfinite(g.ended)),
+                 key=lambda g:(g.ended,g.identity))
+    rows=accuracy_opponent_context(rated)
+    disabled=set(getattr(config,'disabled_features',()) or ())
+    qualifying=[r for r in rows if (
+        r['recent_games']==20 and r['recent_reported']>=10
+        and r['earlier_games']>=20 and r['earlier_reported']>=3
+        and r['recent_90_plus']>=8
+        and r['recent_accuracy_median']>=90
+        and r['earlier_accuracy_median']<=65
+        and r['recent_accuracy_median']-r['earlier_accuracy_median']>=30)]
+    if {'accuracy','accuracy_surge'} & disabled:
+        qualifying=[]
+    result.diagnostics['accuracy_surge_priority']={
+        'policy':'manual-review triage only',
+        'passed':bool(qualifying),
+        'time_classes':[r['time_class'] for r in qualifying],
+        'opponent_change_present':any(r['opponent_shift_large'] for r in qualifying),
+        'engine_confirmation_required':False,
+        'misconduct_inference':False,
+    }
+    result.diagnostics.setdefault('high_paths',{})['Published Accuracy surge — manual review']={
+        'passed':bool(qualifying),
+        'blockers':([] if qualifying else
+                    ['Disabled in this research run.'] if {'accuracy','accuracy_surge'} & disabled
+                    else ['No sustained same-class published Accuracy surge.']),
+    }
+    if qualifying and result.priority in ('LOW','MODERATE','INSUFFICIENT DATA'):
+        row=qualifying[0]
+        result.priority='HIGH'
+        result.diagnostics['high_path']='Published Accuracy surge — manual review'
+        caveat=(' Opponent Elo changed substantially.'
+                if row['opponent_shift_large'] else '')
+        if row['earlier_reported']<5:
+            caveat+=' Earlier scores are sparse.'
+        result.reasons.insert(0,
+            f"Published {row['time_class'].title()} Accuracy: "
+            f"{row['earlier_accuracy_median']:.1f}% ({row['earlier_reported']} earlier) "
+            f"→ {row['recent_accuracy_median']:.1f}% "
+            f"({row['recent_reported']} recent). HIGH requests manual review, "
+            f"not proof. Stockfish/Maia did not confirm this path.{caveat}")
+    return result
 
 
 def accuracy_streak_audit(games):
@@ -204,6 +304,7 @@ def accuracy_streak_audit(games):
                            r['win_games'],r['end_time']),default=None)
     return {
         'schema':SCHEMA,
+        'same_class_accuracy_context':accuracy_opponent_context(ordered),
         'low_rating_90_plus_pairs':low_rating_accuracy_pairs(scope, ordered),
         'latest_rated_scope':len(scope),
         'last_50_accuracy_reported':sum(_accuracy(g) is not None for g in scope),
@@ -228,7 +329,8 @@ def accuracy_streak_audit(games):
             'deep-reviewed competitive positions. The rating-adjusted '
             'outcome model and historical Accuracy reporting are incomplete '
             'and selection-biased. This does NOT establish cheating, and '
-            'never directly changes LOW, MODERATE, HIGH or VERY HIGH.'),
+            'does not directly change priority. A separate published-score '
+            'surge policy may prioritize manual review without engine proof.'),
     }
 
 

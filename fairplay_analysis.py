@@ -1468,10 +1468,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         # in a visible read-only audit, never in engine-cheating score gates.
         from fairplay_recent import summarize_recent
         result.diagnostics['recent_tail_audit']=summarize_recent(analyzed)
-        # Published 95+ Accuracy plus 9/10-win runs are a descriptive
-        # investigative flag only, benchmarked against strictly older games
-        # and opponent Elo. Full latest50 deep selection happened *before*
-        # this check; Accuracy must never steer engine sampling or HIGH.
+        # The descriptive streak audit records published-score coverage and
+        # opponent context. Full latest50 deep selection happened before it.
         from fairplay_streak import accuracy_streak_audit
         result.diagnostics['accuracy_streak_audit']=accuracy_streak_audit(analyzed)
         if include_unrated:
@@ -1495,6 +1493,12 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         if v21_mode:
             from fairplay_ten_windows import integrate as integrate_ten_windows
             result=integrate_ten_windows(result,v21_deep,accuracy_discovery,config)
+        # Owner-defined manual-review triage: an extreme, repeated published
+        # Accuracy change may raise review PRIORITY, independently of the
+        # gameplay verdict. Its reason explicitly says engine confirmation
+        # was not established; no sanction or cheating inference follows.
+        from fairplay_streak import prioritize_accuracy_surge
+        result=prioritize_accuracy_surge(result,analyzed,config)
         # Review all verified deep-reviewed games, including short games with
         # fewer than eight useful moves. The audit is aggregate-only and cannot
         # elevate priority; fast evidence selects any diagnostic period.

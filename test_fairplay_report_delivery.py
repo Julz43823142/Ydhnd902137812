@@ -64,6 +64,23 @@ class CompactResultCard(unittest.TestCase):
         card=result_embed(case)
         self.assertNotIn('Extra flags',[field.name for field in card.fields])
 
+    def test_accuracy_jump_explains_opponent_change_without_priority_change(self):
+        case=self.fixture()
+        audit=case.diagnostics['accuracy_streak_audit']
+        audit.update(last_20_accuracy_95_plus=8,
+                     same_class_accuracy_context=[{
+                         'time_class':'rapid','recent_accuracy_median':96.0,
+                         'earlier_accuracy_median':55.0,
+                         'recent_reported':10,'earlier_reported':7,
+                         'opponent_shift_large':True,
+                         'recent_opponent_median':229,
+                         'earlier_opponent_median':836}])
+        card=result_embed(case)
+        field=next(f for f in card.fields if f.name=='Latest 20 Accuracy')
+        self.assertIn('not directly comparable',field.value)
+        self.assertIn('Rapid published-score median',field.value)
+        self.assertEqual(case.priority,'LOW')
+
     def test_progress_card_is_short_english(self):
         card=progress_embed('synthetic-account','Building report…',99)
         self.assertLess(len(card),700)

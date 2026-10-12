@@ -283,6 +283,71 @@ class AccuracyAndResultsWarning(unittest.TestCase):
                           best['deep_hard_opportunities']),(10,20))
         self.assertNotIn('fixture-streak-',str(report))
 
+    def test_same_class_accuracy_context_exposes_opponent_change_without_scoring(self):
+        from fairplay_streak import accuracy_streak_audit
+        rows=self.cases(count=60,baseline_accuracy=55,recent_accuracy=96,
+                        weak_recent=True)
+        # The latest twenty include ten older games here; make the entire
+        # recent block high to test the descriptive comparison directly.
+        for game in rows[-20:]:
+            game.accuracy=96
+            game.opponent_rating=200
+        report=accuracy_streak_audit(rows)
+        comparison=report['same_class_accuracy_context'][0]
+        self.assertEqual(comparison['recent_accuracy_median'],96)
+        self.assertEqual(comparison['earlier_accuracy_median'],55)
+        self.assertTrue(comparison['opponent_shift_large'])
+        self.assertFalse(report['scoring_influence'])
+        self.assertNotIn('fixture-streak-',str(comparison))
+
+    def test_sustained_same_class_score_surge_sets_manual_review_high(self):
+        from fairplay_streak import prioritize_accuracy_surge
+        rows=self.cases(count=60,baseline_accuracy=55,recent_accuracy=96,
+                        weak_recent=True)
+        for game in rows[-20:]:
+            game.accuracy=96
+            game.opponent_rating=200
+        result=SimpleNamespace(priority='LOW',diagnostics={},reasons=[])
+        prioritize_accuracy_surge(result,rows)
+        self.assertEqual(result.priority,'HIGH')
+        self.assertIn('Stockfish/Maia did not confirm',result.reasons[0])
+        self.assertTrue(result.diagnostics['accuracy_surge_priority']['opponent_change_present'])
+        self.assertFalse(result.diagnostics['accuracy_surge_priority']['misconduct_inference'])
+
+    def test_accuracy_policy_requires_repeated_reports_and_same_class_baseline(self):
+        from fairplay_streak import prioritize_accuracy_surge
+        cases=[
+            self.cases(count=60,baseline_accuracy=55,recent_accuracy=96,
+                       missing_recent=12),
+            self.cases(count=60,baseline_accuracy=75,recent_accuracy=96),
+            self.cases(count=60,baseline_accuracy=96,recent_accuracy=96),
+        ]
+        for rows in cases:
+            result=SimpleNamespace(priority='LOW',diagnostics={},reasons=[])
+            prioritize_accuracy_surge(result,rows)
+            self.assertEqual(result.priority,'LOW')
+        rows=self.cases(count=60,baseline_accuracy=55,recent_accuracy=96)
+        for game in rows[-20:]:
+            game.accuracy=96
+            game.time_class='blitz'
+        result=SimpleNamespace(priority='LOW',diagnostics={},reasons=[])
+        prioritize_accuracy_surge(result,rows)
+        self.assertEqual(result.priority,'LOW')
+
+    def test_sparse_earlier_reports_are_disclosed_in_manual_review_reason(self):
+        from fairplay_streak import prioritize_accuracy_surge
+        rows=self.cases(count=60,baseline_accuracy=55,recent_accuracy=96,
+                        weak_recent=True)
+        for game in rows[:37]:
+            game.accuracy=None
+        for game in rows[-20:]:
+            game.accuracy=96
+            game.opponent_rating=200
+        result=SimpleNamespace(priority='LOW',diagnostics={},reasons=[])
+        prioritize_accuracy_surge(result,rows)
+        self.assertEqual(result.priority,'HIGH')
+        self.assertIn('Earlier scores are sparse',result.reasons[0])
+
     def test_nine_wins_eight_published_95_values_still_detected(self):
         from fairplay_streak import accuracy_streak_audit
         report=accuracy_streak_audit(
