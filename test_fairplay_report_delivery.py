@@ -9,6 +9,7 @@ import discord
 
 from fairplay_ui import result_embed, progress_embed, SHORT_SCREENING_NOTICE
 from fairplay_progress import ReliableTiming
+from fairplay_config import VERSION
 
 
 class CompactResultCard(unittest.TestCase):
@@ -53,6 +54,13 @@ class CompactResultCard(unittest.TestCase):
             self.assertLess(len(card),2000)
             self.assertIn(level,card.description)
             self.assertEqual(case.priority,level)
+
+    def test_public_report_shows_detector_version(self):
+        case=self.fixture()
+        case.version='fairplay-v24-example'
+        self.assertIn('Version: fairplay-v24-example',result_embed(case).footer.text)
+        del case.version
+        self.assertIn(f'Version: {VERSION}',result_embed(case).footer.text)
 
     def test_no_streak_does_not_create_false_alert(self):
         case=self.fixture()
