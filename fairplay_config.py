@@ -5,7 +5,7 @@ CHANNEL_ID = 1311445685492781186
 NAMESPACE = 'shark:fairplay:'
 DISCLAIMER = ('Automated fair-play screening only. This result is not proof of cheating '
               'and must not be used as the sole basis for punishment. Human review is mandatory.')
-VERSION = 'fairplay-v40-daily-gameplay'
+VERSION = 'fairplay-v41-coverage-aware-evidence'
 
 
 @dataclass(frozen=True)
@@ -13,6 +13,10 @@ class ReviewConfig:
     # Correspondence has no meaningful live-clock evidence. HIGH requires a
     # within-player change on deep-reviewed, non-book competitive decisions.
     daily_period_games: int = 5
+    daily_period_windows: tuple = (5, 10, 20, 30)
+    daily_contributor_fraction: float = .60
+    daily_control_mix_tolerance: float = .10
+    replication_tail_games: int = 100
     daily_min_baseline_games: int = 10
     daily_min_opportunities: int = 40
     daily_min_game_opportunities: int = 5

@@ -7,7 +7,8 @@ completed Daily games against prior Daily games at comparable ratings. It
 requires replicated, deep-confirmed difficult decisions and includes misses.
 Thresholds are transparent heuristics awaiting correspondence calibration.
 """
-from math import sqrt
+from math import sqrt, ceil
+from collections import Counter
 from statistics import median
 from fairplay_config import CONFIG
 
@@ -31,7 +32,7 @@ def game_evidence(game):
         if (not game.deep or not m.get('useful') or not m.get('competitive')
                 or m.get('easy_conversion') or m.get('automatic_material_gain')
                 or decision.forced or decision.phase == 'opening'
-                or m.get('difficulty', 0) < .65 or not m.get('critical')
+                or m.get('difficulty', 0) < .65
                 or m.get('search_inconsistent') or m.get('search_depth', 0) < 18):
             continue
         opportunities.append(m)
@@ -56,6 +57,7 @@ def summarize(games, config=CONFIG):
     return {'games': len(games), 'opportunities': n, 'hits': hits,
             'paired': sum(r['paired'] for r in rows),
             'measured': sum(r['measured'] for r in rows),
+            'opportunity_games':sum(r['opportunities']>0 for r in rows),
             'reliable_games':sum(r['opportunities']>0
                 and r['measured']>=config.daily_paired_coverage*r['opportunities']
                 and r['paired']>=config.daily_quality_stability*r['opportunities'] for r in rows),
@@ -66,51 +68,82 @@ def summarize(games, config=CONFIG):
                                 and r['rate'] >= .85 for r in rows)}
 
 
+def matched_control_reference(candidates, period, limit=30):
+    """Metadata-only chronological sampling matching the current control mix.
+
+    No move outcomes or engine hits select reference games. This prevents a
+    switch from one-day to seven-day play masquerading as improved gameplay.
+    """
+    counts=Counter(g.time_control for g in period)
+    target=min(limit,len(candidates))
+    quotas={c:int(target*n/len(period)) for c,n in counts.items()}
+    leftovers=target-sum(quotas.values())
+    order=sorted(counts,key=lambda c:(-(target*counts[c]/len(period)-quotas[c]),c))
+    for c in order[:leftovers]:quotas[c]+=1
+    selected=[]
+    for g in reversed(candidates):
+        if quotas.get(g.time_control,0)>0:
+            selected.append(g);quotas[g.time_control]-=1
+    return list(reversed(selected))
+
+
 def review(games, config=CONFIG):
     rows = sorted({g.identity: g for g in games
                    if g.time_class == 'daily' and g.rated is True
                    and not g.probe_only}.values(), key=lambda g: (g.ended, g.identity))
     best = None
-    # Only real, contiguous completion windows; controls remain separate.
-    for end in range(config.daily_period_games, len(rows)+1):
-        period = rows[end-config.daily_period_games:end]
-        if not period[0].time_control or len({g.time_control for g in period}) != 1:
-            continue
-        control = period[0].time_control
-        ratings = [g.rating for g in period if g.rating is not None]
-        opponents = [g.opponent_rating for g in period if g.opponent_rating is not None]
-        reference = rows[:end-config.daily_period_games]
-        baseline = [g for g in reference if g.time_control == control
-                    and g.rating is not None and g.opponent_rating is not None
-                    and len(ratings) == len(period) and len(opponents) == len(period)
-                    and abs(g.rating-median(ratings)) <= 200
-                    and abs(g.opponent_rating-median(opponents)) <= 250][-30:]
-        current, previous = summarize(period, config), summarize(baseline, config)
-        indices=[getattr(g,'class_index',None) for g in period]
-        consecutive=(all(i is None for i in indices) or
-                     all(isinstance(i,int) for i in indices)
-                     and all(b==a+1 for a,b in zip(indices,indices[1:])))
-        gates = {
-            'complete chronological period': consecutive,
-            'replicated difficult games': current['contributors'] == len(period),
-            'difficult opportunity coverage': current['opportunities'] >= config.daily_min_opportunities,
-            'deep-confirmed quality lower bound': current['lower'] >= config.daily_hit_lower,
-            'paired objective-quality coverage': current['measured'] >= config.daily_paired_coverage*max(1,current['opportunities']),
-            'paired baseline coverage': previous['measured'] >= config.daily_paired_coverage*max(1,previous['opportunities']),
-            'reliable candidate games': current['reliable_games']==len(period),
-            'baseline search reliability': previous['paired']>=config.daily_quality_stability*max(1,previous['opportunities']),
-            'prior daily comparison games': len(baseline) >= config.daily_min_baseline_games,
-            'prior daily opportunity coverage': previous['opportunities'] >= config.daily_min_opportunities,
-            'baseline is materially different': previous['upper'] <= config.daily_baseline_upper,
-            'bounded per-game quality change': current['median_game_quality']-previous['median_game_quality']
-                                               >= config.daily_min_quality_shift,
-        }
-        candidate = {'gates': gates, 'period': current, 'baseline': previous,
-                     'supported': all(gates.values())}
-        if best is None or (sum(gates.values()), current['opportunities']) > (
-                sum(best['gates'].values()), best['period']['opportunities']):
-            best = candidate
-    return {'rated_games': len(rows), 'deep_reviewed': sum(g.deep for g in rows),
+    # Real completion windows retain opportunity-poor games and misses. No
+    # ranked best-game selection; a larger width never multiplies replication.
+    windows=sorted(set((config.daily_period_games,*config.daily_period_windows)))
+    for width in windows:
+        for end in range(width, len(rows)+1):
+            period = rows[end-width:end]
+            if not all(g.time_control for g in period):
+                continue
+            controls={g.time_control for g in period}
+            ratings = [g.rating for g in period if g.rating is not None]
+            opponents = [g.opponent_rating for g in period if g.opponent_rating is not None]
+            reference = rows[:end-width]
+            baseline = [g for g in reference if g.time_control in controls
+                        and g.rating is not None and g.opponent_rating is not None
+                        and len(ratings) == len(period) and len(opponents) == len(period)
+                        and abs(g.rating-median(ratings)) <= 200
+                        and abs(g.opponent_rating-median(opponents)) <= 250]
+            baseline=matched_control_reference(baseline,period)
+            current, previous = summarize(period, config), summarize(baseline, config)
+            indices=[getattr(g,'class_index',None) for g in period]
+            consecutive=(all(i is None for i in indices) or
+                         all(isinstance(i,int) for i in indices)
+                         and all(b==a+1 for a,b in zip(indices,indices[1:])))
+            pc=Counter(g.time_control for g in period);bc=Counter(g.time_control for g in baseline)
+            mix_distance=sum(abs(pc[c]/len(period)-bc[c]/max(1,len(baseline))) for c in controls)/2
+            gates = {
+                'comparable correspondence control mix': bool(baseline) and mix_distance<=config.daily_control_mix_tolerance,
+                'complete chronological period': consecutive,
+                'replicated difficult games': current['contributors'] >= max(config.daily_period_games,ceil(config.daily_contributor_fraction*current['opportunity_games'])),
+                'difficult opportunity coverage': current['opportunities'] >= config.daily_min_opportunities,
+                'deep-confirmed quality lower bound': current['lower'] >= config.daily_hit_lower,
+                'paired objective-quality coverage': current['measured'] >= config.daily_paired_coverage*max(1,current['opportunities']),
+                'paired baseline coverage': previous['measured'] >= config.daily_paired_coverage*max(1,previous['opportunities']),
+                'reliable candidate games': current['reliable_games']==current['opportunity_games'] and current['opportunity_games']>=config.daily_period_games,
+                'baseline search reliability': previous['paired']>=config.daily_quality_stability*max(1,previous['opportunities']),
+                'prior daily comparison games': len(baseline) >= config.daily_min_baseline_games,
+                'prior daily opportunity coverage': previous['opportunities'] >= config.daily_min_opportunities,
+                'baseline is materially different': previous['upper'] <= config.daily_baseline_upper,
+                'bounded per-game quality change': current['median_game_quality']-previous['median_game_quality']
+                                                   >= config.daily_min_quality_shift,
+            }
+            candidate = {'gates': gates, 'period': current, 'baseline': previous,
+                         'controls':sorted(controls),'control_mix_distance':mix_distance,
+                         'supported': all(gates.values())}
+            if best is None or (sum(gates.values()), current['opportunities']) > (
+                    sum(best['gates'].values()), best['period']['opportunities']):
+                best = candidate
+    return {'opportunity_coverage':summarize(rows,config),
+            'reference_coverage':('Adequate' if best and
+                best['period']['opportunities']>=config.daily_min_opportunities and
+                best['baseline']['opportunities']>=config.daily_min_opportunities else 'Limited'),
+            'rated_games': len(rows), 'deep_reviewed': sum(g.deep for g in rows),
             'timing_used': False, 'learned_policy_scoring_used': False,
             'best': best, 'supported': bool(best and best['supported']),
             'limitations': 'Correspondence permits long deliberation and opening references. '

@@ -414,7 +414,7 @@ class HumanEvidence(unittest.TestCase):
         self.assertEqual(sparse_deep_blockers(broad,broad_proof),[])
         counter={'established':True,'halves':[{'covered':True,'contradicts':True}]*2}
         negative_policy={'positions':70,'effective_positions':65,'stable':45,
-                         'signed_excess':-.08,'contributors':0}
+                         'signed_excess':-.08,'signed_excess_upper_bound':-.08,'contributors':0}
         with patch('fairplay_sequence.class_periods',return_value=periods), \
              patch('fairplay_sequence.deep_confirmation',side_effect=lambda p,g,c=CONFIG:proofs[id(p)]), \
              patch('fairplay_sequence.fixed_half_policy_counterevidence',return_value=counter), \
@@ -432,6 +432,7 @@ class HumanEvidence(unittest.TestCase):
         def row(positions,signed):
             return {'positions':positions,'effective_positions':positions,
                     'stable':int(positions*.6),'signed_excess':signed,
+                    'signed_excess_upper_bound':signed,
                     'contributors':0}
         for samples in ((row(0,0),row(0,0)),
                         (row(70,-.1),row(70,.08))):

@@ -65,6 +65,18 @@ def class_periods(games, config=CONFIG, *, strict_original_sequence=False):
             middle=len(group)//2
             if middle>=config.human_sparse_min_games and len(group)-middle>=config.human_sparse_min_games:
                 options += [('replication_half',group[:middle]),('replication_half',group[middle:])]
+        # Old deep selections may contain historical coverage holes while the
+        # newest class tail is fully covered. Reserve a deterministic tail,
+        # anchored at the latest game, rather than searching favourable runs.
+        tail=[]
+        for game in reversed(group):
+            if tail and not consecutive_class_games(game,tail[-1]):break
+            tail.append(game)
+        tail=list(reversed(tail))[-config.replication_tail_games:]
+        if len(tail)>=2*config.human_sparse_min_games:
+            midpoint=len(tail)//2
+            options += [('replication_recent_half',tail[:midpoint]),
+                        ('replication_recent_half',tail[midpoint:])]
         for width in config.human_period_windows:
             if width>=len(group):continue
             stride=1 if width==config.min_games else max(1,config.human_period_stride)
@@ -87,7 +99,7 @@ def class_periods(games, config=CONFIG, *, strict_original_sequence=False):
                 if any(not consecutive_class_games(a,b) for a,b in zip(part,part[1:])):
                     continue
             ids=tuple(g.identity for g in part)
-            acute = mode=='acute_candidate';replication_half = mode=='replication_half'
+            acute = mode=='acute_candidate';replication_half = mode in ('replication_half','replication_recent_half')
             identity_key=(ids,replication_half)
             if (not acute and len(part)<config.min_games) or identity_key in identities:continue
             identities.add(identity_key);s=period_summary(part,config,fast=True)
@@ -113,6 +125,7 @@ def class_periods(games, config=CONFIG, *, strict_original_sequence=False):
             periods.append({'ids':list(ids),'class':kind,'kind':mode,'start':part[0].ended,'end':part[-1].ended,
                 'controls':sorted(set(g.time_control for g in part)), 'summary':s,
                 'absolute':absolute,'acute':acute,'replication_half':replication_half,
+                'replication_scope':'recent_complete_tail' if mode=='replication_recent_half' else 'whole_class',
                 'blockers':blockers,'personal':bool(personal),'baseline_ids':[g.identity for g in baseline],
                 'qualified':qualified})
     return sorted(periods,key=lambda p:(p['qualified'],p['summary']['information']*p['summary']['hit_lower'],p['summary']['contributors']),reverse=True)
@@ -263,9 +276,9 @@ def fixed_replication_status(periods,config=CONFIG,*,require_deep=False):
     groups={}
     for period in periods:
         if period.get('replication_half'):
-            groups.setdefault(period.get('class'),[]).append(period)
+            groups.setdefault((period.get('class'),period.get('replication_scope','whole_class')),[]).append(period)
     candidates=[]
-    for kind,halves in groups.items():
+    for (kind,scope),halves in groups.items():
         halves=sorted(halves,key=lambda p:(p.get('start',0),p.get('end',0)))
         if len(halves)!=2:continue
         blockers=[]
@@ -275,11 +288,24 @@ def fixed_replication_status(periods,config=CONFIG,*,require_deep=False):
         if left.get('end',0)>right.get('start',0):
             blockers.append('fixed halves must not overlap in chronology')
         for index,period in enumerate(halves,1):
-            blockers.extend(f'half {index}: {value}' for value in sparse_review_blockers(period,config))
-            if require_deep:
-                blockers.extend(f'half {index}: {value}' for value in sparse_deep_blockers(period,period.get('deep'),config))
+            fast_blockers=sparse_review_blockers(period,config)
+            deep_blockers=(sparse_deep_blockers(period,period.get('deep'),config)
+                           if require_deep else [])
+            proof=period.get('deep') or {}
+            # Fast searches allocate work; complete authoritative deep evidence
+            # may resolve ONLY the early raw-margin screening gate. Preserve
+            # distribution, lower bounds, counterevidence and every deep gate.
+            resolved=(require_deep and not deep_blockers
+                and proof.get('games',0)==len(period.get('ids',()))
+                and (period.get('summary') or {}).get('quality_excess',0)>0
+                and (proof.get('summary') or {}).get('quality_excess',0)>=config.human_sparse_min_raw_excess
+                and fast_blockers==['raw quality separation'])
+            if resolved:fast_blockers=[]
+            period['fast_margin_resolved_by_complete_deep']=bool(resolved)
+            blockers.extend(f'half {index}: {value}' for value in fast_blockers)
+            blockers.extend(f'half {index}: {value}' for value in deep_blockers)
         score=sum((p.get('summary') or {}).get('information',0)*(p.get('summary') or {}).get('hit_lower',0) for p in halves)
-        candidates.append({'class':kind,'halves':halves,'passed':not blockers,'blockers':list(dict.fromkeys(blockers)),'score':score})
+        candidates.append({'class':kind,'scope':scope,'halves':halves,'passed':not blockers,'blockers':list(dict.fromkeys(blockers)),'score':score})
     if not candidates:
         return {'class':None,'halves':[],'passed':False,
                 'blockers':['two fixed chronological halves of at least thirty games'],'score':0}
@@ -297,7 +323,7 @@ def fixed_half_policy_counterevidence(replication,games,config=CONFIG):
     """
     if 'neural' in config.disabled_features or not replication.get('passed'):
         return {'established':False,'halves':[]}
-    from fairplay_policy import summarize
+    from fairplay_policy import summarize,negative_quality_upper_bound
     by_id={g.identity:g for g in games if g.deep}
     details=[]
     for half in replication.get('halves',()):
@@ -309,9 +335,10 @@ def fixed_half_policy_counterevidence(replication,games,config=CONFIG):
                         'effective_positions':s['effective_positions'],
                         'stable':s['stable'],
                         'signed_excess':s['signed_excess'],
+                        'signed_excess_upper_bound':s.get('signed_excess_upper_bound'),
                         'contributors':s['contributors'],
                         'covered':covered,
-                        'contradicts':bool(covered and s['signed_excess']<=-0.03
+                        'contradicts':bool(covered and negative_quality_upper_bound(s,-0.03)
                                             and s['contributors']<=1)})
     return {'established':len(details)==2 and all(h['contradicts'] for h in details),
             'halves':details}
@@ -511,11 +538,11 @@ def integrate_gameplay(result,games,config=CONFIG,*,periods=None):
                 or not ids or not ids.issubset(contradicted_ids)):
             return False
         if ids not in sparse_policy_cache:
-            from fairplay_policy import summarize
+            from fairplay_policy import summarize,negative_quality_upper_bound
             s=summarize([policy_by_id[i] for i in ids if i in policy_by_id])
             sparse_policy_cache[ids]=bool(s['positions']>=50
                 and s['effective_positions']>=30 and s['stable']>=.5*s['positions']
-                and s['signed_excess']<=0 and s['contributors']<=1)
+                and negative_quality_upper_bound(s,0) and s['contributors']<=1)
         return sparse_policy_cache[ids]
     sparse_confirmed=[p for p in sparse_confirmed if not contradicted_sparse(p)]
     recurrent=[]
@@ -701,7 +728,10 @@ def integrate_gameplay(result,games,config=CONFIG,*,periods=None):
         'Acute exceptional HIGH':route_row(lambda p:p.get('acute',False),'acute'),
         'Replicated fixed-half HIGH':{'passed':fixed_replication_allowed,
             'blockers':[] if fixed_replication_allowed else list(dict.fromkeys(replication_blockers)),
-            'candidate_games':sum(len(p.get('ids',[])) for p in fixed_replication.get('halves',[]))},
+            'candidate_games':sum(len(p.get('ids',[])) for p in fixed_replication.get('halves',[])),
+            'scope':fixed_replication.get('scope'),
+            'deep_resolved_fast_margin_halves':sum(bool(p.get('fast_margin_resolved_by_complete_deep'))
+                for p in fixed_replication.get('halves',[]))},
         'Recurrence HIGH':{'passed':bool(broad_allowed and replicated),
             'blockers':[] if broad_allowed and replicated else ['Separated, deep-confirmed periods with intervening lower-anomaly play not established.']},
         'Gameplay+timing HIGH':{'passed':bool(

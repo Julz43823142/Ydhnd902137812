@@ -91,6 +91,9 @@ def policy_evidence(decision, probabilities):
         expected_upper-=probs.get(move,0)*(1-quality(best-value,scale(best)-scale(value)))
     expected_upper=min(1.0,max(0.0,expected_upper)+POLICY.quality_margin)
     known_mass=sum(probs.get(move,0) for move in searched)
+    expected_known=sum(probs.get(move,0)*quality(best-value,scale(best)-scale(value))
+                       for move,value in searched.items())
+    expected_lower=min(1.0,max(0.0,expected_known-POLICY.quality_margin))
     observed=(quality(best-m['actual_cp'],scale(best)-scale(m['actual_cp'])) if 'actual_cp' in m
               else quality(m.get('cpl',1000),m.get('scaled_loss',1)))
     excess=max(0.0,observed-expected_upper)
@@ -105,7 +108,9 @@ def policy_evidence(decision, probabilities):
     return {'model':MODEL_NAME,'played_move_probability':played,
         'played_move_rank':1+sum(v>played for v in probs.values()),
         'near_best_policy_mass':near_mass,'expected_quality_upper_bound':max(0,expected_upper),
+        'expected_quality_lower_bound':expected_lower,
         'observed_quality':observed,'quality_excess_lower_bound':excess,
+        'signed_quality_excess_upper_bound':observed-expected_lower,
         'signed_quality_excess':observed-expected_upper,'known_policy_mass':known_mass,
         'difficulty':m.get('difficulty',0),'counterfactual_complete':complete,
         'reference_weight':weight,

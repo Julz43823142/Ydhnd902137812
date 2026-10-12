@@ -1,3 +1,6 @@
+> Current v41 changes are documented in [fairplay-v41.md](fairplay-v41.md).
+> The original v40 design below is retained as historical context.
+
 # Daily / correspondence review (v40)
 
 Completed standard Daily games now enter the existing collection, bounded
