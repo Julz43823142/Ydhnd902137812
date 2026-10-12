@@ -118,7 +118,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_GAdjb_1791835613555",
-    "last_activity_at": "2026-10-12T20:08:02.329809+00:00",
+    "last_activity_at": "2026-10-12T20:08:10.188870+00:00",
     "rating": 2427,
     "rp_band": 4,
     "boss": false,
@@ -129,17 +129,17 @@
     "next_player_index": 3,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1559296615658037319
+      "1468320170891022417": 1559296645496049725
     },
-    "message_id": 1559296615658037319,
+    "message_id": 1559296645496049725,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "730484744944353301": {
         "name": "Julian21",
-        "move": "Qf6",
-        "correct": true,
-        "timestamp": "2026-10-12T20:08:02.330192+00:00"
+        "move": "Qh8",
+        "correct": false,
+        "timestamp": "2026-10-12T20:08:10.191604+00:00"
       }
     },
     "first_move_user_id": "730484744944353301",
@@ -151,7 +151,7 @@
       "1468320170891022417": "random_puzzle.png"
     },
     "last_manual_bump": 1791835628.0572054,
-    "last_card_activity_at": "2026-10-12T20:08:02.329809+00:00",
+    "last_card_activity_at": "2026-10-12T20:08:10.188870+00:00",
     "recent_accepted_moves": [
       {
         "accepted_at": 1791835682.3302033,
@@ -165,9 +165,9 @@
       }
     ],
     "wrong_attempt_counts": {
-      "730484744944353301": 2
+      "730484744944353301": 3
     },
-    "last_feedback": "**✅ Correct! 4 moves remaining.**\n↩️ **Opponent replies:** Qf7",
+    "last_feedback": "❌ **Not quite, Julian21 — there is a stronger continuation available.**\n↪️ **Move played:** `Qh8`",
     "accepted_solution_moves": [
       {
         "san": "Rhxg6+",
