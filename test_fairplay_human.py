@@ -393,6 +393,55 @@ class HumanEvidence(unittest.TestCase):
         self.assertEqual(result.diagnostics['high_path'],'Replicated fixed-half gameplay (timing not required)')
         self.assertTrue(result.diagnostics['high_paths']['Replicated fixed-half HIGH']['passed'])
 
+    def test_paired_human_reference_can_refute_heuristic_only_fixed_half_high(self):
+        games=[informative(i,rating=2300) for i in range(60)]
+        periods=[self.replication_period(games[:30]),self.replication_period(games[30:])]
+        broad=self.replication_period(games)
+        broad.update(replication_half=False,kind='broad')
+        broad['summary'].update(
+            hit_game_ids=[g.identity for g in games[:12]+games[30:42]],
+            contributor_ids=[g.identity for g in games[:6]+games[30:36]],
+            hit_games=24,contributors=12)
+        broad_proof=self.replication_proof(broad)
+        broad_proof['summary'].update(
+            hit_game_ids=[g.identity for g in games[:6]+games[30:36]],
+            contributor_ids=[g.identity for g in games[:4]+games[30:34]],
+            hit_games=12,contributors=8)
+        periods.append(broad)
+        proofs={id(p):self.replication_proof(p) for p in periods}
+        proofs[id(broad)]=broad_proof
+        self.assertEqual(sparse_review_blockers(broad),[])
+        self.assertEqual(sparse_deep_blockers(broad,broad_proof),[])
+        counter={'established':True,'halves':[{'covered':True,'contradicts':True}]*2}
+        negative_policy={'positions':70,'effective_positions':65,'stable':45,
+                         'signed_excess':-.08,'contributors':0}
+        with patch('fairplay_sequence.class_periods',return_value=periods), \
+             patch('fairplay_sequence.deep_confirmation',side_effect=lambda p,g,c=CONFIG:proofs[id(p)]), \
+             patch('fairplay_sequence.fixed_half_policy_counterevidence',return_value=counter), \
+             patch('fairplay_policy.summarize',return_value=negative_policy):
+            result=integrate_gameplay(result_stub(games),games)
+        self.assertEqual(result.priority,'LOW')
+        self.assertIn('paired Maia comparisons',
+                      ' '.join(result.diagnostics['high_paths']['Replicated fixed-half HIGH']['blockers']))
+        self.assertFalse(result.diagnostics['gameplay']['distributed_moderate']['passed'])
+
+    def test_missing_or_positive_maia_reference_is_not_counterevidence(self):
+        from fairplay_sequence import fixed_half_policy_counterevidence
+        games=[SimpleNamespace(identity=str(i),deep=True) for i in range(4)]
+        replication={'passed':True,'halves':[{'ids':['0','1']},{'ids':['2','3']}]}
+        def row(positions,signed):
+            return {'positions':positions,'effective_positions':positions,
+                    'stable':int(positions*.6),'signed_excess':signed,
+                    'contributors':0}
+        for samples in ((row(0,0),row(0,0)),
+                        (row(70,-.1),row(70,.08))):
+            with patch('fairplay_policy.summarize',side_effect=samples):
+                self.assertFalse(fixed_half_policy_counterevidence(
+                    replication,games)['established'])
+        with patch('fairplay_policy.summarize',side_effect=(row(70,-.1),row(70,-.08))):
+            self.assertTrue(fixed_half_policy_counterevidence(
+                replication,games)['established'])
+
     def test_one_failed_fixed_half_cannot_high(self):
         games=[informative(i,rating=2300) for i in range(60)]
         periods=[self.replication_period(games[:30]),self.replication_period(games[30:])]

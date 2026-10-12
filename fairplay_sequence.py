@@ -285,6 +285,37 @@ def fixed_replication_status(periods,config=CONFIG,*,require_deep=False):
     return max(candidates,key=lambda row:(row['passed'],row['score']))
 
 
+def fixed_half_policy_counterevidence(replication,games,config=CONFIG):
+    """Find well-covered Maia disagreement with a heuristic-only HIGH route.
+
+    Fixed chronological halves are two views of one correlated gameplay
+    family. If both have broad paired human-policy coverage yet no positive
+    move-quality excess over Maia's alternatives, the heuristic route alone
+    must not issue HIGH. Missing Maia data is never negative evidence and
+    other independently established HIGH routes remain available.
+    """
+    if 'neural' in config.disabled_features or not replication.get('passed'):
+        return {'established':False,'halves':[]}
+    from fairplay_policy import summarize
+    by_id={g.identity:g for g in games if g.deep}
+    details=[]
+    for half in replication.get('halves',()):
+        members=[by_id[ident] for ident in half.get('ids',()) if ident in by_id]
+        s=summarize(members)
+        covered=(s['positions']>=50 and s['effective_positions']>=30
+                 and s['stable']>=0.5*s['positions'])
+        details.append({'positions':s['positions'],
+                        'effective_positions':s['effective_positions'],
+                        'stable':s['stable'],
+                        'signed_excess':s['signed_excess'],
+                        'contributors':s['contributors'],
+                        'covered':covered,
+                        'contradicts':bool(covered and s['signed_excess']<=-0.03
+                                            and s['contributors']<=1)})
+    return {'established':len(details)==2 and all(h['contradicts'] for h in details),
+            'halves':details}
+
+
 def coverage_members(members,count):
     """Chronological anchors plus geometry coverage; never rank by hits.
 
@@ -463,6 +494,29 @@ def integrate_gameplay(result,games,config=CONFIG,*,periods=None):
     sparse_confirmed=[p for p in periods if not p.get('acute')
         and not sparse_review_blockers(p,config) and not sparse_deep_blockers(p,p.get('deep'),config)]
     fixed_replication=fixed_replication_status(periods,config,require_deep=True)
+    policy_counterevidence=fixed_half_policy_counterevidence(
+        fixed_replication,games,config)
+    # A broad sparse period can be the union of the very same fixed halves.
+    # Do not reissue MODERATE from identical heuristic evidence after paired
+    # Maia evidence has contradicted it in both halves. Other periods remain
+    # eligible, and missing Maia coverage never counts as counterevidence.
+    contradicted_ids=(set().union(*(set(p.get('ids',())) for p in fixed_replication['halves']))
+        if policy_counterevidence['established'] else set())
+    policy_by_id={g.identity:g for g in games if g.deep}
+    sparse_policy_cache={}
+    def contradicted_sparse(period):
+        ids=frozenset(period.get('ids',()))
+        if (not contradicted_ids or period.get('class')!=fixed_replication['class']
+                or not ids or not ids.issubset(contradicted_ids)):
+            return False
+        if ids not in sparse_policy_cache:
+            from fairplay_policy import summarize
+            s=summarize([policy_by_id[i] for i in ids if i in policy_by_id])
+            sparse_policy_cache[ids]=bool(s['positions']>=50
+                and s['effective_positions']>=30 and s['stable']>=.5*s['positions']
+                and s['signed_excess']<=0 and s['contributors']<=1)
+        return sparse_policy_cache[ids]
+    sparse_confirmed=[p for p in sparse_confirmed if not contradicted_sparse(p)]
     recurrent=[]
     for p in sorted([p for p in confirmed if not p.get('acute')],key=lambda p:(len(p['ids']),p['start'])):
         if not any(set(p['ids'])&set(q['ids']) for q in recurrent):recurrent.append(p)
@@ -485,7 +539,8 @@ def integrate_gameplay(result,games,config=CONFIG,*,periods=None):
     elif acute_allowed:best=acute_confirmed
     feature_enabled=not {'human','difficulty'}&set(config.disabled_features)
     allowed=bool((broad_allowed or acute_allowed) and feature_enabled)
-    fixed_replication_allowed=bool(fixed_replication['passed'] and sufficient and primary_complete
+    fixed_replication_allowed=bool(fixed_replication['passed']
+        and not policy_counterevidence['established'] and sufficient and primary_complete
         and result.confidence=='HIGH' and feature_enabled)
     sparse_allowed=bool(sparse_confirmed and sufficient and primary_complete and result.confidence!='LOW'
         and feature_enabled)
@@ -529,7 +584,11 @@ def integrate_gameplay(result,games,config=CONFIG,*,periods=None):
     sparse_blockers=(sparse_review_blockers(sparse_review,config) if sparse_review else ['No eligible broad chronological candidate.'])
     if sparse_review and not sparse_blockers:
         sparse_blockers=sparse_deep_blockers(sparse_review,sparse_review.get('deep'),config)
+    if sparse_review and contradicted_sparse(sparse_review):
+        sparse_blockers.append('the same period has sufficient paired Maia comparisons contradicting the heuristic-only signal')
     replication_blockers=list(fixed_replication['blockers'])
+    if policy_counterevidence['established']:
+        replication_blockers.append('both halves have sufficient paired Maia comparisons that contradict the heuristic-only route')
     if not sufficient:replication_blockers.append('minimum broad sample coverage')
     if not primary_complete:replication_blockers.append('required primary engine coverage is incomplete')
     if result.confidence!='HIGH':replication_blockers.append('HIGH data confidence')
@@ -539,6 +598,7 @@ def integrate_gameplay(result,games,config=CONFIG,*,periods=None):
         'confirmed_periods':len(confirmed),'replicated_disjoint_periods':replicated,'funnel':evidence_funnel(games,config),
         'fixed_half_replication':{'passed':fixed_replication_allowed,
             'class':fixed_replication.get('class'),'half_games':[len(p.get('ids',[])) for p in fixed_replication.get('halves',[])],
+            'human_policy_counterevidence':policy_counterevidence,
             'half_evidence':[{
                 'games':len(p.get('ids',[])),
                 'fast_opportunities':p.get('summary',{}).get('opportunities',0),
