@@ -14,7 +14,7 @@ class PolicyConfig:
     alternatives: int = 3
     target_mass: float = .90
     minimum_move_mass: float = .025
-    difficulty: float = .45
+    minimum_legal_choices: int = 8
     known_mass: float = .65
     quality_margin: float = .10  # domain/model uncertainty, not a calibrated CI
     move_excess: float = .20
@@ -32,6 +32,20 @@ class PolicyConfig:
     retention: float = .75
     windows: tuple = (6, 10, 20, 50)
 POLICY = PolicyConfig()
+
+
+def reference_weight(decision, probabilities=None, config=POLICY):
+    """Structural coverage for the learned reference, independent of CPL.
+
+    Stockfish candidate gaps already enter the Maia comparison through the
+    expected quality of human alternatives. Reusing the heuristic difficulty
+    veto here can discard a human-rare excellent move just because Stockfish
+    sees several equally excellent choices. Legal choice count is only a
+    minimum non-forced coverage check, never an anomaly by itself.
+    """
+    count=len(probabilities if probabilities is not None else (decision.human_policy or {}))
+    if count<config.minimum_legal_choices:return 0.0
+    return min(1.0,math.log(count)/math.log(20))
 
 def alternatives(d, config=POLICY):
     """Choose roots by human probability mass, never by the played result."""
@@ -96,8 +110,8 @@ def _needs_counterfactual(decision):
     m=decision.metrics or {}
     return bool(decision.human_policy
                 and m.get('useful') and m.get('competitive')
-                and isinstance(m.get('difficulty'),(int,float))
-                and m['difficulty']>=POLICY.difficulty
+                and reference_weight(decision)>0
+                and not m.get('search_inconsistent')
                 and not decision.forced and not decision.trivial_kind
                 and decision.phase!='opening'
                 and not m.get('easy_conversion')
@@ -232,7 +246,7 @@ def game_summary(game,*,fast=False):
     for d in game.decisions:
         r=(getattr(d,'fast_policy',{}) if fast else
            policy_evidence(d,d.human_policy) if d.human_policy else None)
-        if not r or not r.get('eligible') or r.get('difficulty',0)<POLICY.difficulty:continue
+        if not r or not r.get('eligible') or r.get('reference_weight',0)<=0:continue
         if r.get('known_policy_mass',0)<POLICY.known_mass or not r.get('counterfactual_complete'):continue
         rows.append(r)
         old=getattr(d,'fast_policy',{}) or {}
@@ -286,6 +300,7 @@ def blockers(s):
 
 def periods(games, *, strict_original_sequence=False):
     """Fixed chronological blocks plus latest window; never ranked game sets."""
+    from fairplay_sequence import consecutive_class_games
     output=[]
     summaries={id(g):game_summary(g,fast=True) for g in games}
     for kind in ('rapid','blitz'):  # Bullet model/domain uncertainty is larger.
@@ -297,9 +312,7 @@ def periods(games, *, strict_original_sequence=False):
             for offset in sorted(set([*range(0,len(group)-width+1,width),len(group)-width])):
                 members=group[offset:offset+width]
                 if strict_original_sequence and any(
-                        a.time_control!=b.time_control or
-                        getattr(a,'control_index',None) is None or
-                        getattr(b,'control_index',None)!=a.control_index+1
+                        not consecutive_class_games(a,b)
                         for a,b in zip(members,members[1:])):
                     continue
                 ids=tuple(g.identity for g in members)

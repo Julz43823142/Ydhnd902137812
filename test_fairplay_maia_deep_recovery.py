@@ -20,7 +20,7 @@ from fairplay_data import ReviewError
 
 def decision(name, *, useful=True, difficult=True, opening=False, forced=False):
     return SimpleNamespace(
-        move=name, human_policy={'e2e4':1.0}, fast_policy={},
+        move=name, human_policy={f'candidate-{index}':.05 for index in range(20)}, fast_policy={},
         forced=forced, trivial_kind=None,
         phase='opening' if opening else 'middlegame',
         metrics={'useful':useful, 'competitive':True,
@@ -51,6 +51,7 @@ class CounterfactualRecovery(unittest.TestCase):
             decision('opening',opening=True),
             decision('easy',difficult=False),
             decision('posterror')])
+        game.decisions[3].metrics['easy_conversion']=True
         game.decisions[-1].metrics['post_opponent_error']=True
         game.decisions[-1].metrics['automatic_material_gain']=True
         self.assertEqual([_needs_counterfactual(d) for d in game.decisions],
@@ -110,7 +111,8 @@ class CounterfactualRecovery(unittest.TestCase):
             {'forced':True}, {'phase':'opening'},
             {'metrics':{'useful':False, 'competitive':True,'difficulty':.99}},
             {'metrics':{'useful':True, 'competitive':False,'difficulty':.99}},
-            {'metrics':{'useful':True, 'competitive':True,'difficulty':.20}}):
+            {'metrics':{'useful':True, 'competitive':True,'difficulty':.20,
+                        'easy_conversion':True}}):
             d=decision('candidate')
             for key,value in override.items():setattr(d,key,value)
             self.assertFalse(_needs_counterfactual(d),override)

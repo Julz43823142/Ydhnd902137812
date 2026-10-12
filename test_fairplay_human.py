@@ -237,6 +237,20 @@ class HumanEvidence(unittest.TestCase):
         p=class_periods(games)[0];self.assertEqual(len(p['controls']),3)
         self.assertEqual(integrate_gameplay(result_stub(games),games).priority,'HIGH')
 
+    def test_strict_class_period_keeps_real_mixed_control_sequence(self):
+        games=[informative(i,control=['180+0','180+2','300+0'][i%3]) for i in range(12)]
+        counts={}
+        for i,g in enumerate(games):
+            g.control_index=counts.get(g.time_control,0)
+            counts[g.time_control]=g.control_index+1
+            g.class_index=i
+        full_ids={g.identity for g in games}
+        periods=class_periods(games,strict_original_sequence=True)
+        self.assertTrue(any(set(p['ids'])==full_ids for p in periods))
+        for g in games[6:]:g.class_index+=1
+        periods=class_periods(games,strict_original_sequence=True)
+        self.assertFalse(any(set(p['ids'])==full_ids for p in periods))
+
     def test_casual_duplicate_and_probe_games_cannot_inflate_period(self):
         games=[informative(i) for i in range(9)];extra=informative(10);extra.rated=False
         probe=informative(11);probe.probe_only=True

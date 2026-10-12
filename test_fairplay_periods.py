@@ -3,6 +3,7 @@ import copy
 import unittest
 from dataclasses import replace
 from fairplay_config import CONFIG
+from fairplay_data import assign_chronology_indices
 from fairplay_clusters import find_clusters,select_deep_games,review_candidate,group_record
 from fairplay_results import result_support
 from test_fairplay_v6 import played
@@ -11,6 +12,16 @@ import fairplay_analysis as a
 
 
 class PeriodCoverage(unittest.TestCase):
+    def test_class_indices_include_other_controls_but_separate_unrated_games(self):
+        games=[played(i,True) for i in range(5)]
+        for index,game in enumerate(games):
+            game.rated=index!=2
+            game.time_class='blitz'
+            game.time_control=('180','180+2','180','300','180')[index]
+        assign_chronology_indices(list(reversed(games)))
+        self.assertEqual([g.class_index for g in games],[0,1,0,2,3])
+        self.assertEqual([g.control_index for g in games],[0,0,0,0,1])
+
     def games(self):
         games=[played(i,True) for i in range(20)]
         for i,g in enumerate(games):g.control_index=i

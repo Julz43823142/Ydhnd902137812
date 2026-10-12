@@ -11,6 +11,22 @@ from fairplay_acute import acute_blockers, acute_deep_confirmation
 from fairplay_confirmation import paired_quality_confirmation
 
 
+def consecutive_class_games(left,right):
+    """Use original rated/time-class order, even when controls differ.
+
+    Old serialized fixtures have only exact-control indices. Keep their
+    conservative same-control fallback; a mixed-control period cannot be
+    inferred without original class indices.
+    """
+    first=getattr(left,'class_index',None)
+    second=getattr(right,'class_index',None)
+    if first is not None or second is not None:
+        return (first is not None and second is not None and second==first+1)
+    old=getattr(left,'control_index',None)
+    return (left.time_control==right.time_control and old is not None
+            and getattr(right,'control_index',None)==old+1)
+
+
 def class_absolute(summary,kind,config=CONFIG):
     if not absolute_qualified(summary,config):return False
     if kind!='bullet':return True
@@ -67,10 +83,7 @@ def class_periods(games, config=CONFIG, *, strict_original_sequence=False):
                 # A v21 100+25 deep subset is deliberately discontinuous in
                 # the original archive. Skipped intervening rated peer games
                 # cannot magically become a contiguous HIGH evidence period.
-                if any(a.time_control!=b.time_control or
-                       getattr(a,'control_index',None) is None or
-                       getattr(b,'control_index',None) != a.control_index+1
-                       for a,b in zip(part,part[1:])):
+                if any(not consecutive_class_games(a,b) for a,b in zip(part,part[1:])):
                     continue
             ids=tuple(g.identity for g in part)
             acute = mode=='acute_candidate';replication_half = mode=='replication_half'

@@ -168,7 +168,9 @@ class CheckpointTests(unittest.TestCase):
         first=self.store()
         self.bind(first)
         game=game_with_positions(1)
-        game.decisions[0].human_policy={"e2e4":1.0}
+        legal=[move.uci() for move in chess.Board().legal_moves]
+        human_policy={move:1/len(legal) for move in legal}
+        game.decisions[0].human_policy=human_policy
         game.decisions[0].phase='middlegame'
         game.decisions[0].forced=False
         game.decisions[0].trivial_kind=None
@@ -187,7 +189,7 @@ class CheckpointTests(unittest.TestCase):
             self.assertTrue(one["complete"])
             first.flush()
             new=game_with_positions(1)
-            new.decisions[0].human_policy={"e2e4":1.0}
+            new.decisions[0].human_policy=human_policy
             new.decisions[0].phase='middlegame'
             new.decisions[0].forced=False
             new.decisions[0].trivial_kind=None

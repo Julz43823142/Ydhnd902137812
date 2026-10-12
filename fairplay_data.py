@@ -142,10 +142,28 @@ class GameSample:
     time_control: str = ''
     fast_metrics: dict = field(default_factory=dict)
     control_index: int | None = None
+    class_index: int | None = None
     rated: bool | None = None
     probe_only: bool = False
     moves: list[str] = field(default_factory=list)
     human_reference: dict = field(default_factory=dict)
+
+
+def assign_chronology_indices(history):
+    """Record original order for exact-control timing and class-level play.
+
+    Rated and unrated games have separate sequences. Indexing happens before
+    worker selection so a skipped intermediate game remains a visible gap.
+    """
+    controls = {}
+    classes = {}
+    for game in sorted(history, key=lambda row: (row.ended, row.identity)):
+        control_key = (game.rated, game.time_class, game.time_control)
+        class_key = (game.rated, game.time_class)
+        game.control_index = controls.get(control_key, 0)
+        game.class_index = classes.get(class_key, 0)
+        controls[control_key] = game.control_index + 1
+        classes[class_key] = game.class_index + 1
 
 
 class QuietGameBuilder(chess.pgn.GameBuilder):

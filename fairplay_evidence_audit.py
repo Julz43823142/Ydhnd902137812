@@ -315,6 +315,9 @@ def audit_maia_funnel(games, selected_ids=()):
                 'valid_policy_alignment':gate(aligned,Reason.POLICY_UNAVAILABLE,measured=exists),
                 'engine_comparison_valid':gate(bool(evidence),Reason.INVALID_SCORE,measured=aligned),
                 'eligible_gameplay':gate(eligible,measured=eligible is not None),
+                'reference_choice_coverage':gate(
+                    evidence.get('reference_weight',0)>0 if evidence else False,
+                    measured=bool(evidence)),
                 'sufficient_known_policy_mass':gate(known_mass>=POLICY.known_mass if known_mass is not None else False,
                                                     Reason.POLICY_MASS,measured=known_mass is not None),
                 'counterfactual_complete':gate(counterfactual,Reason.ALTERNATIVES_INCOMPLETE,
@@ -332,7 +335,8 @@ def audit_maia_funnel(games, selected_ids=()):
             seen_plies.add(local_ply)
             rows.append(DecisionAudit(gi,local_ply,checks,branches))
     order=('supported_reference_inputs','policy_inferred','valid_policy_alignment',
-           'engine_comparison_valid','eligible_gameplay','sufficient_known_policy_mass',
+           'engine_comparison_valid','eligible_gameplay','reference_choice_coverage',
+           'sufficient_known_policy_mass',
            'counterfactual_complete')
     branches=('strong_low_policy_move','deep_reviewed','paired_semantic_stability')
     def scan(scope,indices):

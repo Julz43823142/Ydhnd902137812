@@ -51,7 +51,7 @@ def policy_evidence(decision, probabilities):
     values=m.get('candidate_cp',[])
     if not values or len(candidates)!=len(values) or m.get('search_inconsistent'):return None
     best=values[0]
-    from fairplay_policy import POLICY
+    from fairplay_policy import POLICY, reference_weight
     searched=dict(zip(candidates,values))
     if 'actual_cp' in m:searched.setdefault(decision.move,m['actual_cp'])
     extra=m.get('policy_search',{})
@@ -100,13 +100,15 @@ def policy_evidence(decision, probabilities):
                  and not decision.trivial_kind and decision.phase!='opening'
                  and not m.get('easy_conversion')
                  and not m.get('simple_threat_response') and not m.get('automatic_material_gain'))
-    info=excess*m.get('difficulty',0) if useful else 0.0
+    weight=reference_weight(decision,probs) if useful else 0.0
+    info=excess*weight
     return {'model':MODEL_NAME,'played_move_probability':played,
         'played_move_rank':1+sum(v>played for v in probs.values()),
         'near_best_policy_mass':near_mass,'expected_quality_upper_bound':max(0,expected_upper),
         'observed_quality':observed,'quality_excess_lower_bound':excess,
         'signed_quality_excess':observed-expected_upper,'known_policy_mass':known_mass,
         'difficulty':m.get('difficulty',0),'counterfactual_complete':complete,
+        'reference_weight':weight,
         'unsearched_mass':max(0.0,1-known_mass),'quality_uncertainty_margin':POLICY.quality_margin,
         'information':info,'eligible':useful,
         'surprisal_nats':min(8.0,-math.log(max(played,math.exp(-8)))),
