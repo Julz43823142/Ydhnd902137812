@@ -222,12 +222,13 @@ class ExtendedHistory(unittest.TestCase):
     def test_eligibility_counts_do_not_consume_slots(self):
         rows=[sample_row(i) for i in range(1,111)]
         for index,rules in enumerate(('bughouse','chess960','duck')):rows.append({**sample_row(900+index),'rules':rules})
-        rows.append({**sample_row(910),'time_class':'daily'})
+        rows.append({**sample_row(910),'time_class':'daily','time_control':'1/86400'})
         rows.append({**sample_row(911),'pgn':'malformed'})
         api=SimpleNamespace(deadline=time.monotonic()+60,get=Mock(side_effect=[{'archives':[f'https://api.chess.com/pub/player/{TARGET}/games/2026/10']},{'games':rows}]))
         found,skipped,partial=data.collect_games(api,TARGET,lambda _:None,replace(CONFIG,history_games=100))
         self.assertEqual(len(found),100);self.assertEqual(skipped['variant'],3)
-        self.assertEqual(skipped['daily'],1);self.assertEqual(skipped['invalid_pgn'],1)
+        self.assertEqual(sum(g.time_class=='daily' for g in found),1)
+        self.assertEqual(skipped.get('daily',0),0);self.assertEqual(skipped['invalid_pgn'],1)
         self.assertFalse(partial)
 
     def test_configurable_collection_limit_and_primary_limit(self):

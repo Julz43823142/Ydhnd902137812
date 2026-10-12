@@ -157,6 +157,12 @@ def result_embed(result: ReviewResult):
         rated_context=total.get('games',review_games)
     summary+=f"\nRated context games: **{rated_context}**"
     embed.add_field(name='Games analyzed',value=summary,inline=False)
+    daily=result.diagnostics.get('daily_review',{})
+    if daily.get('context_games'):
+        embed.add_field(name='Daily / correspondence',value=(
+            f"Context: **{daily['context_games']}** · Deep reviewed: **{daily.get('deep_reviewed',0)}**\n"
+            "Separate gameplay comparison. Move-time signals are disabled. "
+            "Live-trained Maia is descriptive, not a Daily scoring reference."),inline=False)
     # Preserve bounded-history disclosure in plain English. A sample of 100
     # games is not a statement about every game ever played by this account.
     if coverage.get('requested_primary_limit'):
@@ -319,6 +325,14 @@ def _bounded_detail_embed(embed):
 
 def detail_embed(result, mode):
     embed = discord.Embed(title=f'{mode} — {result.username}',color=0x427CBA)
+    daily=result.diagnostics.get('daily_review',{})
+    if mode in ('Review Gates','Engine Analysis') and daily.get('context_games'):
+        best=daily.get('best') or {}
+        gates=best.get('gates',{})
+        embed.add_field(name='Daily gameplay route',inline=False,value=(
+            '\n'.join(f"{name}: {'PASS' if passed else 'FAIL'}" for name,passed in gates.items())
+            or 'No eligible contiguous Daily comparison period.')[:1024])
+        embed.add_field(name='Daily reference limits',inline=False,value=daily['limitations'][:1024])
     if mode=='Scan Timing':
         runtime=result.diagnostics.get('runtime') or {}
         if not runtime:

@@ -82,7 +82,7 @@ class MixedDepthTests(unittest.TestCase):
                              12 if item.time_class == "bullet" else 18)
         contract = result.diagnostics["run_contract"]
         self.assertEqual(contract["required_primary_depth_by_class"],
-                         {"bullet": 12, "blitz": 18, "rapid": 18})
+                         {"bullet": 12, "blitz": 18, "rapid": 18, "daily": 18})
         self.assertIsNone(contract["required_primary_depth"])
         self.assertEqual(contract["bullet_depth12_total_positions"],
                          contract["bullet_depth12_completed_positions"])

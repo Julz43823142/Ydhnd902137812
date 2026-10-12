@@ -43,7 +43,8 @@ def class_periods(games, config=CONFIG, *, strict_original_sequence=False):
     groups={kind:[] for kind in ('rapid','blitz','bullet')}
     seen=set()
     for game in sorted(games,key=lambda g:(g.ended,g.identity)):
-        if game.identity in seen or game.rated is not True or game.probe_only:continue
+        if (game.identity in seen or game.rated is not True or game.probe_only
+                or game.time_class not in groups):continue
         seen.add(game.identity)
         if 'human' in (game.fast_metrics or game.metrics):groups[game.time_class].append(game)
     periods=[]

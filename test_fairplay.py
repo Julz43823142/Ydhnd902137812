@@ -107,8 +107,8 @@ class Parsing(unittest.TestCase):
         self.assertIsNone(next(d for d in parsed.decisions if d.ply==27).think)
         self.assertIsNotNone(next(d for d in parsed.decisions if d.ply==29).think)
 
-    def test_malformed_variants_short_daily_and_wrong_player_are_skipped_without_logging(self):
-        for change in ({'rules':'chess960'},{'time_class':'daily'},{'pgn':'nonsense'}, {'end_time':None},
+    def test_malformed_variants_short_unsupported_and_wrong_player_are_skipped_without_logging(self):
+        for change in ({'rules':'chess960'},{'time_class':'unsupported'},{'pgn':'nonsense'}, {'end_time':None},
                        {'pgn':'[White "synthetic-account"]\n[Black "x"]\n[Result "1-0"]\n1. e4 e5 1-0'}):
             row = sample_row();row.update(change)
             self.assertIsNone(data.parse_game(row,TARGET))
@@ -153,7 +153,7 @@ class API(unittest.TestCase):
 
     def test_collection_newest_100_across_months_and_chronological_output(self):
         rows = [sample_row(i) for i in range(1,111)]
-        rows.append({**sample_row(999),'time_class':'daily'})
+        rows.append({**sample_row(999),'time_class':'unsupported'})
         def get(target,suffix='',**kwargs):
             if suffix=='/games/archives':return {'archives':[f'https://api.chess.com/pub/player/{TARGET}/games/2026/09',f'https://api.chess.com/pub/player/{TARGET}/games/2026/10','http://127.0.0.1/secret']}
             return {'games':list(reversed(rows[60:]))} if suffix.endswith('/10') else {'games':rows[:60]}

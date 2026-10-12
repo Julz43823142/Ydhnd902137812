@@ -215,7 +215,7 @@ def performance_metrics(games):
             if contrast['elevated'] and kind not in contrasts:contrasts.append(kind)
         control_rows.append({'class':kind,'control':control,'games':len(group),'win_loss_contrast':contrast})
     classes={}
-    for kind in ('rapid','blitz','bullet'):
+    for kind in ('rapid','blitz','bullet','daily'):
         group=[g for g in useful if g.time_class==kind]
         wins=[g for g in group if g.result=='Win'];losses=[g for g in group if g.result=='Loss'];draws=[g for g in group if g.result=='Draw']
         bycontrol=[r for r in control_rows if r['class']==kind]
@@ -245,7 +245,7 @@ def context_metrics(games, profile):
     joined = finite_number(profile.get('joined'))
     age = max(0, int((time.time()-joined)/86400)) if joined and 0<joined<=time.time() else None
     by_class = {}
-    for kind in ('rapid','blitz','bullet'):
+    for kind in ('rapid','blitz','bullet','daily'):
         group = [g for g in games if g.time_class==kind]
         rated = [g for g in group if g.rated is True and g.rating is not None and g.opponent_rating is not None]
         expected = [1/(1+10**((g.opponent_rating-g.rating)/400)) for g in rated]
@@ -938,7 +938,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                        (isinstance(g.rated,bool) if include_unrated else g.rated is True)],
                        key=lambda g:(g.ended,g.identity))[-collection_limit(config):]
         if not history:
-            raise ReviewError('No eligible standard live games with enough meaningful moves were found.')
+            raise ReviewError('No eligible standard games with enough meaningful moves were found.')
         check_deadline(deadline)
         use_shared=(engine_factory is None and engine_workers is None and config==CONFIG)
         try:
@@ -1474,12 +1474,14 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         scoring_games=([g for g in v21_deep if g.rated is True]
                        if v21_mode and include_unrated else
                        v21_deep if v21_mode else analyzed)
+        daily_scoring_games=[g for g in scoring_games if g.time_class=='daily']
+        scoring_games=[g for g in scoring_games if g.time_class!='daily']
         rated_history=([g for g in history if g.rated is True]
                        if include_unrated else history)
         scoring_started=time.monotonic()
         result=score_review(canonical,scoring_games,len(rated_history),skipped,primary_partial,
                             engine_name,profile,time.monotonic()-started,config,
-                            coverage_state=coverage_state,context_games=rated_history,
+                            coverage_state=coverage_state,context_games=[g for g in rated_history if g.time_class!='daily'],
                             gameplay_periods=gameplay_periods)
         # Temporal outcome streaks and extremely mismatched opposition belong
         # in a visible read-only audit, never in engine-cheating score gates.
@@ -1515,7 +1517,9 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         # gameplay verdict. Its reason explicitly says engine confirmation
         # was not established; no sanction or cheating inference follows.
         from fairplay_streak import prioritize_accuracy_surge
-        result=prioritize_accuracy_surge(result,analyzed,config)
+        result=prioritize_accuracy_surge(result,[g for g in analyzed if g.time_class!='daily'],config)
+        from fairplay_daily import integrate as integrate_daily
+        result=integrate_daily(result,daily_scoring_games,config,context_games=history)
         # Review all verified deep-reviewed games, including short games with
         # fewer than eight useful moves. The audit is aggregate-only and cannot
         # elevate priority; fast evidence selects any diagnostic period.
@@ -1541,7 +1545,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             # must not be mistaken for 500 depth18-confirmed games.
             result.coverage.update(fast_scanned=len(analyzed),
                                    broad_fast_scanned=len(analyzed),
-                                   deep_scope_games=len(scoring_games),
+                                   deep_scope_games=len(scoring_games)+len(daily_scoring_games),
                                    deep_scope_used=result.coverage.get('used',0))
             result.games=list(analyzed)  # owner evidence retains both tiers
         result.coverage.update(primary_collected=len(primary),primary_fast_scanned=min(len(analyzed),len(primary)) if not primary_complete else len(primary),
@@ -1669,9 +1673,9 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 'recent_full_complete') if v21_mode else None,
             'required_primary_depth':(18 if full_depth_mode and not any(g.time_class=='bullet' for g in primary)
                                       else None),
-            'required_primary_depth_by_class':({'bullet':config.bullet_deep_depth,'blitz':18,'rapid':18}
+            'required_primary_depth_by_class':({'bullet':config.bullet_deep_depth,'blitz':18,'rapid':18,'daily':18}
                                                if full_depth_mode and not v21_mode else None),
-            'selected_required_depth_by_class':({'bullet':config.bullet_deep_depth,'blitz':18,'rapid':18}
+            'selected_required_depth_by_class':({'bullet':config.bullet_deep_depth,'blitz':18,'rapid':18,'daily':18}
                                                 if v21_mode else None),
             'required_full_coverage':bool(full_depth_mode and not v21_mode),
             'required_selected_full_depth':bool(full_depth_mode and v21_mode),

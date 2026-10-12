@@ -5,11 +5,20 @@ CHANNEL_ID = 1311445685492781186
 NAMESPACE = 'shark:fairplay:'
 DISCLAIMER = ('Automated fair-play screening only. This result is not proof of cheating '
               'and must not be used as the sole basis for punishment. Human review is mandatory.')
-VERSION = 'fairplay-v39-depth-aware-shards'
+VERSION = 'fairplay-v40-daily-gameplay'
 
 
 @dataclass(frozen=True)
 class ReviewConfig:
+    # Correspondence has no meaningful live-clock evidence. HIGH requires a
+    # within-player change on deep-reviewed, non-book competitive decisions.
+    daily_period_games: int = 5
+    daily_min_baseline_games: int = 10
+    daily_min_opportunities: int = 40
+    daily_min_game_opportunities: int = 5
+    daily_hit_lower: float = .75
+    daily_baseline_upper: float = .55
+    daily_min_quality_shift: float = .30
     max_games: int = 500  # production: latest 500 eligible rated games; fixture overrides supported
     history_games: int = 500  # v21 explicitly extends metadata collection to 1000; legacy contracts remain 500
     primary_engine_games: int = 500
