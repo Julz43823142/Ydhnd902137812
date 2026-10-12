@@ -118,7 +118,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_GAdjb_1791835613555",
-    "last_activity_at": "2026-10-12T20:06:53.555584+00:00",
+    "last_activity_at": "2026-10-12T20:07:18.911261+00:00",
     "rating": 2427,
     "rp_band": 4,
     "boss": false,
@@ -129,12 +129,19 @@
     "next_player_index": 0,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1559296383813419029
+      "1468320170891022417": 1559296429443522631
     },
-    "message_id": 1559296383813419029,
+    "message_id": 1559296429443522631,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {},
+    "attempted_users": {
+      "730484744944353301": {
+        "name": "Julian21",
+        "move": "R1xg6",
+        "correct": false,
+        "timestamp": "2026-10-12T20:07:18.913556+00:00"
+      }
+    },
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
@@ -143,7 +150,13 @@
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
-    "last_manual_bump": 1791835628.0572054
+    "last_manual_bump": 1791835628.0572054,
+    "last_card_activity_at": "2026-10-12T20:07:18.911261+00:00",
+    "recent_accepted_moves": [],
+    "wrong_attempt_counts": {
+      "730484744944353301": 1
+    },
+    "last_feedback": "❌ **Close, Julian21: you found a good-looking move, just not the best one.**\n↪️ **Move played:** `R1xg6`"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
