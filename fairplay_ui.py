@@ -335,6 +335,11 @@ def detail_embed(result, mode):
             '\n'.join(f"{name}: {'PASS' if passed else 'FAIL'}" for name,passed in gates.items())
             or 'No eligible contiguous Daily comparison period.')[:1024])
         embed.add_field(name='Daily reference limits',inline=False,value=daily['limitations'][:1024])
+        coverage=daily.get('opportunity_coverage',{})
+        embed.add_field(name='Daily search coverage',inline=False,value=(
+            f"Difficult opportunities (game-capped): {coverage.get('opportunities',0)}\n"
+            f"Unverified difficult decisions (before cap): {coverage.get('unverified_decisions',0)}\n"
+            'Incomplete searches remain unknown and cannot certify this HIGH route.'))
     if mode=='Scan Timing':
         runtime=result.diagnostics.get('runtime') or {}
         if not runtime:
