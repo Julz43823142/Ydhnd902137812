@@ -71,6 +71,20 @@ class ScanTimingTests(unittest.TestCase):
         restored.observe('Depth-18 rapid/blitz · depth-12 bullet: 30 / 100 positions',now=now)
         self.assertEqual(restored.phases['deep']['done'],30)
 
+    def test_local_recovery_discards_remote_eta(self):
+        clock=ReliableTiming(started=0)
+        clock.observe('Fast engine scan: 0 / 100 positions',now=0)
+        clock.observe('Fast engine scan: 50 / 100 positions',now=100)
+        clock.observe('Remote Stockfish dispatched…',now=120)
+        clock.observe('Depth-18 rapid/blitz · depth-12 bullet: 180 / 1000 positions',now=180)
+        self.assertIn('deep',clock.rate)
+        clock.observe('Recovering missing Stockfish games locally…',now=200)
+        self.assertNotIn('deep',clock.rate)
+        self.assertIn('Re-estimating',clock.summary('Recovering missing Stockfish games locally…',now=201))
+        clock.observe('Depth-18 rapid/blitz · depth-12 bullet: 0 / 100 positions',now=210)
+        clock.observe('Depth-18 rapid/blitz · depth-12 bullet: 20 / 100 positions',now=240)
+        self.assertAlmostEqual(clock.rate['deep'],30/20)
+
 
 class EngineSearchTimeoutTests(unittest.TestCase):
     def test_search_modes_have_distinct_default_limits(self):

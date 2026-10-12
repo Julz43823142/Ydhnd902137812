@@ -1242,6 +1242,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 distributed_handle,progress,deadline)
             progress(f'Fair Play compute: {len(distributed_completed)} / '
                      f'{len(v21_deep)} remotely confirmed games')
+            if len(distributed_completed)<len(v21_deep):
+                progress('Recovering missing Stockfish games locally…')
         index=0
         def deep_scan(game,worker=None):
             confirmed=copy.deepcopy(game)

@@ -121,6 +121,7 @@ class ReliableTiming(LiveTiming):
         self.last_phase=None
         self.last_calibrated=None
         self.remote_started=None
+        self.recovering=False
         import os
         self.expected_deep_games=(250 if os.getenv('FAIRPLAY_DISTRIBUTED')=='1'
                                   else 125)
@@ -132,6 +133,12 @@ class ReliableTiming(LiveTiming):
             if self.remote_started is None:
                 self.remote_started=now
             return
+        if stage.startswith('Recovering missing Stockfish games locally'):
+            self.recovering=True
+            self.remote_started=None
+            self.phases.pop('deep',None)
+            self.rate.pop('deep',None)
+            return
         for prefix,key in self.PHASES:
             if not stage.startswith(prefix):continue
             # Game counts must not overwrite position-based rates.
@@ -140,6 +147,8 @@ class ReliableTiming(LiveTiming):
             if not match:return
             done,total=(int(match[1]),int(match[2]))
             if total<=0:return
+            if key=='deep':
+                self.recovering=False
             item=self.phases.get(key)
             if item is None or total!=item["total"] or done<item["done"]:
                 if item is not None:
@@ -233,6 +242,8 @@ class ReliableTiming(LiveTiming):
             return label+" · Finalizing the report…"
         if stage.startswith(("Fast Maia alternatives","Deep Maia alternatives")):
             return label+" · Checking Maia counterfactuals; completion time is variable."
+        if self.recovering:
+            return label+" · Re-estimating after local worker recovery starts."
         wide=self.phases.get("wide")
         if not wide or "wide" not in self.rate:
             return label+" · Time remaining: not yet available."
