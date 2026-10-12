@@ -1,0 +1,20 @@
+{
+  "boss": false,
+  "correct": false,
+  "created_at": 1791835640,
+  "display_name": "Julian21",
+  "elo_after": 1499.847,
+  "elo_change": -0.153,
+  "new_achievements": [
+    "first_steps",
+    "learning_experience"
+  ],
+  "puzzle_id": "random_GAdjb_1791835613555",
+  "puzzle_rating": 2427,
+  "source": "random",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 0,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:random_GAdjb_1791835613555:730484744944353301",
+  "user_id": "730484744944353301"
+}

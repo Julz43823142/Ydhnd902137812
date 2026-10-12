@@ -387,6 +387,39 @@
       "total": 184,
       "updated_at": 1791360804,
       "wrong": 48
+    },
+    "730484744944353301": {
+      "achievements": [
+        "first_steps",
+        "learning_experience"
+      ],
+      "admin_rated": false,
+      "best_hard_streak_2600": 0,
+      "best_streak": 0,
+      "best_wrong_streak": 1,
+      "boss_attempts": 0,
+      "boss_correct": 0,
+      "boss_first_solves": 0,
+      "comeback_count": 0,
+      "correct": 0,
+      "correct_2000": 0,
+      "correct_2400": 0,
+      "correct_2600": 0,
+      "correct_2800": 0,
+      "current_hard_streak_2600": 0,
+      "current_streak": 0,
+      "current_wrong_streak": 1,
+      "elo": 1499.8466921722606,
+      "elo_games": 1,
+      "first_solves": 0,
+      "max_rating_solved": 0,
+      "name": "Julian21",
+      "peak_elo": 1500.0,
+      "rated_correct_count": 0,
+      "rated_correct_rating_sum": 0,
+      "total": 1,
+      "updated_at": 1791835640,
+      "wrong": 1
     }
   },
   "version": 1
