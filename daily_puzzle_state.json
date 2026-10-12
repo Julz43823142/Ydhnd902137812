@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/GAdjb",
     "title": "Lichess • 2427",
     "fen": "r3rnk1/ppq5/2pb2pR/8/3P1p2/2P5/PPQBbP2/2K3R1 w - - 0 21",
-    "current_fen": "r3rnk1/ppq5/2pb2pR/8/3P1p2/2P5/PPQBbP2/2K3R1 w - - 0 21",
-    "last_move_uci": "h7g6",
+    "current_fen": "r3r1k1/ppq5/2pb2n1/8/3P1p2/2P5/PPQBbP2/2K3R1 w - - 0 22",
+    "last_move_uci": "f8g6",
     "pgn": "Rhxg6+ Nxg6 Qxg6+ Kf8 Qf6+ Qf7 Qxd6+ Re7 Qh6+ Ke8 Qh8+ Kd7 Qxa8",
     "all_moves": [
       {
@@ -118,32 +118,32 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_GAdjb_1791835613555",
-    "last_activity_at": "2026-10-12T20:07:18.911261+00:00",
+    "last_activity_at": "2026-10-12T20:07:40.987129+00:00",
     "rating": 2427,
     "rp_band": 4,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1559296429443522631
+      "1468320170891022417": 1559296529205035235
     },
-    "message_id": 1559296429443522631,
+    "message_id": 1559296529205035235,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "730484744944353301": {
         "name": "Julian21",
-        "move": "R1xg6",
-        "correct": false,
-        "timestamp": "2026-10-12T20:07:18.913556+00:00"
+        "move": "Rhxg6",
+        "correct": true,
+        "timestamp": "2026-10-12T20:07:40.987514+00:00"
       }
     },
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "first_move_user_id": "730484744944353301",
+    "first_move_user_name": "Julian21",
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
@@ -151,12 +151,30 @@
       "1468320170891022417": "random_puzzle.png"
     },
     "last_manual_bump": 1791835628.0572054,
-    "last_card_activity_at": "2026-10-12T20:07:18.911261+00:00",
-    "recent_accepted_moves": [],
+    "last_card_activity_at": "2026-10-12T20:07:40.987129+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1791835660.987527,
+        "fen_before": "r3rnk1/ppq5/2pb2pR/8/3P1p2/2P5/PPQBbP2/2K3R1 w - - 0 21",
+        "expected": {
+          "uci": "h6g6",
+          "san": "Rhxg6+",
+          "color": "white"
+        },
+        "accepted_uci": "h6g6"
+      }
+    ],
     "wrong_attempt_counts": {
       "730484744944353301": 1
     },
-    "last_feedback": "❌ **Close, Julian21: you found a good-looking move, just not the best one.**\n↪️ **Move played:** `R1xg6`"
+    "last_feedback": "**✅ Correct! 6 moves remaining.**\n↩️ **Opponent replies:** Nxg6",
+    "accepted_solution_moves": [
+      {
+        "san": "Rhxg6+",
+        "uci": "h6g6",
+        "principal": true
+      }
+    ]
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
