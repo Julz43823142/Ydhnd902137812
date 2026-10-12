@@ -38,6 +38,17 @@ def is_peer_game(game, *, max_lower_gap=500):
             and not getattr(game,"probe_only",False))
 
 
+def meaningful_daily(game):
+    """Allocate extra slots by pre-engine structure, never performance/hits.
+
+    Latest-fifty guarantees still cover short games. The EXTRA correspondence
+    comparison reservation must not be consumed by games with no meaningful
+    post-book decisions (including immediate resignations).
+    """
+    return (game.time_class=='daily' and game.rated is True
+            and sum(bool(getattr(d,'useful',getattr(d,'phase','')!='opening' and not getattr(d,'forced',False))) for d in game.decisions)>=8)
+
+
 def broad_and_core(history, *, broad_count=500, deep_count=100,
                    include_unrated=False):
     """Reserve the latest fifty rated games for complete depth confirmation.
@@ -64,7 +75,7 @@ def broad_and_core(history, *, broad_count=500, deep_count=100,
         needed={g.identity for g in (*newest_any,*newest_rated)}
         # Keep a bounded Daily comparison set inside existing deep slots.
         # Live/Bullet volume must not silently evict all correspondence games.
-        daily=[g for g in reversed(rated_games) if g.time_class=='daily']
+        daily=[g for g in reversed(rated_games) if meaningful_daily(g)]
         for game in daily[:30]:
             if len(needed)>=deep_count:break
             needed.add(game.identity)
@@ -84,7 +95,7 @@ def broad_and_core(history, *, broad_count=500, deep_count=100,
         return ReviewPlan(primary,core,(),len(chronological),broad_count,tail)
     must=list(chronological[-count:]) if count else []
     needed={g.identity for g in must}
-    for game in [g for g in reversed(chronological) if g.time_class=='daily'][:30]:
+    for game in [g for g in reversed(chronological) if meaningful_daily(g)][:30]:
         if len(needed)>=deep_count:break
         if game.identity not in needed:must.append(game);needed.add(game.identity)
     tail=tuple(g for g in must if not is_peer_game(g) or g.time_class=='daily')

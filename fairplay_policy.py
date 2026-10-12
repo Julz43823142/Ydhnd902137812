@@ -259,10 +259,15 @@ def game_summary(game,*,fast=False):
             and d.metrics.get('search_stability',{}).get('objective_quality_preserved')):stable+=1
     hits=sum(r['observed_quality']>=.85 and r['quality_excess_lower_bound']>=POLICY.move_excess for r in rows)
     signed=statistics.mean(r['signed_quality_excess'] for r in rows) if rows else 0
+    upper_values=[r.get('signed_quality_excess_upper_bound') for r in rows]
+    upper=(statistics.mean(upper_values) if rows and all(
+        isinstance(v,(int,float)) and not isinstance(v,bool) and math.isfinite(v)
+        for v in upper_values) else None)
     info=statistics.mean(r['information'] for r in rows) if rows else 0
     contributor=(len(rows)>=POLICY.minimum_game_decisions and hits>=POLICY.game_hits
                  and signed>=POLICY.game_signed_excess and info>=POLICY.game_information)
     return {'positions':len(rows),'hits':hits,'signed_excess':signed,
+            'signed_excess_upper_bound':upper,
             'information':info,'contributor':contributor,'stable':stable}
 
 def summarize(games,*,fast=False):
@@ -275,7 +280,13 @@ def combine(rows):
     usable=[(r,min(r['positions'],POLICY.game_decisions)/POLICY.game_decisions)
             for _,r in rows if r['positions']]
     weight=sum(w for _,w in usable)
+    upper_valid=bool(usable) and all(
+        isinstance(r.get('signed_excess_upper_bound'),(int,float))
+        and not isinstance(r['signed_excess_upper_bound'],bool)
+        and math.isfinite(r['signed_excess_upper_bound']) for r,w in usable)
     return {'games':len(rows),'opportunity_games':len(usable),
+        'signed_excess_upper_bound':(sum(r['signed_excess_upper_bound']*w for r,w in usable)/weight
+                                    if upper_valid else None),
         'positions':sum(r['positions'] for _,r in rows),
         'effective_positions':weight*POLICY.game_decisions,
         'opportunity_weight':weight,
@@ -285,6 +296,13 @@ def combine(rows):
         'signed_excess':sum(r['signed_excess']*w for r,w in usable)/weight if weight else 0,
         'information':sum(r['information']*w for r,w in usable)/weight if weight else 0,
         'stable':sum(r['stable'] for _,r in rows)}
+
+
+def negative_quality_upper_bound(summary, threshold):
+    """A negative lower bound is not counterevidence. Missing bounds stay unknown."""
+    upper=summary.get('signed_excess_upper_bound')
+    return (isinstance(upper,(int,float)) and not isinstance(upper,bool)
+            and math.isfinite(upper) and upper<=threshold)
 
 
 def blockers(s):

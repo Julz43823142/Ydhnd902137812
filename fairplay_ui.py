@@ -161,6 +161,8 @@ def result_embed(result: ReviewResult):
     if daily.get('context_games'):
         embed.add_field(name='Daily / correspondence',value=(
             f"Context: **{daily['context_games']}** · Deep reviewed: **{daily.get('deep_reviewed',0)}**\n"
+            f"Difficult opportunities: **{daily.get('opportunity_coverage',{}).get('opportunities',0)}**\n"
+            f"Daily comparison coverage: **{daily.get('reference_coverage','Limited')}**\n"
             "Separate gameplay comparison. Move-time signals are disabled. "
             "Live-trained Maia is descriptive, not a Daily scoring reference."),inline=False)
     # Preserve bounded-history disclosure in plain English. A sample of 100
