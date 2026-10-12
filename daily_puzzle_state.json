@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/GAdjb",
     "title": "Lichess • 2427",
     "fen": "r3rnk1/ppq5/2pb2pR/8/3P1p2/2P5/PPQBbP2/2K3R1 w - - 0 21",
-    "current_fen": "r3rk2/ppq5/2pb2Q1/8/3P1p2/2P5/PP1BbP2/2K3R1 w - - 1 23",
-    "last_move_uci": "g8f8",
+    "current_fen": "r3rk2/pp3q2/2pb1Q2/8/3P1p2/2P5/PP1BbP2/2K3R1 w - - 3 24",
+    "last_move_uci": "c7f7",
     "pgn": "Rhxg6+ Nxg6 Qxg6+ Kf8 Qf6+ Qf7 Qxd6+ Re7 Qh6+ Ke8 Qh8+ Kd7 Qxa8",
     "all_moves": [
       {
@@ -118,28 +118,28 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_GAdjb_1791835613555",
-    "last_activity_at": "2026-10-12T20:07:57.079109+00:00",
+    "last_activity_at": "2026-10-12T20:08:02.329809+00:00",
     "rating": 2427,
     "rp_band": 4,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 4,
-    "next_player_index": 2,
+    "next_solution_index": 6,
+    "next_player_index": 3,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1559296590089424976
+      "1468320170891022417": 1559296615658037319
     },
-    "message_id": 1559296590089424976,
+    "message_id": 1559296615658037319,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "730484744944353301": {
         "name": "Julian21",
-        "move": "Qg8",
-        "correct": false,
-        "timestamp": "2026-10-12T20:07:57.081169+00:00"
+        "move": "Qf6",
+        "correct": true,
+        "timestamp": "2026-10-12T20:08:02.330192+00:00"
       }
     },
     "first_move_user_id": "730484744944353301",
@@ -151,23 +151,23 @@
       "1468320170891022417": "random_puzzle.png"
     },
     "last_manual_bump": 1791835628.0572054,
-    "last_card_activity_at": "2026-10-12T20:07:57.079109+00:00",
+    "last_card_activity_at": "2026-10-12T20:08:02.329809+00:00",
     "recent_accepted_moves": [
       {
-        "accepted_at": 1791835669.708714,
-        "fen_before": "r3r1k1/ppq5/2pb2n1/8/3P1p2/2P5/PPQBbP2/2K3R1 w - - 0 22",
+        "accepted_at": 1791835682.3302033,
+        "fen_before": "r3rk2/ppq5/2pb2Q1/8/3P1p2/2P5/PP1BbP2/2K3R1 w - - 1 23",
         "expected": {
-          "uci": "c2g6",
-          "san": "Qxg6+",
+          "uci": "g6f6",
+          "san": "Qf6+",
           "color": "white"
         },
-        "accepted_uci": "c2g6"
+        "accepted_uci": "g6f6"
       }
     ],
     "wrong_attempt_counts": {
       "730484744944353301": 2
     },
-    "last_feedback": "❌ **The engine disagrees, Julian21 — the board is asking for a little more calculation.**\n↪️ **Move played:** `Qg8`",
+    "last_feedback": "**✅ Correct! 4 moves remaining.**\n↩️ **Opponent replies:** Qf7",
     "accepted_solution_moves": [
       {
         "san": "Rhxg6+",
@@ -177,6 +177,11 @@
       {
         "san": "Qxg6+",
         "uci": "c2g6",
+        "principal": true
+      },
+      {
+        "san": "Qf6+",
+        "uci": "g6f6",
         "principal": true
       }
     ]
