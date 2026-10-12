@@ -19,7 +19,7 @@ import discord
 from fairplay_analysis import (ReviewResult, review, review_interest,
                                get_shared_engine_pool, close_shared_engine_pool,
                                available_engine_cpus, available_engine_memory_mb)
-from fairplay_config import CHANNEL_ID, DISCLAIMER, NAMESPACE, CONFIG
+from fairplay_config import CHANNEL_ID, DISCLAIMER, NAMESPACE, CONFIG, VERSION
 from fairplay_data import AccountNotFound, ReviewError, username
 from fairplay_progress import estimate, bar, label, duration, LiveTiming, ReliableTiming
 from fairplay_checkpoint import CheckpointStore
@@ -302,7 +302,8 @@ def result_embed(result: ReviewResult):
     embed.add_field(name='Important',value=SHORT_SCREENING_NOTICE,inline=False)
     revision=(result.diagnostics.get('run_contract') or {}).get('code_revision')
     suffix=(f" · Code {revision}" if revision else "")
-    embed.set_footer(text='More details: buttons below'+suffix)
+    detector_version=getattr(result,'version',None) or VERSION
+    embed.set_footer(text=f'More details: buttons below · Version: {detector_version}'+suffix)
     return embed
 
 
