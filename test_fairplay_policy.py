@@ -31,6 +31,44 @@ def result():
         coverage={'primary_engine_complete':True},diagnostics={},families={},reasons=[])
 
 class CounterfactualMath(unittest.TestCase):
+    def test_learned_reference_retains_rare_good_choice_with_equivalent_engine_options(self):
+        d=sample(0).decisions[0]
+        d.move=d.metrics['candidates'][1]
+        d.metrics.update(difficulty=.20,candidate_cp=[0,-4,-9,-180,-250],
+                         actual_cp=-4,cpl=4,scaled_loss=.004)
+        d.human_policy=distribution(d)
+        d.human_policy[d.metrics['candidates'][1]]=.01
+        d.human_policy[d.metrics['candidates'][3]]=.81
+        self.assertTrue(policy._needs_counterfactual(d))
+        row=policy_evidence(d,d.human_policy)
+        self.assertGreater(row['quality_excess_lower_bound'],.4)
+        self.assertGreater(row['reference_weight'],0)
+        self.assertGreater(row['information'],.4)
+        self.assertEqual(policy.game_summary(SimpleNamespace(decisions=[d],deep=True))['positions'],1)
+
+    def test_learned_reference_equivalent_human_favored_moves_are_not_evidence(self):
+        d=sample(0).decisions[0]
+        d.metrics.update(difficulty=.20,candidate_cp=[0,-4,-9,-180,-250],
+                         actual_cp=0,cpl=0,scaled_loss=0)
+        d.human_policy=distribution(d)
+        row=policy_evidence(d,d.human_policy)
+        self.assertEqual(row['information'],0)
+        self.assertGreater(row['reference_weight'],0)
+
+    def test_learned_reference_still_skips_noncompetitive_and_automatic_positions(self):
+        d=sample(0).decisions[0]
+        for key in ('competitive','useful'):
+            other=copy.deepcopy(d);other.metrics[key]=False
+            self.assertFalse(policy._needs_counterfactual(other))
+        for key in ('easy_conversion','automatic_material_gain','simple_threat_response',
+                    'search_inconsistent'):
+            other=copy.deepcopy(d);other.metrics[key]=True
+            self.assertFalse(policy._needs_counterfactual(other))
+        other=copy.deepcopy(d);other.human_policy={k:.125 for k in list(d.human_policy)[:8]}
+        self.assertTrue(policy._needs_counterfactual(other))
+        other.human_policy={k:1/7 for k in list(d.human_policy)[:7]}
+        self.assertFalse(policy._needs_counterfactual(other))
+
     def test_human_preferred_move_outside_top_five_is_searched(self):
         d=decision();d.human_policy=distribution(d)
         d.human_policy[d.metrics['candidates'][1]]=.01
@@ -128,6 +166,18 @@ class DistributedEvidence(unittest.TestCase):
         games=[sample(i) for i in range(6)]
         for i,g in enumerate(games):g.time_control=('180','180+2','300')[i%3]
         self.assertEqual(policy.integrate(result(),games).priority,'HIGH')
+
+    def test_strict_class_chronology_accepts_mixed_controls_but_not_missing_games(self):
+        games=[sample(i) for i in range(6)]
+        counters={}
+        for i,g in enumerate(games):
+            g.time_control=('180','180+2','300')[i%3]
+            g.control_index=counters.get(g.time_control,0)
+            counters[g.time_control]=g.control_index+1
+            g.class_index=i
+        self.assertEqual(policy.integrate(result(),games,strict_original_sequence=True).priority,'HIGH')
+        for g in games[3:]:g.class_index+=1
+        self.assertEqual(policy.integrate(result(),games,strict_original_sequence=True).priority,'LOW')
 
     def test_ablation_and_missing_model_are_safe(self):
         games=[sample(i) for i in range(6)]

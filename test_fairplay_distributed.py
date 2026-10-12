@@ -64,10 +64,12 @@ class Sharding(unittest.TestCase):
 
     def test_unchanged_real_game_dataclasses_are_roundtripped(self):
         game=sample()
+        game.class_index=7
         restored=deserialize_game(serialize_game(game))
         self.assertEqual(restored.identity,game.identity)
         self.assertEqual(restored.color,game.color)
         self.assertEqual(restored.moves,game.moves)
+        self.assertEqual(restored.class_index,7)
         self.assertEqual([d.fen for d in restored.decisions],
                          [d.fen for d in game.decisions])
         self.assertEqual(len(restored.decisions),len(game.decisions))
@@ -96,6 +98,17 @@ class Encryption(unittest.TestCase):
 
 
 class ResultIntegrity(unittest.TestCase):
+    def test_worker_cannot_change_original_class_order(self):
+        game=sample(10)
+        game.class_index=7
+        payload={"schema":SCHEMA,"ticket":"a"*24,"index":0,
+                 "revision":"b"*40,"engine":"Stockfish synthetic",
+                 "games":[serialize_game(completed(game))]}
+        payload['games'][0]['class_index']=8
+        with self.assertRaises(ReviewError):
+            validate_response([game],payload,ticket="a"*24,
+                              index=0,revision="b"*40,engine="Stockfish synthetic")
+
     def test_all_positions_require_complete_expected_depth_and_exact_contract(self):
         for bullet in (False,True):
             with self.subTest(bullet=bullet):

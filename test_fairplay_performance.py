@@ -133,8 +133,10 @@ class PolicyCheckpointBatchTests(unittest.TestCase):
             def flush(self,**kwargs):self.flushes+=1;return True
         checkpoint=Checkpoint()
         game=SimpleNamespace(decisions=[])
+        legal=[move.uci() for move in chess.Board().legal_moves]
+        human_policy={move:1/len(legal) for move in legal}
         for _ in range(10):
-            d=move();d.human_policy={'e2e4':1.0};d.fast_policy={}
+            d=move();d.human_policy=human_policy;d.fast_policy={}
             d.metrics.update(useful=True,competitive=True,difficulty=.75)
             game.decisions.append(d)
         contract={'mode':'nodes','requested':CONFIG.fast_nodes,'completed':True,'exact':True}

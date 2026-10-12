@@ -26,7 +26,8 @@ from fairplay_clusters import (clamp, evidence, find_clusters, regime_changes,
                                select_deep_games, confirm_cluster, summary, buckets, comparison_control)
 from fairplay_history import session_history
 from fairplay_data import (DeadlineReached, GameSample, PubAPI, ReviewError,
-                           ScanDeadline, check_deadline, collect_games, finite_number, username, primary_limit, collection_limit)
+                           ScanDeadline, assign_chronology_indices, check_deadline,
+                           collect_games, finite_number, username, primary_limit, collection_limit)
 
 
 def median(values, default=None):
@@ -965,12 +966,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                             full_depth=full_depth_mode,maia=MODEL_SHA256)
         # Rated and unrated game sequences must never be joined to invent
         # consecutive ten-game runs, even at the same exact time control.
-        index_groups={}
-        for game in history:
-            key=(game.rated,game.time_class,game.time_control)
-            index_groups.setdefault(key,[]).append(game)
-        for group in index_groups.values():
-            for index,game in enumerate(group):game.control_index=index
+        assign_chronology_indices(history)
         collected_at=time.monotonic()
         limit = primary_limit(config)
         v21_plan = None
