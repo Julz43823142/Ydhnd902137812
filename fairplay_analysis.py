@@ -1177,6 +1177,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 distributed_handle=start_distributed(
                     v21_deep,target,revision=os.getenv('GITHUB_SHA',''),
                     engine=engine_name)
+                if distributed_handle is not None:
+                    progress('Remote Stockfish dispatched…')
         fast_finished=time.monotonic()
         historical_targets=[]
         probe_complete=True

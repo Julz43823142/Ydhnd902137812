@@ -120,6 +120,7 @@ class ReliableTiming(LiveTiming):
         self.rate={}
         self.last_phase=None
         self.last_calibrated=None
+        self.remote_started=None
         import os
         self.expected_deep_games=(250 if os.getenv('FAIRPLAY_DISTRIBUTED')=='1'
                                   else 125)
@@ -127,6 +128,10 @@ class ReliableTiming(LiveTiming):
     def observe(self,stage,now=None):
         import time
         now=time.monotonic() if now is None else now
+        if stage.startswith('Remote Stockfish dispatched'):
+            if self.remote_started is None:
+                self.remote_started=now
+            return
         for prefix,key in self.PHASES:
             if not stage.startswith(prefix):continue
             # Game counts must not overwrite position-based rates.
@@ -137,18 +142,42 @@ class ReliableTiming(LiveTiming):
             if total<=0:return
             item=self.phases.get(key)
             if item is None or total!=item["total"] or done<item["done"]:
-                item={"done":done,"total":total,"first":done,
-                      "started":now,"last":now}
+                if item is not None:
+                    self.rate.pop(key,None)  # a new workload needs a new rate
+                started=(self.remote_started if key=='deep' and self.remote_started is not None
+                         else now)
+                initial_done=(0 if started<now else done)
+                item={"done":initial_done,"total":total,"first":initial_done,
+                      "started":started,"last":now,
+                      "window_started":started,"window_done":initial_done,
+                      "last_progress":now}
                 self.phases[key]=item
-            if done>item["done"] and now>item["last"]:
+                if key=='deep':
+                    # A later local recovery has its own throughput. It must
+                    # not inherit the original remote dispatch timestamp.
+                    self.remote_started=None
+            if done>item["done"]:
+                item['last_progress']=now
                 moved=done-item["first"]
                 elapsed=now-item["started"]
                 if moved>=8 and elapsed>=8:
                     observed=elapsed/moved
                     if 0.001<=observed<=30:
                         previous=self.rate.get(key)
-                        self.rate[key]=(observed if previous is None
-                                        else .65*observed+.35*previous)
+                        window_elapsed=now-item['window_started']
+                        window_moved=done-item['window_done']
+                        if previous is None:
+                            self.rate[key]=observed
+                        elif window_elapsed>=15 and window_moved>=8:
+                            # Repeated shard updates reveal the slower tail
+                            # once most workers finish. A lifetime average
+                            # stays too optimistic at that point.
+                            recent=window_elapsed/window_moved
+                            recent=max(previous*.25,min(previous*4,recent))
+                            self.rate[key]=.7*recent+.3*previous
+                        if previous is None or (window_elapsed>=15 and window_moved>=8):
+                            item['window_started']=now
+                            item['window_done']=done
                         self.last_calibrated=now
             item["done"]=max(item["done"],done)
             item["last"]=now
@@ -181,8 +210,11 @@ class ReliableTiming(LiveTiming):
             if key not in item.PRIOR or not isinstance(row,dict):continue
             done,total=row.get("done",0),row.get("total",0)
             if isinstance(done,int) and isinstance(total,int) and 0<=done<=total<=100000:
+                restored_at=time.monotonic()
                 item.phases[key]={"done":done,"total":total,"first":done,
-                                  "started":time.monotonic(),"last":time.monotonic()}
+                                  "started":restored_at,"last":restored_at,
+                                  "window_started":restored_at,"window_done":done,
+                                  "last_progress":restored_at}
         item.last_phase=snapshot.get("last_phase") if snapshot.get("last_phase") in item.PRIOR else None
         return item
 
@@ -208,10 +240,15 @@ class ReliableTiming(LiveTiming):
         # PV3 fast recheck skips; use a conservative overcount until known.
         candidate=self.phases.get("candidate")
         deep=self.phases.get("deep")
+        if (deep and deep['done']<deep['total'] and 'deep' in self.rate
+                and now-deep.get('last_progress',now)>=60):
+            return label+" · Waiting for new worker progress; the previous ETA is no longer reliable."
         selected_positions=(candidate["total"] if candidate else
                             max(1,round(wide["total"]*min(1,self.expected_deep_games/500))))
         deep_total=(deep["total"] if deep else round(selected_positions*1.5))
         rates={k:self.rate.get(k,self.PRIOR[k]) for k in self.PRIOR}
+        if 'deep' not in self.rate and self.expected_deep_games==250:
+            rates['deep']*=14/18  # only an early parallel-capacity prior
         remaining=max(0,wide["total"]-wide["done"])*rates["wide"]
         remaining+=max(0,selected_positions-(candidate["done"] if candidate else 0))*rates["candidate"]
         remaining+=max(0,deep_total-(deep["done"] if deep else 0))*rates["deep"]
@@ -222,7 +259,7 @@ class ReliableTiming(LiveTiming):
         if stage.startswith(("Building report","Complete")):
             remaining=0
         # Wider early estimates acknowledge variable chess search cost.
-        width=.45 if deep is None else .30
+        width=.65 if deep is None or 'deep' not in self.rate else .35
         lower=max(0,remaining*(1-width))
         upper=remaining*(1+width)
         if remaining<=0:return label+" · Finishing report…"

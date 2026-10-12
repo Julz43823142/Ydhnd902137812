@@ -42,7 +42,7 @@ def public_text(value):
 def panel_embed():
     parallel=os.getenv("FAIRPLAY_DISTRIBUTED")=="1"
     scope=("up to 200 comparable-opponent rated games and 50 stratified historical games, "
-           "with ten on-demand encrypted Stockfish compute jobs"
+           "with eighteen on-demand encrypted Stockfish compute jobs"
            if parallel else
            "up to 100 comparable-opponent rated games and 25 stratified historical games")
     embed = discord.Embed(title=PANEL_TITLE, color=0x427CBA,
@@ -592,7 +592,7 @@ def add_compute_fields(embed,result):
           f"Games recovered locally: {row.get('games_recomputed_locally',0)}")
     codes=row.get('failure_codes') or {}
     safe=[f"{code}: {count}" for code,count in sorted(codes.items())
-          if code in PUBLIC_ERROR_CODES and isinstance(count,int) and 0<count<=14]
+          if code in PUBLIC_ERROR_CODES and isinstance(count,int) and 0<count<=18]
     if safe:text+='\nWorker failure categories: '+', '.join(safe)
     text+='\nRemote workers compute moves; only the main bot assigns review priority.'
     embed.add_field(name='Compute coverage',value=text[:1024],inline=False)
@@ -1020,7 +1020,13 @@ class FairPlayService:
         loop = asyncio.get_running_loop()
         def progress(stage):
             if not self.closed and not job.cancel_requested:
-                loop.call_soon_threadsafe(setattr,job,'stage',stage)
+                def observe_stage():
+                    job.stage=stage
+                    # A short dispatch marker may be replaced by Maia progress
+                    # before Discord edits the card. Keep its start time for
+                    # the remote throughput estimate regardless.
+                    job.timing.observe(stage)
+                loop.call_soon_threadsafe(observe_stage)
         future = None
         last = None
         try:
