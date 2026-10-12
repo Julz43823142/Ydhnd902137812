@@ -253,9 +253,28 @@ def result_embed(result: ReviewResult):
                             inline=False)
         last20=streak.get('last_20_accuracy_95_plus',0)
         if isinstance(last20,int) and last20>=5:
+            comparison=next((row for row in
+                             streak.get('same_class_accuracy_context',())
+                             if row.get('recent_accuracy_median',0)>=90
+                             and row.get('recent_accuracy_median',0)
+                                 >row.get('earlier_accuracy_median',0)+15),None)
+            context=''
+            if comparison:
+                kind=comparison['time_class'].title()
+                context=(f" {kind} published-score median: "
+                         f"{comparison['earlier_accuracy_median']:.1f}% earlier "
+                         f"({comparison['earlier_reported']} reports) → "
+                         f"{comparison['recent_accuracy_median']:.1f}% recently "
+                         f"({comparison['recent_reported']} reports).")
+                if comparison['opponent_shift_large']:
+                    context+=(f" Opponent median also changed from "
+                              f"{comparison['earlier_opponent_median']} to "
+                              f"{comparison['recent_opponent_median']} Elo; "
+                              "the Accuracy periods are not directly comparable.")
             embed.add_field(name='Latest 20 Accuracy',
                 value=(f"**{last20}/20** rated games had published "
-                       "95%+ Accuracy (all time classes). This is a review flag, not proof."),
+                       "95%+ Accuracy (all time classes). This is a review flag, not proof."
+                       +context),
                 inline=False)
         parts=[]
         if streak.get('followup_alert'):
