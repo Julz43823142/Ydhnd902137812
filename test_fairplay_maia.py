@@ -61,7 +61,7 @@ class PolicyMath(unittest.TestCase):
         for key,value in [('forced',True),('trivial_kind','recapture'),('phase','opening')]:
             d=decision();setattr(d,key,value)
             self.assertEqual(maia.policy_evidence(d,distribution(d))['information'],0)
-        for key in ['post_opponent_error','easy_conversion']:
+        for key in ['automatic_material_gain','easy_conversion']:
             d=decision();d.metrics[key]=True
             self.assertEqual(maia.policy_evidence(d,distribution(d))['information'],0)
 

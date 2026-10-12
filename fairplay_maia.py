@@ -98,7 +98,7 @@ def policy_evidence(decision, probabilities):
     played=probs.get(decision.move,0)
     useful=bool(m.get('competitive') and m.get('useful') and not decision.forced
                  and not decision.trivial_kind and decision.phase!='opening'
-                 and not m.get('post_opponent_error') and not m.get('easy_conversion')
+                 and not m.get('easy_conversion')
                  and not m.get('simple_threat_response') and not m.get('automatic_material_gain'))
     info=excess*m.get('difficulty',0) if useful else 0.0
     return {'model':MODEL_NAME,'played_move_probability':played,
@@ -177,7 +177,7 @@ def selection(games,*,full_coverage=False,recent_full_ids=None):
     for game in eligible:
         choices=(list(game.decisions) if full_coverage else
                  [d for d in game.decisions if d.metrics.get('useful') and d.metrics.get('competitive')
-                  and not d.metrics.get('post_opponent_error') and not d.metrics.get('easy_conversion') and d.phase!='opening'])
+                  and not d.metrics.get('automatic_material_gain') and not d.metrics.get('easy_conversion') and d.phase!='opening'])
         # Position geometry only: no played-move rank, CPL or success selection.
         ordered=sorted(choices,key=lambda d:(d.metrics.get('spread') or 0,d.ply))
         if quota is not None and len(ordered)>quota:

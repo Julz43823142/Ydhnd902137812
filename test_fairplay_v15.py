@@ -61,7 +61,10 @@ class AcuteGameplay(unittest.TestCase):
             for g in games:
                 for d in g.decisions:
                     if excluded=='book':d.phase='opening'
-                    else:d.metrics[excluded]=True
+                    else:
+                        d.metrics[excluded]=True
+                        if excluded=='post_opponent_error':
+                            d.metrics['automatic_material_gain']=True
                 annotate_game(g);g.fast_metrics['human']=copy.deepcopy(g.metrics['human'])
             self.assertEqual(self.evaluate(games).priority,'LOW')
 

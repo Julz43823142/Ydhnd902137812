@@ -100,7 +100,6 @@ def _needs_counterfactual(decision):
                 and m['difficulty']>=POLICY.difficulty
                 and not decision.forced and not decision.trivial_kind
                 and decision.phase!='opening'
-                and not m.get('post_opponent_error')
                 and not m.get('easy_conversion')
                 and not m.get('simple_threat_response')
                 and not m.get('automatic_material_gain'))

@@ -205,11 +205,13 @@ class HumanEvidence(unittest.TestCase):
         self.assertEqual(result.priority,'HIGH')
         self.assertIn('Acute',result.diagnostics['high_path'])
 
-    def test_easy_conversion_and_opponent_error_offer_no_human_evidence(self):
+    def test_easy_conversion_and_automatic_opponent_error_offer_no_human_evidence(self):
         g=informative(0)
         for d in g.decisions:d.metrics['easy_conversion']=True
         annotate_game(g);self.assertEqual(g.metrics['human']['opportunities'],0)
-        for d in g.decisions:d.metrics['easy_conversion']=False;d.metrics['post_opponent_error']=True
+        for d in g.decisions:
+            d.metrics.update(easy_conversion=False,post_opponent_error=True,
+                             automatic_material_gain=True)
         annotate_game(g);self.assertEqual(g.metrics['human']['opportunities'],0)
 
     def test_many_equivalent_moves_reduce_information(self):

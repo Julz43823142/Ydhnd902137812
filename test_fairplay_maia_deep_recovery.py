@@ -52,6 +52,7 @@ class CounterfactualRecovery(unittest.TestCase):
             decision('easy',difficult=False),
             decision('posterror')])
         game.decisions[-1].metrics['post_opponent_error']=True
+        game.decisions[-1].metrics['automatic_material_gain']=True
         self.assertEqual([_needs_counterfactual(d) for d in game.decisions],
                          [True,False,False,False,False])
         progress=[]

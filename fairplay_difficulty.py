@@ -35,7 +35,7 @@ def simple_threat_response(decision):
 
 def annotate(decision, config=CONFIG):
     m=decision.metrics
-    if not m.get('useful') or m.get('easy_conversion') or m.get('post_opponent_error'):
+    if not m.get('useful') or m.get('easy_conversion') or m.get('automatic_material_gain'):
         m.update(difficulty=0.0,human_information=0.0,human_expectedness=None,high_information=False)
         return
     values=m.get('candidate_cp',[])
