@@ -6,7 +6,7 @@ import chess.engine
 
 from fairplay_config import CONFIG
 from fairplay_analysis import scan_engine_timeout
-from fairplay_progress import LiveTiming, duration, estimate
+from fairplay_progress import LiveTiming, ReliableTiming, duration, estimate
 
 
 class ScanTimingTests(unittest.TestCase):
@@ -49,6 +49,41 @@ class ScanTimingTests(unittest.TestCase):
     def test_duration_english(self):
         self.assertEqual(duration(44*60+16),'44m 16s')
         self.assertEqual(duration(3600+5*60),'1h 05m')
+
+    def test_remote_eta_includes_dispatch_and_adapts_to_slowest_shards(self):
+        clock=ReliableTiming(started=0)
+        clock.observe('Fast engine scan: 0 / 100 positions',now=0)
+        clock.observe('Fast engine scan: 50 / 100 positions',now=100)
+        clock.observe('Remote Stockfish dispatched…',now=120)
+        clock.observe('Depth-18 rapid/blitz · depth-12 bullet: 180 / 1000 positions',now=180)
+        first=clock.rate['deep']
+        self.assertAlmostEqual(first,60/180)
+        clock.observe('Depth-18 rapid/blitz · depth-12 bullet: 360 / 1000 positions',now=210)
+        self.assertLess(clock.rate['deep'],first)
+        clock.observe('Depth-18 rapid/blitz · depth-12 bullet: 362 / 1000 positions',now=290)
+        self.assertIn('no longer reliable',clock.summary('Depth-18 rapid/blitz',now=351))
+
+    def test_restored_eta_accepts_new_worker_progress(self):
+        clock=ReliableTiming()
+        clock.observe('Depth-18 rapid/blitz · depth-12 bullet: 10 / 100 positions')
+        restored=ReliableTiming.from_checkpoint(clock.snapshot())
+        now=restored.phases['deep']['last']+30
+        restored.observe('Depth-18 rapid/blitz · depth-12 bullet: 30 / 100 positions',now=now)
+        self.assertEqual(restored.phases['deep']['done'],30)
+
+    def test_local_recovery_discards_remote_eta(self):
+        clock=ReliableTiming(started=0)
+        clock.observe('Fast engine scan: 0 / 100 positions',now=0)
+        clock.observe('Fast engine scan: 50 / 100 positions',now=100)
+        clock.observe('Remote Stockfish dispatched…',now=120)
+        clock.observe('Depth-18 rapid/blitz · depth-12 bullet: 180 / 1000 positions',now=180)
+        self.assertIn('deep',clock.rate)
+        clock.observe('Recovering missing Stockfish games locally…',now=200)
+        self.assertNotIn('deep',clock.rate)
+        self.assertIn('Re-estimating',clock.summary('Recovering missing Stockfish games locally…',now=201))
+        clock.observe('Depth-18 rapid/blitz · depth-12 bullet: 0 / 100 positions',now=210)
+        clock.observe('Depth-18 rapid/blitz · depth-12 bullet: 20 / 100 positions',now=240)
+        self.assertAlmostEqual(clock.rate['deep'],30/20)
 
 
 class EngineSearchTimeoutTests(unittest.TestCase):

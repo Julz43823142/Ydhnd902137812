@@ -1,4 +1,4 @@
-"""Fourteen temporary, encrypted Stockfish compute shards; one authoritative report.
+"""Eighteen temporary, encrypted Stockfish compute shards; one authoritative report.
 
 The Discord process alone fetches accounts, selects samples, runs Maia, scores
 the complete sample and publishes results. Remote jobs are *compute-only*.
@@ -31,7 +31,7 @@ from fairplay_evidence_payload import normalize
 
 BRANCH = "fairplay-distributed-work"
 SCHEMA = "sharkbot-fairplay-distributed-v1"
-WORKERS = 14
+WORKERS = 18
 REQUEST_LIFETIME = 3 * 3600
 MAX_CIPHERTEXT = 24 * 1024 * 1024
 MAX_DECOMPRESSED = 80 * 1024 * 1024
@@ -39,7 +39,7 @@ POLL_SECONDS = 15
 NO_WORKER_SECONDS = 480
 MAX_WAIT_SECONDS = 2700
 WORKER_RUNTIME_SECONDS = 2100  # remote engine budget leaves time for upload
-_FILENAME = re.compile(r"(?:req|res|progress)_[0-9a-f]{24}(?:_(?:[0-9]|1[0-3]))?\.enc\Z")
+_FILENAME = re.compile(r"(?:req|res|progress)_[0-9a-f]{24}(?:_(?:[0-9]|1[0-7]))?\.enc\Z")
 
 
 def safe_error_code(error):
@@ -367,7 +367,8 @@ def _dispatch(ticket,revision,token,repo):
             # Workflow definition comes from main; the worker checkout pins
             # itself to the still-running coordinator's immutable commit.
             json={"ref":"main","inputs":{"ticket":ticket,
-                                           "revision":revision}},
+                                           "revision":revision,
+                                           "shards":json.dumps(list(range(WORKERS)))}},
             timeout=15,allow_redirects=False)
         if response.status_code!=204:
             raise ReviewError("GitHub cannot dispatch Fair Play compute workers.")
@@ -376,7 +377,7 @@ def _dispatch(ticket,revision,token,repo):
 
 
 def start(games,target,*,revision,engine,store=None,env=None):
-    """Start fourteen shards before main-thread Maia; return ticket for later join.
+    """Start eighteen shards before main-thread Maia; return ticket for later join.
 
     A failed dispatch returns None: the central scan performs the *exact same*
     depth18/depth12 searches locally and does not publish partial evidence.

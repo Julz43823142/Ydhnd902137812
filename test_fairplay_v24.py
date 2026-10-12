@@ -1,4 +1,4 @@
-"""v24 regressions: no threshold weakening, 14 shards, evidence-grade diagnostics,
+"""v24 regressions: no threshold weakening, current shards, evidence-grade diagnostics,
 player-disjoint ChessFraud baseline and label-safe offline calibration.
 All samples synthetic. No Chess.com requests, Discord access or workflow dispatch.
 """
@@ -14,28 +14,35 @@ from scripts.fairplay_calibration_lab import evaluate, partition, wilson_interva
 from test_fairplay_distributed import sample
 
 
-class FourteenShards(unittest.TestCase):
-    def test_indices_10_through_13_are_valid_not_truncated(self):
-        self.assertEqual(WORKERS, 14)
+class EighteenShards(unittest.TestCase):
+    def test_indices_14_through_17_are_valid_not_truncated(self):
+        self.assertEqual(WORKERS, 18)
         ticket = "a" * 24
         for shard in range(WORKERS):
             self.assertEqual(artifact_name("res", ticket, shard),
                              f"res_{ticket}_{shard}.enc")
             self.assertEqual(artifact_name("progress", ticket, shard),
                              f"progress_{ticket}_{shard}.enc")
-        # Failure closed: invalid shard 14 is never silently remapped.
+        # Failure closed: invalid shard 18 is never silently remapped.
         with self.assertRaises(Exception):
-            artifact_name("res", ticket, 14)
+            artifact_name("res", ticket, 18)
 
     def test_shard_balance_and_unique_game_assignment(self):
         games = [sample(i) for i in range(1, 52)]
         groups = shard_games(games)
-        self.assertEqual(len(groups), 14)
+        self.assertEqual(len(groups), 18)
         seen = [g.identity for group in groups for g in group]
         self.assertEqual(len(seen), len(games))
         self.assertEqual(len(set(seen)), len(games))
         self.assertLessEqual(max(len(g) for g in groups) -
                              min(len(g) for g in groups), 2)
+
+    def test_workflow_defaults_old_coordinators_to_fourteen_jobs(self):
+        from pathlib import Path
+        workflow=(Path(__file__).parent/'.github/workflows/fairplay_distributed.yml').read_text()
+        self.assertIn("default: '[0,1,2,3,4,5,6,7,8,9,10,11,12,13]'",workflow)
+        self.assertIn(f'max-parallel: {WORKERS}',workflow)
+        self.assertIn('shard: ${{ fromJSON(inputs.shards) }}',workflow)
 
 
 class StabilitySeparation(unittest.TestCase):

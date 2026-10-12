@@ -5,6 +5,7 @@ transport. No live Chess.com, Discord or GitHub dispatches.
 """
 import copy
 import gzip
+import json
 import os
 from pathlib import Path
 import subprocess
@@ -161,6 +162,14 @@ class MemoryStore:
 
 
 class Coordinator(unittest.TestCase):
+    def test_dispatch_requests_all_eighteen_shards_without_private_inputs(self):
+        from fairplay_distributed import _dispatch
+        with patch('requests.post',return_value=Mock(status_code=204)) as post:
+            _dispatch('a'*24,'b'*40,'synthetic-token','owner/repository')
+        inputs=post.call_args.kwargs['json']['inputs']
+        self.assertEqual(json.loads(inputs['shards']),list(range(WORKERS)))
+        self.assertEqual(set(inputs),{'ticket','revision','shards'})
+
     @patch("fairplay_distributed._dispatch")
     def test_dispatch_one_workflow_not_ten_and_reuses_resumable_ticket(self,dispatch):
         store=MemoryStore()

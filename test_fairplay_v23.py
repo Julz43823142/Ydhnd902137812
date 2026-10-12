@@ -21,11 +21,11 @@ from test_fairplay_distributed import (MemoryStore, SECRET, completed, sample, T
 
 
 class PinnedWorker(unittest.TestCase):
-    def test_ten_workers_and_deterministic_balancing(self):
-        self.assertEqual(WORKERS,14)
+    def test_current_workers_and_deterministic_balancing(self):
+        self.assertEqual(WORKERS,18)
         games=[sample(i) for i in range(1,26)]
         groups=shard_games(games)
-        self.assertEqual(len(groups),14)
+        self.assertEqual(len(groups),WORKERS)
         self.assertEqual([g.identity for group in groups for g in group].__len__(),len(games))
         self.assertEqual({g.identity for group in groups for g in group},{g.identity for g in games})
 
@@ -38,7 +38,7 @@ class PinnedWorker(unittest.TestCase):
         handle=start([sample(i) for i in range(1,15)],TARGET,
                      revision="b"*40,engine="Stockfish synthetic",
                      store=store,env=env)
-        self.assertEqual(len(handle["shards"]),14)
+        self.assertEqual(len(handle["shards"]),WORKERS)
         dispatch.assert_called_once_with(handle["ticket"],"b"*40,
                                          "synthetic-token","synthetic/repo")
 
@@ -73,8 +73,8 @@ class PinnedWorker(unittest.TestCase):
         self.assertIn("secrets.FAIRPLAY_DISTRIBUTED_KEY || secrets.FAIRPLAY_CHECKPOINT_KEY || secrets.DISCORD_TOKEN",workflow)
         self.assertIn("ref: ${{ inputs.revision }}",workflow)
         self.assertIn("fetch-depth: 1",workflow)
-        self.assertIn("max-parallel: 14",workflow)
-        self.assertIn("shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]",workflow)
+        self.assertIn(f"max-parallel: {WORKERS}",workflow)
+        self.assertIn("shard: ${{ fromJSON(inputs.shards) }}",workflow)
 
     def test_public_failure_codes_are_constant_strings(self):
         self.assertEqual(safe_error_code(ReviewError(
