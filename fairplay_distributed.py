@@ -59,12 +59,36 @@ def safe_error_code(error):
             "Invalid bounded compute workload.":"workload_validation",
             "Encrypted compute exchange could not be persisted after retries.":"git_push_conflict",
             "Pinned worker git revision differs from the input.":"pinned_code_mismatch",
+            "Stockfish returned incomplete evaluation data.":"engine_missing_score",
+            "Stockfish returned an invalid evaluation.":"engine_invalid_score",
+            "Stockfish returned no candidate moves.":"engine_missing_candidates",
+            "Stockfish pool is unavailable; please retry the review.":"engine_pool_unavailable",
+            "Invalid compute decision count.":"decision_count",
+            "Malformed Fair Play compute game.":"game_shape",
+            "Malformed compute decision.":"decision_shape",
+            "Cannot record encrypted compute artifact.":"git_blob",
+            "Cannot inspect encrypted compute tree.":"git_read_tree",
+            "Unexpected contents in encrypted compute ref.":"git_tree_shape",
+            "Cannot construct compute snapshot.":"git_write_tree",
+            "Cannot commit encrypted compute snapshot.":"git_commit",
+            "Fair Play compute workload exceeds its bounded size.":"workload_size",
+            "Fair Play compute ciphertext exceeds its bounded size.":"ciphertext_size",
         }
         return fixed.get(str(error),"compute_validation")
     if isinstance(error, TimeoutError):return "worker_timeout"
     if isinstance(error, OSError):return "worker_os"
     return "worker_runtime"
 
+
+PUBLIC_ERROR_CODES=frozenset({
+    'request_or_revision','encrypted_packet','git_remote','git_fetch','engine_version',
+    'incomplete_depth','workload_validation','git_push_conflict','pinned_code_mismatch',
+    'engine_missing_score','engine_invalid_score','engine_missing_candidates',
+    'engine_pool_unavailable','decision_count','game_shape','decision_shape',
+    'git_blob','git_read_tree','git_tree_shape','git_write_tree','git_commit',
+    'workload_size','ciphertext_size','compute_validation','worker_timeout',
+    'worker_os','worker_runtime','worker_unknown',
+})
 
 def key_material(env=None):
     env = os.environ if env is None else env
@@ -211,7 +235,11 @@ class EncryptedGitStore:
                 f"100644 blob {object_id}\t{filename}\n"
                 for filename,object_id in sorted(entries.items())
             ).encode()
-            newtree=_git(["mktree"],treebytes)
+            # Entries inherited from the fetched tree are already present on
+            # the remote, but a filtered clone deliberately lacks their blobs.
+            # New payloads were hash-object'ed locally above. Preserve inherited
+            # object IDs without downloading every other worker's ciphertext.
+            newtree=_git(["mktree","--missing"],treebytes)
             if newtree.returncode:
                 raise ReviewError("Cannot construct compute snapshot.")
             args=["commit-tree",newtree.stdout.decode().strip(),"-m",
@@ -243,7 +271,7 @@ class EncryptedGitStore:
                     entries[filename]=parts[2]
             if not any(name in entries for name in names):return
             for name in names:entries.pop(name,None)
-            newtree=_git(["mktree"],"".join(
+            newtree=_git(["mktree","--missing"],"".join(
                 f"100644 blob {obj}\t{name}\n"
                 for name,obj in sorted(entries.items())).encode())
             if newtree.returncode:return
@@ -411,9 +439,11 @@ def join(handle,progress,deadline,*,max_wait=MAX_WAIT_SECONDS,clock=None,sleep=N
     last_progress={i:0 for i in range(len(handle["shards"]))}
     last_seen=clock()
     dead=set()
+    acknowledged=set()
+    failures={}
     handle["stats"]={"shards":len(handle["shards"]),"completed":0,
                      "failed":0,"stalled":0,"remote_positions":0,
-                     "reason":"pending"}
+                     "reason":"pending","failure_codes":{}}
     end=min(float(deadline),handle["started"]+max_wait)
     joined_at=clock()
     while clock()<end:
@@ -457,12 +487,20 @@ def join(handle,progress,deadline,*,max_wait=MAX_WAIT_SECONDS,clock=None,sleep=N
                         # Only authenticated, fixed status codes; never include
                         # raw failure exceptions, FENs or account information.
                         dead.add(index)
+                        code=row.get("reason")
+                        # A decrypted record is still not permission to print
+                        # arbitrary text. Keep only the fixed public vocabulary.
+                        code=code if isinstance(code,str) and code in PUBLIC_ERROR_CODES else "worker_unknown"
+                        failures[code]=failures.get(code,0)+1
                         handle["stats"]["reason"]="worker_failed"
                         last_seen=clock()
                         continue
                     got=row.get("done")
                     expected=sum(len(g.decisions) for g in shard)
-                    if isinstance(got,int) and 0<=got<=expected:
+                    if isinstance(got,int) and not isinstance(got,bool) and 0<=got<=expected:
+                        if row.get("state")=="running" and index not in acknowledged:
+                            acknowledged.add(index)
+                            last_seen=clock()
                         done_positions+=got
                         if got>last_progress[index]:
                             last_progress[index]=got
@@ -472,7 +510,7 @@ def join(handle,progress,deadline,*,max_wait=MAX_WAIT_SECONDS,clock=None,sleep=N
         progress(f"Depth-18 rapid/blitz · depth-12 bullet: {done_positions} / {total} positions")
         if len(result)+len(dead)==len(handle["shards"]):
             break
-        if clock()-handle["started"]>=NO_WORKER_SECONDS and not result and done_positions==0:
+        if clock()-handle["started"]>=NO_WORKER_SECONDS and not result and not acknowledged and done_positions==0:
             handle["stats"]["reason"]="startup_timeout"
             break
         if clock()-last_seen>900:
@@ -486,7 +524,8 @@ def join(handle,progress,deadline,*,max_wait=MAX_WAIT_SECONDS,clock=None,sleep=N
         stalled=max(0,len(handle["shards"])-len(result)-len(dead)),
         join_wait_seconds=round(max(0,clock()-joined_at),3),
         elapsed_seconds=round(max(0,clock()-handle['started']),3),
-        remote_positions=sum(len(g.decisions) for group in result.values() for g in group))
+        remote_positions=sum(len(g.decisions) for group in result.values() for g in group),
+        shards_acknowledged=len(acknowledged),failure_codes=failures)
     if len(result)==len(handle["shards"]):
         handle["stats"]["reason"]="all_verified"
         try:handle["store"].remove(
@@ -549,6 +588,9 @@ def worker(ticket,index,*,env=None,store=None,clock=None):
         if not all(isinstance(g.rated,bool) for g in tasks):
             raise ReviewError("Invalid bounded compute workload.")
         total=sum(len(g.decisions) for g in tasks)
+        # Acknowledge validated workload before the first potentially long
+        # engine search. Progress carries no position/account information.
+        notify(f"0 / {total} positions")
         from fairplay_analysis import (SharedEnginePool, available_engine_cpus,
                                        run_position_batch, full_depth_budget, summarize)
         import chess.engine

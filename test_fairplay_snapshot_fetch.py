@@ -128,6 +128,36 @@ class SnapshotGit(unittest.TestCase):
         self.assertEqual(missing.returncode,0)
         self.assertIn(('?'+old_blob).encode(),missing.stdout)
 
+    def test_filtered_worker_can_publish_and_remove_without_fetching_other_blobs(self):
+        # Match Actions checkout: promised blobs stay remote until requested.
+        self.git(self.remote,['config','uploadpack.allowFilter','true'])
+        self.git(self.remote,['config','uploadpack.allowAnySHA1InWant','true'])
+        ticket='d'*24
+        names=[artifact_name('req',ticket),artifact_name('res',ticket,0),
+               artifact_name('progress',ticket,0)]
+        store=EncryptedGitStore('synthetic-key')
+        with patch('fairplay_distributed._git',side_effect=self.adapter(self.writer)):
+            store.put(names[0],{'request':'synthetic'})
+            store.put(names[1],{'other_worker':'preserve'})
+        self.git(self.remote,['symbolic-ref','HEAD',f'refs/heads/{BRANCH}'])
+        clone=self.root/'worker-filtered'
+        out=self.git(self.root,['clone','-q','--depth=1','--filter=blob:none',
+                               '--no-checkout',self.remote.as_uri(),str(clone)])
+        self.assertEqual(out.returncode,0,out.stderr.decode())
+        old_blob=self.git(self.remote,['rev-parse',f'{BRANCH}:{names[1]}']).stdout.strip()
+        def missing():
+            return self.git(clone,['rev-list','--objects','--missing=print','--all']).stdout
+        self.assertIn(b'?'+old_blob,missing())
+        with patch('fairplay_distributed._git',side_effect=self.adapter(clone)):
+            store.put(names[2],{'state':'running'})
+            store.remove([names[2]])
+        self.assertIn(b'?'+old_blob,missing())
+        # Remote publication must preserve the other worker's exact ciphertext.
+        self.assertEqual(self.git(self.remote,['rev-parse',f'{BRANCH}:{names[1]}']).stdout.strip(),old_blob)
+        self.assertNotEqual(self.git(self.remote,['show',f'{BRANCH}:{names[2]}']).returncode,0)
+        with patch('fairplay_distributed._git',side_effect=self.adapter(self.reader)):
+            self.assertEqual(store.read_many(names)[names[1]],{'other_worker':'preserve'})
+
 
 class WorkflowCheckout(unittest.TestCase):
     def test_main_history_retained_without_all_historical_blob_downloads(self):
