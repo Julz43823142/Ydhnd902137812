@@ -7,7 +7,7 @@ completed Daily games against prior Daily games at comparable ratings. It
 requires replicated, deep-confirmed difficult decisions and includes misses.
 Thresholds are transparent heuristics awaiting correspondence calibration.
 """
-from math import sqrt, ceil
+from math import sqrt, ceil, isfinite
 from collections import Counter
 from statistics import median
 from fairplay_config import CONFIG
@@ -23,38 +23,75 @@ def interval(hits, n, z=1.645):
     return (center-radius)/denominator, (center+radius)/denominator
 
 
+def completed_daily_search(metrics):
+    """A recorded depth is not proof of a completed, exact search.
+
+    Older exports have no contract; retain their numeric depth check. Present
+    contracts must certify the completed search rather than silently falling
+    back to legacy behavior. Missing/invalid search evidence is unknown.
+    """
+    depth = metrics.get('search_depth')
+    if (not isinstance(depth, int) or isinstance(depth, bool) or depth < 18
+            or metrics.get('search_inconsistent')):
+        return False
+    contract = metrics.get('search_contract')
+    if contract is None:
+        return True
+    if not isinstance(contract, dict):
+        return False
+    requested = contract.get('requested')
+    return (contract.get('mode') == 'depth'
+            and isinstance(requested, int) and not isinstance(requested, bool)
+            and 18 <= requested <= depth
+            and contract.get('completed') is True and contract.get('exact') is True)
+
+
 def game_evidence(game):
     opportunities = []
+    unverified = 0
     for decision in game.decisions:
         m = decision.metrics
         # Deep geometry and useful status already exclude book, forced,
         # automatic material gain and easy conversions. Keep explicit guards.
-        if (not game.deep or not m.get('useful') or not m.get('competitive')
+        if (not m.get('useful') or not m.get('competitive')
                 or m.get('easy_conversion') or m.get('automatic_material_gain')
                 or decision.forced or decision.phase == 'opening'
-                or m.get('difficulty', 0) < .65
-                or m.get('search_inconsistent') or m.get('search_depth', 0) < 18):
+                or not isinstance(m.get('difficulty'), (int, float))
+                or not isfinite(m['difficulty']) or m['difficulty'] < .65):
             continue
-        opportunities.append(m)
+        # Do not erase unverified hard moves and then claim full coverage of
+        # the survivors. Keep them in the denominator and fail the route's
+        # coverage gate explicitly, even if game.deep was incorrectly set.
+        loss = m.get('cpl')
+        verified = (game.deep and completed_daily_search(m)
+                    and isinstance(loss, (int, float)) and not isinstance(loss, bool)
+                    and isfinite(loss) and loss >= 0)
+        if not verified:
+            unverified += 1
+            opportunities.append({})
+        else:
+            opportunities.append(m)
     # Equal per-game bounds stop a single long game dominating the period.
     # Retain the first opportunities chronologically, including misses.
     opportunities = opportunities[:12]
-    hits = sum(m.get('near_best', False) and m.get('cpl', 9999) <= 15
+    hits = sum(m.get('near_best') is True and m.get('cpl', 9999) <= 15
                for m in opportunities)
     measured = sum(m.get('search_stability', {}).get('compared') is True for m in opportunities)
     paired = sum(m.get('search_stability', {}).get('compared') is True
                  and m.get('search_stability', {}).get('objective_quality_preserved') is True
                  for m in opportunities)
     return {'opportunities': len(opportunities), 'hits': hits, 'paired': paired, 'measured': measured,
+            'unverified_decisions': unverified,
             'rate': hits/len(opportunities) if opportunities else None}
 
 
-def summarize(games, config=CONFIG):
-    rows = [game_evidence(g) for g in games]
+def summarize(games, config=CONFIG, *, evidence=None):
+    rows = [evidence[g.identity] if evidence is not None else game_evidence(g) for g in games]
     n = sum(r['opportunities'] for r in rows)
     hits = sum(r['hits'] for r in rows)
     lo, hi = interval(hits, n, config.rate_lower_bound_z)
     return {'games': len(games), 'opportunities': n, 'hits': hits,
+            'unverified_decisions': sum(r['unverified_decisions'] for r in rows),
             'paired': sum(r['paired'] for r in rows),
             'measured': sum(r['measured'] for r in rows),
             'opportunity_games':sum(r['opportunities']>0 for r in rows),
@@ -91,6 +128,9 @@ def review(games, config=CONFIG):
     rows = sorted({g.identity: g for g in games
                    if g.time_class == 'daily' and g.rated is True
                    and not g.probe_only}.values(), key=lambda g: (g.ended, g.identity))
+    # Scan each decision once per review, not once per overlapping window.
+    # This cache is local to the call: re-analysis cannot reuse stale evidence.
+    evidence = {g.identity: game_evidence(g) for g in rows}
     best = None
     # Real completion windows retain opportunity-poor games and misses. No
     # ranked best-game selection; a larger width never multiplies replication.
@@ -103,14 +143,16 @@ def review(games, config=CONFIG):
             controls={g.time_control for g in period}
             ratings = [g.rating for g in period if g.rating is not None]
             opponents = [g.opponent_rating for g in period if g.opponent_rating is not None]
+            rating_center = median(ratings) if len(ratings) == len(period) else None
+            opponent_center = median(opponents) if len(opponents) == len(period) else None
             reference = rows[:end-width]
             baseline = [g for g in reference if g.deep and g.time_control in controls
                         and g.rating is not None and g.opponent_rating is not None
-                        and len(ratings) == len(period) and len(opponents) == len(period)
-                        and abs(g.rating-median(ratings)) <= 200
-                        and abs(g.opponent_rating-median(opponents)) <= 250]
+                        and rating_center is not None and opponent_center is not None
+                        and abs(g.rating-rating_center) <= 200
+                        and abs(g.opponent_rating-opponent_center) <= 250]
             baseline=matched_control_reference(baseline,period)
-            current, previous = summarize(period, config), summarize(baseline, config)
+            current, previous = summarize(period, config, evidence=evidence), summarize(baseline, config, evidence=evidence)
             indices=[getattr(g,'class_index',None) for g in period]
             consecutive=(all(i is None for i in indices) or
                          all(isinstance(i,int) for i in indices)
@@ -121,6 +163,7 @@ def review(games, config=CONFIG):
                 'comparable correspondence control mix': bool(baseline) and mix_distance<=config.daily_control_mix_tolerance,
                 'complete chronological period': consecutive,
                 'complete candidate deep coverage': all(g.deep for g in period),
+                'verified difficult searches': current['unverified_decisions'] == 0 and previous['unverified_decisions'] == 0,
                 'replicated difficult games': current['contributors'] >= max(config.daily_period_games,ceil(config.daily_contributor_fraction*current['opportunity_games'])),
                 'difficult opportunity coverage': current['opportunities'] >= config.daily_min_opportunities,
                 'deep-confirmed quality lower bound': current['lower'] >= config.daily_hit_lower,
@@ -140,7 +183,7 @@ def review(games, config=CONFIG):
             if best is None or (sum(gates.values()), current['opportunities']) > (
                     sum(best['gates'].values()), best['period']['opportunities']):
                 best = candidate
-    return {'opportunity_coverage':summarize(rows,config),
+    return {'opportunity_coverage':summarize(rows,config,evidence=evidence),
             'reference_coverage':('Adequate' if best and
                 best['period']['opportunities']>=config.daily_min_opportunities and
                 best['baseline']['opportunities']>=config.daily_min_opportunities else 'Limited'),
