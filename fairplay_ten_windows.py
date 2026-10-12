@@ -407,6 +407,29 @@ def integrate(result, games, discovery, config=CONFIG):
     qualified=0
     incomplete=0
     incomplete_eligible=0
+    # The same game occurs in up to ten overlapping windows. Legal-policy
+    # validation reconstructs every board, so do it once per game in this
+    # immutable scoring pass. Never retain this cache across rescans: engine
+    # contracts and policies can change even when the game ID is unchanged.
+    complete_by_id={}
+    gaps_by_id={}
+    def game_complete(game):
+        if game is None:
+            return False
+        if game.identity not in complete_by_id:
+            complete_by_id[game.identity]=_complete_game(game,config)
+        return complete_by_id[game.identity]
+
+    def evidence_gaps(rows):
+        total={}
+        for game in rows:
+            key=game.identity if game is not None else None
+            if key not in gaps_by_id:
+                gaps_by_id[key]=_window_evidence_gaps([game],config)
+            for name,count in gaps_by_id[key].items():
+                total[name]=total.get(name,0)+count
+        return total
+
     for candidate in sorted(discovery['candidates'],key=lambda c:-c['end']):
         rows=[index.get(ident) for ident in candidate['ids']]
         peer_eligible=candidate.get('priority_eligible',candidate.get('peer_games',0)>=8)
@@ -414,7 +437,7 @@ def integrate(result, games, discovery, config=CONFIG):
                  'peer_games':candidate.get('peer_games',0),
                  'priority_eligible':peer_eligible,
                  'selection_only_blockers':candidate.get('selection_only_blockers',[])}
-        if not all(g is not None and _complete_game(g,config) for g in rows):
+        if not all(game_complete(g) for g in rows):
             incomplete+=1
             incomplete_eligible+=int(peer_eligible)
             windows.append({**context,'rated':candidate['rated'],
@@ -424,7 +447,7 @@ def integrate(result, games, discovery, config=CONFIG):
                 'window_end_time':candidate['end'],
                 'full_depth_and_maia':False,'engine_pass':False,
                 'maia_pass':False,'qualified':False,
-                'evidence_gaps':_window_evidence_gaps(rows,config)})
+                'evidence_gaps':evidence_gaps(rows)})
             continue
         engine,engine_evidence=_engine_proof(rows,config)
         maia,maia_evidence=_maia_proof(rows)

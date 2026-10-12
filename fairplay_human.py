@@ -73,6 +73,20 @@ def annotate_game(game, config=CONFIG, model=None):
         annotate(d, config)
         m = d.metrics
         if not m.get('useful'):
+            # A later context/search pass may exclude a previously useful
+            # move. Clear its derived evidence before the early return;
+            # retaining a fast-pass opportunity both misreports coverage and
+            # makes ten-window validation reject a safely excluded search.
+            m.update(human_opportunity=False, high_information=False,
+                     informative_quiet_hit=False, human_anomaly_information=0.0)
+            for key in (
+                    'expected_human_quality', 'observed_move_quality',
+                    'quality_excess', 'positive_quality_excess', 'quality_residual',
+                    'anomaly_strength', 'anomaly_hit_threshold', 'raw_excess_threshold',
+                    'move_accuracy', 'human_model', 'search_stability',
+                    'semantic_search_check', 'simple_threat_response',
+                    'plausible_good_moves', 'played_boundary_cp'):
+                m.pop(key, None)
             continue
         # Clear derived flags on every pass: deweighted decisions must never
         # retain an opportunity from an earlier fast/deep annotation.

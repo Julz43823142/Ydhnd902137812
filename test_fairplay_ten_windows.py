@@ -254,6 +254,52 @@ class Contract(unittest.TestCase):
         self.assertEqual(gap['nonexact_stockfish_positions'],0)
         self.assertEqual(gap['missing_maia_policies'],1)
 
+    def test_reannotation_clears_excluded_fast_hit_before_window_validation(self):
+        from fairplay_human import annotate_game
+        from test_fairplay_human import informative
+        game=informative(0)
+        game.control_index=0
+        decision=game.decisions[0]
+        game.decisions=[decision]
+        legal=[m.uci() for m in chess.Board(decision.fen).legal_moves]
+        decision.human_policy={m:1/len(legal) for m in legal}
+        decision.metrics.update(
+            search_contract={'mode':'depth','requested':18,
+                'multipv':CONFIG.deep_multipv,'completed':True,'exact':False},
+            search_depth=18,search_inconsistent=True,useful=False,critical=False)
+        self.assertFalse(_complete_game(game,CONFIG))
+        annotate_game(game)
+        self.assertTrue(_complete_game(game,CONFIG))
+        self.assertEqual(game.metrics['human']['opportunities'],0)
+
+
+class ValidationReuse(unittest.TestCase):
+    def test_overlapping_windows_validate_each_game_once_without_stale_rescan(self):
+        fixture=Contract()
+        fixture.setUp()
+        games=[]
+        for i in range(30):
+            game=copy.deepcopy(fixture.game)
+            game.identity=f'fixture-{i}'
+            game.control_index=i
+            game.ended=1700000000+i*600
+            game.accuracy=95.
+            games.append(game)
+        discovery=discover(games)
+        self.assertEqual(len(discovery['candidates']),21)
+        with patch('fairplay_ten_windows._complete_game',wraps=_complete_game) as check:
+            first=integrate(_result(),games,discovery)
+        self.assertEqual(check.call_count,len(games))
+        self.assertEqual(first.diagnostics['ten_accuracy_windows']['fully_verified_candidates'],21)
+        self.assertEqual(first.priority,'LOW')
+        # Same identities with newly invalid policy must be checked afresh.
+        games[-1].decisions[0].human_policy={}
+        second=integrate(_result(),games,discovery)
+        self.assertEqual(second.priority,'INSUFFICIENT DATA')
+        audit=second.diagnostics['ten_accuracy_windows']
+        self.assertEqual(audit['fully_verified_candidates'],20)
+        self.assertEqual(audit['window_details'][0]['evidence_gaps']['missing_maia_policies'],1)
+
 
 class ClockEvidence(unittest.TestCase):
     def test_every_move_counted_and_bad_clocks_not_fabricated(self):
