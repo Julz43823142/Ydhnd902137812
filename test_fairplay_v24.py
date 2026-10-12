@@ -39,13 +39,10 @@ class EighteenShards(unittest.TestCase):
 
     def test_workflow_defaults_old_coordinators_to_fourteen_jobs(self):
         from pathlib import Path
-        import yaml
-        workflow=yaml.safe_load((Path(__file__).parent/'.github/workflows/fairplay_distributed.yml').read_text())
-        dispatch=workflow.get('on',workflow.get(True))['workflow_dispatch']['inputs']
-        self.assertEqual(len(yaml.safe_load(dispatch['shards']['default'])),14)
-        compute=workflow['jobs']['compute']
-        self.assertEqual(compute['strategy']['max-parallel'],WORKERS)
-        self.assertEqual(compute['strategy']['matrix']['shard'],'${{ fromJSON(inputs.shards) }}')
+        workflow=(Path(__file__).parent/'.github/workflows/fairplay_distributed.yml').read_text()
+        self.assertIn("default: '[0,1,2,3,4,5,6,7,8,9,10,11,12,13]'",workflow)
+        self.assertIn(f'max-parallel: {WORKERS}',workflow)
+        self.assertIn('shard: ${{ fromJSON(inputs.shards) }}',workflow)
 
 
 class StabilitySeparation(unittest.TestCase):
