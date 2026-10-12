@@ -1600,6 +1600,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                     if distributed_handle is not None else 0,
                 'shards_stalled':(distributed_handle.get('stats') or {}).get('stalled',0)
                     if distributed_handle is not None else 0,
+                'failure_codes':(distributed_handle.get('stats') or {}).get('failure_codes',{})
+                    if distributed_handle is not None else {},
                 'compute_status':(distributed_handle.get('stats') or {}).get('reason','not_dispatched')
                     if distributed_handle is not None else 'not_dispatched',
                 'games_verified_remotely':len(distributed_completed),

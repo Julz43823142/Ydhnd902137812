@@ -543,6 +543,7 @@ def detail_embed(result, mode):
                              'Known opening-reference moves and genuinely forced/trivial decisions are de-weighted; early off-book decisions can contribute. Difficult check responses and nontrivial recaptures remain analyzable. Strongly won/lost positions are de-weighted. '
                              'Critical positions require several choices, a best–second gap and candidate spread; quiet unique choices receive the strongest evidence. '
                              'These heuristic measures have innocent explanations and do not establish misconduct.')
+        add_compute_fields(embed,result)
         add_gate_fields(embed,result)
         cluster = result.clusters.get('strongest')
         if cluster:
@@ -558,6 +559,23 @@ def detail_embed(result, mode):
         for kind,a in result.classes.items():
             embed.add_field(name=kind.title(),value=f'{a["games"]} games · {a["decisions"]} decisions · median CPL {number(a["median_cpl"])} · top-1 {percentage(a["top1"])} · critical top-1 {percentage(a["critical_top1"])}',inline=False)
     return _bounded_detail_embed(embed)
+
+
+def add_compute_fields(embed,result):
+    """Expose verified remote work, not just the number of runners requested."""
+    row=result.diagnostics.get('distributed_compute',{})
+    if not row or not row.get('enabled'):return
+    from fairplay_distributed import PUBLIC_ERROR_CODES
+    text=(f"Workers returned verified results: {row.get('shards_completed',0)} / {row.get('jobs_requested',0)}\n"
+          f"Failed: {row.get('shards_failed',0)} · stalled: {row.get('shards_stalled',0)}\n"
+          f"Games verified remotely: {row.get('games_verified_remotely',0)}\n"
+          f"Games recovered locally: {row.get('games_recomputed_locally',0)}")
+    codes=row.get('failure_codes') or {}
+    safe=[f"{code}: {count}" for code,count in sorted(codes.items())
+          if code in PUBLIC_ERROR_CODES and isinstance(count,int) and 0<count<=14]
+    if safe:text+='\nWorker failure categories: '+', '.join(safe)
+    text+='\nRemote workers compute moves; only the main bot assigns review priority.'
+    embed.add_field(name='Compute coverage',value=text[:1024],inline=False)
 
 
 def add_convergence_fields(embed,result):
