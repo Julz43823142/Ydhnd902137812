@@ -768,6 +768,12 @@ def run_position_batch(executor, pool, work, nodes, deadline, progress, stage,
             done_by_game[key]=done_by_game.get(key,0)+1
         else:
             pending.append((game,decision))
+    if budget_for_game is not None and len(pending)>1:
+        # Search results are position-independent (one engine, cleared hash),
+        # so start the expensive depth-18 work before depth-12 Bullet work.
+        # This leaves short jobs to fill idle cores at the tail of each shard;
+        # source ordering of games/results is unchanged.
+        pending.sort(key=lambda pair:-(getattr(budget_for_game(pair[0]),'depth',None) or 0))
     # Schedule only a bounded multiple of active workers. In particular, a
     # 500-game scan must not create thousands of queued futures up front.
     max_workers=max(1,int(getattr(executor,'_max_workers',getattr(pool,'size',1))))
@@ -1187,6 +1193,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         context_only = [g for g in history if g.identity not in {x.identity for x in analyzed}]
         analyzed.sort(key=lambda g:(g.ended,g.identity))
         progress('Building human-move profile…')
+        maia_started=time.monotonic()
         resume_kwargs=({'checkpoint':checkpoint,'target':target}
                        if checkpoint is not None else {})
         neural_reference=(
@@ -1199,6 +1206,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 and not (deadline.cancel is not None and deadline.cancel.is_set()))
             else {'available':False,'positions':0,
                   'reason':'Primary engine pass incomplete or interrupted; optional human reference skipped.'})
+        maia_finished=time.monotonic()
         # Live v29 reviews promise complete Maia inference for *every*
         # player decision in the latest fifty, not just a visible coverage
         # counter. Test-injected engines retain their standalone Stockfish
@@ -1221,6 +1229,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             if ((require_maia or (full_depth_mode and os.getenv('FAIRPLAY_REQUIRE_MAIA')=='1'))
                     and not neural_reference['fast_counterfactual']['complete']):
                 raise ReviewError('The complete fast Maia counterfactual search did not finish; no review was issued.')
+        fast_policy_finished=time.monotonic()
         progress('Analyzing sessions and repertoire…')
         from fairplay_sequence import class_periods, adaptive_deep_games, confirmation_extension
         gameplay_periods=(class_periods([g for g in v21_deep if g.rated is True],
@@ -1234,6 +1243,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         deep_started=(distributed_handle["started"]
                       if distributed_handle is not None else time.monotonic())
         deep_incomplete=False
+        remote_join_started=time.monotonic()
         if distributed_handle is not None:
             from fairplay_distributed import join as join_distributed
             # A missing or corrupt shard is NEVER assumed complete. Continue
@@ -1244,6 +1254,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                      f'{len(v21_deep)} remotely confirmed games')
             if len(distributed_completed)<len(v21_deep):
                 progress('Recovering missing Stockfish games locally…')
+        remote_join_finished=time.monotonic()
         index=0
         def deep_scan(game,worker=None):
             confirmed=copy.deepcopy(game)
@@ -1335,6 +1346,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                     candidates.extend(g for g in extra if g not in candidates)
             except DeadlineReached:
                 deep_incomplete=True;break
+        deep_stockfish_finished=time.monotonic()
         if neural_reference.get('available'):
             deep_groups=([([g for g in analyzed if g.deep and g.time_class!='bullet'],deep_budget),
                           ([g for g in analyzed if g.deep and g.time_class=='bullet'],
@@ -1464,6 +1476,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                        v21_deep if v21_mode else analyzed)
         rated_history=([g for g in history if g.rated is True]
                        if include_unrated else history)
+        scoring_started=time.monotonic()
         result=score_review(canonical,scoring_games,len(rated_history),skipped,primary_partial,
                             engine_name,profile,time.monotonic()-started,config,
                             coverage_state=coverage_state,context_games=rated_history,
@@ -1688,6 +1701,14 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         result.diagnostics['runtime']={'collection_seconds':collected_at-started,
             'fast_seconds':fast_finished-collected_at,'deep_seconds':deep_finished-deep_started,
             'profile_seconds':time.monotonic()-deep_finished,'elapsed_seconds':result.elapsed,
+            'maia_inference_seconds':maia_finished-maia_started,
+            'fast_maia_alternatives_seconds':fast_policy_finished-maia_finished,
+            'remote_compute_elapsed_seconds':(distributed_handle.get('stats') or {}).get('elapsed_seconds',0)
+                if distributed_handle is not None else 0,
+            'remote_join_seconds':remote_join_finished-remote_join_started if distributed_handle is not None else 0,
+            'local_deep_stockfish_seconds':deep_stockfish_finished-remote_join_finished,
+            'deep_maia_alternatives_seconds':deep_finished-deep_stockfish_finished,
+            'scoring_postprocess_seconds':time.monotonic()-scoring_started,
             'peak_process_memory_mb':memory_mb,'full_fast_games':len(analyzed),'deep_games':sum(g.deep for g in analyzed),
             'human_reference_seconds':neural_reference.get('seconds',0),
             'fast_position_tasks':fast_position_tasks,'deep_position_tasks':deep_position_tasks,

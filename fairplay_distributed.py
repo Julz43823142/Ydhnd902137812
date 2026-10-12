@@ -32,6 +32,7 @@ from fairplay_evidence_payload import normalize
 BRANCH = "fairplay-distributed-work"
 SCHEMA = "sharkbot-fairplay-distributed-v1"
 WORKERS = 18
+DEPTH18_SCHEDULING_WEIGHT = 8
 REQUEST_LIFETIME = 3 * 3600
 MAX_CIPHERTEXT = 24 * 1024 * 1024
 MAX_DECOMPRESSED = 80 * 1024 * 1024
@@ -151,16 +152,30 @@ def deserialize_game(value):
     return GameSample(**data,decisions=decisions)
 
 
+def estimated_depth_work(game):
+    """Scheduling estimate only; every decision keeps its required search depth.
+
+    Bullet receives depth 12 while blitz/rapid receive depth 18. Counting all
+    positions equally strands the deeper workers at the end of a scan. The
+    fixed integer ratio is intentionally below a small synthetic Stockfish 19
+    depth-18/depth-12 benchmark (~20x), since real positions vary widely.
+    Actual engine complexity is measured separately. This value never enters
+    evidence or scoring.
+    """
+    return len(game.decisions) * (1 if game.time_class == 'bullet'
+                                  else DEPTH18_SCHEDULING_WEIGHT)
+
+
 def shard_games(games, count=WORKERS):
-    """Balance by number of decisions, not game count; preserve archive order."""
+    """Balance estimated depth work, not game count; preserve archive order."""
     count=max(1,min(WORKERS,int(count)))
     shards=[[] for _ in range(count)]
     costs=[0]*count
     for original_index,game in sorted(enumerate(games),
-        key=lambda item:(-len(item[1].decisions),item[0])):
+        key=lambda item:(-estimated_depth_work(item[1]),item[0])):
         slot=min(range(count),key=lambda i:(costs[i],len(shards[i]),i))
         shards[slot].append((original_index,game))
-        costs[slot]+=len(game.decisions)
+        costs[slot]+=estimated_depth_work(game)
     return [[game for _,game in sorted(rows)] for rows in shards]
 
 
@@ -617,7 +632,12 @@ def worker(ticket,index,*,env=None,store=None,clock=None):
             "schema":SCHEMA,"ticket":ticket,"index":index,
             "revision":request["revision"],"engine":name,
             "games":[serialize_game(g) for g in tasks]})
-        return {"positions":total,"games":len(tasks),"shard":index}
+        return {"positions":total,"games":len(tasks),"shard":index,
+                "depth18_positions":sum(len(g.decisions) for g in tasks
+                                        if g.time_class!='bullet'),
+                "depth12_positions":sum(len(g.decisions) for g in tasks
+                                        if g.time_class=='bullet'),
+                "compute_seconds":round(clock()-started,2)}
     except Exception as error:
         # Keep failures isolated from other shards, and let the
         # coordinator immediately recover missing games on its local pool.

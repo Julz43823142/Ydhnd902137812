@@ -21,7 +21,10 @@ def main():
     try:
         result=worker(ticket,int(index))
         print(f"Completed isolated Stockfish shard {result['shard']}: "
-              f"{result['games']} games / {result['positions']} positions.",flush=True)
+              f"{result['games']} games / {result['positions']} positions "
+              f"(depth 18: {result['depth18_positions']}; "
+              f"depth 12: {result['depth12_positions']}; "
+              f"compute: {result['compute_seconds']}s).",flush=True)
     except Exception as error:
         # Only predefined constants enter public logs. Never print a
         # traceback, exception text, account, game, FEN or packet contents.

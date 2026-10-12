@@ -319,7 +319,35 @@ def _bounded_detail_embed(embed):
 
 def detail_embed(result, mode):
     embed = discord.Embed(title=f'{mode} — {result.username}',color=0x427CBA)
-    if mode=='Human Moves':
+    if mode=='Scan Timing':
+        runtime=result.diagnostics.get('runtime') or {}
+        if not runtime:
+            embed.description='Timing details are unavailable for this review.'
+        else:
+            stages=(('Chess.com collection','collection_seconds'),
+                    ('Fast Stockfish and candidate review','fast_seconds'),
+                    ('Maia inference','maia_inference_seconds'),
+                    ('Fast Maia alternatives','fast_maia_alternatives_seconds'),
+                    ('Remote Stockfish elapsed (overlaps Maia)','remote_compute_elapsed_seconds'),
+                    ('Wait after Maia for remote shards','remote_join_seconds'),
+                    ('Local deep Stockfish or recovery','local_deep_stockfish_seconds'),
+                    ('Deep Maia alternatives','deep_maia_alternatives_seconds'),
+                    ('Scoring and post-processing','scoring_postprocess_seconds'))
+            embed.description=(f'Total scan: **{duration(runtime.get("elapsed_seconds",0))}**\n'
+                               'Remote Stockfish can run while Maia works; stage times overlap and must not be added together.')
+            embed.add_field(name='Measured stages',inline=False,value='\n'.join(
+                f'{name}: **{duration(runtime[key])}**' for name,key in stages
+                if isinstance(runtime.get(key),(int,float)) and runtime[key]>=0) or 'Unavailable')
+            searches=runtime.get('engine_searches') or {}
+            if searches:
+                embed.add_field(name='Local Stockfish search time',inline=False,
+                    value=(f'Fast candidate searches: {duration(searches.get("fast_multipv_seconds",0))}\n'
+                           f'Fast played-move searches: {duration(searches.get("fast_root_seconds",0))}\n'
+                           f'Deep candidate searches: {duration(searches.get("deep_multipv_seconds",0))}\n'
+                           f'Deep played-move searches: {duration(searches.get("deep_root_seconds",0))}\n'
+                           'These are summed worker CPU times, not additional wall-clock time.'))
+        return _bounded_detail_embed(embed)
+    elif mode=='Human Moves':
         reference=result.diagnostics.get('human_reference',{})
         embed.description=(reference.get('role') or reference.get('reason') or
             'No local human-model data is available for this review.')
@@ -834,7 +862,7 @@ class ReportView(SubmitView):
         super().__init__()
         self.clear_items()
         for label,emoji,action in [('Highest-Signal Games','🎯','games'),('Timing','⏱️','timing'),
-                                   ('Performance','📈','performance'),('Clusters & History','🔬','clusters'),('Engine Analysis','♟️','engine'),('Human Moves','🧠','human'),('Review Gates','🛡️','gates'),('Re-scan','🔄','rescan')]:
+                                   ('Performance','📈','performance'),('Clusters & History','🔬','clusters'),('Engine Analysis','♟️','engine'),('Human Moves','🧠','human'),('Review Gates','🛡️','gates'),('Scan Timing','⏱️','runtime'),('Re-scan','🔄','rescan')]:
             button = discord.ui.Button(label=label,emoji=emoji,custom_id=NAMESPACE+action)
             async def show(ctx,action=action,label=label):
                 if _service is None:

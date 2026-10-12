@@ -1,5 +1,6 @@
 """Regressions for per-phase timeouts, progress and English text."""
 import unittest
+from types import SimpleNamespace
 from unittest.mock import patch
 
 import chess.engine
@@ -10,6 +11,22 @@ from fairplay_progress import LiveTiming, ReliableTiming, duration, estimate
 
 
 class ScanTimingTests(unittest.TestCase):
+    def test_scan_timing_detail_shows_measured_non_additive_stages(self):
+        from fairplay_ui import ReportView, detail_embed
+        result=SimpleNamespace(username='synthetic-player',diagnostics={'runtime':{
+            'elapsed_seconds':300,'collection_seconds':20,'fast_seconds':80,
+            'maia_inference_seconds':30,'fast_maia_alternatives_seconds':35,
+            'remote_compute_elapsed_seconds':90,'remote_join_seconds':70,
+            'local_deep_stockfish_seconds':0,
+            'deep_maia_alternatives_seconds':40,'scoring_postprocess_seconds':10,
+            'engine_searches':{'fast_multipv_seconds':120}}})
+        card=detail_embed(result,'Scan Timing').to_dict()
+        content=str(card)
+        self.assertIn('Total scan',content)
+        self.assertIn('stage times overlap',content)
+        self.assertIn('Fast Stockfish and candidate review',content)
+        self.assertTrue(any(button.label=='Scan Timing' for button in ReportView().children))
+
     def test_english_elapsed_and_phase_eta(self):
         clock=LiveTiming(started=0.0)
         clock.observe('Fast engine scan: 0 / 100 positions',now=0.0)
