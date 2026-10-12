@@ -31,6 +31,15 @@ class CorrespondenceCoverage(unittest.TestCase):
         self.assertTrue(review(rows)['supported'])
         self.assertEqual(review(rows)['best']['period']['games'],10)
 
+    def test_unreviewed_games_cannot_be_treated_as_zero_opportunity_context(self):
+        rows=[game(i,2) for i in range(10)]
+        for i in range(10,20):
+            g=game(i,10)
+            if i%2:g.decisions=[];g.deep=False
+            g.class_index=i;rows.append(g)
+        for i,g in enumerate(rows):g.class_index=i
+        self.assertFalse(review(rows)['supported'])
+
     def test_short_games_do_not_consume_extra_daily_reservations(self):
         rows=[game(i,kind='daily' if i<50 else 'bullet') for i in range(200)]
         for g in rows[30:50]:g.decisions=[]

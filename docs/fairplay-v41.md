@@ -52,7 +52,9 @@ flag. This retains excellent #2/#3 choices with meaningful candidate geometry.
 Book, forced, automatic and easy-conversion decisions remain excluded.
 
 Preset chronological windows of 5/10/20/30 games retain misses and zero-opportunity
-games. At least five multi-opportunity contributors and 60% of opportunity games
+games. Every candidate game must be completely deep-reviewed; unreviewed games
+are missing evidence, never zero-opportunity context. Reference games must also
+be deep-reviewed. At least five multi-opportunity contributors and 60% of opportunity games
 must contribute; the original 40-opportunity, Wilson-bound, paired-search and
 prior-change requirements remain. Reference selection matches the current
 correspondence-control mix by metadata-only quotas and newest-first order.

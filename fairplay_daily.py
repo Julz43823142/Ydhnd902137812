@@ -104,7 +104,7 @@ def review(games, config=CONFIG):
             ratings = [g.rating for g in period if g.rating is not None]
             opponents = [g.opponent_rating for g in period if g.opponent_rating is not None]
             reference = rows[:end-width]
-            baseline = [g for g in reference if g.time_control in controls
+            baseline = [g for g in reference if g.deep and g.time_control in controls
                         and g.rating is not None and g.opponent_rating is not None
                         and len(ratings) == len(period) and len(opponents) == len(period)
                         and abs(g.rating-median(ratings)) <= 200
@@ -120,6 +120,7 @@ def review(games, config=CONFIG):
             gates = {
                 'comparable correspondence control mix': bool(baseline) and mix_distance<=config.daily_control_mix_tolerance,
                 'complete chronological period': consecutive,
+                'complete candidate deep coverage': all(g.deep for g in period),
                 'replicated difficult games': current['contributors'] >= max(config.daily_period_games,ceil(config.daily_contributor_fraction*current['opportunity_games'])),
                 'difficult opportunity coverage': current['opportunities'] >= config.daily_min_opportunities,
                 'deep-confirmed quality lower bound': current['lower'] >= config.daily_hit_lower,
