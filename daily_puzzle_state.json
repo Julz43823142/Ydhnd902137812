@@ -113,7 +113,7 @@
     "player_color": "white",
     "player_move_count": 7,
     "posted_at": "2026-10-12T20:06:53.555584+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -167,7 +167,7 @@
     "wrong_attempt_counts": {
       "730484744944353301": 3
     },
-    "last_feedback": "❌ **Not quite, Julian21 — there is a stronger continuation available.**\n↪️ **Move played:** `Qh8`",
+    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Rhxg6+ Qxg6+ Qf6+ Qxd6+ Qh6+ Qh8+ Qxa8",
     "accepted_solution_moves": [
       {
         "san": "Rhxg6+",
@@ -186,7 +186,7 @@
       }
     ]
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-12",
