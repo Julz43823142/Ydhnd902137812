@@ -60,6 +60,31 @@ class PositionCacheTests(unittest.TestCase):
 
 
 class SchedulingTests(unittest.TestCase):
+    def test_mixed_depth_batch_starts_long_searches_first_without_dropping_positions(self):
+        order=[]
+        class Inline:
+            _max_workers=2
+            def submit(self,fn,*args):
+                future=Future()
+                try:future.set_result(fn(*args))
+                except Exception as error:future.set_exception(error)
+                return future
+        class Pool:
+            def run_decision(self,game,decision,budget,deadline):
+                order.append((game.time_class,budget.depth))
+                return True
+        bullet=SimpleNamespace(time_class='bullet')
+        blitz=SimpleNamespace(time_class='blitz')
+        done,interrupted=run_position_batch(
+            Inline(),Pool(),[(bullet,move()),(blitz,move())],
+            chess.engine.Limit(depth=18),ScanDeadline(time.monotonic()+30),
+            lambda _:None,'Synthetic depth',
+            budget_for_game=lambda game:chess.engine.Limit(
+                depth=12 if game.time_class=='bullet' else 18))
+        self.assertFalse(interrupted)
+        self.assertEqual(done,{id(bullet),id(blitz)})
+        self.assertEqual(order,[('blitz',18),('bullet',12)])
+
     def test_cancelled_work_does_not_queue_all_5000_positions(self):
         count=[]
         class Inline:

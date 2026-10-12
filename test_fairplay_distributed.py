@@ -1,4 +1,4 @@
-"""v23 ten-job compute isolation and complete central evidence regressions.
+"""Compute-shard isolation and complete central evidence regressions.
 
 Synthetic accounts/PGNs only; offline except the localhost file-based git
 transport. No live Chess.com, Discord or GitHub dispatches.
@@ -16,9 +16,10 @@ from unittest.mock import Mock, patch
 
 from fairplay_config import CONFIG, VERSION
 from fairplay_data import ReviewError, parse_game
-from fairplay_distributed import (EncryptedGitStore, SCHEMA, WORKERS, artifact_name,
+from fairplay_distributed import (DEPTH18_SCHEDULING_WEIGHT, EncryptedGitStore,
+                                  SCHEMA, WORKERS, artifact_name,
                                   deserialize_game, join, key_material, pack,
-                                  request_ticket, serialize_game, shard_games,
+                                  estimated_depth_work, request_ticket, serialize_game, shard_games,
                                   start, unpack, validate_response)
 from test_fairplay import sample_row, TARGET
 
@@ -48,7 +49,7 @@ def completed(game, engine="Stockfish synthetic"):
 
 
 class Sharding(unittest.TestCase):
-    def test_ten_shards_balanced_and_complete(self):
+    def test_shards_balanced_and_complete(self):
         games=[sample(i+1) for i in range(17)]
         # Add varying length to prove position rather than game-count balance.
         for i,g in enumerate(games):g.decisions=g.decisions[:10+i]
@@ -62,6 +63,33 @@ class Sharding(unittest.TestCase):
         self.assertEqual([g.identity for group in shard_games(games)
                           for g in group],
                          [g.identity for group in distributed for g in group])
+
+    def test_depth_aware_balance_preserves_all_games_and_required_depths(self):
+        games=[sample(i+1,bullet=i%3==0) for i in range(54)]
+        for i,game in enumerate(games):
+            game.decisions=game.decisions[:3+(i%17)]
+        shards=shard_games(games,count=6)
+        self.assertEqual(len(shards),6)
+        self.assertEqual({g.identity for group in shards for g in group},
+                         {g.identity for g in games})
+        self.assertEqual(sum(map(len,shards)),len(games))
+        costs=[sum(estimated_depth_work(g) for g in group) for group in shards]
+        self.assertLessEqual(max(costs)-min(costs),
+                             max(estimated_depth_work(g) for g in games))
+        self.assertEqual(shards,shard_games(games,count=6))
+        self.assertEqual(estimated_depth_work(games[0]),len(games[0].decisions))
+        self.assertEqual(estimated_depth_work(games[1]),
+                         DEPTH18_SCHEDULING_WEIGHT*len(games[1].decisions))
+
+    def test_mixed_depth_balance_avoids_bullet_heavy_slow_tail(self):
+        games=[sample(i+1,bullet=i<18) for i in range(54)]
+        for game in games:game.decisions=game.decisions[:12]
+        balanced=shard_games(games,count=6)
+        weighted=[sum(estimated_depth_work(g) for g in group) for group in balanced]
+        self.assertLessEqual(max(weighted)-min(weighted),
+                             max(estimated_depth_work(g) for g in games))
+        self.assertEqual(sorted(g.identity for group in balanced for g in group),
+                         sorted(g.identity for g in games))
 
     def test_unchanged_real_game_dataclasses_are_roundtripped(self):
         game=sample()
@@ -171,7 +199,7 @@ class Coordinator(unittest.TestCase):
         self.assertEqual(set(inputs),{'ticket','revision','shards'})
 
     @patch("fairplay_distributed._dispatch")
-    def test_dispatch_one_workflow_not_ten_and_reuses_resumable_ticket(self,dispatch):
+    def test_dispatch_one_workflow_and_reuses_resumable_ticket(self,dispatch):
         store=MemoryStore()
         games=[sample(i) for i in range(1,12)]
         env={"FAIRPLAY_DISTRIBUTED":"1","FAIRPLAY_DISTRIBUTED_KEY":SECRET,
@@ -292,6 +320,9 @@ class WorkerMixedStatusRegression(unittest.TestCase):
                                   revision='b'*40,engine='Stockfish synthetic')
         self.assertEqual([g.rated for g in returned],[True,False])
         self.assertEqual(result['games'],2)
+        self.assertEqual(result['depth18_positions'],result['positions'])
+        self.assertEqual(result['depth12_positions'],0)
+        self.assertGreaterEqual(result['compute_seconds'],0)
         pool.close.assert_called_once()
 
     def test_bad_game_status_reports_failure_before_engine_start(self):
