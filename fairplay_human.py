@@ -92,7 +92,7 @@ def annotate_game(game, config=CONFIG, model=None):
         # retain an opportunity from an earlier fast/deep annotation.
         opportunity = bool(m.get('competitive') and m.get('difficulty', 0)>=config.human_difficulty_floor
                            and not m.get('search_inconsistent') and not m.get('easy_conversion')
-                           and not m.get('post_opponent_error') and not d.forced and not d.trivial_kind
+                           and not m.get('automatic_material_gain') and not d.forced and not d.trivial_kind
                            and d.phase != 'opening')
         fallback = False
         try:

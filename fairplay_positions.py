@@ -95,7 +95,12 @@ Hard decisions remain evidence even against a very weak opponent.
                        and m.get('gap',0)>=config.critical_gap)
         easy=bool(winning and (automatic or (d.capture and m.get('gap',0) is not None
                                              and m.get('gap',0)>=config.unique_gap)))
-        competitive=bool(m['useful'] and abs(before)<=config.competitive_eval_cp and not error)
+        # An opponent error can leave an equal, difficult position. Its
+        # evaluation swing is context, not proof that the reply is obvious.
+        # Only the concrete automatic/material and conversion checks above
+        # exclude the reply from competitive evidence.
+        competitive=bool(m['useful'] and abs(before)<=config.competitive_eval_cp
+                         and not automatic and not easy)
         m.update(opponent_swing_cp=swing,post_opponent_error=error,
                  automatic_material_gain=automatic,
                  opponent_material_exposure=bool(error and obvious_gain),
