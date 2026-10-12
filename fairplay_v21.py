@@ -62,9 +62,16 @@ def broad_and_core(history, *, broad_count=500, deep_count=100,
         rated_games=[g for g in chronological if g.rated is True]
         newest_rated=rated_games[-count:] if count else []
         needed={g.identity for g in (*newest_any,*newest_rated)}
+        # Keep a bounded Daily comparison set inside existing deep slots.
+        # Live/Bullet volume must not silently evict all correspondence games.
+        daily=[g for g in reversed(rated_games) if g.time_class=='daily']
+        for game in daily[:30]:
+            if len(needed)>=deep_count:break
+            needed.add(game.identity)
         must=[g for g in chronological if g.identity in needed]
-        tail=tuple(g for g in must if not is_peer_game(g))
-        peers=[g for g in reversed(chronological) if is_peer_game(g)]
+        tail=tuple(g for g in must if not is_peer_game(g) or g.time_class=='daily')
+        peers=[g for g in reversed(chronological) if is_peer_game(g)
+               and g.identity not in {r.identity for r in tail}]
         core=tuple(reversed(peers[:max(0,deep_count-len(tail))]))
         selected={g.identity for g in (*core,*tail)}
         if not needed.issubset(selected):
@@ -75,8 +82,14 @@ def broad_and_core(history, *, broad_count=500, deep_count=100,
         if len(primary)>broad_count:
             raise ValueError('Mixed-status primary plan exceeds broad-game limit.')
         return ReviewPlan(primary,core,(),len(chronological),broad_count,tail)
-    tail=tuple(g for g in chronological[-count:] if not is_peer_game(g)) if count else ()
-    peers=[g for g in reversed(chronological) if is_peer_game(g)]
+    must=list(chronological[-count:]) if count else []
+    needed={g.identity for g in must}
+    for game in [g for g in reversed(chronological) if g.time_class=='daily'][:30]:
+        if len(needed)>=deep_count:break
+        if game.identity not in needed:must.append(game);needed.add(game.identity)
+    tail=tuple(g for g in must if not is_peer_game(g) or g.time_class=='daily')
+    peers=[g for g in reversed(chronological) if is_peer_game(g)
+               and g.identity not in {r.identity for r in tail}]
     core=tuple(reversed(peers[:max(0,deep_count-len(tail))]))
     selected={g.identity for g in (*core,*tail)}
     newest=[g for g in reversed(chronological) if g.identity not in selected]
@@ -174,7 +187,7 @@ def public_history_stats(history, *, now=None, public_stats=None):
     for days in WINDOWS:
         rows=[g for g in history if g.rated is True and now-days*86400<g.ended<=now]
         classes={}
-        for kind in ("blitz","rapid","bullet"):
+        for kind in ("blitz","rapid","bullet","daily"):
             games=sorted((g for g in rows if g.time_class==kind),
                          key=lambda g:(g.ended,g.identity))
             wins=sum(g.result=="Win" for g in games)

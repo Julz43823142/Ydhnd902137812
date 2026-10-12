@@ -50,7 +50,9 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
                  coverage_state=None, context_games=None, gameplay_periods=None):
     from fairplay_analysis import aggregate, performance_metrics, context_metrics, median, family_label, ReviewResult
     # Only rated games with usable equal-budget engine coverage enter ANY signal.
-    scanned_rated=[g for g in games if g.rated is True and not g.probe_only]
+    daily_games=[g for g in games if g.time_class=='daily' and g.rated is True]
+    scanned_rated=[g for g in games if g.rated is True and not g.probe_only
+                   and g.time_class!='daily']
     timeline=[g for g in scanned_rated if 'decisions' in (g.fast_metrics or g.metrics)]
     games=[g for g in scanned_rated if (g.fast_metrics or g.metrics).get('decisions',0)>=config.min_game_decisions]
     useful = sorted([g for g in games if g.metrics.get('decisions',0)>=config.min_game_decisions],key=lambda g:(g.ended,g.identity))
@@ -351,7 +353,11 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
     result=integrate_gameplay(result,timeline,config,periods=gameplay_periods)
     if context_games is not None:
         from fairplay_opening import repertoire
-        result.diagnostics['gameplay']['repertoire']=repertoire(context_games)
+        result.diagnostics['gameplay']['repertoire']=repertoire(
+            [g for g in context_games if g.time_class!='daily'])
+    if daily_games:
+        from fairplay_daily import integrate as integrate_daily
+        result=integrate_daily(result,daily_games,config,context_games=context_games or daily_games)
     return result
 
 

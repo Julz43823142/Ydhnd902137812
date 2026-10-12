@@ -69,7 +69,7 @@ def retry_after(value, fallback):
 
 
 def safe_game_url(value: str) -> str:
-    return value if re.fullmatch(r'https://www\.chess\.com/game/live/[0-9]+', str(value)) else ''
+    return value if re.fullmatch(r'https://www\.chess\.com/game/(?:live|daily)/[0-9]+', str(value)) else ''
 
 
 def finite_number(value):
@@ -178,8 +178,7 @@ def parse_game(row: dict, target: str, config: ReviewConfig = CONFIG, *, exclusi
         if exclusions is not None:exclusions[reason] += 1
         return None
     if row.get('rules', 'chess') != 'chess':return reject('variant')
-    if row.get('time_class') == 'daily':return reject('daily')
-    if row.get('time_class') not in ('rapid', 'blitz', 'bullet'):return reject('unsupported_time_class')
+    if row.get('time_class') not in ('rapid', 'blitz', 'bullet', 'daily'):return reject('unsupported_time_class')
     rated_status=row.get('rated')
     if not isinstance(rated_status,bool):return reject('rated_status_unknown')
     if rated_status is False and not include_unrated:return reject('unrated')
@@ -210,7 +209,10 @@ def parse_game(row: dict, target: str, config: ReviewConfig = CONFIG, *, exclusi
     board = game.board()
     if board.chess960 or not board.is_valid() or board.fen() != chess.STARTING_FEN:
         return reject('custom_start')  # variants/custom starts are incomparable
-    base, increment = clock_control(row.get('time_control', ''))
+    daily = row['time_class'] == 'daily'
+    base, increment = (None, None) if daily else clock_control(row.get('time_control', ''))
+    daily_control=re.fullmatch(r'1/([0-9]{1,8})',str(row.get('time_control',''))) if daily else None
+    daily_control=f'1/{int(daily_control[1])}' if daily_control and int(daily_control[1])>0 else ''
     previous = {chess.WHITE: None, chess.BLACK: None}
     decisions = []
     previous_capture_square = None
@@ -221,7 +223,7 @@ def parse_game(row: dict, target: str, config: ReviewConfig = CONFIG, *, exclusi
         if ply > config.max_plies or node.move not in board.legal_moves:
             return reject('other_invalid')
         side = board.turn
-        after = node.clock()
+        after = None if daily else node.clock()
         if after is not None and (not math.isfinite(after) or after < 0):
             after = None
         before = previous[side]
@@ -277,7 +279,8 @@ def parse_game(row: dict, target: str, config: ReviewConfig = CONFIG, *, exclusi
                       int(rating) if rating and 100 <= rating <= 4000 else None,
                       int(opponent) if opponent and 100 <= opponent <= 4000 else None,
                       result, score, accuracy, color, decisions, moves=moves,
-                      time_control=f'{base}+{increment}' if base is not None else '',
+                      time_control=(daily_control if daily else
+                                    f'{base}+{increment}' if base is not None else ''),
                       rated=row.get('rated') if isinstance(row.get('rated'),bool) else None)
 
 
@@ -374,7 +377,8 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG,
                 # invent consecutiveness by skipping their records.
                 recent_standard=sum(g.time_class in ('blitz','rapid')
                                     for g in samples) if include_recent_nonbullet_short_count else 0
-                allow_short=(include_latest_fifty_short and len(samples)<50
+                allow_short=(row.get('time_class')=='daily'
+                    or include_latest_fifty_short and len(samples)<50
                     or (include_recent_nonbullet_short_count>0
                         and row.get('time_class') in ('blitz','rapid')
                         and recent_standard<include_recent_nonbullet_short_count))
