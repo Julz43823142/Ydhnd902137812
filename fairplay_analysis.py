@@ -10,6 +10,7 @@ import queue
 import statistics as stats
 import time
 import threading
+from contextlib import contextmanager, nullcontext
 from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor, as_completed, CancelledError, wait, FIRST_COMPLETED
 from dataclasses import dataclass, field, replace
@@ -503,9 +504,9 @@ class EngineScanner:
 _game_cache = OrderedDict()
 _game_cache_lock = threading.RLock()
 _GAME_CACHE_TTL = 3 * 3600
-_GAME_CACHE_MAX = 320
+_GAME_CACHE_MAX = 512
 _ENGINE_POOL_MAX = 16
-_POSITION_CACHE_MAX = 2048
+_POSITION_CACHE_MAX = 4096
 
 
 class ExactPositionCache:
@@ -516,6 +517,26 @@ class ExactPositionCache:
         self.lock=threading.RLock()
         self.hits=0
         self.misses=0
+        self.flights={}
+
+    @contextmanager
+    def flight(self,key,deadline=None):
+        # Reserve before acquiring an engine: a waiting duplicate cannot occupy
+        # the engine needed by its leader. Clean up entries even on failure.
+        with self.lock:
+            row=self.flights.setdefault(key,[threading.RLock(),0])
+            row[1]+=1
+        acquired=False
+        try:
+            while not acquired:
+                if deadline is not None:check_deadline(deadline)
+                acquired=row[0].acquire(timeout=.1)
+            yield
+        finally:
+            if acquired:row[0].release()
+            with self.lock:
+                row[1]-=1
+                if not row[1]:self.flights.pop(key,None)
 
     def get(self,key):
         with self.lock:
@@ -745,6 +766,21 @@ class SharedEnginePool:
         return game
 
     def run_decision(self,game,decision,nodes,deadline,fast_multipv_override=None):
+        cache=getattr(self,'position_cache',None)
+        budget=nodes if isinstance(nodes,chess.engine.Limit) else chess.engine.Limit(nodes=nodes)
+        context=cache.flight(('position-flight',getattr(self,'name','local-pool'),decision.fen,repr(budget)),deadline) if cache is not None else nullcontext()
+        with context:
+            return self._run_decision(game,decision,nodes,deadline,fast_multipv_override)
+
+    def run_policy_decision(self,decision,nodes,deadline):
+        from fairplay_policy import search_alternatives
+        cache=getattr(self,'position_cache',None)
+        budget=nodes if isinstance(nodes,chess.engine.Limit) else chess.engine.Limit(nodes=nodes)
+        context=cache.flight(('position-flight',getattr(self,'name','local-pool'),decision.fen,repr(budget)),deadline) if cache is not None else nullcontext()
+        with context:
+            return self._run_cached(deadline,lambda scanner:search_alternatives(scanner,decision,nodes))
+
+    def _run_decision(self,game,decision,nodes,deadline,fast_multipv_override=None):
         # Reuse only exact same FEN, move, side, budget, MultiPV, context.
         check_deadline(deadline)
         cache=getattr(self,'position_cache',None)
@@ -1049,6 +1085,10 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         else:
             primary = history[-limit:]
         analyzed,probes = [],{}
+        if v21_mode and callable(getattr(progress,'workload',None)):
+            progress.workload({'wide':sum(d.useful for g in primary for d in g.decisions),
+                               'candidate':sum(d.useful for g in v21_plan.deep for d in g.decisions),
+                               'deep':sum(len(g.decisions) for g in v21_plan.deep)})
         cached_deep = {}
         partial = False
         def fast_scan(game,worker=None,*,prepare_only=False):
@@ -1225,10 +1265,13 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 # Dispatch BEFORE Maia, so ten external Stockfish runners
                 # work while the controller computes human-policy alternatives.
                 distributed_handle=start_distributed(
-                    v21_deep,target,revision=os.getenv('GITHUB_SHA',''),
+                    [g for g in v21_deep if g.identity not in cached_deep],target,revision=os.getenv('GITHUB_SHA',''),
                     engine=engine_name)
                 if distributed_handle is not None:
                     progress('Remote Stockfish dispatched…')
+        if callable(getattr(progress,'workload',None)):
+            progress.workload({'candidate':sum(d.useful for g in v21_deep for d in g.decisions) if v21_mode else 0,
+                               'deep':sum(len(g.decisions) for g in v21_deep) if v21_mode else 0})
         fast_finished=time.monotonic()
         historical_targets=[]
         probe_complete=True
@@ -1245,7 +1288,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                 v21_deep if v21_mode else analyzed,
                 full_coverage=False,
                 recent_full_ids=full_policy_ids if v21_mode else None,
-                **resume_kwargs)
+                progress=progress,**resume_kwargs)
             if (primary_complete and time.monotonic()<deadline
                 and not (deadline.cancel is not None and deadline.cancel.is_set()))
             else {'available':False,'positions':0,
@@ -1265,6 +1308,10 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             raise ReviewError('Complete depth-18 review requires local Maia-3; the model was unavailable.')
         from fairplay_policy import complete as complete_policy, allocate as allocate_policy
         if neural_reference.get('available'):
+            from fairplay_policy import _needs_counterfactual
+            if callable(getattr(progress,'workload',None)):
+                policy_count=sum(_needs_counterfactual(d) for g in (v21_deep if v21_mode else analyzed) if g.time_class!='daily' for d in g.decisions)
+                progress.workload({'maia':neural_reference.get('positions',0),'policy_fast':policy_count,'policy_deep':policy_count})
             progress('Comparing human alternatives…')
             neural_reference['fast_counterfactual']=complete_policy(
                 v21_deep if v21_mode else analyzed,config.fast_nodes,deadline,executor=engine_executor,
@@ -1334,11 +1381,11 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                     confirmed_batch=[]
                     work=[]
                     for game in batch:
+                        if game.identity in distributed_completed:
+                            confirmed_batch.append(copy.deepcopy(distributed_completed[game.identity]))
+                            continue
                         confirmed=copy.deepcopy(game)
                         confirmed_batch.append(confirmed)
-                        if game.identity in distributed_completed:
-                            confirmed_batch[-1]=copy.deepcopy(distributed_completed[game.identity])
-                            continue
                         if game.identity in cached_deep:
                             decisions,metrics=cached_deep[game.identity]
                             confirmed.decisions=copy.deepcopy(decisions)
@@ -1396,9 +1443,39 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                           ([g for g in analyzed if g.deep and g.time_class=='bullet'],
                            chess.engine.Limit(depth=config.bullet_deep_depth))]
                          if full_depth_mode else [([g for g in analyzed if g.deep],deep_budget)])
-            policy_reports=[complete_policy(group,budget,deadline,
-                executor=engine_executor,pool=shared_pool if use_shared else None,scanner=scanner,
-                progress=progress,**resume_kwargs) for group,budget in deep_groups if group]
+            policy_remote={}
+            policy_handle=None
+            if distributed_mode:
+                from fairplay_distributed import start as start_policy_remote, join as join_policy_remote, position_units
+                policy_games=[g for g in analyzed if g.deep and g.time_class!='daily']
+                from fairplay_policy import alternatives
+                if sum(len(alternatives(d)) for g in policy_games for d in g.decisions if _needs_counterfactual(d))>=50:
+                    progress('Dispatching deep Maia alternatives…')
+                    policy_handle=start_policy_remote(policy_games,target,revision=os.getenv('GITHUB_SHA',''),
+                                                     engine=engine_name,phase='policy')
+                    if policy_handle is not None:
+                        policy_remote=join_policy_remote(policy_handle,progress,deadline)
+                        for game in policy_games:
+                            returned=policy_remote.get(game.identity)
+                            if returned is None:continue
+                            for decision,remote in zip(game.decisions,returned.decisions):
+                                if 'policy_search' in remote.metrics:
+                                    decision.metrics['policy_search']=copy.deepcopy(remote.metrics['policy_search'])
+            from fairplay_distributed import position_units
+            policy_total=position_units([g for group,_ in deep_groups for g in group],'policy')
+            if callable(getattr(progress,'workload',None)):
+                progress.workload({'policy_deep':policy_total})
+            policy_reports=[];policy_done=0
+            for group,budget in deep_groups:
+                if not group:continue
+                def policy_progress(stage):
+                    import re
+                    match=re.search(r'(\d+)\s*/\s*(\d+)',stage)
+                    if match:progress(f'Deep Maia alternatives: {policy_done+int(match[1])} / {policy_total} positions')
+                report=complete_policy(group,budget,deadline,
+                    executor=engine_executor,pool=shared_pool if use_shared else None,scanner=scanner,
+                    progress=policy_progress,precompleted=policy_remote,**resume_kwargs)
+                policy_reports.append(report);policy_done+=report['positions']
             neural_reference['deep_counterfactual']={
                 'complete':all(row['complete'] for row in policy_reports),
                 'positions':sum(row['positions'] for row in policy_reports),
@@ -1478,7 +1555,10 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                     _game_cache[key]=(time.monotonic(),copy.deepcopy(game.decisions),game.deep,
                                       copy.deepcopy(game.fast_metrics),copy.deepcopy(game.metrics) if game.deep else None)
                     _game_cache.move_to_end(key)
-            while len(_game_cache)>_GAME_CACHE_MAX:_game_cache.popitem(last=False)
+            cached_positions=sum(len(row[1]) for row in _game_cache.values())
+            while _game_cache and (len(_game_cache)>_GAME_CACHE_MAX or cached_positions>40000):
+                _,removed=_game_cache.popitem(last=False)
+                cached_positions-=len(removed[1])
         progress('Comparing personal timing baselines…')
         collection_coverage = getattr(api, 'fairplay_collection_coverage', {})
         if not isinstance(collection_coverage,dict):collection_coverage={}
@@ -1523,161 +1603,165 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         rated_history=([g for g in history if g.rated is True]
                        if include_unrated else history)
         scoring_started=time.monotonic()
-        result=score_review(canonical,scoring_games,len(rated_history),skipped,primary_partial,
-                            engine_name,profile,time.monotonic()-started,config,
-                            coverage_state=coverage_state,context_games=[g for g in rated_history if g.time_class!='daily'],
-                            gameplay_periods=gameplay_periods)
-        # Temporal outcome streaks and extremely mismatched opposition belong
-        # in a visible read-only audit, never in engine-cheating score gates.
-        from fairplay_recent import summarize_recent
-        result.diagnostics['recent_tail_audit']=summarize_recent(analyzed)
-        # The descriptive streak audit records published-score coverage and
-        # opponent context. Full latest50 deep selection happened before it.
-        from fairplay_streak import accuracy_streak_audit
-        result.diagnostics['accuracy_streak_audit']=accuracy_streak_audit(analyzed)
-        if include_unrated:
-            from fairplay_streak import unrated_accuracy_audit
-            result.diagnostics['unrated_accuracy_audit']=unrated_accuracy_audit(analyzed)
-        from fairplay_policy import integrate as integrate_policy
-        result=(integrate_policy(result,scoring_games,config,
-                                 strict_original_sequence=True)
-                if v21_mode else integrate_policy(result,scoring_games,config))
-        # Research-only opportunity-coverage and episodic feasibility audit.
-        # The historical deep context error can mimic suspicious episodes;
-        # independent calibration is required before any new scoring route.
-        # This module NEVER changes LOW/MODERATE/HIGH/VERY HIGH.
-        from fairplay_episodic import integrate as integrate_episodic
-        result=integrate_episodic(result,scoring_games,config)
-        # A strictly scoped HIGH route for short but *distributed* recent
-        # ten-game episodes. Uses deep paired search and independent halves;
-        # no performance, Elo-win-streak or published Accuracy shortcut.
-        from fairplay_burst import integrate as integrate_burst
-        result=integrate_burst(result,scoring_games,config)
-        if v21_mode:
-            from fairplay_ten_windows import integrate as integrate_ten_windows
-            result=integrate_ten_windows(result,v21_deep,accuracy_discovery,config)
-        # Owner-defined manual-review triage: an extreme, repeated published
-        # Accuracy change may raise review PRIORITY, independently of the
-        # gameplay verdict. Its reason explicitly says engine confirmation
-        # was not established; no sanction or cheating inference follows.
-        from fairplay_streak import prioritize_accuracy_surge
-        result=prioritize_accuracy_surge(result,[g for g in analyzed if g.time_class!='daily'],config)
-        from fairplay_daily import integrate as integrate_daily
-        result=integrate_daily(result,daily_scoring_games,config,context_games=history)
-        # Review all verified deep-reviewed games, including short games with
-        # fewer than eight useful moves. The audit is aggregate-only and cannot
-        # elevate priority; fast evidence selects any diagnostic period.
-        from fairplay_intermit_audit import summarize_intermit
-        result.diagnostics['intermittent_coverage_audit']=summarize_intermit(
-            scoring_games, minimum_game_decisions=config.min_game_decisions)
-        # Research-only threshold sensitivity. Report gate margins without
-        # changing the already final LOW/MODERATE/HIGH/VERY HIGH priority.
-        from fairplay_shadow_stability import summarize_shadow_stability
-        result.diagnostics['shadow_stability_audit']=summarize_shadow_stability(result)
-        # Explain which paired comparisons are missing versus genuinely
-        # unstable. This does not modify either thresholds or priority.
-        from fairplay_stability_audit import summarise_stability
-        result.diagnostics['paired_stability_audit']=summarise_stability(
-            scoring_games,(result.diagnostics.get('gameplay',{}).get('best') or {}).get('ids',()))
-        # Astra evidence accounting is strictly observational. Production
-        # eligibility, confidence and classifications were already frozen.
-        from fairplay_evidence_audit import audit_engine_sample
-        result.diagnostics['evidence_audit']=audit_engine_sample(
-            scoring_games,config,period_ids=(result.diagnostics.get('gameplay',{}).get('best') or {}).get('ids',()))
-        if v21_mode:
-            # Explicitly expose BOTH denominators; the 500 broad positions
-            # must not be mistaken for 500 depth18-confirmed games.
-            result.coverage.update(fast_scanned=len(analyzed),
-                                   broad_fast_scanned=len(analyzed),
-                                   deep_scope_games=len(scoring_games)+len(daily_scoring_games),
-                                   deep_scope_used=result.coverage.get('used',0))
-            result.games=list(analyzed)  # owner evidence retains both tiers
-        result.coverage.update(primary_collected=len(primary),primary_fast_scanned=min(len(analyzed),len(primary)) if not primary_complete else len(primary),
-                               history_probed=len(probes),history_fast_scanned=sum(g not in primary for g in analyzed),
-                               history_probe_complete=probe_complete,deep_incomplete=deep_incomplete,
-                               archive_partial=archive_partial,primary_complete=primary_complete,
-                               rated_primary=sum(g.rated is True for g in primary),casual_primary=sum(g.rated is False for g in primary),
-                               unknown_primary=sum(g.rated is None for g in primary))
-        result.history={'collected':len(history),'historical_candidates':len(historical_targets),
-                        'sessions':session_history(history,config),'engine_selected':len(analyzed),'context':context_metrics(history,profile),
-                        'repertoire':__import__('fairplay_opening').repertoire(history),
-                        'timing_baselines':[{'class':kind,'control':control,
-                            'profile':timing_profile(group,config)}
-                            for (kind,control),group in buckets(history).items()]}
-        if v21_mode:
-            from fairplay_v21 import public_history_stats
-            public_stats=None
-            try:
-                public_stats=api.get(canonical,'/stats')
-            except Exception:
-                pass  # optional public metadata does not affect the review
-            result.diagnostics['public_history_stats']=public_history_stats(
-                history,public_stats=public_stats)
-            result.diagnostics['v21_selection']={
-                'broad_fast_games':len(primary),
-                'recent_peer_deep_games':len(v21_plan.core),
-                'recent_tail_nonpeer_deep_games':len(v21_plan.recent_tail),
-                'latest_50_games_required':len(latest_fifty),
-                'latest_50_deep_selected':sum(
-                    g.identity in {x.identity for x in v21_plan.deep}
-                    for g in latest_fifty),
-                'latest_50_depth_completed':sum(
-                    g.deep for g in v21_deep if g.identity in latest_fifty_ids),
-                'latest_50_stockfish_positions':latest_fifty_depth_total,
-                'latest_50_stockfish_depth_verified_positions':latest_fifty_depth_verified,
-                'latest_50_stockfish_depth_exact_positions':latest_fifty_depth_exact,
-                'latest_50_maia_all_decisions':latest_fifty_maia_completed,
-                'latest_50_maia_expected':latest_fifty_maia_expected,
-                'accuracy_window_candidates':accuracy_discovery['accuracy_candidates'],
-                'accuracy_window_games_selected':len(accuracy_discovery['selected_ids']),
-                'accuracy_window_full_depth_selected':sum(
-                    g.identity in accuracy_discovery['selected_ids'] for g in v21_deep),
-                'latest_50_maia_complete':neural_reference.get('recent_full_complete',False),
-                'recent_20_rated_deep_coverage':sum(
-                    g.identity in {x.identity for x in v21_plan.deep}
-                    for g in sorted(analyzed,key=lambda g:(g.ended,g.identity))[-20:]),
-                'historical_extra_deep_games':len(v21_plan.reserve),
-                'deep_games_completed':sum(g.deep for g in v21_deep),
-                'eligible_rated_metadata_games':sum(g.rated is True for g in history),
-                'eligible_unrated_metadata_games':sum(g.rated is False for g in history),
-                'peer_max_lower_rating_gap':500,
-                'selected_fast_pv3_positions':v21_candidate_positions,
-                'early_mode_fast_pv':config.fast_multipv,
-                'selected_fast_pv':3,'selected_deep_pv':config.deep_multipv,
-                'no_accuracy_cherry_picking':True,
-                'scope_note':('500 rated/unrated live games fast-screened, latest 50 rated games '
-                              'always full-depth (including short games), plus '
-                              'remaining peer controls and historical discovery; '
-                              'at most 250 selected games in distributed mode.'
-                              if distributed_mode else
-                              '500 rated/unrated live games fast-screened, latest 50 rated games '
-                              'always full-depth (including short games), plus '
-                              'remaining peer controls and historical discovery; '
-                              'at most 125 selected games in local mode.')
-                              + ' No full-depth claim for other games.'}
-            result.diagnostics['distributed_compute']={
-                'enabled':distributed_mode,
-                'jobs_requested':__import__('fairplay_distributed').WORKERS
-                    if distributed_handle is not None else 0,
-                'shards_completed':(distributed_handle.get('stats') or {}).get('completed',0)
-                    if distributed_handle is not None else 0,
-                'shards_failed':(distributed_handle.get('stats') or {}).get('failed',0)
-                    if distributed_handle is not None else 0,
-                'shards_stalled':(distributed_handle.get('stats') or {}).get('stalled',0)
-                    if distributed_handle is not None else 0,
-                'failure_codes':(distributed_handle.get('stats') or {}).get('failure_codes',{})
-                    if distributed_handle is not None else {},
-                'compute_status':(distributed_handle.get('stats') or {}).get('reason','not_dispatched')
-                    if distributed_handle is not None else 'not_dispatched',
-                'games_verified_remotely':len(distributed_completed),
-                'games_recomputed_locally':sum(g.identity not in distributed_completed for g in v21_deep)
-                    if distributed_mode else 0,
-                'distributed_time_seconds':(distributed_handle.get('stats') or {}).get('elapsed_seconds')
-                    if distributed_handle is not None else None,
-                'distributed_join_wait_seconds':(distributed_handle.get('stats') or {}).get('join_wait_seconds')
-                    if distributed_handle is not None else None,
-                'one_authoritative_report':True,
-                'no_independent_worker_scoring':True}
+        from fairplay_runtime import final_summary_scope
+        with final_summary_scope():
+            result=score_review(canonical,scoring_games,len(rated_history),skipped,primary_partial,
+                                engine_name,profile,time.monotonic()-started,config,
+                                coverage_state=coverage_state,context_games=[g for g in rated_history if g.time_class!='daily'],
+                                gameplay_periods=gameplay_periods)
+            # Temporal outcome streaks and extremely mismatched opposition belong
+            # in a visible read-only audit, never in engine-cheating score gates.
+            from fairplay_recent import summarize_recent
+            result.diagnostics['recent_tail_audit']=summarize_recent(analyzed)
+            # The descriptive streak audit records published-score coverage and
+            # opponent context. Full latest50 deep selection happened before it.
+            from fairplay_streak import accuracy_streak_audit
+            result.diagnostics['accuracy_streak_audit']=accuracy_streak_audit(analyzed)
+            if include_unrated:
+                from fairplay_streak import unrated_accuracy_audit
+                result.diagnostics['unrated_accuracy_audit']=unrated_accuracy_audit(analyzed)
+            from fairplay_policy import integrate as integrate_policy
+            result=(integrate_policy(result,scoring_games,config,
+                                     strict_original_sequence=True)
+                    if v21_mode else integrate_policy(result,scoring_games,config))
+            # Research-only opportunity-coverage and episodic feasibility audit.
+            # The historical deep context error can mimic suspicious episodes;
+            # independent calibration is required before any new scoring route.
+            # This module NEVER changes LOW/MODERATE/HIGH/VERY HIGH.
+            from fairplay_episodic import integrate as integrate_episodic
+            result=integrate_episodic(result,scoring_games,config)
+            # A strictly scoped HIGH route for short but *distributed* recent
+            # ten-game episodes. Uses deep paired search and independent halves;
+            # no performance, Elo-win-streak or published Accuracy shortcut.
+            from fairplay_burst import integrate as integrate_burst
+            result=integrate_burst(result,scoring_games,config)
+            if v21_mode:
+                from fairplay_ten_windows import integrate as integrate_ten_windows
+                result=integrate_ten_windows(result,v21_deep,accuracy_discovery,config)
+            # Owner-defined manual-review triage: an extreme, repeated published
+            # Accuracy change may raise review PRIORITY, independently of the
+            # gameplay verdict. Its reason explicitly says engine confirmation
+            # was not established; no sanction or cheating inference follows.
+            from fairplay_streak import prioritize_accuracy_surge
+            result=prioritize_accuracy_surge(result,[g for g in analyzed if g.time_class!='daily'],config)
+            from fairplay_daily import integrate as integrate_daily
+            result=integrate_daily(result,daily_scoring_games,config,context_games=history)
+            # Review all verified deep-reviewed games, including short games with
+            # fewer than eight useful moves. The audit is aggregate-only and cannot
+            # elevate priority; fast evidence selects any diagnostic period.
+            from fairplay_intermit_audit import summarize_intermit
+            result.diagnostics['intermittent_coverage_audit']=summarize_intermit(
+                scoring_games, minimum_game_decisions=config.min_game_decisions)
+            # Research-only threshold sensitivity. Report gate margins without
+            # changing the already final LOW/MODERATE/HIGH/VERY HIGH priority.
+            from fairplay_shadow_stability import summarize_shadow_stability
+            result.diagnostics['shadow_stability_audit']=summarize_shadow_stability(result)
+            # Explain which paired comparisons are missing versus genuinely
+            # unstable. This does not modify either thresholds or priority.
+            from fairplay_stability_audit import summarise_stability
+            result.diagnostics['paired_stability_audit']=summarise_stability(
+                scoring_games,(result.diagnostics.get('gameplay',{}).get('best') or {}).get('ids',()))
+            # Astra evidence accounting is strictly observational. Production
+            # eligibility, confidence and classifications were already frozen.
+            from fairplay_evidence_audit import audit_engine_sample
+            result.diagnostics['evidence_audit']=audit_engine_sample(
+                scoring_games,config,period_ids=(result.diagnostics.get('gameplay',{}).get('best') or {}).get('ids',()))
+            if v21_mode:
+                # Explicitly expose BOTH denominators; the 500 broad positions
+                # must not be mistaken for 500 depth18-confirmed games.
+                result.coverage.update(fast_scanned=len(analyzed),
+                                       broad_fast_scanned=len(analyzed),
+                                       deep_scope_games=len(scoring_games)+len(daily_scoring_games),
+                                       deep_scope_used=result.coverage.get('used',0))
+                result.games=list(analyzed)  # owner evidence retains both tiers
+            result.coverage.update(primary_collected=len(primary),primary_fast_scanned=min(len(analyzed),len(primary)) if not primary_complete else len(primary),
+                                   history_probed=len(probes),history_fast_scanned=sum(g not in primary for g in analyzed),
+                                   history_probe_complete=probe_complete,deep_incomplete=deep_incomplete,
+                                   archive_partial=archive_partial,primary_complete=primary_complete,
+                                   rated_primary=sum(g.rated is True for g in primary),casual_primary=sum(g.rated is False for g in primary),
+                                   unknown_primary=sum(g.rated is None for g in primary))
+            result.history={'collected':len(history),'historical_candidates':len(historical_targets),
+                            'sessions':session_history(history,config),'engine_selected':len(analyzed),'context':context_metrics(history,profile),
+                            'repertoire':__import__('fairplay_opening').repertoire(history),
+                            'timing_baselines':[{'class':kind,'control':control,
+                                'profile':timing_profile(group,config)}
+                                for (kind,control),group in buckets(history).items()]}
+            if v21_mode:
+                from fairplay_v21 import public_history_stats
+                public_stats=None
+                try:
+                    public_stats=api.get(canonical,'/stats')
+                except Exception:
+                    pass  # optional public metadata does not affect the review
+                result.diagnostics['public_history_stats']=public_history_stats(
+                    history,public_stats=public_stats)
+                result.diagnostics['v21_selection']={
+                    'broad_fast_games':len(primary),
+                    'recent_peer_deep_games':len(v21_plan.core),
+                    'recent_tail_nonpeer_deep_games':len(v21_plan.recent_tail),
+                    'latest_50_games_required':len(latest_fifty),
+                    'latest_50_deep_selected':sum(
+                        g.identity in {x.identity for x in v21_plan.deep}
+                        for g in latest_fifty),
+                    'latest_50_depth_completed':sum(
+                        g.deep for g in v21_deep if g.identity in latest_fifty_ids),
+                    'latest_50_stockfish_positions':latest_fifty_depth_total,
+                    'latest_50_stockfish_depth_verified_positions':latest_fifty_depth_verified,
+                    'latest_50_stockfish_depth_exact_positions':latest_fifty_depth_exact,
+                    'latest_50_maia_all_decisions':latest_fifty_maia_completed,
+                    'latest_50_maia_expected':latest_fifty_maia_expected,
+                    'accuracy_window_candidates':accuracy_discovery['accuracy_candidates'],
+                    'accuracy_window_games_selected':len(accuracy_discovery['selected_ids']),
+                    'accuracy_window_full_depth_selected':sum(
+                        g.identity in accuracy_discovery['selected_ids'] for g in v21_deep),
+                    'latest_50_maia_complete':neural_reference.get('recent_full_complete',False),
+                    'recent_20_rated_deep_coverage':sum(
+                        g.identity in {x.identity for x in v21_plan.deep}
+                        for g in sorted(analyzed,key=lambda g:(g.ended,g.identity))[-20:]),
+                    'historical_extra_deep_games':len(v21_plan.reserve),
+                    'deep_games_completed':sum(g.deep for g in v21_deep),
+                    'eligible_rated_metadata_games':sum(g.rated is True for g in history),
+                    'eligible_unrated_metadata_games':sum(g.rated is False for g in history),
+                    'peer_max_lower_rating_gap':500,
+                    'selected_fast_pv3_positions':v21_candidate_positions,
+                    'early_mode_fast_pv':config.fast_multipv,
+                    'selected_fast_pv':3,'selected_deep_pv':config.deep_multipv,
+                    'no_accuracy_cherry_picking':True,
+                    'scope_note':('500 rated/unrated live games fast-screened, latest 50 rated games '
+                                  'always full-depth (including short games), plus '
+                                  'remaining peer controls and historical discovery; '
+                                  'at most 250 selected games in distributed mode.'
+                                  if distributed_mode else
+                                  '500 rated/unrated live games fast-screened, latest 50 rated games '
+                                  'always full-depth (including short games), plus '
+                                  'remaining peer controls and historical discovery; '
+                                  'at most 125 selected games in local mode.')
+                                  + ' No full-depth claim for other games.'}
+                result.diagnostics['distributed_compute']={
+                    'enabled':distributed_mode,
+                    'jobs_requested':__import__('fairplay_distributed').WORKERS
+                        if distributed_handle is not None else 0,
+                    'shards_completed':(distributed_handle.get('stats') or {}).get('completed',0)
+                        if distributed_handle is not None else 0,
+                    'shards_failed':(distributed_handle.get('stats') or {}).get('failed',0)
+                        if distributed_handle is not None else 0,
+                    'shards_stalled':(distributed_handle.get('stats') or {}).get('stalled',0)
+                        if distributed_handle is not None else 0,
+                    'failure_codes':(distributed_handle.get('stats') or {}).get('failure_codes',{})
+                        if distributed_handle is not None else {},
+                    'compute_status':(distributed_handle.get('stats') or {}).get('reason','not_dispatched')
+                        if distributed_handle is not None else 'not_dispatched',
+                    'games_verified_remotely':len(distributed_completed),
+                    'games_recomputed_locally':sum(g.identity not in distributed_completed for g in v21_deep)
+                        if distributed_mode else 0,
+                    'distributed_time_seconds':(distributed_handle.get('stats') or {}).get('elapsed_seconds')
+                        if distributed_handle is not None else None,
+                    'distributed_join_wait_seconds':(distributed_handle.get('stats') or {}).get('join_wait_seconds')
+                        if distributed_handle is not None else None,
+                    'policy_games_verified_remotely':len(policy_remote) if neural_reference.get('available') else 0,
+                    'duplicate_positions_reused':len(distributed_handle.get('aliases',{})) if distributed_handle is not None else 0,
+                    'one_authoritative_report':True,
+                    'no_independent_worker_scoring':True}
         progress('Building report…')
         result.elapsed=time.monotonic()-started
         try:

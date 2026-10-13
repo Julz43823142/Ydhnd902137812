@@ -84,6 +84,9 @@ def discover(games, *, scope=SCOPE, include_recent_unrated=False,
                       and math.isfinite(g.ended)),
                      key=lambda g:(g.ended,g.identity))
     recent_rated_ids={g.identity for g in rated_all[-50:]}
+    history_by_control={}
+    for game in ordered:
+        history_by_control.setdefault((game.rated,game.time_class,game.time_control),[]).append(game)
     eligible=ordered[-scope:]
     groups={}
     for g in eligible:
@@ -137,7 +140,7 @@ def discover(games, *, scope=SCOPE, include_recent_unrated=False,
             opponent_ratings=[g.opponent_rating for g in segment if peer(g)]
             own_reference=statistics.median(own_ratings) if own_ratings else None
             opponent_reference=statistics.median(opponent_ratings) if opponent_ratings else None
-            older=[g for g in ordered if g.ended<segment[0].ended
+            older=[g for g in history_by_control[(rated,kind,control)] if g.ended<segment[0].ended
                    and (g.rated,g.time_class,g.time_control)==(rated,kind,control)
                    and peer(g) and own_reference is not None
                    and abs(g.rating-own_reference)<=RATING_GAP

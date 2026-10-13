@@ -284,6 +284,11 @@ def parse_game(row: dict, target: str, config: ReviewConfig = CONFIG, *, exclusi
                       rated=row.get('rated') if isinstance(row.get('rated'),bool) else None)
 
 
+# Only archive response bodies are cached. Every reuse is revalidated with
+# Chess.com via ETag/304; no stale games or profile/closure metadata are used.
+_archive_http_cache={}
+_archive_http_lock=__import__('threading').RLock()
+
 class PubAPI:
     def __init__(self, deadline: float, session=None):
         self.deadline = deadline
@@ -298,6 +303,11 @@ class PubAPI:
         if suffix not in ('', '/games/archives') and not re.fullmatch(r'/games/[0-9]{4}/(?:0[1-9]|1[0-2])', suffix):
             raise ReviewError('Unsupported public API request.')
         url = f'https://api.chess.com/pub/player/{target}{suffix}'
+        cached=None
+        if re.fullmatch(r'/games/[0-9]{4}/[0-9]{2}',suffix):
+            with _archive_http_lock:cached=_archive_http_cache.get(url)
+        headers={'User-Agent':'SharkBot/1.0 (Discord moderator fair-play screening; Chess.com PubAPI)'}
+        if cached:headers['If-None-Match']=cached[0]
         for attempt in range(3):
             check_deadline(self.deadline)
             pause = max(0, .5 - (time.monotonic() - self.last_request))
@@ -305,8 +315,10 @@ class PubAPI:
             self.last_request = time.monotonic()
             try:
                 remaining = max(.1, self.deadline - time.monotonic())
-                with self.session.get(url, headers={'User-Agent': 'SharkBot/1.0 (Discord moderator fair-play screening; Chess.com PubAPI)'},
+                with self.session.get(url, headers=headers,
                                       timeout=(min(5, remaining), min(12, remaining)), allow_redirects=False, stream=True) as response:
+                    if response.status_code==304 and cached is not None:
+                        return json.loads(cached[1])
                     if response.status_code == 404:
                         if profile:raise AccountNotFound('Chess.com account not found. Check the username and try again.')
                         return None
@@ -325,6 +337,14 @@ class PubAPI:
                         if len(payload) > maximum:raise ReviewError('The public archive exceeded the safe response limit.')
                     data = json.loads(payload)
                     if not isinstance(data, dict):raise ReviewError('Chess.com returned an invalid response.')
+                    etag=response.headers.get('ETag')
+                    if (re.fullmatch(r'/games/[0-9]{4}/[0-9]{2}',suffix) and isinstance(etag,str)
+                            and 0<len(etag)<=512 and '\r' not in etag and '\n' not in etag):
+                        with _archive_http_lock:
+                            _archive_http_cache.pop(url,None)
+                            _archive_http_cache[url]=(etag,bytes(payload))
+                            while _archive_http_cache and (len(_archive_http_cache)>64 or sum(len(row[1]) for row in _archive_http_cache.values())>32_000_000):
+                                _archive_http_cache.pop(next(iter(_archive_http_cache)))
                     return data
             except (requests.RequestException, ValueError, json.JSONDecodeError):
                 if attempt == 2:break
@@ -349,6 +369,7 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG,
     partial = len(ordered) > config.max_archives
     primary_archive_partial = False
     visited_months = 0
+    recent_standard=0
     try:
         for year, month in ordered[:config.max_archives]:
             check_deadline(api.deadline)
@@ -375,8 +396,6 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG,
                 # rapid games, including short finished games which cannot
                 # provide much suspicious-move evidence. Never silently
                 # invent consecutiveness by skipping their records.
-                recent_standard=sum(g.time_class in ('blitz','rapid')
-                                    for g in samples) if include_recent_nonbullet_short_count else 0
                 allow_short=(row.get('time_class')=='daily'
                     or include_latest_fifty_short and len(samples)<50
                     or (include_recent_nonbullet_short_count>0
@@ -390,6 +409,7 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG,
                 if sample is None:continue
                 if sample.identity not in seen:
                     samples.append(sample);seen.add(sample.identity)
+                    recent_standard+=sample.time_class in ('blitz','rapid')
                 else:skipped['duplicate'] += 1
                 if len(samples) >= limit:break
             if len(samples) >= limit:

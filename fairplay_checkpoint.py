@@ -7,6 +7,8 @@ Never print checkpoint contents, usernames, FENs, positions or subprocess stderr
 """
 import base64
 import copy
+import gzip
+import io
 import hashlib
 import json
 import math
@@ -91,7 +93,12 @@ class CheckpointStore:
             except OSError:
                 return
         try:
-            decoded = json.loads(self.cipher.decrypt(data).decode("utf-8"))
+            raw=self.cipher.decrypt(data)
+            if raw.startswith(b"gzip-v1\0"):
+                with gzip.GzipFile(fileobj=io.BytesIO(raw[8:])) as stream:
+                    raw=stream.read(512*1024*1024+1)
+                if len(raw)>512*1024*1024:return
+            decoded = json.loads(raw.decode("utf-8"))
             if isinstance(decoded, dict) and isinstance(decoded.get("jobs"), dict):
                 now = time.time()
                 self.state["jobs"] = {
@@ -109,7 +116,7 @@ class CheckpointStore:
                         and isinstance(val,dict) and isinstance(val.get("report"),dict)
                         and 0<=now-float(val.get("at",0))<MAX_AGE
                     }
-        except (InvalidToken, ValueError, TypeError, KeyError):
+        except (InvalidToken, ValueError, TypeError, KeyError, OSError, EOFError):
             # Never execute untrusted serialized code; invalid/old encrypted
             # snapshots cannot influence the review.
             return
@@ -117,8 +124,8 @@ class CheckpointStore:
     def _write(self, *, force=False):
         if not self.enabled:
             return False
-        payload = self.cipher.encrypt(
-            json.dumps(self.state, separators=(",", ":"), allow_nan=False).encode("utf-8"))
+        raw=json.dumps(self.state,separators=(",",":"),allow_nan=False).encode("utf-8")
+        payload=self.cipher.encrypt(b"gzip-v1\0"+gzip.compress(raw,compresslevel=1,mtime=0))
         self.path.parent.mkdir(parents=True, exist_ok=True)
         temp = self.path.with_suffix(self.path.suffix + ".tmp")
         with temp.open("wb") as handle:

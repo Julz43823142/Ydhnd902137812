@@ -895,14 +895,46 @@ class SubmitView(discord.ui.View):
         if not ctx.response.is_done():await ctx.response.send_message('Fair Play is temporarily unavailable.',ephemeral=True)
 
 
+
+def plain_report(embeds):
+    """Export the published card itself, including footer, after restarts too."""
+    rows=[]
+    for embed in embeds:
+        if embed.title:rows.append(embed.title)
+        if embed.description:rows.append(embed.description)
+        for field in embed.fields:
+            rows.extend(('',field.name,field.value))
+        if embed.footer.text:rows.extend(('',embed.footer.text))
+    return '\n'.join(rows).replace('**','')
+
+
+def copy_chunks(text, limit=1900):
+    # Discord messages are at most 2,000 characters. Preserve every character;
+    # split at a newline when possible, with a hard split for a long line.
+    chunks=[]
+    while len(text)>limit:
+        split=text.rfind('\n',0,limit)+1
+        if not split:split=limit
+        chunks.append(text[:split]);text=text[split:]
+    if text:chunks.append(text)
+    return chunks
+
 class ReportView(SubmitView):
     def __init__(self,target=None):
         super().__init__()
         self.clear_items()
         for label,emoji,action in [('Highest-Signal Games','🎯','games'),('Timing','⏱️','timing'),
-                                   ('Performance','📈','performance'),('Clusters & History','🔬','clusters'),('Engine Analysis','♟️','engine'),('Human Moves','🧠','human'),('Review Gates','🛡️','gates'),('Scan Timing','⏱️','runtime'),('Re-scan','🔄','rescan')]:
+                                   ('Performance','📈','performance'),('Clusters & History','🔬','clusters'),('Engine Analysis','♟️','engine'),('Human Moves','🧠','human'),('Review Gates','🛡️','gates'),('Scan Timing','⏱️','runtime'),('Re-scan','🔄','rescan'),('Copy Report','📋','copy')]:
             button = discord.ui.Button(label=label,emoji=emoji,custom_id=NAMESPACE+action)
             async def show(ctx,action=action,label=label):
+                if action=='copy':
+                    if not await channel_check(ctx):return
+                    chunks=copy_chunks(plain_report(ctx.message.embeds))
+                    if not chunks:chunks=['The published report is unavailable.']
+                    await ctx.response.send_message(chunks[0],ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
+                    for chunk in chunks[1:]:
+                        await ctx.followup.send(chunk,ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
+                    return
                 if _service is None:
                     await ctx.response.send_message('Fair Play is reconnecting. Please try again shortly.',ephemeral=True);return
                 if action=='rescan':
@@ -1035,7 +1067,7 @@ class FairPlayService:
                         job.message = candidate;job.delivery_unknown = False;break
                 if job.message is None:return False  # an uncertain ACK is not permission to repost
             job.timing.observe(stage)
-            job.progress_percent=max(job.progress_percent,estimate(stage))
+            job.progress_percent=max(job.progress_percent,job.timing.percent(stage) if hasattr(job.timing,'percent') else estimate(stage))
             card = (embed.copy() if embed is not None else progress_embed(job.target,stage,job.progress_percent,job.timing))
             if embed is not None and stage=='Complete':
                 card.add_field(name='Total scan time',value=duration(job.timing_elapsed()),inline=False)
@@ -1093,6 +1125,12 @@ class FairPlayService:
                     # the remote throughput estimate regardless.
                     job.timing.observe(stage)
                 loop.call_soon_threadsafe(observe_stage)
+        def observe_workload(work):
+            loop.call_soon_threadsafe(job.timing.configure,work)
+        def observe_workers(rows):
+            loop.call_soon_threadsafe(job.timing.workers,rows)
+        progress.workload=observe_workload
+        progress.workers=observe_workers
         future = None
         last = None
         try:

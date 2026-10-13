@@ -23,6 +23,15 @@ def main():
         low=worker.predict([dict(items[0],rating=800)])[0]
         high=worker.predict([dict(items[0],rating=2600)])[0]
         assert sum(abs(low[m]-high[m]) for m in low)>1e-4, 'Rating conditioning is inactive'
+        previous=os.environ.get('FAIRPLAY_MAIA_PREPARATION_CACHE')
+        os.environ['FAIRPLAY_MAIA_PREPARATION_CACHE']='0'
+        baseline=LocalPolicyWorker(os.environ['FAIRPLAY_MAIA_CHECKPOINT'])
+        try:
+            assert baseline.predict(items)==first,'Cached board preparation changed model probabilities'
+        finally:
+            baseline.close()
+            if previous is None:os.environ.pop('FAIRPLAY_MAIA_PREPARATION_CACHE',None)
+            else:os.environ['FAIRPLAY_MAIA_PREPARATION_CACHE']=previous
         print('Local Maia policy smoke passed: legal moves, deterministic repeat, Black orientation.')
     finally:worker.close()
 

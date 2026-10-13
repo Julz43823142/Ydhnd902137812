@@ -112,8 +112,11 @@ class ReliableTiming(LiveTiming):
     A sanitized snapshot survives a normal Actions runner handoff.
     """
     PHASES=(("Fast engine scan:","wide"),("Fast candidate verification:","candidate"),
-            ("Depth-18 rapid/blitz","deep"),("Deep confirmation:","deep"))
-    PRIOR={"wide":0.04,"candidate":0.14,"deep":0.47}
+            ("Depth-18 rapid/blitz","deep"),("Deep confirmation:","deep"),
+            ("Fast Maia alternatives", "policy_fast"), ("Deep Maia alternatives", "policy_deep"),
+            ("Building human-move profile:", "maia"))
+    PRIOR={"wide":0.04,"candidate":0.14,"deep":0.47,
+           "policy_fast":0.12,"policy_deep":0.8,"maia":0.015}
     def __init__(self, started=None):
         super().__init__(started)
         self.phases={}
@@ -122,9 +125,61 @@ class ReliableTiming(LiveTiming):
         self.last_calibrated=None
         self.remote_started=None
         self.recovering=False
+        self.worker_remaining=None
+        self.worker_updated=None
+        self.planned={}
+        self.fractions={}
         import os
         self.expected_deep_games=(250 if os.getenv('FAIRPLAY_DISTRIBUTED')=='1'
                                   else 125)
+
+    def configure(self, work):
+        """Counts from the actual plan, not a guessed 250/500 fraction."""
+        if not isinstance(work,dict):return
+        for key,value in work.items():
+            if key in self.PRIOR and type(value) is int and 0<=value<=100000:
+                self.planned[key]=value
+
+    def workers(self, rows, now=None):
+        import time
+        now=time.monotonic() if now is None else now
+        estimates=[]
+        for row in rows:
+            done,total,elapsed=row.get('done',0),row.get('total',0),row.get('elapsed',0)
+            if total==done:continue
+            if (type(done) is not int or type(total) is not int or not 0<=done<total
+                    or not isinstance(elapsed,(int,float)) or done<8 or elapsed<8):
+                self.worker_remaining=None;self.worker_updated=now
+                return
+            estimates.append((total-done)*elapsed/done)
+        self.worker_remaining=max(estimates,default=0)
+        self.worker_updated=now
+
+    def percent(self,stage):
+        if stage=='Complete':return 100
+        if stage.startswith('Building report'):return 99
+        if stage.startswith('Comparing personal timing'):return 98
+        if self.planned.get('deep') and self.phases.get('wide'):
+            costs={key:(self.phases[key]['total'] if key in self.phases else self.planned.get(key,0))*self.rate.get(key,self.PRIOR[key]) for key in self.PRIOR}
+            reserve=20+(180 if 'policy_deep' not in self.planned else 0)
+            total=sum(costs.values())+reserve
+            done=sum(costs[key]*self.fractions.get(key,0) for key in costs)
+            return max(1,min(97,1+int(96*done/max(1,total))))
+        # Conservative initial allocation; expensive depth and alternatives get
+        # most of the bar. Counts describe work, never cheating probability.
+        ranges=(('Fast engine scan:',5,25),('Fast candidate verification:',25,30),
+                ('Building human-move profile:',30,35),('Fast Maia alternatives',35,45),
+                ('Depth-18 rapid/blitz',45,85),('Deep confirmation:',45,85),
+                ('Deep Maia alternatives',85,97))
+        for prefix,start,end in ranges:
+            if stage.startswith(prefix):
+                match=re.search(r'(\d+)\s*/\s*(\d+)',stage)
+                fraction=min(1,int(match[1])/max(1,int(match[2]))) if match else 0
+                return start+int((end-start)*fraction)
+        return {'Fetching profile…':1,'Collecting rated games…':3,
+                'Collecting rated and unrated games…':3,'Building human-move profile…':30,
+                'Comparing human alternatives…':35,'Analyzing sessions and repertoire…':45,
+                'Comparing personal timing baselines…':98,'Building report…':99}.get(stage,0)
 
     def observe(self,stage,now=None):
         import time
@@ -136,17 +191,20 @@ class ReliableTiming(LiveTiming):
         if stage.startswith('Recovering missing Stockfish games locally'):
             self.recovering=True
             self.remote_started=None
+            self.worker_remaining=None
+            self.fractions.pop('deep',None)
             self.phases.pop('deep',None)
             self.rate.pop('deep',None)
             return
         for prefix,key in self.PHASES:
             if not stage.startswith(prefix):continue
-            # Game counts must not overwrite position-based rates.
-            if "positions" not in stage:return
+            # Game counters describe fractions, never position throughput.
             match=re.search(r'(\d+)\s*/\s*(\d+)',stage)
             if not match:return
             done,total=(int(match[1]),int(match[2]))
             if total<=0:return
+            self.fractions[key]=max(self.fractions.get(key,0),min(1,done/total))
+            if "positions" not in stage:return
             if key=='deep':
                 self.recovering=False
             item=self.phases.get(key)
@@ -202,7 +260,7 @@ class ReliableTiming(LiveTiming):
                          if k in self.PRIOR and 0<v<30},
                 "phases":{k:{"done":int(v["done"]),"total":int(v["total"])}
                           for k,v in self.phases.items() if k in self.PRIOR},
-                "last_phase":self.last_phase}
+                "last_phase":self.last_phase,"planned":dict(self.planned),"fractions":dict(self.fractions)}
 
     @classmethod
     def from_checkpoint(cls,snapshot):
@@ -225,6 +283,10 @@ class ReliableTiming(LiveTiming):
                                   "window_started":restored_at,"window_done":done,
                                   "last_progress":restored_at}
         item.last_phase=snapshot.get("last_phase") if snapshot.get("last_phase") in item.PRIOR else None
+        item.configure(snapshot.get("planned") or {})
+        fractions=snapshot.get("fractions")
+        if isinstance(fractions,dict):
+            item.fractions={key:value for key,value in fractions.items() if key in item.PRIOR and type(value) in (int,float) and 0<=value<=1}
         return item
 
     def summary(self,stage,now=None):
@@ -240,12 +302,13 @@ class ReliableTiming(LiveTiming):
         # not part of the estimated depth-search runtime.
         if stage.startswith(("Building report","Complete","Posting final report")):
             return label+" · Finalizing the report…"
-        if stage.startswith(("Fast Maia alternatives","Deep Maia alternatives")):
-            return label+" · Checking Maia counterfactuals; completion time is variable."
+
         if self.recovering:
             return label+" · Re-estimating after local worker recovery starts."
         wide=self.phases.get("wide")
         if not wide or "wide" not in self.rate:
+            if stage.startswith(("Fast Maia alternatives","Deep Maia alternatives")):
+                return label+" · Checking Maia counterfactuals; calibrating remaining time."
             return label+" · Time remaining: not yet available."
         # Deep searches include forced/opening positions which the intermediate
         # PV3 fast recheck skips; use a conservative overcount until known.
@@ -254,19 +317,30 @@ class ReliableTiming(LiveTiming):
         if (deep and deep['done']<deep['total'] and 'deep' in self.rate
                 and now-deep.get('last_progress',now)>=60):
             return label+" · Waiting for new worker progress; the previous ETA is no longer reliable."
-        selected_positions=(candidate["total"] if candidate else
-                            max(1,round(wide["total"]*min(1,self.expected_deep_games/500))))
-        deep_total=(deep["total"] if deep else round(selected_positions*1.5))
+        selected_positions=(candidate["total"] if candidate else self.planned.get("candidate",
+                            max(1,round(wide["total"]*min(1,self.expected_deep_games/500)))))
+        deep_total=(deep["total"] if deep else self.planned.get("deep",round(selected_positions*1.5)))
         rates={k:self.rate.get(k,self.PRIOR[k]) for k in self.PRIOR}
         if 'deep' not in self.rate and self.expected_deep_games==250:
             rates['deep']*=14/18  # only an early parallel-capacity prior
         remaining=max(0,wide["total"]-wide["done"])*rates["wide"]
         remaining+=max(0,selected_positions-(candidate["done"] if candidate else 0))*rates["candidate"]
-        remaining+=max(0,deep_total-(deep["done"] if deep else 0))*rates["deep"]
+        deep_remaining=max(0,deep_total-(deep["done"] if deep else 0))*rates["deep"]
+        if (self.worker_remaining is not None and self.worker_updated is not None
+                and now-self.worker_updated<120 and deep and deep['done']<deep['total']):
+            deep_remaining=self.worker_remaining
+        remaining+=deep_remaining
+        missing_policy=False
+        for key in ('maia','policy_fast','policy_deep'):
+            phase=self.phases.get(key)
+            total=phase['total'] if phase else self.planned.get(key)
+            if total is None:
+                missing_policy=True
+                continue
+            remaining+=max(0,total-(phase['done'] if phase else 0))*rates[key]
         # Remaining optional policy and report phases are small relative to
         # engine searches; the reserve avoids an optimistically early ETA.
-        if deep is None or deep["done"]<deep["total"]:
-            remaining+=180
+        remaining+=180 if missing_policy else 20
         if stage.startswith(("Building report","Complete")):
             remaining=0
         # Wider early estimates acknowledge variable chess search cost.
@@ -276,5 +350,5 @@ class ReliableTiming(LiveTiming):
         if remaining<=0:return label+" · Finishing report…"
         return (label+" · Estimated TOTAL time remaining: **~"+
                 duration(lower)+"–"+duration(upper)+"** "+
-                ("(early estimate; depth-18 throughput not yet measured)" if deep is None else
+                ("(early estimate; depth-18 throughput not yet measured)" if "deep" not in self.rate else
                  "(updated from measured depth-18 throughput)"))
