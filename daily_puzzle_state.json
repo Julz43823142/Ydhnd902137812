@@ -53,7 +53,7 @@
     "player_color": "black",
     "player_move_count": 3,
     "posted_at": "2026-10-13T14:20:28.351611+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -69,9 +69,9 @@
     "next_player_index": 3,
     "solved": true,
     "message_ids": {
-      "1468320170891022417": 1559571625882681425
+      "1468320170891022417": 1559571651287322765
     },
-    "message_id": 1559571625882681425,
+    "message_id": 1559571651287322765,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
@@ -84,7 +84,7 @@
     },
     "first_move_user_id": "730484744944353301",
     "first_move_user_name": "Julian21",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "board_attachment_filenames": {
@@ -130,9 +130,13 @@
         "principal": true
       }
     ],
-    "last_feedback": "✅ **Correct, Julian21!**\n🎉 **Puzzle solved!**"
+    "last_feedback": "✅ **Correct, Julian21!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **3 points.**\n\nPuzzle Elo: **1554**\n\n💡 **Solution:** Rd4+ Rxd2 Kd6\n\n🏆 **Your ranking**\n**#8 Capybrawlgames2 — 13.5 points**\n**#9 Julian21 — 3 points ← you**\n**#10 Martin — 3 points**",
+    "completion_solver_id": "730484744944353301",
+    "completion_solver_name": "Julian21",
+    "activity_bonus_users": [],
+    "auto_next_started": true
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-13",
