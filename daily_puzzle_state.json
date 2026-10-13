@@ -192,8 +192,8 @@
     "url": "https://www.chess.com/daily/2026-10-13",
     "title": "Ricochet Saves the Day",
     "fen": "7k/8/3Q2p1/7p/4q3/1P4PP/5rBK/8 w - - 0 37",
-    "current_fen": "7k/8/3Q2p1/7p/4q3/1P4PP/5rBK/8 w - - 0 37",
-    "last_move_uci": null,
+    "current_fen": "8/Q7/6pk/7p/4q3/1P4PP/5rBK/8 w - - 4 39",
+    "last_move_uci": "h7h6",
     "pgn": "[Event \"YUG-ch\"]\n[Site \"Yugoslavia\"]\n[Date \"1989.??.??\"]\n[Round \"?\"]\n[White \"Drasko, Milan\"]\n[Black \"Popovic, Petar\"]\n[Result \"1-0\"]\n[WhiteElo \"2505\"]\n[BlackElo \"2535\"]\n[FEN \"7k/8/3Q2p1/7p/4q3/1P4PP/5rBK/8 w - - 0 37\"]\n\n37. Qb8+ Kh7 38. Qa7+ Kh6 39. Qxf2 1-0",
     "all_moves": [
       {
@@ -247,24 +247,67 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1791875096930",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 4,
+    "next_player_index": 2,
     "solved": false,
-    "message_id": 1559461928395608135,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "message_id": 1559570763571265616,
+    "attempted_users": {
+      "730484744944353301": {
+        "name": "Julian21",
+        "move": "Qa7+",
+        "correct": true,
+        "timestamp": "2026-10-13T14:17:24.911182+00:00"
+      }
+    },
+    "first_move_user_id": "730484744944353301",
+    "first_move_user_name": "Julian21",
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1559461928395608135
+      "1468320170891022417": 1559570763571265616
     },
     "channel_id": 1468320170891022417,
     "board_attachment_filenames": {
-      "1468320170891022417": "daily_puzzle.png"
+      "1468320170891022417": "random_puzzle.png"
     },
-    "chat_since_refresh": 0
+    "chat_since_refresh": 0,
+    "last_card_activity_at": "2026-10-13T14:17:24.910922+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1791901039.2154555,
+        "fen_before": "7k/8/3Q2p1/7p/4q3/1P4PP/5rBK/8 w - - 0 37",
+        "expected": {
+          "uci": "d6b8",
+          "san": "Qb8+",
+          "color": "white"
+        },
+        "accepted_uci": "d6b8"
+      },
+      {
+        "accepted_at": 1791901044.9111915,
+        "fen_before": "1Q6/7k/6p1/7p/4q3/1P4PP/5rBK/8 w - - 2 38",
+        "expected": {
+          "uci": "b8a7",
+          "san": "Qa7+",
+          "color": "white"
+        },
+        "accepted_uci": "b8a7"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "Qb8+",
+        "uci": "d6b8",
+        "principal": true
+      },
+      {
+        "san": "Qa7+",
+        "uci": "b8a7",
+        "principal": true
+      }
+    ],
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kh6"
   },
   "lichess_rating_used": {
     "2000": [
