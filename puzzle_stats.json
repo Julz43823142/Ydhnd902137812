@@ -411,19 +411,19 @@
       "correct_2600": 1,
       "correct_2800": 0,
       "current_hard_streak_2600": 0,
-      "current_streak": 3,
-      "current_wrong_streak": 0,
-      "elo": 1553.7106932382803,
-      "elo_games": 3,
+      "current_streak": 0,
+      "current_wrong_streak": 1,
+      "elo": 1553.3397031300067,
+      "elo_games": 4,
       "first_solves": 3,
       "max_rating_solved": 2741,
       "name": "Julian21",
       "peak_elo": 1553.7106932382803,
       "rated_correct_count": 2,
       "rated_correct_rating_sum": 4407,
-      "total": 4,
-      "updated_at": 1791901260,
-      "wrong": 1
+      "total": 5,
+      "updated_at": 1791901295,
+      "wrong": 2
     }
   },
   "version": 1
