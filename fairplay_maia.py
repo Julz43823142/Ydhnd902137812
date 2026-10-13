@@ -37,7 +37,8 @@ def quality(loss_cp, scaled_loss):
 def valid_policy(decision, probabilities):
     if not isinstance(probabilities,dict) or not isinstance(decision.fen,str):return False
     try:
-        legal={m.uci() for m in chess.Board(decision.fen).legal_moves}
+        from fairplay_runtime import legal_uci
+        legal=legal_uci(decision.fen)
     except (ValueError, TypeError):
         return False
     return (set(probabilities)==legal
@@ -232,7 +233,7 @@ class LocalPolicyWorker:
     def __init__(self,checkpoint):
         self.buffer=b''
         env={key:value for key,value in os.environ.items() if key in {
-            'PATH','HOME','LANG','LC_ALL','LD_LIBRARY_PATH','PYTHONPATH','VIRTUAL_ENV','SYSTEMROOT','TMPDIR'}}
+            'PATH','HOME','LANG','LC_ALL','LD_LIBRARY_PATH','PYTHONPATH','VIRTUAL_ENV','SYSTEMROOT','TMPDIR','FAIRPLAY_MAIA_PREPARATION_CACHE'}}
         env.update(OMP_NUM_THREADS='1',MKL_NUM_THREADS='1',OPENBLAS_NUM_THREADS='1',
                    HF_HUB_OFFLINE='1',HF_HUB_DISABLE_TELEMETRY='1')
         self.process=subprocess.Popen([sys.executable,str(Path(__file__).parent/'scripts/fairplay_maia_worker.py'),str(checkpoint)],
@@ -258,7 +259,8 @@ class LocalPolicyWorker:
 
     def predict(self,items):
         deadline=time.monotonic()+20
-        data=memoryview((json.dumps({'positions':items},separators=(',',':'))+'\n').encode())
+        from fairplay_runtime import encode_policy_request
+        data=memoryview((json.dumps(encode_policy_request(items),separators=(',',':'))+'\n').encode())
         while data:
             remaining=deadline-time.monotonic()
             if remaining<=0:raise TimeoutError('Local policy write deadline exceeded')
@@ -298,7 +300,7 @@ def warm_worker():
     return True
 
 
-def annotate_history(games,predictor=None,*,full_coverage=False,recent_full_ids=None,checkpoint=None,target=None):
+def annotate_history(games,predictor=None,*,full_coverage=False,recent_full_ids=None,checkpoint=None,target=None,progress=None):
     global _worker
     start=time.monotonic()
     for game in games:
@@ -346,6 +348,8 @@ def annotate_history(games,predictor=None,*,full_coverage=False,recent_full_ids=
             'reason':'Recent 50 Maia full-position coverage is incomplete: missing public ratings or legal move history. No partial Maia reference may influence HIGH.'}
     if not chosen:return {'available':False,'positions':0,**coverage,
         'reason':'No positions with verified causal history and both ratings.'}
+    if callable(getattr(progress,'workload',None)):progress.workload({'maia':len(chosen)})
+    if progress is not None:progress(f'Building human-move profile: 0 / {len(chosen)} positions')
     try:
         with _lock:
             if predictor is None:
@@ -369,6 +373,7 @@ def annotate_history(games,predictor=None,*,full_coverage=False,recent_full_ids=
                         if not valid_policy(chosen[i][1],policy):
                             raise ValueError('Invalid local policy distribution')
                         _cache[keys[i]]=policy
+                    if progress is not None:progress(f'Building human-move profile: {len(chosen)-len(missing)+min(len(missing),offset+64)} / {len(chosen)} positions')
                     if checkpoint is not None:
                         for i in group:chosen[i][1].human_policy=dict(_cache[keys[i]])
                         checkpoint.record_policies(target,[(chosen[i][0],chosen[i][1]) for i in group])
@@ -377,6 +382,7 @@ def annotate_history(games,predictor=None,*,full_coverage=False,recent_full_ids=
             if checkpoint is not None:
                 checkpoint.record_policies(target,[(game,decision) for game,decision,_ in chosen])
             while len(_cache)>2400:_cache.popitem(last=False)
+        if progress is not None:progress(f'Building human-move profile: {len(chosen)} / {len(chosen)} positions')
         for game in games:refresh_game(game)
         return {'available':True,'model':MODEL_NAME,'positions':len(chosen),
             **coverage,

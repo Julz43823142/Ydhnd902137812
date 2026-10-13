@@ -161,7 +161,7 @@ def _needs_counterfactual(decision):
 
 
 def complete(games,nodes,deadline,*,executor=None,pool=None,scanner=None,fast=False,
-             checkpoint=None,target=None,progress=None):
+             checkpoint=None,target=None,progress=None,precompleted=None):
     """Reuse the bounded pool. Drain all tasks; incomplete optional data cannot score."""
     from fairplay_maia import refresh_game,policy_evidence
     # Live-trained policy counterfactuals cannot score correspondence. Maia
@@ -188,8 +188,23 @@ def complete(games,nodes,deadline,*,executor=None,pool=None,scanner=None,fast=Fa
             progress(f'{phase}: {completed} / {len(work)} positions')
             last_reported=now
     report_progress(force=True)
+    if precompleted:
+        from fairplay_checkpoint import valid_counterfactual
     pending=[]
+    restored_remote=0
     for game,d in work:
+        remote=d.metrics.get('policy_search')
+        requested=nodes.depth if isinstance(nodes,chess.engine.Limit) else nodes
+        mode='depth' if isinstance(nodes,chess.engine.Limit) else 'nodes'
+        if (precompleted and game.identity in precompleted and valid_counterfactual(remote)
+                and remote['search_contract'].get('mode')==mode
+                and remote['search_contract'].get('requested')==requested
+                and set(remote['scores'])==set(alternatives(d))):
+            completed+=1
+            if checkpoint is not None:
+                checkpoint.record_counterfactual(target,game,d,'policy-fast' if fast else 'policy-deep',d.metrics['policy_search'],persist=False)
+                restored_remote+=1
+            continue
         d.metrics.pop('policy_search',None)
         saved=(checkpoint.restore_counterfactual(target,game,d,
                'policy-fast' if fast else 'policy-deep',nodes)
@@ -198,6 +213,7 @@ def complete(games,nodes,deadline,*,executor=None,pool=None,scanner=None,fast=Fa
         else:
             d.metrics['policy_search']=saved
             completed+=1
+    if restored_remote:checkpoint.flush(force=False)
     # Recording every counterfactual used to re-encrypt the entire growing
     # checkpoint. Buffer small batches, but always flush on exit/failure.
     buffered=0;last_flush=time.monotonic()
@@ -221,8 +237,11 @@ def complete(games,nodes,deadline,*,executor=None,pool=None,scanner=None,fast=Fa
             retried=set()
             retry_queue=[]
             def submit(game,d):
-                futures[executor.submit(run_with_scanner,deadline,
-                    lambda worker,d=d:search_alternatives(worker,d,nodes))]=(game,d)
+                if callable(getattr(type(pool),'run_policy_decision',None)):
+                    future=executor.submit(pool.run_policy_decision,d,nodes,deadline)
+                else:
+                    future=executor.submit(run_with_scanner,deadline,lambda worker,d=d:search_alternatives(worker,d,nodes))
+                futures[future]=(game,d)
             def submit_available():
                 while len(futures)<capacity:
                     if retry_queue:
@@ -296,6 +315,15 @@ def complete(games,nodes,deadline,*,executor=None,pool=None,scanner=None,fast=Fa
             'seconds':time.monotonic()-started}
 
 def game_summary(game,*,fast=False):
+    from fairplay_runtime import summary_cache
+    from copy import deepcopy
+    cache=summary_cache()
+    key=(id(game),fast)
+    if cache is None:return _game_summary(game,fast=fast)
+    if key not in cache:cache[key]=(game,_game_summary(game,fast=fast))
+    return deepcopy(cache[key][1])
+
+def _game_summary(game,*,fast=False):
     from fairplay_maia import policy_evidence
     rows=[];stable=0
     for d in game.decisions:

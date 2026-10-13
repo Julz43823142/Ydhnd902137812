@@ -28,10 +28,15 @@ def main():
     model.load_state_dict({key.replace('smolgen','gab'):value for key,value in state.items()},strict=True)
     model.eval()
     moves=get_all_possible_moves();mapping={move:i for i,move in enumerate(moves)}
+    from fairplay_runtime import BoardPreparationCache
+    prepared=BoardPreparationCache(tokenize_board,lambda board:get_legal_moves_mask(board,mapping))
+    prepare=(prepared.get if os.getenv('FAIRPLAY_MAIA_PREPARATION_CACHE','1')!='0'
+             else lambda fen:(tokenize_board(chess.Board(fen)),get_legal_moves_mask(chess.Board(fen),mapping)))
     print(json.dumps({'ready':MODEL_SHA256}),flush=True)
     for line in sys.stdin:
         if len(line)>2*1024*1024:raise ValueError('Request too large')
-        request=json.loads(line);positions=request['positions']
+        from fairplay_runtime import decode_policy_request
+        request=json.loads(line);positions=decode_policy_request(request)
         if not 0<len(positions)<=MAX_POSITIONS:raise ValueError('Invalid batch size')
         results=[]
         with torch.inference_mode():
@@ -40,10 +45,10 @@ def main():
                 boards=[];inputs=[];masks=[]
                 for item in batch:
                     if not 1<=len(item['history'])<=8:raise ValueError('Invalid board history')
-                    history=[chess.Board(fen) for fen in item['history']]
-                    board=history[-1];boards.append(board)
-                    inputs.append(get_historical_tokens([tokenize_board(b) for b in history],cfg,0,0,0,0))
-                    masks.append(get_legal_moves_mask(board,mapping))
+                    history=[prepare(fen) for fen in item['history']]
+                    board=chess.Board(item['history'][-1]);boards.append(board)
+                    inputs.append(get_historical_tokens([tokens for tokens,_ in history],cfg,0,0,0,0))
+                    masks.append(history[-1][1])
                 logits,_,_=model(torch.stack(inputs),
                     torch.tensor([x['rating'] for x in batch],dtype=torch.long),
                     torch.tensor([x['opponent_rating'] for x in batch],dtype=torch.long))
