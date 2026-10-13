@@ -507,9 +507,9 @@
           "name": "Julian21",
           "paid": [],
           "progress": {
-            "daily:2026-10-13:puzzle:solve-10": 7
+            "daily:2026-10-13:puzzle:solve-10": 8
           },
-          "updated_at": 1791901576
+          "updated_at": 1791901715
         }
       }
     },
@@ -729,9 +729,9 @@
           "name": "Julian21",
           "paid": [],
           "progress": {
-            "weekly:2026-10-12:puzzle:solve-25": 7
+            "weekly:2026-10-12:puzzle:solve-25": 8
           },
-          "updated_at": 1791901576
+          "updated_at": 1791901715
         }
       }
     }

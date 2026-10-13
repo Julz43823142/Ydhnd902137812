@@ -50,7 +50,7 @@
       "paid": [],
       "pool": 500,
       "progress": {
-        "puzzle_solve": 8
+        "puzzle_solve": 9
       },
       "start": 1791756000,
       "title": "Weekly Community Challenge",
@@ -59,7 +59,7 @@
           "puzzle_solve": 1
         },
         "730484744944353301": {
-          "puzzle_solve": 7
+          "puzzle_solve": 8
         }
       }
     }
@@ -137,10 +137,10 @@
         "puzzle_solve": 1
       },
       "730484744944353301": {
-        "coins_earned": 34.0,
-        "contribution": 0.002331,
+        "coins_earned": 35.0,
+        "contribution": 0.002664,
         "new_cosmetics": 0,
-        "puzzle_solve": 7
+        "puzzle_solve": 8
       }
     }
   }
