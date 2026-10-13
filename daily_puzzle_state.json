@@ -189,68 +189,74 @@
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
-    "url": "https://www.chess.com/daily/2026-10-12",
-    "title": "Anastasia's Ambush ✔️",
-    "fen": "r4rk1/b4pp1/8/R2N4/1p5p/1P5P/4BPP1/6K1 w - - 0 1",
-    "current_fen": "r4rk1/b4pp1/8/R2N4/1p5p/1P5P/4BPP1/6K1 w - - 0 1",
+    "url": "https://www.chess.com/daily/2026-10-13",
+    "title": "Ricochet Saves the Day",
+    "fen": "7k/8/3Q2p1/7p/4q3/1P4PP/5rBK/8 w - - 0 37",
+    "current_fen": "7k/8/3Q2p1/7p/4q3/1P4PP/5rBK/8 w - - 0 37",
     "last_move_uci": null,
-    "pgn": "[Result \"*\"]\n[FEN \"r4rk1/b4pp1/8/R2N4/1p5p/1P5P/4BPP1/6K1 w - - 0 1\"]\n\n1. Ne7+ Kh7 2. Rh5# *",
+    "pgn": "[Event \"YUG-ch\"]\n[Site \"Yugoslavia\"]\n[Date \"1989.??.??\"]\n[Round \"?\"]\n[White \"Drasko, Milan\"]\n[Black \"Popovic, Petar\"]\n[Result \"1-0\"]\n[WhiteElo \"2505\"]\n[BlackElo \"2535\"]\n[FEN \"7k/8/3Q2p1/7p/4q3/1P4PP/5rBK/8 w - - 0 37\"]\n\n37. Qb8+ Kh7 38. Qa7+ Kh6 39. Qxf2 1-0",
     "all_moves": [
       {
-        "uci": "d5e7",
-        "san": "Ne7+",
+        "uci": "d6b8",
+        "san": "Qb8+",
         "color": "white"
       },
       {
-        "uci": "g8h7",
+        "uci": "h8h7",
         "san": "Kh7",
         "color": "black"
       },
       {
-        "uci": "a5h5",
-        "san": "Rh5#",
+        "uci": "b8a7",
+        "san": "Qa7+",
+        "color": "white"
+      },
+      {
+        "uci": "h7h6",
+        "san": "Kh6",
+        "color": "black"
+      },
+      {
+        "uci": "a7f2",
+        "san": "Qxf2",
         "color": "white"
       }
     ],
     "player_moves": [
       {
-        "uci": "d5e7",
-        "san": "Ne7+",
+        "uci": "d6b8",
+        "san": "Qb8+",
         "color": "white"
       },
       {
-        "uci": "a5h5",
-        "san": "Rh5#",
+        "uci": "b8a7",
+        "san": "Qa7+",
+        "color": "white"
+      },
+      {
+        "uci": "a7f2",
+        "san": "Qxf2",
         "color": "white"
       }
     ],
     "player_color": "white",
-    "player_move_count": 2,
-    "posted_at": "2026-10-12T07:04:35.949667+00:00",
-    "answer_posted": true,
+    "player_move_count": 3,
+    "posted_at": "2026-10-13T07:04:56.930800+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "daily_1791788675949",
+    "puzzle_id": "daily_1791875096930",
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_id": 1559099452805877810,
+    "message_id": null,
     "attempted_users": {},
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "message_ids": {
-      "1468320170891022417": 1559099452805877810
-    },
-    "channel_id": 1468320170891022417,
-    "board_attachment_filenames": {
-      "1468320170891022417": "daily_puzzle.png"
-    },
-    "chat_since_refresh": 0,
-    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Ne7+ Rh5#"
+    "helper_candidate_users": []
   },
   "lichess_rating_used": {
     "2000": [
