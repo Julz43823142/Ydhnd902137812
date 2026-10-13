@@ -88,6 +88,8 @@ jobs:
         run: python scripts/smoke_stockfish_reviews.py
       - name: Verify real Stockfish position-queue evidence matches sequential search
         run: python scripts/smoke_fairplay_equivalence.py
+      - name: Verify exact real-engine candidate reuse
+        run: python scripts/smoke_fairplay_candidate_cache.py
       - name: Verify real v21 MultiPV 1 / MultiPV 3 / depth 18 contract
         run: python scripts/smoke_fairplay_v21.py
       - name: Verify real isolated v22 worker and full engine depth contract
