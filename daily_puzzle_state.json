@@ -58,7 +58,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_lF5hE_1791901394302",
-    "last_activity_at": "2026-10-13T14:23:27.908366+00:00",
+    "last_activity_at": "2026-10-13T14:24:18.281503+00:00",
     "rating": 2484,
     "rp_band": 4,
     "boss": false,
@@ -69,17 +69,17 @@
     "next_player_index": 1,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1559572284644134943
+      "1468320170891022417": 1559572496024600656
     },
-    "message_id": 1559572284644134943,
+    "message_id": 1559572496024600656,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "730484744944353301": {
         "name": "Julian21",
-        "move": "Rc8+",
-        "correct": true,
-        "timestamp": "2026-10-13T14:23:27.908604+00:00"
+        "move": "Rg8+",
+        "correct": false,
+        "timestamp": "2026-10-13T14:24:18.281798+00:00"
       }
     },
     "first_move_user_id": "730484744944353301",
@@ -90,19 +90,8 @@
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
-    "last_card_activity_at": "2026-10-13T14:23:27.908366+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1791901407.908611,
-        "fen_before": "6k1/p4p2/1p4r1/3q1p2/3P1Q2/4Br2/PP4P1/2R3K1 w - - 0 37",
-        "expected": {
-          "uci": "c1c8",
-          "san": "Rc8+",
-          "color": "white"
-        },
-        "accepted_uci": "c1c8"
-      }
-    ],
+    "last_card_activity_at": "2026-10-13T14:24:18.281503+00:00",
+    "recent_accepted_moves": [],
     "accepted_solution_moves": [
       {
         "san": "Rc8+",
@@ -110,7 +99,10 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Kg7"
+    "last_feedback": "❌ **Nope, Julian21 — that attempt was respectable.**\n↪️ **Move played:** `Rg8+`",
+    "wrong_attempt_counts": {
+      "730484744944353301": 1
+    }
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
