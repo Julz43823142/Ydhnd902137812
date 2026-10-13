@@ -773,7 +773,8 @@ class DiscordRules(unittest.IsolatedAsyncioTestCase):
             created = ui._service
             await ui.startup(client)
             self.assertIs(ui._service,created)
-            self.assertEqual(client.add_view.call_count,3)
+            self.assertEqual(client.add_view.call_count,4)
+            self.assertTrue(any(isinstance(call.args[0],ui.CopyTextView) for call in client.add_view.call_args_list))
             self.assertEqual(len(created.workers),ui.MAX_CONCURRENT_SCANS)
             self.assertTrue(all(call.args[0].is_persistent() for call in client.add_view.call_args_list))
         finally:
