@@ -343,6 +343,14 @@ def detail_embed(result, mode):
             f"Difficult opportunities (game-capped): {coverage.get('opportunities',0)}\n"
             f"Unverified difficult decisions (before cap): {coverage.get('unverified_decisions',0)}\n"
             'Incomplete searches remain unknown and cannot certify this HIGH route.'))
+        if best:
+            current=best.get('period',{});previous=best.get('baseline',{})
+            embed.add_field(name='Daily paired comparison',inline=False,value=(
+                f"Candidate: {current.get('games',0)} games · {current.get('hits',0)}/{current.get('opportunities',0)} near-best difficult decisions\n"
+                f"Multi-decision contributor games: {current.get('contributors',0)}\n"
+                f"Prior reference: {previous.get('games',0)} games · {previous.get('hits',0)}/{previous.get('opportunities',0)} near-best difficult decisions\n"
+                f"Median per-game difficult quality: {percentage(current.get('median_game_quality') if current.get('opportunities') else None)} vs {percentage(previous.get('median_game_quality') if previous.get('opportunities') else None)}\n"
+                'These are measured move rates, not misconduct probabilities.'))
     if mode=='Scan Timing':
         runtime=result.diagnostics.get('runtime') or {}
         if not runtime:
@@ -369,7 +377,12 @@ def detail_embed(result, mode):
                            f'Fast played-move searches: {duration(searches.get("fast_root_seconds",0))}\n'
                            f'Deep candidate searches: {duration(searches.get("deep_multipv_seconds",0))}\n'
                            f'Deep played-move searches: {duration(searches.get("deep_root_seconds",0))}\n'
-                           'These are summed worker CPU times, not additional wall-clock time.'))
+                           'These are summed search wall times across workers, not additional review elapsed time.'))
+            if searches and ('candidate_cache_hits' in searches or 'root_cache_hits' in searches):
+                embed.add_field(name='Exact search reuse',inline=False,value=(
+                    f"Candidate searches reused: {searches.get('candidate_cache_hits',0)}\n"
+                    f"Played-move searches reused: {searches.get('root_cache_hits',0)}\n"
+                    'Depth and node budgets are unchanged. Reuse counts are not a total speedup percentage.'))
         return _bounded_detail_embed(embed)
     elif mode=='Human Moves':
         reference=result.diagnostics.get('human_reference',{})
