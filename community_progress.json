@@ -50,13 +50,13 @@
       "paid": [],
       "pool": 500,
       "progress": {
-        "puzzle_solve": 10
+        "puzzle_solve": 11
       },
       "start": 1791756000,
       "title": "Weekly Community Challenge",
       "users": {
         "442597396195704832": {
-          "puzzle_solve": 2
+          "puzzle_solve": 3
         },
         "730484744944353301": {
           "puzzle_solve": 8
@@ -130,13 +130,13 @@
     },
     "2026-W42": {
       "442597396195704832": {
-        "coins_earned": 79.01,
-        "contribution": 0.000666,
+        "coins_earned": 80.01,
+        "contribution": 0.000999,
         "new_cosmetics": 3,
         "pet_feed": 2,
         "pet_levels_gained": 1,
         "pet_puzzle": 1,
-        "puzzle_solve": 2
+        "puzzle_solve": 3
       },
       "730484744944353301": {
         "coins_earned": 35.0,
