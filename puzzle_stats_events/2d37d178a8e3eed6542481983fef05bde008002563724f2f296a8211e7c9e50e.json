@@ -1,0 +1,19 @@
+{
+  "boss": false,
+  "correct": true,
+  "created_at": 1791901040,
+  "display_name": "Julian21",
+  "elo_after": 1499.847,
+  "elo_change": 0.0,
+  "new_achievements": [
+    "first_blood"
+  ],
+  "puzzle_id": "daily_1791875096930",
+  "puzzle_rating": null,
+  "source": "daily",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 1,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:daily_1791875096930:730484744944353301",
+  "user_id": "730484744944353301"
+}
