@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/lF5hE",
     "title": "Lichess • 2484",
     "fen": "6k1/p4p2/1p4r1/3q1p2/3P1Q2/4Br2/PP4P1/2R3K1 w - - 0 37",
-    "current_fen": "2R5/p4pk1/1p4r1/3q1p2/3P4/4B2r/PP4PQ/6K1 w - - 4 39",
-    "last_move_uci": "f3h3",
+    "current_fen": "2R5/p4pk1/1p4r1/3q1p2/3P4/4B2Q/PP4P1/6K1 b - - 0 39",
+    "last_move_uci": "h2h3",
     "pgn": "Rc8+ Kg7 Qh2 Rh3 Qxh3",
     "all_moves": [
       {
@@ -53,44 +53,44 @@
     "player_color": "white",
     "player_move_count": 3,
     "posted_at": "2026-10-13T14:23:14.302603+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_lF5hE_1791901394302",
-    "last_activity_at": "2026-10-13T14:26:09.073609+00:00",
+    "last_activity_at": "2026-10-13T14:26:15.327266+00:00",
     "rating": 2484,
     "rp_band": 4,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 4,
-    "next_player_index": 2,
-    "solved": false,
+    "next_solution_index": 5,
+    "next_player_index": 3,
+    "solved": true,
     "message_ids": {
-      "1468320170891022417": 1559572960338251787
+      "1468320170891022417": 1559572986846117959
     },
-    "message_id": 1559572960338251787,
+    "message_id": 1559572986846117959,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "730484744944353301": {
         "name": "Julian21",
-        "move": "Qh2",
+        "move": "Qxh3",
         "correct": true,
-        "timestamp": "2026-10-13T14:26:09.073815+00:00"
+        "timestamp": "2026-10-13T14:26:15.327491+00:00"
       }
     },
     "first_move_user_id": "730484744944353301",
     "first_move_user_name": "Julian21",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
-    "last_card_activity_at": "2026-10-13T14:26:09.073609+00:00",
+    "last_card_activity_at": "2026-10-13T14:26:15.327266+00:00",
     "recent_accepted_moves": [
       {
         "accepted_at": 1791901569.0738223,
@@ -101,6 +101,16 @@
           "color": "white"
         },
         "accepted_uci": "f4h2"
+      },
+      {
+        "accepted_at": 1791901575.3274992,
+        "fen_before": "2R5/p4pk1/1p4r1/3q1p2/3P4/4B2r/PP4PQ/6K1 w - - 4 39",
+        "expected": {
+          "uci": "h2h3",
+          "san": "Qxh3",
+          "color": "white"
+        },
+        "accepted_uci": "h2h3"
       }
     ],
     "accepted_solution_moves": [
@@ -113,14 +123,23 @@
         "san": "Qh2",
         "uci": "f4h2",
         "principal": true
+      },
+      {
+        "san": "Qxh3",
+        "uci": "h2h3",
+        "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Rh3",
+    "last_feedback": "✅ **Correct, Julian21!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **7 points.**\n\nPuzzle Elo: **1617**\n\n💡 **Solution:** Rc8+ Qh2 Qxh3\n\n🏆 **Your ranking**\n**#8 Capybrawlgames2 — 13.5 points**\n**#9 Julian21 — 7 points ← you**\n**#10 Martin — 3 points**",
     "wrong_attempt_counts": {
       "730484744944353301": 1
-    }
+    },
+    "completion_solver_id": "730484744944353301",
+    "completion_solver_name": "Julian21",
+    "activity_bonus_users": [],
+    "auto_next_started": true
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-13",
