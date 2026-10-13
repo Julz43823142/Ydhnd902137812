@@ -1,0 +1,18 @@
+{
+  "after_coins": 23.0,
+  "before_coins": 13.0,
+  "created_at": 1791901044,
+  "created_at_ns": 1791901044931686307,
+  "details": {
+    "activity_day": "2026-10-13",
+    "credited": 10.0,
+    "reset_hour": 5,
+    "source": "daily-activity-bonus",
+    "timezone": "Europe/Amsterdam"
+  },
+  "display_name": "Julian21",
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "daily-activity-bonus",
+  "transaction_id": "activity-bonus:2026-10-13:730484744944353301",
+  "user_id": "730484744944353301"
+}
