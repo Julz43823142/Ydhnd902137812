@@ -4068,8 +4068,8 @@
         "url": "https://lichess.org/training/rCdaG",
         "title": "Lichess • 1477",
         "fen": "4r1k1/ppp3p1/7p/3P1p2/2P2nq1/5B2/PBQ4P/5R1K b - - 4 26",
-        "current_fen": "4r1k1/ppp3p1/7p/3P1p2/2P2n2/5R2/PBQ4P/7K b - - 0 27",
-        "last_move_uci": "f1f3",
+        "current_fen": "6k1/ppp3p1/7p/3P1p2/2P2n2/8/PBQ4P/4rR1K b - - 2 28",
+        "last_move_uci": "f3f1",
         "pgn": "Qxf3+ Rxf3 Re1+ Rf1 Rxf1#",
         "all_moves": [
           {
@@ -4123,26 +4123,26 @@
         "winner_name": null,
         "latest_attempts": {},
         "puzzle_id": "random_rCdaG_1791904191977",
-        "last_activity_at": "2026-10-13T15:10:11.875983+00:00",
+        "last_activity_at": "2026-10-13T15:10:16.143670+00:00",
         "rating": 1477,
         "rp_band": 0,
         "boss": false,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink",
-        "next_solution_index": 2,
-        "next_player_index": 1,
+        "next_solution_index": 4,
+        "next_player_index": 2,
         "solved": false,
         "message_ids": {
-          "1546557493038284840": 1559584045900234952
+          "1546557493038284840": 1559584064309039134
         },
         "chat_since_refresh": 0,
         "attempted_users": {
           "442597396195704832": {
             "name": "Thice",
-            "move": "Qxf3",
+            "move": "Re1",
             "correct": true,
-            "timestamp": "2026-10-13T15:10:11.876238+00:00"
+            "timestamp": "2026-10-13T15:10:16.143890+00:00"
           }
         },
         "first_move_user_id": "442597396195704832",
@@ -4154,7 +4154,7 @@
         "board_attachment_filenames": {
           "1546557493038284840": "random_puzzle.png"
         },
-        "last_card_activity_at": "2026-10-13T15:10:11.875983+00:00",
+        "last_card_activity_at": "2026-10-13T15:10:16.143670+00:00",
         "recent_accepted_moves": [
           {
             "accepted_at": 1791904211.876246,
@@ -4165,6 +4165,16 @@
               "color": "black"
             },
             "accepted_uci": "g4f3"
+          },
+          {
+            "accepted_at": 1791904216.1438968,
+            "fen_before": "4r1k1/ppp3p1/7p/3P1p2/2P2n2/5R2/PBQ4P/7K b - - 0 27",
+            "expected": {
+              "uci": "e8e1",
+              "san": "Re1+",
+              "color": "black"
+            },
+            "accepted_uci": "e8e1"
           }
         ],
         "accepted_solution_moves": [
@@ -4172,9 +4182,14 @@
             "san": "Qxf3+",
             "uci": "g4f3",
             "principal": true
+          },
+          {
+            "san": "Re1+",
+            "uci": "e8e1",
+            "principal": true
           }
         ],
-        "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Rxf3"
+        "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Rf1"
       }
     }
   },
