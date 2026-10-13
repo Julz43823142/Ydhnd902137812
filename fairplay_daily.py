@@ -56,6 +56,7 @@ def game_evidence(game):
         if (not m.get('useful') or not m.get('competitive')
                 or m.get('easy_conversion') or m.get('automatic_material_gain')
                 or decision.forced or decision.phase == 'opening'
+                or isinstance(m.get('difficulty'), bool)
                 or not isinstance(m.get('difficulty'), (int, float))
                 or not isfinite(m['difficulty']) or m['difficulty'] < .65):
             continue
@@ -63,7 +64,7 @@ def game_evidence(game):
         # the survivors. Keep them in the denominator and fail the route's
         # coverage gate explicitly, even if game.deep was incorrectly set.
         loss = m.get('cpl')
-        verified = (game.deep and completed_daily_search(m)
+        verified = (game.deep is True and completed_daily_search(m)
                     and isinstance(loss, (int, float)) and not isinstance(loss, bool)
                     and isfinite(loss) and loss >= 0)
         if not verified:
@@ -76,9 +77,12 @@ def game_evidence(game):
     opportunities = opportunities[:12]
     hits = sum(m.get('near_best') is True and m.get('cpl', 9999) <= 15
                for m in opportunities)
-    measured = sum(m.get('search_stability', {}).get('compared') is True for m in opportunities)
-    paired = sum(m.get('search_stability', {}).get('compared') is True
-                 and m.get('search_stability', {}).get('objective_quality_preserved') is True
+    def stability(m):
+        value=m.get('search_stability')
+        return value if isinstance(value,dict) else {}
+    measured = sum(stability(m).get('compared') is True for m in opportunities)
+    paired = sum(stability(m).get('compared') is True
+                 and stability(m).get('objective_quality_preserved') is True
                  for m in opportunities)
     return {'opportunities': len(opportunities), 'hits': hits, 'paired': paired, 'measured': measured,
             'unverified_decisions': unverified,
@@ -146,7 +150,7 @@ def review(games, config=CONFIG):
             rating_center = median(ratings) if len(ratings) == len(period) else None
             opponent_center = median(opponents) if len(opponents) == len(period) else None
             reference = rows[:end-width]
-            baseline = [g for g in reference if g.deep and g.time_control in controls
+            baseline = [g for g in reference if g.deep is True and g.time_control in controls
                         and g.rating is not None and g.opponent_rating is not None
                         and rating_center is not None and opponent_center is not None
                         and abs(g.rating-rating_center) <= 200
@@ -162,7 +166,7 @@ def review(games, config=CONFIG):
             gates = {
                 'comparable correspondence control mix': bool(baseline) and mix_distance<=config.daily_control_mix_tolerance,
                 'complete chronological period': consecutive,
-                'complete candidate deep coverage': all(g.deep for g in period),
+                'complete candidate deep coverage': all(g.deep is True for g in period),
                 'verified difficult searches': current['unverified_decisions'] == 0 and previous['unverified_decisions'] == 0,
                 'replicated difficult games': current['contributors'] >= max(config.daily_period_games,ceil(config.daily_contributor_fraction*current['opportunity_games'])),
                 'difficult opportunity coverage': current['opportunities'] >= config.daily_min_opportunities,
@@ -187,7 +191,7 @@ def review(games, config=CONFIG):
             'reference_coverage':('Adequate' if best and
                 best['period']['opportunities']>=config.daily_min_opportunities and
                 best['baseline']['opportunities']>=config.daily_min_opportunities else 'Limited'),
-            'rated_games': len(rows), 'deep_reviewed': sum(g.deep for g in rows),
+            'rated_games': len(rows), 'deep_reviewed': sum(g.deep is True for g in rows),
             'timing_used': False, 'learned_policy_scoring_used': False,
             'best': best, 'supported': bool(best and best['supported']),
             'limitations': 'Correspondence permits long deliberation and opening references. '
@@ -223,7 +227,7 @@ def integrate(result, games, config=CONFIG, *, context_games=()):
     elif (result.priority == 'INSUFFICIENT DATA'
           and len(usable) >= config.min_games):
         result.priority = 'LOW'
-        result.confidence = 'MEDIUM' if sum(g.deep for g in daily) >= config.min_games else 'LOW'
+        result.confidence = 'MEDIUM' if sum(g.deep is True for g in daily) >= config.min_games else 'LOW'
         result.reasons = ['No supported Daily gameplay change was established. '
                           'The correspondence reference is limited; this does not establish fair play.']
     return result
