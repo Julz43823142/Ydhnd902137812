@@ -120,7 +120,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: python -m pip install python-chess requests
+      - run: python -m pip install python-chess requests cryptography
       - uses: actions/cache@v4
         with:
           path: /tmp/stockfish19-official-pgo/Stockfish/src/stockfish

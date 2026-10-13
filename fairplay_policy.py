@@ -188,10 +188,11 @@ def complete(games,nodes,deadline,*,executor=None,pool=None,scanner=None,fast=Fa
             progress(f'{phase}: {completed} / {len(work)} positions')
             last_reported=now
     report_progress(force=True)
+    if precompleted:
+        from fairplay_checkpoint import valid_counterfactual
     pending=[]
     restored_remote=0
     for game,d in work:
-        from fairplay_checkpoint import valid_counterfactual
         remote=d.metrics.get('policy_search')
         requested=nodes.depth if isinstance(nodes,chess.engine.Limit) else nodes
         mode='depth' if isinstance(nodes,chess.engine.Limit) else 'nodes'

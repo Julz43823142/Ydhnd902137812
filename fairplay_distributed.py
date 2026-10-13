@@ -818,9 +818,12 @@ def worker(ticket,index,*,env=None,store=None,clock=None):
                 for bullet in (False,True):
                     group=[g for g in tasks if (g.time_class=='bullet')==bullet]
                     if not group:continue
+                    def policy_progress(stage):
+                        match=re.search(r'(\d+) /',stage)
+                        if match:notify(f'{offset+int(match[1])} / {total} positions')
                     report=complete(group,chess.engine.Limit(depth=CONFIG.bullet_deep_depth if bullet else 18),
                                     deadline,executor=executor,pool=pool,
-                                    progress=lambda stage:notify(f"{offset+int(re.search(r'(\d+) /',stage)[1])} / {total} positions"))
+                                    progress=policy_progress)
                     if not report['complete']:raise ReviewError('Remote Stockfish work incomplete.')
                     offset+=position_units(group,'policy')
             notify(f'{total} / {total} positions')

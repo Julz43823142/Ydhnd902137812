@@ -1461,8 +1461,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
                             for decision,remote in zip(game.decisions,returned.decisions):
                                 if 'policy_search' in remote.metrics:
                                     decision.metrics['policy_search']=copy.deepcopy(remote.metrics['policy_search'])
-            from fairplay_distributed import position_units
-            policy_total=position_units([g for group,_ in deep_groups for g in group],'policy')
+            policy_total=sum(_needs_counterfactual(d) for group,_ in deep_groups for g in group if g.time_class!='daily' for d in g.decisions)
             if callable(getattr(progress,'workload',None)):
                 progress.workload({'policy_deep':policy_total})
             policy_reports=[];policy_done=0
