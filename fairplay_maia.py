@@ -35,7 +35,7 @@ def quality(loss_cp, scaled_loss):
 
 
 def valid_policy(decision, probabilities):
-    if not isinstance(probabilities,dict):return False
+    if not isinstance(probabilities,dict) or not isinstance(decision.fen,str):return False
     try:
         legal={m.uci() for m in chess.Board(decision.fen).legal_moves}
     except (ValueError, TypeError):
@@ -46,8 +46,22 @@ def valid_policy(decision, probabilities):
             and .999<=sum(probabilities.values())<=1.001)
 
 
+def inspect_policy(decision, probabilities):
+    """Return alignment and evidence from one validation of this exact input.
+
+    Alignment failure and valid-policy/invalid-engine evidence stay distinct.
+    Nothing is cached across mutable engine/model stages.
+    """
+    aligned = valid_policy(decision, probabilities)
+    return aligned, _policy_evidence(decision, probabilities) if aligned else None
+
+
 def policy_evidence(decision, probabilities):
-    if not valid_policy(decision,probabilities):return None
+    return inspect_policy(decision, probabilities)[1]
+
+
+def _policy_evidence(decision, probabilities):
+    """Internal calculation; caller has just validated this policy/FEN pair."""
     legal=set(probabilities);total=sum(probabilities.values())
     probs={move:value/total for move,value in probabilities.items()}
     m=decision.metrics

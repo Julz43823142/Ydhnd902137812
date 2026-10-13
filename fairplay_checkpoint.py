@@ -9,6 +9,7 @@ import base64
 import copy
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import subprocess
@@ -33,6 +34,24 @@ def _git(args, data=None):
         ["git", *args], input=data, stdout=subprocess.PIPE, env=env,
         stderr=subprocess.DEVNULL, check=False, timeout=25,
     )
+
+
+def valid_counterfactual(result):
+    """Only reuse complete same-budget numeric root evidence."""
+    if not isinstance(result,dict):return False
+    contract=result.get('search_contract')
+    if not isinstance(contract,dict):return False
+    mode=contract.get('mode');requested=contract.get('requested')
+    if (mode not in ('nodes','depth') or not isinstance(requested,int)
+            or isinstance(requested,bool) or requested<=0
+            or contract.get('completed') is not True or contract.get('exact') is not True):
+        return False
+    achieved=result.get(mode)
+    scores=result.get('scores')
+    return (isinstance(achieved,int) and not isinstance(achieved,bool)
+            and achieved==requested and isinstance(scores,dict)
+            and all(isinstance(v,(int,float)) and not isinstance(v,bool)
+                    and math.isfinite(v) for v in scores.values()))
 
 
 class CheckpointStore:
@@ -241,7 +260,10 @@ class CheckpointStore:
             item = job.get("positions", {}).get(self._key(game, decision, phase))
             if not isinstance(item, dict):
                 return False
-            contract = item.get("metrics", {}).get("search_contract", {})
+            metrics = item.get("metrics")
+            if not isinstance(metrics,dict):return False
+            contract = metrics.get("search_contract")
+            if not isinstance(contract,dict):return False
             # Never restore a lower-depth bullet screen as a depth-18
             # rapid/blitz result, or vice versa. Metadata is per-game.
             required_depth = (config.bullet_deep_depth
@@ -252,11 +274,16 @@ class CheckpointStore:
             # evidential recheck. Keep the phases separately and verify PV count.
             multipv_ok = (contract.get("multipv") == 3 if phase == "fast-pv3" else True)
             valid = (contract.get("completed") is True
-                     and contract.get("exact") is not False
+                     and contract.get("exact") is True
                      and contract.get("mode") == ("depth" if phase == "deep" and full_depth else "nodes")
-                     and contract.get("requested") == required)
-            if not valid or not multipv_ok or (phase == "deep" and full_depth and
-                             item["metrics"].get("search_depth", 0) < required_depth):
+                     and isinstance(contract.get("requested"),int)
+                     and not isinstance(contract.get("requested"),bool)
+                     and contract.get("requested") == required
+                     and not metrics.get("search_inconsistent"))
+            if not valid or not multipv_ok or (phase == "deep" and full_depth and (
+                             not isinstance(metrics.get("search_depth"),int)
+                             or isinstance(metrics.get("search_depth"),bool)
+                             or metrics["search_depth"] < required_depth)):
                 return False
             decision.metrics = copy.deepcopy(item["metrics"])
             if phase in ("fast", "fast-pv3"):
@@ -266,8 +293,11 @@ class CheckpointStore:
     def record(self, target, game, decision, phase, *, persist=True):
         if not self.enabled:
             return False
-        contract = decision.metrics.get("search_contract", {})
-        if contract.get("completed") is not True or contract.get("exact") is False:
+        if not isinstance(decision.metrics,dict):return False
+        contract = decision.metrics.get("search_contract")
+        if (not isinstance(contract,dict) or contract.get("completed") is not True
+                or contract.get("exact") is not True
+                or decision.metrics.get("search_inconsistent")):
             # An inconsistent search must not be frozen across worker
             # restarts. A repeat search can settle the bound/score uncertainty.
             return False
@@ -335,19 +365,18 @@ class CheckpointStore:
             job = self.state["jobs"].get(target, {})
             item = job.get("positions", {}).get(self._key(game, decision, phase))
             result = item.get("search") if isinstance(item, dict) else None
-            if not isinstance(result, dict):
-                return None
+            if not valid_counterfactual(result):return None
             mode = "depth" if hasattr(nodes, "depth") and nodes.depth is not None else "nodes"
             requested = nodes.depth if mode == "depth" else nodes
-            contract = result.get("search_contract", {})
+            contract = result.get("search_contract")
+            if not isinstance(contract,dict):return None
             if (contract.get("mode") != mode or contract.get("requested") != requested
                     or contract.get("completed") is not True or contract.get("exact") is not True):
                 return None
             return copy.deepcopy(result)
 
     def record_counterfactual(self, target, game, decision, phase, result, *, persist=True):
-        if not self.enabled or not result.get("search_contract", {}).get("completed"):
-            return False
+        if not self.enabled or not valid_counterfactual(result):return False
         with self.lock:
             job = self.state["jobs"].get(target)
             if not job or not job.get("contract") or job.get("status") == "cancelled":

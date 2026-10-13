@@ -198,7 +198,12 @@ def review(games, config=CONFIG):
 def integrate(result, games, config=CONFIG, *, context_games=()):
     daily = [g for g in games if g.time_class == 'daily' and g.rated is True]
     audit = review(daily, config)
-    audit['context_games'] = sum(g.time_class == 'daily' for g in context_games)
+    daily_context = [g for g in context_games if g.time_class == 'daily']
+    audit['context_games'] = len(daily_context)
+    audit['context_rated_games'] = sum(g.rated is True for g in daily_context)
+    audit['context_unrated_games'] = sum(g.rated is False for g in daily_context)
+    audit['context_unknown_rated_games'] = sum(g.rated is not True and g.rated is not False
+                                              for g in daily_context)
     result.diagnostics['daily_review'] = audit
     if not daily:
         return result
