@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/fNtCg",
     "title": "Lichess • 2741",
     "fen": "3r2k1/pp2q1P1/2p5/2R3N1/1n1P4/4B3/P2K1P2/6R1 w - - 1 29",
-    "current_fen": "3r2k1/pp2q1P1/2p5/2R3N1/1n1P4/4B3/P2K1P2/6R1 w - - 1 29",
-    "last_move_uci": "f8e7",
+    "current_fen": "3r2k1/pp1q2P1/2p5/5RN1/1n1P4/4B3/P2K1P2/6R1 w - - 3 30",
+    "last_move_uci": "e7d7",
     "pgn": "Rf5 Qd7 Nf7 Qxf7 Rxf7",
     "all_moves": [
       {
@@ -58,26 +58,59 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_fNtCg_1791901058867",
-    "last_activity_at": "2026-10-13T14:17:38.867630+00:00",
+    "last_activity_at": "2026-10-13T14:20:11.833722+00:00",
     "rating": 2741,
     "rp_band": 5,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
-    "message_ids": {},
-    "message_id": null,
+    "message_ids": {
+      "1468320170891022417": 1559571461985927290
+    },
+    "message_id": 1559571461985927290,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "attempted_users": {
+      "730484744944353301": {
+        "name": "Julian21",
+        "move": "Rf5",
+        "correct": true,
+        "timestamp": "2026-10-13T14:20:11.833957+00:00"
+      }
+    },
+    "first_move_user_id": "730484744944353301",
+    "first_move_user_name": "Julian21",
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "board_attachment_filenames": {
+      "1468320170891022417": "random_puzzle.png"
+    },
+    "last_card_activity_at": "2026-10-13T14:20:11.833722+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1791901211.8339643,
+        "fen_before": "3r2k1/pp2q1P1/2p5/2R3N1/1n1P4/4B3/P2K1P2/6R1 w - - 1 29",
+        "expected": {
+          "uci": "c5f5",
+          "san": "Rf5",
+          "color": "white"
+        },
+        "accepted_uci": "c5f5"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "Rf5",
+        "uci": "c5f5",
+        "principal": true
+      }
+    ],
+    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Qd7"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
