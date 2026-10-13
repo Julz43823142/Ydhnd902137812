@@ -1,0 +1,17 @@
+{
+  "action": "puzzle_solve",
+  "amount": 1,
+  "created_at": 1791901055,
+  "created_at_ns": 1791901055884492413,
+  "daily_key": "daily:2026-10-13",
+  "display_name": "Julian21",
+  "metadata": {
+    "boss": false,
+    "source": "puzzle"
+  },
+  "operation": "quest-progress",
+  "quest_build": "quests-v1-2026-09-08",
+  "transaction_id": "quest:puzzle-solve:daily_1791875096930:730484744944353301",
+  "user_id": "730484744944353301",
+  "weekly_key": "weekly:2026-10-12"
+}

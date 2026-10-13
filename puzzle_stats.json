@@ -392,7 +392,8 @@
       "achievements": [
         "first_steps",
         "first_blood",
-        "learning_experience"
+        "learning_experience",
+        "first_to_strike"
       ],
       "admin_rated": false,
       "best_hard_streak_2600": 0,
@@ -412,14 +413,14 @@
       "current_wrong_streak": 0,
       "elo": 1499.8466921722606,
       "elo_games": 1,
-      "first_solves": 0,
+      "first_solves": 1,
       "max_rating_solved": 0,
       "name": "Julian21",
       "peak_elo": 1500.0,
       "rated_correct_count": 0,
       "rated_correct_rating_sum": 0,
       "total": 2,
-      "updated_at": 1791901040,
+      "updated_at": 1791901055,
       "wrong": 1
     }
   },
