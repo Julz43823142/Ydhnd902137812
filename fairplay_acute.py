@@ -8,8 +8,10 @@ from fairplay_human import period_summary
 from fairplay_confirmation import paired_quality_confirmation
 
 
-def acute_blockers(games, config=CONFIG, *, fast=True):
-    s = period_summary(games, config, fast=fast)
+def acute_blockers(games, config=CONFIG, *, fast=True, summary=None):
+    # Reuse the summary already computed for this exact stage and membership.
+    # No cross-stage cache: model/engine annotations may change between passes.
+    s = period_summary(games, config, fast=fast) if summary is None else summary
     rows = [(g.fast_metrics or g.metrics if fast else g.metrics).get('human', {}) for g in games]
     required = max(config.acute_min_opportunities, config.acute_min_game_opportunities*len(games))
     tests = {
@@ -38,7 +40,7 @@ def acute_deep_confirmation(period, games, config=CONFIG):
     retention = deep['hits']/max(1, paired['hits'])
     reliability = paired_quality_confirmation(deep,config.acute_stability_fraction)
     stable = reliability['fraction']
-    blockers = acute_blockers(members, config, fast=False)
+    blockers = acute_blockers(members, config, fast=False, summary=deep)
     if len(members)!=len(period['ids']):
         blockers.append('every candidate game must be fully deep-reviewed')
     if not reliability['coverage_passed']:

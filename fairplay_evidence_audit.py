@@ -116,13 +116,14 @@ def _ready(search: SearchObservation) -> Check:
         return Check(State.UNKNOWN, Reason.BUDGET_MISMATCH)
     if not isinstance(search.budget_value, int) or isinstance(search.budget_value, bool) or search.budget_value <= 0:
         return Check(State.UNKNOWN, Reason.BUDGET_MISMATCH)
-    if not search.completed:
+    if search.completed is not True:
         return Check(State.UNKNOWN, Reason.SEARCH_INCOMPLETE)
     if search.budget_mode == "depth" and (
-        search.achieved_depth is None or search.achieved_depth < search.budget_value
+        not isinstance(search.achieved_depth,int) or isinstance(search.achieved_depth,bool)
+        or search.achieved_depth < search.budget_value
     ):
         return Check(State.UNKNOWN, Reason.SEARCH_INCOMPLETE)
-    if not search.exact_scores:
+    if search.exact_scores is not True:
         return Check(State.UNKNOWN, Reason.SCORE_BOUND)
     return PASSED
 

@@ -117,7 +117,7 @@ def class_periods(games, config=CONFIG, *, strict_original_sequence=False):
                 and s['hard_hits']/max(1,s['hard_opportunities'])-b['hard_hits']/max(1,b['hard_opportunities'])>=.25
                 and (s.get('observed_quality') or 0)-(b.get('observed_quality') or 0)>=.18)
             if acute:
-                blockers=acute_blockers(part,config);absolute=False;qualified=not blockers
+                blockers=acute_blockers(part,config,summary=s);absolute=False;qualified=not blockers
             else:
                 blockers=absolute_blockers(s,config)
                 absolute=bool(not replication_half and class_absolute(s,kind,config))

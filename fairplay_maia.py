@@ -36,9 +36,13 @@ def quality(loss_cp, scaled_loss):
 
 def valid_policy(decision, probabilities):
     if not isinstance(probabilities,dict):return False
-    legal={m.uci() for m in chess.Board(decision.fen).legal_moves}
+    try:
+        legal={m.uci() for m in chess.Board(decision.fen).legal_moves}
+    except (ValueError, TypeError):
+        return False
     return (set(probabilities)==legal
-            and all(isinstance(v,(int,float)) and math.isfinite(v) and v>=0 for v in probabilities.values())
+            and all(isinstance(v,(int,float)) and not isinstance(v,bool)
+                    and math.isfinite(v) and v>=0 for v in probabilities.values())
             and .999<=sum(probabilities.values())<=1.001)
 
 
@@ -47,6 +51,9 @@ def policy_evidence(decision, probabilities):
     legal=set(probabilities);total=sum(probabilities.values())
     probs={move:value/total for move,value in probabilities.items()}
     m=decision.metrics
+    score_fields=('actual_cp',) if 'actual_cp' in m else ('cpl','scaled_loss')
+    if any(not isinstance(m.get(key),(int,float)) or isinstance(m.get(key),bool)
+           or not math.isfinite(m[key]) for key in score_fields):return None
     candidates=m.get('candidates',[])
     values=m.get('candidate_cp',[])
     if not values or len(candidates)!=len(values) or m.get('search_inconsistent'):return None
@@ -55,6 +62,7 @@ def policy_evidence(decision, probabilities):
     searched=dict(zip(candidates,values))
     if 'actual_cp' in m:searched.setdefault(decision.move,m['actual_cp'])
     extra=m.get('policy_search',{})
+    if not isinstance(extra,dict):return None
     complete=(extra.get('depth')==m.get('search_depth') if m.get('search_depth') else
               extra.get('nodes')==m.get('nodes') and 'nodes' in m)
     objective=m.get('search_contract')
@@ -63,22 +71,26 @@ def policy_evidence(decision, probabilities):
         # Same-position budget and exact-score comparisons are necessary;
         # counterfactual searches can still have root-search calibration drift.
         from fairplay_evidence_audit import SearchObservation, State, check_counterfactual_contract
-        if not (objective and alternative):
+        if not (isinstance(objective,dict) and isinstance(alternative,dict)
+                and objective and alternative):
             complete=False
         else:
             def observation(contract, achieved_depth):
                 return SearchObservation(
                     position_key=(0,int(decision.ply)),engine_key=str(contract.get('engine') or ''),
                     budget_mode=str(contract.get('mode') or ''),
-                    budget_value=int(contract.get('requested') or 0),
-                    completed=bool(contract.get('completed')),achieved_depth=achieved_depth,
-                    exact_scores=bool(contract.get('exact')))
+                    budget_value=contract.get('requested'),
+                    completed=contract.get('completed') is True,achieved_depth=achieved_depth,
+                    exact_scores=contract.get('exact') is True)
             complete=(check_counterfactual_contract(
                 observation(objective,m.get('search_depth')),
                 observation(alternative,extra.get('depth'))
             ).state is State.PASS)
-    if complete:searched.update(extra.get('scores',{}))
-    if any(move not in legal or not isinstance(value,(int,float)) or not math.isfinite(value)
+    if complete:
+        scores=extra.get('scores',{})
+        if not isinstance(scores,dict):return None
+        searched.update(scores)
+    if any(move not in legal or not isinstance(value,(int,float)) or isinstance(value,bool) or not math.isfinite(value)
            for move,value in searched.items()):return None
     # An alternative overturning the original search invalidates this comparison.
     if max(searched.values())>best+20:return None

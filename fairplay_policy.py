@@ -123,7 +123,19 @@ def complete(games,nodes,deadline,*,executor=None,pool=None,scanner=None,fast=Fa
              checkpoint=None,target=None,progress=None):
     """Reuse the bounded pool. Drain all tasks; incomplete optional data cannot score."""
     from fairplay_maia import refresh_game,policy_evidence
-    work=[(g,d) for g in games for d in g.decisions if _needs_counterfactual(d)]
+    # Live-trained policy counterfactuals cannot score correspondence. Maia
+    # still predicts every required Daily move for descriptive display, but
+    # extra Stockfish roots here cannot contribute to the Daily gameplay route.
+    daily_positions = 0
+    for game in games:
+        if getattr(game,'time_class',None) == 'daily':
+            for d in game.decisions:
+                daily_positions += bool(_needs_counterfactual(d))
+                # Do not present a restored prior-stage root as completed work
+                # for the deliberately omitted Daily counterfactual stage.
+                d.metrics.pop('policy_search',None)
+    work=[(g,d) for g in games if getattr(g,'time_class',None) != 'daily'
+          for d in g.decisions if _needs_counterfactual(d)]
     started=time.monotonic();completed=0;interrupted=False
     failure_types={}
     phase='Fast Maia alternatives' if fast else 'Deep Maia alternatives'
@@ -236,7 +248,7 @@ def complete(games,nodes,deadline,*,executor=None,pool=None,scanner=None,fast=Fa
                 d.fast_policy=policy_evidence(d,d.human_policy) if d.human_policy and not interrupted else {}
     report_progress(force=True)
     return {'complete':not interrupted,'positions':completed,
-            'expected_positions':len(work),
+            'expected_positions':len(work),'excluded_daily_positions':daily_positions,
             'failure_categories':failure_types,
             'seconds':time.monotonic()-started}
 
