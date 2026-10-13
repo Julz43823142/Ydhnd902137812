@@ -126,7 +126,7 @@
     "player_color": "white",
     "player_move_count": 3,
     "posted_at": "2026-10-13T07:04:56.930800+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -134,7 +134,7 @@
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_id": 1559461928395608135,
+    "message_id": 1559643132663046236,
     "attempted_users": {},
     "first_move_user_id": null,
     "first_move_user_name": null,
@@ -142,13 +142,14 @@
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1559461928395608135
+      "1468320170891022417": 1559643132663046236
     },
     "channel_id": 1468320170891022417,
     "board_attachment_filenames": {
-      "1468320170891022417": "daily_puzzle.png"
+      "1468320170891022417": "random_puzzle.png"
     },
-    "chat_since_refresh": 0
+    "chat_since_refresh": 0,
+    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Qb8+ Qa7+ Qxf2"
   },
   "lichess_rating_used": {
     "2000": [
