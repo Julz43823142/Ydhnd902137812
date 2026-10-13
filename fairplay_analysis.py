@@ -361,7 +361,8 @@ class EngineScanner:
         self.last_search = {}  # diagnostic category/budget only; never FEN/user
         self.retry_after_timeout = False  # scoped to a single pool action
         self.profile = {'multipv_seconds':0.0, 'root_seconds':0.0, 'multipv_searches':0, 'root_searches':0,
-                        'fast_multipv_seconds':0.0, 'fast_root_seconds':0.0, 'deep_multipv_seconds':0.0, 'deep_root_seconds':0.0}
+                        'fast_multipv_seconds':0.0, 'fast_root_seconds':0.0, 'deep_multipv_seconds':0.0, 'deep_root_seconds':0.0,
+                        'candidate_cache_hits':0, 'candidate_cache_misses':0}
         self.engine = (factory or (lambda:chess_play._create_stockfish_engine(allow_install=False,engine_class=(__import__('fairplay_engine').CompactNodeEngine if os.name=='posix' else BoundedNodeEngine))))()
         self.engine.timeout = max(10,config.engine_timeout)  # phase-specific timeout set per position
         try:
@@ -398,7 +399,6 @@ class EngineScanner:
         board = chess.Board(decision.fen)
         # Clear hash between positions so order/cache warmth does not change
         # fixed-node candidate rankings. Threads=1 avoids search races.
-        if 'Clear Hash' in self.engine.options:self.engine.configure({'Clear Hash':None})
         richer = (decision.metrics.get('critical') or (decision.metrics.get('gap') is not None
                    and decision.metrics['gap']<25 and decision.metrics.get('cpl',100)<=25))
         multipv=(self.config.deep_multipv if depth_search or nodes==self.config.deep_nodes
@@ -412,11 +412,23 @@ class EngineScanner:
                           'budget':nodes.depth if depth_search else nodes,
                           'multipv':multipv,'started':time.monotonic(),
                           'timeout_seconds':self.engine.timeout}
-        search_started=time.monotonic()
-        lines = self.engine.analyse(board,limit,multipv=multipv)
-        spent=time.monotonic()-search_started
-        self.profile['multipv_seconds']+=spent;self.profile['multipv_searches']+=1
-        self.profile['deep_multipv_seconds' if depth_search or nodes==self.config.deep_nodes else 'fast_multipv_seconds']+=spent
+        # Candidate search depends on the position and engine/search contract,
+        # not on which legal move was played. Keep this raw result separate from
+        # move/context-specific metrics; Maia predictions are never shared here.
+        candidate_cache=getattr(self,'_candidate_cache',None)
+        candidate_key=('raw-candidates',self.name,decision.fen,repr(limit),multipv)
+        saved=candidate_cache.get(candidate_key) if candidate_cache is not None else None
+        if saved is not None:
+            lines=saved['lines']
+            self.profile['candidate_cache_hits']+=1
+        else:
+            if candidate_cache is not None:self.profile['candidate_cache_misses']+=1
+            if 'Clear Hash' in self.engine.options:self.engine.configure({'Clear Hash':None})
+            search_started=time.monotonic()
+            lines = self.engine.analyse(board,limit,multipv=multipv)
+            spent=time.monotonic()-search_started
+            self.profile['multipv_seconds']+=spent;self.profile['multipv_searches']+=1
+            self.profile['deep_multipv_seconds' if depth_search or nodes==self.config.deep_nodes else 'fast_multipv_seconds']+=spent
         check_deadline(self.deadline)
         if isinstance(lines,dict):lines = [lines]
         if depth_search and (not lines or any(
@@ -451,6 +463,10 @@ class EngineScanner:
         decision.metrics['nodes']=(max(int(x.get('nodes',0) or 0) for x in lines) if depth_search else nodes)
         if depth_search:
             decision.metrics['search_depth']=min(int(x.get('depth',0) or 0) for x in lines)
+        if (candidate_cache is not None and saved is None
+                and not decision.metrics['search_inconsistent']):
+            candidate_cache.put(candidate_key,{
+                'search_contract':decision.metrics['search_contract'],'lines':lines})
         if nodes==self.config.fast_nodes:decision.fast_engine=deepcopy(decision.metrics)
         return True
 
@@ -712,10 +728,16 @@ class SharedEnginePool:
             decision.metrics=cached
             if nodes==self.config.fast_nodes:decision.fast_engine=deepcopy(cached)
             return True
-        result=self._run_with_scanner(
-            deadline,lambda scanner:(scanner.analyse_decision(game,decision,nodes)
-                if fast_multipv_override is None else scanner.analyse_decision(
-                    game,decision,nodes,fast_multipv_override=fast_multipv_override)))
+        def analyse(scanner):
+            previous=getattr(scanner,'_candidate_cache',None)
+            scanner._candidate_cache=cache
+            try:
+                return (scanner.analyse_decision(game,decision,nodes)
+                        if fast_multipv_override is None else scanner.analyse_decision(
+                            game,decision,nodes,fast_multipv_override=fast_multipv_override))
+            finally:
+                scanner._candidate_cache=previous
+        result=self._run_with_scanner(deadline,analyse)
         if result and cache is not None:cache.put(key,decision.metrics)
         return result
 
