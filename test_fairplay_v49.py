@@ -131,6 +131,18 @@ class ArchiveTracking(unittest.TestCase):
             self.assertTrue(partial)
             self.assertEqual(coverage['incomplete_archive_months'],['2026-06'])
 
+    def test_deadline_localizes_the_interrupted_month(self):
+        from fairplay_data import DeadlineReached
+        (_,_,partial),coverage=self.collect([DeadlineReached('Synthetic timeout.')])
+        self.assertTrue(partial)
+        self.assertEqual(coverage['incomplete_archive_months'],['2026-06'])
+
+    def test_known_variant_exclusion_does_not_create_a_gap(self):
+        variant={**sample_row(2),'rules':'chess960'}
+        (_,_,partial),coverage=self.collect([{'games':[sample_row(1),variant]},None])
+        self.assertTrue(partial)
+        self.assertEqual(coverage['incomplete_archive_months'],['2026-05'])
+
     def test_malformed_game_also_bounds_any_later_archive_scope(self):
         (_,_,partial),coverage=self.collect([{'games':[sample_row(1),None,{'pgn':'invalid'}]},None])
         self.assertTrue(partial)
