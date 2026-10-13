@@ -505,9 +505,9 @@
         ],
         "puzzle": {
           "day": "2026-10-13",
-          "fen": "1r6/3bp1kp/3p1pp1/q2P4/P1Q1P3/1rN2P2/1P3RPP/1R4K1 b - - 0 24",
+          "fen": "1r6/3bp1kp/3p1pp1/q2P4/P3P3/2Q2P2/1P3RPP/1R4K1 b - - 0 25",
           "id": "l3bIF",
-          "index": 0,
+          "index": 2,
           "moves": [
             "b3c3",
             "c4c3",
