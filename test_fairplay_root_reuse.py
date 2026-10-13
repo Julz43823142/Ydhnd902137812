@@ -116,6 +116,17 @@ class DailyComparisonCard(unittest.TestCase):
             self.assertIn('Prior reference:',text)
             self.assertIn('not misconduct probabilities',text)
 
+    def test_missing_daily_quality_is_unavailable_not_zero(self):
+        from test_fairplay_v4 import report
+        from fairplay_ui import detail_embed
+        r=report([])
+        r.diagnostics['daily_review']=review([game(i,10) for i in range(5)])
+        r.diagnostics['daily_review']['context_games']=5
+        fields=detail_embed(r,'Review Gates').to_dict()['fields']
+        text=next(f['value'] for f in fields if f['name']=='Daily paired comparison')
+        self.assertIn('vs Unavailable',text)
+        self.assertNotIn('vs 0.0%',text)
+
     def test_timing_card_exposes_reuse_without_fake_speed_percentage(self):
         from test_fairplay_v4 import report
         from fairplay_ui import detail_embed

@@ -349,7 +349,7 @@ def detail_embed(result, mode):
                 f"Candidate: {current.get('games',0)} games · {current.get('hits',0)}/{current.get('opportunities',0)} near-best difficult decisions\n"
                 f"Multi-decision contributor games: {current.get('contributors',0)}\n"
                 f"Prior reference: {previous.get('games',0)} games · {previous.get('hits',0)}/{previous.get('opportunities',0)} near-best difficult decisions\n"
-                f"Median per-game difficult quality: {percentage(current.get('median_game_quality'))} vs {percentage(previous.get('median_game_quality'))}\n"
+                f"Median per-game difficult quality: {percentage(current.get('median_game_quality') if current.get('opportunities') else None)} vs {percentage(previous.get('median_game_quality') if previous.get('opportunities') else None)}\n"
                 'These are measured move rates, not misconduct probabilities.'))
     if mode=='Scan Timing':
         runtime=result.diagnostics.get('runtime') or {}
