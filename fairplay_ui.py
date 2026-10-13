@@ -160,10 +160,13 @@ def result_embed(result: ReviewResult):
     daily=result.diagnostics.get('daily_review',{})
     if daily.get('context_games'):
         embed.add_field(name='Daily / correspondence',value=(
-            f"Context: **{daily['context_games']}** · Deep reviewed: **{daily.get('deep_reviewed',0)}**\n"
+            f"Context: **{daily['context_games']}** · Deep reviewed (rated): **{daily.get('deep_reviewed',0)}**\n"
+            f"Rated context: **{daily.get('context_rated_games','Unknown')}** · "
+            f"Unrated context: **{daily.get('context_unrated_games','Unknown')}** · "
+            f"Unknown rated status: **{daily.get('context_unknown_rated_games','Unknown')}**\n"
             f"Difficult opportunities: **{daily.get('opportunity_coverage',{}).get('opportunities',0)}**\n"
             f"Daily comparison coverage: **{daily.get('reference_coverage','Limited')}**\n"
-            "Separate gameplay comparison. Move-time signals are disabled. "
+            "Only rated Daily games contribute to review priority. Move-time signals are disabled. "
             "Live-trained Maia is descriptive, not a Daily scoring reference."),inline=False)
     # Preserve bounded-history disclosure in plain English. A sample of 100
     # games is not a statement about every game ever played by this account.

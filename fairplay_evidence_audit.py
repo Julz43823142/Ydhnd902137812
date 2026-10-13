@@ -292,7 +292,7 @@ def audit_maia_funnel(games, selected_ids=()):
     All decisions are retained. Missing model results are UNKNOWN, not weak
     play. Policy probabilities are never used as misconduct probabilities.
     """
-    from fairplay_maia import policy_evidence, valid_policy
+    from fairplay_maia import inspect_policy
     from fairplay_policy import POLICY
     selected = set(selected_ids)
     rows = []
@@ -302,8 +302,7 @@ def audit_maia_funnel(games, selected_ids=()):
         for ordinal,d in enumerate(game.decisions):
             m = d.metrics
             exists = bool(d.human_policy)
-            aligned = valid_policy(d,d.human_policy) if exists else False
-            evidence = policy_evidence(d,d.human_policy) if aligned else None
+            aligned, evidence = inspect_policy(d,d.human_policy) if exists else (False,None)
             eligible = evidence.get('eligible') if evidence else None
             known_mass = evidence.get('known_policy_mass') if evidence else None
             counterfactual = evidence.get('counterfactual_complete') if evidence else None

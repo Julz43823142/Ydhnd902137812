@@ -31,7 +31,7 @@ def game_with_positions(count=2):
 
 def metrics(phase, *, depth=18):
     result = {"search_contract": {
-        "completed": True, "mode": "depth" if phase == "deep" else "nodes",
+        "completed": True, "exact": True, "mode": "depth" if phase == "deep" else "nodes",
         "requested": depth if phase == "deep" else CONFIG.fast_nodes,
     }}
     if phase == "deep":
