@@ -128,6 +128,8 @@ jobs:
       - run: python scripts/prepare_stockfish.py --github-env --profile-build
       - name: Verify full-game depth 18
         run: python scripts/smoke_fairplay_depth18.py
+      - name: Verify complete-game chunk and duplicate parity
+        run: python scripts/smoke_fairplay_v48.py
 
   bullet-depth-benchmark:
     runs-on: ubuntu-latest
