@@ -5,7 +5,7 @@ CHANNEL_ID = 1311445685492781186
 NAMESPACE = 'shark:fairplay:'
 DISCLAIMER = ('Automated fair-play screening only. This result is not proof of cheating '
               'and must not be used as the sole basis for punishment. Human review is mandatory.')
-VERSION = 'fairplay-v48-distributed-policy'
+VERSION = 'fairplay-v49-retrieved-periods'
 
 
 @dataclass(frozen=True)

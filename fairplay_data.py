@@ -370,6 +370,7 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG,
     primary_archive_partial = False
     visited_months = 0
     recent_standard=0
+    incomplete_months=set()
     try:
         for year, month in ordered[:config.max_archives]:
             check_deadline(api.deadline)
@@ -381,17 +382,20 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG,
             except ReviewError:data = None  # archive failure is explicit missing coverage, never suspicion
             if data is None:
                 skipped['unavailable_archive'] += 1;partial = True
+                incomplete_months.add(f'{year:04d}-{month:02d}')
                 primary_archive_partial |= len(samples)<primary_limit(config)
                 continue
-            rows = data.get('games', [])
+            rows = data.get('games')
             if not isinstance(rows, list):
                 skipped['unavailable_archive'] += 1;partial = True
+                incomplete_months.add(f'{year:04d}-{month:02d}')
                 primary_archive_partial |= len(samples)<primary_limit(config)
                 continue
             rows = sorted(rows, key=lambda r: finite_number(r.get('end_time')) or 0 if isinstance(r, dict) else 0, reverse=True)
             for row in rows:
                 check_deadline(api.deadline)
-                if not isinstance(row, dict):skipped['other_invalid'] += 1;continue
+                if not isinstance(row,dict):
+                    skipped['other_invalid']+=1;incomplete_months.add(f'{year:04d}-{month:02d}');continue
                 # The extended ten-window scope needs *all* rated blitz and
                 # rapid games, including short finished games which cannot
                 # provide much suspicious-move evidence. Never silently
@@ -401,11 +405,14 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG,
                     or (include_recent_nonbullet_short_count>0
                         and row.get('time_class') in ('blitz','rapid')
                         and recent_standard<include_recent_nonbullet_short_count))
+                uncertain_before=sum(skipped[key] for key in ('invalid_pgn','other_invalid','rated_status_unknown','missing_player_identity'))
                 try:sample = parse_game(
                     row,target,config,exclusions=skipped,allow_short=allow_short,
                     include_unrated=include_unrated)
                 except (ValueError, TypeError, KeyError, IndexError, RecursionError):
                     skipped['invalid_pgn'] += 1;sample = None
+                uncertain_after=sum(skipped[key] for key in ('invalid_pgn','other_invalid','rated_status_unknown','missing_player_identity'))
+                if uncertain_after>uncertain_before:incomplete_months.add(f'{year:04d}-{month:02d}')
                 if sample is None:continue
                 if sample.identity not in seen:
                     samples.append(sample);seen.add(sample.identity)
@@ -417,9 +424,11 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG,
                 break
     except DeadlineReached:
         partial = True
+        if visited_months:incomplete_months.add(f'{year:04d}-{month:02d}')
         primary_archive_partial |= len(samples)<primary_limit(config)
     if partial and len(samples)<primary_limit(config):primary_archive_partial=True
     api.fairplay_collection_coverage = {
+        'incomplete_archive_months':sorted(incomplete_months),
         'primary_archive_partial':primary_archive_partial,
         'context_history_complete':not partial,
         'available_archive_months':len(ordered),

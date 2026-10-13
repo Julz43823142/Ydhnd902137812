@@ -1563,6 +1563,8 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
         if not isinstance(collection_coverage,dict):collection_coverage={}
         primary_archive_partial = collection_coverage.get('primary_archive_partial', archive_partial)
         coverage_state = {
+            'observed_primary_engine_complete':primary_complete and not partial,
+            'incomplete_archive_months':collection_coverage.get('incomplete_archive_months',[]),
             'primary_engine_complete':primary_complete and not primary_archive_partial,
             'required_deep_complete':not deep_incomplete,
             'context_history_complete':not archive_partial,
@@ -1651,6 +1653,9 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             from fairplay_intermit_audit import summarize_intermit
             result.diagnostics['intermittent_coverage_audit']=summarize_intermit(
                 scoring_games, minimum_game_decisions=config.min_game_decisions)
+            from fairplay_scoped_coverage import integrate as integrate_retrieved_period
+            result=integrate_retrieved_period(result,scoring_games,rated_history,collection_coverage,
+                                             coverage_state,engine_name,profile,config)
             # Research-only threshold sensitivity. Report gate margins without
             # changing the already final LOW/MODERATE/HIGH/VERY HIGH priority.
             from fairplay_shadow_stability import summarize_shadow_stability

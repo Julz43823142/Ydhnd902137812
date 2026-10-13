@@ -176,7 +176,12 @@ def result_embed(result: ReviewResult):
         missing_months=coverage.get('unvisited_archive_months')
         if isinstance(missing_months,int) and missing_months>0:
             scope+=f" {missing_months} older archive months were not checked."
-        embed.add_field(name='Limits',value=scope,inline=False)
+        gaps=coverage.get('incomplete_archive_months') or []
+        if gaps:
+            scope+=f' {len(gaps)} archive months contain unavailable or invalid data.'
+        if result.diagnostics.get('retrieved_period_review',{}).get('passed'):
+            scope+=' HIGH is supported only in a fully retrieved recent period; older missing data was excluded.'
+        embed.add_field(name='Limits',value=scope[:1024],inline=False)
     recent=result.diagnostics.get('recent_tail_audit') or {}
     ten=recent.get('last_10') or {}
     if ten.get('games'):
@@ -331,6 +336,12 @@ def _bounded_detail_embed(embed):
 def detail_embed(result, mode):
     embed = discord.Embed(title=f'{mode} — {result.username}',color=0x427CBA)
     daily=result.diagnostics.get('daily_review',{})
+    scoped=result.diagnostics.get('retrieved_period_review') or {}
+    if mode in ('Review Gates','Engine Analysis') and scoped.get('evaluated'):
+        embed.add_field(name='Fully retrieved recent-period HIGH',inline=False,value=(
+            f"{'PASS' if scoped.get('passed') else 'FAIL'} · {scoped.get('reviewed_games',0)} reviewed games · {scoped.get('deep_games',0)} deep\n"
+            'Existing gameplay gates were evaluated only after the last unavailable archive month. Earlier missing history was excluded, never assumed clean.\n'
+            + 'Supported route(s): ' + (', '.join(name for name,row in scoped.get('high_paths',{}).items() if row.get('passed')) or 'None')))
     if mode in ('Review Gates','Engine Analysis') and daily.get('context_games'):
         best=daily.get('best') or {}
         gates=best.get('gates',{})
@@ -919,6 +930,21 @@ def copy_chunks(text, limit=1900):
     if text:chunks.append(text)
     return chunks
 
+
+async def copy_visible_report(ctx):
+    if not await channel_check(ctx):return
+    chunks=copy_chunks(plain_report(ctx.message.embeds)) or ['The published report is unavailable.']
+    await ctx.response.send_message(chunks[0],ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
+    for chunk in chunks[1:]:
+        await ctx.followup.send(chunk,ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
+
+
+class CopyTextView(SubmitView):
+    def __init__(self):
+        super().__init__();self.clear_items()
+        button=discord.ui.Button(label='Copy Text',emoji='📋',custom_id=NAMESPACE+'copy-detail')
+        button.callback=copy_visible_report;self.add_item(button)
+
 class ReportView(SubmitView):
     def __init__(self,target=None):
         super().__init__()
@@ -928,13 +954,7 @@ class ReportView(SubmitView):
             button = discord.ui.Button(label=label,emoji=emoji,custom_id=NAMESPACE+action)
             async def show(ctx,action=action,label=label):
                 if action=='copy':
-                    if not await channel_check(ctx):return
-                    chunks=copy_chunks(plain_report(ctx.message.embeds))
-                    if not chunks:chunks=['The published report is unavailable.']
-                    await ctx.response.send_message(chunks[0],ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
-                    for chunk in chunks[1:]:
-                        await ctx.followup.send(chunk,ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
-                    return
+                    await copy_visible_report(ctx);return
                 if _service is None:
                     await ctx.response.send_message('Fair Play is reconnecting. Please try again shortly.',ephemeral=True);return
                 if action=='rescan':
@@ -945,7 +965,7 @@ class ReportView(SubmitView):
                 result = _service.result_for(ctx.message.id)
                 if result is None:
                     await ctx.response.send_message('Detailed data expired or was cleared after a restart. Re-scan to rebuild it. The public review remains in Discord.',ephemeral=True);return
-                await ctx.response.send_message(embed=detail_embed(result,label),ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
+                await ctx.response.send_message(embed=detail_embed(result,label),ephemeral=True,view=CopyTextView(),allowed_mentions=discord.AllowedMentions.none())
             button.callback = show;self.add_item(button)
         if target:self.add_item(discord.ui.Button(label='Chess.com Profile',emoji='🔗',url=f'https://www.chess.com/member/{username(target)}'))
 
@@ -1397,6 +1417,7 @@ async def startup(client):
     if _service is not None and not _service.closed:return
     client.add_view(SubmitView())
     client.add_view(ReportView())
+    client.add_view(CopyTextView())
     # Persistent DM button works after a planned GitHub Actions handoff.
     from fairplay_failure import FailureView
     client.add_view(FailureView())
