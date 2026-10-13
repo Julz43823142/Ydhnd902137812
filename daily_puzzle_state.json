@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/u7lNC",
     "title": "Lichess • 2326",
     "fen": "4r1k1/pp2rppB/1b5p/8/qP1p1P1Q/P2P2P1/7P/4RRK1 b - - 5 26",
-    "current_fen": "3bR3/pp3ppk/7p/8/qP1p1P1Q/P2P2P1/7P/5RK1 b - - 0 28",
-    "last_move_uci": "e7e8",
+    "current_fen": "4R3/pp3ppk/7p/8/qP1p1P1b/P2P2P1/7P/5RK1 w - - 0 29",
+    "last_move_uci": "d8h4",
     "pgn": "Kxh7 Rxe7 Bd8 Rxe8 Bxh4",
     "all_moves": [
       {
@@ -53,55 +53,45 @@
     "player_color": "black",
     "player_move_count": 3,
     "posted_at": "2026-10-13T14:21:03.205791+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_u7lNC_1791901263205",
-    "last_activity_at": "2026-10-13T14:21:47.622604+00:00",
+    "last_activity_at": "2026-10-13T14:21:52.873462+00:00",
     "rating": 2326,
     "rp_band": 3,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 4,
-    "next_player_index": 2,
-    "solved": false,
+    "next_solution_index": 5,
+    "next_player_index": 3,
+    "solved": true,
     "message_ids": {
-      "1468320170891022417": 1559571864110764115
+      "1468320170891022417": 1559571886172545054
     },
-    "message_id": 1559571864110764115,
+    "message_id": 1559571886172545054,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "730484744944353301": {
         "name": "Julian21",
-        "move": "Bd8",
+        "move": "Bxh4",
         "correct": true,
-        "timestamp": "2026-10-13T14:21:47.622827+00:00"
+        "timestamp": "2026-10-13T14:21:52.873687+00:00"
       }
     },
     "first_move_user_id": "730484744944353301",
     "first_move_user_name": "Julian21",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
-    "last_card_activity_at": "2026-10-13T14:21:47.622604+00:00",
+    "last_card_activity_at": "2026-10-13T14:21:52.873462+00:00",
     "recent_accepted_moves": [
-      {
-        "accepted_at": 1791901299.7731628,
-        "fen_before": "4r1k1/pp2rppB/1b5p/8/qP1p1P1Q/P2P2P1/7P/4RRK1 b - - 5 26",
-        "expected": {
-          "uci": "g8h7",
-          "san": "Kxh7",
-          "color": "black"
-        },
-        "accepted_uci": "g8h7"
-      },
       {
         "accepted_at": 1791901307.622835,
         "fen_before": "4r3/pp2Rppk/1b5p/8/qP1p1P1Q/P2P2P1/7P/5RK1 b - - 0 27",
@@ -111,12 +101,22 @@
           "color": "black"
         },
         "accepted_uci": "b6d8"
+      },
+      {
+        "accepted_at": 1791901312.873695,
+        "fen_before": "3bR3/pp3ppk/7p/8/qP1p1P1Q/P2P2P1/7P/5RK1 b - - 0 28",
+        "expected": {
+          "uci": "d8h4",
+          "san": "Bxh4",
+          "color": "black"
+        },
+        "accepted_uci": "d8h4"
       }
     ],
     "wrong_attempt_counts": {
       "730484744944353301": 1
     },
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Rxe8",
+    "last_feedback": "✅ **Correct, Julian21!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **4 points.**\n\nPuzzle Elo: **1553**\n\n💡 **Solution:** Kxh7 Bd8 Bxh4\n\n🏆 **Your ranking**\n**#8 Capybrawlgames2 — 13.5 points**\n**#9 Julian21 — 4 points ← you**\n**#10 Martin — 3 points**",
     "accepted_solution_moves": [
       {
         "san": "Kxh7",
@@ -127,10 +127,19 @@
         "san": "Bd8",
         "uci": "b6d8",
         "principal": true
+      },
+      {
+        "san": "Bxh4",
+        "uci": "d8h4",
+        "principal": true
       }
-    ]
+    ],
+    "completion_solver_id": "730484744944353301",
+    "completion_solver_name": "Julian21",
+    "activity_bonus_users": [],
+    "auto_next_started": true
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-13",
