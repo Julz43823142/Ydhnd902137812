@@ -4065,107 +4065,75 @@
     "1546557493038284840": {
       "latest_puzzle_type": "random",
       "latest_random_puzzle": {
-        "url": "https://lichess.org/training/81XcK",
-        "title": "Lichess • 2772",
-        "fen": "4r1k1/Qp1b3p/3p2p1/4b3/5nPK/P1N1rP2/1P3N2/R4B1R b - - 5 26",
-        "current_fen": "4r1k1/Qp1b3p/3p2p1/4b3/5nPK/P1N1rP2/1P3N2/R4B1R b - - 5 26",
-        "last_move_uci": "g3h4",
-        "pgn": "Rxf3 Nce4 h6 g5 Rf8 Bc4+ Kg7 gxh6+ Kxh6",
+        "url": "https://lichess.org/training/rCdaG",
+        "title": "Lichess • 1477",
+        "fen": "4r1k1/ppp3p1/7p/3P1p2/2P2nq1/5B2/PBQ4P/5R1K b - - 4 26",
+        "current_fen": "4r1k1/ppp3p1/7p/3P1p2/2P2nq1/5B2/PBQ4P/5R1K b - - 4 26",
+        "last_move_uci": "g2f3",
+        "pgn": "Qxf3+ Rxf3 Re1+ Rf1 Rxf1#",
         "all_moves": [
           {
-            "uci": "e3f3",
+            "uci": "g4f3",
+            "san": "Qxf3+",
+            "color": "black"
+          },
+          {
+            "uci": "f1f3",
             "san": "Rxf3",
-            "color": "black"
-          },
-          {
-            "uci": "c3e4",
-            "san": "Nce4",
             "color": "white"
           },
           {
-            "uci": "h7h6",
-            "san": "h6",
+            "uci": "e8e1",
+            "san": "Re1+",
             "color": "black"
           },
           {
-            "uci": "g4g5",
-            "san": "g5",
+            "uci": "f3f1",
+            "san": "Rf1",
             "color": "white"
           },
           {
-            "uci": "e8f8",
-            "san": "Rf8",
-            "color": "black"
-          },
-          {
-            "uci": "f1c4",
-            "san": "Bc4+",
-            "color": "white"
-          },
-          {
-            "uci": "g8g7",
-            "san": "Kg7",
-            "color": "black"
-          },
-          {
-            "uci": "g5h6",
-            "san": "gxh6+",
-            "color": "white"
-          },
-          {
-            "uci": "g7h6",
-            "san": "Kxh6",
+            "uci": "e1f1",
+            "san": "Rxf1#",
             "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "e3f3",
-            "san": "Rxf3",
+            "uci": "g4f3",
+            "san": "Qxf3+",
             "color": "black"
           },
           {
-            "uci": "h7h6",
-            "san": "h6",
+            "uci": "e8e1",
+            "san": "Re1+",
             "color": "black"
           },
           {
-            "uci": "e8f8",
-            "san": "Rf8",
-            "color": "black"
-          },
-          {
-            "uci": "g8g7",
-            "san": "Kg7",
-            "color": "black"
-          },
-          {
-            "uci": "g7h6",
-            "san": "Kxh6",
+            "uci": "e1f1",
+            "san": "Rxf1#",
             "color": "black"
           }
         ],
         "player_color": "black",
-        "player_move_count": 5,
-        "posted_at": "2026-10-07T05:09:04.595335+00:00",
-        "answer_posted": true,
+        "player_move_count": 3,
+        "posted_at": "2026-10-13T15:09:51.977572+00:00",
+        "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "random_81XcK_1791349744595",
-        "last_activity_at": "2026-10-07T05:09:04.595335+00:00",
-        "rating": 2772,
-        "rp_band": 5,
-        "boss": true,
+        "puzzle_id": "random_rCdaG_1791904191977",
+        "last_activity_at": "2026-10-13T15:09:51.977572+00:00",
+        "rating": 1477,
+        "rp_band": 0,
+        "boss": false,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink",
         "next_solution_index": 0,
         "next_player_index": 0,
         "solved": false,
-        "message_ids": {
-          "1546557493038284840": 1557258447739953192
-        },
+        "message_ids": {},
         "chat_since_refresh": 0,
         "attempted_users": {},
         "first_move_user_id": null,
@@ -4173,11 +4141,7 @@
         "first_move_awarded": false,
         "helper_awarded_users": [],
         "helper_candidate_users": [],
-        "channel_id": 1546557493038284840,
-        "board_attachment_filenames": {
-          "1546557493038284840": "random_puzzle.png"
-        },
-        "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Rxf3 h6 Rf8 Kg7 Kxh6"
+        "channel_id": 1546557493038284840
       }
     }
   },
