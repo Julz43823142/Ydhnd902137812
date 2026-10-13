@@ -417,14 +417,14 @@
       "current_wrong_streak": 0,
       "elo": 1585.295243540775,
       "elo_games": 6,
-      "first_solves": 5,
+      "first_solves": 6,
       "max_rating_solved": 2741,
       "name": "Julian21",
       "peak_elo": 1585.295243540775,
       "rated_correct_count": 4,
       "rated_correct_rating_sum": 7539,
       "total": 7,
-      "updated_at": 1791901380,
+      "updated_at": 1791901392,
       "wrong": 2
     }
   },

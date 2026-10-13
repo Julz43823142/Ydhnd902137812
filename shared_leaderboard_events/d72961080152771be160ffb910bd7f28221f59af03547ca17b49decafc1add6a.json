@@ -1,0 +1,14 @@
+{
+  "after_points": 6.0,
+  "amount": 1.0,
+  "before_points": 5.0,
+  "created_at": 1791901391,
+  "created_at_ns": 1791901391972766576,
+  "display_name": "Julian21",
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "add",
+  "pet_coin_bonus": 0.0,
+  "source": "puzzle-first",
+  "transaction_id": "puzzle:random_URpPj_1791901353326:first:730484744944353301",
+  "user_id": "730484744944353301"
+}
