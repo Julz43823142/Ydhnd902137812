@@ -90,6 +90,10 @@ jobs:
         run: python scripts/smoke_fairplay_equivalence.py
       - name: Verify exact real-engine candidate reuse
         run: python scripts/smoke_fairplay_candidate_cache.py
+      - name: Verify exact Maia counterfactual root reuse
+        run: python scripts/smoke_fairplay_policy_cache.py
+      - name: Verify compute-only sparse package preserves real evidence
+        run: python scripts/smoke_fairplay_sparse_compute.py
       - name: Verify real v21 MultiPV 1 / MultiPV 3 / depth 18 contract
         run: python scripts/smoke_fairplay_v21.py
       - name: Verify real isolated v22 worker and full engine depth contract

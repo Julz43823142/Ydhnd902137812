@@ -354,6 +354,11 @@ def scan_engine_timeout(limit, config=CONFIG, *, retry=False):
     return min(maximum,seconds*3) if retry else seconds
 
 
+def exact_root_cache_key(engine,fen,limit,move):
+    """One restricted root at the complete engine/search contract."""
+    return ('raw-played-root',engine,fen,repr(limit),move)
+
+
 class EngineScanner:
     """One independent fixed-node Stockfish process per pool worker."""
     def __init__(self, deadline, config=CONFIG, factory=None):
@@ -362,7 +367,8 @@ class EngineScanner:
         self.retry_after_timeout = False  # scoped to a single pool action
         self.profile = {'multipv_seconds':0.0, 'root_seconds':0.0, 'multipv_searches':0, 'root_searches':0,
                         'fast_multipv_seconds':0.0, 'fast_root_seconds':0.0, 'deep_multipv_seconds':0.0, 'deep_root_seconds':0.0,
-                        'candidate_cache_hits':0, 'candidate_cache_misses':0, 'root_cache_hits':0, 'root_cache_misses':0}
+                        'candidate_cache_hits':0, 'candidate_cache_misses':0, 'root_cache_hits':0, 'root_cache_misses':0,
+                        'policy_root_cache_hits':0, 'policy_root_cache_misses':0}
         self.engine = (factory or (lambda:chess_play._create_stockfish_engine(allow_install=False,engine_class=(__import__('fairplay_engine').CompactNodeEngine if os.name=='posix' else BoundedNodeEngine))))()
         self.engine.timeout = max(10,config.engine_timeout)  # phase-specific timeout set per position
         try:
@@ -439,7 +445,7 @@ class EngineScanner:
         if not any(line.get('pv') and line['pv'][0]==move for line in lines):
             # Root-restricted searches do not depend on candidate MultiPV or
             # scoring context. Reuse only this identical root/search contract.
-            root_key=('raw-played-root',self.name,decision.fen,repr(limit),decision.move)
+            root_key=exact_root_cache_key(self.name,decision.fen,limit,decision.move)
             root_saved=candidate_cache.get(root_key) if candidate_cache is not None else None
             if root_saved is not None:
                 actual=root_saved['line']

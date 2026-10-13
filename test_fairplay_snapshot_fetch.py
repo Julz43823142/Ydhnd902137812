@@ -159,6 +159,52 @@ class SnapshotGit(unittest.TestCase):
             self.assertEqual(store.read_many(names)[names[1]],{'other_worker':'preserve'})
 
 
+    def test_sparse_compute_checkout_preserves_pinned_code_and_encrypted_exchange(self):
+        import yaml
+        workflow=Path(__file__).parent/'.github/workflows/fairplay_distributed.yml'
+        config=yaml.safe_load(workflow.read_text())
+        step=next(s for job in config['jobs'].values() for s in job['steps']
+                  if s.get('uses','').startswith('actions/checkout@'))
+        patterns=step['with']['sparse-checkout'].encode()
+        self.git(self.remote,['config','uploadpack.allowFilter','true'])
+        self.git(self.remote,['config','uploadpack.allowAnySHA1InWant','true'])
+        self.git(self.writer,['symbolic-ref','HEAD','refs/heads/main'])
+        files={'helper.py':'VALUE=42\n','scripts/probe.py':'# synthetic entry point\n',
+               'assets/fairplay/reference.json':'{}','requirements.txt':'python-chess\n',
+               'economy.json':'{"unused":true}',
+               'market_events/unused.json':'{"unused":true}',
+               'assets/profile_themes/unused.svg':'unused artwork'*1000}
+        for name,text in files.items():
+            path=self.writer/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_text(text)
+        self.assertEqual(self.git(self.writer,['add','.']).returncode,0)
+        self.assertEqual(self.git(self.writer,['commit','-qm','Synthetic compute checkout']).returncode,0)
+        revision=self.git(self.writer,['rev-parse','HEAD']).stdout.strip().decode()
+        self.assertEqual(self.git(self.writer,['push','-q','origin','main']).returncode,0)
+        self.git(self.remote,['symbolic-ref','HEAD','refs/heads/main'])
+        clone=self.root/'sparse-compute'
+        result=self.git(self.root,['clone','-q','--depth=1','--filter=blob:none','--no-checkout',
+                                  '--single-branch',self.remote.as_uri(),str(clone)])
+        self.assertEqual(result.returncode,0,result.stderr.decode())
+        self.assertEqual(self.git(clone,['sparse-checkout','set','--no-cone','--stdin'],patterns).returncode,0)
+        self.assertEqual(self.git(clone,['checkout','-q',revision]).returncode,0)
+        self.assertEqual(self.git(clone,['rev-parse','HEAD']).stdout.strip().decode(),revision)
+        for name in ('helper.py','scripts/probe.py','assets/fairplay/reference.json','requirements.txt'):
+            self.assertTrue((clone/name).is_file(),name)
+        missing=self.git(clone,['rev-list','--objects','--missing=print','--all']).stdout
+        for name in ('economy.json','market_events/unused.json','assets/profile_themes/unused.svg'):
+            self.assertFalse((clone/name).exists(),name)
+            blob=self.git(self.writer,['rev-parse',f'{revision}:{name}']).stdout.strip()
+            self.assertIn(b'?'+blob,missing)
+        store=EncryptedGitStore('synthetic-key')
+        name=artifact_name('res','9'*24,0)
+        with patch('fairplay_distributed._git',side_effect=self.adapter(clone)):
+            store.put(name,{'state':'synthetic'})
+            self.assertEqual(store.read_many([name])[name],{'state':'synthetic'})
+            store.remove([name])
+            self.assertEqual(store.read_many([name]),{})
+        self.assertEqual(self.git(clone,['rev-parse','HEAD']).stdout.strip().decode(),revision)
+
+
 class WorkflowCheckout(unittest.TestCase):
     def test_main_history_retained_without_all_historical_blob_downloads(self):
         import yaml
@@ -174,6 +220,9 @@ class WorkflowCheckout(unittest.TestCase):
         self.assertEqual(step['with']['fetch-depth'],1)
         self.assertEqual(step['with']['filter'],'blob:none')
         self.assertEqual(step['with']['ref'],'${{ inputs.revision }}')
+        self.assertFalse(step['with']['sparse-checkout-cone-mode'])
+        self.assertIn('/*.py',step['with']['sparse-checkout'])
+        self.assertIn('/assets/fairplay/',step['with']['sparse-checkout'])
 
 
 if __name__=='__main__':unittest.main()

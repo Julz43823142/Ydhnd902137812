@@ -62,8 +62,32 @@ def alternatives(d, config=POLICY):
         selected.append(move);mass+=probability
     return selected
 
+def cached_policy_root(saved,scanner,board,move,limit):
+    """A cache hit must satisfy the stricter counterfactual root proof too."""
+    from fairplay_analysis import score_cp
+    from fairplay_data import ReviewError
+    if not isinstance(saved,dict):return None
+    contract=saved.get('search_contract');line=saved.get('line')
+    depth=limit.depth is not None
+    requested=limit.depth if depth else limit.nodes
+    if (not isinstance(contract,dict) or not isinstance(line,dict)
+            or contract.get('completed') is not True or contract.get('exact') is not True
+            or contract.get('engine')!=scanner.name
+            or contract.get('mode')!=('depth' if depth else 'nodes')
+            or type(contract.get('requested')) is not int
+            or contract['requested']!=requested or type(contract.get('multipv')) is not int
+            or contract['multipv']!=1
+            or line.get('lowerbound') or line.get('upperbound')
+            or not isinstance(line.get('pv'),(list,tuple)) or not line['pv'] or line['pv'][0]!=move):
+        return None
+    if depth and (type(line.get('depth')) is not int or line['depth']<requested):return None
+    try:score_cp(line,board.turn)
+    except (ReviewError,AttributeError,TypeError,ValueError):return None
+    return line
+
+
 def search_alternatives(scanner,d,nodes):
-    from fairplay_analysis import score_cp, scan_engine_timeout
+    from fairplay_analysis import score_cp, scan_engine_timeout, exact_root_cache_key
     values={};board=chess.Board(d.fen)
     depth_search=isinstance(nodes,chess.engine.Limit) and nodes.depth is not None
     limit=nodes if depth_search else chess.engine.Limit(nodes=nodes)
@@ -71,28 +95,45 @@ def search_alternatives(scanner,d,nodes):
         check_deadline(scanner.deadline)
         move=chess.Move.from_uci(uci)
         if move not in board.legal_moves:raise ValueError('Invalid local policy root')
-        if 'Clear Hash' in scanner.engine.options:scanner.engine.configure({'Clear Hash':None})
-        # Root searches are independent tasks and must not inherit a fast
-        # position's stale timeout when the budget is depth-18 or deep nodes.
-        scanner.engine.timeout=scan_engine_timeout(
-            limit,scanner.config,retry=getattr(scanner,'retry_after_timeout',False))
-        scanner.last_search={'phase':'maia-counterfactual','budget':nodes.depth if depth_search else nodes,
-                             'multipv':1,'started':time.monotonic(),
-                             'timeout_seconds':scanner.engine.timeout}
-        started=time.monotonic()
-        line=scanner.engine.analyse(board,limit,root_moves=[move])
+        cache=getattr(scanner,'_candidate_cache',None)
+        key=exact_root_cache_key(scanner.name,d.fen,limit,uci)
+        saved=cache.get(key) if cache is not None else None
+        line=cached_policy_root(saved,scanner,board,move,limit)
+        cache_hit=line is not None
+        if cache_hit:
+            scanner.profile['policy_root_cache_hits']=scanner.profile.get('policy_root_cache_hits',0)+1
+        else:
+            if cache is not None:
+                scanner.profile['policy_root_cache_misses']=scanner.profile.get('policy_root_cache_misses',0)+1
+            if 'Clear Hash' in scanner.engine.options:scanner.engine.configure({'Clear Hash':None})
+            # Do not inherit a fast position's stale timeout for deep roots.
+            scanner.engine.timeout=scan_engine_timeout(
+                limit,scanner.config,retry=getattr(scanner,'retry_after_timeout',False))
+            scanner.last_search={'phase':'maia-counterfactual','budget':nodes.depth if depth_search else nodes,
+                                 'multipv':1,'started':time.monotonic(),
+                                 'timeout_seconds':scanner.engine.timeout}
+            started=time.monotonic()
+            line=scanner.engine.analyse(board,limit,root_moves=[move])
+            spent=time.monotonic()-started
+            scanner.profile['root_seconds']+=spent;scanner.profile['root_searches']+=1
+            category='deep_root_seconds' if depth_search or nodes==scanner.config.deep_nodes else 'fast_root_seconds'
+            scanner.profile[category]+=spent
+            scanner.profile['policy_root_seconds']=scanner.profile.get('policy_root_seconds',0)+spent
+            scanner.profile['policy_root_searches']=scanner.profile.get('policy_root_searches',0)+1
         if (depth_search and (not isinstance(line,dict) or
                 int(line.get('depth',0) or 0)<nodes.depth)):
             raise chess.engine.EngineError('Counterfactual did not reach the requested depth')
         if (line.get('lowerbound') or line.get('upperbound') or not line.get('pv')):
             raise chess.engine.EngineError('Counterfactual score was not exact')
-        spent=time.monotonic()-started
-        scanner.profile['root_seconds']+=spent;scanner.profile['root_searches']+=1
-        key='deep_root_seconds' if depth_search or nodes==scanner.config.deep_nodes else 'fast_root_seconds'
-        scanner.profile[key]+=spent
-        scanner.profile['policy_root_seconds']=scanner.profile.get('policy_root_seconds',0)+spent
-        scanner.profile['policy_root_searches']=scanner.profile.get('policy_root_searches',0)+1
         values[uci]=score_cp(line,board.turn)
+        proof={'line':line,'search_contract':{
+            'mode':'depth' if depth_search else 'nodes',
+            'requested':nodes.depth if depth_search else nodes,
+            'engine':scanner.name,'completed':True,'exact':True,'multipv':1}}
+        if not cache_hit:
+            if cached_policy_root(proof,scanner,board,move,limit) is None:
+                raise chess.engine.EngineError('Counterfactual root proof was invalid')
+            if cache is not None:cache.put(key,proof)
     check_deadline(scanner.deadline)
     contract={'mode':'depth' if depth_search else 'nodes',
               'requested':nodes.depth if depth_search else nodes,
@@ -169,6 +210,8 @@ def complete(games,nodes,deadline,*,executor=None,pool=None,scanner=None,fast=Fa
         if buffered>=64 or time.monotonic()-last_flush>=15:
             checkpoint.flush(force=False)
             buffered=0;last_flush=time.monotonic()
+    run_with_scanner=(pool._run_cached if pool is not None and callable(getattr(type(pool),'_run_cached',None))
+                      else pool._run_with_scanner if pool is not None else None)
     try:
         if executor is not None and pool is not None:
             max_workers=max(1,int(getattr(executor,'_max_workers',getattr(pool,'size',1))))
@@ -178,7 +221,7 @@ def complete(games,nodes,deadline,*,executor=None,pool=None,scanner=None,fast=Fa
             retried=set()
             retry_queue=[]
             def submit(game,d):
-                futures[executor.submit(pool._run_with_scanner,deadline,
+                futures[executor.submit(run_with_scanner,deadline,
                     lambda worker,d=d:search_alternatives(worker,d,nodes))]=(game,d)
             def submit_available():
                 while len(futures)<capacity:
@@ -219,7 +262,7 @@ def complete(games,nodes,deadline,*,executor=None,pool=None,scanner=None,fast=Fa
         else:
             for game,d in pending:
                 check_deadline(deadline)
-                result=(pool._run_with_scanner(deadline,lambda worker:search_alternatives(worker,d,nodes))
+                result=(run_with_scanner(deadline,lambda worker:search_alternatives(worker,d,nodes))
                         if pool is not None else search_alternatives(scanner,d,nodes))
                 persist(game,d,result)
                 d.metrics['policy_search']=result

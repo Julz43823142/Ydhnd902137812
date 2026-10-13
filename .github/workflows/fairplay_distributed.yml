@@ -58,6 +58,14 @@ jobs:
           # The workers only need this immutable commit and selected git refs.
           ref: ${{ inputs.revision }}
           filter: blob:none
+          # Compute never reads economy ledgers, image themes or bot save data.
+          # Keep every root Python module for imports plus scripts/reference data.
+          sparse-checkout: |
+            /*.py
+            /scripts/
+            /assets/fairplay/
+            /requirements.txt
+          sparse-checkout-cone-mode: false
           fetch-depth: 1
           persist-credentials: true
       - name: Verify exact immutable code SHA

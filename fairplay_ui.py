@@ -382,6 +382,7 @@ def detail_embed(result, mode):
                 embed.add_field(name='Exact search reuse',inline=False,value=(
                     f"Candidate searches reused: {searches.get('candidate_cache_hits',0)}\n"
                     f"Played-move searches reused: {searches.get('root_cache_hits',0)}\n"
+                    f"Maia alternative searches reused: {searches.get('policy_root_cache_hits','Unavailable')}\n"
                     'Depth and node budgets are unchanged. Reuse counts are not a total speedup percentage.'))
         return _bounded_detail_embed(embed)
     elif mode=='Human Moves':
