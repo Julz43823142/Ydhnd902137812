@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/lF5hE",
     "title": "Lichess • 2484",
     "fen": "6k1/p4p2/1p4r1/3q1p2/3P1Q2/4Br2/PP4P1/2R3K1 w - - 0 37",
-    "current_fen": "2R5/p4pk1/1p4r1/3q1p2/3P1Q2/4Br2/PP4P1/6K1 w - - 2 38",
-    "last_move_uci": "g8g7",
+    "current_fen": "2R5/p4pk1/1p4r1/3q1p2/3P4/4B2r/PP4PQ/6K1 w - - 4 39",
+    "last_move_uci": "f3h3",
     "pgn": "Rc8+ Kg7 Qh2 Rh3 Qxh3",
     "all_moves": [
       {
@@ -58,28 +58,28 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_lF5hE_1791901394302",
-    "last_activity_at": "2026-10-13T14:24:18.281503+00:00",
+    "last_activity_at": "2026-10-13T14:26:09.073609+00:00",
     "rating": 2484,
     "rp_band": 4,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 2,
-    "next_player_index": 1,
+    "next_solution_index": 4,
+    "next_player_index": 2,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1559572496024600656
+      "1468320170891022417": 1559572960338251787
     },
-    "message_id": 1559572496024600656,
+    "message_id": 1559572960338251787,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "730484744944353301": {
         "name": "Julian21",
-        "move": "Rg8+",
-        "correct": false,
-        "timestamp": "2026-10-13T14:24:18.281798+00:00"
+        "move": "Qh2",
+        "correct": true,
+        "timestamp": "2026-10-13T14:26:09.073815+00:00"
       }
     },
     "first_move_user_id": "730484744944353301",
@@ -90,16 +90,32 @@
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
-    "last_card_activity_at": "2026-10-13T14:24:18.281503+00:00",
-    "recent_accepted_moves": [],
+    "last_card_activity_at": "2026-10-13T14:26:09.073609+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1791901569.0738223,
+        "fen_before": "2R5/p4pk1/1p4r1/3q1p2/3P1Q2/4Br2/PP4P1/6K1 w - - 2 38",
+        "expected": {
+          "uci": "f4h2",
+          "san": "Qh2",
+          "color": "white"
+        },
+        "accepted_uci": "f4h2"
+      }
+    ],
     "accepted_solution_moves": [
       {
         "san": "Rc8+",
         "uci": "c1c8",
         "principal": true
+      },
+      {
+        "san": "Qh2",
+        "uci": "f4h2",
+        "principal": true
       }
     ],
-    "last_feedback": "❌ **Nope, Julian21 — that attempt was respectable.**\n↪️ **Move played:** `Rg8+`",
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Rh3",
     "wrong_attempt_counts": {
       "730484744944353301": 1
     }
