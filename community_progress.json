@@ -40,6 +40,29 @@
         }
       }
     },
+    "event:halloween:2026-10-15": {
+      "end": 1793574000,
+      "event": "halloween",
+      "goals": {
+        "minigame_win": 750,
+        "puzzle_solve": 8000,
+        "rush_complete": 400
+      },
+      "id": "event:halloween:2026-10-15",
+      "paid": [],
+      "pool": 2000,
+      "progress": {
+        "rush_complete": 1
+      },
+      "start": 1792015200,
+      "theme": "Spooky game marathon",
+      "title": "Halloween Community Challenge",
+      "users": {
+        "442597396195704832": {
+          "rush_complete": 1
+        }
+      }
+    },
     "weekly:2026-W42": {
       "end": 1792360800,
       "event": null,
@@ -131,12 +154,13 @@
     "2026-W42": {
       "442597396195704832": {
         "coins_earned": 119.01,
-        "contribution": 0.001332,
+        "contribution": 0.003832,
         "new_cosmetics": 5,
         "pet_feed": 4,
         "pet_levels_gained": 5,
         "pet_puzzle": 4,
-        "puzzle_solve": 4
+        "puzzle_solve": 4,
+        "rush_complete": 1
       },
       "730484744944353301": {
         "coins_earned": 35.0,

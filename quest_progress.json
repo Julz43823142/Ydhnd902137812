@@ -491,9 +491,10 @@
           "name": "Thice",
           "paid": [],
           "progress": {
+            "daily:2026-10-14:challenge:rush-full-1": 1,
             "daily:2026-10-14:puzzle:solve-5": 1
           },
-          "updated_at": 1791971412
+          "updated_at": 1792019124
         }
       }
     },
