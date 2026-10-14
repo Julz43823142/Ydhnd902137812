@@ -2950,8 +2950,8 @@
         "url": "https://lichess.org/training/Qbp24",
         "title": "Lichess • 1328",
         "fen": "1b1r2k1/p1q2ppp/2p2p2/4rQ2/2P2BP1/PP5P/5P2/3RR1K1 b - - 1 25",
-        "current_fen": "1b1r2k1/p1q2ppp/2p2p2/5Q2/2P2BP1/PP5P/5P2/4R1K1 b - - 0 26",
-        "last_move_uci": "d1e1",
+        "current_fen": "1b1r2k1/p4ppp/2p2p2/8/2P2QP1/PP5P/5P2/4R1K1 b - - 0 27",
+        "last_move_uci": "f5f4",
         "pgn": "Rxe1+ Rxe1 Qxf4 Qxf4 Bxf4",
         "all_moves": [
           {
@@ -3006,16 +3006,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_Qbp24_1792018822665",
         "rating": 1328,
-        "next_solution_index": 2,
+        "next_solution_index": 4,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1560064757837336667,
+      "message_id": 1560064778553262091,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792018827.63891,
-      "last_feedback": "✅ **Rxe1+** • Opponent: **Rxe1**"
+      "last_card_activity_at": 1792018830.4089005,
+      "last_feedback": "✅ **Qxf4** • Opponent: **Qxf4**"
     },
     "362606514764251137": {
       "active": false,
