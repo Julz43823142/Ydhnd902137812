@@ -109,14 +109,14 @@
           }
         ],
         "puzzle": {
-          "day": "2026-10-04",
-          "fen": "8/5Rk1/2p4p/p1p1p1r1/P1Pp2Q1/3P4/1P4P1/6K1 b - - 0 45",
-          "id": "Os34e",
-          "index": 3,
+          "day": "2026-10-14",
+          "fen": "2rr4/5ppk/p3b3/4Pp2/P1n3P1/1p3Q1P/1P2R3/4R2K b - - 0 28",
+          "id": "mrXm8",
+          "index": 0,
           "moves": [
-            "h4g4",
-            "f5g5",
-            "f1f7"
+            "e6d5",
+            "f3d5",
+            "d8d5"
           ]
         },
         "puzzle_day": "2026-10-04",
