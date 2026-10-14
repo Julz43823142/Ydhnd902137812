@@ -489,12 +489,14 @@
       "users": {
         "442597396195704832": {
           "name": "Thice",
-          "paid": [],
+          "paid": [
+            "daily:2026-10-14:challenge:rush-full-1"
+          ],
           "progress": {
             "daily:2026-10-14:challenge:rush-full-1": 1,
             "daily:2026-10-14:puzzle:solve-5": 1
           },
-          "updated_at": 1792019124
+          "updated_at": 1792019134
         }
       }
     },
