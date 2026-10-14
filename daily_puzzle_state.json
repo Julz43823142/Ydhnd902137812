@@ -2950,8 +2950,8 @@
         "url": "https://lichess.org/training/qWA8k",
         "title": "Lichess • 1525",
         "fen": "1n2k3/1b3r2/p3N1p1/1p6/8/1P6/P5PP/5RK1 w - - 2 28",
-        "current_fen": "1n6/1b3k2/p3N1p1/1p6/8/1P6/P5PP/6K1 w - - 0 29",
-        "last_move_uci": "e8f7",
+        "current_fen": "1n1N4/1b6/p4kp1/1p6/8/1P6/P5PP/6K1 w - - 2 30",
+        "last_move_uci": "f7f6",
         "pgn": "Rxf7 Kxf7 Nd8+ Kf6 Nxb7",
         "all_moves": [
           {
@@ -3006,16 +3006,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_qWA8k_1792018901776",
         "rating": 1525,
-        "next_solution_index": 2,
+        "next_solution_index": 4,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1560065090424668241,
+      "message_id": 1560065122171363329,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792018909.5597599,
-      "last_feedback": "✅ **Rxf7** • Opponent: **Kxf7**"
+      "last_card_activity_at": 1792018913.0716622,
+      "last_feedback": "✅ **Nd8+** • Opponent: **Kf6**"
     },
     "362606514764251137": {
       "active": false,
