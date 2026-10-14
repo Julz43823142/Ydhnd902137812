@@ -96,8 +96,8 @@
         "born_at": 1790888246.8657486,
         "fed_at": 1791981013.320301,
         "feed_day": "2026-10-14",
-        "happiness": 100,
-        "happy_at": 1791072196.6065679,
+        "happiness": 35,
+        "happy_at": 1791981053.3785224,
         "id": "83101ee6f3104150ac91ea63c62fc35b",
         "name": "",
         "owner_history": [
@@ -110,19 +110,19 @@
         ],
         "puzzle": {
           "day": "2026-10-14",
-          "fen": "2rr4/5ppk/p7/3QPp2/P1n3P1/1p5P/1P2R3/4R2K b - - 0 29",
+          "fen": "2r5/5ppk/p7/3rPp2/P1n3P1/1p5P/1P2R3/4R2K w - - 0 30",
           "id": "mrXm8",
-          "index": 2,
+          "index": 3,
           "moves": [
             "e6d5",
             "f3d5",
             "d8d5"
           ]
         },
-        "puzzle_day": "2026-10-04",
+        "puzzle_day": "2026-10-14",
         "rarity": "uncommon",
         "species": "Fox",
-        "xp": 200.25,
+        "xp": 220.25,
         "xp_day": "2026-10-02"
       },
       {
