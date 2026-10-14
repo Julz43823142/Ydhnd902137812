@@ -2950,8 +2950,8 @@
         "url": "https://lichess.org/training/c8cAW",
         "title": "Lichess • 1317",
         "fen": "2K5/3P2kp/2Qq4/2p1b1p1/2P5/8/8/8 w - - 5 66",
-        "current_fen": "2K5/3P2kp/2Qq4/2p1b1p1/2P5/8/8/8 w - - 5 66",
-        "last_move_uci": "d4d6",
+        "current_fen": "2K5/3P2kp/3b4/2p3p1/2P5/8/8/8 w - - 0 67",
+        "last_move_uci": "e5d6",
         "pgn": "Qxd6 Bxd6 d8=Q",
         "all_moves": [
           {
@@ -2991,16 +2991,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_c8cAW_1792018835517",
         "rating": 1317,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1560064790594981908,
+      "message_id": 1560064811679617126,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792018835.51268,
-      "last_feedback": "✅ **Bxf4** — solved! Score: **4**."
+      "last_card_activity_at": 1792018844.5012906,
+      "last_feedback": "✅ **Qxd6** • Opponent: **Bxd6**"
     },
     "362606514764251137": {
       "active": false,
