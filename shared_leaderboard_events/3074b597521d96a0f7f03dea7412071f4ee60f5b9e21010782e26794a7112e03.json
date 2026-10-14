@@ -1,0 +1,16 @@
+{
+  "after_coins": 70.28,
+  "before_coins": 60.28,
+  "created_at": 1792019117,
+  "created_at_ns": 1792019117181205056,
+  "details": {
+    "credited": 10.0,
+    "pet_bonus": 0.0,
+    "source": "puzzle-rush-complete"
+  },
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "coin-credit",
+  "transaction_id": "puzzle-rush-complete:rush:442597396195704832:1792018804703:442597396195704832",
+  "user_id": "442597396195704832"
+}
