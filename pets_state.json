@@ -544,6 +544,17 @@
             "owner_name": "Thice"
           }
         ],
+        "puzzle": {
+          "day": "2026-10-14",
+          "fen": "3r2k1/2b2ppp/p5b1/1p3q2/1PpQ4/P6P/1KP1R3/1R4N1 w - - 8 32",
+          "id": "lQSnY",
+          "index": 0,
+          "moves": [
+            "d4d8",
+            "c7d8",
+            "e2e8"
+          ]
+        },
         "rarity": "common",
         "species": "Cat",
         "xp": 0
