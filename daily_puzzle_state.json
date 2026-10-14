@@ -10433,10 +10433,8 @@
     "schema": 1
   },
   "twitch_live_notifications_v1": {
-    "message_ids": [
-      "1559651574836625593"
-    ],
-    "last_cleanup_at": "2026-10-12T21:25:16.586776+00:00",
+    "message_ids": [],
+    "last_cleanup_at": "2026-10-14T00:12:54.991404+00:00",
     "last_cleanup_date": "2026-10-01",
     "last_started_at": "2026-10-13T19:38:06Z",
     "last_sent_at": "2026-10-13T19:38:33.143881+00:00",
