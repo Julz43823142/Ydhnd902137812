@@ -2950,8 +2950,8 @@
         "url": "https://lichess.org/training/zbdd1",
         "title": "Lichess • 1395",
         "fen": "6k1/5pp1/p6p/8/1p1P1Q2/5PPP/1qr1R3/6K1 w - - 0 31",
-        "current_fen": "4R3/5ppk/p6p/8/1p1P1Q2/5PPP/1qr5/6K1 w - - 2 32",
-        "last_move_uci": "g8h7",
+        "current_fen": "4R3/5p1k/p5pp/5Q2/1p1P4/5PPP/1qr5/6K1 w - - 0 33",
+        "last_move_uci": "g7g6",
         "pgn": "Re8+ Kh7 Qf5+ g6 Qxf7#",
         "all_moves": [
           {
@@ -3006,16 +3006,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_zbdd1_1792018850295",
         "rating": 1395,
-        "next_solution_index": 2,
+        "next_solution_index": 4,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1560064874258759761,
+      "message_id": 1560064901173612566,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792018856.8745422,
-      "last_feedback": "✅ **Re8+** • Opponent: **Kh7**"
+      "last_card_activity_at": 1792018860.1771212,
+      "last_feedback": "✅ **Qf5+** • Opponent: **g6**"
     },
     "362606514764251137": {
       "active": false,
