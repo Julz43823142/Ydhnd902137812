@@ -141,7 +141,7 @@
     "player_color": "white",
     "player_move_count": 3,
     "posted_at": "2026-10-14T07:08:09.155628+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -163,7 +163,8 @@
     "board_attachment_filenames": {
       "1468320170891022417": "daily_puzzle.png"
     },
-    "chat_since_refresh": 0
+    "chat_since_refresh": 0,
+    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Qb1 Rc4 Rxe4"
   },
   "lichess_rating_used": {
     "2000": [
