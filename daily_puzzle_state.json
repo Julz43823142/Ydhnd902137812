@@ -58,7 +58,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_z06h2_1791966259667",
-    "last_activity_at": "2026-10-14T08:24:26.968310+00:00",
+    "last_activity_at": "2026-10-14T08:24:34.273955+00:00",
     "rating": 2788,
     "rp_band": 5,
     "boss": true,
@@ -69,17 +69,17 @@
     "next_player_index": 1,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1559844323099676693
+      "1468320170891022417": 1559844353537478728
     },
-    "message_id": 1559844323099676693,
+    "message_id": 1559844353537478728,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "601406103712170014": {
         "name": "TheMakina",
-        "move": "Rd3",
-        "correct": true,
-        "timestamp": "2026-10-14T08:24:26.968696+00:00"
+        "move": "h3",
+        "correct": false,
+        "timestamp": "2026-10-14T08:24:34.274344+00:00"
       }
     },
     "first_move_user_id": "601406103712170014",
@@ -90,7 +90,7 @@
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
-    "last_card_activity_at": "2026-10-14T08:24:26.968310+00:00",
+    "last_card_activity_at": "2026-10-14T08:24:34.273955+00:00",
     "recent_accepted_moves": [
       {
         "accepted_at": 1791966266.9687047,
@@ -110,7 +110,10 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Qb5"
+    "last_feedback": "❌ **TheMakina's tactical vision has officially resigned.**\n↪️ **Move played:** `h3`",
+    "wrong_attempt_counts": {
+      "601406103712170014": 1
+    }
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
