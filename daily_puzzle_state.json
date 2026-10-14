@@ -53,7 +53,7 @@
     "player_color": "black",
     "player_move_count": 3,
     "posted_at": "2026-10-14T08:24:19.667130+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -99,12 +99,12 @@
         "principal": true
       }
     ],
-    "last_feedback": "❌ **TheMakina, maybe look at the board before trying to calculate it.**\n↪️ **Move played:** `Rdd8`",
+    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Rd3 Red8 Qe2",
     "wrong_attempt_counts": {
       "601406103712170014": 3
     }
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-14",
