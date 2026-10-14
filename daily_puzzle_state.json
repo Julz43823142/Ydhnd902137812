@@ -2950,8 +2950,8 @@
         "url": "https://lichess.org/training/FsTp1",
         "title": "Lichess • 1300",
         "fen": "6k1/1pp2pnp/6p1/3Nr3/8/5KPP/P2R1P2/8 w - - 0 31",
-        "current_fen": "6k1/1pp2pnp/6p1/3Nr3/8/5KPP/P2R1P2/8 w - - 0 31",
-        "last_move_uci": "e8e5",
+        "current_fen": "7k/1pp2pnp/5Np1/4r3/8/5KPP/P2R1P2/8 w - - 2 32",
+        "last_move_uci": "g8h8",
         "pgn": "Nf6+ Kh8 Rd8+",
         "all_moves": [
           {
@@ -2991,16 +2991,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_FsTp1_1792018814150",
         "rating": 1300,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1560064702074200216,
+      "message_id": 1560064722915696664,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792018814.1457813,
-      "last_feedback": "✅ **Qxg2#** — solved! Score: **2**."
+      "last_card_activity_at": 1792018818.582615,
+      "last_feedback": "✅ **Nf6+** • Opponent: **Kh8**"
     },
     "362606514764251137": {
       "active": false,
