@@ -181,9 +181,9 @@
         ],
         "puzzle": {
           "day": "2026-10-14",
-          "fen": "r1bqk2r/p4p1p/2pb1p2/4p3/8/2PP1Q2/P1P1NPPP/R3K2R w KQkq - 0 13",
+          "fen": "r2qk2r/p2b1p1p/2Qb1p2/4p3/8/2PP4/P1P1NPPP/R3K2R w KQkq - 1 14",
           "id": "cM7P8",
-          "index": 2,
+          "index": 4,
           "moves": [
             "b5c6",
             "b7c6",
