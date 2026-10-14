@@ -110,9 +110,9 @@
         ],
         "puzzle": {
           "day": "2026-10-14",
-          "fen": "2rr4/5ppk/p3b3/4Pp2/P1n3P1/1p3Q1P/1P2R3/4R2K b - - 0 28",
+          "fen": "2rr4/5ppk/p7/3QPp2/P1n3P1/1p5P/1P2R3/4R2K b - - 0 29",
           "id": "mrXm8",
-          "index": 0,
+          "index": 2,
           "moves": [
             "e6d5",
             "f3d5",
