@@ -6,10 +6,12 @@ Use explicitly labelled trusted normal accounts; 'not banned' is not a label.
 """
 import argparse
 import json
+import os
+from contextlib import contextmanager
 import statistics
 from collections import Counter
 from pathlib import Path
-from fairplay_data import username
+from fairplay_data import username, ReviewError
 
 LABELS = ('known_fair_play_closed', 'trusted_normal', 'positive', 'holdout_positive', 'holdout_normal')
 PRIORITIES = ('LOW', 'MODERATE', 'HIGH', 'VERY HIGH', 'INSUFFICIENT DATA')
@@ -40,7 +42,71 @@ def positive_low_bucket(result):
     return 'weak_window',blockers
 
 
+def validated_cases(cases, partition='all'):
+    """Validate the entire private cohort BEFORE invoking any analysis.
+
+    Repeated players, including case variants, must not cross development and
+    holdout or receive extra weight through repeated scans.
+    """
+    if partition not in ('all', 'development', 'holdout'):
+        raise ValueError('Invalid validation partition.')
+    if not isinstance(cases, list):raise ValueError('Expected a case list.')
+    seen=set();selected=[]
+    for case in cases:
+        if not isinstance(case,dict) or case.get('label') not in LABELS:
+            raise ValueError('Use an explicit validation label.')
+        try:target=username(case.get('username',''))
+        except ReviewError as error:raise ValueError('Invalid validation username.') from error
+        if target in seen:raise ValueError('Duplicate player in validation cohort.')
+        seen.add(target)
+        holdout=case['label'].startswith('holdout_')
+        if partition=='all' or (partition=='holdout')==holdout:
+            selected.append({'username':target,'label':case['label']})
+    if not selected:raise ValueError('No cases in the requested partition.')
+    return selected
+
+
+@contextmanager
+def local_production_profile(profile='production-local'):
+    """CLI-only production selection/search settings, without remote dispatch.
+
+    The real pipeline currently couples its 200+50 selection scope to the
+    distributed environment flag. Removing ALL dispatch credentials preserves
+    that same scope while requiring the existing exact local compute fallback.
+    Never call this context manager from the running Discord process.
+    """
+    if profile not in ('production-local','screening'):raise ValueError('Invalid analysis profile.')
+    full=profile=='production-local'
+    flags={'GITHUB_ACTIONS':'true' if full else 'false',
+           **{key:'1' if full else '0' for key in (
+               'FAIRPLAY_FULL_DEPTH18','FAIRPLAY_V21','FAIRPLAY_DISTRIBUTED','FAIRPLAY_REQUIRE_MAIA')}}
+    credentials=('GITHUB_TOKEN','GH_TOKEN','DISCORD_TOKEN',
+                 'FAIRPLAY_DISTRIBUTED_KEY','FAIRPLAY_CHECKPOINT_KEY')
+    keys=(*flags,*credentials)
+    previous={key:os.environ.get(key) for key in keys}
+    try:
+        for key in credentials:os.environ.pop(key,None)
+        os.environ.update(flags)
+        yield
+    finally:
+        for key,value in previous.items():
+            if value is None:os.environ.pop(key,None)
+            else:os.environ[key]=value
+
+
+def analysis_config(profile, history_games=None):
+    from dataclasses import replace
+    from fairplay_config import CONFIG
+    if profile=='production-local':
+        if history_games is not None and history_games!=CONFIG.history_games:
+            raise ValueError('Production profile cannot override the history quota.')
+        return CONFIG  # equality is required by production v21 entry guards
+    if profile!='screening':raise ValueError('Invalid analysis profile.')
+    return replace(CONFIG,history_games=max(1,min(500,200 if history_games is None else history_games)))
+
+
 def evaluate_cases(cases, analyze):
+    cases=validated_cases(cases)
     counts = {label:Counter() for label in LABELS}
     failures = Counter()
     indices={label:[] for label in LABELS}
@@ -79,7 +145,12 @@ def evaluate_cases(cases, analyze):
     high_specificity=1-high_fpr if high_fpr is not None else None
     high_precision=high_positive/high_total if high_total else None
     high_accuracy=(high_positive+(normal-high_normal))/(positive+normal) if positive+normal else None
-    return {'cases':{label:{p:counts[label][p] for p in PRIORITIES} for label in LABELS},
+    completed=positive+normal
+    abstentions=sum(counts[label]['INSUFFICIENT DATA'] for label in LABELS)
+    return {'coverage':{'requested':len(cases),'completed':completed,
+                        'failed':sum(failures.values()),'insufficient_data':abstentions,
+                        'completion_fraction':completed/len(cases)},
+            'cases':{label:{p:counts[label][p] for p in PRIORITIES} for label in LABELS},
             'failed':{label:failures[label] for label in LABELS},
             'known_positive_completed':sum(counts[LABELS[0]].values()),
             'high_or_higher_recall':(
@@ -129,12 +200,14 @@ def main():
     source=parser.add_mutually_exclusive_group(required=True)
     source.add_argument('--offline-dir',type=Path,help='Private ignored directory with per-account JSON {profile, games}.')
     source.add_argument('--live',action='store_true',help='Explicitly permit serial PubAPI scans. No Discord activity.')
-    parser.add_argument('--history-games',type=int,default=200)
+    parser.add_argument('--history-games',type=int,default=None)
+    parser.add_argument('--profile',choices=('screening','production-local'),default='screening',
+                        help='Screening is NOT the deployed depth-18 pipeline. Production-local preserves deployed selection and budgets, uses local compute only, and can take hours.')
+    parser.add_argument('--partition',choices=('all','development','holdout'),default='development')
     args=parser.parse_args()
-    from dataclasses import replace
     from fairplay_analysis import review
-    from fairplay_config import CONFIG
-    config=replace(CONFIG,history_games=max(1,min(500,args.history_games)))
+    try:config=analysis_config(args.profile,args.history_games)
+    except ValueError:parser.exit(2,'Invalid analysis profile or history quota.\n')
     def analyze(target):
         kwargs={}
         if args.offline_dir:
@@ -152,8 +225,12 @@ def main():
         private_input_path(args.cases)
         if args.offline_dir:private_input_path(args.offline_dir)
         cases=json.loads(args.cases.read_text())
-        if not isinstance(cases,list):raise ValueError('Expected case list.')
-        summary=evaluate_cases(cases,analyze)
+        cases=validated_cases(cases,args.partition)
+        with local_production_profile(args.profile):summary=evaluate_cases(cases,analyze)
+        summary['validation_profile']={'name':args.profile,'partition':args.partition,
+            'matches_deployed_selection_and_budgets':args.profile=='production-local',
+            'remote_dispatch_allowed':False,
+            'note':'User-provided account labels are not game-level proof. Ten accounts do not establish general accuracy.'}
     except (ValueError,OSError,TypeError):
         parser.exit(2,'Validation input could not be read. No case details were logged.\n')
     print(json.dumps(summary,indent=2))

@@ -388,9 +388,9 @@ class ValidationPrivacy(unittest.TestCase):
 
     def test_labels_are_not_passed_to_analyzer(self):
         analyze=Mock(return_value=SimpleNamespace(priority='LOW'))
-        cases=[{'username':TARGET,'label':label} for label in validation.LABELS]
+        cases=[{'username':f'{TARGET}-{i}','label':label} for i,label in enumerate(validation.LABELS)]
         summary=validation.evaluate_cases(cases,analyze)
-        self.assertEqual(analyze.call_args_list,[unittest.mock.call(TARGET) for _ in validation.LABELS])
+        self.assertEqual(analyze.call_args_list,[unittest.mock.call(case['username']) for case in cases])
         self.assertNotIn(TARGET,json.dumps(summary));self.assertEqual(summary['high_or_higher_recall'],0)
 
     def test_only_explicit_external_labels_accepted(self):
