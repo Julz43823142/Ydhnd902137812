@@ -87,7 +87,7 @@ class ReviewCacheTests(unittest.TestCase):
         self.assertNotEqual(base, review_cache_key(["e4", "e5"], chess960=True))
         self.assertNotEqual(
             review_cache_key(["Kd7"], start_fen="4k3/4p3/8/8/8/8/4P3/4K3 b - - 0 37"),
-            review_cache_key(["Ke7"], start_fen="4k3/4p3/8/8/8/8/4P3/4K3 b - - 0 37"),
+            review_cache_key(["Kd8"], start_fen="4k3/4p3/8/8/8/8/4P3/4K3 b - - 0 37"),
         )
 
     def test_same_move_text_with_different_clock_comments_reuses_analysis(self):
