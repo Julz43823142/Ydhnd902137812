@@ -6,8 +6,8 @@ import bot
 from review_pgn_exports import PgnExportMode
 
 
-class ReviewExportIntegration(unittest.TestCase):
-    def test_imported_pgn_keeps_genuine_clocks_and_ignores_nags(self):
+class ReviewExportIntegration(unittest.IsolatedAsyncioTestCase):
+    async def test_imported_pgn_keeps_genuine_clocks_and_ignores_nags(self):
         game, moves = bot._parse_review_pgn(
             '[White "Synthetic"]\n[Black "Example"]\n[Result "*"]\n\n'
             '1. e4 $4 {Untrusted comment [%clk 0:05:00]} e5 *',
@@ -26,7 +26,7 @@ class ReviewExportIntegration(unittest.TestCase):
         self.assertNotIn("Untrusted comment", annotated)
         self.assertNotIn("$4", annotated)
 
-    def test_bot_game_does_not_fabricate_clocks(self):
+    async def test_bot_game_does_not_fabricate_clocks(self):
         game = {
             "mode": "bot", "result": "1-0", "moves": ["e4", "e5"],
             "game_id": "synthetic", "white_name": "White", "black_name": "Black",
@@ -37,7 +37,7 @@ class ReviewExportIntegration(unittest.TestCase):
         self.assertFalse(has_clocks)
         self.assertNotIn("[%clk", text)
 
-    def test_review_view_has_export_buttons_without_reanalysis(self):
+    async def test_review_view_has_export_buttons_without_reanalysis(self):
         game = {"moves": ["e4", "e5"]}
         analysis = {"moves": [
             {"move": "1.e4", "classification": "best"},
@@ -51,7 +51,7 @@ class ReviewExportIntegration(unittest.TestCase):
         finally:
             view.stop()
 
-    def test_pre_analysis_controls_disable_annotations(self):
+    async def test_pre_analysis_controls_disable_annotations(self):
         view = bot.PGNExportView({"moves": ["e4", "e5"]})
         try:
             buttons = {item.label: item for item in view.children}
