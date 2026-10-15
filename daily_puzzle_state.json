@@ -91,8 +91,8 @@
     "url": "https://www.chess.com/daily/2026-10-15",
     "title": "To the Batcave!",
     "fen": "r1bqk2r/pp3ppp/2p5/b3p3/2B1n3/PPN5/1BP2PPP/R2QK2R w KQkq - 0 1",
-    "current_fen": "r1bk3r/pp3ppp/2p5/b3p3/2B1n3/PPN5/1BP2PPP/R3K2R w KQ - 0 2",
-    "last_move_uci": "e8d8",
+    "current_fen": "r1b4r/pp2kppp/2p5/b3p3/2B1n3/PPN5/1BP2PPP/2KR3R w - - 2 3",
+    "last_move_uci": "d8e7",
     "pgn": "[White \"JohanVA\"]\n[Black \"Daily Puzzle Inspiration\"]\n[Result \"*\"]\n[FEN \"r1bqk2r/pp3ppp/2p5/b3p3/2B1n3/PPN5/1BP2PPP/R2QK2R w KQkq - 0 1\"]\n\n1. Qxd8+ Kxd8 2. O-O-O+ Ke7 3. Nxe4 *",
     "all_moves": [
       {
@@ -146,16 +146,16 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1792048545325",
-    "next_solution_index": 2,
-    "next_player_index": 1,
+    "next_solution_index": 4,
+    "next_player_index": 2,
     "solved": false,
-    "message_id": 1560194368814452780,
+    "message_id": 1560194461231751199,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Qxd8",
+        "move": "E1c1",
         "correct": true,
-        "timestamp": "2026-10-15T07:35:24.251247+00:00"
+        "timestamp": "2026-10-15T07:35:46.209834+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
@@ -164,34 +164,39 @@
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1560194368814452780
+      "1468320170891022417": 1560194461231751199
     },
     "channel_id": 1468320170891022417,
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
     "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-10-15T07:35:24.250866+00:00",
+    "last_card_activity_at": "2026-10-15T07:35:46.209497+00:00",
     "recent_accepted_moves": [
       {
-        "accepted_at": 1792049724.2512598,
-        "fen_before": "r1bqk2r/pp3ppp/2p5/b3p3/2B1n3/PPN5/1BP2PPP/R2QK2R w KQkq - 0 1",
+        "accepted_at": 1792049746.209848,
+        "fen_before": "r1bk3r/pp3ppp/2p5/b3p3/2B1n3/PPN5/1BP2PPP/R3K2R w KQ - 0 2",
         "expected": {
-          "uci": "d1d8",
-          "san": "Qxd8+",
+          "uci": "e1c1",
+          "san": "O-O-O+",
           "color": "white"
         },
-        "accepted_uci": "d1d8"
+        "accepted_uci": "e1c1"
       }
     ],
     "wrong_attempt_counts": {
       "442597396195704832": 1
     },
-    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Kxd8",
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Ke7",
     "accepted_solution_moves": [
       {
         "san": "Qxd8+",
         "uci": "d1d8",
+        "principal": true
+      },
+      {
+        "san": "O-O-O+",
+        "uci": "e1c1",
         "principal": true
       }
     ]
