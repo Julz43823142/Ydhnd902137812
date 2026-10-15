@@ -52,10 +52,22 @@ def smoke():
                 or result.deep_coverage['games']!=1 or not result.games[0].fast_metrics):
             raise RuntimeError('The real two-pass engine review did not complete.')
         print(f'Real Stockfish two-pass synthetic review passed: {result.totals["decisions"]} decisions, {time.monotonic()-started:.2f}s.')
-        game=chess_play.analyse_game_moves(['e4','e5','Nf3','Nc6','Bb5','a6'])
-        if game['analysed_plies']!=6 or any(row['loss_cp']!=0 for row in game['moves'] if row['played']==row['best']):
-            raise RuntimeError('Normal Game Review smoke test failed.')
-        print('Real Stockfish normal Game Review passed: 6 plies.')
+        from game_review_service import GameReviewService
+        service=GameReviewService()
+        moves=['e4','e5','Nf3','Nc6','Bb5','a6']
+        review_start=time.monotonic()
+        game=service.analyse(moves)
+        local_seconds=time.monotonic()-review_start
+        cache_start=time.monotonic()
+        repeated=service.analyse(moves)
+        cached_seconds=time.monotonic()-cache_start
+        if (game['analysed_plies']!=6
+                or any(row['loss_cp']!=0 for row in game['moves'] if row['played']==row['best'])
+                or game!=repeated
+                or service.stats()['hits']!=1):
+            raise RuntimeError('Normal Game Review cache smoke test failed.')
+        print(f'Real Stockfish normal Game Review passed: 6 plies; '
+              f'local={local_seconds:.3f}s, cached={cached_seconds:.4f}s.')
     finally:
         chess_play._close_analysis_engine()
         close_shared_engine_pool()
