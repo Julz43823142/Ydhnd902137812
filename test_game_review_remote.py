@@ -280,8 +280,8 @@ class AtomicCapacityTests(unittest.TestCase):
                                       input=data, stdout=subprocess.PIPE,
                                       stderr=subprocess.DEVNULL, check=False,
                                       timeout=25, env=env)
-            with patch("fairplay_distributed._git", side_effect=isolated_git), \
-                    patch("game_review_remote._git", side_effect=isolated_git):
+            with (patch("fairplay_distributed._git", side_effect=isolated_git),
+                  patch("game_review_remote._git", side_effect=isolated_git)):
                 first = remote.ReviewStore(SECRET)
                 second = remote.ReviewStore(SECRET)
                 first_ticket, second_ticket = "c" * 24, "d" * 24
