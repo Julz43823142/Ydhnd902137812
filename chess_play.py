@@ -795,18 +795,8 @@ def _detailed_move_classification(
     if brilliant_ok:
         return "brilliant"
 
-    # Book is intentionally conservative and only used in normal chess.  Without
-    # an external opening database we treat very early, near-engine-equivalent,
-    # non-tactical moves in roughly balanced positions as theory-like moves.
-    if (
-        bool(allow_book)
-        and int(ply_index or 0) < 10
-        and int(sacrifice_cp or 0) < 250
-        and loss <= 1.25
-        and abs(int(best_score or 0)) <= 300
-        and abs(int(actual_score or 0)) <= 300
-    ):
-        return "book"
+    # No opening database is consulted by this review.  An early engine move
+    # is not proof of book theory, so never fabricate a Book label.
 
     # Great = a strong only-move-ish engine choice: the best move is clearly
     # better than the runner-up, without qualifying as a Brilliant sacrifice.
@@ -885,6 +875,7 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
     again as if the game were still equal.
     """
     moves = [str(item) for item in list(san_moves or [])]
+    requested_plies = len(moves)
     empty_side = {
         "accuracy": 0.0,
         "acpl": 0,
@@ -976,6 +967,8 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
                 raise ValueError(f"Could not parse recorded chess move {san!r}: {error}") from error
 
             captured_cp = _captured_material_cp(board, played_move)
+            # A move forced by the rules cannot earn a Brilliant sacrifice.
+            has_alternative = len(list(board.legal_moves)) > 1
             is_best = best_move is not None and played_move == best_move
             # Compare alternatives at the same root. After-position search
             # drift must not lower the accuracy of the engine's own best move.
@@ -989,7 +982,10 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
                     raise RuntimeError("Stockfish returned no evaluation for the played move.")
                 quality_score = _engine_score_cp(actual_lines[0], mover)
             board.push(played_move)
-            sacrifice_cp = _offered_material_cp(board, played_move, mover, captured_cp) if is_best else 0
+            sacrifice_cp = (
+                _offered_material_cp(board, played_move, mover, captured_cp)
+                if is_best and has_alternative else 0
+            )
 
             eval_white_mate = None
             if board.is_game_over(claim_draw=False):
@@ -1098,9 +1094,18 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
         "truncated": bool(truncated),
         "analysis_depth": STOCKFISH_GAME_REVIEW_DEPTH,
         "analysis_time_per_position": None,
+        "analysis_version": "ordinary-review-v5",
+        "requested_plies": requested_plies,
+        "skipped_plies": max(0, requested_plies - len(moments)),
+        "accuracy_provenance": "SharkBot estimate (not Chess.com Accuracy)",
+        "engine_configuration": {
+            "depth": STOCKFISH_GAME_REVIEW_DEPTH,
+            "threads": STOCKFISH_THREADS,
+            "hash_mb": STOCKFISH_HASH_MB,
+        },
         "accuracy_model": "stockfish-winprob-v4-same-root-game-curve",
-        "classification_model": "expected-points-v3-book-great-miss",
-        "brilliant_model": "local-net-sacrifice-v2",
+        "classification_model": "expected-points-v4-no-invented-book",
+        "brilliant_model": "local-net-sacrifice-v3-no-forced",
     }
 
 

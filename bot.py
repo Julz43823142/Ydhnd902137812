@@ -75,6 +75,7 @@ from cryptography.fernet import Fernet, InvalidToken
 import chess
 import chess.svg
 import chess.pgn
+from review_pgn_exports import PgnExportMode, export_review_pgn, has_move_clocks
 from io import BytesIO, StringIO
 import cairosvg
 import asyncio
@@ -5898,6 +5899,98 @@ def _build_chess_pgn_text(game, analysis=None):
     return pgn_game.accept(exporter).strip() + "\n"
 
 
+
+def _review_export_source_game(game):
+    """Recover original PGN clocks for manual reviews; never infer them."""
+    source = game.get("source_pgn")
+    if source:
+        parsed = chess.pgn.read_game(StringIO(source))
+        if parsed is None or parsed.errors:
+            raise ValueError("Could not recover the original PGN.")
+        return parsed
+    parsed = chess.pgn.read_game(StringIO(_build_chess_pgn_text(game)))
+    if parsed is None or parsed.errors:
+        raise ValueError("Could not reconstruct game PGN.")
+    return parsed
+
+
+def _make_review_pgn_export(game, analysis, mode):
+    """Generate export text from the saved move history, not external NAGs."""
+    source = _review_export_source_game(game)
+    labels = None
+    if mode == PgnExportMode.CLOCKS_AND_ANALYSIS:
+        if not analysis:
+            raise ValueError("Engine analysis is not available yet.")
+        labels = {
+            ply: str(row["classification"])
+            for ply, row in enumerate(analysis.get("moves") or [], start=1)
+            if row.get("classification")
+        }
+    text = export_review_pgn(source, mode, labels=labels)
+    return text, has_move_clocks(source)
+
+
+async def _send_review_pgn_export(interaction, game, analysis, mode):
+    try:
+        text, has_clocks = await asyncio.to_thread(
+            _make_review_pgn_export, game, analysis, mode,
+        )
+        chunks = _discord_text_chunks(text, limit=1700)
+        notice = (
+            "No move clocks are available for this game.\n"
+            if mode != PgnExportMode.MOVES_ONLY and not has_clocks else ""
+        )
+        for index, chunk in enumerate(chunks, start=1):
+            heading = (
+                f"📋 **PGN — {mode.value.replace('_', ' ').title()}** "
+                f"(part {index}/{len(chunks)})\n"
+            ) if index == 1 or len(chunks) > 1 else ""
+            content = (notice if index == 1 else "") + heading + f"```pgn\n{chunk}\n```"
+            if index == 1:
+                await interaction.response.send_message(
+                    content, ephemeral=True,
+                    allowed_mentions=discord.AllowedMentions.none(),
+                )
+            else:
+                await interaction.followup.send(
+                    content, ephemeral=True,
+                    allowed_mentions=discord.AllowedMentions.none(),
+                )
+    except Exception as error:
+        detail = f"❌ Could not export this game: `{str(error)[:650]}`"
+        if interaction.response.is_done():
+            await interaction.followup.send(detail, ephemeral=True)
+        else:
+            await interaction.response.send_message(detail, ephemeral=True)
+
+
+def _add_review_export_buttons(view, game, analysis, row):
+    buttons = (
+        ("Moves only", PgnExportMode.MOVES_ONLY),
+        ("With clocks", PgnExportMode.WITH_CLOCKS),
+        ("Clocks + analysis", PgnExportMode.CLOCKS_AND_ANALYSIS),
+    )
+    for label, mode in buttons:
+        button = discord.ui.Button(
+            label=label, style=discord.ButtonStyle.secondary,
+            row=row, disabled=mode == PgnExportMode.CLOCKS_AND_ANALYSIS and not analysis,
+        )
+
+        async def export_cb(interaction, selected=mode):
+            await _send_review_pgn_export(interaction, game, analysis, selected)
+
+        button.callback = export_cb
+        view.add_item(button)
+
+
+class PGNExportView(discord.ui.View):
+    """Export available PGN variants before the full game review finishes."""
+
+    def __init__(self, game, analysis=None):
+        super().__init__(timeout=900)
+        _add_review_export_buttons(self, dict(game), analysis, row=0)
+
+
 def _chess_pgn_file(game, analysis=None):
     pgn_text = _build_chess_pgn_text(game, analysis=analysis)
     safe_id = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(game.get("game_id") or "rated_chess"))[:80]
@@ -5940,7 +6033,7 @@ async def _send_pgn_thread(channel, game, result_message=None, analysis=None):
     content = inline if len(inline) <= 1950 else (
         f"{heading}\nLong game: open the single attached `.pgn` file and copy its text."
     )
-    await channel.send(content, file=_chess_pgn_file(game))
+    await channel.send(content, file=_chess_pgn_file(game), view=PGNExportView(game))
     return None
 
 BRILLIANT_REVIEW_EMOJI = "<:BRILLIANT:1525486133172240566>"
@@ -6118,6 +6211,7 @@ def _parse_review_pgn(pgn_text, reviewer):
         "black_rating": headers.get("BlackElo"),
         "result": str(headers.get("Result") or "*"),
         "moves": san_moves,
+        "source_pgn": raw,
         "start_fen": start_fen,
         "theme_owner_id": str(getattr(reviewer, "id", "") or ""),
         "theme_owner_name": str(getattr(reviewer, "display_name", "Player") or "Player"),
@@ -6385,6 +6479,10 @@ class ChessGameReviewView(discord.ui.View):
 
             button.callback = special_cb
             self.add_item(button)
+
+        # Three export choices fit on a separate row without replacing the
+        # existing move-navigation buttons or starting a new engine review.
+        _add_review_export_buttons(self, self.game, self.analysis, row=4)
 
 
 async def _send_chess_game_review(channel, game, analysis):
