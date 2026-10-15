@@ -69,6 +69,17 @@ separate encrypted input/output schema, quotas and failure recovery.
 Feeding ordinary-game requests into Fair Play's encrypted job protocol
 would violate its schema and isolation contract.
 
+Historical measurement from the completed, **successful** Fair Play workflow
+[run 38776147118](https://github.com/Julz43823142/Ydhnd902137812/actions/runs/38776147118):
+four isolated shards entered checkout approximately five seconds after workflow
+dispatch, then took **8, 15, 9 and 10 seconds** respectively from checkout
+to starting the compute script. Their actual reported compute phases were
+**173.28, 152.06, 119.36 and 193.98 seconds** for respectively
+**308, 301, 301 and 302 positions**. These are authentic Fair Play workloads
+from shard logs, **not** ordinary Game Reviews and not remote review
+throughput measurements. Different engine budgets and job scheduling make
+a direct speedup inference invalid.
+
 **Decision: do not redirect normal Game Reviews to Fair Play workers.**
 There is currently **no measured end-to-end advantage** for a separate
 ordinary-review job over the local engine for representative workloads.
