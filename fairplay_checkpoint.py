@@ -64,7 +64,7 @@ class CheckpointStore:
                        ("origin" if os.getenv("GITHUB_ACTIONS") == "true" else ""))
         self.path = Path(path or os.getenv("FAIRPLAY_CHECKPOINT_FILE", ".fairplay_checkpoint.enc"))
         self.lock = threading.RLock()
-        self.state = {"jobs": {}, "failures": {}}
+        self.state = {"jobs": {}, "failures": {}, "auto": {}}
         self.last_remote = 0.0
         self.remote_ok = not bool(self.remote)
         self.cipher = (Fernet(base64.urlsafe_b64encode(hashlib.sha256(
@@ -100,6 +100,8 @@ class CheckpointStore:
                 if len(raw)>512*1024*1024:return
             decoded = json.loads(raw.decode("utf-8"))
             if isinstance(decoded, dict) and isinstance(decoded.get("jobs"), dict):
+                auto = decoded.get("auto", {})
+                if isinstance(auto, dict):self.state["auto"] = auto
                 now = time.time()
                 self.state["jobs"] = {
                     key: val for key, val in decoded["jobs"].items()
@@ -169,6 +171,22 @@ class CheckpointStore:
                 return True
         self.remote_ok = False
         return False
+
+    def auto_state(self):
+        with self.lock:return copy.deepcopy(self.state.get("auto", {}))
+
+    def save_auto(self, state, *, target=None, token=None):
+        """Atomic encrypted cursor + optional job reservation, across handoffs."""
+        if not self.enabled:return False
+        with self.lock:
+            if target is not None and self.state["jobs"].get(target, {}).get("status") == "running":
+                return False
+            self.state["auto"] = copy.deepcopy(state)
+            if target is not None:
+                self.state["jobs"][target] = {
+                    "positions": {}, "contract": None, "updated": time.time(),
+                    "token": token, "status": "running"}
+            return self._write(force=True)
 
     def record_failure(self, token, report):
         """Persist an owner-only, sanitized failure audit outside resumable jobs.
