@@ -91,8 +91,8 @@
     "url": "https://www.chess.com/daily/2026-10-15",
     "title": "To the Batcave!",
     "fen": "r1bqk2r/pp3ppp/2p5/b3p3/2B1n3/PPN5/1BP2PPP/R2QK2R w KQkq - 0 1",
-    "current_fen": "r1b4r/pp2kppp/2p5/b3p3/2B1n3/PPN5/1BP2PPP/2KR3R w - - 2 3",
-    "last_move_uci": "d8e7",
+    "current_fen": "r1b4r/pp2kppp/2p5/b3p3/2B1N3/PP6/1BP2PPP/2KR3R b - - 0 3",
+    "last_move_uci": "c3e4",
     "pgn": "[White \"JohanVA\"]\n[Black \"Daily Puzzle Inspiration\"]\n[Result \"*\"]\n[FEN \"r1bqk2r/pp3ppp/2p5/b3p3/2B1n3/PPN5/1BP2PPP/R2QK2R w KQkq - 0 1\"]\n\n1. Qxd8+ Kxd8 2. O-O-O+ Ke7 3. Nxe4 *",
     "all_moves": [
       {
@@ -141,53 +141,53 @@
     "player_color": "white",
     "player_move_count": 3,
     "posted_at": "2026-10-15T07:15:45.325439+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1792048545325",
-    "next_solution_index": 4,
-    "next_player_index": 2,
-    "solved": false,
-    "message_id": 1560194461231751199,
+    "next_solution_index": 5,
+    "next_player_index": 3,
+    "solved": true,
+    "message_id": 1560194495151218778,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "E1c1",
+        "move": "Nxe4",
         "correct": true,
-        "timestamp": "2026-10-15T07:35:46.209834+00:00"
+        "timestamp": "2026-10-15T07:35:54.363226+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
     "first_move_user_name": "Thice",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1560194461231751199
+      "1468320170891022417": 1560194495151218778
     },
     "channel_id": 1468320170891022417,
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
     "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-10-15T07:35:46.209497+00:00",
+    "last_card_activity_at": "2026-10-15T07:35:54.363028+00:00",
     "recent_accepted_moves": [
       {
-        "accepted_at": 1792049746.209848,
-        "fen_before": "r1bk3r/pp3ppp/2p5/b3p3/2B1n3/PPN5/1BP2PPP/R3K2R w KQ - 0 2",
+        "accepted_at": 1792049754.363234,
+        "fen_before": "r1b4r/pp2kppp/2p5/b3p3/2B1n3/PPN5/1BP2PPP/2KR3R w - - 2 3",
         "expected": {
-          "uci": "e1c1",
-          "san": "O-O-O+",
+          "uci": "c3e4",
+          "san": "Nxe4",
           "color": "white"
         },
-        "accepted_uci": "e1c1"
+        "accepted_uci": "c3e4"
       }
     ],
     "wrong_attempt_counts": {
       "442597396195704832": 1
     },
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Ke7",
+    "last_feedback": "✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1790 points.**\n🔥 **Daily Activity Bonus: +10 coins**\n\nPuzzle Elo: **2525**\n\n💡 **Solution:** Qxd8+ O-O-O+ Nxe4\n\n🏆 **Your ranking**\n**#1 🐶 Thice — 1790 points ← you**\n**#2 🍅 TheMakina — 1557 points**",
     "accepted_solution_moves": [
       {
         "san": "Qxd8+",
@@ -198,8 +198,19 @@
         "san": "O-O-O+",
         "uci": "e1c1",
         "principal": true
+      },
+      {
+        "san": "Nxe4",
+        "uci": "c3e4",
+        "principal": true
       }
-    ]
+    ],
+    "completion_solver_id": "442597396195704832",
+    "completion_solver_name": "Thice",
+    "activity_bonus_users": [
+      "442597396195704832"
+    ],
+    "auto_next_started": true
   },
   "lichess_rating_used": {
     "2000": [
