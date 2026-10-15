@@ -149,5 +149,24 @@ class AsyncProgressTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn("100% (4/4 plies)", progress.render("Synthetic match"))
 
 
+class WorkerShutdownTests(unittest.TestCase):
+    def test_worker_closes_engine_after_success(self):
+        from scripts import ordinary_review_compute_worker as entry
+        with (patch.dict("os.environ", {"INPUT_TICKET": TICKET, "INPUT_SHARD": "0"}),
+              patch.object(entry, "compute_worker", return_value=53),
+              patch.object(entry.chess_play, "_close_analysis_engine") as close):
+            entry.main()
+        close.assert_called_once_with()
+
+    def test_worker_closes_engine_after_failure(self):
+        from scripts import ordinary_review_compute_worker as entry
+        with (patch.dict("os.environ", {"INPUT_TICKET": TICKET, "INPUT_SHARD": "1"}),
+              patch.object(entry, "compute_worker", side_effect=RuntimeError("private error")),
+              patch.object(entry.chess_play, "_close_analysis_engine") as close):
+            with self.assertRaisesRegex(SystemExit, "failed closed"):
+                entry.main()
+        close.assert_called_once_with()
+
+
 if __name__ == "__main__":
     unittest.main()
