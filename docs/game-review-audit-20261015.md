@@ -88,9 +88,10 @@ be guaranteed through the existing workflow protocol. Remote dispatch
 is intentionally *not* activated or approximated with unsafe retries.
 No Fair Play workflow, priority or cancellation behavior was changed.
 
-The new `scripts/benchmark_normal_review.py` records measured local
-depth-18 and cache-hit timing for a synthetic two-ply game on the same
-real Stockfish runner in PR CI. It **does not** claim remote throughput.
+The existing `scripts/smoke_stockfish_reviews.py` now records real
+local depth-18 timing and an identical cached repeat on its synthetic
+six-ply game in PR CI. `scripts/benchmark_normal_review.py` is an
+optional standalone two-ply probe; CI does not run that extra engine job. It **does not** claim remote throughput.
 A future independent remote-review service would require its own job type,
 authenticated schema, fairness scheduling, bounded requests, retries,
 result verification, matched engine budgets and comparative benchmarks
