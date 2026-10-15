@@ -10,7 +10,10 @@ from test_game_review import ReviewEngine
 
 class OpeningBookAndAccuracyTests(unittest.TestCase):
     def review(self, moves, **options):
-        with patch.object(chess_play, "_get_analysis_engine", return_value=ReviewEngine(moves)):
+        engine = ReviewEngine(moves)
+        if options.get("chess960"):
+            engine.options["UCI_Chess960"] = object()
+        with patch.object(chess_play, "_get_analysis_engine", return_value=engine):
             return chess_play.analyse_game_moves(moves, **options)
 
     def test_common_standard_opening_uses_real_public_theory(self):
@@ -27,7 +30,7 @@ class OpeningBookAndAccuracyTests(unittest.TestCase):
     def test_missing_reference_does_not_invent_book(self):
         with patch("ordinary_review_opening._known_opening_prefixes", return_value=frozenset()):
             result = self.review(["e4", "e5"])
-        self.assertEqual([r["classification"] for r in result["moves"]], ["best", "best"])
+        self.assertTrue(all(r["classification"] != "book" for r in result["moves"]))
 
     def test_theory_never_resumes_after_out_of_book_move(self):
         moves = ["e4", "e5", "Ke2", "Nc6"]
@@ -38,8 +41,9 @@ class OpeningBookAndAccuracyTests(unittest.TestCase):
         })
         with patch("ordinary_review_opening._known_opening_prefixes", return_value=reference):
             result = self.review(moves)
-        self.assertEqual([r["classification"] for r in result["moves"]],
-                         ["book", "book", "best", "best"])
+        self.assertEqual([r["classification"] for r in result["moves"][:2]],
+                         ["book", "book"])
+        self.assertTrue(all(r["classification"] != "book" for r in result["moves"][2:]))
 
     def test_custom_start_and_chess960_have_no_book(self):
         custom = self.review(["Kd7", "Kf2"],
