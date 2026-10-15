@@ -109,8 +109,8 @@ Example:
 
 ```shell
 python scripts/audit_game_review.py --pgn /private/match.pgn \
-  --reference-white 78.1 --reference-black 84.0 \
-  --previous-white 65.2 --previous-black 87.1
+  --reference-white 90.0 --reference-black 88.0 \
+  --previous-white 85.0 --previous-black 84.0
 ```
 
 The reference percentages were supplied by the owner; the original match
