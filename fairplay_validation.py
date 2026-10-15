@@ -6,6 +6,7 @@ Use explicitly labelled trusted normal accounts; 'not banned' is not a label.
 """
 import argparse
 import json
+import math
 import os
 from contextlib import contextmanager
 import statistics
@@ -17,6 +18,29 @@ LABELS = ('known_fair_play_closed', 'trusted_normal', 'positive', 'holdout_posit
 PRIORITIES = ('LOW', 'MODERATE', 'HIGH', 'VERY HIGH', 'INSUFFICIENT DATA')
 POSITIVE_LABELS = ('known_fair_play_closed', 'positive', 'holdout_positive')
 NORMAL_LABELS = ('trusted_normal', 'holdout_normal')
+
+
+def ranking_summary(indices):
+    """Pairwise ordering on each partition; never tune against pooled holdout.
+
+    AUC is the fraction of positive/normal score pairs ordered correctly, with
+    half credit for ties. It is descriptive on this supplied cohort, not a
+    misconduct probability or evidence of population accuracy. Missing scores
+    remain missing rather than becoming artificial zeroes.
+    """
+    output={}
+    for partition,positive_labels,normal_labels in (
+            ('development',('known_fair_play_closed','positive'),('trusted_normal',)),
+            ('holdout',('holdout_positive',),('holdout_normal',))):
+        positive=[v for label in positive_labels for v in indices[label]]
+        normal=[v for label in normal_labels for v in indices[label]]
+        pairs=len(positive)*len(normal)
+        wins=sum(p>n for p in positive for n in normal)
+        ties=sum(p==n for p in positive for n in normal)
+        output[partition]={'positive_scores':len(positive),'normal_scores':len(normal),
+                           'pairs':pairs,'correctly_ordered_pairs':wins,'tied_pairs':ties,
+                           'pairwise_auc':(wins+.5*ties)/pairs if pairs else None}
+    return output
 
 
 def positive_low_bucket(result):
@@ -126,7 +150,9 @@ def evaluate_cases(cases, analyze):
         counts[case['label']][frozen_priority] += 1
         diagnostics=getattr(result,'diagnostics',{})
         index=diagnostics.get('gameplay',{}).get('research_evidence_index') if isinstance(diagnostics,dict) else None
-        if isinstance(index,(int,float)):indices[case['label']].append(index)
+        if (isinstance(index,(int,float)) and not isinstance(index,bool)
+                and math.isfinite(index)):
+            indices[case['label']].append(index)
         # Labels are consulted only after the analyzer returned a frozen result.
         if case['label'] in POSITIVE_LABELS and frozen_priority=='LOW':
             bucket,blockers=positive_low_bucket(result)
@@ -147,6 +173,12 @@ def evaluate_cases(cases, analyze):
     high_accuracy=(high_positive+(normal-high_normal))/(positive+normal) if positive+normal else None
     completed=positive+normal
     abstentions=sum(counts[label]['INSUFFICIENT DATA'] for label in LABELS)
+    positive_abstained=sum(counts[label]['INSUFFICIENT DATA'] for label in POSITIVE_LABELS)
+    normal_abstained=sum(counts[label]['INSUFFICIENT DATA'] for label in NORMAL_LABELS)
+    positive_decided=positive-positive_abstained
+    normal_decided=normal-normal_abstained
+    positive_requested=sum(case['label'] in POSITIVE_LABELS for case in cases)
+    normal_requested=sum(case['label'] in NORMAL_LABELS for case in cases)
     return {'coverage':{'requested':len(cases),'completed':completed,
                         'failed':sum(failures.values()),'insufficient_data':abstentions,
                         'completion_fraction':completed/len(cases)},
@@ -170,6 +202,19 @@ def evaluate_cases(cases, analyze):
                 'positive_completed':positive,'normal_completed':normal,
                 'recall_tpr':moderate_positive/positive if positive else None,
                 'false_positive_rate':moderate_normal/normal if normal else None},
+            'decided_high_cutoff':{
+                'positive_decided':positive_decided,'normal_decided':normal_decided,
+                'positive_abstained':positive_abstained,'normal_abstained':normal_abstained,
+                'recall_tpr':high_positive/positive_decided if positive_decided else None,
+                'false_positive_rate':high_normal/normal_decided if normal_decided else None,
+                'accuracy':(high_positive+normal_decided-high_normal)/(positive_decided+normal_decided)
+                    if positive_decided+normal_decided else None},
+            'end_to_end_high_cutoff':{
+                'positive_requested':positive_requested,'normal_requested':normal_requested,
+                'positive_failed':sum(failures[label] for label in POSITIVE_LABELS),
+                'normal_failed':sum(failures[label] for label in NORMAL_LABELS),
+                'positive_high_fraction':high_positive/positive_requested if positive_requested else None,
+                'normal_high_fraction':high_normal/normal_requested if normal_requested else None},
             'positive_low_miss_analysis':{
                 'completed':sum(positive_low_buckets.values()),
                 'buckets':{name:positive_low_buckets[name] for name in ('near_miss','weak_window','diagnostic_inconsistency')},
@@ -178,8 +223,9 @@ def evaluate_cases(cases, analyze):
                 'distributed_moderate_blockers':dict(sorted(positive_low_blockers.items())),
                 'definition':'Post-hoc only: near_miss = one remaining distributed-MODERATE blocker with a candidate; weak_window = multiple blockers or no candidate. Never used by production scoring.'},
             'ranking':{'median_research_index':{label:statistics.median(v) if v else None for label,v in indices.items()},
-                       'note':'Compare development and holdout distributions before changing categories; this index is not a probability.'},
-            'note':'External user labels, not certified ground truth. Failed scans excluded from denominators; insufficient data remains negative. Accuracy is reported only with recall/FPR/specificity/precision because class balance can make accuracy misleading.'}
+                       'partitions':ranking_summary(indices),
+                       'note':'Higher research index means more review evidence, not probability. Development and holdout are separate; missing/invalid indices do not become zeroes. Small cohort AUC is descriptive, not general accuracy.'},
+            'note':'External user labels, not certified ground truth. Legacy binary cutoffs exclude failed scans and treat insufficient data as non-HIGH. Decided metrics exclude abstentions; end-to-end fractions retain every requested case. Interpret all metrics with coverage and class balance, never accuracy alone.'}
 
 
 
