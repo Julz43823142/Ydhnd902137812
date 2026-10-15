@@ -367,3 +367,183 @@ def _combine(segments, responses, requested_plies, *, elapsed):
         "review_compute": "github-actions-idle-fairplay-capacity",
         "review_workers": MAX_WORKERS,
     }
+
+
+def _ticket(secret):
+    # Never derive public tickets directly from user names, PGNs or FENs.
+    return hmac.new(_derive(secret).encode(), secrets.token_bytes(32),
+                    hashlib.sha256).hexdigest()[:24]
+
+
+def try_remote_review(san_moves, max_plies=None, start_fen=None, chess960=False,
+                      *, env=None, store=None, clock=None, sleep=None,
+                      dispatch=None, idle=None):
+    """Return verified remote analysis or None, always allowing local fallback.
+
+    No background job can postpone review indefinitely. This is called from
+    the existing thread-safe ordinary-review cache, never on Discord's loop.
+    """
+    env = os.environ if env is None else env
+    enabled = env.get("GAME_REVIEW_DISTRIBUTED", env.get("FAIRPLAY_DISTRIBUTED", "0"))
+    if enabled != "1" or len(san_moves) < MIN_REMOTE_PLIES:
+        return None
+    identity = _identity(env)
+    if identity is None:
+        return None
+    repo, revision, token = identity
+    idle = fairplay_idle if idle is None else idle
+    dispatch = _dispatch if dispatch is None else dispatch
+    clock = time.monotonic if clock is None else clock
+    sleep = time.sleep if sleep is None else sleep
+    if not idle(repo, token):
+        return None
+
+    secret = _secret(env)
+    ticket = _ticket(secret)
+    try:
+        segments, total_plies = _segments(san_moves, start_fen, chess960, max_plies)
+        if len(segments) != MAX_WORKERS:
+            return None
+        store = store if store is not None else ReviewStore(secret)
+        if not store.claim(ticket):
+            return None
+    except (Exception):
+        return None
+
+    started = clock()
+    try:
+        if not idle(repo, token):
+            return None
+        payload = {
+            "schema": SCHEMA, "ticket": ticket, "revision": revision,
+            "engine": "Stockfish 19", "engine_source": chess_play.STOCKFISH_SOURCE_REVISION,
+            "depth": chess_play.STOCKFISH_GAME_REVIEW_DEPTH,
+            "threads": chess_play.STOCKFISH_THREADS, "hash_mb": chess_play.STOCKFISH_HASH_MB,
+            "analysis_version": ENGINE_VERSION, "created": time.time(),
+            "sections": segments,
+        }
+        store.put(_name("req", ticket), payload)
+        dispatch(ticket, revision, repo, token)
+        outstanding = set(range(MAX_WORKERS))
+        responses = {}
+        deadline = started + MAX_WAIT_SECONDS
+        while outstanding and clock() < deadline:
+            if not idle(repo, token):
+                return None
+            names = [_name("res", ticket, i) for i in outstanding]
+            names += [_name("progress", ticket, i) for i in outstanding]
+            records = store.read_many(names)
+            for index in list(outstanding):
+                progress = records.get(_name("progress", ticket, index), {})
+                if isinstance(progress, dict) and progress.get("state") == "failed":
+                    return None
+                packet = records.get(_name("res", ticket, index))
+                if packet is None:
+                    continue
+                if (not isinstance(packet, dict) or packet.get("schema") != SCHEMA
+                        or packet.get("ticket") != ticket
+                        or packet.get("revision") != revision
+                        or packet.get("index") != index
+                        or packet.get("section_sha256") != _result_digest(segments[index])
+                        or packet.get("result_sha256") != _result_digest(packet.get("result"))):
+                    return None
+                _validate_segment(segments[index], packet["result"])
+                responses[index] = packet["result"]
+                outstanding.remove(index)
+            if outstanding:
+                sleep(min(POLL_SECONDS, max(0, deadline - clock())))
+        if outstanding:
+            return None
+        return _combine(segments, responses, total_plies, elapsed=clock()-started)
+    except Exception:
+        return None
+    finally:
+        # Only the ticket holder can release the leased capacity. Old workers
+        # periodically check lease ownership and stop before publishing.
+        try:
+            store.release(ticket)
+        except Exception:
+            pass
+
+
+def compute_worker(ticket, index, *, env=None, store=None, idle=None,
+                   analyser=None, clock=None):
+    """Execute exactly one bounded encrypted shard; no Discord or Fair Play votes."""
+    env = os.environ if env is None else env
+    identity = _identity({**env, "GITHUB_SHA": env.get("INPUT_REVISION", "")})
+    if (TICKET.fullmatch(str(ticket)) is None
+            or type(index) is not int or not 0 <= index < MAX_WORKERS
+            or identity is None):
+        raise RemoteReviewError("Invalid isolated Game Review worker inputs.")
+    repo, revision, token = identity
+    expected = env.get("INPUT_REVISION")
+    commit = _git(["rev-parse", "HEAD"])
+    if (expected != revision or commit.returncode != 0
+            or commit.stdout.decode().strip() != revision):
+        raise RemoteReviewError("Pinned ordinary review worker revision mismatch.")
+    idle = fairplay_idle if idle is None else idle
+    analyser = chess_play.analyse_game_moves if analyser is None else analyser
+    clock = time.monotonic if clock is None else clock
+    store = store if store is not None else ReviewStore(_secret(env))
+    req = store.read_many([_name("req", ticket)]).get(_name("req", ticket))
+    if (not isinstance(req, dict) or req.get("schema") != SCHEMA
+            or req.get("ticket") != ticket or req.get("revision") != revision
+            or req.get("engine") != "Stockfish 19"
+            or req.get("engine_source") != chess_play.STOCKFISH_SOURCE_REVISION
+            or req.get("analysis_version") != ENGINE_VERSION
+            or req.get("depth") != chess_play.STOCKFISH_GAME_REVIEW_DEPTH
+            or req.get("threads") != chess_play.STOCKFISH_THREADS
+            or req.get("hash_mb") != chess_play.STOCKFISH_HASH_MB
+            or not isinstance(req.get("created"), (int, float))
+            or abs(time.time() - req["created"]) > REQUEST_LIFETIME
+            or not isinstance(req.get("sections"), list)
+            or len(req["sections"]) != MAX_WORKERS):
+        raise RemoteReviewError("Expired or inconsistent remote review request.")
+    sections = req["sections"]
+    if (any(not isinstance(section, dict)
+            or section.get("index") != i
+            or not isinstance(section.get("moves"), list)
+            or not 1 <= len(section["moves"]) <= MAX_REMOTE_PLIES
+            for i, section in enumerate(sections))):
+        raise RemoteReviewError("Invalid remote review partition.")
+    section = sections[index]
+    if not store.owns(ticket) or not idle(repo, token):
+        raise RemoteReviewError("Ordinary review capacity preempted by Fair Play.")
+    began = clock()
+    last_check = [float("-inf")]
+
+    def interrupt_check():
+        now = clock()
+        if now - began >= WORKER_BUDGET_SECONDS:
+            raise RemoteReviewError("Remote review time budget elapsed.")
+        if now - last_check[0] >= 15:
+            last_check[0] = now
+            if not store.owns(ticket) or not idle(repo, token):
+                raise RemoteReviewError("Fair Play has priority over ordinary review.")
+
+    store.put(_name("progress", ticket, index),
+              {"schema": SCHEMA, "ticket": ticket, "index": index,
+               "revision": revision, "state": "running"})
+    try:
+        result = analyser(section["moves"], None, section["fen"],
+                          section["chess960"], interrupt_check=interrupt_check)
+        interrupt_check()
+        _validate_segment(section, result)
+        if not store.owns(ticket):
+            raise RemoteReviewError("Remote ordinary review lease expired.")
+        store.put(_name("res", ticket, index), {
+            "schema": SCHEMA, "ticket": ticket, "index": index,
+            "revision": revision, "section_sha256": _result_digest(section),
+            "result_sha256": _result_digest(result), "result": result,
+        })
+        return len(result["moves"])
+    except Exception:
+        try:
+            if store.owns(ticket):
+                store.put(_name("progress", ticket, index), {
+                    "schema": SCHEMA, "ticket": ticket, "index": index,
+                    "revision": revision, "state": "failed",
+                })
+        except Exception:
+            pass
+        raise RemoteReviewError("Isolated Game Review compute failed.") from None
