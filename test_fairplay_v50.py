@@ -158,6 +158,7 @@ class SelectiveEpisodes(unittest.TestCase):
         r=result();r.coverage['required_deep_complete']=False
         self.assertEqual(integrate(r,games,CONFIG).priority,'LOW')
         self.assertEqual(integrate(result(),games,replace(CONFIG,disabled_features=('neural',))).priority,'LOW')
+        self.assertEqual(integrate(result(),games,CONFIG).priority,'LOW')
 
     def test_history_holes_and_mixed_classes_cannot_invent_a_period(self):
         games=[synthetic_game(i,'selective') for i in range(10)]
@@ -180,9 +181,11 @@ class SelectiveEpisodes(unittest.TestCase):
         self.assertEqual(report.priority,'HIGH');self.assertEqual(report.reasons,['Existing confirmed route.'])
 
     def test_no_nonfinite_fast_evidence_counts(self):
-        game=synthetic_game(0,'selective')
-        for d in game.decisions[:6]:d.fast_policy['signed_quality_excess']=float('nan')
-        self.assertFalse(game_episode(game)['contributor'])
+        for key in ('signed_quality_excess','known_policy_mass','reference_weight'):
+            game=synthetic_game(0,'selective')
+            for bad in (float('nan'),None,True):
+                for d in game.decisions[:6]:d.fast_policy[key]=bad
+                self.assertFalse(game_episode(game)['contributor'])
 
 
 class ProgressAndCoverage(unittest.TestCase):

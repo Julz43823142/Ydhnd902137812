@@ -337,7 +337,7 @@ def add_selective_policy_fields(embed,result):
     coverage=result.diagnostics.get('policy_reference_coverage') or {}
     if coverage:
         embed.add_field(name='Human alternative coverage',inline=False,value=(
-            f"Comparable decisions: {coverage['comparable']} / {coverage['eligible']}\n"
+            f"Rated live scoring sample: {coverage['comparable']} / {coverage['eligible']} comparable decisions\n"
             f"Below required probability coverage: {coverage['low_mass']} · "
             f"Missing exact paired searches: {coverage['incomplete']} · Invalid comparisons: {coverage['invalid']}\n"
             f"Median known human probability mass: {percentage(coverage['median_mass'])}\n"

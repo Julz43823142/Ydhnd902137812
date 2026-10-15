@@ -19,17 +19,17 @@ def _rows(game, fast):
     for decision in game.decisions:
         row=(decision.fast_policy if fast else
              policy_evidence(decision,decision.human_policy) if decision.human_policy else None)
-        if not row or not row.get('eligible') or not row.get('counterfactual_complete'):
+        if not isinstance(row,dict) or row.get('eligible') is not True or row.get('counterfactual_complete') is not True:
             result.append(None);continue
-        if row.get('reference_weight',0)<=0 or row.get('known_policy_mass',0)<POLICY.known_mass:
-            result.append(None);continue
-        keys=('observed_quality','expected_quality_upper_bound','signed_quality_excess','information','played_move_probability')
+        keys=('observed_quality','expected_quality_upper_bound','signed_quality_excess','information',
+              'played_move_probability','known_policy_mass','reference_weight')
         if not all(isinstance(row.get(k),(int,float)) and not isinstance(row[k],bool)
                    and math.isfinite(row[k]) for k in keys):
             result.append(None);continue
         if not (0<=row['observed_quality']<=1 and 0<=row['expected_quality_upper_bound']<=1
                 and 0<=row['played_move_probability']<=1 and -1<=row['signed_quality_excess']<=1
-                and 0<=row['information']<=1):
+                and 0<=row['information']<=1 and POLICY.known_mass<=row['known_policy_mass']<=1.000001
+                and 0<row['reference_weight']<=1):
             result.append(None);continue
         result.append(row)
     return result
@@ -69,7 +69,8 @@ def game_episode(game):
     deep=_rows(game,False)[start:start+BLOCK];confirmed=_block(deep)
     if confirmed is None:return base
     decisions=game.decisions[start:start+BLOCK]
-    paired=[bool(d.metrics.get('search_stability',{}).get('objective_quality_preserved'))
+    paired=[isinstance(d.metrics.get('search_stability'),dict)
+               and d.metrics['search_stability'].get('objective_quality_preserved') is True
                and abs(new['observed_quality']-old['observed_quality'])<=.10
                and abs(new['expected_quality_upper_bound']-old['expected_quality_upper_bound'])<=.15
                for d,new,old in zip(decisions,deep,fast[start:start+BLOCK])]
@@ -112,8 +113,8 @@ def integrate(result,games,config):
                     'six replicated deep contributors':deep>=required,
                     'deep evidence in both period halves':all(sum(r['deep_confirmed'] for r in part)>=2
                                                              for part in (rows[:half],rows[half:])),
-                    'required engine coverage complete':not result.partial and result.coverage.get('primary_engine_complete',False)
-                        and result.coverage.get('required_deep_complete',True),
+                    'required engine coverage complete':not result.partial and result.coverage.get('primary_engine_complete') is True
+                        and result.coverage.get('required_deep_complete') is True,
                     'learned reference enabled':not {'human','neural'}&set(config.disabled_features)}
                 candidate={'games':len(rows),'class':kind,'contributors':fast,'deep_contributors':deep,
                            'passed':all(tests.values()),'gates':tests}
