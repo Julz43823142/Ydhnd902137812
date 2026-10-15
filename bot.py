@@ -5937,15 +5937,15 @@ async def _send_review_pgn_export(interaction, game, analysis, mode):
         )
         chunks = _discord_text_chunks(text, limit=1700)
         notice = (
-            "No move clocks are available for this game.\\n"
+            "No move clocks are available for this game.\n"
             if mode != PgnExportMode.MOVES_ONLY and not has_clocks else ""
         )
         for index, chunk in enumerate(chunks, start=1):
             heading = (
                 f"📋 **PGN — {mode.value.replace('_', ' ').title()}** "
-                f"(part {index}/{len(chunks)})\\n"
+                f"(part {index}/{len(chunks)})\n"
             ) if index == 1 or len(chunks) > 1 else ""
-            content = (notice if index == 1 else "") + heading + f"```pgn\\n{chunk}\\n```"
+            content = (notice if index == 1 else "") + heading + f"```pgn\n{chunk}\n```"
             if index == 1:
                 await interaction.response.send_message(
                     content, ephemeral=True,
