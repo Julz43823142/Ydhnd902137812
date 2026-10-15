@@ -32,7 +32,7 @@ class ProgressFormattingTests(unittest.TestCase):
         self.assertIn("Calculating from actual progress", progress.render("Synthetic"))
         tick[0] = 140.0
         self.assertIn("~1m 00s (estimate)", progress.render("Synthetic"))
-        self.assertIn("Elapsed: 2m 20s", progress.render("Synthetic"))
+        self.assertIn("**Elapsed:** 2m 20s", progress.render("Synthetic"))
 
     def test_fallback_resets_progress_and_never_forges_completion(self):
         tick = [0.0]
