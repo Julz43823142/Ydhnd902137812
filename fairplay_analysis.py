@@ -1653,6 +1653,10 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             from fairplay_intermit_audit import summarize_intermit
             result.diagnostics['intermittent_coverage_audit']=summarize_intermit(
                 scoring_games, minimum_game_decisions=config.min_game_decisions)
+            from fairplay_policy_episodes import integrate as integrate_policy_episodes
+            result=integrate_policy_episodes(result,scoring_games,config)
+            from fairplay_policy_coverage import summarize as summarize_policy_coverage
+            result.diagnostics['policy_reference_coverage']=summarize_policy_coverage(scoring_games)
             from fairplay_scoped_coverage import integrate as integrate_retrieved_period
             result=integrate_retrieved_period(result,scoring_games,rated_history,collection_coverage,
                                              coverage_state,engine_name,profile,config)
