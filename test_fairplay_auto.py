@@ -46,17 +46,17 @@ def service(messages):
 class AutoTests(unittest.IsolatedAsyncioTestCase):
     async def test_newest_first_dedup_current_version_and_finished_only(self):
         s=service([message(9,'current',VERSION), message(8,'current'),
-                   message(7,'julian'),message(6,'julian'),message(5,'thice'),
+                   message(7,'synthetic-first'),message(6,'synthetic-first'),message(5,'synthetic-next'),
                    message(4,'forged',author=999),message(3,'loading',complete=False)])
         a=AutoRescanner(s)
         await a.set_enabled(True)
         await a.tick()
-        self.assertEqual(list(s.jobs), ['julian'])
+        self.assertEqual(list(s.jobs), ['synthetic-first'])
         await a.tick()  # never overlap background jobs
         self.assertEqual(len(s.checkpoints.reserved), 1)
         s.jobs.clear();s.queue.get_nowait()
         await a.tick()
-        self.assertEqual(list(s.jobs), ['thice'])
+        self.assertEqual(list(s.jobs), ['synthetic-next'])
         s.jobs.clear();s.queue.get_nowait()
         await a.tick()
         self.assertTrue(a.state['exhausted'])
