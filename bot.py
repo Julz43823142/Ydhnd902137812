@@ -77,6 +77,7 @@ import chess.svg
 import chess.pgn
 from review_pgn_exports import PgnExportMode, export_review_pgn, has_move_clocks
 from game_review_service import game_review_service
+from game_review_progress import ReviewProgress, duration_label
 from io import BytesIO, StringIO
 import cairosvg
 import asyncio
@@ -6125,6 +6126,51 @@ def _format_stockfish_game_analysis(game, analysis):
     return "\n".join(lines)
 
 
+def _review_details_embed(analysis):
+    """Compact provenance and measured wall time below the completed review."""
+    version = str(analysis.get("analysis_version") or "unknown")
+    route = str(analysis.get("review_compute") or "local-stockfish-19")
+    if analysis.get("review_cache_hit"):
+        route_label = "Cached result (no fresh engine search)"
+    elif route == "github-actions-idle-fairplay-capacity":
+        route_label = f"GitHub Actions remote ({int(analysis.get('review_workers') or 2)} workers)"
+    elif route == "local-fallback":
+        route_label = "Local Stockfish (after unsuccessful remote attempt)"
+    else:
+        route_label = "Local Stockfish 19"
+
+    total = float(analysis.get("review_total_elapsed_seconds",
+                               analysis.get("analysis_elapsed_seconds") or 0.0) or 0.0)
+    lines = [
+        "Stockfish estimates: opening labels and accuracy are **not official Chess.com ratings**.",
+        f"**Version:** SharkBot {version} • Stockfish 19 • depth {int(analysis.get('analysis_depth') or 18)}",
+        f"**Analysis route:** {route_label}",
+        f"**Elapsed:** {duration_label(total)}",
+    ]
+    remote = float(analysis.get("review_remote_seconds") or 0.0)
+    local = float(analysis.get("review_local_seconds") or 0.0)
+    if not analysis.get("review_cache_hit") and remote >= 1.0 and local >= 1.0:
+        lines.append(f"Remote attempt: {duration_label(remote)} • Local fallback: {duration_label(local)}")
+    return discord.Embed(title="Review details", description="\n".join(lines), color=0x2F3136)
+
+
+async def _analyse_game_review_with_progress(status, progress, heading, moves, start_fen, chess960):
+    """Update one Discord message while the thread computes; never guess progress."""
+    task = asyncio.create_task(asyncio.to_thread(
+        game_review_service.analyse, moves, None, start_fen, chess960,
+        progress_callback=progress.update,
+    ))
+    while True:
+        try:
+            return await asyncio.wait_for(asyncio.shield(task), timeout=10)
+        except asyncio.TimeoutError:
+            try:
+                await status.edit(content=progress.render(heading))
+            except Exception as error:
+                # A broken Discord edit cannot cancel a correct engine job.
+                print(f"Game Review progress message unavailable: {type(error).__name__}", flush=True)
+
+
 def _clean_review_pgn_text(text):
     raw = str(text or "").strip()
     if not raw:
@@ -6230,18 +6276,16 @@ async def _run_pasted_pgn_review(message, pgn_text):
         await message.channel.send(f"❌ **{error}**")
         return
 
-    status = await message.channel.send(
-        f"🔎 **Analysing {game['white_name']} vs {game['black_name']} with Stockfish 19...**"
-    )
+    heading = f"Analysing {game['white_name']} vs {game['black_name']} with Stockfish 19"
+    progress = ReviewProgress(len(san_moves))
+    status = await message.channel.send(progress.render(heading))
     try:
-        analysis = await asyncio.to_thread(
-            game_review_service.analyse,
-            san_moves,
-            None,
-            game.get("start_fen"),
+        analysis = await _analyse_game_review_with_progress(
+            status, progress, heading, san_moves, game.get("start_fen"),
             _game_variant(game) == CHESS_VARIANT_960,
         )
-        await status.edit(content=_format_stockfish_game_analysis(game, analysis))
+        await status.edit(content=_format_stockfish_game_analysis(game, analysis),
+                          embed=_review_details_embed(analysis))
         await _send_chess_game_review(message.channel, game, analysis)
     except StockfishUnavailableError as error:
         await status.edit(content=f"❌ **Stockfish 19 analysis is unavailable:** `{str(error)[:700]}`")
@@ -6360,7 +6404,8 @@ class ChessGameReviewView(discord.ui.View):
             color=0x2F3136,
         )
         embed.set_image(url="attachment://chess_review.png")
-        embed.set_footer(text="Local Stockfish estimates; opening labels and accuracy are not official Chess.com ratings.")
+        version = str(self.analysis.get("analysis_version") or "unknown")
+        embed.set_footer(text=f"Stockfish estimates, not official Chess.com ratings • SharkBot {version}")
         return embed
 
     async def _refresh(self, interaction, *, target=None, delta=0, indices=None):
@@ -6574,13 +6619,13 @@ async def _send_finished_chess_extras(channel, game, result_message=None):
         print(f"Chess PGN export failed: {error}", flush=True)
         await channel.send("⚠️ **The game finished, but the PGN export failed.**")
 
-    status = await channel.send("🔎 **Stockfish 19 Game Review at depth 18 is analysing this game…**")
+    moves = list(game.get("moves") or [])
+    heading = f"Analysing {game.get('white_name', 'White')} vs {game.get('black_name', 'Black')} with Stockfish 19"
+    progress = ReviewProgress(len(moves))
+    status = await channel.send(progress.render(heading))
     try:
-        analysis = await asyncio.to_thread(
-            game_review_service.analyse,
-            list(game.get("moves") or []),
-            None,
-            game.get("initial_fen"),
+        analysis = await _analyse_game_review_with_progress(
+            status, progress, heading, moves, game.get("initial_fen"),
             _game_variant(game) == CHESS_VARIANT_960,
         )
     except StockfishUnavailableError as error:
@@ -6593,7 +6638,8 @@ async def _send_finished_chess_extras(channel, game, result_message=None):
         return
 
     await _award_brilliant_game_rewards(channel, game, analysis)
-    await status.edit(content=_format_stockfish_game_analysis(game, analysis))
+    await status.edit(content=_format_stockfish_game_analysis(game, analysis),
+                      embed=_review_details_embed(analysis))
     await _send_chess_game_review(channel, game, analysis)
 
 def _new_chess_game_board(variant=CHESS_VARIANT_STANDARD, chess960_pos=None):
