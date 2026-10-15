@@ -6269,7 +6269,35 @@ def _parse_review_pgn(pgn_text, reviewer):
     return game, san_moves
 
 
-async def _run_pasted_pgn_review(message, pgn_text):
+async def _delete_consumed_review_messages(message, pending_review=None):
+    """Best-effort cleanup after a valid PGN was accepted and status was posted.
+
+    Never delete a failed submission: the author may need to correct it.
+    Only the invoking command, the bot's corresponding prompt and the actual
+    PGN submission are targeted; unrelated channel messages remain intact.
+    """
+    sources = [message]
+    if pending_review:
+        sources += [pending_review.get("command_message"),
+                    pending_review.get("prompt_message")]
+    seen = set()
+    for source in sources:
+        if source is None or not hasattr(source, "delete"):
+            continue
+        message_id = getattr(source, "id", None)
+        if message_id is not None and message_id in seen:
+            continue
+        if message_id is not None:
+            seen.add(message_id)
+        try:
+            await source.delete()
+        except (discord.Forbidden, discord.NotFound, discord.HTTPException) as error:
+            print(f"PGN review cleanup could not delete a message: {type(error).__name__}", flush=True)
+        except Exception as error:
+            print(f"PGN review cleanup failed: {type(error).__name__}", flush=True)
+
+
+async def _run_pasted_pgn_review(message, pgn_text, *, pending_review=None):
     try:
         game, san_moves = await asyncio.to_thread(_parse_review_pgn,pgn_text,message.author)
     except ValueError as error:
@@ -6279,6 +6307,7 @@ async def _run_pasted_pgn_review(message, pgn_text):
     heading = f"Analysing {game['white_name']} vs {game['black_name']} with Stockfish 19"
     progress = ReviewProgress(len(san_moves))
     status = await message.channel.send(progress.render(heading))
+    await _delete_consumed_review_messages(message, pending_review)
     try:
         analysis = await _analyse_game_review_with_progress(
             status, progress, heading, san_moves, game.get("start_fen"),
@@ -18621,7 +18650,7 @@ async def on_message(
                 )
                 return
             _pending_pgn_reviews.pop(str(message.author.id), None)
-            await _run_pasted_pgn_review(message, pgn_text)
+            await _run_pasted_pgn_review(message, pgn_text, pending_review=pending_review)
             return
 
         # IMPORTANT: claim Survival immediately from the human command itself.
@@ -18848,10 +18877,14 @@ async def on_message(
                 "channel_id": int(message.channel.id),
                 "expires_at": time.monotonic() + 300.0,
             }
-            await message.channel.send(
+            prompt_message = await message.channel.send(
                 "📋 **PGN Review ready.** Paste the PGN in your next message or attach a `.pgn`/`.txt` file. "
-                "I will analyse it locally with **Stockfish 19**. Use `!cancelreview` to cancel."
+                "I will analyse it with **Stockfish 19**. Use `!cancelreview` to cancel."
             )
+            _pending_pgn_reviews[str(message.author.id)].update({
+                "command_message": message,
+                "prompt_message": prompt_message,
+            })
             return
 
         # -----------------------------------------------------
