@@ -15,7 +15,7 @@ classifier are not claimed as reproduced.** Source:
 https://lichess.org/page/accuracy
 
 Stockfish root evaluations are compared from the same mover perspective,
-including an explicitly searched played move when not in the available PVs.
+including a paired MultiPV=2 search of the best and played moves at\nthe same root and depth when the played move was not in the top PVs.
 The engine search depth is 18. Mate-score sentinels now produce **0% or
 100%** winning chances for forced mates, while drawn terminal boards remain
 50%. The move-level independent evaluation and original imported PGN
