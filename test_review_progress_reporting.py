@@ -20,15 +20,15 @@ class ProgressFormattingTests(unittest.TestCase):
     def test_no_eta_before_observed_compute_and_real_percentage(self):
         tick = [0.0]
         progress = ReviewProgress(80, clock=lambda: tick[0])
-        self.assertIn("0% (0/80 plies)", progress.render("Synthetic vs Stockfish"))
+        self.assertIn("**0%** (0/80 plies)", progress.render("Synthetic vs Stockfish"))
         self.assertIn("Calculating from actual progress", progress.render("Synthetic"))
         tick[0] = 100.0
         progress.update({"stage": "remote-dispatched", "completed": 0, "total": 80})
         self.assertIn("Waiting for two GitHub Actions workers", progress.render("Synthetic"))
-        self.assertIn("0% (0/80 plies)", progress.render("Synthetic"))
+        self.assertIn("**0%** (0/80 plies)", progress.render("Synthetic"))
         tick[0] = 120.0
         progress.update({"stage": "remote-analysis", "completed": 20, "total": 80})
-        self.assertIn("25% (20/80 plies)", progress.render("Synthetic"))
+        self.assertIn("**25%** (20/80 plies)", progress.render("Synthetic"))
         self.assertIn("Calculating from actual progress", progress.render("Synthetic"))
         tick[0] = 140.0
         self.assertIn("~1m 00s (estimate)", progress.render("Synthetic"))
@@ -39,9 +39,9 @@ class ProgressFormattingTests(unittest.TestCase):
         progress = ReviewProgress(100, clock=lambda: tick[0])
         progress.update({"stage": "remote-analysis", "completed": 45, "total": 100})
         progress.update({"stage": "remote-fallback", "completed": 0})
-        self.assertIn("0% (0/100 plies)", progress.render("Synthetic"))
+        self.assertIn("**0%** (0/100 plies)", progress.render("Synthetic"))
         progress.update({"stage": "local-analysis", "completed": 7})
-        self.assertIn("7% (7/100 plies)", progress.render("Synthetic"))
+        self.assertIn("**7%** (7/100 plies)", progress.render("Synthetic"))
 
     def test_invalid_reports_are_ignored(self):
         progress = ReviewProgress(50, clock=lambda: 0.0)
@@ -49,7 +49,7 @@ class ProgressFormattingTests(unittest.TestCase):
         progress.update({"stage": "remote-analysis", "completed": 999999})
         progress.update({"stage": "remote-analysis", "completed": -1})
         progress.update({"stage": "remote-analysis", "completed": True})
-        self.assertIn("20% (10/50 plies)", progress.render("Synthetic"))
+        self.assertIn("**20%** (10/50 plies)", progress.render("Synthetic"))
         self.assertEqual(duration_label(125), "2m 05s")
 
 
@@ -146,7 +146,7 @@ class AsyncProgressTests(unittest.IsolatedAsyncioTestCase):
                 ["e4", "e5", "Nf3", "Nc6"], None, False,
             )
         self.assertEqual(result["analysis_version"], "synthetic")
-        self.assertIn("100% (4/4 plies)", progress.render("Synthetic match"))
+        self.assertIn("**100%** (4/4 plies)", progress.render("Synthetic match"))
 
 
 class WorkerShutdownTests(unittest.TestCase):
