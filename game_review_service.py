@@ -12,6 +12,7 @@ from concurrent.futures import Future
 from copy import deepcopy
 import hashlib
 import json
+import os
 import threading
 import time
 
@@ -41,8 +42,21 @@ def review_cache_key(
         uci_moves.append(board.uci(move, chess960=bool(chess960)))
         board.push(move)
 
+    # Include the configured binary path and on-disk revision when present.
+    # The pinned source revision remains authoritative for official builds.
+    engine_path = os.getenv("STOCKFISH_PATH", "")
+    engine_binary_stamp = None
+    if engine_path:
+        try:
+            stat = os.stat(engine_path)
+            engine_binary_stamp = (stat.st_size, stat.st_mtime_ns)
+        except OSError:
+            pass
+
     inputs = {
         "version": REVIEW_SERVICE_VERSION,
+        "engine_path": engine_path,
+        "engine_binary_stamp": engine_binary_stamp,
         "analysis_version": "ordinary-review-v6",
         "stockfish_revision": chess_play.STOCKFISH_SOURCE_REVISION,
         "stockfish_required_major": chess_play.STOCKFISH_REQUIRED_MAJOR,
