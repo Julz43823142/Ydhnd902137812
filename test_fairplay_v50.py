@@ -144,6 +144,30 @@ class SelectiveEpisodes(unittest.TestCase):
         game=synthetic_game(0,'selective');game.decisions[3].fast_policy=None
         self.assertFalse(game_episode(game)['contributor'])
 
+    def test_verified_forced_moves_leave_no_engine_evidence_or_false_gaps(self):
+        games=[synthetic_game(i,'selective') for i in range(10)]
+        for game in games:
+            expanded=[]
+            for d in game.decisions:
+                expanded.append(d)
+                forced=copy.deepcopy(d);forced.forced=True
+                expanded.append(forced)
+            game.decisions=expanded
+            episode=game_episode(game)
+            self.assertTrue(episode['deep_confirmed'])
+            self.assertEqual(episode['indices'],[0,2,4,6,8,10])
+        self.assertEqual(episode_result(games).priority,'MODERATE')
+
+    def test_deep_context_cannot_choose_different_fast_episode_indices(self):
+        game=synthetic_game(0,'selective')
+        first=game_episode(game)['indices']
+        # Only fast context determines which blocks are selected. A changed
+        # deep exclusion makes paired evidence unavailable, not a new block.
+        game.decisions[0].metrics['easy_conversion']=True
+        later=game_episode(game)
+        self.assertEqual(later['indices'],first)
+        self.assertFalse(later['deep_confirmed'])
+
     def test_duplicate_games_and_positions_cannot_manufacture_replication(self):
         g=synthetic_game(0,'selective')
         self.assertEqual(episode_result([copy.deepcopy(g) for _ in range(10)]).priority,'LOW')

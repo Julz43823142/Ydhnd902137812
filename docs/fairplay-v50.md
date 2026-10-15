@@ -25,8 +25,11 @@ for a synthetic position, not detector accuracy or a runtime improvement.
 ### Selective episodes — at most MODERATE
 
 A whole-game mean can dilute a small assistance-like run with unrelated mistakes.
-`fairplay_policy_episodes.py` compares fixed, non-overlapping six-decision blocks
-anchored to original decision indices. Missing/unusable decisions break a block;
+`fairplay_policy_episodes.py` compares fixed, non-overlapping six-nontrivial-decision blocks
+anchored to the original nontrivial sequence. Verified opening/forced/trivial
+and fast-context automatic/conversion choices contribute no engine evidence and
+are excluded before selecting blocks. Missing model/search data remains a gap;
+deep results cannot change the selected original indices. Incomplete decisions break a block;
 misses remain in its signed quality mean. One fast-selected block per game is
 checked at exactly the same indices under deep search; deep outcomes cannot
 choose a new block. Each block needs three model-unusual strong choices, the

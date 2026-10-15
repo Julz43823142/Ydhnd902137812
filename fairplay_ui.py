@@ -349,7 +349,7 @@ def add_selective_policy_fields(embed,result):
             f"Fixed blocks examined: {episodes['blocks_examined']} · "
             f"Deep-confirmed contributor games: {episodes['deep_contributor_games']}\n"
             f"Replicated MODERATE route: {'PASS' if best.get('passed') else 'Not established'}\n"
-            'Fast-selected six-decision blocks retain misses and require paired deep confirmation across six games. This route cannot create HIGH. Rare moves alone are not evidence.\n'
+            'Fast-selected blocks of six nontrivial decisions retain misses and require paired deep confirmation across six games. This route cannot create HIGH. Rare moves alone are not evidence.\n'
             + 'Missing checks: ' + ('; '.join(k for k,v in best.get('gates',{}).items() if not v)[:300] or 'None in the selected period' if best else 'No eligible period')))
 
 

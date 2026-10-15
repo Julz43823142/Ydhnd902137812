@@ -51,24 +51,38 @@ def _block(rows):
                      and information>=POLICY.game_information}
 
 
+def _structural_exclusion(decision):
+    # Only verified structural context may leave the opportunity sequence.
+    # Missing model/search data remains a gap. Deep results never choose the
+    # sequence: engine-based exclusions use the immutable FAST snapshot only.
+    fast=getattr(decision,'fast_engine',{}) or {}
+    return bool(decision.forced or decision.trivial_kind or decision.phase=='opening'
+                or fast.get('easy_conversion') or fast.get('automatic_material_gain')
+                or fast.get('simple_threat_response'))
+
+
 def game_episode(game):
     # One fast-selected fixed block per game. A long game receives no greater
     # account-level weight; its additional searched blocks are disclosed.
-    fast=_rows(game,True);candidates=[]
+    raw_fast=_rows(game,True)
+    indices=[i for i,d in enumerate(game.decisions) if not _structural_exclusion(d)]
+    fast=[raw_fast[i] for i in indices];candidates=[]
     for start in range(0,len(fast)-BLOCK+1,BLOCK):
         summary=_block(fast[start:start+BLOCK])
         if summary and summary['passed']:candidates.append((start,summary))
     base={'blocks_searched':len(fast)//BLOCK,'contributor':False,'deep_confirmed':False}
     if not candidates:return base
     start,summary=max(candidates,key=lambda item:(item[1]['signed_excess'],item[1]['hits'],-item[0]))
+    chosen=indices[start:start+BLOCK]
+    decisions=[game.decisions[i] for i in chosen]
     keys={(' '.join(d.fen.split()[:4]),d.move)
-          for d,row in zip(game.decisions[start:start+BLOCK],fast[start:start+BLOCK]) if _hit(row)}
+          for d,row in zip(decisions,fast[start:start+BLOCK]) if _hit(row)}
     if len(keys)<MIN_HITS:return base
-    base.update(contributor=True,start=start,end=start+BLOCK,fast=summary,position_keys=keys)
+    base.update(contributor=True,indices=chosen,fast=summary,position_keys=keys)
     if not game.deep:return base
-    deep=_rows(game,False)[start:start+BLOCK];confirmed=_block(deep)
+    raw_deep=_rows(game,False)
+    deep=[raw_deep[i] for i in chosen];confirmed=_block(deep)
     if confirmed is None:return base
-    decisions=game.decisions[start:start+BLOCK]
     paired=[isinstance(d.metrics.get('search_stability'),dict)
                and d.metrics['search_stability'].get('objective_quality_preserved') is True
                and abs(new['observed_quality']-old['observed_quality'])<=.10
