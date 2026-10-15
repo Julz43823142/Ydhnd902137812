@@ -216,7 +216,15 @@ class EngineIsolationTests(unittest.TestCase):
             def configure(self, config):pass
             def analyse(self, board, limit, **kwargs):
                 started.set();release.wait(timeout=2)
-                return {'score': chess.engine.PovScore(chess.engine.Cp(0), chess.WHITE), 'pv': [next(iter(board.legal_moves))]}
+                roots = kwargs.get('root_moves')
+                if roots and kwargs.get('multipv') == 2:
+                    return [
+                        {'score': chess.engine.PovScore(chess.engine.Cp(0), chess.WHITE),
+                         'pv': [move]}
+                        for move in roots
+                    ]
+                return {'score': chess.engine.PovScore(chess.engine.Cp(0), chess.WHITE),
+                        'pv': [next(iter(board.legal_moves))]}
         with patch.object(chess_play, '_get_analysis_engine', return_value=ReviewEngine()), patch.object(chess_play, '_stockfish_play_once', return_value=chess.Move.from_uci('e2e4')), ThreadPoolExecutor(max_workers=2) as pool:
             review = pool.submit(chess_play.analyse_game_moves, ['e4'])
             self.assertTrue(started.wait(timeout=1))
