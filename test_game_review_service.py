@@ -91,8 +91,8 @@ class ReviewCacheTests(unittest.TestCase):
         )
 
     def test_same_move_text_with_different_clock_comments_reuses_analysis(self):
-        source_a = '[Result "*"]\\n\\n1. e4 {[%clk 0:03:00]} e5 *'
-        source_b = '[Result "*"]\\n\\n1. e4 {[%clk 0:02:54]} e5 *'
+        source_a = '[Result "*"]\n\n1. e4 {[%clk 0:03:00]} e5 *'
+        source_b = '[Result "*"]\n\n1. e4 {[%clk 0:02:54]} e5 *'
         owner = SimpleNamespace(id=999, display_name="Synthetic")
         first_game, first_moves = bot._parse_review_pgn(source_a, owner)
         second_game, second_moves = bot._parse_review_pgn(source_b, owner)
@@ -108,8 +108,8 @@ class ReviewCacheTests(unittest.TestCase):
         self.assertIn("[%clk 0:02:54]", b)
 
     def test_untrusted_nag_does_not_change_independent_review_result(self):
-        a = '[Result "*"]\\n\\n1. e4 $4 {bad move} e5 *'
-        b = '[Result "*"]\\n\\n1. e4 $3 {brilliant!} e5 *'
+        a = '[Result "*"]\n\n1. e4 $4 {bad move} e5 *'
+        b = '[Result "*"]\n\n1. e4 $3 {brilliant!} e5 *'
         owner = SimpleNamespace(id=999, display_name="Synthetic")
         game_a, moves_a = bot._parse_review_pgn(a, owner)
         game_b, moves_b = bot._parse_review_pgn(b, owner)
