@@ -7,6 +7,7 @@ import shutil
 import subprocess
 import tempfile
 import threading
+import time
 
 import chess
 import chess.engine
@@ -635,7 +636,14 @@ def _win_percent_from_cp(cp):
     capped at +/-1000 like their implementation so huge mate/won-position
     scores do not make every later move look catastrophically different.
     """
-    value = max(-1000.0, min(1000.0, float(cp or 0.0)))
+    # Engine mate scores use +/-100000 cp sentinels. A forced terminal
+    # result is certain rather than merely a +/-10-pawn evaluation.
+    raw = float(cp if cp is not None else 0.0)
+    if raw >= 90000:
+        return 100.0
+    if raw <= -90000:
+        return 0.0
+    value = max(-1000.0, min(1000.0, raw))
     return 50.0 + 50.0 * (2.0 / (1.0 + math.exp(-0.00368208 * value)) - 1.0)
 
 
@@ -874,6 +882,7 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
     Review behaviour because a move in an already-lost position is not punished
     again as if the game were still equal.
     """
+    started_at = time.perf_counter()
     moves = [str(item) for item in list(san_moves or [])]
     requested_plies = len(moves)
     empty_side = {
@@ -1094,7 +1103,8 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
         "truncated": bool(truncated),
         "analysis_depth": STOCKFISH_GAME_REVIEW_DEPTH,
         "analysis_time_per_position": None,
-        "analysis_version": "ordinary-review-v5",
+        "analysis_elapsed_seconds": round(time.perf_counter() - started_at, 3),
+        "analysis_version": "ordinary-review-v6",
         "requested_plies": requested_plies,
         "skipped_plies": max(0, requested_plies - len(moments)),
         "accuracy_provenance": "SharkBot estimate (not Chess.com Accuracy)",
@@ -1103,7 +1113,7 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
             "threads": STOCKFISH_THREADS,
             "hash_mb": STOCKFISH_HASH_MB,
         },
-        "accuracy_model": "stockfish-winprob-v4-same-root-game-curve",
+        "accuracy_model": "lichess-published-win-chance-v5-terminal-mates",
         "classification_model": "expected-points-v4-no-invented-book",
         "brilliant_model": "local-net-sacrifice-v3-no-forced",
     }
