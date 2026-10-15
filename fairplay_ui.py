@@ -62,7 +62,7 @@ def progress_embed(target, stage, value=None, timing=None):
                  else bar(value)+"\n\n"+label(stage))
     if timing is not None:description+='\n'+timing.summary(stage)
     embed = discord.Embed(title=REPORT_PREFIX+target, description=description, color=0x427CBA)
-    embed.set_footer(text="Progress is not percent of elapsed time.")
+    embed.set_footer(text=f"Version: {VERSION} · Progress is not percent of elapsed time.")
     embed.add_field(name='Important', value=SHORT_SCREENING_NOTICE, inline=False)
     return embed
 
@@ -333,6 +333,25 @@ def _bounded_detail_embed(embed):
     return embed
 
 
+def add_selective_policy_fields(embed,result):
+    coverage=result.diagnostics.get('policy_reference_coverage') or {}
+    if coverage:
+        embed.add_field(name='Human alternative coverage',inline=False,value=(
+            f"Comparable decisions: {coverage['comparable']} / {coverage['eligible']}\n"
+            f"Below required probability coverage: {coverage['low_mass']} · "
+            f"Missing exact paired searches: {coverage['incomplete']}\n"
+            f"Median known human probability mass: {percentage(coverage['median_mass'])}\n"
+            'Up to twelve extra alternatives target 90% probability mass. Unknown alternatives remain optimistically bounded; missing data is not normal play.'))
+    episodes=result.diagnostics.get('selective_policy_episodes') or {}
+    if episodes:
+        best=episodes.get('best') or {}
+        embed.add_field(name='Selective Maia-policy episodes',inline=False,value=(
+            f"Fixed blocks examined: {episodes['blocks_examined']} · "
+            f"Deep-confirmed contributor games: {episodes['deep_contributor_games']}\n"
+            f"Replicated MODERATE route: {'PASS' if best.get('passed') else 'Not established'}\n"
+            'Fast-selected six-decision blocks retain misses and require paired deep confirmation across six games. This route cannot create HIGH. Rare moves alone are not evidence.'))
+
+
 def detail_embed(result, mode):
     embed = discord.Embed(title=f'{mode} — {result.username}',color=0x427CBA)
     daily=result.diagnostics.get('daily_review',{})
@@ -397,6 +416,7 @@ def detail_embed(result, mode):
                     'Depth and node budgets are unchanged. Reuse counts are not a total speedup percentage.'))
         return _bounded_detail_embed(embed)
     elif mode=='Human Moves':
+        add_selective_policy_fields(embed,result)
         reference=result.diagnostics.get('human_reference',{})
         embed.description=(reference.get('role') or reference.get('reason') or
             'No local human-model data is available for this review.')
@@ -446,6 +466,7 @@ def detail_embed(result, mode):
                 'paired Stockfish confirmation; unsearched alternatives and model uncertainty reduce evidence.',inline=False)
         return _bounded_detail_embed(embed)
     if mode=='Review Gates':
+        add_selective_policy_fields(embed,result)
         embed.description='Each HIGH route has its own requirements. Timing/results are optional for the absolute and acute gameplay routes. PASS is review evidence, not a misconduct verdict.'
         add_gate_fields(embed,result)
         return _bounded_detail_embed(embed)

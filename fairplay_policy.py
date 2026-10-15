@@ -11,9 +11,9 @@ from fairplay_data import check_deadline
 
 @dataclass(frozen=True)
 class PolicyConfig:
-    alternatives: int = 3
+    alternatives: int = 12
     target_mass: float = .90
-    minimum_move_mass: float = .025
+    minimum_move_mass: float = .005
     minimum_legal_choices: int = 8
     known_mass: float = .65
     quality_margin: float = .10  # domain/model uncertainty, not a calibrated CI
@@ -48,7 +48,11 @@ def reference_weight(decision, probabilities=None, config=POLICY):
     return min(1.0,math.log(count)/math.log(20))
 
 def alternatives(d, config=POLICY):
-    """Choose roots by human probability mass, never by the played result."""
+    """Cover human probability mass with at most twelve extra exact roots.
+
+    Choose independently of observed move quality. Existing engine candidates
+    are reused; unknown probability mass keeps its conservative quality bound.
+    """
     policy, m = d.human_policy, d.metrics
     if not policy or not m.get('competitive') or not m.get('useful'):return []
     known=set(m.get('candidates', []))
@@ -209,6 +213,8 @@ def complete(games,nodes,deadline,*,executor=None,pool=None,scanner=None,fast=Fa
         saved=(checkpoint.restore_counterfactual(target,game,d,
                'policy-fast' if fast else 'policy-deep',nodes)
                if checkpoint is not None else None)
+        # A resumed older/smaller root set cannot satisfy today's reference.
+        if saved is not None and set(saved.get('scores',{}))!=set(alternatives(d)):saved=None
         if saved is None:pending.append((game,d))
         else:
             d.metrics['policy_search']=saved
