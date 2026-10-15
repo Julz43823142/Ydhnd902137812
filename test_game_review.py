@@ -24,6 +24,13 @@ class ReviewEngine:
         played=board.parse_san(self.moves[index]) if index<len(self.moves) else legal[0]
         if root_moves:
             self.root_queries.append(root_moves)
+            if multipv==2 and len(root_moves)==2:
+                return [
+                    {'pv':[root_moves[0]],'score':chess.engine.PovScore(
+                        chess.engine.Cp(100-index*20),board.turn)},
+                    {'pv':[root_moves[1]],'score':chess.engine.PovScore(
+                        chess.engine.Cp(-250),board.turn)},
+                ]
             return {'pv':root_moves,'score':chess.engine.PovScore(chess.engine.Cp(-250),board.turn)}
         best=played if self.actual_is_best else next(m for m in legal if m!=played)
         second=next(m for m in legal if m not in (best,played))
@@ -58,7 +65,10 @@ class GameReviewMath(unittest.TestCase):
     def test_non_candidate_move_uses_same_root_restricted_score(self):
         result,engine=self.analyse(['e4'],actual_is_best=False)
         self.assertEqual(result['moves'][0]['loss_cp'],350)
-        self.assertEqual(engine.root_queries,[[chess.Move.from_uci('e2e4')]])
+        self.assertEqual(len(engine.root_queries),1)
+        self.assertEqual(len(engine.root_queries[0]),2)
+        self.assertEqual(engine.root_queries[0][-1],chess.Move.from_uci('e2e4'))
+        self.assertEqual(engine.limits[-1].depth,18)
 
     def test_claimable_threefold_does_not_truncate_unclaimed_game(self):
         moves=['Nf3','Nf6','Ng1','Ng8']*2+['e4']
