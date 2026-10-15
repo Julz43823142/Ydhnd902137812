@@ -15,7 +15,7 @@ from game_review_service import GameReviewService
 
 def main():
     service = GameReviewService()
-    moves = ["e4", "e5", "Nf3", "Nc6", "Bb5", "a6"]
+    moves = ["e4", "e5"]
     start = time.perf_counter()
     first = service.analyse(moves)
     local_seconds = time.perf_counter() - start
