@@ -88,83 +88,74 @@
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
-    "url": "https://www.chess.com/daily/2026-10-14",
-    "title": "Thread the Needle",
-    "fen": "1q6/2p4k/1p5p/1P4p1/4rp2/2R5/6PP/2Q4K w - - 0 1",
-    "current_fen": "1q6/2p4k/1p5p/1P4p1/4rp2/2R5/6PP/2Q4K w - - 0 1",
+    "url": "https://www.chess.com/daily/2026-10-15",
+    "title": "To the Batcave!",
+    "fen": "r1bqk2r/pp3ppp/2p5/b3p3/2B1n3/PPN5/1BP2PPP/R2QK2R w KQkq - 0 1",
+    "current_fen": "r1bqk2r/pp3ppp/2p5/b3p3/2B1n3/PPN5/1BP2PPP/R2QK2R w KQkq - 0 1",
     "last_move_uci": null,
-    "pgn": "[Result \"*\"]\n[FEN \"1q6/2p4k/1p5p/1P4p1/4rp2/2R5/6PP/2Q4K w - - 0 1\"]\n\n1. Qb1 Qa8 2. Rc4 Kg7 3. Rxe4 *",
+    "pgn": "[White \"JohanVA\"]\n[Black \"Daily Puzzle Inspiration\"]\n[Result \"*\"]\n[FEN \"r1bqk2r/pp3ppp/2p5/b3p3/2B1n3/PPN5/1BP2PPP/R2QK2R w KQkq - 0 1\"]\n\n1. Qxd8+ Kxd8 2. O-O-O+ Ke7 3. Nxe4 *",
     "all_moves": [
       {
-        "uci": "c1b1",
-        "san": "Qb1",
+        "uci": "d1d8",
+        "san": "Qxd8+",
         "color": "white"
       },
       {
-        "uci": "b8a8",
-        "san": "Qa8",
+        "uci": "e8d8",
+        "san": "Kxd8",
         "color": "black"
       },
       {
-        "uci": "c3c4",
-        "san": "Rc4",
+        "uci": "e1c1",
+        "san": "O-O-O+",
         "color": "white"
       },
       {
-        "uci": "h7g7",
-        "san": "Kg7",
+        "uci": "d8e7",
+        "san": "Ke7",
         "color": "black"
       },
       {
-        "uci": "c4e4",
-        "san": "Rxe4",
+        "uci": "c3e4",
+        "san": "Nxe4",
         "color": "white"
       }
     ],
     "player_moves": [
       {
-        "uci": "c1b1",
-        "san": "Qb1",
+        "uci": "d1d8",
+        "san": "Qxd8+",
         "color": "white"
       },
       {
-        "uci": "c3c4",
-        "san": "Rc4",
+        "uci": "e1c1",
+        "san": "O-O-O+",
         "color": "white"
       },
       {
-        "uci": "c4e4",
-        "san": "Rxe4",
+        "uci": "c3e4",
+        "san": "Nxe4",
         "color": "white"
       }
     ],
     "player_color": "white",
     "player_move_count": 3,
-    "posted_at": "2026-10-14T07:08:09.155628+00:00",
-    "answer_posted": true,
+    "posted_at": "2026-10-15T07:15:45.325439+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "daily_1791961689155",
+    "puzzle_id": "daily_1792048545325",
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_id": 1559825122548785173,
+    "message_id": null,
     "attempted_users": {},
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "message_ids": {
-      "1468320170891022417": 1559825122548785173
-    },
-    "channel_id": 1468320170891022417,
-    "board_attachment_filenames": {
-      "1468320170891022417": "daily_puzzle.png"
-    },
-    "chat_since_refresh": 0,
-    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Qb1 Rc4 Rxe4"
+    "helper_candidate_users": []
   },
   "lichess_rating_used": {
     "2000": [
