@@ -43,7 +43,7 @@ def review_cache_key(
 
     inputs = {
         "version": REVIEW_SERVICE_VERSION,
-        "analysis_version": "ordinary-review-v5",
+        "analysis_version": "ordinary-review-v6",
         "stockfish_revision": chess_play.STOCKFISH_SOURCE_REVISION,
         "stockfish_required_major": chess_play.STOCKFISH_REQUIRED_MAJOR,
         "engine_depth": chess_play.STOCKFISH_GAME_REVIEW_DEPTH,
