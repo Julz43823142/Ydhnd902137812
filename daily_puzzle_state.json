@@ -91,8 +91,8 @@
     "url": "https://www.chess.com/daily/2026-10-15",
     "title": "To the Batcave!",
     "fen": "r1bqk2r/pp3ppp/2p5/b3p3/2B1n3/PPN5/1BP2PPP/R2QK2R w KQkq - 0 1",
-    "current_fen": "r1bqk2r/pp3ppp/2p5/b3p3/2B1n3/PPN5/1BP2PPP/R2QK2R w KQkq - 0 1",
-    "last_move_uci": null,
+    "current_fen": "r1bk3r/pp3ppp/2p5/b3p3/2B1n3/PPN5/1BP2PPP/R3K2R w KQ - 0 2",
+    "last_move_uci": "e8d8",
     "pgn": "[White \"JohanVA\"]\n[Black \"Daily Puzzle Inspiration\"]\n[Result \"*\"]\n[FEN \"r1bqk2r/pp3ppp/2p5/b3p3/2B1n3/PPN5/1BP2PPP/R2QK2R w KQkq - 0 1\"]\n\n1. Qxd8+ Kxd8 2. O-O-O+ Ke7 3. Nxe4 *",
     "all_moves": [
       {
@@ -146,37 +146,55 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1792048545325",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
-    "message_id": 1560194259368288287,
+    "message_id": 1560194368814452780,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "B4",
-        "correct": false,
-        "timestamp": "2026-10-15T07:34:58.313283+00:00"
+        "move": "Qxd8",
+        "correct": true,
+        "timestamp": "2026-10-15T07:35:24.251247+00:00"
       }
     },
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1560194259368288287
+      "1468320170891022417": 1560194368814452780
     },
     "channel_id": 1468320170891022417,
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
     "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-10-15T07:34:58.307414+00:00",
-    "recent_accepted_moves": [],
+    "last_card_activity_at": "2026-10-15T07:35:24.250866+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1792049724.2512598,
+        "fen_before": "r1bqk2r/pp3ppp/2p5/b3p3/2B1n3/PPN5/1BP2PPP/R2QK2R w KQkq - 0 1",
+        "expected": {
+          "uci": "d1d8",
+          "san": "Qxd8+",
+          "color": "white"
+        },
+        "accepted_uci": "d1d8"
+      }
+    ],
     "wrong_attempt_counts": {
       "442597396195704832": 1
     },
-    "last_feedback": "❌ **Bad news, Thice: you found the best move in a completely different position.**\n↪️ **Move played:** `B4`"
+    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Kxd8",
+    "accepted_solution_moves": [
+      {
+        "san": "Qxd8+",
+        "uci": "d1d8",
+        "principal": true
+      }
+    ]
   },
   "lichess_rating_used": {
     "2000": [
