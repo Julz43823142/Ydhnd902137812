@@ -76,6 +76,7 @@ import chess
 import chess.svg
 import chess.pgn
 from review_pgn_exports import PgnExportMode, export_review_pgn, has_move_clocks
+from game_review_service import game_review_service
 from io import BytesIO, StringIO
 import cairosvg
 import asyncio
@@ -6234,7 +6235,7 @@ async def _run_pasted_pgn_review(message, pgn_text):
     )
     try:
         analysis = await asyncio.to_thread(
-            analyse_game_moves,
+            game_review_service.analyse,
             san_moves,
             None,
             game.get("start_fen"),
@@ -6576,7 +6577,7 @@ async def _send_finished_chess_extras(channel, game, result_message=None):
     status = await channel.send("🔎 **Stockfish 19 Game Review at depth 18 is analysing this game…**")
     try:
         analysis = await asyncio.to_thread(
-            analyse_game_moves,
+            game_review_service.analyse,
             list(game.get("moves") or []),
             None,
             game.get("initial_fen"),
