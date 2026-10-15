@@ -979,17 +979,29 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
             # A move forced by the rules cannot earn a Brilliant sacrifice.
             has_alternative = len(list(board.legal_moves)) > 1
             is_best = best_move is not None and played_move == best_move
-            # Compare alternatives at the same root. After-position search
-            # drift must not lower the accuracy of the engine's own best move.
+            # Compare candidate alternatives at the *same root and search
+            # budget*. A single-root forced-PV search against an unrestricted
+            # MultiPV=2 score is not a fair quality comparison: its effective
+            # engine allocation and principal variation can differ materially.
             candidate = next((line for line in before_lines
                               if line.get("pv") and line["pv"][0] == played_move), None)
             if candidate is not None:
                 quality_score = _engine_score_cp(candidate, mover)
             else:
-                actual_lines = _as_lines(engine.analyse(board, analysis_limit, root_moves=[played_move]))
-                if not actual_lines:
-                    raise RuntimeError("Stockfish returned no evaluation for the played move.")
-                quality_score = _engine_score_cp(actual_lines[0], mover)
+                if best_move is None or not board.is_legal(best_move):
+                    raise RuntimeError("Stockfish returned no legal best move.")
+                paired_lines = _as_lines(engine.analyse(
+                    board, analysis_limit, multipv=2,
+                    root_moves=[best_move, played_move],
+                ))
+                best_pair = next((line for line in paired_lines
+                                  if line.get("pv") and line["pv"][0] == best_move), None)
+                played_pair = next((line for line in paired_lines
+                                    if line.get("pv") and line["pv"][0] == played_move), None)
+                if best_pair is None or played_pair is None:
+                    raise RuntimeError("Stockfish did not score both root candidates.")
+                best_score = _engine_score_cp(best_pair, mover)
+                quality_score = _engine_score_cp(played_pair, mover)
             board.push(played_move)
             sacrifice_cp = (
                 _offered_material_cp(board, played_move, mover, captured_cp)
@@ -1104,7 +1116,7 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
         "analysis_depth": STOCKFISH_GAME_REVIEW_DEPTH,
         "analysis_time_per_position": None,
         "analysis_elapsed_seconds": round(time.perf_counter() - started_at, 3),
-        "analysis_version": "ordinary-review-v6",
+        "analysis_version": "ordinary-review-v7",
         "requested_plies": requested_plies,
         "skipped_plies": max(0, requested_plies - len(moments)),
         "accuracy_provenance": "SharkBot estimate (not Chess.com Accuracy)",
@@ -1113,7 +1125,7 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
             "threads": STOCKFISH_THREADS,
             "hash_mb": STOCKFISH_HASH_MB,
         },
-        "accuracy_model": "lichess-published-win-chance-v5-terminal-mates",
+        "accuracy_model": "lichess-published-win-chance-v6-equal-root-budget",
         "classification_model": "expected-points-v4-no-invented-book",
         "brilliant_model": "local-net-sacrifice-v3-no-forced",
     }
