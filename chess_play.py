@@ -874,7 +874,7 @@ def stockfish_position_eval_cp(board, pov_color=chess.WHITE, analysis_time=None)
         info = engine.analyse(board, chess.engine.Limit(time=limit_time))
         return int(_engine_score_cp(info, color))
 
-def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False):
+def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False, *, interrupt_check=None):
     """Analyse a finished game with full-strength Stockfish 19.
 
     Accuracy and ordinary move classifications are based on *winning-chance
@@ -955,6 +955,8 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
         position_white_win_pcts.append(_win_percent_from_cp(_engine_score_cp(before_lines[0], chess.WHITE)))
 
         for ply_index, san in enumerate(moves):
+            if interrupt_check is not None:
+                interrupt_check()
             mover = board.turn
             move_number = board.fullmove_number
             before_info = before_lines[0]
@@ -1116,6 +1118,7 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
         "analysis_depth": STOCKFISH_GAME_REVIEW_DEPTH,
         "analysis_time_per_position": None,
         "analysis_elapsed_seconds": round(time.perf_counter() - started_at, 3),
+        "initial_white_win_pct": position_white_win_pcts[0],
         "analysis_version": "ordinary-review-v7",
         "requested_plies": requested_plies,
         "skipped_plies": max(0, requested_plies - len(moments)),

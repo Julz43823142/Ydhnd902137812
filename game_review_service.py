@@ -20,7 +20,7 @@ import chess
 import chess_play
 
 
-REVIEW_SERVICE_VERSION = "ordinary-review-cache-v1"
+REVIEW_SERVICE_VERSION = "ordinary-review-cache-v2-remote"
 MAX_CACHED_REVIEWS = 24
 CACHE_TTL_SECONDS = 1800.0
 
@@ -112,7 +112,14 @@ class GameReviewService:
             return deepcopy(future.result())
 
         try:
-            result = self._analyser(moves, max_plies, start_fen, chess960)
+            result = None
+            if self._analyser is chess_play.analyse_game_moves:
+                # Remote work is opportunistic only. Fair Play can preempt it,
+                # and a failed/slow dispatch always falls back to local depth-18.
+                from game_review_remote import try_remote_review
+                result = try_remote_review(moves, max_plies, start_fen, chess960)
+            if result is None:
+                result = self._analyser(moves, max_plies, start_fen, chess960)
             # Never retain source PGN, clocks or mutable game metadata.
             safe_result = deepcopy(result)
         except BaseException as exc:

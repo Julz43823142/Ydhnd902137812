@@ -68,6 +68,22 @@ def smoke():
             raise RuntimeError('Normal Game Review cache smoke test failed.')
         print(f'Real Stockfish normal Game Review passed: 6 plies; '
               f'local={local_seconds:.3f}s, cached={cached_seconds:.4f}s.')
+        # Verify genuine Stockfish root searches in both worker segments.
+        # This is an offline smoke; it does not dispatch or reserve live runners.
+        from game_review_remote import _segments, _combine
+        sections, total = _segments(moves, None, False, None)
+        pieces = [
+            chess_play.analyse_game_moves(
+                section['moves'], start_fen=section['fen'],
+                chess960=section['chess960'])
+            for section in sections
+        ]
+        combined = _combine(sections, pieces, total, elapsed=0)
+        if (combined['analysed_plies']!=6
+                or [m['played'] for m in combined['moves']]!=moves
+                or combined['moves'][-1]['fen']!=game['moves'][-1]['fen']):
+            raise RuntimeError('Real remote review shard recomposition failed.')
+        print('Real Stockfish ordinary review shards verified: 2 partitions, 6 plies.')
     finally:
         chess_play._close_analysis_engine()
         close_shared_engine_pool()
