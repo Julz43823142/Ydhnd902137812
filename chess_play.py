@@ -864,7 +864,7 @@ def stockfish_position_eval_cp(board, pov_color=chess.WHITE, analysis_time=None)
         info = engine.analyse(board, chess.engine.Limit(time=limit_time))
         return int(_engine_score_cp(info, color))
 
-def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False, *, interrupt_check=None):
+def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False, *, interrupt_check=None, progress_callback=None):
     """Analyse a finished game with full-strength Stockfish 19.
 
     Accuracy and ordinary move classifications are based on *winning-chance
@@ -903,6 +903,19 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
     limit_plies = int(max_plies or STOCKFISH_ANALYSIS_MAX_PLIES)
     truncated = len(moves) > limit_plies
     moves = moves[:limit_plies]
+
+    def report_progress(completed):
+        if progress_callback is not None:
+            try:
+                progress_callback({
+                    "stage": "local-analysis", "completed": completed,
+                    "total": len(moves),
+                })
+            except Exception:
+                # Discord status updates are best-effort; do not interrupt Stockfish.
+                pass
+
+    report_progress(0)
 
     try:
         board = chess.Board(str(start_fen), chess960=bool(chess960)) if start_fen else chess.Board(chess960=bool(chess960))
@@ -1077,6 +1090,7 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
                 ),
             })
             position_white_win_pcts.append(_win_percent_from_cp(eval_white_cp))
+            report_progress(len(moments))
 
             if not after_lines:
                 break

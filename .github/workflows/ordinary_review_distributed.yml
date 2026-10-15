@@ -57,6 +57,7 @@ jobs:
           sparse-checkout: |
             /*.py
             /scripts/
+            /assets/fairplay/opening-lines.json
             /requirements.txt
           sparse-checkout-cone-mode: false
           fetch-depth: 1

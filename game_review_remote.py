@@ -377,25 +377,40 @@ def _ticket(secret):
 
 def try_remote_review(san_moves, max_plies=None, start_fen=None, chess960=False,
                       *, env=None, store=None, clock=None, sleep=None,
-                      dispatch=None, idle=None):
+                      dispatch=None, idle=None, progress_callback=None):
     """Return verified remote analysis or None, always allowing local fallback.
 
     No background job can postpone review indefinitely. This is called from
     the existing thread-safe ordinary-review cache, never on Discord's loop.
     """
+    def report(stage, completed=0, total=None):
+        if progress_callback is None:
+            return
+        try:
+            progress_callback({
+                "stage": stage, "completed": completed,
+                "total": max(1, int(total if total is not None else len(san_moves))),
+            })
+        except Exception:
+            pass
+
     env = os.environ if env is None else env
     enabled = env.get("GAME_REVIEW_DISTRIBUTED", env.get("FAIRPLAY_DISTRIBUTED", "0"))
     if enabled != "1" or len(san_moves) < MIN_REMOTE_PLIES:
+        report("remote-skipped")
         return None
     identity = _identity(env)
     if identity is None:
+        report("remote-skipped")
         return None
     repo, revision, token = identity
     idle = fairplay_idle if idle is None else idle
     dispatch = _dispatch if dispatch is None else dispatch
     clock = time.monotonic if clock is None else clock
     sleep = time.sleep if sleep is None else sleep
+    report("remote-check")
     if not idle(repo, token):
+        report("remote-skipped")
         return None
 
     secret = _secret(env)
@@ -403,11 +418,14 @@ def try_remote_review(san_moves, max_plies=None, start_fen=None, chess960=False,
     try:
         segments, total_plies = _segments(san_moves, start_fen, chess960, max_plies)
         if len(segments) != MAX_WORKERS:
+            report("remote-skipped")
             return None
         store = store if store is not None else ReviewStore(secret)
         if not store.claim(ticket):
+            report("remote-skipped")
             return None
-    except (Exception):
+    except Exception:
+        report("remote-skipped")
         return None
 
     started = clock()
@@ -424,8 +442,10 @@ def try_remote_review(san_moves, max_plies=None, start_fen=None, chess960=False,
         }
         store.put(_name("req", ticket), payload)
         dispatch(ticket, revision, repo, token)
+        report("remote-dispatched", total=total_plies)
         outstanding = set(range(MAX_WORKERS))
         responses = {}
+        completed_by_worker = {index: 0 for index in range(MAX_WORKERS)}
         deadline = started + MAX_WAIT_SECONDS
         while outstanding and clock() < deadline:
             if not idle(repo, token):
@@ -437,6 +457,14 @@ def try_remote_review(san_moves, max_plies=None, start_fen=None, chess960=False,
                 progress = records.get(_name("progress", ticket, index), {})
                 if isinstance(progress, dict) and progress.get("state") == "failed":
                     return None
+                if (isinstance(progress, dict)
+                        and progress.get("schema") == SCHEMA
+                        and progress.get("ticket") == ticket
+                        and progress.get("revision") == revision
+                        and progress.get("index") == index):
+                    completed = progress.get("completed")
+                    if type(completed) is int and 0 <= completed <= len(segments[index]["moves"]):
+                        completed_by_worker[index] = max(completed_by_worker[index], completed)
                 packet = records.get(_name("res", ticket, index))
                 if packet is None:
                     continue
@@ -449,7 +477,9 @@ def try_remote_review(san_moves, max_plies=None, start_fen=None, chess960=False,
                     return None
                 _validate_segment(segments[index], packet["result"])
                 responses[index] = packet["result"]
+                completed_by_worker[index] = len(segments[index]["moves"])
                 outstanding.remove(index)
+            report("remote-analysis", sum(completed_by_worker.values()), total_plies)
             if outstanding:
                 sleep(min(POLL_SECONDS, max(0, deadline - clock())))
         if outstanding:
@@ -511,19 +541,38 @@ def compute_worker(ticket, index, *, env=None, store=None, idle=None,
         raise RemoteReviewError("Ordinary review capacity preempted by Fair Play.")
     began = clock()
     last_check = [float("-inf")]
+    last_progress = [began]
+    last_published = [0]
+    seen_calls = [0]
 
     def interrupt_check():
         now = clock()
+        seen_calls[0] += 1
+        # Called before each analysed ply, plus one final post-analysis check.
+        completed = min(len(section["moves"]), seen_calls[0] - 1)
         if now - began >= WORKER_BUDGET_SECONDS:
             raise RemoteReviewError("Remote review time budget elapsed.")
         if now - last_check[0] >= 15:
             last_check[0] = now
             if not store.owns(ticket) or not idle(repo, token):
                 raise RemoteReviewError("Fair Play has priority over ordinary review.")
+        if completed > last_published[0] and now - last_progress[0] >= 30:
+            try:
+                store.put(_name("progress", ticket, index), {
+                    "schema": SCHEMA, "ticket": ticket, "index": index,
+                    "revision": revision, "state": "running",
+                    "completed": completed,
+                })
+                last_progress[0] = now
+                last_published[0] = completed
+            except Exception:
+                # Progress is advisory only. Never fail a correct analysis
+                # because one optional status update could not be published.
+                pass
 
     store.put(_name("progress", ticket, index),
               {"schema": SCHEMA, "ticket": ticket, "index": index,
-               "revision": revision, "state": "running"})
+               "revision": revision, "state": "running", "completed": 0})
     try:
         result = analyser(section["moves"], None, section["fen"],
                           section["chess960"], interrupt_check=interrupt_check)
