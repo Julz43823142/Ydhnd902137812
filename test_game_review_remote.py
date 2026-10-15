@@ -301,6 +301,69 @@ class AtomicCapacityTests(unittest.TestCase):
                 self.assertNotIn(b"secret-PGN", show.stdout)
 
 
+class WorkerProtocolTests(unittest.TestCase):
+    def _prepared(self):
+        store = FakeStore()
+        sections, _ = remote._segments(MOVES, None, False, None)
+        store.owner = TICKET
+        store.put(remote._name("req", TICKET), {
+            "schema": remote.SCHEMA, "ticket": TICKET,
+            "revision": REVISION, "engine": "Stockfish 19",
+            "engine_source": chess_play.STOCKFISH_SOURCE_REVISION,
+            "analysis_version": remote.ENGINE_VERSION,
+            "depth": chess_play.STOCKFISH_GAME_REVIEW_DEPTH,
+            "threads": chess_play.STOCKFISH_THREADS,
+            "hash_mb": chess_play.STOCKFISH_HASH_MB,
+            "created": time.time(), "sections": sections,
+        })
+        return store, sections
+
+    def test_worker_publishes_only_authenticated_complete_partition(self):
+        store, sections = self._prepared()
+        env = {**ENV, "INPUT_REVISION": REVISION}
+        fake_git = SimpleNamespace(returncode=0, stdout=(REVISION + "\n").encode())
+        def fake_engine(moves, limit, fen, chess960, *, interrupt_check):
+            interrupt_check()
+            return review_fixture(sections[0])
+        with patch.object(remote, "_git", return_value=fake_git):
+            self.assertEqual(remote.compute_worker(
+                TICKET, 0, env=env, store=store,
+                idle=lambda *args: True, analyser=fake_engine
+            ), len(sections[0]["moves"]))
+        packet = store.payloads[remote._name("res", TICKET, 0)]
+        self.assertEqual(packet["section_sha256"], remote._result_digest(sections[0]))
+        self.assertEqual(packet["result_sha256"], remote._result_digest(packet["result"]))
+        self.assertNotIn("username", str(packet))
+
+    def test_worker_preempts_when_fairplay_becomes_active(self):
+        store, sections = self._prepared()
+        env = {**ENV, "INPUT_REVISION": REVISION}
+        fake_git = SimpleNamespace(returncode=0, stdout=(REVISION + "\n").encode())
+        calls = [0]
+        def fairness(*args):
+            calls[0] += 1
+            return calls[0] == 1
+        def fake_engine(moves, limit, fen, chess960, *, interrupt_check):
+            interrupt_check()
+            return review_fixture(sections[0])
+        with patch.object(remote, "_git", return_value=fake_git):
+            with self.assertRaises(remote.RemoteReviewError):
+                remote.compute_worker(
+                    TICKET, 0, env=env, store=store,
+                    idle=fairness, analyser=fake_engine)
+        self.assertNotIn(remote._name("res", TICKET, 0), store.payloads)
+        self.assertEqual(store.payloads[remote._name("progress", TICKET, 0)]["state"], "failed")
+
+    def test_worker_rejects_unpinned_revision_before_engine(self):
+        store, _ = self._prepared()
+        env = {**ENV, "INPUT_REVISION": REVISION}
+        bad_git = SimpleNamespace(returncode=0, stdout=("b" * 40 + "\n").encode())
+        with patch.object(remote, "_git", return_value=bad_git):
+            with self.assertRaises(remote.RemoteReviewError):
+                remote.compute_worker(TICKET, 0, env=env, store=store,
+                                      analyser=Mock(), idle=lambda *args: True)
+
+
 class ReviewServiceRoutingTests(unittest.TestCase):
     def test_successful_remote_result_is_cached_without_local_engine(self):
         with patch.object(chess_play, "analyse_game_moves") as engine:
