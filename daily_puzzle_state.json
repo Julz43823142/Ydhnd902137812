@@ -149,21 +149,34 @@
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_id": 1560189424875348008,
-    "attempted_users": {},
+    "message_id": 1560194259368288287,
+    "attempted_users": {
+      "442597396195704832": {
+        "name": "Thice",
+        "move": "B4",
+        "correct": false,
+        "timestamp": "2026-10-15T07:34:58.313283+00:00"
+      }
+    },
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1560189424875348008
+      "1468320170891022417": 1560194259368288287
     },
     "channel_id": 1468320170891022417,
     "board_attachment_filenames": {
-      "1468320170891022417": "daily_puzzle.png"
+      "1468320170891022417": "random_puzzle.png"
     },
-    "chat_since_refresh": 0
+    "chat_since_refresh": 0,
+    "last_card_activity_at": "2026-10-15T07:34:58.307414+00:00",
+    "recent_accepted_moves": [],
+    "wrong_attempt_counts": {
+      "442597396195704832": 1
+    },
+    "last_feedback": "❌ **Bad news, Thice: you found the best move in a completely different position.**\n↪️ **Move played:** `B4`"
   },
   "lichess_rating_used": {
     "2000": [
