@@ -1,0 +1,83 @@
+name: Ordinary Game Review (idle isolated runners)
+
+on:
+  workflow_dispatch:
+    inputs:
+      ticket:
+        description: "Opaque encrypted review request ID"
+        required: true
+        type: string
+      revision:
+        description: "Pinned 40-char coordinator SHA"
+        required: true
+        type: string
+
+# Only one ordinary review may reserve capacity at a time. Fair Play does
+# not share this group; it is always allowed to schedule its own workers.
+concurrency:
+  group: ordinary-game-review-remote
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  ordinary-review:
+    if: github.ref == 'refs/heads/main'
+    name: Ordinary review shard ${{ matrix.shard }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 13
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        shard: [0, 1]
+    env:
+      # Separate cryptographic derivation and git ref from Fair Play evidence.
+      FAIRPLAY_DISTRIBUTED_KEY: ${{ secrets.FAIRPLAY_DISTRIBUTED_KEY || secrets.FAIRPLAY_CHECKPOINT_KEY || secrets.DISCORD_TOKEN }}
+      GITHUB_TOKEN: ${{ github.token }}
+      GITHUB_REPOSITORY: ${{ github.repository }}
+      INPUT_TICKET: ${{ inputs.ticket }}
+      INPUT_REVISION: ${{ inputs.revision }}
+      INPUT_SHARD: ${{ matrix.shard }}
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - name: Validate opaque workload parameters
+        shell: bash
+        run: |
+          [[ "$INPUT_TICKET" =~ ^[0-9a-f]{24}$ ]] || exit 1
+          [[ "$INPUT_REVISION" =~ ^[0-9a-f]{40}$ ]] || exit 1
+      - name: Checkout requesting bot's immutable review code
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.revision }}
+          filter: blob:none
+          sparse-checkout: |
+            /*.py
+            /scripts/
+            /requirements.txt
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1
+          persist-credentials: true
+      - name: Verify code SHA
+        run: test "$(git rev-parse HEAD)" = "$INPUT_REVISION"
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+      - name: Install compute-only dependencies
+        run: python -m pip install python-chess requests cryptography
+      - uses: actions/cache@v4
+        with:
+          path: /tmp/stockfish19-official-pgo/Stockfish/src/stockfish
+          key: stockfish-${{ runner.os }}-${{ runner.arch }}-edb0d9db6731067ec50ce619ff372b463bc4dd5d-pgo-v1
+      - name: Prepare official pinned Stockfish 19
+        env:
+          STOCKFISH_PATH: /tmp/stockfish19-official-pgo/Stockfish/src/stockfish
+        run: python scripts/prepare_stockfish.py --github-env --profile-build
+      - name: Review shard using encrypted work packets
+        run: python scripts/ordinary_review_compute_worker.py
