@@ -339,7 +339,7 @@ def add_selective_policy_fields(embed,result):
         embed.add_field(name='Human alternative coverage',inline=False,value=(
             f"Comparable decisions: {coverage['comparable']} / {coverage['eligible']}\n"
             f"Below required probability coverage: {coverage['low_mass']} · "
-            f"Missing exact paired searches: {coverage['incomplete']}\n"
+            f"Missing exact paired searches: {coverage['incomplete']} · Invalid comparisons: {coverage['invalid']}\n"
             f"Median known human probability mass: {percentage(coverage['median_mass'])}\n"
             'Up to twelve extra alternatives target 90% probability mass. Unknown alternatives remain optimistically bounded; missing data is not normal play.'))
     episodes=result.diagnostics.get('selective_policy_episodes') or {}
@@ -349,7 +349,8 @@ def add_selective_policy_fields(embed,result):
             f"Fixed blocks examined: {episodes['blocks_examined']} · "
             f"Deep-confirmed contributor games: {episodes['deep_contributor_games']}\n"
             f"Replicated MODERATE route: {'PASS' if best.get('passed') else 'Not established'}\n"
-            'Fast-selected six-decision blocks retain misses and require paired deep confirmation across six games. This route cannot create HIGH. Rare moves alone are not evidence.'))
+            'Fast-selected six-decision blocks retain misses and require paired deep confirmation across six games. This route cannot create HIGH. Rare moves alone are not evidence.\n'
+            + 'Missing checks: ' + ('; '.join(k for k,v in best.get('gates',{}).items() if not v)[:300] or 'None in the selected period' if best else 'No eligible period')))
 
 
 def detail_embed(result, mode):

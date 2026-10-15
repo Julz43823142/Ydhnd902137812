@@ -178,7 +178,7 @@ class CheckpointTests(unittest.TestCase):
         seen=[]
         def search(scanner, decision, nodes):
             seen.append(nodes)
-            return {"nodes":nodes,"scores":{},"search_contract":{
+            return {"nodes":nodes,"scores":{move:0 for move in fairplay_policy.alternatives(decision)},"search_contract":{
                 "mode":"nodes","requested":nodes,"completed":True,"exact":True}}
         with patch.object(fairplay_policy,"search_alternatives",side_effect=search), \
              patch("fairplay_maia.refresh_game"), \
@@ -200,6 +200,14 @@ class CheckpointTests(unittest.TestCase):
                 fast=True,checkpoint=second,target="privateaccount")
             self.assertTrue(two["complete"])
             self.assertEqual(len(seen),1)
+            # A changed adaptive probability plan must not reuse an incomplete
+            # subset even with the same position and engine budget.
+            new.decisions[0].human_policy={m:(.90 if m=='e2e4' else .10/(len(legal)-1)) for m in legal}
+            three=fairplay_policy.complete([new],CONFIG.fast_nodes,
+                ScanDeadline(time.monotonic()+60),scanner=object(),
+                fast=True,checkpoint=second,target="privateaccount")
+            self.assertTrue(three["complete"])
+            self.assertEqual(len(seen),2)
 
     def test_remote_branch_survives_ephemeral_worker(self):
         bare = Path(self.temp.name) / "remote.git"
