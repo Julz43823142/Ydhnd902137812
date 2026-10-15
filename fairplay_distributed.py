@@ -187,13 +187,22 @@ class EncryptedGitStore:
     or arbitrary input paths ever become a command, log, branch or filename.
     A fresh git tree preserves other workers' files on every retry.
     """
-    def __init__(self,secret,remote="origin"):
+    def __init__(self,secret,remote="origin",*,branch=BRANCH,
+                 filename_pattern=_FILENAME,encoder=pack,decoder=unpack):
         self.secret=secret
         self.remote=remote
+        # Bounded alternate namespaces reuse proven fast-forward encrypted
+        # transport without making ordinary review packets Fair Play evidence.
+        if branch not in (BRANCH, "ordinary-review-distributed-work"):
+            raise ReviewError("Invalid encrypted compute branch.")
+        self.branch=branch
+        self.filename_pattern=filename_pattern
+        self.encoder=encoder
+        self.decoder=decoder
         self._fetched_head=None
 
     def _head(self):
-        exists=_git(["ls-remote","--heads",self.remote,BRANCH])
+        exists=_git(["ls-remote","--heads",self.remote,self.branch])
         if exists.returncode!=0:
             raise ReviewError("Compute exchange git remote unavailable.")
         if not exists.stdout.strip():
@@ -203,18 +212,17 @@ class EncryptedGitStore:
         # Only the current tree is needed. Force updates this LOCAL tracking
         # ref across shallow boundaries; remote writes remain non-forced CAS.
         fetch=_git(["fetch","--depth=1","--no-tags","-q",self.remote,
-                    f"+refs/heads/{BRANCH}:refs/remotes/{self.remote}/{BRANCH}"])
+                    f"+refs/heads/{self.branch}:refs/remotes/{self.remote}/{self.branch}"])
         if fetch.returncode:
             raise ReviewError("Cannot fetch encrypted compute exchange.")
-        head=_git(["rev-parse",f"refs/remotes/{self.remote}/{BRANCH}"])
+        head=_git(["rev-parse",f"refs/remotes/{self.remote}/{self.branch}"])
         if head.returncode or not re.fullmatch(rb"[0-9a-f]{40}",head.stdout.strip()):
             raise ReviewError("Invalid encrypted compute exchange revision.")
         self._fetched_head=head.stdout.decode().strip()
         return self._fetched_head
 
-    @staticmethod
-    def _filename(name):
-        if not isinstance(name,str) or _FILENAME.fullmatch(name) is None:
+    def _filename(self,name):
+        if not isinstance(name,str) or self.filename_pattern.fullmatch(name) is None:
             raise ReviewError("Invalid encrypted compute filename.")
         return name
 
@@ -226,7 +234,7 @@ class EncryptedGitStore:
         for name in names:
             data=_git(["show",f"{head}:{name}"])
             if data.returncode==0:
-                result[name]=unpack(data.stdout,self.secret)
+                result[name]=self.decoder(data.stdout,self.secret)
         return result
 
     def put(self,name,payload):
@@ -236,7 +244,7 @@ class EncryptedGitStore:
         hashes={}
         for name,payload in payloads.items():
             self._filename(name)
-            blob=_git(["hash-object","-w","--stdin"],pack(payload,self.secret))
+            blob=_git(["hash-object","-w","--stdin"],self.encoder(payload,self.secret))
             if blob.returncode or not re.fullmatch(rb"[0-9a-f]{40}",blob.stdout.strip()):
                 raise ReviewError("Cannot record encrypted compute artifact.")
             hashes[name]=blob.stdout.decode().strip()
@@ -251,7 +259,7 @@ class EncryptedGitStore:
                     meta,_,filename=row.partition("\t")
                     parts=meta.split()
                     if (len(parts)!=3 or parts[0]!="100644" or
-                            parts[1]!="blob" or _FILENAME.fullmatch(filename) is None):
+                            parts[1]!="blob" or self.filename_pattern.fullmatch(filename) is None):
                         raise ReviewError("Unexpected contents in encrypted compute ref.")
                     entries[filename]=parts[2]
             entries.update(hashes)
@@ -273,7 +281,7 @@ class EncryptedGitStore:
             if commit.returncode:
                 raise ReviewError("Cannot commit encrypted compute snapshot.")
             push=_git(["push","-q",self.remote,
-                       f"{commit.stdout.decode().strip()}:refs/heads/{BRANCH}"])
+                       f"{commit.stdout.decode().strip()}:refs/heads/{self.branch}"])
             if push.returncode==0:return True
             # One worker may have pushed between fetch and push.
             time.sleep(min(.15*(attempt+1),1.5) + secrets.randbelow(250)/1000)
@@ -291,7 +299,7 @@ class EncryptedGitStore:
             for row in tree.stdout.decode("utf-8").splitlines():
                 meta,_,filename=row.partition("\t")
                 parts=meta.split()
-                if len(parts)==3 and _FILENAME.fullmatch(filename):
+                if len(parts)==3 and self.filename_pattern.fullmatch(filename):
                     entries[filename]=parts[2]
             if not any(name in entries for name in names):return
             for name in names:entries.pop(name,None)
@@ -303,7 +311,7 @@ class EncryptedGitStore:
                          "Expire completed encrypted compute shards","-p",head])
             if commit.returncode:return
             if _git(["push","-q",self.remote,
-                     f"{commit.stdout.decode().strip()}:refs/heads/{BRANCH}"]).returncode==0:
+                     f"{commit.stdout.decode().strip()}:refs/heads/{self.branch}"]).returncode==0:
                 return
             time.sleep(min(.15*(attempt+1),1.5) + secrets.randbelow(250)/1000)
 
@@ -320,7 +328,9 @@ def artifact_name(kind,ticket,index=None):
     if not re.fullmatch(r"[0-9a-f]{24}",ticket):
         raise ReviewError("Invalid distributed review ID.")
     name=f"{kind}_{ticket}"+(f"_{index}" if index is not None else "")+".enc"
-    return EncryptedGitStore._filename(name)
+    if _FILENAME.fullmatch(name) is None:
+        raise ReviewError("Invalid encrypted compute filename.")
+    return name
 
 
 
