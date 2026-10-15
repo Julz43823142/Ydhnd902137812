@@ -57,7 +57,7 @@ def review_cache_key(
         "version": REVIEW_SERVICE_VERSION,
         "engine_path": engine_path,
         "engine_binary_stamp": engine_binary_stamp,
-        "analysis_version": "ordinary-review-v6",
+        "analysis_version": "ordinary-review-v7",
         "stockfish_revision": chess_play.STOCKFISH_SOURCE_REVISION,
         "stockfish_required_major": chess_play.STOCKFISH_REQUIRED_MAJOR,
         "engine_depth": chess_play.STOCKFISH_GAME_REVIEW_DEPTH,
