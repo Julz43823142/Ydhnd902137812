@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/yWKHB",
     "title": "Lichess • 2498",
     "fen": "r4rk1/p2Q1ppp/1q2p3/1B2Pb2/8/2N2P2/PP4PP/R1B4K b - - 2 18",
-    "current_fen": "r4rk1/p2Q1ppp/1q2p3/1B2Pb2/8/2N2P2/PP4PP/R1B4K b - - 2 18",
-    "last_move_uci": "g1h1",
+    "current_fen": "r2r2k1/p4ppp/1qQ1p3/1B2Pb2/8/2N2P2/PP4PP/R1B4K b - - 4 19",
+    "last_move_uci": "d7c6",
     "pgn": "Rfd8 Qc6 Qf2",
     "all_moves": [
       {
@@ -43,26 +43,59 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_yWKHB_1792076103632",
-    "last_activity_at": "2026-10-15T14:55:03.632450+00:00",
+    "last_activity_at": "2026-10-15T14:56:03.112948+00:00",
     "rating": 2498,
     "rp_band": 4,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
-    "message_ids": {},
-    "message_id": null,
+    "message_ids": {
+      "1468320170891022417": 1560305260960948255
+    },
+    "message_id": 1560305260960948255,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "attempted_users": {
+      "442597396195704832": {
+        "name": "Thice",
+        "move": "rfd8",
+        "correct": true,
+        "timestamp": "2026-10-15T14:56:03.113618+00:00"
+      }
+    },
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "board_attachment_filenames": {
+      "1468320170891022417": "random_puzzle.png"
+    },
+    "last_card_activity_at": "2026-10-15T14:56:03.112948+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1792076163.1136236,
+        "fen_before": "r4rk1/p2Q1ppp/1q2p3/1B2Pb2/8/2N2P2/PP4PP/R1B4K b - - 2 18",
+        "expected": {
+          "uci": "f8d8",
+          "san": "Rfd8",
+          "color": "black"
+        },
+        "accepted_uci": "f8d8"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "Rfd8",
+        "uci": "f8d8",
+        "principal": true
+      }
+    ],
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Qc6"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
