@@ -1031,6 +1031,7 @@ class FairPlayService:
         self.workers = []
         self.idle_task = None
         self.pool_warm_task = None
+        self.auto = None
         self.closed = False
 
     def note_human(self):self.last_human = time.time()
@@ -1235,6 +1236,9 @@ class FairPlayService:
                 self.expire_cache()
                 if getattr(self,'checkpoints',None) is not None:
                     await asyncio.to_thread(self.checkpoints.finish,job.target)
+                if self.auto is not None:
+                    try:await self.auto.completed(job.target)
+                    except Exception:pass  # report delivery remains successful
             elif not job.cancel_requested:
                 await self.save_failure(job,ReviewError(
                     'Discord report delivery failed after full analysis.'))
@@ -1373,7 +1377,7 @@ class FairPlayService:
         self.closed = True
         for job in self.jobs.values():job.stop.set()
         tasks=[]
-        for task in [self.idle_task,self.pool_warm_task,*self.workers,self.worker]:
+        for task in [self.idle_task,self.pool_warm_task,getattr(self.auto,"task",None),*self.workers,self.worker]:
             if task and task not in tasks:tasks.append(task)
         for task in tasks:
             if not task.done():task.cancel()
@@ -1466,6 +1470,9 @@ async def startup(client):
         # No account names or case details in the deployment logs.
         if _service.jobs:
             print(f'Fair Play: restoring {len(_service.jobs)} encrypted scan checkpoint(s).',flush=True)
+    from fairplay_auto import AutoRescanner
+    _service.auto = AutoRescanner(_service)
+    _service.auto.task = asyncio.create_task(_service.auto.run(), name='fairplay-auto')
     async def warm_engine_pool():
         try:
             pool=await asyncio.to_thread(get_shared_engine_pool)
