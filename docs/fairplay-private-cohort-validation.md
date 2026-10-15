@@ -54,4 +54,18 @@ coverage counts; no failure is fabricated as LOW. Compare recall, false-positive
 rate, abstentions and ranking, not just accuracy on an artificially balanced set.
 A gain on development cases alone is not evidence of general improvement.
 
+The report includes pairwise ranking AUC separately for development and holdout:
+the fraction of positive/normal research-index pairs ordered correctly, with
+half credit for ties. Missing, non-finite and boolean indices do not become
+zeroes. The number of available scores and pairs accompanies each value; no
+ranking is reported without both classes. This is descriptive on the supplied
+cohort, not a misconduct probability or a population accuracy estimate.
+
+Legacy binary metrics retain their existing semantics for consumers. Use the
+additional `decided_high_cutoff` to exclude `INSUFFICIENT DATA` from classified
+cases: an unclassified normal is not a correct LOW. Use
+`end_to_end_high_cutoff` to include failures in the requested-case denominators;
+a failed positive scan cannot disappear and inflate apparent sensitivity.
+Read these alongside coverage, recall and false-positive rate.
+
 No scoring gates, model weights or production thresholds change in this patch.
