@@ -33,7 +33,8 @@ class ClassificationProvenance(unittest.TestCase):
         self.assertEqual(result["analysed_plies"], 3)
         self.assertEqual(result["engine_configuration"]["depth"], 18)
         self.assertIn("not Chess.com", result["accuracy_provenance"])
-        self.assertTrue(all(row["classification"] != "book" for row in result["moves"]))
+        self.assertEqual(result["moves"][0]["classification"], "book")
+        self.assertGreaterEqual(result["white"]["books"], 1)
 
 
 if __name__ == "__main__":

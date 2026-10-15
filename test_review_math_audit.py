@@ -27,7 +27,7 @@ class GameReviewEvaluationAudit(unittest.TestCase):
         self.assertEqual(result["black"]["accuracy"], 100)
         self.assertEqual(result["skipped_plies"], 0)
         self.assertEqual(result["analysed_plies"], 4)
-        self.assertEqual(result["analysis_version"], "ordinary-review-v7")
+        self.assertEqual(result["analysis_version"], "ordinary-review-v8")
         self.assertGreaterEqual(result["analysis_elapsed_seconds"], 0)
 
     def test_checkmate_has_sensible_terminal_metrics(self):

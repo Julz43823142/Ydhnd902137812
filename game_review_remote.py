@@ -25,7 +25,7 @@ from fairplay_checkpoint import _git
 BRANCH = "ordinary-review-distributed-work"
 WORKFLOW = "ordinary_review_distributed.yml"
 SCHEMA = "sharkbot-ordinary-review-shards-v1"
-ENGINE_VERSION = "ordinary-review-v7"
+ENGINE_VERSION = "ordinary-review-v8"
 MAX_WORKERS = 2
 MIN_REMOTE_PLIES = 80
 MAX_REMOTE_PLIES = 600

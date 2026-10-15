@@ -10,6 +10,7 @@ import threading
 import time
 
 import chess
+from ordinary_review_opening import is_known_opening_move
 import chess.engine
 
 CHESS_PLAY_BUILD = "chess-play-v1-elo-bot-pvp-2026-09-05"
@@ -663,58 +664,47 @@ def _population_stddev(values):
 
 
 def _game_accuracy_from_moves(move_rows, position_white_win_pcts, color):
-    """Lichess-style game accuracy: volatility-weighted + harmonic mean.
+    """Bounded, CAPS2-inspired estimate, not a reproduction of Chess.com.
 
-    This avoids the old ACPL exponential that could turn one bad tactical game
-    into single-digit accuracy.  It also avoids repeatedly punishing moves in a
-    position whose practical outcome was already decided.
+    Chess.com does not publish the CAPS2 formula. Its scores have a more
+    human-readable range than the Lichess volatility/harmonic combination.
+    Use a simple arithmetic/volatility blend instead of a harmonic mean,
+    which collapses to zero when a single move has 0% accuracy.
+    Exclude documented Book moves from scoring, since these are theory
+    labels rather than independent evidence of engine-quality play.
     """
     rows = list(move_rows or [])
     if not rows:
         return 0.0
 
+    selected = [
+        (i, max(0.0, min(100.0, float(row.get("move_accuracy", 0.0)))))
+        for i, row in enumerate(rows)
+        if row.get("mover_color") == color and row.get("classification") != "book"
+    ]
+    if not selected:
+        # A side that played only verified opening theory did not make any
+        # assessed out-of-book decisions.
+        return 100.0 if any(row.get("mover_color") == color for row in rows) else 0.0
+
     positions = [float(v) for v in list(position_white_win_pcts or [])]
-    expected_positions = len(rows) + 1
-    if len(positions) < expected_positions:
-        # Safe fallback for malformed/truncated internal data.
-        selected = [float(r.get("move_accuracy", 0.0)) for r in rows if r.get("mover_color") == color]
-        if not selected:
-            return 0.0
-        return round(sum(selected) / len(selected), 1)
+    arithmetic = sum(accuracy for _, accuracy in selected) / len(selected)
+    if len(positions) < len(rows) + 1:
+        return round(arithmetic, 1)
 
-    ply_count = len(rows)
-    window_size = max(2, min(8, ply_count // 10))
-    window_size = min(window_size, len(positions))
-
-    if window_size < 2:
-        weights = [1.0] * ply_count
-    else:
-        first = positions[:window_size]
-        windows = [first] * max(0, window_size - 2)
-        windows.extend(positions[i:i + window_size] for i in range(0, len(positions) - window_size + 1))
-        if len(windows) < ply_count:
-            windows.extend([positions[-window_size:]] * (ply_count - len(windows)))
-        weights = [max(0.5, min(12.0, _population_stddev(window))) for window in windows[:ply_count]]
-
-    pairs = []
-    for index, row in enumerate(rows):
-        if row.get("mover_color") != color:
-            continue
-        accuracy = max(0.0, min(100.0, float(row.get("move_accuracy", 0.0))))
-        pairs.append((accuracy, float(weights[index] if index < len(weights) else 1.0)))
-
-    if not pairs:
-        return 0.0
-
-    weight_sum = sum(weight for _, weight in pairs)
-    weighted = sum(accuracy * weight for accuracy, weight in pairs) / max(1e-9, weight_sum)
-
-    if any(accuracy <= 0.0 for accuracy, _ in pairs):
-        harmonic = 0.0
-    else:
-        harmonic = len(pairs) / sum(1.0 / accuracy for accuracy, _ in pairs)
-
-    return round(max(0.0, min(100.0, (weighted + harmonic) / 2.0)), 1)
+    window_size = min(8, max(2, len(rows) // 10))
+    first = positions[:window_size]
+    windows = [first] * max(0, window_size - 2)
+    windows.extend(positions[i:i + window_size] for i in range(len(positions) - window_size + 1))
+    if len(windows) < len(rows):
+        windows.extend([positions[-window_size:]] * (len(rows) - len(windows)))
+    weights = [max(0.5, min(12.0, _population_stddev(window))) for window in windows[:len(rows)]]
+    total_weight = sum(weights[index] for index, _ in selected)
+    volatility_weighted = (
+        sum(accuracy * weights[index] for index, accuracy in selected)
+        / max(1e-9, total_weight)
+    )
+    return round(max(0.0, min(100.0, (arithmetic + volatility_weighted) / 2.0)), 1)
 
 
 _REVIEW_PIECE_VALUES_CP = {
@@ -803,8 +793,8 @@ def _detailed_move_classification(
     if brilliant_ok:
         return "brilliant"
 
-    # No opening database is consulted by this review.  An early engine move
-    # is not proof of book theory, so never fabricate a Book label.
+    # Book is assigned only by the separate, verified offline opening
+    # reference in analyse_game_moves, never by this engine-only classifier.
 
     # Great = a strong only-move-ish engine choice: the best move is clearly
     # better than the runner-up, without qualifying as a Brilliant sacrifice.
@@ -922,6 +912,8 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
     if not board.is_valid() or board.is_game_over(claim_draw=False):
         raise ValueError("The review needs a valid, playable starting position.")
     allow_book = not bool(chess960) and board.fen() == chess.STARTING_FEN
+    opening_prefix = []
+    opening_active = allow_book
 
     side_losses_cp = {chess.WHITE: [], chess.BLACK: []}
     side_counts = {
@@ -977,6 +969,9 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
             except Exception as error:
                 raise ValueError(f"Could not parse recorded chess move {san!r}: {error}") from error
 
+            is_book_move = opening_active and is_known_opening_move(opening_prefix, played_move.uci())
+            opening_active = bool(is_book_move)
+            opening_prefix.append(played_move.uci())
             captured_cp = _captured_material_cp(board, played_move)
             # A move forced by the rules cannot earn a Brilliant sacrifice.
             has_alternative = len(list(board.legal_moves)) > 1
@@ -1052,6 +1047,8 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
                 ply_index=ply_index,
                 allow_book=allow_book,
             )
+            if is_book_move:
+                classification = "book"
             side_counts[mover][classification] += 1
 
             move_label = f"{move_number}." if mover == chess.WHITE else f"{move_number}..."
@@ -1119,7 +1116,7 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
         "analysis_time_per_position": None,
         "analysis_elapsed_seconds": round(time.perf_counter() - started_at, 3),
         "initial_white_win_pct": position_white_win_pcts[0],
-        "analysis_version": "ordinary-review-v7",
+        "analysis_version": "ordinary-review-v8",
         "requested_plies": requested_plies,
         "skipped_plies": max(0, requested_plies - len(moments)),
         "accuracy_provenance": "SharkBot estimate (not Chess.com Accuracy)",
@@ -1128,8 +1125,8 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
             "threads": STOCKFISH_THREADS,
             "hash_mb": STOCKFISH_HASH_MB,
         },
-        "accuracy_model": "lichess-published-win-chance-v6-equal-root-budget",
-        "classification_model": "expected-points-v4-no-invented-book",
+        "accuracy_model": "ordinary-review-arithmetic-volatility-v1-caps2-inspired",
+        "classification_model": "expected-points-v5-cc0-theory-prefix",
         "brilliant_model": "local-net-sacrifice-v3-no-forced",
     }
 
