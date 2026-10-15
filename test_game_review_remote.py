@@ -301,5 +301,26 @@ class AtomicCapacityTests(unittest.TestCase):
                 self.assertNotIn(b"secret-PGN", show.stdout)
 
 
+class ReviewServiceRoutingTests(unittest.TestCase):
+    def test_successful_remote_result_is_cached_without_local_engine(self):
+        with patch.object(chess_play, "analyse_game_moves") as engine:
+            service = GameReviewService()
+            with patch("game_review_remote.try_remote_review",
+                       return_value={"moves": [], "review_compute": "remote"}) as worker:
+                self.assertEqual(service.analyse(["e4"])["review_compute"], "remote")
+                self.assertEqual(service.analyse(["e4"])["review_compute"], "remote")
+                worker.assert_called_once()
+                engine.assert_not_called()
+
+    def test_remote_failure_uses_local_engine_then_caches_fallback(self):
+        with patch.object(chess_play, "analyse_game_moves", return_value={"moves": []}) as engine:
+            service = GameReviewService()
+            with patch("game_review_remote.try_remote_review", return_value=None) as worker:
+                self.assertEqual(service.analyse(["e4"]), {"moves": []})
+                self.assertEqual(service.analyse(["e4"]), {"moves": []})
+                worker.assert_called_once()
+                engine.assert_called_once()
+
+
 if __name__ == "__main__":
     unittest.main()
