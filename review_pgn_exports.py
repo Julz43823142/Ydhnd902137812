@@ -92,7 +92,11 @@ def export_review_pgn(
             if clock is not None and math.isfinite(clock) and clock >= 0:
                 destination.set_clock(clock)
         if mode is PgnExportMode.CLOCKS_AND_ANALYSIS and ply in clean_labels:
-            destination.comment = clean_labels[ply]
+            # set_clock() adds [%clk] to the same comment. Append labels instead
+            # of overwriting the genuine clock annotation.
+            destination.comment = (
+                f"{destination.comment} {clean_labels[ply]}".strip()
+            )
 
     needs_position_headers = any(
         key in exported.headers for key in ("SetUp", "FEN", "Variant")
