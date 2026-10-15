@@ -87,7 +87,20 @@ class GameReviewService:
         self._hits = 0
         self._misses = 0
 
-    def analyse(self, san_moves, max_plies=None, start_fen=None, chess960=False):
+    def analyse(self, san_moves, max_plies=None, start_fen=None, chess960=False, *, progress_callback=None):
+        wall_started = time.monotonic()
+        remote_dispatched = [False]
+
+        def emit(data):
+            if data.get("stage") == "remote-dispatched":
+                remote_dispatched[0] = True
+            if progress_callback is not None:
+                try:
+                    progress_callback(data)
+                except Exception:
+                    # Display failures cannot break engine analysis or fallback.
+                    pass
+
         moves = tuple(str(m) for m in san_moves)
         key = review_cache_key(moves, max_plies, start_fen, chess960)
         now = self._clock()
@@ -96,7 +109,13 @@ class GameReviewService:
             if cached is not None and now - cached[0] <= self._ttl_seconds:
                 self._cache.move_to_end(key)
                 self._hits += 1
-                return deepcopy(cached[1])
+                ready = deepcopy(cached[1])
+                if progress_callback is not None:
+                    emit({"stage": "cache", "completed": len(ready.get("moves", [])),
+                          "total": max(1, len(ready.get("moves", [])))})
+                    ready["review_cache_hit"] = True
+                    ready["review_total_elapsed_seconds"] = round(time.monotonic() - wall_started, 3)
+                return ready
             if cached is not None:
                 self._cache.pop(key, None)
             future = self._in_flight.get(key)
@@ -109,19 +128,51 @@ class GameReviewService:
                 self._hits += 1
 
         if not owner:
-            return deepcopy(future.result())
+            emit({"stage": "shared", "completed": 0, "total": max(1, len(moves))})
+            ready = deepcopy(future.result())
+            if progress_callback is not None:
+                ready["review_cache_hit"] = True
+                ready["review_total_elapsed_seconds"] = round(time.monotonic() - wall_started, 3)
+            return ready
 
         try:
             result = None
-            if self._analyser is chess_play.analyse_game_moves:
-                # Remote work is opportunistic only. Fair Play can preempt it,
-                # and a failed/slow dispatch always falls back to local depth-18.
+            remote_seconds = 0.0
+            local_seconds = 0.0
+            default_engine = self._analyser is chess_play.analyse_game_moves
+            if default_engine:
+                # Remote work is opportunistic only. Fair Play has priority;
+                # on unavailable/invalid remote results use local depth-18.
                 from game_review_remote import try_remote_review
-                result = try_remote_review(moves, max_plies, start_fen, chess960)
+                remote_start = time.monotonic()
+                if progress_callback is None:
+                    result = try_remote_review(moves, max_plies, start_fen, chess960)
+                else:
+                    result = try_remote_review(moves, max_plies, start_fen, chess960,
+                                               progress_callback=emit)
+                remote_seconds = time.monotonic() - remote_start
             if result is None:
-                result = self._analyser(moves, max_plies, start_fen, chess960)
-            # Never retain source PGN, clocks or mutable game metadata.
+                if remote_dispatched[0]:
+                    emit({"stage": "remote-fallback", "completed": 0,
+                          "total": max(1, len(moves))})
+                local_start = time.monotonic()
+                if progress_callback is not None and default_engine:
+                    result = self._analyser(moves, max_plies, start_fen, chess960,
+                                            progress_callback=emit)
+                else:
+                    result = self._analyser(moves, max_plies, start_fen, chess960)
+                local_seconds = time.monotonic() - local_start
+            # Status-only metadata must never be mixed into analysis inputs.
             safe_result = deepcopy(result)
+            if progress_callback is not None:
+                safe_result["review_cache_hit"] = False
+                safe_result["review_remote_dispatched"] = bool(remote_dispatched[0])
+                safe_result["review_remote_seconds"] = round(remote_seconds, 3)
+                safe_result["review_local_seconds"] = round(local_seconds, 3)
+                safe_result["review_total_elapsed_seconds"] = round(time.monotonic() - wall_started, 3)
+                if "review_compute" not in safe_result:
+                    safe_result["review_compute"] = ("local-fallback" if remote_dispatched[0]
+                                                     else "local-stockfish-19")
         except BaseException as exc:
             with self._lock:
                 self._in_flight.pop(key, None)
