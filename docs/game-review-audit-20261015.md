@@ -89,7 +89,7 @@ is intentionally *not* activated or approximated with unsafe retries.
 No Fair Play workflow, priority or cancellation behavior was changed.
 
 The new `scripts/benchmark_normal_review.py` records measured local
-depth-18 and cache-hit timing for a synthetic six-ply game on the same
+depth-18 and cache-hit timing for a synthetic two-ply game on the same
 real Stockfish runner in PR CI. It **does not** claim remote throughput.
 A future independent remote-review service would require its own job type,
 authenticated schema, fairness scheduling, bounded requests, retries,
