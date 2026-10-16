@@ -18566,6 +18566,13 @@ async def on_message(
         if message.author.bot:
             return
 
+        # Fairplay is isolated from AI, confirmations, chess and economy routing.
+        # Dispatch it first, including for guild-less test messages.
+        if message.channel.id == FAIRPLAY_CHANNEL_ID:
+            from fairplay_ui import handle_message
+            await handle_message(message)
+            return
+
         # Natural-language commands always run as the original author through
         # the original on_message handler, preserving all gameplay/coin checks.
         from shark_commands import consume_confirmation
@@ -18593,11 +18600,6 @@ async def on_message(
                 await message.reply("That command cannot be started here.", mention_author=False, allowed_mentions=discord.AllowedMentions.none())
             return
         if routed:
-            return
-
-        if message.channel.id==FAIRPLAY_CHANNEL_ID:
-            from fairplay_ui import handle_message
-            await handle_message(message)
             return
 
         # Human activity in the Ideas channel or one of its ticket threads resets
