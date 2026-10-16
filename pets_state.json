@@ -631,6 +631,17 @@
             "owner_name": "Thice"
           }
         ],
+        "puzzle": {
+          "day": "2026-10-16",
+          "fen": "8/8/p4k1p/1p1Pp3/1P1pPpPP/P4B2/2b3K1/8 b - - 0 43",
+          "id": "IgPVs",
+          "index": 0,
+          "moves": [
+            "d4d3",
+            "g2f1",
+            "d3d2"
+          ]
+        },
         "rarity": "common",
         "species": "Cat",
         "xp": 0
