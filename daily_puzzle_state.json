@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/nwwu8",
     "title": "Lichess • 2088",
     "fen": "5nk1/1pq2ppp/2pb3B/3p4/p2P2Q1/2P4P/PP1N1PP1/4K3 b - - 2 22",
-    "current_fen": "5nk1/1pq2ppp/2pb3B/3p4/p2P2Q1/2P4P/PP1N1PP1/4K3 b - - 2 22",
-    "last_move_uci": "g5h6",
+    "current_fen": "5nk1/1pq3pp/2pb3B/3p1Q2/p2P4/2P4P/PP1N1PP1/4K3 b - - 0 23",
+    "last_move_uci": "g4f5",
     "pgn": "f5 Qxf5 gxh6",
     "all_moves": [
       {
@@ -43,44 +43,62 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_nwwu8_1792150447553",
-    "last_activity_at": "2026-10-16T11:34:30.685540+00:00",
+    "last_activity_at": "2026-10-16T11:34:43.011916+00:00",
     "rating": 2088,
     "rp_band": 2,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1560616929696284714
+      "1468320170891022417": 1560616981042831484
     },
-    "message_id": 1560616929696284714,
+    "message_id": 1560616981042831484,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "ng6",
-        "correct": false,
-        "timestamp": "2026-10-16T11:34:30.686046+00:00"
+        "move": "f5",
+        "correct": true,
+        "timestamp": "2026-10-16T11:34:43.012119+00:00"
       }
     },
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
-    "last_card_activity_at": "2026-10-16T11:34:30.685540+00:00",
-    "recent_accepted_moves": [],
+    "last_card_activity_at": "2026-10-16T11:34:43.011916+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1792150483.012126,
+        "fen_before": "5nk1/1pq2ppp/2pb3B/3p4/p2P2Q1/2P4P/PP1N1PP1/4K3 b - - 2 22",
+        "expected": {
+          "uci": "f7f5",
+          "san": "f5",
+          "color": "black"
+        },
+        "accepted_uci": "f7f5"
+      }
+    ],
     "wrong_attempt_counts": {
       "442597396195704832": 1
     },
-    "last_feedback": "❌ **Nope, Thice. you made the board look complicated enough to hide the fact that you were wrong.**\n↪️ **Move played:** `ng6`"
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Qxf5",
+    "accepted_solution_moves": [
+      {
+        "san": "f5",
+        "uci": "f7f5",
+        "principal": true
+      }
+    ]
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
