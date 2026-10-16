@@ -633,9 +633,9 @@
         ],
         "puzzle": {
           "day": "2026-10-16",
-          "fen": "8/8/p4k1p/1p1Pp3/1P1pPpPP/P4B2/2b3K1/8 b - - 0 43",
+          "fen": "8/8/p4k1p/1p1Pp3/1P2PpPP/P2p1B2/2b5/5K2 b - - 1 44",
           "id": "IgPVs",
-          "index": 0,
+          "index": 2,
           "moves": [
             "d4d3",
             "g2f1",
