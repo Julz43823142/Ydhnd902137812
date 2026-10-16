@@ -31,7 +31,7 @@ ALLOWED = frozenset("""
 !rush !puzzlerush !stoprush !survival !stopsurvival
 !practice !random !randompuzzle !rp !puzzlestreak
 !bal !balans !l !m !v !i !dailyb !dailyboard !dailym !dailymove
-!dailychessboard !survivalboard !survivallb !heart !addheart !p
+!dailychessboard !survivalboard !survivallb !p
 """.split())
 
 # Most of these open read-only menus; purchasing a box or adopting a pet still
