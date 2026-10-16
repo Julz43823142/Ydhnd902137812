@@ -8,7 +8,7 @@ PRIVILEGED = frozenset({
     "!addheart", "!heart", "!kill", "!bf2",
 })
 
-async def dispatch_existing_command(message, client, command):
+async def dispatch_existing_command(message, client, command, *, confirmed=False):
     """Schedule a normal Discord message event for a checked command.
 
     This reaches the same listeners as a user typing a command manually.
@@ -16,11 +16,14 @@ async def dispatch_existing_command(message, client, command):
     """
     if not message.guild or not client.user or not _is_chat_channel(message.channel.id):
         return False
-    validated = _parse_command(command, message.content)
+    # Confirmations carry a command validated against the original request.
+    # The follow-up message may contain only 'yes', not the earlier arguments.
+    validated = _parse_command(command, command if confirmed else message.content)
     is_original_pgn = (
         command.startswith("!review ")
         and validated == "!review"
         and len(command) <= 1500
+        and not confirmed
         and command[len("!review "):] in message.content
     )
     if (validated != command and not is_original_pgn) or command.partition(" ")[0].lower() in PRIVILEGED:
