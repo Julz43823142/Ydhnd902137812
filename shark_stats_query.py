@@ -17,10 +17,10 @@ def _safe_name(name):
 
 def _resolve(guild, author, text):
     """Return (id, name), or a user-visible error; never pick ambiguous names."""
-    raw = re.sub(r"^[\\s'\"@]+|[\\s'\"?.!]+$", "", text).strip()
+    raw = re.sub(r"^[\s'\"@]+|[\s'\"?.!]+$", "", text).strip()
     if not raw or raw.casefold() in ME or raw.casefold() == author.display_name.casefold():
         return (author.id, author.display_name)
-    mention = re.fullmatch(r"<@!?(\\d+)>", raw)
+    mention = re.fullmatch(r"<@!?(\d+)>", raw)
     if mention:
         member = guild.get_member(int(mention.group(1)))
         return (member.id, member.display_name) if member else "I couldn't find that player in this server."
@@ -61,19 +61,19 @@ def _pet_totals(user_id):
 
 def _metric(prompt):
     lower = prompt.casefold()
-    if re.search(r"\\b(?:kill(?:ed|s)?|murder(?:ed|s)?|gedood|vermoord|vermoorde|gekild)\\b", lower) and re.search(ANIMALS, lower):
+    if re.search(r"\b(?:kill(?:ed|s)?|murder(?:ed|s)?|gedood|vermoord|vermoorde|gekild)\b", lower) and re.search(ANIMALS, lower):
         return "killed"
-    if re.search(r"\\b(?:coins?|munten|saldo|balance|rijk|rich(?:est)?)\\b", lower):
+    if re.search(r"\b(?:coins?|munten|saldo|balance|rijk|rich(?:est)?)\b", lower):
         return "coins"
-    if re.search(r"\\b(?:badges?|insignes?)\\b", lower):
+    if re.search(r"\b(?:badges?|insignes?)\b", lower):
         return "badges"
-    if re.search(r"\\b(?:pets?|huisdieren?)\\b", lower):
-        if re.search(r"\\b(?:rarest|zeldzaamste)\\b", lower):
+    if re.search(r"\b(?:pets?|huisdieren?)\b", lower):
+        if re.search(r"\b(?:rarest|zeldzaamste)\b", lower):
             return "rarest"
-        if re.search(r"\\b(?:strongest|sterkste)\\b", lower):
+        if re.search(r"\b(?:strongest|sterkste)\b", lower):
             return "strongest"
         return "pets"
-    if re.search(r"\\b(?:points?|punten|score)\\b", lower):
+    if re.search(r"\b(?:points?|punten|score)\b", lower):
         return "points"
     return None
 
@@ -81,25 +81,25 @@ def _metric(prompt):
 def _target(prompt, metric):
     text = prompt.strip()
     patterns = [
-        r"(?:how many|hoeveel)\\s+.+?\\s+(?:did|does|has|have|heeft|hebben)\\s+(.+?)\\s+(?:kill|killed|murder|murdered|gedood|vermoord|gekild)(?:\\s+.*)?$",
-        r"(?:how many|hoeveel)\\s+.+?\\s+(?:does|has|have|heeft|hebben)\\s+(.+?)\\s*(?:have|hebben)?$",
-        r"(?:how many|hoeveel)\\s+.+?\\s+(?:does|has|have|heeft|hebben)\\s+(.+?)$",
-        r"(?:what(?:'s| is)|wat is)\\s+(.+?)['’]s\\s+",
-        r"(?:hoeveel|how many)\\s+.+?\\s+(?:heeft|has|does)\\s+(.+?)$",
-        r"(?:van|of|for|voor)\\s+(.+?)$",
+        r"(?:how many|hoeveel)\s+.+?\s+(?:did|does|has|have|heeft|hebben)\s+(.+?)\s+(?:kill|killed|murder|murdered|gedood|vermoord|gekild)(?:\s+.*)?$",
+        r"(?:how many|hoeveel)\s+.+?\s+(?:does|has|have|heeft|hebben)\s+(.+?)\s*(?:have|hebben)?$",
+        r"(?:how many|hoeveel)\s+.+?\s+(?:does|has|have|heeft|hebben)\s+(.+?)$",
+        r"(?:what(?:'s| is)|wat is)\s+(.+?)['’]s\s+",
+        r"(?:hoeveel|how many)\s+.+?\s+(?:heeft|has|does)\s+(.+?)$",
+        r"(?:van|of|for|voor)\s+(.+?)$",
     ]
     for p in patterns:
         match = re.search(p, text, re.I)
         if match:
             return match.group(1)
     # Possessive: "Thijs's coins" / "Thijs heeft hoeveel coins?"
-    poss = re.search(r"([\\w-]+)['’]s\\s+(?:coins?|pets?|badges?|points?)", text, re.I)
+    poss = re.search(r"([\w-]+)['’]s\s+(?:coins?|pets?|badges?|points?)", text, re.I)
     if poss:
         return poss.group(1)
-    dutch = re.search(r"\\b(?:heeft|has)\\s+([\\w-]+)\\s+(?:\\w+\\s+){0,3}(?:coins?|pets?|badges?|punten|dieren)", text, re.I)
+    dutch = re.search(r"\b(?:heeft|has)\s+([\w-]+)\s+(?:\w+\s+){0,3}(?:coins?|pets?|badges?|punten|dieren)", text, re.I)
     if dutch:
         return dutch.group(1)
-    if re.search(r"\\b(?:i|my|me|ik|mijn|mij)\\b", text, re.I):
+    if re.search(r"\b(?:i|my|me|ik|mijn|mij)\b", text, re.I):
         return "me"
     return None
 
@@ -108,13 +108,13 @@ def answer(prompt, guild, author):
     """Return a factual read-only answer, or None for unrelated messages."""
     metric = _metric(prompt)
     if metric is None or not re.search(
-        r"\\b(?:how many|hoeveel|what|wat|who|wie|which|welke|compare|vergelijk|"
-        r"do|does|did|has|have|heeft|kill|killed|gekild|gedood|murder|vermoord)\\b",
+        r"\b(?:how many|hoeveel|what|wat|who|wie|which|welke|compare|vergelijk|"
+        r"do|does|did|has|have|heeft|kill|killed|gekild|gedood|murder|vermoord)\b",
         prompt, re.I,
     ):
         return None
     lower = prompt.casefold()
-    if metric == "coins" and re.search(r"\\b(?:richest|rijkste|most coins|meeste munten)\\b", lower):
+    if metric == "coins" and re.search(r"\b(?:richest|rijkste|most coins|meeste munten)\b", lower):
         from shared_leaderboard import _current_snapshot, _normalize_entry
         snapshot = _current_snapshot()
         entries = [(uid, _normalize_entry(raw)) for uid, raw in snapshot.items()]
