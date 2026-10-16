@@ -18,9 +18,16 @@ lawful; seek actual permission describing the intended use.
 ## Continuous independent work
 
 [Independent Formula Research](../.github/workflows/independent_formula_research.yml)
-triggers **every five minutes, 24 hours/day**, with a concurrency group that
-prevents simultaneous writes. A run may use up to 48 minutes for engine research
-and has a 59-minute GitHub runner limit. New triggers are pending while an
+is **scheduled every five minutes, 24 hours/day**, at minutes 02, 07, 12,
+etc. UTC to reduce peak-time dispatch contention, with a concurrency group
+that prevents simultaneous writes. A normal run may use up to 48 minutes
+for engine research and has a 59-minute GitHub runner limit.
+
+Updating the independent workflow on `main` also triggers one **immediate
+bootstrap run**, using one original game, the fast Stockfish analysis profile
+and up to seven minutes of engine work. This is a functional startup check,
+not a substitute for the scheduler or a guarantee that enough real analysis
+will finish. It does not collect any Chess.com data. New triggers are pending while an
 earlier run is active, and obsolete pending triggers may be replaced.
 
 **This is near-continuous best-effort scheduling, not a guaranteed 24/7
