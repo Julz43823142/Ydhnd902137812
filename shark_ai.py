@@ -79,7 +79,17 @@ async def _complete(messages, response_format=None):
 
 async def handle_mention(message, client):
     """Return True only if a message was handled as a chat mention."""
-    if not message.guild or not client.user or client.user not in message.mentions:
+    if not message.guild or not client.user:
+        return False
+    from shark_commands import consume_confirmation, dispatch_existing_command
+    confirmed = consume_confirmation(message, client.user.id)
+    if confirmed is True:
+        await message.reply("Cancelled.", mention_author=False, allowed_mentions=discord.AllowedMentions.none())
+        return True
+    if isinstance(confirmed, str):
+        await dispatch_existing_command(message, client, confirmed)
+        return True
+    if client.user not in message.mentions:
         return False
     member = message.guild.me
     if member is None:
@@ -121,14 +131,17 @@ async def handle_mention(message, client):
             return True
         try:
             async with message.channel.typing():
-                # The planner has no bot tools and can only suggest allowlisted commands.
+                # Classification can only suggest a validated public command.
                 from shark_commands import plan_mention
                 routed = await plan_mention(message, prompt, _complete)
-                if routed is not None:
-                    return routed
-                answer, failure = await _complete(messages)
+                if routed is None:
+                    answer, failure = await _complete(messages)
         finally:
             _slots.release()
+        if routed is not None:
+            if isinstance(routed, str):
+                await dispatch_existing_command(message, client, routed)
+            return True
         if failure:
             reply = ("I've reached my chat limit for now. Try again later!" if failure == "limit"
                      else "Can't answer right now. Try again in a bit.")
