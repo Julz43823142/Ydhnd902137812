@@ -44,7 +44,7 @@
       "crown",
       "necklace"
     ],
-    "active": "4c1c616eac9d40aa8966649630f6e735",
+    "active": "93f7026f2e0e4ae587bd180fef05031b",
     "expedition": {
       "end": 1792219383.4944658,
       "hours": 12,
@@ -652,6 +652,25 @@
         "rarity": "common",
         "species": "Cat",
         "xp": 20
+      },
+      {
+        "born_at": 1792184809.6673455,
+        "fed_at": 1792184809.6673455,
+        "happiness": 80,
+        "happy_at": 1792184809.6673455,
+        "id": "93f7026f2e0e4ae587bd180fef05031b",
+        "name": "",
+        "owner_history": [
+          {
+            "action": "Created",
+            "at": 1792184809,
+            "owner_id": "442597396195704832",
+            "owner_name": "Thice"
+          }
+        ],
+        "rarity": "rare",
+        "species": "Wolf",
+        "xp": 0
       }
     ]
   }
