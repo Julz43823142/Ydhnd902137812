@@ -229,6 +229,16 @@ def _is_daily_answer_question(prompt):
     ))
 
 
+def _asks_public_version(prompt: str) -> bool:
+    """Recognize questions about the bot's published release number."""
+    normalized = " ".join(prompt.casefold().split())
+    if not re.search(r"\\b(?:versie|version|versienummer|versionnummer)\\b", normalized):
+        return False
+    if re.search(r"\\b(?:python|stockfish|minecraft|windows|chess960)\\b", normalized):
+        return False
+    return True
+
+
 async def handle_mention(message, client):
     """Return True only if a message was handled as a chat mention."""
     if not message.guild or not client.user:
@@ -290,12 +300,9 @@ async def handle_mention(message, client):
             mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
         )
         return True
-    # Keep the public version factual even without a Groq request.
-    if re.fullmatch(r"(?:hey[ ,]+)?(?:(?:what(?:\u0027s| is)?|which)\s+(?:(?:your|the|sharkbot)\s+)?version(?:\s+(?:are (?:you|u)|is this|is sharkbot|do you run))?|(?:sharkbot\s+)?version|welke\s+versie\s+ben\s+jij|wat\s+is\s+(?:je|jouw)\s+versie)\??", prompt, re.I):
-        await _counted_reply(message,
-            SHARKBOT_VERSION,
-            mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
-        )
+    if _asks_public_version(prompt):
+        await _counted_reply(message, SHARKBOT_VERSION,
+            mention_author=False, allowed_mentions=discord.AllowedMentions.none())
         return True
     # Version number is public; release history and internal changes are not.
     if re.search(
