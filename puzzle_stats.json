@@ -313,14 +313,14 @@
       "current_wrong_streak": 0,
       "elo": 2511.4802416715693,
       "elo_games": 423,
-      "first_solves": 304,
+      "first_solves": 305,
       "max_rating_solved": 2894,
       "name": "Thice",
       "peak_elo": 2595.0716629479043,
       "rated_correct_count": 332,
       "rated_correct_rating_sum": 602185,
       "total": 441,
-      "updated_at": 1792150438,
+      "updated_at": 1792150445,
       "wrong": 70
     },
     "601406103712170014": {
