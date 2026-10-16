@@ -9,7 +9,7 @@ from shark_version import SHARKBOT_VERSION
 
 class ReplyLimitTests(unittest.IsolatedAsyncioTestCase):
     def test_public_version(self):
-        self.assertEqual(SHARKBOT_VERSION, "2.12")
+        self.assertEqual(SHARKBOT_VERSION, "2.13")
 
     def test_short_answer_unchanged(self):
         self.assertEqual(shark_ai._fit_reply("Checkmate!"), "Checkmate!")
@@ -106,7 +106,7 @@ class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
         with patch.dict("os.environ", {"GROQ_API_KEY": ""}):
             handled = await shark_ai.handle_mention(msg, SimpleNamespace(user=bot))
         self.assertTrue(handled)
-        self.assertEqual(replies[0][0], "2.12")
+        self.assertEqual(replies[0][0], "2.13")
         self.assertFalse(replies[0][1]["mention_author"])
 
     async def test_informal_which_version_are_u(self):
@@ -132,7 +132,7 @@ class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
         )
         with patch.dict("os.environ", {"GROQ_API_KEY": ""}):
             self.assertTrue(await shark_ai.handle_mention(msg, SimpleNamespace(user=bot)))
-        self.assertEqual(replies, ["2.12"])
+        self.assertEqual(replies, ["2.13"])
 
     async def test_free_box_claim_uses_authenticated_author(self):
         from shark_commands import PRIMARY_CHESS_CHANNEL_ID
@@ -158,8 +158,8 @@ class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
         result = {"already_claimed": False, "badge": "TestBadge", "rarity_label": "Rare"}
         with patch("asyncio.to_thread", return_value=result) as worker:
             self.assertTrue(await shark_ai.handle_mention(msg, SimpleNamespace(user=bot)))
-        self.assertEqual(worker.call_args.args[1:], (123, "Player"))
-        self.assertEqual(worker.call_args.args[0].__name__, "claim_daily_mystery_box")
+        self.assertEqual(worker.call_args_list[0].args[1:], (123, "Player"))
+        self.assertEqual(worker.call_args_list[0].args[0].__name__, "claim_daily_mystery_box")
         self.assertIn("TestBadge", replies[0])
         self.assertIn("No coins spent", replies[0])
 
@@ -232,7 +232,7 @@ class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
             )
             with patch.dict("os.environ", {"GROQ_API_KEY": ""}):
                 self.assertTrue(await shark_ai.handle_mention(msg, SimpleNamespace(user=bot)))
-            self.assertEqual(replies[0], "2.12")
+            self.assertEqual(replies[0], "2.13")
             self.assertNotIn("shop_catalog", replies[0])
 
     async def test_fake_admin_and_private_info_requests_denied_without_ai(self):
@@ -286,7 +286,7 @@ class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
         )
         with patch.dict("os.environ", {"GROQ_API_KEY": ""}):
             self.assertTrue(await shark_ai.handle_mention(msg, SimpleNamespace(user=bot)))
-        self.assertEqual(replies, ["2.12"])
+        self.assertEqual(replies, ["2.13"])
 
 
 if __name__ == "__main__":
