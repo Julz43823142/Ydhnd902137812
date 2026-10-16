@@ -131,6 +131,8 @@ async def handle_mention(message, client):
             reply = ("I've reached my chat limit for now. Try again later!" if failure == "limit"
                      else "Can't answer right now. Try again in a bit.")
         else:
+            if await maybe_route_response(message, client, answer):
+                return True
             reply = answer.replace("@everyone", "@\u200beveryone").replace("@here", "@\u200bhere")[:1900]
             _history[scope].append((time.monotonic(), "user", prompt))
             _history[scope].append((time.monotonic(), "assistant", reply))
