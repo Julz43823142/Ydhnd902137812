@@ -2958,7 +2958,7 @@
       "run_id": "rush:442597396195704832:1792180373894",
       "end_at": 1792180673.8945549,
       "score": 19,
-      "wrong": 1,
+      "wrong": 2,
       "mistakes": [
         {
           "puzzle_number": 19,
@@ -2976,124 +2976,81 @@
             "arrow_theme": "pink"
           },
           "recorded_at": 1792180554.7547963
+        },
+        {
+          "puzzle_number": 21,
+          "submitted": "bxd4",
+          "correct": "Bxf3",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_Ir6j6_1792180568447",
+            "fen": "r2qk2r/p1p2ppp/2p1pn2/2b5/3P1Pb1/1P3N2/PBPP2PP/RN1Q1RK1 b kq - 0 9",
+            "current_fen": "r2qk2r/p1p2ppp/2p1pn2/2b5/3P1Pb1/1P3N2/PBPP2PP/RN1Q1RK1 b kq - 0 9",
+            "last_move_uci": "e3d4",
+            "player_color": "black",
+            "rating": 1940,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1792180574.2390893
         }
       ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/Ir6j6",
-        "title": "Lichess • 1940",
-        "fen": "r2qk2r/p1p2ppp/2p1pn2/2b5/3P1Pb1/1P3N2/PBPP2PP/RN1Q1RK1 b kq - 0 9",
-        "current_fen": "r2qk2r/p1p2ppp/2p1pn2/2b5/3P1Pb1/1P3N2/PBPP2PP/RN1Q1RK1 b kq - 0 9",
-        "last_move_uci": "e3d4",
-        "pgn": "Bxf3 Qxf3 Bxd4+ Bxd4 Qxd4+ Kh1 Qxa1 Nc3 Qb2 Qxc6+ Ke7",
+        "url": "https://lichess.org/training/35FIE",
+        "title": "Lichess • 2004",
+        "fen": "8/8/p5p1/Ppppk2p/7P/2PP1KP1/1P6/8 b - - 0 37",
+        "current_fen": "8/8/p5p1/Ppppk2p/7P/2PP1KP1/1P6/8 b - - 0 37",
+        "last_move_uci": "a4a5",
+        "pgn": "d4 cxd4+ Kxd4",
         "all_moves": [
           {
-            "uci": "g4f3",
-            "san": "Bxf3",
+            "uci": "d5d4",
+            "san": "d4",
             "color": "black"
           },
           {
-            "uci": "d1f3",
-            "san": "Qxf3",
+            "uci": "c3d4",
+            "san": "cxd4+",
             "color": "white"
           },
           {
-            "uci": "c5d4",
-            "san": "Bxd4+",
-            "color": "black"
-          },
-          {
-            "uci": "b2d4",
-            "san": "Bxd4",
-            "color": "white"
-          },
-          {
-            "uci": "d8d4",
-            "san": "Qxd4+",
-            "color": "black"
-          },
-          {
-            "uci": "g1h1",
-            "san": "Kh1",
-            "color": "white"
-          },
-          {
-            "uci": "d4a1",
-            "san": "Qxa1",
-            "color": "black"
-          },
-          {
-            "uci": "b1c3",
-            "san": "Nc3",
-            "color": "white"
-          },
-          {
-            "uci": "a1b2",
-            "san": "Qb2",
-            "color": "black"
-          },
-          {
-            "uci": "f3c6",
-            "san": "Qxc6+",
-            "color": "white"
-          },
-          {
-            "uci": "e8e7",
-            "san": "Ke7",
+            "uci": "e5d4",
+            "san": "Kxd4",
             "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "g4f3",
-            "san": "Bxf3",
+            "uci": "d5d4",
+            "san": "d4",
             "color": "black"
           },
           {
-            "uci": "c5d4",
-            "san": "Bxd4+",
-            "color": "black"
-          },
-          {
-            "uci": "d8d4",
-            "san": "Qxd4+",
-            "color": "black"
-          },
-          {
-            "uci": "d4a1",
-            "san": "Qxa1",
-            "color": "black"
-          },
-          {
-            "uci": "a1b2",
-            "san": "Qb2",
-            "color": "black"
-          },
-          {
-            "uci": "e8e7",
-            "san": "Ke7",
+            "uci": "e5d4",
+            "san": "Kxd4",
             "color": "black"
           }
         ],
         "player_color": "black",
-        "player_move_count": 6,
-        "posted_at": "2026-10-16T19:56:08.447619+00:00",
+        "player_move_count": 2,
+        "posted_at": "2026-10-16T19:56:14.244154+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_Ir6j6_1792180568447",
-        "rating": 1940,
+        "puzzle_id": "practice_rush_442597396195704832_35FIE_1792180574244",
+        "rating": 2004,
         "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1560743153294774473,
+      "message_id": 1560743169082134662,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792180568.4413238,
-      "last_feedback": "✅ **Rxe1#** — solved! Score: **19**."
+      "last_card_activity_at": 1792180574.2378254,
+      "last_feedback": "❌ **bxd4** was wrong. Correct move: **Bxf3**."
     },
     "362606514764251137": {
       "active": false,
