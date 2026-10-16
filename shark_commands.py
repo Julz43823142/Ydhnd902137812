@@ -290,6 +290,7 @@ async def plan_mention(message, prompt, complete):
         await message.reply(
             "I can do that using SharkBot's existing commands. "
             "This may change a game, trade items or spend coins. "
+            f"Command: `{discord.utils.escape_markdown(command[:200])}`. "
             "Reply **yes** to continue or **no** to cancel within 90 seconds. "
             "Any normal game or balance checks still apply.",
             mention_author=False,
