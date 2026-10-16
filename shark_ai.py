@@ -53,7 +53,9 @@ async def _complete(messages, response_format=None):
         for model in MODELS:
             if _model_pause_until.get(model, 0) > time.monotonic():
                 continue
-            payload = {"model": model, "messages": messages, "max_completion_tokens": MAX_OUTPUT, "temperature": 0.6}
+            payload = {"model": model, "messages": messages, "max_completion_tokens": MAX_OUTPUT, "temperature": 0.6 if response_format is None else 0}
+            if response_format is not None:
+                payload["response_format"] = response_format
             try:
                 async with session.post("https://api.groq.com/openai/v1/chat/completions", json=payload, headers=headers) as response:
                     if response.status == 429:
