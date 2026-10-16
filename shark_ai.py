@@ -205,8 +205,8 @@ async def handle_mention(message, client):
         )
         return True
     # Public gameplay facts only: never expose files, implementation or secrets.
-    if re.search(r"\\b(?:legendary|legendar(?:y|ische|isch))\\b", prompt, re.I) and re.search(
-        r"\\b(?:kans|chance|odds|drop\\s*rate|percentage|probability)\\b", prompt, re.I
+    if re.search(r"\b(?:legendary|legendar(?:y|ische|isch))\b", prompt, re.I) and re.search(
+        r"\b(?:kans|chance|odds|drop\s*rate|percentage|probability)\b", prompt, re.I
     ):
         from shop_catalog import BADGE_RARITY_WEIGHTS
         weight = BADGE_RARITY_WEIGHTS["legendary"]
@@ -219,8 +219,8 @@ async def handle_mention(message, client):
             mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
         )
         return True
-    if re.search(r"\\b(?:code|source\\s*code|broncode)\\b", prompt, re.I) and re.search(
-        r"\\b(?:see|read|access|view|zien|lezen|bekijken|toegang)\\b", prompt, re.I
+    if re.search(r"\b(?:code|source\s*code|broncode)\b", prompt, re.I) and re.search(
+        r"\b(?:see|read|access|view|zien|lezen|bekijken|toegang)\b", prompt, re.I
     ):
         await message.reply(
             "No. I can answer questions about public SharkBot features and "
