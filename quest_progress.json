@@ -456,9 +456,9 @@
             "daily:2026-10-16:puzzle:solve-5"
           ],
           "progress": {
-            "daily:2026-10-16:puzzle:solve-5": 5
+            "daily:2026-10-16:puzzle:solve-5": 6
           },
-          "updated_at": 1792150508
+          "updated_at": 1792150550
         }
       }
     },
@@ -670,9 +670,9 @@
           "name": "Thice",
           "paid": [],
           "progress": {
-            "weekly:2026-10-12:puzzle:solve-25": 12
+            "weekly:2026-10-12:puzzle:solve-25": 13
           },
-          "updated_at": 1792150508
+          "updated_at": 1792150550
         },
         "730484744944353301": {
           "name": "Julian21",
