@@ -5,7 +5,6 @@ All commands run under the original Discord author's identity and permissions.
 """
 import re
 import time
-from dataclasses import dataclass
 
 import discord
 
@@ -87,6 +86,7 @@ NO_ARGUMENTS = frozenset({
     "!resign", "!draw", "!acceptdraw", "!declinedraw", "!chessboard",
     "!daily accept", "!daily decline", "!daily board", "!daily draw",
     "!daily acceptdraw", "!daily declinedraw", "!daily resign", "!version",
+    "!survival", "!daily game",
 })
 # A command's existing UI owns confirmations for actions launched by buttons.
 INTERACTIVE = frozenset({
@@ -179,6 +179,10 @@ def _validate(message, command, args):
     for user_id in re.findall(r"<@!?(\d+)>", args):
         if int(user_id) not in mentioned:
             return None
+    if command == "!playbot" and args and not re.fullmatch(r"\d{3,4}", args):
+        return None
+    if command == "!racer" and args and not (args.casefold() == "open" or len(args) <= 80):
+        return None
     return command + (" " + args if args else "")
 
 def _requires_confirmation(command, args):
@@ -193,16 +197,17 @@ class RoutedMessage:
     """Read-only proxy: never change the original author's user ID or permissions."""
     def __init__(self, original, content, bot_id):
         self._original = original
+        self._shark_ai_routed = True
         self.content = content
         self.mentions = [
-            member for member in original.mentions
+            member for member in (target_mentions if target_mentions is not None else original.mentions)
             if int(member.id) != int(bot_id)
         ]
 
     def __getattr__(self, attr):
         return getattr(self._original, attr)
 
-async def _execute(message, client, command_text):
+async def _execute(message, client, command_text, target_mentions=None):
     # Re-validate on execution, including after the user's later confirmation.
     base = next((x for x in sorted(COMMAND_HELP, key=len, reverse=True)
                  if command_text == x or command_text.startswith(x + " ")), None)
@@ -210,7 +215,7 @@ async def _execute(message, client, command_text):
         return False
     if int(message.channel.id) not in CHESS_CHANNELS:
         return False
-    proxy = RoutedMessage(message, command_text, client.user.id)
+    proxy = RoutedMessage(message, command_text, client.user.id, target_mentions)
     await client.on_message(proxy)
     return True
 
@@ -231,11 +236,12 @@ async def route(message, client, command, args=""):
         # Replacing pending state prevents multiple commands being accepted with one yes.
         sent = await _safe_reply(
             message, "This action may change your game, items or coins. "
-            f"Run \`{discord.utils.escape_markdown(command_text[:150])}\`? "
+            f"Run `{discord.utils.escape_markdown(command_text[:150])}`? "
             "Reply directly to this message with **yes** or **no**, "
             "or mention me with **yes** or **no**, within 90 seconds."
         )
-        _pending[scope] = (time.monotonic() + PENDING_TTL, command_text, sent.id)
+        approved_targets = tuple(member for member in message.mentions if member.id != client.user.id)
+        _pending[scope] = (time.monotonic() + PENDING_TTL, command_text, sent.id, approved_targets)
         return True
     await _execute(message, client, command_text)
     return True
@@ -248,7 +254,7 @@ async def handle_confirmation(message, client):
     pending = _pending.get(scope)
     if not pending:
         return False
-    expires, command_text, message_id = pending
+    expires, command_text, message_id, target_mentions = pending
     if time.monotonic() > expires:
         _pending.pop(scope, None)
         return False
@@ -267,7 +273,7 @@ async def handle_confirmation(message, client):
     if answer in {"no", "n", "cancel"}:
         await _safe_reply(message, "Cancelled.")
         return True
-    if not await _execute(message, client, command_text):
+    if not await _execute(message, client, command_text, target_mentions):
         await _safe_reply(message, "This command is no longer available here.")
     return True
 
@@ -277,8 +283,8 @@ async def maybe_route_response(message, client, response):
     if not isinstance(response, str):
         return False
     candidate = response.strip()
-    if candidate.startswith("\`\`\`"):
-        candidate = re.sub(r"^\`\`\`(?:json)?\s*|\s*\`\`\`$", "", candidate).strip()
+    if candidate.startswith("```"):
+        candidate = re.sub(r"^```(?:json)?\s*|\s*```$", "", candidate).strip()
     if not candidate.startswith("{"):
         return False
     try:
