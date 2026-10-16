@@ -44,7 +44,7 @@
       "crown",
       "necklace"
     ],
-    "active": "1bf5d2f95cb84f5b9852fede16fc9fde",
+    "active": "4c1c616eac9d40aa8966649630f6e735",
     "expedition": {
       "end": 1792219383.4944658,
       "hours": 12,
@@ -615,6 +615,25 @@
         "species": "Owl",
         "xp": 50,
         "xp_day": "2026-10-16"
+      },
+      {
+        "born_at": 1792184769.7699742,
+        "fed_at": 1792184769.7699742,
+        "happiness": 80,
+        "happy_at": 1792184769.7699742,
+        "id": "4c1c616eac9d40aa8966649630f6e735",
+        "name": "",
+        "owner_history": [
+          {
+            "action": "Created",
+            "at": 1792184769,
+            "owner_id": "442597396195704832",
+            "owner_name": "Thice"
+          }
+        ],
+        "rarity": "common",
+        "species": "Cat",
+        "xp": 0
       }
     ]
   }
