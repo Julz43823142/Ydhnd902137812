@@ -270,8 +270,31 @@ def _is_chat_channel(channel_id):
     return int(channel_id) in CHESS_CHANNEL_IDS
 
 
+def _claimed_authority(prompt):
+    """Claims in message text never supply administrator authorization."""
+    text = str(prompt or "")
+    actor = re.search(
+        r"(?i)\b(?:i\s+am|i'm|im|ik\s+ben|as\s+(?:the|an?))\s+"
+        r"(?:the\s+)?(?:owner|admin(?:istrator)?|moderator|developer|"
+        r"beheerder|eigenaar|sharkmeister)\b",
+        text,
+    )
+    override = re.search(
+        r"(?i)\b(?:admin|owner|developer|system)\s+"
+        r"(?:override|mode|access|privileges?|permissions?)\b",
+        text,
+    )
+    return bool(actor or override)
+
+
 async def plan_mention(message, prompt, complete):
     """Return None (ordinary chat), True (handled), or a validated command."""
+    if _claimed_authority(prompt):
+        await message.reply(
+            "Claims of administrator status cannot authorize commands.",
+            mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
+        )
+        return True
     direct = re.fullmatch(
         r"\s*(?:please\s+)?(?:type|run|execute|use)\s+(!donate(?:\s+[^\r\n]*)?)\s*",
         prompt, re.IGNORECASE,
