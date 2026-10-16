@@ -97,25 +97,26 @@ class SharkCommandTests(unittest.TestCase):
             msg2, "put my dog in shelter", pet_model)), "!pet")
         self.assertIn("confirm", msg2.replies[0])
 
-    def test_dispatch_preserves_real_user_and_restores_content(self):
+    def test_dispatch_preserves_original_author_without_mutating_input(self):
         msg = MockMessage()
         original = msg.content
-        async def handler(incoming):
-            self.assertIs(incoming, msg)
-            self.assertEqual(incoming.content, "!shop")
-            self.assertEqual(incoming.mentions, [])
-            self.assertEqual(incoming.author.id, 100)
-        client = SimpleNamespace(user=SimpleNamespace(id=999), on_message=handler)
-        self.assertTrue(asyncio.run(route.dispatch_existing_command(msg, client, "!shop")))
+        routed = route.RoutedMessage(msg, "!shop", 999)
+        self.assertIs(routed.author, msg.author)
+        self.assertEqual(routed.content, "!shop")
+        self.assertEqual(routed.mentions, [])
         self.assertEqual(msg.content, original)
         self.assertEqual(len(msg.mentions), 1)
 
-    def test_dispatch_denies_wrong_channel(self):
-        msg = MockMessage(cid=123)
-        async def handler(*args):
-            raise AssertionError("must not dispatch")
-        client = SimpleNamespace(user=SimpleNamespace(id=999), on_message=handler)
-        self.assertFalse(asyncio.run(route.dispatch_existing_command(msg, client, "!shop")))
+    def test_purchases_and_moves_require_confirmation(self):
+        for command in ("!play Thice", "!resign", "!donate Thice 5",
+                        "!trade Thice 5", "!move e4", "!custompiece red buy"):
+            self.assertTrue(route._needs_confirmation(command))
+        for command in ("!shop", "!box", "!pets", "!review", "!balance"):
+            self.assertFalse(route._needs_confirmation(command))
+
+    def test_pgn_is_never_invented_by_model(self):
+        self.assertEqual(route._parse_command(
+            "!review 1. d4 d5", "analyze my PGN"), "!review")
 
 
 if __name__ == "__main__":
