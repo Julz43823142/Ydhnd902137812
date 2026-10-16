@@ -221,7 +221,7 @@ async def handle_mention(message, client):
         return True
     # Explicit donation commands are deterministic and do not need Groq.
     # Use the same channel, approval and ownership checks as any AI plan.
-    if re.fullmatch(r"\\s*(?:please\\s+)?(?:type|run|execute|use)\\s+!donate(?:\\s+[^\\r\\n]*)?\\s*", prompt, re.I):
+    if re.fullmatch(r"\s*(?:please\s+)?(?:type|run|execute|use)\s+!donate(?:\s+[^\r\n]*)?\s*", prompt, re.I):
         from shark_commands import plan_mention
         async def no_model(*args, **kwargs):
             return None, "unconfigured"
