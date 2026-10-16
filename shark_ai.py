@@ -394,7 +394,7 @@ async def handle_mention(message, client):
     # A free box is never claimed automatically: the original owner-bound
     # shop button performs all eligibility and daily-limit checks.
     from shark_commands import free_access_command, free_box_claim_request, _is_chat_channel, PRIMARY_CHESS_CHANNEL_ID, SECONDARY_CHESS_CHANNEL_ID
-    if free_access_command(prompt):
+    if free_access_command(prompt) or free_box_claim_request(prompt):
         if not _is_chat_channel(message.channel.id):
             await _counted_reply(message,
                 "The free daily Mystery Box is in the Shark Shop. Ask me in "
