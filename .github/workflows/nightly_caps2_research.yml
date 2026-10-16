@@ -25,8 +25,8 @@ jobs:
       PYTHONUNBUFFERED: '1'
       PYTHONDONTWRITEBYTECODE: '1'
       PYTHONPATH: ${{ github.workspace }}
-      STATE_DIR: ${{ runner.temp }}/caps2-state/research/caps2
-      STATE_REPO: ${{ runner.temp }}/caps2-state
+      STATE_DIR: /tmp/sharkbot-caps2-state/research/caps2
+      STATE_REPO: /tmp/sharkbot-caps2-state
     steps:
       - name: Checkout latest research code from main
         uses: actions/checkout@v4
