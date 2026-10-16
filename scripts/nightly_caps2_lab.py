@@ -95,7 +95,7 @@ def identity(game):
 
 
 def metric_path(state, mode, game):
-    digest = hashlib.sha256(game["pgn"].encode("utf-8")).hexdigest()
+    digest = hashlib.sha256((identity(game) + "\\0" + game["pgn"]).encode("utf-8")).hexdigest()
     return Path(state) / "metrics" / mode / (digest + ".json")
 
 
