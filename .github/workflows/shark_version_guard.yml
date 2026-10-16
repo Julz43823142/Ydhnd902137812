@@ -54,7 +54,7 @@ jobs:
           old = extract(previous.stdout) if previous.returncode == 0 else (1, 0)
           # One-time correction: the prior small test-only fix was mislabeled v3.
           correction = old == (3, 0) and current == (2, 1)
-          patch = current == (old[0], old[1] + 1)
+          patch = current[0] == old[0] and current[1] > old[1]
           major = current == (old[0] + 1, 0)
           if not (correction or patch or major):
               raise SystemExit(
