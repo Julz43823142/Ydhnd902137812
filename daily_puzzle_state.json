@@ -2958,69 +2958,72 @@
       "run_id": "rush:442597396195704832:1792184249192",
       "end_at": 1792184549.1924014,
       "score": 0,
-      "wrong": 0,
-      "mistakes": [],
+      "wrong": 1,
+      "mistakes": [
+        {
+          "puzzle_number": 1,
+          "submitted": "bxc7",
+          "correct": "Ra8+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_0FEOX_1792184249196",
+            "fen": "6k1/R1r2p2/4p1pp/3pB3/3P4/2P1n2P/5rPK/8 w - - 0 31",
+            "current_fen": "6k1/R1r2p2/4p1pp/3pB3/3P4/2P1n2P/5rPK/8 w - - 0 31",
+            "last_move_uci": "c8c7",
+            "player_color": "white",
+            "rating": 1200,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1792184253.0800955
+        }
+      ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/0FEOX",
-        "title": "Lichess • 1200",
-        "fen": "6k1/R1r2p2/4p1pp/3pB3/3P4/2P1n2P/5rPK/8 w - - 0 31",
-        "current_fen": "6k1/R1r2p2/4p1pp/3pB3/3P4/2P1n2P/5rPK/8 w - - 0 31",
-        "last_move_uci": "c8c7",
-        "pgn": "Ra8+ Rc8 Rxc8+ Kh7 Rh8#",
+        "url": "https://lichess.org/training/mswhl",
+        "title": "Lichess • 1243",
+        "fen": "3r4/1p3p1k/5np1/5N1p/7P/pP6/P1P3P1/2KR4 b - - 1 28",
+        "current_fen": "3r4/1p3p1k/5np1/5N1p/7P/pP6/P1P3P1/2KR4 b - - 1 28",
+        "last_move_uci": "g1d1",
+        "pgn": "Rxd1+ Kxd1 gxf5",
         "all_moves": [
           {
-            "uci": "a7a8",
-            "san": "Ra8+",
-            "color": "white"
-          },
-          {
-            "uci": "c7c8",
-            "san": "Rc8",
+            "uci": "d8d1",
+            "san": "Rxd1+",
             "color": "black"
           },
           {
-            "uci": "a8c8",
-            "san": "Rxc8+",
+            "uci": "c1d1",
+            "san": "Kxd1",
             "color": "white"
           },
           {
-            "uci": "g8h7",
-            "san": "Kh7",
+            "uci": "g6f5",
+            "san": "gxf5",
             "color": "black"
-          },
-          {
-            "uci": "c8h8",
-            "san": "Rh8#",
-            "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "a7a8",
-            "san": "Ra8+",
-            "color": "white"
+            "uci": "d8d1",
+            "san": "Rxd1+",
+            "color": "black"
           },
           {
-            "uci": "a8c8",
-            "san": "Rxc8+",
-            "color": "white"
-          },
-          {
-            "uci": "c8h8",
-            "san": "Rh8#",
-            "color": "white"
+            "uci": "g6f5",
+            "san": "gxf5",
+            "color": "black"
           }
         ],
-        "player_color": "white",
-        "player_move_count": 3,
-        "posted_at": "2026-10-16T20:57:29.196230+00:00",
+        "player_color": "black",
+        "player_move_count": 2,
+        "posted_at": "2026-10-16T20:57:33.083696+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_0FEOX_1792184249196",
-        "rating": 1200,
+        "puzzle_id": "practice_rush_442597396195704832_mswhl_1792184253083",
+        "rating": 1243,
         "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
@@ -3029,8 +3032,8 @@
       "message_id": 1560758607279161346,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792184249.1924102,
-      "last_feedback": "🎯 **Type your move in chat.** Your answer message will be removed. You have **3 lives**."
+      "last_card_activity_at": 1792184253.0792706,
+      "last_feedback": "❌ **bxc7** was wrong. Correct move: **Ra8+**."
     },
     "362606514764251137": {
       "active": false,
