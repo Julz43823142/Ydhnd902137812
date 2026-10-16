@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/gqo9G",
     "title": "Lichess • 1939",
     "fen": "8/6p1/3k3p/1pp2p1P/1P3P2/2PK2P1/8/8 b - - 0 37",
-    "current_fen": "8/6p1/3k3p/1pp2p1P/1P3P2/2PK2P1/8/8 b - - 0 37",
-    "last_move_uci": "b3b4",
+    "current_fen": "8/6p1/3k3p/1p3p1P/1P3P2/3K2P1/8/8 b - - 0 38",
+    "last_move_uci": "c3b4",
     "pgn": "cxb4 cxb4 Kd5 Kc3 Ke4",
     "all_moves": [
       {
@@ -58,44 +58,62 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_gqo9G_1792185867929",
-    "last_activity_at": "2026-10-16T21:24:41.153977+00:00",
+    "last_activity_at": "2026-10-16T21:24:54.263901+00:00",
     "rating": 1939,
     "rp_band": 2,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1560765451527659622
+      "1468320170891022417": 1560765506657583246
     },
-    "message_id": 1560765451527659622,
+    "message_id": 1560765506657583246,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "kd5",
-        "correct": false,
-        "timestamp": "2026-10-16T21:24:41.154647+00:00"
+        "move": "cxb4",
+        "correct": true,
+        "timestamp": "2026-10-16T21:24:54.264156+00:00"
       }
     },
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
-    "last_card_activity_at": "2026-10-16T21:24:41.153977+00:00",
-    "recent_accepted_moves": [],
+    "last_card_activity_at": "2026-10-16T21:24:54.263901+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1792185894.2641656,
+        "fen_before": "8/6p1/3k3p/1pp2p1P/1P3P2/2PK2P1/8/8 b - - 0 37",
+        "expected": {
+          "uci": "c5b4",
+          "san": "cxb4",
+          "color": "black"
+        },
+        "accepted_uci": "c5b4"
+      }
+    ],
     "wrong_attempt_counts": {
       "442597396195704832": 1
     },
-    "last_feedback": "❌ **Live from the blunder department, Thice: you just turned tactical confidence into tactical fiction.**\n↪️ **Move played:** `kd5`"
+    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** cxb4",
+    "accepted_solution_moves": [
+      {
+        "san": "cxb4",
+        "uci": "c5b4",
+        "principal": true
+      }
+    ]
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
