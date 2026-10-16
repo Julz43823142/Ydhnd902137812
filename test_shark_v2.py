@@ -9,7 +9,7 @@ from shark_version import SHARKBOT_VERSION
 
 class ReplyLimitTests(unittest.TestCase):
     def test_public_version(self):
-        self.assertEqual(SHARKBOT_VERSION, "2.1")
+        self.assertEqual(SHARKBOT_VERSION, "2.2")
 
     def test_short_answer_unchanged(self):
         self.assertEqual(shark_ai._fit_reply("Checkmate!"), "Checkmate!")
@@ -66,8 +66,33 @@ class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
         with patch.dict("os.environ", {"GROQ_API_KEY": ""}):
             handled = await shark_ai.handle_mention(msg, SimpleNamespace(user=bot))
         self.assertTrue(handled)
-        self.assertEqual(replies[0][0], "I'm SharkBot version 2.1.")
+        self.assertEqual(replies[0][0], "I'm SharkBot version 2.2.")
         self.assertFalse(replies[0][1]["mention_author"])
+
+    async def test_informal_which_version_are_u(self):
+        bot = SimpleNamespace(id=42)
+        replies = []
+
+        async def reply(text, **kwargs):
+            replies.append(text)
+
+        msg = SimpleNamespace(
+            guild=SimpleNamespace(id=5, me=bot),
+            author=SimpleNamespace(id=77, bot=False),
+            channel=SimpleNamespace(
+                id=12,
+                permissions_for=lambda _: SimpleNamespace(
+                    view_channel=True, send_messages=True,
+                    send_messages_in_threads=True,
+                ),
+            ),
+            mentions=[bot],
+            content="<@42> which version are u?",
+            reply=reply,
+        )
+        with patch.dict("os.environ", {"GROQ_API_KEY": ""}):
+            self.assertTrue(await shark_ai.handle_mention(msg, SimpleNamespace(user=bot)))
+        self.assertEqual(replies, ["I'm SharkBot version 2.2."])
 
     async def test_dutch_version_question(self):
         bot = SimpleNamespace(id=42)
@@ -93,7 +118,7 @@ class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
         )
         with patch.dict("os.environ", {"GROQ_API_KEY": ""}):
             self.assertTrue(await shark_ai.handle_mention(msg, SimpleNamespace(user=bot)))
-        self.assertEqual(replies, ["I'm SharkBot version 2.1."])
+        self.assertEqual(replies, ["I'm SharkBot version 2.2."])
 
 
 if __name__ == "__main__":

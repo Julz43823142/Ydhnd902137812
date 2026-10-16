@@ -158,7 +158,7 @@ async def handle_mention(message, client):
         prompt = "Hello!"
     prompt = prompt[:MAX_INPUT]
     # Keep the public version factual even without a Groq request.
-    if re.fullmatch(r"(?:hey[ ,]+)?(?:(?:what(?:\u0027s| is)?|which)\s+(?:(?:your|the|sharkbot)\s+)?version(?:\s+(?:are you|is this|is sharkbot|do you run))?|(?:sharkbot\s+)?version|welke\s+versie\s+ben\s+jij|wat\s+is\s+(?:je|jouw)\s+versie)\??", prompt, re.I):
+    if re.fullmatch(r"(?:hey[ ,]+)?(?:(?:what(?:\u0027s| is)?|which)\s+(?:(?:your|the|sharkbot)\s+)?version(?:\s+(?:are (?:you|u)|is this|is sharkbot|do you run))?|(?:sharkbot\s+)?version|welke\s+versie\s+ben\s+jij|wat\s+is\s+(?:je|jouw)\s+versie)\??", prompt, re.I):
         await message.reply(
             f"I\u0027m SharkBot version {SHARKBOT_VERSION}.",
             mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
