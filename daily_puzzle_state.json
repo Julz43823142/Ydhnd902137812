@@ -5,36 +5,15 @@
     "fen": "2r5/p1q2p2/1p1kp3/3b4/1PrR3Q/P5P1/5P1P/3R2K1 w - - 9 37",
     "current_fen": "2r5/p1q2p2/1p1kp3/3b4/1PrR3Q/P5P1/5P1P/3R2K1 w - - 9 37",
     "last_move_uci": "e7d6",
-    "pgn": "Rxd5+ exd5 Qf6+",
-    "all_moves": [
-      {
-        "uci": "d4d5",
-        "san": "Rxd5+",
-        "color": "white"
-      },
-      {
-        "uci": "e6d5",
-        "san": "exd5",
-        "color": "black"
-      },
-      {
-        "uci": "h4f6",
-        "san": "Qf6+",
-        "color": "white"
-      }
-    ],
-    "player_moves": [
-      {
-        "uci": "d4d5",
-        "san": "Rxd5+",
-        "color": "white"
-      },
-      {
-        "uci": "h4f6",
-        "san": "Qf6+",
-        "color": "white"
-      }
-    ],
+    "pgn": {
+      "__shark_answer_ciphertext_v1__": "gAAAAABq0p0AUNQX8SyWQpov6qvKdlihy3zDTBDQV9Y7lYDlmvUPzMyhIWB3YJ76tj1QpCG-9SzysVkR7Ms1REqRGcyddBl4GBQ71P9ZrPG9uvESzMr6E7Y="
+    },
+    "all_moves": {
+      "__shark_answer_ciphertext_v1__": "gAAAAABq0p0AwhYwF5bJtKMOTQqVpUXLr06d-8mgZCzvPXbd0Q2XoHWelXQx4XlQD-Oqu5cPnjPQIzFbJ2ViDijhtoBhEZ4bhnKTUiUGcGyu9h4ubocBZFhp_mioh6eaxH2xsFOTz4wkIr2l_v-2M2IrAwbP-8fLLJayGGVTjvlBQjRbZrjucbqAHNlWX4ADDjkw3wCakSM_VQlQJxYNzvP68MqfDvNJQXoNLsu3qHAbXqkCJVCRtKu4ki67z_AKbVeJNoiKZUf9"
+    },
+    "player_moves": {
+      "__shark_answer_ciphertext_v1__": "gAAAAABq0p0AnRpeO761qtDCo7JZhZjSjQHtHzKWxWa3HqSUokwC40qv3awq_zxs8qVu5ABr2s2ilocqvk5-SEgbla6sjW4fci5WitWxUKMQ5Z3-IMjZziTzRw_KAbdTZuTxGnn3Na4w7xDMM8q0wPWFdoXpNxmRKTKPGaR7rvLa6p2Sz3maqAtQOGvsYbY43BwfMoyvknaz"
+    },
     "player_color": "white",
     "player_move_count": 2,
     "posted_at": "2026-10-16T21:30:11.104087+00:00",
@@ -90,66 +69,15 @@
     "fen": "6k1/2p4p/1pq1p1p1/3nR3/1P3P1P/P5P1/5QK1/8 b - - 0 1",
     "current_fen": "6k1/2p4p/1pq1p1p1/3nR3/1P3P1P/P5P1/5QK1/8 b - - 0 1",
     "last_move_uci": null,
-    "pgn": "[Result \"*\"]\n[FEN \"6k1/2p4p/1pq1p1p1/3nR3/1P3P1P/P5P1/5QK1/8 b - - 0 1\"]\n\n1... Ne3+ 2. Kg1 Qc1+ 3. Kh2 Ng4+ 4. Kg2 Nxf2 *",
-    "all_moves": [
-      {
-        "uci": "d5e3",
-        "san": "Ne3+",
-        "color": "black"
-      },
-      {
-        "uci": "g2g1",
-        "san": "Kg1",
-        "color": "white"
-      },
-      {
-        "uci": "c6c1",
-        "san": "Qc1+",
-        "color": "black"
-      },
-      {
-        "uci": "g1h2",
-        "san": "Kh2",
-        "color": "white"
-      },
-      {
-        "uci": "e3g4",
-        "san": "Ng4+",
-        "color": "black"
-      },
-      {
-        "uci": "h2g2",
-        "san": "Kg2",
-        "color": "white"
-      },
-      {
-        "uci": "g4f2",
-        "san": "Nxf2",
-        "color": "black"
-      }
-    ],
-    "player_moves": [
-      {
-        "uci": "d5e3",
-        "san": "Ne3+",
-        "color": "black"
-      },
-      {
-        "uci": "c6c1",
-        "san": "Qc1+",
-        "color": "black"
-      },
-      {
-        "uci": "e3g4",
-        "san": "Ng4+",
-        "color": "black"
-      },
-      {
-        "uci": "g4f2",
-        "san": "Nxf2",
-        "color": "black"
-      }
-    ],
+    "pgn": {
+      "__shark_answer_ciphertext_v1__": "gAAAAABq0p0Aw6j9fJoDoRT1-3ZF8I45BFuw_41JEZ8PJTcS3olF70Dkq3EWzm951aut_E475yzAYef5jx-5tiatlhyCtZxm3SSsvmPvu4DayobUhbN-UWW2deoLwTG6M5G7mR_qTSbJlEBd7Xp1kI5NrTILkq9oiMdmQLroyhdRKEPP-9wYb1XXnWu5_ACPWRCcPx8t7WNlG-MQ0ApdtXt6tNqrqMsX4Tx7IISNDIUgzMrcWACtxepwq3jEoDfmFXWWMQ0KEz-K"
+    },
+    "all_moves": {
+      "__shark_answer_ciphertext_v1__": "gAAAAABq0p0AySmPzdE1yVvTGW3ZjLIKs4_Oqc0ZLlj-9L24nEyRcG5VQiIpAv2u4LcLBPycR3TxZlKkqZwd1cYcf7RXWl98ZoYNbzpCu6EMIwEiMyw9uO3ugVJSVKgAtpBZ8iLKD6EORqyp9b37lmi6RCBL3OaeEu4bAcnaLfXtKWf6ewMkasvkWRzisvUz2PwJ8GJ5B_LV34SoRQjaLdNBRlcJ70_Wss4cZC0g7kLVF1-FZ7j3pbb-UuQVPPoTelZnUIjKBD3c5k6GLefMgr_DFkI6baM1Mu41pcxRTE9PNrAvdYInC0zbhbDeoyUo4cBDXaLlonesgs5Zm6KnH2dh5_h0C5oFHXEGcdMLWB-nRJz7Yr3AFStrJ6Tj1a6GM-J22CJvTtAMRYIC24G46Xbo1llkcf8pYmh2YWOsgZhqyQnabmcvnAbhh1s0O4MpuJq5Jx6PMFUQJsAXk0hqdqTbuL_a3SUzQEd22sc7Zhm53_5HMuGG-Io="
+    },
+    "player_moves": {
+      "__shark_answer_ciphertext_v1__": "gAAAAABq0p0A2a1fHvFdO1WEv_YabCPT9BHc7qMDJHAi76h_ehy69NgQPcKrycH_GfxiXcdrFnQ-vXU_nJ3V8EFady1c7RnyetmOmgTLIzZsTQC1te3Mr3JKa3esBZLr6cq7i3CUrXgFaEzD2SuW6BxLeZymUtVj_59PPYjkN7glJoIREhIiTs4kO0u27g9mHNikgfY6mzC6beLQx1yd951Y6FOQPfzHryLWVIHFyalxY86RCjXjRDNinkUPUStuorgPoPEAAAZ-tj-m6kn_XOrjqvxAGopRS_jxfrNlTHYpdPYZTykGk5wdLAprZ8Jp3TdoBArOLHPe"
+    },
     "player_color": "black",
     "player_move_count": 4,
     "posted_at": "2026-10-16T07:21:51.552109+00:00",
@@ -2999,36 +2927,15 @@
         "fen": "2r4k/p5pp/1p3r2/1P2q3/1P1nPp1Q/2NR1P2/6PP/1R4K1 b - - 0 29",
         "current_fen": "2r4k/p5pp/1p3r2/1P2q3/1P1nPp1Q/2NR1P2/6PP/1R4K1 b - - 0 29",
         "last_move_uci": "f2h4",
-        "pgn": "Rxc3 Rxc3 Ne2+",
-        "all_moves": [
-          {
-            "uci": "c8c3",
-            "san": "Rxc3",
-            "color": "black"
-          },
-          {
-            "uci": "d3c3",
-            "san": "Rxc3",
-            "color": "white"
-          },
-          {
-            "uci": "d4e2",
-            "san": "Ne2+",
-            "color": "black"
-          }
-        ],
-        "player_moves": [
-          {
-            "uci": "c8c3",
-            "san": "Rxc3",
-            "color": "black"
-          },
-          {
-            "uci": "d4e2",
-            "san": "Ne2+",
-            "color": "black"
-          }
-        ],
+        "pgn": {
+          "__shark_answer_ciphertext_v1__": "gAAAAABq0p0APTkEg50NrdbhlEwMQ3rKXriCY02oKuwYK3IBAwyXSblBg4HiAyp4h-k3XXe4ToTv9yMftXwmMvoyxbQTvjdkidMMbVP_ewq-NyhVUBHGYC0="
+        },
+        "all_moves": {
+          "__shark_answer_ciphertext_v1__": "gAAAAABq0p0A99hAcQ4N_GOG-AQ4p_e2dDAhez3DtX9ncc5RArOEOmoa6jZ_gRELfIb1dH6Tk8HPghduXzDjxnI_9juJ4phRv_oYrb-W61lIW6jRem5xqH8Y2Cv3Qgqu-YVbhb2wt0MK2cor3ErdNH1v-agmIkT0vOS5UXx1DxsuTvrZIBSo2nR1I-SetK_jI7Za1KeEoQQkuCOoyZRCKxDva1364FhcgG7Ba2nCB49iv1iAaHWeUSnSlT6mcy0MuXw1qjrTo9w8"
+        },
+        "player_moves": {
+          "__shark_answer_ciphertext_v1__": "gAAAAABq0p0A7GS9jQbRiesdk91fVewzzMKITiS79O3WDFapQT2UNr-vBA-TzIqOSo6YvhaoV__eQq0oMSYLPC2H4ibLbRJxtBN0LN46XQnaUJQ4uypoOFb0tLDDZQ-uloobhGNzUzHzrpgmV9IegHQHKsj-aiI_HLMvdqEF5eMkzNmZjL2WkZJA5xhpxvYaDZvrgsuY2rUU"
+        },
         "player_color": "black",
         "player_move_count": 2,
         "posted_at": "2026-10-16T20:59:43.324736+00:00",
@@ -3071,51 +2978,15 @@
         "fen": "2rq1rk1/1p2b1pp/3pp3/p7/P3PBn1/2Pn2N1/1P1N2PP/R2Q1RK1 w - - 7 20",
         "current_fen": "2rq1rk1/1p2b1pp/3pp3/p7/P3PBn1/2Pn2N1/1P1N2PP/R2Q1RK1 w - - 7 20",
         "last_move_uci": "f6g4",
-        "pgn": "Qxg4 Nxf4 Rxf4 Rxf4 Qxf4",
-        "all_moves": [
-          {
-            "uci": "d1g4",
-            "san": "Qxg4",
-            "color": "white"
-          },
-          {
-            "uci": "d3f4",
-            "san": "Nxf4",
-            "color": "black"
-          },
-          {
-            "uci": "f1f4",
-            "san": "Rxf4",
-            "color": "white"
-          },
-          {
-            "uci": "f8f4",
-            "san": "Rxf4",
-            "color": "black"
-          },
-          {
-            "uci": "g4f4",
-            "san": "Qxf4",
-            "color": "white"
-          }
-        ],
-        "player_moves": [
-          {
-            "uci": "d1g4",
-            "san": "Qxg4",
-            "color": "white"
-          },
-          {
-            "uci": "f1f4",
-            "san": "Rxf4",
-            "color": "white"
-          },
-          {
-            "uci": "g4f4",
-            "san": "Qxf4",
-            "color": "white"
-          }
-        ],
+        "pgn": {
+          "__shark_answer_ciphertext_v1__": "gAAAAABq0p0A_ZDDTOaoa9vcMHEwTNw0HvXD8GzubfwMMAdhes6r-8L8ciLShBwkhewbE3-mucaYPBhZRKmzJeVAAQttgxTQOLgFycic-Z5z7y8Jlq_u9xQ="
+        },
+        "all_moves": {
+          "__shark_answer_ciphertext_v1__": "gAAAAABq0p0AWy3-UqvZTBHGhbRM3LGbQvctg8uHl7wJN9689AoTk14uFgCKNV5sx0gnzDjKs_XLn7bm5e7W73j9P2Va0H8g8jq_YrMXPR7OeghRSiDkvzI8ki7hjN98VlW-V3vFn2hEbR2JzrNy0c-T9AgRMEx3SbLRvTHkF2mIhQfyht5M8Krg4xh2siO-geqbLTii99z__J0sB0PSTde9c80efxy0Oo_V5TvM2Omgo1I1rIS5XytAfCps8mJjKfRSaDr7X0sYZhmjQ2wwnWFsdTQGKcQajIQ0EsDoTGa6F13toRLhD7dquo2XnH5CKsvCvitCKSOSCh1wI2Oj5G6tllMFECtuLZclajnE73IOFiRFw24EDEY="
+        },
+        "player_moves": {
+          "__shark_answer_ciphertext_v1__": "gAAAAABq0p0ADNNZm1OWBU5NJG2lhaL-nNYTKDyhU-Y8uYRDdnS_i5x65R0GEcp3RwgPgITAN-GJa6lXAoTz5nDZf58bbr7S2rlOr7jLko1D8K2_mvEY3O-mE7EsMy9psZXF3A1ne038uOUH3HQQns0uE22RmopZwkowVlp_aVZcUggTT0gFQjDM_mawmmmzadDzAnoFcdn4pRL6tWHz5-Yf0dHa4Cd5bT0kF7pQh9tfgVCRb2OnvrJRzZkCyCkowfQM3OUGdz3C"
+        },
         "player_color": "white",
         "player_move_count": 3,
         "posted_at": "2026-09-09T22:03:25.753528+00:00",
@@ -3154,51 +3025,15 @@
         "fen": "1k1r3r/ppp3pp/6b1/3p2P1/3Pp1p1/P3P1Q1/1q3P1P/2R2RK1 w - - 0 28",
         "current_fen": "1k1r3r/ppp3pp/6b1/3p2P1/3Pp1p1/P3P1Q1/1q3P1P/2R2RK1 w - - 0 28",
         "last_move_uci": "c2b2",
-        "pgn": "Qxc7+ Ka8 Rb1 Qxb1 Rxb1",
-        "all_moves": [
-          {
-            "uci": "g3c7",
-            "san": "Qxc7+",
-            "color": "white"
-          },
-          {
-            "uci": "b8a8",
-            "san": "Ka8",
-            "color": "black"
-          },
-          {
-            "uci": "c1b1",
-            "san": "Rb1",
-            "color": "white"
-          },
-          {
-            "uci": "b2b1",
-            "san": "Qxb1",
-            "color": "black"
-          },
-          {
-            "uci": "f1b1",
-            "san": "Rxb1",
-            "color": "white"
-          }
-        ],
-        "player_moves": [
-          {
-            "uci": "g3c7",
-            "san": "Qxc7+",
-            "color": "white"
-          },
-          {
-            "uci": "c1b1",
-            "san": "Rb1",
-            "color": "white"
-          },
-          {
-            "uci": "f1b1",
-            "san": "Rxb1",
-            "color": "white"
-          }
-        ],
+        "pgn": {
+          "__shark_answer_ciphertext_v1__": "gAAAAABq0p0ATB9_QMExBl47LtoHCLvhpksDFtrGGQNBHYnEVdLP-D2rNUE6MnxVESy4-9BhnZk70joGOiRiiOe3j8ICWIw6gVUAuJhGIhzML6Ez1GPMNng="
+        },
+        "all_moves": {
+          "__shark_answer_ciphertext_v1__": "gAAAAABq0p0A_qu4PRHqSgKYg_nt0H92KbohiJQu7cY0rTvAq_TkeQeVLQrRcJzIlceX4j9dWkl-Nc6oUTefRPcDp00mcIKgvFAAe6nxV3XWhThlCjLb-vWq157rqDLdcZmEi6jEtrL70WMlDfjacO6BujwFotlRcgX3mkiUQqnNnIdunXidSRTk3lCqZUN4wmFah_CvH5150wEcYukqjcgNSejhKNK_2lSaxE1XV3Iv7OB0_dm3st7_QTIftP-Gjyha25lgWo2vKffCDV4EoSU9ypk0cx-laCRj-w3_50C81wtpEOlSyvlPeaG70mNlEK0AjbDj2WwriwXDpFdneNUqD60-3OtNDtuCz5d5CdRpf5jbaPG2EnA="
+        },
+        "player_moves": {
+          "__shark_answer_ciphertext_v1__": "gAAAAABq0p0AVhk7EkoTS3s85i7F9RApJV4p2D7KAe90sXyYMbIDJtza-CKqFq_Qo_yt2gISmbfpBoonuKrhycBHdEGsve-J3zYjRDx7tJZPC_opf-_3h-Mb8FPX1lbdtP-Cr5cwwtUEdKwtejbjQEsQuAyNFueOByBbIj5ls5y7Qnlzj10lZ0VYg5HkZlCc4iNuy5nWyMuII49_5Quphm-4a68BzHlSE4z7IPW_xP6oxPbk5B9Ne_MztSwLvf9zznp241OVJ-0q"
+        },
         "player_color": "white",
         "player_move_count": 3,
         "posted_at": "2026-09-07T11:41:25.604054+00:00",
@@ -3268,36 +3103,15 @@
         "fen": "r1b2rk1/pp2ppbp/5np1/2p1P3/5B2/2N2n1P/PPPR1PP1/2K2B1R w - - 0 12",
         "current_fen": "r1b2rk1/pp2ppbp/5np1/2p1P3/5B2/2N2n1P/PPPR1PP1/2K2B1R w - - 0 12",
         "last_move_uci": "d4f3",
-        "pgn": "exf6 Nxd2 fxg7",
-        "all_moves": [
-          {
-            "uci": "e5f6",
-            "san": "exf6",
-            "color": "white"
-          },
-          {
-            "uci": "f3d2",
-            "san": "Nxd2",
-            "color": "black"
-          },
-          {
-            "uci": "f6g7",
-            "san": "fxg7",
-            "color": "white"
-          }
-        ],
-        "player_moves": [
-          {
-            "uci": "e5f6",
-            "san": "exf6",
-            "color": "white"
-          },
-          {
-            "uci": "f6g7",
-            "san": "fxg7",
-            "color": "white"
-          }
-        ],
+        "pgn": {
+          "__shark_answer_ciphertext_v1__": "gAAAAABq0p0AHvhON2VuPFCbdXqf01y4gnUP2PJv4K-xMyQc3KHccPy6o5ASrndtFTEu_RKXPXwQa-aP2LkNPWIeu8xJ4U8r-uC3wJryQNOBP4IpzdGmyco="
+        },
+        "all_moves": {
+          "__shark_answer_ciphertext_v1__": "gAAAAABq0p0AOo2F-R2aGmYrS3LsH1SnyKLYQNjM6HSgcwYt-EVC3ZCM2tn0HQwnq2zS4gHIfZ2btz1zZ9JHx3vKDKcvaikTHrvqRM9Yft4qD8KS2hqsq37xRF4TCrumi8IAkPdOtCEfckl1GYVyZaK7AQsT6Lbth9fgGaf5A6ZG8F7OLeIjYNRrOpBNeudUdauGJD2_5Q1GMZZjcARWCFGmMKt1S5_g1Z-GNNNqSLuYYrml_eIxkC8tuLSZWc4r_jv6MxS8FFKa"
+        },
+        "player_moves": {
+          "__shark_answer_ciphertext_v1__": "gAAAAABq0p0ANO8H84emHrUjrAVpeN1oT1oqcpNOnDdv6tndI5MIxNDy4X_-Ex5n2vBgygkWWPn7U5icsMhV9hb0-1r-uXABFei2UhOetIv2m6hZ3nPUiuuGqCtLeqLZESDFX-j_4G9etI-W7OHAQjybBrYj5npSFQnp5XaiFWgtudAdGUHGw9IBSc15fQQElrch21yPB1CB"
+        },
         "player_color": "white",
         "player_move_count": 2,
         "posted_at": "2026-09-10T15:15:14.464588+00:00",
@@ -4093,81 +3907,15 @@
         "fen": "4r1k1/Qp1b3p/3p2p1/4b3/5nPK/P1N1rP2/1P3N2/R4B1R b - - 5 26",
         "current_fen": "4r1k1/Qp1b3p/3p2p1/4b3/5nPK/P1N1rP2/1P3N2/R4B1R b - - 5 26",
         "last_move_uci": "g3h4",
-        "pgn": "Rxf3 Nce4 h6 g5 Rf8 Bc4+ Kg7 gxh6+ Kxh6",
-        "all_moves": [
-          {
-            "uci": "e3f3",
-            "san": "Rxf3",
-            "color": "black"
-          },
-          {
-            "uci": "c3e4",
-            "san": "Nce4",
-            "color": "white"
-          },
-          {
-            "uci": "h7h6",
-            "san": "h6",
-            "color": "black"
-          },
-          {
-            "uci": "g4g5",
-            "san": "g5",
-            "color": "white"
-          },
-          {
-            "uci": "e8f8",
-            "san": "Rf8",
-            "color": "black"
-          },
-          {
-            "uci": "f1c4",
-            "san": "Bc4+",
-            "color": "white"
-          },
-          {
-            "uci": "g8g7",
-            "san": "Kg7",
-            "color": "black"
-          },
-          {
-            "uci": "g5h6",
-            "san": "gxh6+",
-            "color": "white"
-          },
-          {
-            "uci": "g7h6",
-            "san": "Kxh6",
-            "color": "black"
-          }
-        ],
-        "player_moves": [
-          {
-            "uci": "e3f3",
-            "san": "Rxf3",
-            "color": "black"
-          },
-          {
-            "uci": "h7h6",
-            "san": "h6",
-            "color": "black"
-          },
-          {
-            "uci": "e8f8",
-            "san": "Rf8",
-            "color": "black"
-          },
-          {
-            "uci": "g8g7",
-            "san": "Kg7",
-            "color": "black"
-          },
-          {
-            "uci": "g7h6",
-            "san": "Kxh6",
-            "color": "black"
-          }
-        ],
+        "pgn": {
+          "__shark_answer_ciphertext_v1__": "gAAAAABq0p0AK7r-Ui8th4-L_hVh_UmlMzbqHYGIKovyU8MQ0eI45KVQubm4ObPa0g5cYvtszrgYEIe2qW_jJeZWy9vwpBIq6JvNUXRj90mIUx_b4_hzMr1RQOCZmujGk9hS6jlfriwc"
+        },
+        "all_moves": {
+          "__shark_answer_ciphertext_v1__": "gAAAAABq0p0A-N4jx69Ya85LZbgnAAk4ZmfLamzM8ORjYdN32LdDOvH78-dfs2UQmDKgB1p-f-qU2-9vULbgNl1QtJIz9O4doo7rRZZFZqRDnDHmR3_34sHS9jQynDw8GMH0E_s5OXo9p7LTYI4T5lB0yzGpOG4N_FhYkVM-OlMz43ByRdUTMrbd9GjFga0lTCX8dSmDZszNWE4YwWMDl39dm_F3Vn-qvXRsC4iNiJMkoAnGwzTtFxP9zNHi4vbZ1qJoxuYPPs2MTo6oPSbnfdGf2NBctbY7zp0sYfURLhDisXGXhH9UQFZWX8qCuIjmfxQtwAL0wzGGujWo3eUvlYpGwYvv_TAkM6KVIW3d8zuyISi67izTrGvBT1tbSIVl_-qQ0bvzKo2O_-FFHvLoVS2All_x6W-YoFr1ltvTbFmyXUQyRbZBX8b5M1rdRqr2Spepv4jreqtF13R2t_sOyNsbmfZkcnZiwi7eVpzeVjjn-MuTWx7Z8545uZ9WUoZxxQK4ebTL5nOYdBc7VmaamQShH95ZpcML1mQGUHHfOaspZuAk1iPTjqV4QBrOkCQfmZQFj35ysr-qOolUHde3EdzwdqBThkiX_w=="
+        },
+        "player_moves": {
+          "__shark_answer_ciphertext_v1__": "gAAAAABq0p0Aff3A2hJZ4sIpKYeeHi5DsN4omBhKmk2QGP1Q7zMo7hU69y7KEKpIfaokPbubg8-2F1EXMNypg2ON_6E4PeZaEDlKunODbl1f3yX5Qn4YY4fgxClgIOtAGYrDx4H4k4Ifhkbqb5UMOMFBwqHvZLdhCsOOEF0ZoAGGvMV6HRx3aoORlZMwJhnI1NOya45msu0bbGxRf451Vs50D8_Qx6hoalv1WWygVfad1A2jrzLCeX3N7qAPPNehzzOa8PITHae44pyKeL5ldQlooufsJS85xbcuhjCxOeC9N6FuXOk3A0nq8AQkHW96K3B0O_nkLMXHTjZM4t6owz7c6EhKJfFgYY2zQvobumJhm_pg8_P-8Kg="
+        },
         "player_color": "black",
         "player_move_count": 5,
         "posted_at": "2026-10-07T05:09:04.595335+00:00",
@@ -6901,96 +6649,16 @@
         "winner_id": "442597396195704832",
         "rewards_settled": true,
         "data": {
-          "puzzles": [
-            {
-              "id": "2P3vZ",
-              "fen": "2rr3k/3q1Qpp/4pB2/p2b1p2/4p3/4P3/PP3PPP/1R3RK1 w - - 0 32",
-              "setup_uci": "c7d7",
-              "expected_uci": "f6g7",
-              "expected_move": "Bxg7#",
-              "rating": 1248
-            },
-            {
-              "id": "mFvdI",
-              "fen": "4r2k/1pp3p1/1p4np/8/PP1P2N1/2P2P2/3Q2PK/4r3 b - - 2 41",
-              "setup_uci": "g1h2",
-              "expected_uci": "e8e2",
-              "expected_move": "R8e2",
-              "rating": 1472
-            },
-            {
-              "id": "Z4kzq",
-              "fen": "r1b2rk1/1p5p/2q1p1p1/2Np1nB1/p2b4/6PP/PP3PB1/2RQR1K1 w - - 0 21",
-              "setup_uci": "g7d4",
-              "expected_uci": "c5e6",
-              "expected_move": "Nxe6",
-              "rating": 1447
-            },
-            {
-              "id": "F3Kq9",
-              "fen": "2r1r1k1/pp3pp1/2pR1n2/4p3/2P1q3/1PB2QP1/P6P/3R2K1 w - - 0 35",
-              "setup_uci": "g6e4",
-              "expected_uci": "d6f6",
-              "expected_move": "Rxf6",
-              "rating": 1547
-            },
-            {
-              "id": "92uDl",
-              "fen": "r2q1rk1/pp1bp1b1/3p1pn1/6Nn/3pP3/P2B1PP1/1PPN1K2/R2QR3 w - - 0 18",
-              "setup_uci": "f7f6",
-              "expected_uci": "d3c4",
-              "expected_move": "Bc4+",
-              "rating": 1694
-            },
-            {
-              "id": "UyU0W",
-              "fen": "2b3r1/p2k1p2/2pp3p/8/8/Pr1BR1P1/6PP/5RK1 w - - 1 30",
-              "setup_uci": "e8d7",
-              "expected_uci": "d3f5",
-              "expected_move": "Bf5+",
-              "rating": 1919
-            },
-            {
-              "id": "1GzDO",
-              "fen": "7k/7p/3p2p1/1B6/1R6/4pr2/1p4KP/1r6 w - - 0 44",
-              "setup_uci": "f6f3",
-              "expected_uci": "g2f3",
-              "expected_move": "Kxf3",
-              "rating": 1912
-            },
-            {
-              "id": "LMkal",
-              "fen": "2kr2r1/1pp1bp2/p3pn2/4B1p1/3PN1qp/P3P3/1PQ2P1P/2RR2K1 w - - 2 20",
-              "setup_uci": "f3g4",
-              "expected_uci": "g1f1",
-              "expected_move": "Kf1",
-              "rating": 2194
-            },
-            {
-              "id": "7xaQf",
-              "fen": "8/8/3n4/8/p6R/1kpK3P/6P1/8 b - - 0 52",
-              "setup_uci": "f4h4",
-              "expected_uci": "c3c2",
-              "expected_move": "c2",
-              "rating": 2201
-            },
-            {
-              "id": "mM0WW",
-              "fen": "5k2/pp3p1p/8/3pRqr1/3P4/1PP2BP1/P4P1P/4R1K1 b - - 2 27",
-              "setup_uci": "e3e5",
-              "expected_uci": "f5f3",
-              "expected_move": "Qxf3",
-              "rating": 2202
-            }
-          ],
+          "puzzles": {
+            "__shark_answer_ciphertext_v1__": "gAAAAABq0p0AhvX2uI3a9XVqhxUQJmGfLG5Ue2LK08uhCnvj1Gxh0YJaUdQlMrhxsLoNzSAM49rwGqABYlpMwXxb243YSOxH2P1iwNZMlyqub9BtT-s9TydZg99MNyRXhECZ9tLnMz_L5PeQEWvS1aCAt4LvwUaABS8ytfShV4HCTJKi2yOs39g8iA4Sqk1lZ9lvoO5muEo8JWU52RjbD5KTrjyNqgdqeW3Sr1yVZx-b472Xm4U6zPuiI3rIVYKs-t6Gfa9M04bjhmoOLqss5R0qLAukatd17ZkoMSnL4bKHnZlQnDthlmjQ1xK-lY0Qidw2eMyRD6gfUpFOEI8a2sH_d92Cg0dn5ypLPPN4cmada7acOuREarPGQcTOAK_1wooHD-ZZsaHXLx-8tkHAaAmNWFS38L4klEs1Vr9o3WGcJPXQuX2x6jWJRmCQuVxe2MKfUuzzyBoj1O2gjoBWs_UNtW6bLc2KyhQHR6r8ZeB_6696G6orHLiV6UltNZvED45-P1RdWvcexgGajHhiEH7bZzpCibZst91i8FQf-xnkpftyDpEH0o6FtxNlLV9uU37k0W2aVJThBfRoBf7FeitGuHi57lZKfwv2Lhp6rIw6pLHI80iciE4c-OojXgUVdA-jz5HpcpgZ18kSgiaGyEuU5gt1qL9TLKSczUlbUUAW46r7enHlWctWz4RIEzunSRL_NW7N9UhA9U858xCFA6XYxDGD4pY1REVJjqkUUcIkerhYzdssfp58CZeox2rwVFCbTToT9aSVlYCTIYKmD5DjxRFf3HWhrATqFo0ljhoTIO7cfsKbCRmsQsy19Zn3cPlvO0CjdemNBXexAn8D2JgY9CEUIchlwHPSQEeX5p5z3Lm01-eTFvoOMD-AMxnUg8IxrEsiMZPnLay7RlS9sdL5wjkDCf_Pe35gfMvc7iLHslViCdkdkPwPAaj-O5qJn7jZITZZI1v-UxBDbenxGw63K7q8P__sdCabic7ZFXtUFknMrpUB0p-Y6COy-r0doPckcT0VYsevWsTptoXmKUPDZnqtpEH8fxm9QLS3-IJgnNlfrOg0TBrRkeYxSCQcVaYU165G6GVW0B299nmrMf4Sw2yzlZhpatfZiU33r1vcCHnoBAEGW3fszlMxFU_hs-2AAf57sd4ahf2w5iSK_4LTqOo2Nglz3YFaCskXD16jzgcEI7YWs7SlcdRlHVA6dTFY7uGbXb-WZZ87rdbVcE72CJe6gEkiwqP6KJxZC5rl8EREtUSF0lInQQ4sPyXiTt1nxh8JUhzX4uu-g3N1Fk3XSmWQpkfUWOCAui0NiMTF6WvLL7qArLitR4DIxtj5DpaVOg9oqIkcdeOlSJmP40oYOxicPhQtyxqLkuyWzeE0-MXVYPsmZyUm1kV7mEPeWAKzBT3mvPo9BhVLJ1sQ8arHaJuolmsZIGyfOdlbIpcthFn3CR1oyqb4Lo3dEr3vIdJyoj7mBZ-tV-dp6tYOVE2EBgl7S8wDawixzTYPEzfpDT4Cqzxs3PhV4x_wvx7Uxu42eHCKbyS6mWCJBqeJPIL4y1KaRrKuNWIook-jyLnIA3XXX1PEZY03LhOaMZkJr0Ea1asFjztwx-B-uL27j7ug75bC0tphw9jtvQOX--7Uj5Iv0AizNxC-ebUepNDZPBIceQ8jJTa167iX6-6FrLk3qSQ4u5m9G8ACtwwt4qy5836oUweStJ81d0nAv2FtxFH5NLiMRUe4A9NViRcPuvWqxUZPoxnvA3Mekbw_RGPfrH9UD_rnALT28z71PO_DtXWj8ZrHEhX4UMTtv2gAPe-EeJy5_EEEpIr55ekycofHJoR3DiBvoJIGEPyAtHpWlOFzol6cvsYWdC-y3vq7s9DqQEi47p2_by1IgOO63ZCSkNrBXkjZnVcDGFU2hhOLPgcEx3tKPK4GYbyvuc4YK2wS-IDElEPNPSj1-LjP3LNE95Q7rDdLbMzom7nOvla9-F3jzD2GwLxtvUFXJi98WJwQyeUVjKgOfJe7wrliuZVVO6FHebTy6Ywe16-HlsPcMLoQ6rdpRtfNTrXyKEKbbOXMz8FtsR9PjAZ3ll9uAqfOH9qPJ_VxYy2RiDbytnZ2xB7ynwD_hMNcH38UTJ0MTRf_aqQ-MnWGQknckk80QMMq1IT_G4w4kw9yhufUXhhIO4tYkvhQKNdc"
+          },
           "round": 9,
           "scores": {
             "442597396195704832": 8,
             "601406103712170014": 6
           },
           "round_answers": {
-            "442597396195704832": false,
-            "601406103712170014": false
+            "__shark_answer_ciphertext_v1__": "gAAAAABq0p0Ap-6UXPapF8dDWC3bVtpVVqbJRJGZ_nnsfpcoJI5mTVODya7dfkf1j_Y-OVSYzZtq2NPbnMsLWZ34XtufgN27r6F6HNCrbHwZDIlrlqo1O29JAke0SMkh9KweGQCHo-JripdMGUsKQqk1dm73_jwS7g=="
           },
           "history": {
             "442597396195704832": [
@@ -7243,64 +6911,16 @@
         "winner_id": null,
         "rewards_settled": true,
         "data": {
-          "puzzles": [
-            {
-              "id": "ag31u",
-              "fen": "2r1r1k1/pb2npp1/1p2p3/2qpP1PQ/4n3/PP1B3R/1BPN3P/R4K2 b - - 4 21",
-              "setup_uci": "g1f1",
-              "expected_uci": "c5f2",
-              "expected_move": "Qf2#",
-              "rating": 1337
-            },
-            {
-              "id": "d3bP7",
-              "fen": "3q4/5Q2/1pk3p1/2p2p1p/4p3/P3P1P1/1PP2P2/1K6 b - - 1 35",
-              "setup_uci": "a7f7",
-              "expected_uci": "d8d1",
-              "expected_move": "Qd1+",
-              "rating": 1377
-            },
-            {
-              "id": "UqcqQ",
-              "fen": "7k/pp4pp/2p5/3P3b/1BR1n2P/4P1r1/PP3p2/2R2K2 b - - 0 31",
-              "setup_uci": "d4d5",
-              "expected_uci": "g3g1",
-              "expected_move": "Rg1#",
-              "rating": 1628
-            },
-            {
-              "id": "MVAK0",
-              "fen": "8/6b1/5B2/3k1PP1/pp6/3P4/6K1/8 b - - 0 57",
-              "setup_uci": "a1f6",
-              "expected_uci": "g7f6",
-              "expected_move": "Bxf6",
-              "rating": 1783
-            },
-            {
-              "id": "n2wne",
-              "fen": "r3r1k1/p2b1ppp/n7/1p1P4/q2b3P/4B3/PPQ1BPP1/K2R3R w - - 0 22",
-              "setup_uci": "f6d4",
-              "expected_uci": "c2a4",
-              "expected_move": "Qxa4",
-              "rating": 1973
-            },
-            {
-              "id": "NtYHG",
-              "fen": "8/2k2p2/3p2p1/3PPpP1/1K3P1p/7P/8/8 w - - 1 44",
-              "setup_uci": "b6c7",
-              "expected_uci": "e5d6",
-              "expected_move": "exd6+",
-              "rating": 2263
-            }
-          ],
+          "puzzles": {
+            "__shark_answer_ciphertext_v1__": "gAAAAABq0p0AGv4nrddsw4_tEWo1lmNJgF0rdXKzTwgXW0-hNru-Vx91zVnCAUyPWFKPVNW5C3aRjNUrBZdh3Gx5-Gr9M9Hqb-bPQ1V-twKEVvxRtjy9tbgUFGZJ7K6vXBQv_scERUhMdYuBBYzBiOcFXjiY1IyQooxWtpTMFhzRBbm6RuibbesD3N5zsKtQHxWBKw3m1fPrVjtWC1ZHgoXCtN914lT0uHoUeiKsCxN5ezT98M6N_6mA_pBbj5bQUNJ4Wjflc79dkl-n84D-PYeDyQLEhhDPYgXLIUsrvMefYC3joMQxFvlmn4MTIqr4TK8IJDDdkj9Lf0mIKcyj9BQJdJT7jH7oz-hvYbkzlCuENrccCKdiuNdIRJRkZZRoarki3h-mR_NelxJMrEwWgC6fNmaAzvw2JIRdG2v8G3K3RPi3j3b5dTDs-7B7fcu3vAbbze1cEztayLbddvjEi40MEiwpYMYsvJkB0psb4EnwmS2mb8yqoI9GbkHktSe0uUEYq7yEjLTBrsdUFewDbbnSCNktMuKKZlVhQiHMZ0KJCqOcY59rWJXZbxxzYR9ZOYByjT3lSjwrRSqLYzlR6XanVmOlco51jp974l2G6i9x1OSKgef9LC6_ragw76GRjVjDCRNB1xlzH-GZkkBD7ik-EAirmO-SLzJ1e28tZDTGu8XEI0ZOU2DwyeBAOtW4rWA79YXr67H-yLIz3W4iCVYpCxI_IHDbD-UQEze4OGEPvTM2OGMMN5SuiFpl5Z1QA0IyAr0lcXgKKuoBfRwbRO7DH_foIs-6myfjTm5i0xtlAFm2PIanrXJWoMxiVNlBS2zMGAzsRX6Wuh1BfSdXkFrX1Mw0AbJu51LM_8ZzY0BggYxmtRZ_fSlGmKUqQRjwI4SkANQzCs0vo-Jk9ISWJv3mstj0AlXHqyJgAlyVsD2xbz8i5-o1cpSJmDAqbwfhtQuQfRSmQjkSfFX3kxTGp4oqgRL58GxuuIKRiUqGTjGOrGUFxR5jnLoHIxcL7VRwb84BZSpQMfnOkYtMzZZh0TixJ5hAeXFfhl2KLFROgp_muzxeKjtVhZI2e9mQNr_tx38ZtqJIxruUS4TB0H5vo-g1mlcRqLDAnvNGbElGY2SW7odAXJUELhI4Lu_P428hPuHOlZAA7Gkc2Z1nDm4G8nosMn-8MkEJE2UERW843iKnTJoWgHR2MIsAbnwttjMPSELTU-2NDKkRzKLoNvZAjwh7fbiFlPeRCh2RCDFYEJkFIN0iLA81Jd0foIOGDpvA1C763ocwycMHrFhkCo0iPK2Z7buPUUAtAGJuoL1D791WukbpJxn2LQ0="
+          },
           "round": 5,
           "scores": {
             "601406103712170014": 5,
             "442597396195704832": 5
           },
           "round_answers": {
-            "442597396195704832": false,
-            "601406103712170014": false
+            "__shark_answer_ciphertext_v1__": "gAAAAABq0p0Ap-6UXPapF8dDWC3bVtpVVqbJRJGZ_nnsfpcoJI5mTVODya7dfkf1j_Y-OVSYzZtq2NPbnMsLWZ34XtufgN27r6F6HNCrbHwZDIlrlqo1O29JAke0SMkh9KweGQCHo-JripdMGUsKQqk1dm73_jwS7g=="
           },
           "history": {
             "601406103712170014": [
@@ -7465,96 +7085,16 @@
         "winner_id": "442597396195704832",
         "rewards_settled": true,
         "data": {
-          "puzzles": [
-            {
-              "id": "LfYMf",
-              "fen": "r2q1rk1/2pb1ppp/p1p5/3n4/2B3PP/4BP2/PPPQ4/R3K2R b KQ - 1 17",
-              "setup_uci": "c3d2",
-              "expected_uci": "d5e3",
-              "expected_move": "Nxe3",
-              "rating": 1344
-            },
-            {
-              "id": "wPNey",
-              "fen": "1k4r1/pp6/1q1N1b1p/3Q4/2p2p2/P1Pn1N2/1P3PPP/R3R1K1 b - - 2 26",
-              "setup_uci": "f7d6",
-              "expected_uci": "b6f2",
-              "expected_move": "Qxf2+",
-              "rating": 1426
-            },
-            {
-              "id": "SG7it",
-              "fen": "4r1rk/p4R1p/b2p4/2p5/2pPq1PQ/P1P1P2P/3K4/5R2 w - - 2 34",
-              "setup_uci": "a8e8",
-              "expected_uci": "h4f6",
-              "expected_move": "Qf6+",
-              "rating": 1568
-            },
-            {
-              "id": "L5pOR",
-              "fen": "r1b2k2/3p1ppp/p7/1p1qP3/5B2/1P5P/1PQ2PP1/R5K1 b - - 1 21",
-              "setup_uci": "e2c2",
-              "expected_uci": "c8b7",
-              "expected_move": "Bb7",
-              "rating": 1514
-            },
-            {
-              "id": "xAIA8",
-              "fen": "r2q1r2/ppp1ppkp/3p1np1/5b2/1n1P4/P1N2N2/1PPQPPPP/2K1RB1R b - - 0 10",
-              "setup_uci": "a2a3",
-              "expected_uci": "b4c2",
-              "expected_move": "Nxc2",
-              "rating": 1629
-            },
-            {
-              "id": "1BuhB",
-              "fen": "6k1/p4R1p/1p4pq/2p1p3/4b3/3B4/P1P3PP/5RK1 w - - 0 31",
-              "setup_uci": "b7e4",
-              "expected_uci": "f7f8",
-              "expected_move": "Rf8+",
-              "rating": 1889
-            },
-            {
-              "id": "SiHt5",
-              "fen": "8/1b5p/1k2p1pP/p2p1pP1/1p1P1P2/1P2P3/PK2B3/8 w - - 9 42",
-              "setup_uci": "c6b7",
-              "expected_uci": "e2h5",
-              "expected_move": "Bh5",
-              "rating": 1992
-            },
-            {
-              "id": "X3hgZ",
-              "fen": "r3k2r/ppqb1pp1/5b2/2pPp2p/8/1NPB4/PP3PPP/R2QR1K1 b kq - 1 14",
-              "setup_uci": "f1e1",
-              "expected_uci": "c5c4",
-              "expected_move": "c4",
-              "rating": 2005
-            },
-            {
-              "id": "sHD1W",
-              "fen": "4k3/p4pp1/1p2p1n1/1P1pP1P1/P1qQ2N1/5N2/5PK1/8 b - - 10 40",
-              "setup_uci": "d2d4",
-              "expected_uci": "g6h4",
-              "expected_move": "Nh4+",
-              "rating": 2182
-            },
-            {
-              "id": "hog53",
-              "fen": "8/1p6/p2K4/P1P5/1k6/8/8/8 b - - 1 46",
-              "setup_uci": "d5d6",
-              "expected_uci": "b4b5",
-              "expected_move": "Kb5",
-              "rating": 2179
-            }
-          ],
+          "puzzles": {
+            "__shark_answer_ciphertext_v1__": "gAAAAABq0p0ABxBvta99dkBiMByk1WabY39EaIn78yEK7JVI2xJvel0YXh-2FDfvx4gmF9NvVzezhDNiskQMsgyt9UxBHQ_T1QkYfQ9iwvUQKvHRxmwN7X5VKsLObYESignkANVnTAaPa9j7Nr2ZyJugcg0zqheEQWDqfM-wKhXcuVt-qCOi2FCZT-v70B_xpQhE6asA5iZct_krACJjidsJLqu1MyPPOsmgAp1fV323MhJNzkzgF3uwn0UlNSMsmTheWI6InHLz-gIj6Sj5Hex-V-yS6cwOXVJAR-jzxPsMK-3NHuN6Av8VxONfEh-NRX1HJOVmVdXsIjecu8kXeny6t6P93cQngd0wFDDhELzLzjaUTod_igZ8RFxkjQi7ofJ__5h9UA0ShZ8n1hheTLQvqgJ0EyOTcnV-_vCH1o-ZRL3eG4RhYV9hGC2dVkMpR9Fc8OUMXejoq8Uhk7kLOjdV2NmmntZgcqUs9bhSWNAscDyeiP7eTxjUYEjHQTJaSI_9LE43NHqDAOBKKBe1JuLEdBfl4K_PNaO4HN2wwqCIQvPs4vJLfZPAS0aAPcnMkZgkyWOzQuVCmX8KfsMBkHj-dsBlB-BXDRdf7JgJAAzzY48Zfn-LSPNFlJx0thbkBKocvwQrjBxhwhKH6r4IwWqs1cVBc5o_SRcUGWvz3ybAWd0ZZdQltntTMTHLqDKAUzwnpgvoh3MXrwds5oGJrmOFsg2jzKb-Btzp6jjD7sargKV3XmYOoW8c5n_TB54uQLW7XpGoFNja5QEV5mZb7zvMaY5sZRxOrL7nu5voaTc4I8WPzIbvVVEgtV_2BjvJLHIw32fy2KLKijTL2HgFNLy2BIEL2xnjQVLuRPNGhHvS2otOi3W1o5NK6c03Kk1FFv20HvYIKrlhQbSF77Dqih5dsbND_e2CkgwCcDnEcwfSbpO1dTSaPQBJAQuNX62AZvwVr73lKQQF-h7xuHcGeMVqfnrJKCzxNm_2jWJx5t_0aVWf7-0Np1Y_kKq5rYZTBqdVngF2ibUFUCxSKNu572xti7cdW-Fqc1LZIHlmHKdcbZ8CrR_Or_jw5VUY-SobZoyHYD_wx-XKH_LB64CJj45adQtVtHPKUl4xWy93NfXb7S-fhbG0XR6mnI7qraGtFNfYkqjGMmry8EABTa6zQVAXBy5yAQWf4qz7c585X55sWI1yfMdFKR8mdDujen-Itbmg-9rK4uSIcmgXIh30JIa2q-0Hy6kvzbyb0TJzDOmfMx4ScoZ0kgcjde5CPWYVZHe_xV5BiSwdxNvmssfzK0kcrU4fQ2aH7YXjkUXbQjF9gvMPgt7bZW4plCXEh09Z65Y7stD1GgUM9c8CLhByzzuOO0n0-FOsUTBdUZricEteoDarcQA_Mhslqpubqw2ONQ_JiL_U2BPZr4kvDgzfO_-smOa7NIwd1yteA_dgFf3hq1N2Zr_ly-902ZkXQtNLJmArSsSNuz_KIhTfpKGeyIgoqL0FG-Vdxpg4JQDbIynC1gsTngkPAWTPro-ZZqsveZXoOJDFvItD6Ok7ZSgokmzEVP0EanPRbGk357hS03_oT5GGx9mcsjnU8Be0TpH40hiGVPNOs5KZE7-klKeG-5uVG3bpBi60T-eyjky3M0090x4PiGn2eMKLiuNddOGKWAs6KDAW3gnqUBxKAdQliTHznFiU-pIv1TU-UdJbVqOw3hIjKy_aCNdaZKRKk0xm0oUDy6ZB1hrl1bvQ93Fe72PjRq1w5lrvEowaY9_PY5pSQeH3APeftDYlLIeYLtzzdv4kO13LOuebKfXWfv7cDXJinpFhBTX7BZLnWvAx0Lf7Q9ZPgDS-CdE8C4Q7EEtAgBhM0iVTXvFJ-hmijoqsX34xgk96178V93zxgB-ITlA7ux7t3_Egz-k-5J2Eytwv2JEfzds37vOfCamh55ZWRvCCieIBkLugjtcZihSmfBjLeGq__S9phyjeuFanjQYCX5rXZ5PN7zBVR8X46gST4-YJSJUIHAi9ob6vnUQ4YtspsDThSsK_roeGIhZuVBew7M-gZdfBGQAb0NbNnHNovb7Hru_noeUqyLvf8Z2w6VaJPspvdWqbNiTOpvKk_Wem8VciU6JMmBUyl4lggd6mb_McUr68O9xafyC2eqzarSgqKW0xxBTY-DLZC-OE8DFNuEewhfGeqOQ7"
+          },
           "round": 9,
           "scores": {
             "442597396195704832": 9,
             "601406103712170014": 8
           },
           "round_answers": {
-            "601406103712170014": true,
-            "442597396195704832": false
+            "__shark_answer_ciphertext_v1__": "gAAAAABq0p0AQYhBKjrj78Tc081QPJQPFBRZfm6pmILSpJFpTAlysKizhINFBa-pFrnohl8NcrTH_bKb0WvvCJNfEZ7ecpcCC61gm7YbMPoxH3HVg0gQAkFvFJHdQXx5IiHHVPTD7a2e95dbvh95IP4XFOgIvsOOog=="
           },
           "history": {
             "442597396195704832": [
@@ -7807,96 +7347,16 @@
         "winner_id": "601406103712170014",
         "rewards_settled": true,
         "data": {
-          "puzzles": [
-            {
-              "id": "t4ztW",
-              "fen": "5rk1/p1q1bpp1/4b2p/8/3pN3/3N2Q1/P1r2PPP/R1R3K1 w - - 0 24",
-              "setup_uci": "c4c2",
-              "expected_uci": "g3c7",
-              "expected_move": "Qxc7",
-              "rating": 1349
-            },
-            {
-              "id": "WBb03",
-              "fen": "8/8/5p1k/p3pB2/1p3nPP/1P3PK1/8/8 b - - 8 42",
-              "setup_uci": "e4f5",
-              "expected_uci": "f4e2",
-              "expected_move": "Ne2+",
-              "rating": 1363
-            },
-            {
-              "id": "USOax",
-              "fen": "4r1k1/R2Q1q1p/1pp1rp1P/3p2p1/3P4/2P1P3/5PP1/5RK1 b - - 0 34",
-              "setup_uci": "a1a7",
-              "expected_uci": "e6e7",
-              "expected_move": "R6e7",
-              "rating": 1496
-            },
-            {
-              "id": "RFeVQ",
-              "fen": "8/5r2/p3P1k1/1p1N4/3P2K1/2P2p2/PP6/8 b - - 0 38",
-              "setup_uci": "e5e6",
-              "expected_uci": "f3f2",
-              "expected_move": "f2",
-              "rating": 1687
-            },
-            {
-              "id": "TWKTo",
-              "fen": "1r3rk1/p1pq1ppp/3bp2B/2p5/6Q1/1PP4P/P1P2PP1/R4RK1 b - - 1 15",
-              "setup_uci": "e3h6",
-              "expected_uci": "f7f5",
-              "expected_move": "f5",
-              "rating": 1721
-            },
-            {
-              "id": "64sUw",
-              "fen": "8/p3k1pp/1p2pp2/1Rr1PP2/P1P3P1/3K3P/8/8 w - - 0 29",
-              "setup_uci": "f7f6",
-              "expected_uci": "b5c5",
-              "expected_move": "Rxc5",
-              "rating": 1946
-            },
-            {
-              "id": "3UAoX",
-              "fen": "6k1/p4ppp/8/3bp3/2p5/P1P5/1rr1BPPP/R1R2K2 w - - 6 26",
-              "setup_uci": "b8b2",
-              "expected_uci": "c1c2",
-              "expected_move": "Rxc2",
-              "rating": 1957
-            },
-            {
-              "id": "5Cgjp",
-              "fen": "5b1k/3n1p1P/4p3/4P3/3pnQN1/2p2NP1/4qPK1/8 w - - 0 42",
-              "setup_uci": "c4c3",
-              "expected_uci": "f4f7",
-              "expected_move": "Qxf7",
-              "rating": 2124
-            },
-            {
-              "id": "zJG14",
-              "fen": "3k3r/6R1/1pp5/8/3P3r/4P2p/6P1/4R2K w - - 2 34",
-              "setup_uci": "d7d8",
-              "expected_uci": "e1a1",
-              "expected_move": "Ra1",
-              "rating": 2164
-            },
-            {
-              "id": "3sWoB",
-              "fen": "3rk2r/1pb1npp1/2n3qp/p1BQ4/8/P4N1P/1PP2PP1/2KRR3 w k - 1 22",
-              "setup_uci": "a8d8",
-              "expected_uci": "d5c6",
-              "expected_move": "Qxc6+",
-              "rating": 2366
-            }
-          ],
+          "puzzles": {
+            "__shark_answer_ciphertext_v1__": "gAAAAABq0p0ADEXJhhKjAe99vz58gw8dCoryW7WRRGYbqaL8pdDgL8auMirPSFKY45lsIdrr5Mm309PldhN_2JDFcSMRWyEtM3A2bI8kBjlc_7xil5mfSEt11EcZde6d69ZnCGkCtqzz8QdCLYetwAebzfLbU2m51BBsBMVNfFIXG2bIX7a4sBkJ6JZsqEUgz6FIo3Er6zGJ0ORzCGj1fpo9lh13U2pb03Ct-V8yxiGmd1TRvcUCJzqMq1SV87t1zhDCwwEGUBjbl9hgykqM2SN6pGjhfyor8SpR_iaUIt7Zg0KBFKusfWeUqRPh31yqH3F49jCXmCueBR7XbrQ-K2a9Jkj14ElRx266tfxYlmdMCUa4fXfvCYDYmL8xs5WFVyYL-7DMg47zrOXyTxH4-6IL50A8nQhylPwyoTK1EG9g99--0sLMjcWIj20NwkbzvY5tdnr3nyaJ-EQC35lQaefwMsmrIcK0N77BybumArtgSraWL6J4I2VaiHbhnVvD84kyxGamhUAFQfJ9RL68WziFk1mxoXK0sY4TypO8msKBDeORH4V8loDXawXsg6pLmyY38zW580gM0RpLNwLolZm-FQguvrFkUTTgZY9_Mt6lbGtzGuhf3-v7J-9NtYuFdyq2Q2Tb11K_vkM4u5O9DMV87-0M0Trq1EQqIb7mjzvCkGHJeVgt4GrUWWG5k5TOmXu9T-O1YRuM1G7OBKLTKho12BNbiLvkSw7I_mOxasD5ReTMqFvnQ9Bn-4blWhRt-dt59CjfJOsWUrq3gr2jeCEh3dnOhi0I9V2-FSCTwvYemJYBO-9hZjVnZKJeSeyY42VinnG3Fvb2f8kDhN4Oh5P3wNqL0jIE9qh5ma_QpkQj1nqpaNqTP_BmvfU2HYgWRpnxdnGPjgIU9rfankQZxhmrJFWuh72D55mg31np0mwpLawe9L8V13UBzuTRe9_O7B5h65-iSbDQOHBLKkMHSseqkpNx5nNx17VpHFNAapM-LUBHILEhWlCYoGwcmZdfUrWKCoUs9ml1XndZmC-rS5McP7gpG02UtA86NBG_Ykkr58nNQl1GwZydJzV9dZCxknNZPWwv8jAqDHRqVyuaWpr1VEaEz_nWfych8rdCxpKwbiXoAarbICG1AMTyAvvMJSlseuAzKQcOafX738I16EreQcLFT8nmov_YhUtAxCEK9FPzBKBeEEczXal2YzLmsrQs3i1joJa2wCi363b492A14qSTX4jy-0nhN8NZX1mP8logEs9nPUkeizms3lSZOcnl4fWNu_hwp3mQfPw_7PdK2FcPK9i8CmSTOwG-jtcnr2i4RVOCDkML_-4t32O7mM3Kw9HVclv4wUuW9qv5BRO1H7b_km82FEEir40bfuzLEJDNOdtWr77UzHCBXIthzG7ejb7gafKZBYzzBGF_4DbvmpnbbBegwwNq2KEynMuC6uDhiICXswdj6Hos7raBwmEL_U-OIrc5nPd88-ND53zbqkuAmAv-DT_HkVSzzRnmoWN5prLJUOXJOP-ZamBtZE55AQLf-6h_4vND-10UCHRROxzYpLqSxxLUjwwfxML-cOcfI4K3WtKnGbMfXvr-1TXl34AbbG3QbMb5Mfm3XYqmmLRqKG6deyXWe1z2BqiIylqT85jyb9OZP45LP2Xh2zxn529P3BfYbMbSbcpfjht9OT2jU2G0WgED2lNftnr2Dca5_WpnIRW6-cPRAxdrnlqJ0H8BNHDIdfL57SJw76q5iZTejS4tCX4kx5XkdO4Za0222UwuwZZaYi-GL3XRUp2YPZyF6l585-vEIMTZyGrv89_A-0ya31jBbh-MrCpV4kEfLa9WYkXoLITFKCMyqxNff-Xqp9uTxT31jHZfnsRE5IkcWlBHHHt97uhNta8w3dQ6v47TG5YV5ROZvK7vadZZIaHkutm2ziMcN-Cf3VQ1R7GG0Xba0lAe5SEq-_PZsfY3EDD-CUA3yR5KlaUCCN3jRmQRylQQ-Y0II54T99HiK-_Y45QJ_almpJuOifeIqDd7Gdtr5o4g8BCBmHGZraSz2LCzwcod178fV9J0IN9WcS5N0QRkrlptw-Mwv3kvp4n32A4yYQK2h7MRMYdQR5mCTyg7AEY8DJNy9CUJYcJnlmIXFvBTdQ=="
+          },
           "round": 9,
           "scores": {
             "601406103712170014": 10,
             "442597396195704832": 8
           },
           "round_answers": {
-            "442597396195704832": false,
-            "601406103712170014": true
+            "__shark_answer_ciphertext_v1__": "gAAAAABq0p0AQYhBKjrj78Tc081QPJQPFBRZfm6pmILSpJFpTAlysKizhINFBa-pFrnohl8NcrTH_bKb0WvvCJNfEZ7ecpcCC61gm7YbMPoxH3HVg0gQAkFvFJHdQXx5IiHHVPTD7a2e95dbvh95IP4XFOgIvsOOog=="
           },
           "history": {
             "601406103712170014": [
@@ -8164,62 +7624,17 @@
         ],
         "rewards_settled": true,
         "data": {
-          "puzzles": [
-            {
-              "id": "3v8Gv",
-              "fen": "Q3n1k1/5bpp/4N3/3p4/3Pp3/6PB/1r2q2P/5R1K w - - 5 29",
-              "setup_uci": "f6e8",
-              "expected_uci": "a8e8",
-              "expected_move": "Qxe8+",
-              "rating": 1329
-            },
-            {
-              "id": "pOBZa",
-              "fen": "6rk/p7/2Q2R2/5p2/3P1B1K/6P1/PPP5/5q2 b - - 2 34",
-              "setup_uci": "h3h4",
-              "expected_uci": "g8g4",
-              "expected_move": "Rg4+",
-              "rating": 1539
-            },
-            {
-              "id": "nHtDX",
-              "fen": "r4r2/pp3kb1/2nppqp1/2p1p2p/2PnP2P/2NPB1PB/PP3PK1/R2QR3 w - - 4 22",
-              "setup_uci": "h8f8",
-              "expected_uci": "e3g5",
-              "expected_move": "Bg5",
-              "rating": 1586
-            },
-            {
-              "id": "ckuMj",
-              "fen": "8/6pk/7p/1Q3P1K/4q2P/6P1/8/8 b - - 10 62",
-              "setup_uci": "g4h5",
-              "expected_uci": "g7g6",
-              "expected_move": "g6+",
-              "rating": 1845
-            },
-            {
-              "id": "3T1gd",
-              "fen": "8/4bk1p/1p2p1pP/5q2/3R1PQ1/7P/P4K2/8 b - - 3 36",
-              "setup_uci": "e2g4",
-              "expected_uci": "f5g4",
-              "expected_move": "Qxg4",
-              "rating": 2240
-            },
-            {
-              "id": "aPa7r",
-              "fen": "3r3k/6pp/7b/pP6/2P1Q2P/KR2p3/P7/2B1q3 w - - 1 34",
-              "setup_uci": "e2e1",
-              "expected_uci": "c1e3",
-              "expected_move": "Bxe3",
-              "rating": 2201
-            }
-          ],
+          "puzzles": {
+            "__shark_answer_ciphertext_v1__": "gAAAAABq0p0AoqcjfsnXSdLDiGwhXUfvnUS5ZBAL8pB7t3_G423OGwu2q1VhtScioDwyAMZRCjtcKDN6bfgNryqVw3J3Db0nqmv_sI1jnhLD7ulrZSJFsgfj5eBv6SSRHKkK3zf_3SjoocXrJDibY-I09VndJLNo0Bx_r58d9vIyFI5hePnsqqzeN_1LuZhoqj7r5f3tOTZIzBZy0jkakNm5a0X0W7_IyrG2Mt1icoDKZYnp-itPCDscnPwHNF_YWGHwVkPsv_FiP8PXgGxS9gi60dXCSboCSgRu57nAtPlUVZP2v7R_j649AKX1OB0OI3-ZcChkuZXlGV1PfbijLcPMjii_Ph7qiZwRM6tyS2a7Bz97HdbGa0cHMbfO2nYRPQ0awAPi0B89Qn14ZbkjdFsAXYsbbxHh0aU6DjIRuGC_PzmYj1xEZlMSfoto4h-jv9qwginUVNuD8YZyxlQDUeRKaX1i1zMWpm3WjIN22wvzHI1VFepNop-5l0cr8cVcB6AejHB1rbfnTa55xuIfaRMKMs7vE62eqSd4EV3U5rTF-JSnXd2m_oMytY7usDA2KGSfPoMqFr70rIIPSQ_svDn5ccqVZQq6_QVABV2aJUPa6wwn10hQtW3dbSSMiQG9kMBuD_fCmuY8MPp1gCKjSx7biCPi-42FYgJWNY7QvyajGXa-KlaPsnUS7Iq_fbvt5PGosQdeYhIHuuWbsIKPy3qZmAK0xEfe3dTEckqkWtvZIQON0Cp160UWsknIBnnV3DZgai0C_7_0JmWb1x0qz8WSaOsGr8o6yZiZW02O32nO2moEeyLinOP2OJSZ7VJvJpx-Nh441kXJnmQg1SVoU10z6VOhJeWTwjbHKiCaIXrbJsB5pHAE4VUhWqOrIqHZs6btqosGNmBBeCWXs34s0NFvPOkHgJD-vGrfVCrthtZez_TFovxwv-IkAO0FjBbEU2j0EYT5oDy7QHejEA5OvynDAsBBOy-DOKn9OGXr0wbHZUZ56wWko-rGb8LKHKxBknxRWMqqM2IhFceTuaf77gWn0Sr_29fivdkYgTQ4kK_YdCkuZXdmKqPAfy7V09G5jxAqpUupfcPFbi89gRaA00e_mlU98xve0mQO0PotO-jHsLD1u2GGIFwFCewVSZ5MUKFm60d6LoEEmNpsWItp6tEP9u9A6WhfIxZ_35ME9zRQDp7dmuAcKoPoXSKa2NP100dtvnRwvjWIQNo4RvntR3pi91cjbOrZv0EKzzbiK7hyvRcxTHBNjsTPzaVYONK85dCrFYWuAb62"
+          },
           "round": 2,
           "scores": {
             "362606514764251137": 0,
             "442597396195704832": 2
           },
-          "round_answers": {},
+          "round_answers": {
+            "__shark_answer_ciphertext_v1__": "gAAAAABq0p0AmeOVh-zkqhVPbU3UIRUiXDikOV9eqy4d1sP-TT-yV1Nq0UgKSRbXMymXoJ9KuHbpbwkfrN9u1kSiHaBQPUxyzA=="
+          },
           "history": {
             "362606514764251137": [
               {
@@ -8310,64 +7725,16 @@
         "forfeit_ids": [],
         "rewards_settled": true,
         "data": {
-          "puzzles": [
-            {
-              "id": "hrPWo",
-              "fen": "1k2r3/1p5p/p1p5/P1Pp4/2n2NQ1/1PPK2P1/5PBq/R7 b - - 2 32",
-              "setup_uci": "e2d3",
-              "expected_uci": "c4e5",
-              "expected_move": "Ne5+",
-              "rating": 1295
-            },
-            {
-              "id": "9m8dg",
-              "fen": "8/R7/5kp1/3q3p/8/8/1K4P1/R7 w - - 0 44",
-              "setup_uci": "c4d5",
-              "expected_uci": "a1a6",
-              "expected_move": "R1a6+",
-              "rating": 1521
-            },
-            {
-              "id": "jID4S",
-              "fen": "r1b1r2k/1p2q1pp/p1n1BB2/8/8/5N2/PP2QPPP/R3R1K1 b - - 0 17",
-              "setup_uci": "g5f6",
-              "expected_uci": "e7f6",
-              "expected_move": "Qxf6",
-              "rating": 1579
-            },
-            {
-              "id": "Wfw0k",
-              "fen": "2k5/1p3p1p/p3p3/2p1P1b1/2Pp4/1PqP2BQ/P3KP1P/4RNr1 b - - 9 27",
-              "setup_uci": "a1e1",
-              "expected_uci": "c3c2",
-              "expected_move": "Qc2+",
-              "rating": 1864
-            },
-            {
-              "id": "Ahgtc",
-              "fen": "5rk1/5pp1/p3p2p/4P3/1pR1qnQ1/1P5P/PB3PP1/6K1 b - - 4 25",
-              "setup_uci": "c5c4",
-              "expected_uci": "e4e1",
-              "expected_move": "Qe1+",
-              "rating": 2029
-            },
-            {
-              "id": "lIvJ6",
-              "fen": "8/p7/2pkp1pp/1p3P2/1P2K1PP/P1P5/8/8 b - - 0 32",
-              "setup_uci": "f4f5",
-              "expected_uci": "e6f5",
-              "expected_move": "exf5+",
-              "rating": 2416
-            }
-          ],
+          "puzzles": {
+            "__shark_answer_ciphertext_v1__": "gAAAAABq0p0AUosdC6KjC8IUKqG0QaQ4Mho6WldBsaRwWZN60G8wU-S9Octpl6T5AHJMukXMC56n2Qp1ryRP-EuP7pIFDRgTuJvS5ASvRY18SsAqxCS7YAbt7oafUuf4e3tWN5SGuVK0l_mfsF2Ss9YCJiQ3w6j30DJthzWwQHcSBNZ7B2yE1EH9HvlMi-yQCggpECFfVm-YqSY0IvswfflF6HUatgyzvbtz2PoGo-FIdO1kcdAE-3Eg3J4Etv1gU9VA7TNsZpRMosE1A3XVRE6xMga9W8AwOdY0jSZ-BW2qgyzRsDolWZoPf9kekpHuvwK3eQ-55WK6Kk9AjLhHAqQq8a4K43AcdT_xwzQ4pKhCMG_GnPfOtJUp5q4XHyVWg0DjXTah_jsPvgg8B11CerKgJhuXeqoeXVnDvNaepn-6g2TJqtmcZPjU_sJ22bqJPlK6nHEi8q_cr4YbNu2EGcRNkQFT6sJai18dpI-gapcl6s8i4VQsJYKgy26qTwEjDniyhmkpeUaW3IFLRGkvQG7YFr4VkzbUNPFyV8ncPbtPKTK08rVDi3nwvIR333fPhoZvpL1_bcRAObydI1cAAMGvXpkRJyTcpX4jw-v-B356oLsx6e8Rd9GEEpxHYJjdlVD8HcYAA36r9KH83ndXHBOd6qIM1NEnCr8RZMwCIiaZmztXTOonIMNJEqR3YcApNI__b15qHxPNQeCxbAdtSwH2lzF37pzLmQUdSqhLXSxulgCE74TBTNfMKdzLZCxpffvYJfpRkpx9O-RlO-ErW65lAB4rVlwNtSzvzW5F-A2gLE18reTb-NQTBd-8wcEsyRjeOHEhOlodBdaOqvQHCsOQfLhY1YnukbcrrztkK8R2o2FkQKt_D90LMGVaLSawwNTWmePpXQBNnKcpHOdUH_HGZ20aH6yGnoeGqNa3Sn9YxHfAlr3jHwiLje83Hh4Ck8UvcI8FrmPPHqcxLvbNbhMpnvx4524Z5aBXhOKxLRLvW0UJssKZd7PGxa_LyqBEcIiOGSI8xwNXAXoKpuWG_6OfXyvx7mJCo93irCDoVx1fpyi2TaX6g1uvpNzdcqWXWDQih0zqNMi7PJKdaPgzfsiqQEylbHGb7Lkk93FNzJ0P7dZp1qQmLUBVthWbmwHJI9gQYUIVwH0z4ASDbJv54BgZwL3rHz8VeluoQXhVDO3LdJnmkO5YhbPjPV7NcYdFM06sYG87HsaUMVLHG6ORoMCjNnwWF9ePGyrCNM9nVD3kspDDwb9moGVdm6cslWQmMb6zWFxXq67q1zQX9aUHM10s6xhX5M_IKw=="
+          },
           "round": 5,
           "scores": {
             "442597396195704832": 6,
             "601406103712170014": 6
           },
           "round_answers": {
-            "442597396195704832": true,
-            "601406103712170014": true
+            "__shark_answer_ciphertext_v1__": "gAAAAABq0p0AffZsgKJutzC0beLwQv93YoNkrGweWmbavnPNudk31o6qmiFnzMip3bHzG7ekXN7braBZ2NtXxXrFcj1MXCk4vX-EMVkknReoVMaki40HJsf-Gorpei0zzQOiJ7AFY9BC_9NXlaDKMbTMhWhrovzmJg=="
           },
           "history": {
             "442597396195704832": [
@@ -8546,96 +7913,16 @@
         "forfeit_ids": [],
         "rewards_settled": true,
         "data": {
-          "puzzles": [
-            {
-              "id": "ivh2j",
-              "fen": "6R1/8/8/2b1rkp1/7p/4B2P/4K1P1/8 w - - 1 50",
-              "setup_uci": "d5e5",
-              "expected_uci": "g8g5",
-              "expected_move": "Rxg5+",
-              "rating": 1431
-            },
-            {
-              "id": "jnnxm",
-              "fen": "8/8/3p2p1/p2P2P1/3kP3/1R2r1K1/8/8 w - - 1 51",
-              "setup_uci": "e2e3",
-              "expected_uci": "b3e3",
-              "expected_move": "Rxe3",
-              "rating": 1441
-            },
-            {
-              "id": "XP7Gt",
-              "fen": "rn1qk2r/p2bbppp/1p3n2/1B1N4/3Pp3/2N1P3/PP3PPP/R1BQK2R b KQkq - 0 10",
-              "setup_uci": "f4d5",
-              "expected_uci": "f6d5",
-              "expected_move": "Nxd5",
-              "rating": 1433
-            },
-            {
-              "id": "EkskD",
-              "fen": "8/4kp1Q/p2r1qn1/1p2p3/4B1R1/P7/KP6/8 w - - 10 41",
-              "setup_uci": "e6d6",
-              "expected_uci": "g4g6",
-              "expected_move": "Rxg6",
-              "rating": 1658
-            },
-            {
-              "id": "kJc8m",
-              "fen": "1n6/p2n2k1/1p2p1pp/1B1pP3/3P4/1P3N2/q4PP1/4QK2 w - - 2 31",
-              "setup_uci": "c6b8",
-              "expected_uci": "e1b4",
-              "expected_move": "Qb4",
-              "rating": 1666
-            },
-            {
-              "id": "x2l5V",
-              "fen": "6rk/pp3p1r/3p4/2b1p3/4P3/3B3Q/PPP4K/R7 b - - 4 35",
-              "setup_uci": "g2h2",
-              "expected_uci": "c5g1",
-              "expected_move": "Bg1+",
-              "rating": 1911
-            },
-            {
-              "id": "NJxPp",
-              "fen": "5b2/pp2k3/1q2pr2/4p3/4B2r/2R5/PP2QPR1/6K1 w - - 13 32",
-              "setup_uci": "h6f8",
-              "expected_uci": "c3b3",
-              "expected_move": "Rb3",
-              "rating": 1831
-            },
-            {
-              "id": "SuLCC",
-              "fen": "8/6pk/p1Q4p/3p3r/4q3/P1P5/1P4PN/5R1K b - - 6 46",
-              "setup_uci": "f3h2",
-              "expected_uci": "e4e5",
-              "expected_move": "Qe5",
-              "rating": 1968
-            },
-            {
-              "id": "ttnjN",
-              "fen": "4r3/p1pk2P1/1p1bp3/nR3B2/3P1p1r/2P5/P1PB1P2/4R1K1 b - - 0 26",
-              "setup_uci": "g6g7",
-              "expected_uci": "e6f5",
-              "expected_move": "exf5",
-              "rating": 2120
-            },
-            {
-              "id": "eC9jE",
-              "fen": "rn2k2r/1b1qRppp/p4n2/1ppp4/3N1B2/1BN5/PPPQ1PPP/R5K1 b kq - 0 14",
-              "setup_uci": "e1e7",
-              "expected_uci": "e8e7",
-              "expected_move": "Kxe7",
-              "rating": 2417
-            }
-          ],
+          "puzzles": {
+            "__shark_answer_ciphertext_v1__": "gAAAAABq0p0AKVkjuASaSj2d17vLN1rwrvOXT09034piaOPeJLrdoeNqtCPX2Eq4UpyA7D9hjPQSOrXx1patri9yJfG1vL3guQ3y7gfoq6WGN7e54DWcaLatqnSU11NYOaXYR6PQPAuETV8rI6t3RZHFy4BiAgP73jAo8wZoBHKTqS3MpAoCcFVD5pGpxbbqwvSQ0N1JbqzIiTnyfvbassYfz--oLm6rzjA5X784Mr8g2kOxOtxwI0SYk6QRnwSlv9bf7mJuH3R1OmAYY9Yz3Q_mz5yohCgIylPZKBM9NKYMSbbpMDBEpC6ADgqlMJ48S5Vt6lIIa5Ud8x-cgBZsJ0shYbQ4bs96t49-FRpCkMVP1sRWmNGi-oEcdGqMQuyQeCp4BMEvxzfaVw1PK0CVdaS_boFnQKz9aZMEiizTBV0KAMlxTBJivgQsaNxgsTzVxx_X4lylwdfnDtfkt5EjurTYoTMk3asf9XkMtEQSBKnaUwgEsCZW_gzQYUx9FpMp873nfBx_WfAEiQsG337toCp8efxfEuUAGOC5f2Jqo_Z-wUkNSvbfdG8AbLVhia_-UODePh_sjVxMPcc-NSZ_AJ0fzzk7nO0AEvV_rgyRreL862IDYg1rKc7swhI4_giD42uhQXoT-CsLhfbh2dsTjr_gNwfKfFdzdKoQH4y6P4Qa1GPwzeCWuKIHpMliMxpPK4XHlYv8C7kfPBFrnIMdUVxplyWsjZRtFxeaEFtECVzVN3lXXhAwURLhCs2u9evzAglXdnsksmsQo-kH_5rDYFyPO1BsIyWoSke5HsGrT6WFHvwkDewOn0sGOAvS1qkFyF-3cppvfjdFtoLoH5zHUpUAciG_bVvZD46eM-TEdMOJCclzCewiyD3uTqDSAG_D5YAu3uSJvTJrz5S77iqJ4vm94IUjbVhZE21-ri-s_7kCgn_DdCisxJxpbnUhF6PeZy8WnXSoQH5YQx17x6Nza9KEQWlkvPDFEyNfvgKHEedchi4-ltJH6yBQ8oKmMiWTwa9gnF6WJ6o0btmr4ycKu0UJ4TRzL3ubot25yBhpQQsUdifqhKDxtb_Rb97CL2NOXCo4FCsAFvWVifN_tV69jmDw6QpUOpucVe1Hcjt7NQFDEtYhGC2g2K2Zy8tbHQbM2HGW_G5RXGIe3k0OSsK1vVnNIAvZwh4oM2StKgKhT0tpLSaMaukfmnvnKqVtTWq-zrtYhWTwTUMfCdhgNFZ4d9k5QLZZ4-LEPXM-bCWKrh6r79viSAS4z7qcoaKEn7ML7VeXEzck9Hgb8jwH6oRPvFbOsp84nPf85VhxaejmQKOloQNemGnsds2onwidtJjsveGvWK7vEKZyvBzM0uYk-7XjXw9F0SJlUZkeTfU3tgaL5hd4tjPduFAmxUxy5JNpNT9vaHjTms6pTX2JzA-bnGqBp7tTSm0TYeHjWDAoiToRT7Qqmaf_FYWVzLjZrGqTMQNXxTKKE9LRiM-5fX0TPjOa74wDa1DGrrUU5ZOYS85nvwtAbG-uZeoYnajbJrHqYI6lHLHQN69O6ZZOjdb3TuWyi_4mX7FNXZuJGtA6LBPV7Ki6h8yQax8q1wjQplUSQI4PBmbDQZ2Fupy-06mqnpgen3z2CYu4n9-nBMozjzmXSVnyxWgKkP8pX_2iwU_6XwqfpHSPO7_S-pCdHsCvveVoCA42aFfBg9GEq2gQNHm6OsHFVvB6MPmSbXxyni2a7VuG3Q2sGTbZy-KisGHhYgMjyLl1MPeTaZ23zpeUcHdLD4u5lvdwF1MiKJHH1snVCig6Nlnngr_wOWaRePHdrSVKY6LDWMGHbqLv_9NZ5v-EiV4EA60OGigp8Gpj0LGGhDCRHt2lSYVOUtOiBnB650xSKyNwwUEKux4KuhtgmleIfIdqarYXRnahLRbIpLkDqGtokckPtdZFjBMI38rkUk1qb9j1eBV_B0fTS3l-EhujTKxvGtkOJsGSOMP0eSmHMlD9Sq_XN169PJVrpa3u_15a5vQvYOiIsuA9TRCgRMxeTLXM0CvHTSGDt7RlA0DgrbZGWRqL77Iep2vZERF_HWtNtcycvGPBVv5CbFZBple2Ufov1DW4cfzKxlfbg_AScqovbCXcDXCbdz8Oqr5PAOGw6NsCRTZs3A=="
+          },
           "round": 9,
           "scores": {
             "442597396195704832": 7,
             "601406103712170014": 6
           },
           "round_answers": {
-            "442597396195704832": true,
-            "601406103712170014": true
+            "__shark_answer_ciphertext_v1__": "gAAAAABq0p0AffZsgKJutzC0beLwQv93YoNkrGweWmbavnPNudk31o6qmiFnzMip3bHzG7ekXN7braBZ2NtXxXrFcj1MXCk4vX-EMVkknReoVMaki40HJsf-Gorpei0zzQOiJ7AFY9BC_9NXlaDKMbTMhWhrovzmJg=="
           },
           "history": {
             "442597396195704832": [
@@ -8902,96 +8189,16 @@
         "forfeit_ids": [],
         "rewards_settled": true,
         "data": {
-          "puzzles": [
-            {
-              "id": "lBQBq",
-              "fen": "8/2p2ppk/p1Q5/5q2/1P4n1/P4PP1/8/5R1K b - - 0 48",
-              "setup_uci": "g1h1",
-              "expected_uci": "f5h5",
-              "expected_move": "Qh5+",
-              "rating": 1204
-            },
-            {
-              "id": "RR2zL",
-              "fen": "5rk1/p1p2ppp/1p6/2nQ4/4P3/P7/1P5q/1K1R1R2 w - - 0 19",
-              "setup_uci": "f2h2",
-              "expected_uci": "d5f7",
-              "expected_move": "Qxf7+",
-              "rating": 1419
-            },
-            {
-              "id": "tRdaE",
-              "fen": "2rq3k/3bp1rp/3pB1p1/p7/1p4P1/5P1R/PPPQ4/2KR4 w - - 6 24",
-              "setup_uci": "c6d7",
-              "expected_uci": "h3h7",
-              "expected_move": "Rxh7+",
-              "rating": 1490
-            },
-            {
-              "id": "W2tz4",
-              "fen": "1r5k/4Qp1p/3P2p1/K7/2B1R3/3P4/Pb2R3/3q4 b - - 3 40",
-              "setup_uci": "a4a5",
-              "expected_uci": "b2c3",
-              "expected_move": "Bc3+",
-              "rating": 1511
-            },
-            {
-              "id": "OjkQJ",
-              "fen": "2Q5/p6p/6p1/P5P1/3K3P/5qk1/8/8 b - - 3 44",
-              "setup_uci": "e4d4",
-              "expected_uci": "f3g4",
-              "expected_move": "Qg4+",
-              "rating": 1811
-            },
-            {
-              "id": "hWuyH",
-              "fen": "1k6/3r1ppp/2p5/5b2/2q2P2/P1N1Q1P1/1P2N1KP/8 w - - 2 28",
-              "setup_uci": "d8d7",
-              "expected_uci": "e3e5",
-              "expected_move": "Qe5+",
-              "rating": 1952
-            },
-            {
-              "id": "8Np5d",
-              "fen": "3k2r1/pp2p3/5pqb/2QP4/5P1p/7P/PP3K1B/3R4 w - - 1 27",
-              "setup_uci": "c8d8",
-              "expected_uci": "d1g1",
-              "expected_move": "Rg1",
-              "rating": 2060
-            },
-            {
-              "id": "XheZP",
-              "fen": "1r4k1/p1qn3p/Q1p1p3/P1Pp1pp1/3Pn3/3NPN2/5PPP/2R3K1 b - - 2 25",
-              "setup_uci": "b1c1",
-              "expected_uci": "b8b5",
-              "expected_move": "Rb5",
-              "rating": 2037
-            },
-            {
-              "id": "2Gh1W",
-              "fen": "3r1r1k/6pp/8/Q7/5n2/P3R1N1/1q3PPP/4R1K1 b - - 2 28",
-              "setup_uci": "a6a5",
-              "expected_uci": "b2f2",
-              "expected_move": "Qxf2+",
-              "rating": 2195
-            },
-            {
-              "id": "L1tH1",
-              "fen": "2r3k1/5p2/2p2n2/2B1q1p1/1P1RP1P1/5P2/7Q/r2R2K1 b - - 4 31",
-              "setup_uci": "d2d1",
-              "expected_uci": "e5d4",
-              "expected_move": "Qxd4+",
-              "rating": 2172
-            }
-          ],
+          "puzzles": {
+            "__shark_answer_ciphertext_v1__": "gAAAAABq0p0AtltAe0khnkF9VeVpFLaZZpCJSYMlGSnzFl1mjwrMQRkg6njXgt8iqi3dw8-77-qFXzyxRlcY6DDAUV9oP3HNvjyT8hGW0DIcFp_Bvh_odeSkt6diSULBycr6sTmPKPvg8b0XU75dzMNM8WUykFoykyfMdz7z8461FJBiQ-APiDTle6nh5UWmgWkc4PIjgJSng0OgVdC-zV8z_5lN8i3DK4EuwKSUmhvVrdNpsrJFpAa2uSB0usqzLsx0gJSzDzvx3tAsNDEVC-RR27r-Ua520OO68PKXKB-rBisBNw3PX440MoN1y0pOzvAebXCNKrim8wfzWC6e9gkrUBskraeuiF9NEaLKdWmuKQ4NJbxgtLMyk8X6dQmzi_Enz_gqM6zpT0Y2neB3lbFHvY-iLOwfyq_9Czl9w2kQcF2dacOc2BwJYW0Qs2QgP0zagTEkMZXyOVh_BGtivhUQxbaq_0TCq3T3N-9_hIZ00cQjFDDBOXVyJN7cgYxDKYdK1YfgNu9lE9HzDKbYCgrCF5EQHdV90DoXkPT8yT7MAcrBxaEwJ-srgSKZLq7wHvFArdvqMNun0qUin8h3EpZ0Q3WCLpzOCptfNQvz6VJekwk7nYUUxOi83vU-l09JonEp1OCPpAaSmXVh4US1Bss8jVUYmZytzpJpOqdNNsC3xrvB0zVvjUw0UXhRGc5ga8CvSEYLiQaVJ2QX-S93Bc8sUZ2V6b2KfsArd-XtX6AI-7M50208BJGM0DivZ06k9Plsne05trrKzJA1l-Vp0PKyZuVhFtXSaWNiKTjqX-7sjtm0GOG3MYvQnWPcB3gR6NpeUIXRNa55D5wYLqByj6JeE6TR3Qc08JjXhIbbIBZwjrizqjRvbjsdvUhTu_6ykehadPqLxz7hchClopnJaT2BtkGpQY5zpKIlCYPSi8-Ivxxhg2QgmkpByVem8yBf2tVBanhLWLF9rF6MmetG0-zhf3q5ZAuQoFAZSv8aqrx4P1HNOZyOK2oPHz3VtoxOLAtuNB052ij8vDv13VdP2nl6YAzzRpHB_d5ouuWR2w9snzj6ck1l3Nz8cuj8uB4Z1LMcGN-yOE1vSetkN93CXjd_LVCuNMIACfrzTtxide0_ryBDbx6WtLw2OvCMZQZLtr7t1xw6QTumSJ-tyz9whMRH9anXSGjc0ykjl0RZIyEyu7DUur0tC9YvGjYkgOAuoffoMatABAr_Acnp8a3XCny28gxy3ceLsqMKq4GP9ZFQpR12oQZKps4-sqSV2gIWIs0me4H6-mewEvuFxWxgFQi6lMRFRV3xmZGoEuZ9WOCpQKfhm1mjXuVN4muN6UUQlKDrd1FViwDAPG07g4C5oJ6LHErGsvqgyZJgG9VMV6IhoqlqJptpv0ehUdTSsEFsr5u57yHv6RgyzkptD6sgSOz4s-rH7X9NUOvIcvJpsOzfv6NBe1PS2qQfT84J78_LXtx4W-b8diCh-5CiiybVfRDV8AHJfgH4XtDyo7QKK3dXYBnXZlAjWFrK3fDuzbcZmnvTFb4SU1sKEiJYvAWcTefzHQRG7UQyUmGXYRuDqEcfEDVhJ9LEvG1or5JZFp-0OKLQQS0EzIkEYL2DPIq0XpjHUqnMEj_34e3ZHerCsTYfBCSk6lGqlpEx2wcZhwZBeIEzvQZI1ucSO5hoCYnrS03W4dHUDVoEkyQ1xe53p817piglOXFKU3_5m7L4EhUNqxAX8nHuHO7aH0iXCweafYc3YfPou9HxTJjpQlWiqyWZczbnpATY5VYbl_sB_RGo05WvB9uFrRDwN-64bdQOaIG1gosLAn2jIZWbyXiH2t4M6Dvv66WwfZXRwvvas18nRr5Gvx4pP4IVrHT67sS9WgmYeozgVzbPTNaoroUjlVM2zG6WQchGi_qP7rweoyCOEhpx3PY9cp5lzxYi3CLq4_sqAMCRTRXIhrZJ6K1ppbzDn6pGQhM76FagpclLBTyvzCs8pQxSAxlrKg0ntKkvEC4qm9yT_WzPWCj3HeC8mjyK4etC8HmEbil5kQIBEX4YB6srFhZY6YSJcHlqFZF6cFu0TjfoBsBTzKCrnsBUtMD-d90AN25BH1Z_A3YV6a5UM2-nL081fWOLuqPW4N-3WXObhirNRm8sJQ=="
+          },
           "round": 9,
           "scores": {
             "442597396195704832": 10,
             "386134006170910721": 10
           },
           "round_answers": {
-            "442597396195704832": true,
-            "386134006170910721": true
+            "__shark_answer_ciphertext_v1__": "gAAAAABq0p0APnT6ThRmqSmGjKZT88sn4JFZCnCfk4EfI4ba2awAwY46E1uYfkrHzmrmDS_cEA9XgIVQB0i6UgXZV_1aJ2Sl9O4bIS4gwXoh7WDnQTJix2rQaLSrUN8PvxArpOZ-luh9-Z1lyUFavYtGPBuf1_WTNw=="
           },
           "history": {
             "442597396195704832": [
@@ -9244,96 +8451,16 @@
         "winner_id": "386134006170910721",
         "rewards_settled": true,
         "data": {
-          "puzzles": [
-            {
-              "id": "IsCTt",
-              "fen": "8/1k6/1ppq3p/3p3P/3Pn1P1/3N1Q2/2P5/1K6 b - - 1 51",
-              "setup_uci": "c1d3",
-              "expected_uci": "e4d2",
-              "expected_move": "Nd2+",
-              "rating": 1212
-            },
-            {
-              "id": "eBqs1",
-              "fen": "8/1pb5/2p3R1/p6k/7P/PBP4K/1P2r3/6R1 b - - 0 40",
-              "setup_uci": "f6g6",
-              "expected_uci": "e2h2",
-              "expected_move": "Rh2#",
-              "rating": 1324
-            },
-            {
-              "id": "7z9CP",
-              "fen": "r4Nk1/1p3p2/3p2p1/2p5/1pP2P2/P2q2n1/1B1P2PR/K2Q4 b - - 1 28",
-              "setup_uci": "c1b2",
-              "expected_uci": "a8a3",
-              "expected_move": "Rxa3+",
-              "rating": 1404
-            },
-            {
-              "id": "infpx",
-              "fen": "8/1qp1r2p/7k/6p1/P4n1P/8/2Q3P1/3R2BK b - - 0 37",
-              "setup_uci": "h2h4",
-              "expected_uci": "e7e2",
-              "expected_move": "Re2",
-              "rating": 1523
-            },
-            {
-              "id": "LSjxK",
-              "fen": "4r1k1/pp3ppp/2p5/4r1N1/4Q3/2P4q/PP1B4/2K3R1 w - - 0 25",
-              "setup_uci": "d5e5",
-              "expected_uci": "e4e5",
-              "expected_move": "Qxe5",
-              "rating": 1857
-            },
-            {
-              "id": "E3SG7",
-              "fen": "rn4kr/pQp3p1/4R3/8/3P3q/2N4p/PPP3P1/5RK1 b - - 0 18",
-              "setup_uci": "e1e6",
-              "expected_uci": "h4d4",
-              "expected_move": "Qxd4+",
-              "rating": 1808
-            },
-            {
-              "id": "LbhEn",
-              "fen": "4q3/p1p2pkp/2Bp2p1/2bP2Bn/8/5Q1P/PPP2PP1/6K1 b - - 0 21",
-              "setup_uci": "a4c6",
-              "expected_uci": "e8e1",
-              "expected_move": "Qe1+",
-              "rating": 2039
-            },
-            {
-              "id": "0RIae",
-              "fen": "2br2k1/4q2p/pR1b1pp1/3P4/2NQ1p2/5N1P/6PK/8 w - - 0 34",
-              "setup_uci": "f7f6",
-              "expected_uci": "c4d6",
-              "expected_move": "Nxd6",
-              "rating": 2131
-            },
-            {
-              "id": "v1sYu",
-              "fen": "r1b1kb1r/pp1p1ppp/4p3/2p5/2BnP3/2NPB3/PqP2PPP/R2Q1RK1 w kq - 0 10",
-              "setup_uci": "b6b2",
-              "expected_uci": "e3d4",
-              "expected_move": "Bxd4",
-              "rating": 2108
-            },
-            {
-              "id": "HGwcv",
-              "fen": "8/1N6/8/p6p/2PK4/8/2k5/8 b - - 0 45",
-              "setup_uci": "c3c4",
-              "expected_uci": "a5a4",
-              "expected_move": "a4",
-              "rating": 2215
-            }
-          ],
+          "puzzles": {
+            "__shark_answer_ciphertext_v1__": "gAAAAABq0p0AnJgFX6-awlA_ndG_pMjPIDv2OwsWaaTEBxqfxVYJNWggHwShQUbOBRvYgo3Ooo9ZRxJKyjspVyVpLpNkiZ7zps0vShumLfPTsic0ecc0OpsIsVSrXZxsW98O5Hi3HaMvCAAvHlwv1VciN5C9pFGu2CvjD-S3IbMZeMMaOuDWgqO_I8EOfZBHZxu4CUWOiTuXtsma2N_u7ACgd-YbLY9l3butqnFH1kfLZ5v4U_L7vqGrtme-FHYm4emRPNXWVIeq8WNtfhhQLjH3Xm9wPi3ORGo0fctnaOYVZJRI1-G1St2p9N0K0SoQO8F4hHrlamHjpUDqM0MfyN0l6gD16MnyJhedc9CQ2REGA2_kDBFDUQ8eji9_01YH8eOAw7tkep52AikVlJC5cJrb1rLKIN25xe7j1uhEFsB3iO2d1qzh9BbE2lfp5h4PEwr8rVIYp0ztjpLeCCVzTcfzfHepyLY7UdhY9Klw6ukN7xQM7AI4i1ENLrZn-Tet-y_v-dkerzWlie-EoCd4fMycQzd9bxmFEn_xbqc5eGOAwg2ka6xSMSzHSWgUnEh1elTvjKERgSCq_lX5ujcQoz7fPG0ELvw5sfZtBBpPfnLYGWZXLWTWawmasX5BJVZYVUYY4NbwAvvOUMYQHRmEfyzCxpz_HIabOOoYCMBahicS4SsTg8eaCyF-LqCb2GkoIeeKUkbCO6h1S9rc8CRD7Vn72yRDyn0zf1VSDtpHXuLGeAvSV1Q4G_sft8tAL3KUUTfAnqIVxH1AwFv8hC1HUNMCuJM1R4Fma2NLeknkTHsZgc8GhN634iDYGnfBb2ydToAc8_fvssjPPpa4lZBGfrtNzEXI2nY9IquCrHkMbJuNHQOGEW3ZPVyL85Mi72lepnRr5xM3kaz5CM8oQpsGu1odA51wOiA0ua4P4iJUpDsfThgUuPkJdjgO78Zkcj355RDS3hDSiF0ErlN28KLH1FSwlRZIRGRaMolzuZ5LJ00HkiKVqswlnzOjptsbXESiQgDvIjrLB13_kGZqDp6nKS-d0z2w0SPX16vzU-mF6_VIoXLhErfk9G5VJ7DNbGjqHwtT4j5HPs59S5hCAMntLoL5CSpCsNJTpeR44CWFe_cVWIm270VnLpnBaMtdDx-_WCRV54Rp5h4qlTQ3rWg9fFBKLj5LD4Up41Ik0eUtz7GdhoMrPcmr892TiNbu_5J3xU0iFH39uxlcXmmZ_3CvUowpVbmghhYeF_upViBxKf_9hINmhn3Jcq_hRIbMXK5D9TOdLSX-pAOqmKkhdAu2HYgGABCRqoMN_xwzioOi-nySxSBv-egainzUma9FAHVGVoXpXeS7g979vTKIGNgdaJuvwZPmHmHwcw7hOcQAWE4OHLBbrLMWKbEMKOQlSj3W7qHOCLFqp2H80ouYoS07LxatRDWb4od3Crcqo120fmFrcnqmujWQYcSQA6RtsBqJWj4ypKI505CyrgSx1jLNfhY1CD7qlo3rAE8uizuI3xJ3uKVEi-zFtTxEPbWaqithbN3xPXY37hngypWKKKdmmgKjL9dfuhwSeDaZLD_Gsdu1kudk0B55MZTo7mHbOlS2Wu6718Iy-HvpRwmyJSHQS1rxetDzqteI-jH9VePpFjOrwh-E7ipVPWmwAcEGnsABRqmM7nrKFitaJF042sD_kddke19a_a3ID_4xYPkpRQZdpToduYCLL_0xeFRERUTmWUF3fvy0cCxe0j2KzITfTgpmrWC83bZFmk0To4IN_qj8FwDMCxCRpEb82tmzid3zIqLbhV7xS28M6ItwI6GXKPnXX0kxQhvVaeeVXG2WFDZfNctAnmy5hzk6bUn7T5q1pePrHqPYPQVH9awxiro29s2ZMFd4jZ9iu3W5u_6gzMnbx04bGalh_Kwv6irq8haKGDcsrQASk4tIa4Nx38Pc0ju2mS_c5g6-al43vg_kMEWis5oI_efkEGQ6nvFwTLCT4i6uy9eGYLqfSHUPSVSueb6c6Q80u-iCguShjBIE8ZYIfw2QddhhdD5HyDagP7wCD_oVhMt9T3M-5qkorOiO5O6qzNEhnbR7HFMWg8uWPq4E2LOMkTpG5o4eDumQDRsmI-ZVBPW8rfaW"
+          },
           "round": 9,
           "scores": {
             "442597396195704832": 8,
             "386134006170910721": 9
           },
           "round_answers": {
-            "386134006170910721": true,
-            "442597396195704832": false
+            "__shark_answer_ciphertext_v1__": "gAAAAABq0p0Ae3cigSYAi9qMsuP-hwSiGJWKuGpk6joNcOdRsVIc4ECZMeV4PoGjRotU9HNaZohHmX5-d6PRXW5Sw45havkfLQqqzS0hzenTkGGQdpDxz4iJE3E9MqcsgjGcd4Hi_GyOZbrtKMa4IahCpZr4lqzsOw=="
           },
           "history": {
             "442597396195704832": [
@@ -9605,168 +8732,9 @@
         "forfeit_ids": [],
         "rewards_settled": true,
         "data": {
-          "puzzles": [
-            {
-              "id": "vguII",
-              "fen": "1rb2rk1/5pb1/1q2p1p1/p2pP2p/2Pn1P1P/1PN5/P1PB1QP1/2KR1BR1 b - - 0 19",
-              "setup_uci": "d3c4",
-              "expected_uci": "d4b3",
-              "expected_move": "Nxb3+",
-              "rating": 1366
-            },
-            {
-              "id": "WOW1O",
-              "fen": "5rk1/p4ppp/1p2b3/3p4/3q1B2/6Q1/Pr2BPPP/4R1K1 w - - 0 21",
-              "setup_uci": "f6d4",
-              "expected_uci": "f4e5",
-              "expected_move": "Be5",
-              "rating": 1329
-            },
-            {
-              "id": "T3hmO",
-              "fen": "1k1r2r1/2q2p2/pNQ1p1n1/8/1p2P1B1/5P2/PPP5/2KR4 w - - 3 26",
-              "setup_uci": "c8b8",
-              "expected_uci": "c6a8",
-              "expected_move": "Qa8#",
-              "rating": 1338
-            },
-            {
-              "id": "iwsjS",
-              "fen": "6rk/pppqnp1p/3p1p1N/4p1r1/4P2Q/2PP2PP/P1P2P1K/R4R2 b - - 4 18",
-              "setup_uci": "f5h6",
-              "expected_uci": "e7g6",
-              "expected_move": "Ng6",
-              "rating": 1451
-            },
-            {
-              "id": "fdm5K",
-              "fen": "1rb1q1k1/pp2br2/3p3B/2pPpp1Q/8/P1PP3P/1P3PPK/R4R2 w - - 3 19",
-              "setup_uci": "d8e8",
-              "expected_uci": "h5g6",
-              "expected_move": "Qg6+",
-              "rating": 1484
-            },
-            {
-              "id": "AA5Zq",
-              "fen": "Q1R2nk1/6bp/8/2Pp4/3P2nq/8/4bpBP/1rB2N1K w - - 0 35",
-              "setup_uci": "d3e2",
-              "expected_uci": "g2d5",
-              "expected_move": "Bxd5+",
-              "rating": 1465
-            },
-            {
-              "id": "EpTFU",
-              "fen": "r5k1/2P3bp/8/3p4/1P6/r4N1P/p1R3P1/R3B1K1 b - - 0 33",
-              "setup_uci": "c6c7",
-              "expected_uci": "g7a1",
-              "expected_move": "Bxa1",
-              "rating": 1511
-            },
-            {
-              "id": "xBFk1",
-              "fen": "1r3r2/2pk3p/B1p1b3/2qp4/3bQ3/4RP2/P1P3PP/3R2K1 w - - 3 26",
-              "setup_uci": "b2d4",
-              "expected_uci": "e4e6",
-              "expected_move": "Qxe6+",
-              "rating": 1701
-            },
-            {
-              "id": "J0xMr",
-              "fen": "r4r2/ppqn1p1k/1bp1pBb1/6Qp/6P1/3B1P2/PPP4P/R4R1K w - - 1 19",
-              "setup_uci": "b8d7",
-              "expected_uci": "g5h5",
-              "expected_move": "Qxh5+",
-              "rating": 1688
-            },
-            {
-              "id": "YtX6M",
-              "fen": "2rr4/pp3pk1/1n1P1n1p/q1p2pp1/Pb5Q/2N1PNB1/1P3PPP/2RR2K1 w - - 0 22",
-              "setup_uci": "g6g5",
-              "expected_uci": "f3g5",
-              "expected_move": "Nxg5",
-              "rating": 1703
-            },
-            {
-              "id": "Smvck",
-              "fen": "5k2/1Q1rb1pp/4Rn2/3p4/3P4/2P2B1P/5PPq/5K2 w - - 7 26",
-              "setup_uci": "d8d7",
-              "expected_uci": "e6f6",
-              "expected_move": "Rxf6+",
-              "rating": 1686
-            },
-            {
-              "id": "Dyr5k",
-              "fen": "5nk1/5ppp/4p3/Np1p4/3PnP2/2r1P2P/P4bPB/2NQ3K b - - 3 27",
-              "setup_uci": "g1h1",
-              "expected_uci": "f2e3",
-              "expected_move": "Bxe3",
-              "rating": 1918
-            },
-            {
-              "id": "2Ky7M",
-              "fen": "3r4/6kp/2PqQ1p1/4pp2/1P2p3/6P1/5PPK/8 w - - 1 44",
-              "setup_uci": "d4d6",
-              "expected_uci": "e6d6",
-              "expected_move": "Qxd6",
-              "rating": 1927
-            },
-            {
-              "id": "dhTiP",
-              "fen": "8/5Rpk/6p1/p7/PprP2P1/8/5KPP/8 b - - 0 32",
-              "setup_uci": "e7f7",
-              "expected_uci": "b4b3",
-              "expected_move": "b3",
-              "rating": 1931
-            },
-            {
-              "id": "4EnAG",
-              "fen": "3r2k1/2p2pp1/2p4p/2P1b3/1P6/P3PQqP/6P1/2R1R1K1 b - - 4 28",
-              "setup_uci": "e2f3",
-              "expected_uci": "g3h2",
-              "expected_move": "Qh2+",
-              "rating": 2105
-            },
-            {
-              "id": "LTL6l",
-              "fen": "r4rk1/ppp2ppp/1b6/3P4/4P1n1/1N1B1NqP/PPP3Q1/R1B4K b - - 10 18",
-              "setup_uci": "f1g2",
-              "expected_uci": "g4f2",
-              "expected_move": "Nf2+",
-              "rating": 2058
-            },
-            {
-              "id": "PX4DL",
-              "fen": "8/8/p3p1p1/1p1k3p/1P3PPP/P4K2/8/8 w - - 1 42",
-              "setup_uci": "d6d5",
-              "expected_uci": "g4h5",
-              "expected_move": "gxh5",
-              "rating": 2259
-            },
-            {
-              "id": "F5w1d",
-              "fen": "1k5r/1p1qb2p/p2p4/P5Bn/3pPQ2/3P4/5PPP/2R3K1 w - - 1 27",
-              "setup_uci": "f6h5",
-              "expected_uci": "f4f7",
-              "expected_move": "Qf7",
-              "rating": 2306
-            },
-            {
-              "id": "TJhZ1",
-              "fen": "r1bq1nkb/pp2Rp2/2p2Pn1/6Qp/7P/2NB4/PPP3P1/2K2R2 b - - 1 22",
-              "setup_uci": "e1e7",
-              "expected_uci": "h8f6",
-              "expected_move": "Bxf6",
-              "rating": 2371
-            },
-            {
-              "id": "EugDk",
-              "fen": "2r4k/p1P3pp/4r1n1/3N2q1/2QpRp2/1P3P2/6PP/2R3K1 b - - 0 33",
-              "setup_uci": "e2e4",
-              "expected_uci": "g6h4",
-              "expected_move": "Nh4",
-              "rating": 2225
-            }
-          ],
+          "puzzles": {
+            "__shark_answer_ciphertext_v1__": "gAAAAABq0p0AJ18AMObuhv_nLRLCfA-Rlp9rJEmfzYfP3NybjDLrmYEOVYAjlEsRFdL0c4A0uwFUvaxLI4jos3X9a6Q9xGM3gM4uCDUZabHzzp8Mt0vbvplSZig1MIjLKTQzm82ABnebzZI1ShjnhXtl-UKX4AmMRbSkQIRW-tgGexPH4IR3WbzGccaLAXqUo0fRCuduL17WpLd5IAMYTHqpzV36OtvSlr2GV9NN_fAlP8ltQ6_erlPqkwQXlk0xiIsdCdD31VBK5e6ggLameJ474QHuSfTOw3agYlpi2s0P9Egj1Wwqt3Hfshrs9qRYeYfTue6Jcr3Ma6Ly46S6KVRD6ezVWc71viGuVvuR3qQGSZqYlVjtSQQKeB6V71e8Da6p7beBLU7iD7K3jKtgQJ2TBQ1PyO5UU1kp9W_O0UO3uaMSfXY_P8xa4Rn0mNcUvAzuGGBIdHISYQeufo32U05ANpqt9tmzYqSjq5G8Uv0jw7a92tKV_PIVg1sp3nOcHHfE53Fw2RbZ5C-W-Mm4VIvn5oBPMgEecv4OtoUkxcgvd_24nsgnwXQii3Q6F08eQs_588KYo44ONu7OhixeQ8MdWHmB6Os-HLknc3L95rquNe1xeuBTDN86JHWfQjVEF1irCCNl0SyNBNaQ3N2crEcHKcYudVhnoyT00Ja1cIAIx9imhr-YZTj9FIri-SI4hqgPrRPdGcYf8PUPuX8A-YpZ2n9-vpxG5JwRcjcmltqRb5WAMNDXBKhFVLLqHH9bVxQZj7brjLnQTZGEi6wvdIH0Ro4SgQUr3XJS8kgmBYf-gKwdpTW0dOHAk3GUrqLkDN0wAVhOG8-0Bt52KDfuWrU7LCbHUngufdtvueQsLiLS6vKX3_4MNM74JLE8IblRxqPP4P7GBdjz0oxlM1WmF9zeyEz7-ipQS7R-lUcEM_U8L3nWiNXFrOUgD4Gpfe2ifFXL0wK1WY_gZ-F0NxCWirOWqZRfMadOe7ZHVKbmH54Oo52LTp3y_Nbvl5cdgEKl3RJBCImxgQa7WjGHYXgxN1P-J_FkWwjG0ORT3dhTZ7jG597mXGxn069pBcEOVc5nfnjUkIaZnuy7Km6UKF5Smf2X8PysWVFYzTBRLvT7YVlL01MJZSKi1wpRQ3RHLCONCubf5GGF04rB0bCraNMORlqDmqiwvpbzjk1mZd4Kjb5eBY5OmsWohJGqLj-zhW5BBGWjNmqMVsGEpgYZcK__GUX-vyn4lktYWGjlIjm94puykoq4hkdRRWLZ0OmigwCREwocrbZ6nZW-tWuHKsYbKVJ9gMkxHXeQDwJXYwMAPGA16yZWBdIqiYGgxHqGXbLqceOE0paA8WCJr2tgp0mxx7tiYNEJ34XfEqrifsuggSaUJyG4YyJtzrolqoKVUn5II2-43NbCQ5ohJQp1bT-1yerKuANgTx1Kra5t94TLgTggf435NHa_pJ-YkBA9zEFbfRXCKTSRyO1Pmf9WzIlCjKMWepQiu5nCCqPRHagi5v_8W-kydnK07-uRY0Lwxdstde6k-w2W0JGt-GoTYWjKVF7ga0gdkCfo5kSRzV-UiasJwqqsbT0qiIdEjWhj0b6UuRCL_LydVQ0F4x3ojPPHxl2lPC2qrDmXIbWjXDuPg_yhNBorKJyAcgXEVfebkQIEui5_DE_HsA4hbJIUzq5KE5xbpSpIcBkVYiRhuQPuaGjgCSJV7oUiyUHDmbytsIgUX9atojl-qYArnUwJWZx5cYKM3R7Owol9sn0TfejciHgGxku5T4woN2WY_vjzUfyAq-TrQTUIsUSPKvGuY2sVPBzw_TVsm1EsS_RY5z9NzaYgYhCukruC9iT4iTE4ZveLgIA4KYk6ZpuE35VhpUvdriH17iCL1zh1tgY2-52KXqiKaSb--uwtP2Ju58oW-dTSBP8ajw6z3t1g8eJw3IvgzHFwwBUapzE5eXHHtGWCNyUgkNaQFKLO9CC7nMKAQWm4PlKGWJoBvnIvzNbzDODcI5SRjANsxSkPgcBkofSuQ4oXKpQcpclB4-VaOj4dhef2gUQkwOYp4nueWQ8Fmy4BDOiExxLzzIGPRPaYFV2-V_eDfbBrPpx6BU9unTgIQYrqLQTa3u4VSsc4sAcx37TRU1lYMYJ0si_KFS-B4CRp6idS4dMZIt1CS7fqUdVaA5T8QRuiGY8lwgZ7GCXJHVXcqW5olSiMA_4h6_g_PRkSz7BzmxPbzYe7up6HV75a06RchVMESiA1pdRKMOzT7ARgYSPrkAxzPn_7vxXB2KGLnsLo7Xh8TnErBAeB1gWJnE7Xdf0QMdcV7Bmb5sNsEvZYlH0dqQCMDJaY4w3qtCnGIrqHEheJDEXk9lYzTxmWd8AyZg_B0NFkMMYDcNXhYUyco_7Nsipm3ed_wfgIy1MVWozBfmzJeLh3aZhs5gu1bcBOz6TI1AnAxjNxiePzOOSjABayR-YX1uas0XEKCKwR9h7G1oPJo0gquxsdfdRgNCZO80Eq68tNHxPJfQFXWM6VLz0iYCgNeJ1bOfaWMt5IpoYFBLtT8cgemW4UyaWAztqKKgqLWo57tnlhHEno1nlhISqgKHI6tFqKazgBygBAH7hqaOC7zVTO22UqePxoVLqED0Rk6n18TN31QyM6ynDZhduj9U35VzaLPFL313GqQW031QEphL_NDXZHyz-4PT1VMSqBnsgGaZ0flbfh5U3jaZSHVk9g8ym5n_UWExxZ9iwIlwGPlHWpEOsTiHoWZ8O-rc2Re8_RN7aaeUiqZOh45Ieu7aiVuJwLZ8Vd8546L_8E9PI_KVswCYwH4Z7Kg5zoOI2ZMD-Pw4KLabWHfAi133-9_ENgXh4KJHQwbIMU2PavTQSe4yVuVzj5dLfGOaSPvWzgfhxrJKPvIPLOw7YVWwq-PZ4lEIkmppNiEMyO3yOc7T1XGYfMEjzrQbAhuk92CSVo2lcLumhwssPBZ3A5Dk14TtHpqfDL5qwp774whjRZygpZ_rlYa6uTg7O7SpbxeXm1uytdPEuNvDZrwLk9KOVR0PJTiGu2SSL5Tk4ZyrNU2FNaHLLTgM4rUWDBElgA5o5M3_K_3VqfQT7sAfaRKQji3WH9gKpR51PFc-g0wtOXGisGNSieAXIX4-J5GLW8lPGqPFM0_4H2eDsxWuEZnc4Xib_XWEXJuXs8DQ2b2lPx3N96wokp3hCMwYNZNMGyiFS9UiIMaZOpnJq-u-j_scRoFo73wiXYLphcThb8L7BVHREvfxH3I-928qDRDISgM5PdEW8ztedc-cs0_Loj9jmq9SyMEqs5juGxBxk6rUKWa8dlJoGVzQtp5vPe1wp1TVkDLbT54eEplXpVg1MEUvtbWNbIV9300rJpug9qQdsHa2nFAsG7QDoOgKRRlBckxhzMd7Y2UfxTbTLUVtnlSTQLJlsyV1_JzPWjIZTsK8RRV86l6bB0ADff55uZvmutC6lz1oYKbz5o7hE20pVWSEtARmTMCZU-F7IqkpDDoKZ9NxguLeFr6jMsZiZuYuc4sTg7Eddwtd-06gSqALbTsJVdoPD3X9ZV8jD67MnBYMvxkd3ZglnzWx-YKpZ9xSebfLK60F8ybHNvGNEdXnxaccZZboujjUSAhwZESMqUav3LFgDL4EOTPV34m36CpQM3nAFqlWrla_c8fIFJzR_HmlsE_DF2Zkeiob0wlGJbkatAx_3yo7ZAVgGDz1T8PuYC4HHp-82z1Wkuq9TNAvbuZQVwETpYAa-QlaOg4fYGoF-dQ-J9j6Ux54MoY0mMKTJ8nWQTWyjRyUYcR8K9KtZG_VM1GW0edklQjfKnZjGgsWwQI78thLcbu3CiV0irvGd7EKYbpjywZCREwGIargg_jTZLr75RGjc2V_g-Omp-lG2v1Gtdl5cZ13BOKlFB6Ih6Q0l55vJqdlrrSaxz41A6agGTsWK18C_DQdbgdi5tMWILJQfx265ItZnJ4Msu09xWJm95Ru8Rkh6cTCx6iX4Yg8zGc0yIEgoxcW0GHnfwltSOMjyGYnp7Q_xmqt69iGvU_paWoM4fcrXzQtZl4qhxw4U_M2AdVqHCG-Wy6rDdRj8zkZdLf8S73rm-9vwZORhBk3_vnVIWEWB78b2lYTz7147DChT_NzfidxYODVDLYK7SRd39wx7ghb7EsSi_iolKAKHoHB1Zmq2eXiEbM12zi3c1awvRd1DkIzPKdlS3bOv2TCAzGnfGB1JXYsv5YVfQDG88pRTsuSGAEf55i0PIskX3n0xbls4H9iyTgBS7XPV_5d5ntY56TMVO4Iov14Go83Nj_cnDgFrK"
+          },
           "round": 19,
           "scores": {
             "442597396195704832": 20,
@@ -9774,9 +8742,7 @@
             "601406103712170014": 16
           },
           "round_answers": {
-            "386134006170910721": true,
-            "601406103712170014": false,
-            "442597396195704832": true
+            "__shark_answer_ciphertext_v1__": "gAAAAABq0p0ArMmsAtfFk1jdfkF-3NmREXiq4hNFQJ_tUm-5F03cZGF-62uKsZnysHSfGj9xbgqERvp4OP5TzjCEKGFJ395n4UQPV0vztW_-_fbv-u90YHOpWjB9wUoU1i0Pe5UIAQkckKsRqwTxusKI4G8x4dTjKPmQKD_9m9npOWXGj5irVsy4rptP3UStPqWds_3CGUwt"
           },
           "history": {
             "442597396195704832": [
