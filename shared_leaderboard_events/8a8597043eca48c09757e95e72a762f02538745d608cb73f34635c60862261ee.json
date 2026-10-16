@@ -1,0 +1,24 @@
+{
+  "created_at": 1792188166,
+  "details": {
+    "activity": [
+      {
+        "action": "feature_played",
+        "kind": "cluest",
+        "session_id": "1560775018114326618"
+      },
+      {
+        "action": "minigame_started",
+        "kind": "cluest",
+        "name": "Thice",
+        "record_kind": "cluest:standard",
+        "uid": "442597396195704832"
+      }
+    ],
+    "escrow_change": 0,
+    "wallets": {}
+  },
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "minigames",
+  "transaction_id": "minigames:1560775035407442000"
+}
