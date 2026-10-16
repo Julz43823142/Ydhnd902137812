@@ -185,8 +185,15 @@ def _needs_confirmation(command):
         "!survivallb", "!slb", "!dailyb", "!dailyboard", "!dailychessboard",
         "!review", "!cancelreview",
     }
+    if base in {"!profile", "!me"}:
+        # These apparently read-only commands also implement equip mutations.
+        # Never let an AI classifier silently change profile settings.
+        parts = args.casefold().split()
+        if parts and parts[0] in {"badge", "board", "piece", "pieceset", "color"}:
+            return True
+        return False
     if base in safe_views and (
-        not args or base in {"!profile", "!me", "!chessstats", "!pets", "!pet", "!review"}
+        not args or base in {"!chessstats", "!pets", "!pet", "!review"}
     ):
         return False
     if base in {"!customboard", "!custompiece", "!arrow", "!arrowcolor",
