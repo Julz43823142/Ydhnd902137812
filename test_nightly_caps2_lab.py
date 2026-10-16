@@ -131,7 +131,7 @@ class Capture(unittest.TestCase):
                     counter.append(1)
                     return pretend_analyze(moves, **kwargs)
                 first = lab.run(tmp, now=NIGHT.replace(hour=0), now_fn=lambda: NIGHT.replace(hour=0),
-                                collector=collect_stub, analyze=tracked, collector=collect_stub, max_games_per_run=1, trials=0)
+                                collector=collect_stub, analyze=tracked, max_games_per_run=1, trials=0)
                 self.assertEqual(first["status"], "no_reference_snapshot")
                 # Seed an independently audited snapshot as a prior full fetch.
                 lab.atomic_json(Path(tmp) / "dataset.json", games)
