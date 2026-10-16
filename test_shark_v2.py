@@ -7,9 +7,9 @@ import shark_ai
 from shark_version import SHARKBOT_VERSION
 
 
-class ReplyLimitTests(unittest.TestCase):
+class ReplyLimitTests(unittest.IsolatedAsyncioTestCase):
     def test_public_version(self):
-        self.assertEqual(SHARKBOT_VERSION, "2.4")
+        self.assertEqual(SHARKBOT_VERSION, "2.5")
 
     def test_short_answer_unchanged(self):
         self.assertEqual(shark_ai._fit_reply("Checkmate!"), "Checkmate!")
@@ -18,7 +18,7 @@ class ReplyLimitTests(unittest.TestCase):
         text = "Always test your pieces. " * 200
         reply = shark_ai._fit_reply(text)
         self.assertLessEqual(len(reply), 1400)
-        self.assertTrue(reply.endswith("Ask me for more details.)"))
+        self.assertFalse("Shortened to fit Discord" in reply)
         self.assertFalse(reply.endswith("pieces. Always test your"))
 
     def test_groq_token_limit_does_not_end_mid_sentence(self):
@@ -27,16 +27,56 @@ class ReplyLimitTests(unittest.TestCase):
         )
         self.assertIn("First, choose a theme.", reply)
         self.assertNotIn("equipment and", reply)
-        self.assertIn("Shortened", reply)
+        self.assertTrue(reply.endswith("First, choose a theme."))
 
     def test_emoji_count_for_discord(self):
         reply = shark_ai._fit_reply("😀" * 1200)
         self.assertLessEqual(len(reply.encode("utf-16-le")) // 2, 1400)
 
+    def test_no_orphan_key_takeaways(self):
+        draft = (
+            "FIDE faced governance disputes. " * 45
+            + "\n\nKey take-aways\n\n1."
+            + "\n\nAdditional context that exceeds the limit. " * 30
+        )
+        reply = shark_ai._fit_reply(draft, limit=600)
+        self.assertLessEqual(len(reply), 600)
+        self.assertNotIn("Key take-aways", reply)
+        self.assertNotIn("Shortened to fit Discord", reply)
+        self.assertFalse(reply.endswith("1."))
+
+    async def test_summarizer_uses_model_for_compact_draft(self):
+        with patch("shark_ai._complete", return_value=("Concise answer.", None)) as model:
+            summary = await shark_ai._summarize_for_discord("Long draft " * 300)
+        self.assertEqual(summary, "Concise answer.")
+        model.assert_awaited_once()
+
     def test_safe_mentions(self):
         reply = shark_ai._fit_reply("@everyone @here hello")
         self.assertNotIn("@everyone", reply)
         self.assertNotIn("@here", reply)
+
+
+class SharedChannelMemoryTests(unittest.TestCase):
+    def test_shared_within_channel_but_not_across_channels(self):
+        one = SimpleNamespace(guild=SimpleNamespace(id=1), channel=SimpleNamespace(id=10),
+                              author=SimpleNamespace(id=101))
+        two = SimpleNamespace(guild=SimpleNamespace(id=1), channel=SimpleNamespace(id=10),
+                              author=SimpleNamespace(id=202))
+        other = SimpleNamespace(guild=SimpleNamespace(id=1), channel=SimpleNamespace(id=11),
+                                author=SimpleNamespace(id=202))
+        self.assertEqual(shark_ai._scope(one), shark_ai._scope(two))
+        self.assertNotEqual(shark_ai._scope(one), shark_ai._scope(other))
+        self.assertNotEqual(shark_ai._rate_scope(one), shark_ai._rate_scope(two))
+
+    def test_five_message_bound(self):
+        scope = (90001, 90002)
+        shark_ai._history.pop(scope, None)
+        for index in range(8):
+            shark_ai._history[scope].append((1.0, "user", f"Player {index}: text"))
+        self.assertEqual(len(shark_ai._history[scope]), 5)
+        self.assertIn("Player 3:", shark_ai._history[scope][0][2])
+        shark_ai._history.pop(scope, None)
 
 
 class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
@@ -66,7 +106,7 @@ class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
         with patch.dict("os.environ", {"GROQ_API_KEY": ""}):
             handled = await shark_ai.handle_mention(msg, SimpleNamespace(user=bot))
         self.assertTrue(handled)
-        self.assertEqual(replies[0][0], "I'm SharkBot version 2.4.")
+        self.assertEqual(replies[0][0], "I'm SharkBot version 2.5.")
         self.assertFalse(replies[0][1]["mention_author"])
 
     async def test_informal_which_version_are_u(self):
@@ -92,7 +132,7 @@ class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
         )
         with patch.dict("os.environ", {"GROQ_API_KEY": ""}):
             self.assertTrue(await shark_ai.handle_mention(msg, SimpleNamespace(user=bot)))
-        self.assertEqual(replies, ["I'm SharkBot version 2.4."])
+        self.assertEqual(replies, ["I'm SharkBot version 2.5."])
 
     async def test_free_box_claim_uses_authenticated_author(self):
         from shark_commands import PRIMARY_CHESS_CHANNEL_ID
@@ -147,7 +187,7 @@ class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
         )
         with patch.dict("os.environ", {"GROQ_API_KEY": ""}):
             self.assertTrue(await shark_ai.handle_mention(msg, SimpleNamespace(user=bot)))
-        self.assertEqual(replies, ["I'm SharkBot version 2.4."])
+        self.assertEqual(replies, ["I'm SharkBot version 2.5."])
 
 
 if __name__ == "__main__":
