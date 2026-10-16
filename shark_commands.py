@@ -241,29 +241,32 @@ def free_access_command(prompt):
 
 
 def free_box_claim_request(prompt):
-    """A free claim requires an explicit request, not merely opening a menu.
+    """Fail closed: a free claim must be a short, explicit first-person request."""
+    text = str(prompt or "").strip().casefold()
+    if len(text) > 180 or "\n" in text or "\r" in text:
+        return False
+    if re.search(
+        r"\b(?:not|no|never|don't|dont|do not|without|unless|instead|"
+        r"niet|geen|nooit|zonder|als|wanneer|waarom|hoe|"
+        r"how|why|when|what|where|if|whether|hypothetically|example|"
+        r"paid|buy|purchase|someone|another|other|voor|namens)\b",
+        text, re.I,
+    ):
+        return False
+    if re.search(r"<@!?\d+>|@everyone|@here|[?!]", text):
+        return False
+    # No broad keyword combinations: only an unambiguous direct claim.
+    return bool(re.fullmatch(
+        r"(?:please\s+)?(?:claim|redeem|collect)\s+"
+        r"(?:(?:my|the|a)\s+)?free\s+(?:(?:daily|mystery)\s+){0,2}box"
+        r"(?:\s+(?:please|now|today))?\.?|"
+        r"(?:claim|pak|haal|open)\s+"
+        r"(?:(?:mijn|de|een)\s+)?gratis\s+"
+        r"(?:(?:dagelijkse|mystery)\s+){0,2}box"
+        r"(?:\s+(?:alsjeblieft|nu|vandaag))?\.?",
+        text, re.I,
+    ))
 
-    No recipient or paid-box variant is accepted here. The authenticated
-    message author becomes the backend claim owner.
-    """
-    text = str(prompt or "").casefold()
-    free_box = re.search(
-        r"\b(?:free\s+(?:(?:daily|mystery)\s+){0,2}box|"
-        r"gratis\s+(?:(?:dagelijkse|mystery)\s+){0,2}box)\b",
-        text,
-    )
-    wants_claim = re.search(
-        r"\b(?:claim|redeem|collect|open\s+(?:my|the|a)\s+free|"
-        r"give\s+me|pak|claimen|ophalen)\b",
-        text,
-    )
-    paid = re.search(r"\b(?:paid|buy|purchase|for\s+\d+\s+coins?)\b", text)
-    informational = re.search(
-        r"\b(?:how\s+(?:do|can|to)|where\s+(?:do|can)|what\s+(?:is|happens)|"
-        r"when\s+can|don't|do\s+not|never|not\s+to)\b", text,
-    )
-    third_party = re.search(r"\b(?:for|on\s+behalf\s+of)\s+<@!?\d+>", text)
-    return bool(free_box and wants_claim and not paid and not informational and not third_party)
 
 
 def _is_chat_channel(channel_id):
