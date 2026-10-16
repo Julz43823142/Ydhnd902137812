@@ -1,11 +1,16 @@
 name: Independent Stockfish Formula Research (near-continuous)
 
 on:
+  # Bootstrap a short real Stockfish run immediately after a workflow update on
+  # main. This exposes startup failures even when GitHub's cron queue is late.
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/independent_formula_research.yml'
   schedule:
-    # Run whenever possible, including nights, weekends and daytime.
-    # A single concurrency group prevents simultaneous state writes.
-    # GitHub-hosted scheduling is best-effort, NOT a guaranteed 24/7 runner.
-    - cron: '*/5 * * * *'
+    # Shift away from the crowded 00/05/10/... minute boundaries.
+    # Best-effort only: GitHub may still delay or skip schedule events.
+    - cron: '2-57/5 * * * *'
   workflow_dispatch:
 
 concurrency:
@@ -58,10 +63,20 @@ jobs:
       - name: Examine original games and search accuracy parameters
         id: research
         continue-on-error: true
+        shell: bash
         run: |
-          python scripts/independent_formula_lab.py \
-            --state-dir "$STATE_DIR" \
-            --max-minutes 48 --trials 2000 --max-games 100
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            echo "Immediate bootstrap: a bounded REAL Stockfish fast-profile review."
+            python scripts/independent_formula_lab.py \
+              --state-dir "$STATE_DIR" \
+              --mode fast --max-minutes 7 --trials 0 --max-games 1
+          else
+            echo "Scheduled/manual original-data research (no Chess.com references)."
+            python scripts/independent_formula_lab.py \
+              --state-dir "$STATE_DIR" \
+              --max-minutes 48 --trials 2000 --max-games 100
+          fi
       - name: Checkpoint ONLY independently generated games and analyses
         shell: bash
         run: |
