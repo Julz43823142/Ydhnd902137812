@@ -232,7 +232,7 @@ class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
             )
             with patch.dict("os.environ", {"GROQ_API_KEY": ""}):
                 self.assertTrue(await shark_ai.handle_mention(msg, SimpleNamespace(user=bot)))
-            self.assertIn("can't discuss update details", replies[0])
+            self.assertEqual(replies[0], "2.11")
             self.assertNotIn("shop_catalog", replies[0])
 
     async def test_fake_admin_and_private_info_requests_denied_without_ai(self):
