@@ -2983,8 +2983,8 @@
         "url": "https://lichess.org/training/C5Hwn",
         "title": "Lichess • 1540",
         "fen": "8/8/4BK2/4p1p1/4Pn1k/7P/8/8 b - - 0 50",
-        "current_fen": "8/8/3K4/4P3/8/6pk/8/8 b - - 0 54",
-        "last_move_uci": "e4e5",
+        "current_fen": "8/8/3KP3/8/8/7k/6p1/8 b - - 0 55",
+        "last_move_uci": "e5e6",
         "pgn": "Nxe6 Kxe6 Kxh3 Kxe5 g4 Kd6 g3 e5 g2 e6 g1=Q",
         "all_moves": [
           {
@@ -3084,16 +3084,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_C5Hwn_1792184346363",
         "rating": 1540,
-        "next_solution_index": 8,
+        "next_solution_index": 10,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1560759066324639816,
+      "message_id": 1560759078882377849,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792184361.7478395,
-      "last_feedback": "✅ **g3** • Opponent: **e5**"
+      "last_card_activity_at": 1792184364.6870012,
+      "last_feedback": "✅ **g2** • Opponent: **e6**"
     },
     "362606514764251137": {
       "active": false,
