@@ -2306,6 +2306,12 @@ class SurvivalBot(
         )
 
         self.state = load_runs()
+        # Seal legacy plaintext solutions immediately on worker startup.
+        if os.getenv("DISCORD_TOKEN") and Path(SURVIVAL_STATE_FILE).exists():
+            from shark_state_privacy import is_sealed
+            persisted = json.loads(Path(SURVIVAL_STATE_FILE).read_text(encoding="utf-8"))
+            if not is_sealed(persisted):
+                save_state(self.state, push=True)
         self.pending_team = None
         self.game_lock = asyncio.Lock()
         self.puzzle_fetches = {}
