@@ -22,6 +22,10 @@ on:
       - "test_shark_commands.py"
       - "test_shark_dispatch.py"
       - ".github/workflows/shark_ai_commands_checks.yml"
+concurrency:
+  group: shark_ai_commands_checks-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 

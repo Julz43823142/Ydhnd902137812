@@ -1,0 +1,72 @@
+name: SharkBot gated auto merge
+
+on:
+  workflow_run:
+    workflows:
+      - Offline Bot Tests
+      - Shark AI command security
+      - SharkBot release version guard
+    types: [completed]
+
+permissions:
+  actions: read
+  checks: read
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sharkbot-auto-merge-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: false
+
+jobs:
+  merge:
+    # Only PR checks, never push or workflow_dispatch runs.
+    if: github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Merge only current same-repo release PR with all three green checks
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const run = context.payload.workflow_run;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const required = [
+              'Offline Bot Tests',
+              'Shark AI command security',
+              'SharkBot release version guard'
+            ];
+            for (const candidate of (run.pull_requests || [])) {
+              const {data: pr} = await github.rest.pulls.get({
+                owner, repo, pull_number: candidate.number
+              });
+              if (pr.state !== 'open' || pr.draft ||
+                  pr.base.ref !== 'main' ||
+                  pr.head.repo.full_name !== context.repo.owner + '/' + repo ||
+                  !/^feature-2-\d+-/.test(pr.head.ref) ||
+                  pr.head.sha !== run.head_sha) {
+                continue;
+              }
+              const {data: results} = await github.rest.actions.listWorkflowRunsForRepo({
+                owner, repo, head_sha: pr.head.sha, per_page: 100
+              });
+              const latest = new Map();
+              for (const check of results.workflow_runs) {
+                if (required.includes(check.name) && check.event === 'pull_request' &&
+                    check.head_sha === pr.head.sha &&
+                    (!latest.has(check.name) ||
+                     check.run_attempt > latest.get(check.name).run_attempt ||
+                     check.created_at > latest.get(check.name).created_at)) {
+                  latest.set(check.name, check);
+                }
+              }
+              if (!required.every(name => latest.get(name)?.conclusion === 'success')) {
+                core.info('Required checks not all successful yet for PR #' + pr.number);
+                continue;
+              }
+              await github.rest.pulls.merge({
+                owner, repo, pull_number: pr.number,
+                sha: pr.head.sha, merge_method: 'merge'
+              });
+              core.info('Merged PR #' + pr.number);
+            }
