@@ -290,11 +290,11 @@ async def handle_mention(message, client):
             if isinstance(routed, str):
                 await dispatch_existing_command(message, client, routed)
             return True
-        if failure:
+        if failure and failure != "truncated":
             reply = ("I've reached my chat limit for now. Try again later!" if failure == "limit"
                      else "Can't answer right now. Try again in a bit.")
         else:
-            reply = _fit_reply(answer)
+            reply = (await _summarize_for_discord(answer) if failure == "truncated" or len(answer.encode("utf-16-le")) // 2 > MAX_REPLY_CHARS else _fit_reply(answer))
             _history[scope].append((time.monotonic(), "user", speaker_prompt))
             _history[scope].append((time.monotonic(), "assistant", reply))
         await message.reply(reply, mention_author=False, allowed_mentions=discord.AllowedMentions.none())
