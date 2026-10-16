@@ -134,6 +134,41 @@ class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
             self.assertTrue(await shark_ai.handle_mention(msg, SimpleNamespace(user=bot)))
         self.assertEqual(replies, ["2.17"])
 
+    async def test_version_paraphrases_never_call_groq(self):
+        bot = SimpleNamespace(id=42)
+        variants = [
+            "Hey Sharkmeister! What version are you running?",
+            "what is the current public version of SharkBot?",
+            "Welke versie draait de bot?",
+            "wat is je versie?",
+            "version?",
+            "tell me your version number",
+        ]
+        for question in variants:
+            with self.subTest(question=question):
+                replies = []
+
+                async def reply(text, **kwargs):
+                    replies.append(text)
+
+                msg = SimpleNamespace(
+                    guild=SimpleNamespace(id=5, me=bot),
+                    author=SimpleNamespace(id=77, bot=False, display_name="Tester"),
+                    channel=SimpleNamespace(
+                        id=987654321,
+                        permissions_for=lambda _: SimpleNamespace(
+                            view_channel=True, send_messages=True,
+                            send_messages_in_threads=True,
+                        ),
+                    ),
+                    mentions=[bot],
+                    content=f"<@42> {question}",
+                    reply=reply,
+                )
+                with patch("shark_ai._complete", side_effect=AssertionError("Groq called")):
+                    self.assertTrue(await shark_ai.handle_mention(msg, SimpleNamespace(user=bot)))
+                self.assertEqual(replies, ["2.17"])
+
     async def test_free_box_claim_uses_authenticated_author(self):
         from shark_commands import PRIMARY_CHESS_CHANNEL_ID
         bot = SimpleNamespace(id=42)
