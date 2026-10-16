@@ -16,7 +16,7 @@ jobs:
           fetch-depth: 1
       - name: Fetch main release version only
         run: git fetch origin "$GITHUB_BASE_REF" --depth=1
-      - name: Require the next SharkBot version on every update
+      - name: Validate major/minor SharkBot updates
         run: |
           python - <<'PY'
           import ast
@@ -30,9 +30,13 @@ jobs:
                   if isinstance(item, ast.Assign):
                       if any(isinstance(target, ast.Name) and target.id == "SHARKBOT_VERSION" for target in item.targets):
                           version = ast.literal_eval(item.value)
-                          if isinstance(version, int) and not isinstance(version, bool) and version > 0:
-                              return version
-              raise ValueError("SHARKBOT_VERSION must be a positive integer.")
+                          if type(version) is int and version > 0:
+                              return (version, 0)
+                          if isinstance(version, str):
+                              import re
+                              if re.fullmatch(r"[1-9][0-9]*\\.[0-9]+", version):
+                                  return tuple(map(int, version.split(".")))
+              raise ValueError("SHARKBOT_VERSION must be MAJOR.MINOR.")
 
           current = extract(pathlib.Path("shark_version.py").read_text(encoding="utf-8"))
           base = os.environ["GITHUB_BASE_REF"]
@@ -41,10 +45,14 @@ jobs:
               check=False, capture_output=True, text=True,
           )
           old = extract(previous.stdout) if previous.returncode == 0 else 1
-          if current != old + 1:
+          # One-time correction of the previous accidental 3.0 bump to 2.1.
+          correction = old == (3, 0) and current == (2, 1)
+          minor = current == (old[0], old[1] + 1)
+          major = current == (old[0] + 1, 0)
+          if not (correction or minor or major):
               raise SystemExit(
-                  f"SharkBot updates must increase the version by exactly one: "
-                  f"main={old}, proposed={current}, required={old + 1}."
+                  f"Invalid SharkBot version transition: {old} -> {current}. "
+                  "Increase minor by one for fixes or major by one for features."
               )
           print(f"SharkBot version validated: {old} -> {current}")
           PY
