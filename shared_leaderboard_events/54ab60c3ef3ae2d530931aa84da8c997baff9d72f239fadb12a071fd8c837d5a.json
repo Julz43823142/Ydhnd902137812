@@ -1,0 +1,24 @@
+{
+  "created_at": 1792187636,
+  "details": {
+    "activity": [
+      {
+        "action": "feature_played",
+        "kind": "lingo",
+        "session_id": "1560772780163858603"
+      },
+      {
+        "action": "minigame_started",
+        "kind": "lingo",
+        "name": "Thice",
+        "record_kind": "lingo:standard",
+        "uid": "442597396195704832"
+      }
+    ],
+    "escrow_change": 0,
+    "wallets": {}
+  },
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "minigames",
+  "transaction_id": "minigames:1560772812468129812"
+}
