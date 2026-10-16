@@ -90,7 +90,7 @@ def _target(prompt, metric):
     """Extract the subject from supported English/Dutch statistic questions."""
     text = prompt.strip().rstrip(" ?!.")
     patterns = [
-        # How many animals did Thijs kill?
+        r"^(?:how many|hoeveel)\\s+(?:pets?|animals?|dieren?|huisdieren?)\\s+(?:in|are in|staan in)\\s+(.+?)(?:[\u0027’]s)?\\s+memorial$",\n        # How many animals did Thijs kill?
         r"^(?:how many|hoeveel)\s+.+?\s+(?:did|does|has|have|heeft|hebben)\s+(.+?)\s+(?:kill|killed|murder|murdered|gedood|vermoord|gekild|starve|starved|verhongeren|verhongerd)$",
         # Hoeveel dieren heeft Thijs gekild? (same structure)
         # How many coins does Thijs have?
