@@ -71,7 +71,7 @@ def _pet_totals(user_id):
 
 def _metric(prompt):
     lower = prompt.casefold()
-    if re.search(r"\b(?:starve|starved|starvation|verhongerd|verhongeren|verhongering)\b", lower) and re.search(ANIMALS, lower):
+    if re.search(r"\b(?:starve|starved|starvation|verhongerd|verhongeren|verhongering)\b", lower) and (re.search(ANIMALS, lower) or "pets" in lower):
         return "starved"
     if re.search(r"\b(?:memorial|dead|dode|dood|overleden|gestorven)\b", lower) and (re.search(ANIMALS, lower) or "memorial" in lower):
         return "dead"
