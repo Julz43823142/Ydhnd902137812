@@ -43,8 +43,6 @@ COMMAND_HELP = {
     "!cancelreview": "cancel your pending PGN review",
     "!random": "get a random chess puzzle",
     "!practice": "start a practice chess puzzle",
-    "!survival": "start survival puzzle mode",
-    "!stopsurvival": "stop survival puzzle mode",
     "!racer": "challenge a player to Puzzle Racer or open its menu",
     "!racercancel": "cancel your puzzle race",
     "!rush": "start Puzzle Rush",
@@ -69,6 +67,7 @@ COMMAND_HELP = {
     "!daily declinedraw": "decline a daily chess draw",
     "!daily resign": "resign your daily chess game",
     "!version": "show bot version",
+    "!economy": "view the public game economy report",
 }
 # Stronger than a denylist: only the above commands can ever be routed.
 assert not any(name.startswith((
@@ -81,12 +80,12 @@ NO_ARGUMENTS = frozenset({
     "!help", "!menu", "!shop", "!box", "!pet", "!pets", "!leaderboard",
     "!puzzlestreak", "!quests", "!week", "!collection", "!community",
     "!event", "!challenge", "!pendingtrade", "!accepttrade", "!declinetrade",
-    "!cancelreview", "!random", "!practice", "!stopsurvival",
+    "!cancelreview", "!random", "!practice",
     "!racercancel", "!rush", "!stoprush", "!accept", "!decline",
     "!resign", "!draw", "!acceptdraw", "!declinedraw", "!chessboard",
     "!daily accept", "!daily decline", "!daily board", "!daily draw",
-    "!daily acceptdraw", "!daily declinedraw", "!daily resign", "!version",
-    "!survival", "!daily game",
+    "!daily acceptdraw", "!daily declinedraw", "!daily resign", "!version", "!economy",
+    "!daily game",
 })
 # A command's existing UI owns confirmations for actions launched by buttons.
 INTERACTIVE = frozenset({
@@ -99,7 +98,7 @@ MUTATIONS = frozenset({
     "!draw", "!acceptdraw", "!declinedraw", "!daily challenge",
     "!daily accept", "!daily decline", "!daily draw", "!daily acceptdraw",
     "!daily declinedraw", "!daily resign", "!trade", "!donate",
-    "!accepttrade", "!declinetrade", "!survival", "!stopsurvival",
+    "!accepttrade", "!declinetrade",
     "!racer", "!racercancel", "!rush", "!stoprush", "!cancelreview",
 })
 CHESS_CHANNELS = (1468320170891022417, 1546557493038284840)
@@ -149,9 +148,9 @@ def _basic_intent(text):
         return "!coins", ""
     if re.search(r"\b(shop|winkel|catalogue|catalog|what can i buy|wat kan ik kopen)\b", t):
         return "!shop", ""
-    if re.search(r"\b(piece sets?|chess pieces|schaakstukken)\b", t):
+    if re.search(r"\b(piece sets?|chess pieces|schaakstukken)\b", t) and re.search(r"\b(shop|buy|purchase|buying|buyable|buyable|options|catalog|catalogue|new|set|sets|equip|kopen|winkel)\b", t):
         return "!custompiece", ""
-    if re.search(r"\b(board themes?|chess boards?|schaakborden)\b", t):
+    if re.search(r"\b(board themes?|chess boards?|schaakborden)\b", t) and re.search(r"\b(shop|buy|purchase|options|catalog|catalogue|new|themes|equip|kopen|winkel)\b", t):
         return "!customboard", ""
     if re.search(r"\b(leaderboards?|ranglijst)\b", t):
         return "!leaderboard", ""
@@ -184,6 +183,25 @@ def _validate(message, command, args):
     if command == "!racer" and args and not (args.casefold() == "open" or len(args) <= 80):
         return None
     return command + (" " + args if args else "")
+
+def _cost_hint(command, args):
+    """Show current catalogue base price when a text command can spend coins."""
+    if "buy" not in args.casefold().split():
+        return ""
+    try:
+        from shop_catalog import BOARD_COST, PIECE_COST, ARROW_COST, COLOR_COST, PROFILE_THEME_COST, GAME_PROFILE_THEME_COST
+    except ImportError:
+        return "The shop will enforce its current price. "
+    prices = {
+        "!customboard": f"{BOARD_COST:g}",
+        "!custompiece": f"{PIECE_COST:g}",
+        "!arrow": f"{ARROW_COST:g}",
+        "!color": f"{COLOR_COST:g}",
+        "!theme": f"{PROFILE_THEME_COST:g}-{GAME_PROFILE_THEME_COST:g}",
+    }
+    price = prices.get(command)
+    return (f"Listed base price: **{price} coins**. The shop checks availability and balance. "
+            if price else "The shop will check the price and balance. ")
 
 def _requires_confirmation(command, args):
     if command in MUTATIONS:
@@ -236,7 +254,8 @@ async def route(message, client, command, args=""):
         # Replacing pending state prevents multiple commands being accepted with one yes.
         sent = await _safe_reply(
             message, "This action may change your game, items or coins. "
-            f"Run `{discord.utils.escape_markdown(command_text[:150])}`? "
+            + _cost_hint(command, args)
+            + f"Run `{discord.utils.escape_markdown(command_text[:150])}`? "
             "Reply directly to this message with **yes** or **no**, "
             "or mention me with **yes** or **no**, within 90 seconds."
         )
