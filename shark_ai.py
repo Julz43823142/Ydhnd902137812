@@ -130,6 +130,22 @@ def _close_incomplete_reply(text):
     return "That answer was too long for one reply. Ask me for a shorter explanation or one part at a time."
 
 
+async def _summarize_for_discord(draft):
+    """Compress a long or unfinished draft into a finished short response."""
+    summary, error = await _complete([
+        {"role": "system", "content": (
+            "Summarize this draft accurately in at most 800 characters. "
+            "Use brief plain English paragraphs, no tables or unfinished "
+            "lists. Preserve important qualifications, do not invent facts, "
+            "and finish on a complete sentence."
+        )},
+        {"role": "user", "content": draft[:9000]},
+    ])
+    if summary and not error:
+        return _fit_reply(summary)
+    return _fit_reply(_close_incomplete_reply(draft))
+
+
 async def handle_mention(message, client):
     """Return True only if a message was handled as a chat mention."""
     if not message.guild or not client.user:
