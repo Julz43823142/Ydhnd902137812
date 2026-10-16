@@ -8,6 +8,7 @@ on:
       - 'shark_ai.py'
       - 'shark_commands.py'
       - 'shark_dispatch.py'
+      - 'shark_version.py'
       - 'test_shark*.py'
       - 'chess_play.py'
       - 'fairplay*.py'
@@ -217,7 +218,7 @@ jobs:
           PY
 
       - name: Validate AI chat safety
-        run: python -m unittest -v test_shark_ai_safety test_shark_commands test_shark_dispatch
+        run: python -m unittest -v test_shark_ai_safety test_shark_commands test_shark_dispatch test_shark_v2
 
       - name: Run Daily Puzzle
         run: python bot.py
