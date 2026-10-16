@@ -148,6 +148,12 @@ def _parse_command(value, original):
         set(re.findall(r"<@!?(\d{15,22})>", original))
     ):
         return None
+    if base == "!donate":
+        tokens = args.split()
+        if len(tokens) < 2 or tokens[0].isdecimal():
+            return None
+        if tokens[-1].isdecimal() and int(tokens[-1]) <= 0:
+            return None
     if base == "!review":
         return "!review"  # PGN is sourced from original message only.
     if base != "!review":
@@ -239,24 +245,46 @@ def _is_chat_channel(channel_id):
 
 async def plan_mention(message, prompt, complete):
     """Return None (ordinary chat), True (handled), or a validated command."""
-    if not COMMAND_HINTS.search(prompt):
-        return None
-    system = ROUTING_RULES + " ".join(sorted(ALLOWED))
-    result, error = await complete([
-        {"role": "system", "content": system},
-        {"role": "user", "content": prompt[:1500]},
-    ], response_format=STRUCTURED_RESPONSE)
-    if error or not result:
-        return None
-    try:
-        plan = json.loads(result)
-    except (TypeError, ValueError):
-        return None
-    if not isinstance(plan, dict):
-        return None
-    command = _parse_command(plan.get("command"), prompt)
-    if command is None:
-        return None
+    direct = re.fullmatch(
+        r"\s*(?:please\s+)?(?:type|run|execute|use)\s+(!donate(?:\s+[^\r\n]*)?)\s*",
+        prompt, re.IGNORECASE,
+    )
+    if direct:
+        command = _parse_command(direct.group(1), prompt)
+        if command is None:
+            await message.reply(
+                "A donation needs a recipient and an amount or badge. "
+                "Use !donate <name> <coins|badge>. Nothing was sent.",
+                mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
+            )
+            return True
+    else:
+        if not COMMAND_HINTS.search(prompt):
+            return None
+        system = ROUTING_RULES + " ".join(sorted(ALLOWED))
+        result, error = await complete([
+            {"role": "system", "content": system},
+            {"role": "user", "content": prompt[:1500]},
+        ], response_format=STRUCTURED_RESPONSE)
+        if error or not result:
+            return None
+        try:
+            plan = json.loads(result)
+        except (TypeError, ValueError):
+            return None
+        if not isinstance(plan, dict):
+            return None
+        suggested = plan.get("command")
+        command = _parse_command(suggested, prompt)
+        if command is None:
+            if isinstance(suggested, str) and suggested.strip().lower().startswith("!donate"):
+                await message.reply(
+                    "I need a valid recipient and an amount or badge to donate. "
+                    "For example: !donate Thice 10. Nothing was sent.",
+                    mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
+                )
+                return True
+            return None
 
     # An attached PGN is processed by the original review handler. For inline
     # PGN the model only selects !review; the input text remains authoritative.
