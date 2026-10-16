@@ -388,14 +388,14 @@ async def handle_mention(message, client):
         return True
     # An explicit accept/decline targets only the requester's pending trade.
     # The existing Discord command handler enforces trade ownership and validity.
-    if re.fullmatch(r"(?:please\\s+)?(?:accept|decline|reject)\\s+(?:(?:my|the)\\s+)?(?:dog\\s+|pet\\s+)?trade[.!]?", prompt, re.I):
-        command = "!declinetrade" if re.match(r"(?:please\\s+)?(?:decline|reject)\\b", prompt, re.I) else "!accepttrade"
+    if re.fullmatch(r"(?:please\s+)?(?:accept|decline|reject)\s+(?:(?:my|the)\s+)?(?:dog\s+|pet\s+)?trade[.!]?", prompt, re.I):
+        command = "!declinetrade" if re.match(r"(?:please\s+)?(?:decline|reject)\b", prompt, re.I) else "!accepttrade"
         if not await dispatch_existing_command(message, client, command):
             await _counted_reply(message, "I couldn't process your pending trade here.",
                                  mention_author=False, allowed_mentions=discord.AllowedMentions.none())
         return True
     # Explain genuine public free features without inventing today's eligibility.
-    if re.fullmatch(r"(?:what can i|wat kan ik|welke beloningen kan ik)\\s+(?:claim|claimen|gratis claimen|free claim)\\s+(?:today|vandaag)\\??", prompt, re.I):
+    if re.fullmatch(r"(?:what can i|wat kan ik|welke beloningen kan ik)\s+(?:claim|claimen|gratis claimen|free claim)\s+(?:today|vandaag)\??", prompt, re.I):
         await _counted_reply(message,
             "You can claim one free daily Mystery Box per Amsterdam day. "
             "Say `open box` here to claim it; I'll verify whether you already claimed it. "
