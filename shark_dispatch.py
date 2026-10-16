@@ -16,8 +16,14 @@ async def dispatch_existing_command(message, client, command):
     """
     if not message.guild or not client.user or not _is_chat_channel(message.channel.id):
         return False
-    validated = _parse_command(command, command)
-    if validated != command or command.partition(" ")[0].lower() in PRIVILEGED:
+    validated = _parse_command(command, message.content)
+    is_original_pgn = (
+        command.startswith("!review ")
+        and validated == "!review"
+        and len(command) <= 1500
+        and command[len("!review "):] in message.content
+    )
+    if (validated != command and not is_original_pgn) or command.partition(" ")[0].lower() in PRIVILEGED:
         return False
     routed = copy(message)
     routed.content = command
