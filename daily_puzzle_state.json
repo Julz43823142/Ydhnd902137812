@@ -2951,106 +2951,126 @@
   },
   "puzzle_rush": {
     "442597396195704832": {
-      "active": true,
+      "active": false,
       "user_id": "442597396195704832",
       "name": "Thice",
-      "started_at": 1792179822.8851821,
-      "run_id": "rush:442597396195704832:1792179822885",
-      "end_at": 1792180122.8851821,
-      "score": 6,
+      "started_at": 1792018804.7036617,
+      "run_id": "rush:442597396195704832:1792018804703",
+      "end_at": 1792019104.7036617,
+      "score": 17,
       "wrong": 2,
       "mistakes": [
         {
-          "puzzle_number": 7,
-          "submitted": "r8c2",
-          "correct": "Rcc2",
+          "puzzle_number": 14,
+          "submitted": "Nxd5",
+          "correct": "Rxf7",
           "puzzle": {
-            "puzzle_id": "practice_rush_442597396195704832_Nt1Pj_1792179891974",
-            "fen": "2r5/p4Bk1/3b3p/5p2/1P3P2/1Q4PK/P2r3P/8 b - - 0 39",
-            "current_fen": "2r5/p4Bk1/3b3p/5p2/1P3P2/1Q4PK/P2r3P/8 b - - 0 39",
-            "last_move_uci": "c4f7",
+            "puzzle_id": "practice_rush_442597396195704832_k1Wsg_1792018964005",
+            "fen": "2br1r1k/4nRb1/3q3p/pp1N3P/2pP4/2P1N1R1/PP3QB1/1K6 b - - 0 28",
+            "current_fen": "2br1r1k/4nRb1/3q3p/pp1N3P/2pP4/2P1N1R1/PP3QB1/1K6 b - - 0 28",
+            "last_move_uci": "f4f7",
             "player_color": "black",
-            "rating": 1487,
+            "rating": 1734,
             "board_theme": "blue",
             "piece_theme": "classic",
             "arrow_theme": "pink"
           },
-          "recorded_at": 1792179899.7611132
+          "recorded_at": 1792018991.6289618
         },
         {
-          "puzzle_number": 8,
-          "submitted": "nxd4",
-          "correct": "Re1+",
+          "puzzle_number": 19,
+          "submitted": "Rb7",
+          "correct": "Nb6+",
           "puzzle": {
-            "puzzle_id": "practice_rush_442597396195704832_n3Lql_1792179899765",
-            "fen": "4r1k1/2q3p1/1npb1p1p/3p4/3P3N/2P4P/PPQN1PP1/R1B3K1 b - - 0 23",
-            "current_fen": "4r1k1/2q3p1/1npb1p1p/3p4/3P3N/2P4P/PPQN1PP1/R1B3K1 b - - 0 23",
-            "last_move_uci": "d1c2",
-            "player_color": "black",
-            "rating": 1442,
+            "puzzle_id": "practice_rush_442597396195704832_I9yxc_1792019056340",
+            "fen": "N3kbnr/5pp1/2p1p2p/8/3p3P/3b4/P2B1P2/1RQ1KB1q w k - 2 19",
+            "current_fen": "NR3bnr/3k1pp1/2p1p2p/8/3p3P/3b4/P2B1P2/2Q1KB1q w - - 4 20",
+            "last_move_uci": "e8d7",
+            "player_color": "white",
+            "rating": 1905,
             "board_theme": "blue",
             "piece_theme": "classic",
             "arrow_theme": "pink"
           },
-          "recorded_at": 1792179904.4006293
+          "recorded_at": 1792019094.943794
         }
       ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/C97EN",
-        "title": "Lichess • 1406",
-        "fen": "r1bq4/ppp3pk/3p2Np/4P3/3n4/2N1b2P/PPQ3P1/5R1K w - - 0 26",
-        "current_fen": "r1bq4/ppp3pk/3p2Np/4P3/3n4/2N1b2P/PPQ3P1/5R1K w - - 0 26",
-        "last_move_uci": "c6d4",
-        "pgn": "Nf8+ Kh8 Qh7#",
+        "url": "https://lichess.org/training/P0erL",
+        "title": "Lichess • 1857",
+        "fen": "3R4/8/k4p2/1R2b2p/PP2pn1P/5P2/2r2P2/1K6 b - - 3 39",
+        "current_fen": "3R4/8/k4p2/1R2b2p/PP2pn1P/5P2/2r2P2/1K6 b - - 3 39",
+        "last_move_uci": "a2b1",
+        "pgn": "Rb2+ Kc1 Ne2+ Kd1 Nc3+",
         "all_moves": [
           {
-            "uci": "g6f8",
-            "san": "Nf8+",
-            "color": "white"
-          },
-          {
-            "uci": "h7h8",
-            "san": "Kh8",
+            "uci": "c2b2",
+            "san": "Rb2+",
             "color": "black"
           },
           {
-            "uci": "c2h7",
-            "san": "Qh7#",
+            "uci": "b1c1",
+            "san": "Kc1",
             "color": "white"
+          },
+          {
+            "uci": "f4e2",
+            "san": "Ne2+",
+            "color": "black"
+          },
+          {
+            "uci": "c1d1",
+            "san": "Kd1",
+            "color": "white"
+          },
+          {
+            "uci": "e2c3",
+            "san": "Nc3+",
+            "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "g6f8",
-            "san": "Nf8+",
-            "color": "white"
+            "uci": "c2b2",
+            "san": "Rb2+",
+            "color": "black"
           },
           {
-            "uci": "c2h7",
-            "san": "Qh7#",
-            "color": "white"
+            "uci": "f4e2",
+            "san": "Ne2+",
+            "color": "black"
+          },
+          {
+            "uci": "e2c3",
+            "san": "Nc3+",
+            "color": "black"
           }
         ],
-        "player_color": "white",
-        "player_move_count": 2,
-        "posted_at": "2026-10-16T19:45:04.404912+00:00",
+        "player_color": "black",
+        "player_move_count": 3,
+        "posted_at": "2026-10-14T23:04:54.950318+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_C97EN_1792179904404",
-        "rating": 1406,
+        "puzzle_id": "practice_rush_442597396195704832_P0erL_1792019094950",
+        "rating": 1857,
         "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1560740364757893141,
+      "message_id": 1560065899938185217,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792179904.3999307,
-      "last_feedback": "❌ **nxd4** was wrong. Correct move: **Re1+**."
+      "last_card_activity_at": 1792019094.943433,
+      "last_feedback": "❌ **Rb7** was wrong. Correct move: **Nb6+**.",
+      "ended_at": 1792019109.5570369,
+      "solve_reward_coins": 12.0,
+      "solve_reward_paid": true,
+      "completion_reward_coins": 10.0,
+      "completion_reward_paid": true
     },
     "362606514764251137": {
       "active": false,
@@ -10353,9 +10373,9 @@
     }
   },
   "twitch_oauth_v1": {
-    "refresh_token_enc": "gAAAAABq0n49NcWCJD0BXV_UHB2TVFaiOqvXTgahSH7tMIkpLg7pRZez4BuZj9M7WNCcjggfks51ZCsOWIX2U90z1XbTDPnjU_Rjps9VUzdQnkCrHnBAs9cwDmzXLr9xzu8fqxtuZ30-Mk3ne5R0sUKDswn5O3Q7wA==",
-    "updated_at": 1792179773,
-    "reason": "live-preview-401"
+    "refresh_token_enc": "gAAAAABq0oAtzLn3FX4uq7a7CQjmZvBvqpF7_7dEDmDnHeOhTZcx5OaCrPnoS-8jXpfjvY4wnM-DvB3yJyAktJExNv0fN_SDjqJ7rnIEAvX8Kmc0yJHMLbl2XnL7wgcRfwbLDIFE0mmPVsl7FXBra-PpFvW46DrQeA==",
+    "updated_at": 1792180269,
+    "reason": "worker-start"
   },
   "twitch_pending_redemptions_v1": {
     "2e64827e-b674-48cd-8da5-fdeff053a10a": {
