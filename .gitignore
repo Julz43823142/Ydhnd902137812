@@ -3,3 +3,10 @@ validation_cases.local.json
 fairplay_validation*.local.json
 fairplay_validation.local/
 fairplay_cases*.local.json
+
+# Public Chess.com reference PGNs and reports: keep player datasets local.
+data/chesscom_reference.local/
+chesscom_reference.local/
+*.chesscom_accuracy.local.json
+*.chesscom_accuracy.local.csv
+*.chesscom_accuracy.local.md
