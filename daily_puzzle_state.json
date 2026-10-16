@@ -2957,80 +2957,50 @@
       "started_at": 1792180373.8945549,
       "run_id": "rush:442597396195704832:1792180373894",
       "end_at": 1792180673.8945549,
-      "score": 4,
+      "score": 5,
       "wrong": 0,
       "mistakes": [],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/WggDd",
-        "title": "Lichess • 1382",
-        "fen": "r5k1/2p3b1/3pRq2/1PpP2pp/p4p2/PP1Q1P2/6PP/5RK1 b - - 1 29",
-        "current_fen": "r5k1/2p5/3pR3/1PpP2pp/p2b1p2/PP3P2/6PP/5R1K b - - 1 31",
-        "last_move_uci": "g1h1",
-        "pgn": "Qd4+ Qxd4 Bxd4+ Kh1 axb3",
+        "url": "https://lichess.org/training/WFejJ",
+        "title": "Lichess • 1373",
+        "fen": "r1b1k3/pp3p1p/8/8/7Q/2P5/PP2qPrP/2KR3n w q - 0 20",
+        "current_fen": "r1b1k3/pp3p1p/8/8/7Q/2P5/PP2qPrP/2KR3n w q - 0 20",
+        "last_move_uci": "g3h1",
+        "pgn": "Qd8#",
         "all_moves": [
           {
-            "uci": "f6d4",
-            "san": "Qd4+",
-            "color": "black"
-          },
-          {
-            "uci": "d3d4",
-            "san": "Qxd4",
+            "uci": "h4d8",
+            "san": "Qd8#",
             "color": "white"
-          },
-          {
-            "uci": "g7d4",
-            "san": "Bxd4+",
-            "color": "black"
-          },
-          {
-            "uci": "g1h1",
-            "san": "Kh1",
-            "color": "white"
-          },
-          {
-            "uci": "a4b3",
-            "san": "axb3",
-            "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "f6d4",
-            "san": "Qd4+",
-            "color": "black"
-          },
-          {
-            "uci": "g7d4",
-            "san": "Bxd4+",
-            "color": "black"
-          },
-          {
-            "uci": "a4b3",
-            "san": "axb3",
-            "color": "black"
+            "uci": "h4d8",
+            "san": "Qd8#",
+            "color": "white"
           }
         ],
-        "player_color": "black",
-        "player_move_count": 3,
-        "posted_at": "2026-10-16T19:53:24.109528+00:00",
+        "player_color": "white",
+        "player_move_count": 1,
+        "posted_at": "2026-10-16T19:53:41.064119+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_WggDd_1792180404109",
-        "rating": 1382,
-        "next_solution_index": 4,
+        "puzzle_id": "practice_rush_442597396195704832_WFejJ_1792180421064",
+        "rating": 1373,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1560742522135781560,
+      "message_id": 1560742537822470204,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792180417.8087513,
-      "last_feedback": "✅ **Bxd4+** • Opponent: **Kh1**"
+      "last_card_activity_at": 1792180421.0590725,
+      "last_feedback": "✅ **axb3** — solved! Score: **5**."
     },
     "362606514764251137": {
       "active": false,
