@@ -18566,9 +18566,30 @@ async def on_message(
         if message.author.bot:
             return
 
-        # Optional Groq AI: intercept mentions before channel-specific early returns.
+        # Natural-language commands always run as the original author through
+        # the original on_message handler, preserving all gameplay/coin checks.
+        from shark_commands import consume_confirmation, RoutedMessage
+        if message.guild and client.user:
+            approved = consume_confirmation(message, client.user.id)
+            if approved is True:
+                await message.reply(
+                    "Cancelled. No action was taken.",
+                    mention_author=False,
+                    allowed_mentions=discord.AllowedMentions.none(),
+                )
+                return
+            if isinstance(approved, str):
+                await on_message(RoutedMessage(message, approved, client.user.id))
+                return
+
+        # AI chat can run in any readable channel. Real game commands remain
+        # restricted to the existing chess channels.
         from shark_ai import handle_mention as handle_shark_ai_mention
-        if await handle_shark_ai_mention(message, client):
+        routed = await handle_shark_ai_mention(message, client)
+        if isinstance(routed, str):
+            await on_message(RoutedMessage(message, routed, client.user.id))
+            return
+        if routed:
             return
 
         if message.channel.id==FAIRPLAY_CHANNEL_ID:
