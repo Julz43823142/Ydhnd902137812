@@ -2965,8 +2965,8 @@
         "url": "https://lichess.org/training/b1USJ",
         "title": "Lichess • 1840",
         "fen": "2k2b1r/ppp1p3/3q1p2/6pp/3Q1B2/N4N1K/PP3PPP/R6R b - - 0 21",
-        "current_fen": "2k2b1r/ppp1p3/3q1p2/6pp/3Q1B2/N4N1K/PP3PPP/R6R b - - 0 21",
-        "last_move_uci": "e3f4",
+        "current_fen": "2k2b1r/ppp1p3/4qp2/6pp/3Q1BP1/N4N1K/PP3P1P/R6R b - - 0 22",
+        "last_move_uci": "g2g4",
         "pgn": "Qe6+ g4 Qxg4#",
         "all_moves": [
           {
@@ -3006,16 +3006,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_b1USJ_1792180534258",
         "rating": 1840,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1560743016065409146,
+      "message_id": 1560743026215886929,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792180534.252859,
-      "last_feedback": "✅ **Qh7#** — solved! Score: **17**."
+      "last_card_activity_at": 1792180541.1319425,
+      "last_feedback": "✅ **Qe6+** • Opponent: **g4**"
     },
     "362606514764251137": {
       "active": false,
