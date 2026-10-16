@@ -1,10 +1,10 @@
-name: Nightly Chess.com Accuracy Research (00-09 Amsterdam)
+name: Chess.com Reference Research (manual, written authorization required)
 
 on:
-  schedule:
-    # DST-aware. At most one research runner starts per local hour.
-    - cron: '7 0-8 * * *'
-      timezone: 'Europe/Amsterdam'
+  # Disabled by default: Chess.com's current terms require prior written
+  # authorization for automated reference harvesting/model calibration.
+  # No schedule. An approved manual invocation additionally needs a
+  # repository authorization flag, set only after securing permission.
   workflow_dispatch:
 
 # Independent from Fair Play and ordinary Discord game reviews.
@@ -17,7 +17,7 @@ permissions:
 
 jobs:
   nightly-research:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && vars.CHESSCOM_RESEARCH_WRITTEN_AUTHORIZATION == 'true'
     name: Research-only Stockfish evaluations and CAPS2 trials
     runs-on: ubuntu-latest
     timeout-minutes: 58
