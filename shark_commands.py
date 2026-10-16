@@ -227,8 +227,8 @@ def free_access_command(prompt):
     the existing owner-bound button and daily eligibility checks.
     """
     text = prompt.strip().casefold()
-    if re.search(r"\\b(?:free\\s+(?:access|daily\\s+(?:mystery\\s+)?box)|gratis\\s+(?:toegang|dagelijkse\\s+(?:mystery\\s+)?box))\\b", text):
-        if re.search(r"\\b(?:open|show|give|claim|use|access|want|get|where|take|start|can|please|free|gratis|toon|openen|geef|pak|haal|laat|wil)\\b", text):
+    if re.search(r"\b(?:free\s+(?:access|daily\s+(?:mystery\s+)?box)|gratis\s+(?:toegang|dagelijkse\s+(?:mystery\s+)?box))\b", text):
+        if re.search(r"\b(?:open|show|give|claim|use|access|want|get|where|take|start|can|please|free|gratis|toon|openen|geef|pak|haal|laat|wil)\b", text):
             return "!shop"
     return None
 
