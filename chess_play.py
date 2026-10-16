@@ -864,7 +864,7 @@ def stockfish_position_eval_cp(board, pov_color=chess.WHITE, analysis_time=None)
         info = engine.analyse(board, chess.engine.Limit(time=limit_time))
         return int(_engine_score_cp(info, color))
 
-def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False, *, interrupt_check=None, progress_callback=None):
+def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False, *, interrupt_check=None, progress_callback=None, analysis_time_per_position=None):
     """Analyse a finished game with full-strength Stockfish 19.
 
     Accuracy and ordinary move classifications are based on *winning-chance
@@ -952,7 +952,14 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
         # transport timeout so tactical positions do not fail at its 15s default.
         if hasattr(engine, 'timeout'):
             engine.timeout = max(float(engine.timeout), 180.0)
-        analysis_limit = chess.engine.Limit(depth=STOCKFISH_GAME_REVIEW_DEPTH)
+        # Research-only override. None preserves production's fixed depth 18.
+        if analysis_time_per_position is None:
+            analysis_limit = chess.engine.Limit(depth=STOCKFISH_GAME_REVIEW_DEPTH)
+        else:
+            seconds = float(analysis_time_per_position)
+            if not math.isfinite(seconds) or not 0.05 <= seconds <= 10.0:
+                raise ValueError("analysis_time_per_position must be between 0.05 and 10 seconds")
+            analysis_limit = chess.engine.Limit(time=seconds)
         before_lines = _as_lines(engine.analyse(board, analysis_limit, multipv=2))
         if not before_lines:
             raise RuntimeError("Stockfish returned no analysis for the starting position.")
@@ -1127,7 +1134,7 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
         "turning_points": important[:3],
         "truncated": bool(truncated),
         "analysis_depth": STOCKFISH_GAME_REVIEW_DEPTH,
-        "analysis_time_per_position": None,
+        "analysis_time_per_position": float(analysis_time_per_position) if analysis_time_per_position is not None else None,
         "analysis_elapsed_seconds": round(time.perf_counter() - started_at, 3),
         "initial_white_win_pct": position_white_win_pcts[0],
         "analysis_version": "ordinary-review-v8",
@@ -1135,7 +1142,7 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
         "skipped_plies": max(0, requested_plies - len(moments)),
         "accuracy_provenance": "SharkBot estimate (not Chess.com Accuracy)",
         "engine_configuration": {
-            "depth": STOCKFISH_GAME_REVIEW_DEPTH,
+            "depth": STOCKFISH_GAME_REVIEW_DEPTH if analysis_time_per_position is None else None,
             "threads": STOCKFISH_THREADS,
             "hash_mb": STOCKFISH_HASH_MB,
         },
