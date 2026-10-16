@@ -86,11 +86,23 @@ async def _complete(messages, response_format=None):
 def _fit_reply(text, limit=MAX_REPLY_CHARS):
     """Keep Discord answers complete and below the configured character cap."""
     text = text.replace("@everyone", "@\u200beveryone").replace("@here", "@\u200bhere").strip()
-    if len(text) <= limit:
+    # Discord counts UTF-16 code units; non-BMP emoji can count as two.
+    def units(value):
+        return len(value.encode("utf-16-le")) // 2
+
+    if units(text) <= limit:
         return text
     suffix = "\n\n(Shortened to fit Discord. Ask me for more details.)"
-    budget = limit - len(suffix)
-    prefix = text[:budget]
+    budget = limit - units(suffix)
+    used = 0
+    pieces = []
+    for char in text:
+        length = units(char)
+        if used + length > budget:
+            break
+        pieces.append(char)
+        used += length
+    prefix = "".join(pieces)
     # Prefer a finished sentence/paragraph over cutting in the middle of words.
     ends = [m.end() for m in re.finditer(r"[.!?](?=\s|$)", prefix)]
     last = max(ends, default=0)
