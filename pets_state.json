@@ -668,6 +668,17 @@
             "owner_name": "Thice"
           }
         ],
+        "puzzle": {
+          "day": "2026-10-16",
+          "fen": "r1b1k2r/pp1p1p1p/1qP1pp2/2b5/8/1P3N2/P1P2PPP/RN1QKB1R b KQkq - 0 9",
+          "id": "jpe90",
+          "index": 0,
+          "moves": [
+            "c5f2",
+            "e1d2",
+            "b6e3"
+          ]
+        },
         "rarity": "rare",
         "species": "Wolf",
         "xp": 0
