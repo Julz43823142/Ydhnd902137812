@@ -212,6 +212,9 @@ jobs:
           print("Verified clean Daily Actions self-rotation support.")
           PY
 
+      - name: Validate AI chat safety
+        run: python -m unittest -v test_shark_ai_safety
+
       - name: Run Daily Puzzle
         run: python bot.py
         env:
