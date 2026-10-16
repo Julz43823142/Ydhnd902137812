@@ -18566,6 +18566,14 @@ async def on_message(
         if message.author.bot:
             return
 
+        # Natural-language player commands: only replies to THIS user's own
+        # pending confirmation, in the same channel, can execute an action.
+        # Routed messages retain the original author and never enter AI routing.
+        if not getattr(message, "_shark_ai_routed", False):
+            from shark_actions import handle_confirmation
+            if await handle_confirmation(message, client):
+                return
+
         # Optional Groq AI: intercept mentions before channel-specific early returns.
         from shark_ai import handle_mention as handle_shark_ai_mention
         if await handle_shark_ai_mention(message, client):
@@ -18613,10 +18621,13 @@ async def on_message(
         if in_minigames and command_token in {'!pending','!accept','!decline'} and message.content.strip().casefold() not in {'!pending trade','!accept trade','!decline trade'}:
             return
 
-        if await shark_admin.handle_message(
-            message, daily_editor=admin_edit_daily_record, color_editor=admin_color_role,
-        ):
-            return
+        # Synthetic player-command messages never reach administrator handlers.
+        # They were allowlisted and scoped to the original author upstream.
+        if not getattr(message, "_shark_ai_routed", False):
+            if await shark_admin.handle_message(
+                message, daily_editor=admin_edit_daily_record, color_editor=admin_color_role,
+            ):
+                return
 
         content = message.content.strip()
 
