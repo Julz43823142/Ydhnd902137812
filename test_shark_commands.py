@@ -38,6 +38,17 @@ class SharkCommandTests(unittest.TestCase):
         self.assertEqual(route._parse_command("!donate Thice 5", "donate Thice 5 coins"),
                          "!donate Thice 5")
 
+    def test_free_access_opens_real_shop_not_fake_slash_command(self):
+        for prompt in (
+            "open free access menu",
+            "Can you show me free access?",
+            "claim my free daily mystery box",
+            "toon de gratis toegang",
+        ):
+            self.assertEqual(route.free_access_command(prompt), "!shop")
+        for prompt in ("what is free will?", "free chess lessons", "buy a badge box"):
+            self.assertIsNone(route.free_access_command(prompt))
+
     def test_routing_ordinary_chat_does_not_call_model(self):
         async def never_call(*args, **kwargs):
             raise AssertionError("chat should not use a command planner")

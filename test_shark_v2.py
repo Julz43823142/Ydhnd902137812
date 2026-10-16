@@ -9,7 +9,7 @@ from shark_version import SHARKBOT_VERSION
 
 class ReplyLimitTests(unittest.TestCase):
     def test_public_version(self):
-        self.assertEqual(SHARKBOT_VERSION, 3)
+        self.assertEqual(SHARKBOT_VERSION, "2.1")
 
     def test_short_answer_unchanged(self):
         self.assertEqual(shark_ai._fit_reply("Checkmate!"), "Checkmate!")
@@ -66,7 +66,7 @@ class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
         with patch.dict("os.environ", {"GROQ_API_KEY": ""}):
             handled = await shark_ai.handle_mention(msg, SimpleNamespace(user=bot))
         self.assertTrue(handled)
-        self.assertEqual(replies[0][0], "I'm SharkBot version 3.")
+        self.assertEqual(replies[0][0], "I'm SharkBot version 2.1.")
         self.assertFalse(replies[0][1]["mention_author"])
 
     async def test_dutch_version_question(self):
@@ -93,7 +93,7 @@ class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
         )
         with patch.dict("os.environ", {"GROQ_API_KEY": ""}):
             self.assertTrue(await shark_ai.handle_mention(msg, SimpleNamespace(user=bot)))
-        self.assertEqual(replies, ["I'm SharkBot version 3."])
+        self.assertEqual(replies, ["I'm SharkBot version 2.1."])
 
 
 if __name__ == "__main__":
