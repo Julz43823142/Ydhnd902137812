@@ -167,7 +167,7 @@ def _close_incomplete_reply(text):
 async def _summarize_for_discord(draft):
     """Compress a long or unfinished draft into a finished short response."""
     summary, error = await _complete([
-        {"role": "system", "content": SYSTEM_RULES + "\nSummarize this draft accurately in at most 800 characters. "
+        {"role": "system", "content": (SYSTEM_RULES + "\nSummarize this draft accurately in at most 800 characters. "
             "Use brief plain English paragraphs, no tables or unfinished "
             "lists. Preserve important qualifications, do not invent facts, "
             "and finish on a complete sentence."
