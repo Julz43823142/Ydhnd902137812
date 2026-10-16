@@ -2957,50 +2957,50 @@
       "started_at": 1792180373.8945549,
       "run_id": "rush:442597396195704832:1792180373894",
       "end_at": 1792180673.8945549,
-      "score": 5,
+      "score": 6,
       "wrong": 0,
       "mistakes": [],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/WFejJ",
-        "title": "Lichess • 1373",
-        "fen": "r1b1k3/pp3p1p/8/8/7Q/2P5/PP2qPrP/2KR3n w q - 0 20",
-        "current_fen": "r1b1k3/pp3p1p/8/8/7Q/2P5/PP2qPrP/2KR3n w q - 0 20",
-        "last_move_uci": "g3h1",
-        "pgn": "Qd8#",
+        "url": "https://lichess.org/training/FsN0T",
+        "title": "Lichess • 1415",
+        "fen": "4rk2/R6R/6p1/1p3p2/1P6/P3p2P/r5PK/8 w - - 0 40",
+        "current_fen": "4rk2/R6R/6p1/1p3p2/1P6/P3p2P/r5PK/8 w - - 0 40",
+        "last_move_uci": "e4e3",
+        "pgn": "Rh8#",
         "all_moves": [
           {
-            "uci": "h4d8",
-            "san": "Qd8#",
+            "uci": "h7h8",
+            "san": "Rh8#",
             "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "h4d8",
-            "san": "Qd8#",
+            "uci": "h7h8",
+            "san": "Rh8#",
             "color": "white"
           }
         ],
         "player_color": "white",
         "player_move_count": 1,
-        "posted_at": "2026-10-16T19:53:41.064119+00:00",
+        "posted_at": "2026-10-16T19:53:47.255036+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_WFejJ_1792180421064",
-        "rating": 1373,
+        "puzzle_id": "practice_rush_442597396195704832_FsN0T_1792180427255",
+        "rating": 1415,
         "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1560742537822470204,
+      "message_id": 1560742550686400513,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792180421.0590725,
-      "last_feedback": "✅ **axb3** — solved! Score: **5**."
+      "last_card_activity_at": 1792180427.2488468,
+      "last_feedback": "✅ **Rd8#** — solved! Score: **6**. Alternate checkmate accepted."
     },
     "362606514764251137": {
       "active": false,
