@@ -1,3 +1,3 @@
-"""Public SharkBot release number. Increase by exactly one per shipped update."""
+"""Public SharkBot version: MAJOR.MINOR (minor fixes versus major releases)."""
 
-SHARKBOT_VERSION = 3
+SHARKBOT_VERSION = "2.1"
