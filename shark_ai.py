@@ -332,6 +332,19 @@ async def handle_mention(message, client):
             mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
         )
         return True
+    # Direct, authenticated gameplay statistics are independent of the AI model.
+    # Read-only: no generated or user-supplied IDs can change game state.
+    if re.search(r"\b(?:how many|hoeveel|who|wie|what|wat|compare|vergelijk|killed|gekild|gedood)\b", prompt, re.I):
+        from shark_stats_query import answer as answer_player_stats
+        factual = await asyncio.to_thread(
+            answer_player_stats, prompt, message.guild, message.author
+        )
+        if factual is not None:
+            await message.reply(
+                factual, mention_author=False,
+                allowed_mentions=discord.AllowedMentions.none(),
+            )
+            return True
     # Real, deterministic menu routing works even when Groq is unavailable.
     # A free box is never claimed automatically: the original owner-bound
     # shop button performs all eligibility and daily-limit checks.
@@ -430,7 +443,7 @@ async def handle_mention(message, client):
         messages = [{"role": "system", "content": SYSTEM_RULES}]
         for _, role, text in _history[scope]:
             messages.append({"role": role, "content": text})
-        speaker_prompt = f"Player {message.author.id}: {prompt}"
+        speaker_prompt = f"Player {discord.utils.escape_markdown(message.author.display_name[:64])}: {prompt}"
         messages.append({"role": "user", "content": speaker_prompt})
         try:
             await asyncio.wait_for(_slots.acquire(), timeout=MAX_WAIT_SECONDS)
