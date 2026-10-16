@@ -1086,6 +1086,8 @@ def analyse_game_moves(san_moves, max_plies=None, start_fen=None, chess960=False
                 "category": classification if classification in {"inaccuracy", "mistake", "miss", "blunder"} else "ok",
                 "is_best": bool(is_best),
                 "sacrifice_cp": int(sacrifice_cp),
+                "actual_win_pct": round(actual_wp, 4),
+                "second_best_win_pct": (None if second_best_score is None else round(_win_percent_from_cp(second_best_score), 4)),
                 "eval_white_cp": int(eval_white_cp),
                 "eval_white_mate": eval_white_mate,
                 "fen": board.fen(),
