@@ -121,7 +121,7 @@ def _close_incomplete_reply(text):
     text = text.strip()
     complete = [m.end() for m in re.finditer(r"[.!?](?=\s|$)", text)]
     end = max(complete, default=0)
-    if end >= 30:
+    if end >= 12:
         return _fit_reply(text[:end].rstrip() + "\n\n(Shortened; ask me to continue.)")
     return "That answer was too long for one reply. Ask me for a shorter explanation or one part at a time."
 
