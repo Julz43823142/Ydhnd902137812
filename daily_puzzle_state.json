@@ -2983,8 +2983,8 @@
         "url": "https://lichess.org/training/DmR5J",
         "title": "Lichess • 1383",
         "fen": "rb2q1k1/pp4p1/2p5/2Pp4/3PpN1n/5NPP/PPQ2P1K/R4R2 b - - 0 25",
-        "current_fen": "rb2q1k1/pp4p1/2p5/2Pp4/3PpN1n/5NPP/PPQ2P1K/R4R2 b - - 0 25",
-        "last_move_uci": "d2f3",
+        "current_fen": "rb2q1k1/pp4p1/2p5/2Pp4/3PpN2/5nPP/PPQ2PK1/R4R2 b - - 1 26",
+        "last_move_uci": "h2g2",
         "pgn": "Nxf3+ Kg2 Bxf4",
         "all_moves": [
           {
@@ -3024,16 +3024,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_DmR5J_1792184284877",
         "rating": 1383,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1560758741249425468,
+      "message_id": 1560758757552554005,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792184284.8718123,
-      "last_feedback": "✅ **Qxf5** — solved! Score: **4**."
+      "last_card_activity_at": 1792184291.4323967,
+      "last_feedback": "✅ **Nxf3+** • Opponent: **Kg2**"
     },
     "362606514764251137": {
       "active": false,
