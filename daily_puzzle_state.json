@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/DKNhM",
     "title": "Lichess • 2169",
     "fen": "r6Q/3k1p1p/pp4p1/4P3/3r4/2q5/P5PP/3R3K w - - 3 31",
-    "current_fen": "r6Q/3R1p1p/ppk3p1/4P3/8/2q5/P5PP/7K w - - 3 33",
-    "last_move_uci": "c7c6",
+    "current_fen": "r7/3R1p1p/ppk2Qp1/4P3/8/2q5/P5PP/7K b - - 4 33",
+    "last_move_uci": "h8f6",
     "pgn": "Rxd4+ Kc7 Rd7+ Kc6 Qf6+",
     "all_moves": [
       {
@@ -53,45 +53,56 @@
     "player_color": "white",
     "player_move_count": 3,
     "posted_at": "2026-10-16T21:21:43.106452+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_DKNhM_1792185703106",
-    "last_activity_at": "2026-10-16T21:23:30.979631+00:00",
+    "last_activity_at": "2026-10-16T21:23:42.791463+00:00",
     "rating": 2169,
     "rp_band": 3,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 4,
-    "next_player_index": 2,
-    "solved": false,
+    "next_solution_index": 5,
+    "next_player_index": 3,
+    "solved": true,
     "message_ids": {
-      "1468320170891022417": 1560765157649416344
+      "1468320170891022417": 1560765207461241022
     },
-    "message_id": 1560765157649416344,
+    "message_id": 1560765207461241022,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "rd6",
-        "correct": false,
-        "timestamp": "2026-10-16T21:23:30.980935+00:00"
+        "move": "qf6",
+        "correct": true,
+        "timestamp": "2026-10-16T21:23:42.792780+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
     "first_move_user_name": "Thice",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
-    "last_card_activity_at": "2026-10-16T21:23:30.979631+00:00",
-    "recent_accepted_moves": [],
+    "last_card_activity_at": "2026-10-16T21:23:42.791463+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1792185822.792789,
+        "fen_before": "r6Q/3R1p1p/ppk3p1/4P3/8/2q5/P5PP/7K w - - 3 33",
+        "expected": {
+          "uci": "h8f6",
+          "san": "Qf6+",
+          "color": "white"
+        },
+        "accepted_uci": "h8f6"
+      }
+    ],
     "accepted_solution_moves": [
       {
         "san": "Rxd4+",
@@ -102,14 +113,23 @@
         "san": "Rd7+",
         "uci": "d4d7",
         "principal": true
+      },
+      {
+        "san": "Qf6+",
+        "uci": "h8f6",
+        "principal": true
       }
     ],
-    "last_feedback": "❌ **Wrong, Thice. you just discovered a brand-new category between blunder and confidence trick.**\n↪️ **Move played:** `rd6`",
+    "last_feedback": "✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1800 points.**\n\nPuzzle Elo: **2504**\n\n💡 **Solution:** Rxd4+ Rd7+ Qf6+\n\n🏆 **Your ranking**\n**#1 🐲 Thice — 1800 points ← you**\n**#2 🍅 TheMakina — 1557 points**",
     "wrong_attempt_counts": {
       "442597396195704832": 2
-    }
+    },
+    "completion_solver_id": "442597396195704832",
+    "completion_solver_name": "Thice",
+    "activity_bonus_users": [],
+    "auto_next_started": true
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-16",
