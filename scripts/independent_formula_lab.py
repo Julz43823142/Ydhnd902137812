@@ -273,11 +273,12 @@ def main():
     parser.add_argument("--max-minutes", type=int, default=47)
     parser.add_argument("--trials", type=int, default=2000)
     parser.add_argument("--max-games", type=int, default=100)
+    parser.add_argument("--mode", choices=MODES, help="Override the alternating research profile (for bootstrapping)")
     args = parser.parse_args()
     if not 1 <= args.max_minutes <= 55 or not 0 <= args.trials <= 10000 or not 1 <= args.max_games <= TOTAL_GAMES:
         parser.error("Invalid runtime or research limits")
     result = run(args.state_dir, max_minutes=args.max_minutes,
-                 trials=args.trials, max_games=args.max_games)
+                 trials=args.trials, max_games=args.max_games, mode=args.mode)
     print(json.dumps(result, indent=2))
     return int(result["status"] == "partial_errors")
 
