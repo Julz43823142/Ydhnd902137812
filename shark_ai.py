@@ -190,12 +190,12 @@ async def handle_mention(message, client):
         return True
     # Version number is public; release history and internal changes are not.
     if re.search(
-        r"\\b(?:changelog|release\\s*notes?|patch\\s*notes?|what(?:'s| is| was)?\\s+new|"
-        r"what\\s+changed|difference(?:s)?\\s+between\\s+versions?|"
-        r"version\\s+(?:differences?|history|changes?|updates?)|"
-        r"nieuw\\s+in|wat\\s+is\\s+nieuw|wat\\s+is\\s+veranderd|"
-        r"verschillen?\\s+tussen\\s+versies|versieverschillen|"
-        r"wijzigingen?\\s+(?:in|tussen)\\s+versies?)\\b",
+        r"\b(?:changelog|release\s*notes?|patch\s*notes?|what(?:'s| is| was)?\s+new|"
+        r"what\s+changed|difference(?:s)?\s+between\s+versions?|"
+        r"version\s+(?:differences?|history|changes?|updates?)|"
+        r"nieuw\s+in|wat\s+is\s+nieuw|wat\s+is\s+veranderd|"
+        r"verschillen?\s+tussen\s+versies|versieverschillen|"
+        r"wijzigingen?\s+(?:in|tussen)\s+versies?)\b",
         prompt, re.I,
     ):
         await message.reply(
