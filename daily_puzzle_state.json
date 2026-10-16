@@ -2957,50 +2957,50 @@
       "started_at": 1792180373.8945549,
       "run_id": "rush:442597396195704832:1792180373894",
       "end_at": 1792180673.8945549,
-      "score": 1,
+      "score": 2,
       "wrong": 0,
       "mistakes": [],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/QmGUi",
-        "title": "Lichess • 1276",
-        "fen": "8/8/8/R7/5k1K/2P2P2/P2r4/8 b - - 0 51",
-        "current_fen": "8/8/8/R7/5k1K/2P2P2/P2r4/8 b - - 0 51",
-        "last_move_uci": "h3h4",
-        "pgn": "Rh2#",
+        "url": "https://lichess.org/training/S64ba",
+        "title": "Lichess • 1243",
+        "fen": "rn1qkb1r/ppp1ppp1/5n1p/4N3/2B1P3/2N5/PP1P1PPP/R1BbK2R w KQkq - 0 8",
+        "current_fen": "rn1qkb1r/ppp1ppp1/5n1p/4N3/2B1P3/2N5/PP1P1PPP/R1BbK2R w KQkq - 0 8",
+        "last_move_uci": "g4d1",
+        "pgn": "Bxf7#",
         "all_moves": [
           {
-            "uci": "d2h2",
-            "san": "Rh2#",
-            "color": "black"
+            "uci": "c4f7",
+            "san": "Bxf7#",
+            "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "d2h2",
-            "san": "Rh2#",
-            "color": "black"
+            "uci": "c4f7",
+            "san": "Bxf7#",
+            "color": "white"
           }
         ],
-        "player_color": "black",
+        "player_color": "white",
         "player_move_count": 1,
-        "posted_at": "2026-10-16T19:52:57.874912+00:00",
+        "posted_at": "2026-10-16T19:53:02.592255+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_QmGUi_1792180377874",
-        "rating": 1276,
+        "puzzle_id": "practice_rush_442597396195704832_S64ba_1792180382592",
+        "rating": 1243,
         "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1560742353763827863,
+      "message_id": 1560742369953845373,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792180377.8674622,
-      "last_feedback": "✅ **Qxe6#** — solved! Score: **1**."
+      "last_card_activity_at": 1792180382.5864713,
+      "last_feedback": "✅ **Rh2#** — solved! Score: **2**."
     },
     "362606514764251137": {
       "active": false,
