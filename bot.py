@@ -18568,7 +18568,8 @@ async def on_message(
 
         # Natural-language commands always run as the original author through
         # the original on_message handler, preserving all gameplay/coin checks.
-        from shark_commands import consume_confirmation, RoutedMessage
+        from shark_commands import consume_confirmation
+        from shark_dispatch import dispatch_existing_command
         if message.guild and client.user:
             approved = consume_confirmation(message, client.user.id)
             if approved is True:
@@ -18579,7 +18580,8 @@ async def on_message(
                 )
                 return
             if isinstance(approved, str):
-                await on_message(RoutedMessage(message, approved, client.user.id))
+                if not await dispatch_existing_command(message, client, approved):
+                    await message.reply("That action is not available here.", mention_author=False, allowed_mentions=discord.AllowedMentions.none())
                 return
 
         # AI chat can run in any readable channel. Real game commands remain
@@ -18587,7 +18589,8 @@ async def on_message(
         from shark_ai import handle_mention as handle_shark_ai_mention
         routed = await handle_shark_ai_mention(message, client)
         if isinstance(routed, str):
-            await on_message(RoutedMessage(message, routed, client.user.id))
+            if not await dispatch_existing_command(message, client, routed):
+                await message.reply("That command cannot be started here.", mention_author=False, allowed_mentions=discord.AllowedMentions.none())
             return
         if routed:
             return
