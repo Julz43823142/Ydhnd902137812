@@ -31,7 +31,7 @@ ALLOWED = frozenset("""
 !rush !puzzlerush !stoprush !survival !stopsurvival
 !practice !random !randompuzzle !rp !puzzlestreak
 !bal !balans !l !m !v !i !dailyb !dailyboard !dailym !dailymove
-!dailychessboard !survivalboard !survivallb !p
+!dailychessboard !survivalboard !survivallb !slb !p
 """.split())
 
 # Most of these open read-only menus; purchasing a box or adopting a pet still
@@ -43,7 +43,7 @@ NO_ARGUMENTS = frozenset("""
 !cancelreview !racercancel !accept !decline !resign !draw !offerdraw
 !acceptdraw !declinedraw !opponentleft !iamhere !board !chessboard
 !rush !puzzlerush !stoprush !stopsurvival !practice !random !randompuzzle !rp
-!survivalboard !survivallb !dailyb !dailyboard !dailychessboard !l !m !v !i
+!survivalboard !survivallb !slb !dailyb !dailyboard !dailychessboard !l !m !v !i
 """.split())
 
 # Only use Groq classification for probable bot-feature requests. Ordinary
@@ -175,7 +175,7 @@ def _needs_confirmation(command):
         "!collection", "!community", "!challenge", "!event",
         "!shop", "!box", "!pets", "!pet", "!trades", "!tradeinbox",
         "!pendingtrade", "!board", "!chessboard", "!survivalboard",
-        "!survivallb", "!dailyb", "!dailyboard", "!dailychessboard",
+        "!survivallb", "!slb", "!dailyb", "!dailyboard", "!dailychessboard",
         "!review", "!cancelreview",
     }
     if base in safe_views and (
