@@ -73,6 +73,9 @@ class SharkCommandTests(unittest.TestCase):
         self.assertFalse(route.free_box_claim_request("open free access menu"))
         self.assertFalse(route.free_box_claim_request("buy mystery box"))
         self.assertFalse(route.free_box_claim_request("claim paid mystery box"))
+        self.assertFalse(route.free_box_claim_request("how can I claim my free daily mystery box?"))
+        self.assertFalse(route.free_box_claim_request("do not claim my free daily mystery box"))
+        self.assertFalse(route.free_box_claim_request("claim free box for <@123456789012345678>"))
 
     def test_free_access_opens_real_shop_not_fake_slash_command(self):
         for prompt in (
