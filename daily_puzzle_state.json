@@ -58,7 +58,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_DKNhM_1792185703106",
-    "last_activity_at": "2026-10-16T21:23:06.894121+00:00",
+    "last_activity_at": "2026-10-16T21:23:25.641498+00:00",
     "rating": 2169,
     "rp_band": 3,
     "boss": false,
@@ -69,17 +69,17 @@
     "next_player_index": 2,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1560765057015615608
+      "1468320170891022417": 1560765134861766789
     },
-    "message_id": 1560765057015615608,
+    "message_id": 1560765134861766789,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "rd7",
-        "correct": true,
-        "timestamp": "2026-10-16T21:23:06.895492+00:00"
+        "move": "qxa8",
+        "correct": false,
+        "timestamp": "2026-10-16T21:23:25.642900+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
@@ -90,19 +90,8 @@
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
-    "last_card_activity_at": "2026-10-16T21:23:06.894121+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1792185786.8955028,
-        "fen_before": "r6Q/2k2p1p/pp4p1/4P3/3R4/2q5/P5PP/7K w - - 1 32",
-        "expected": {
-          "uci": "d4d7",
-          "san": "Rd7+",
-          "color": "white"
-        },
-        "accepted_uci": "d4d7"
-      }
-    ],
+    "last_card_activity_at": "2026-10-16T21:23:25.641498+00:00",
+    "recent_accepted_moves": [],
     "accepted_solution_moves": [
       {
         "san": "Rxd4+",
@@ -115,7 +104,10 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kc6"
+    "last_feedback": "❌ **Live from the blunder department, Thice: the Dutch Defense wants no association with what just happened.**\n↪️ **Move played:** `qxa8`",
+    "wrong_attempt_counts": {
+      "442597396195704832": 1
+    }
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
