@@ -825,6 +825,21 @@ class Isolation(unittest.IsolatedAsyncioTestCase):
             await bot.on_message(message)
             handler.assert_awaited_once_with(message);chess_activity.assert_not_called();admin.assert_not_awaited()
 
+    async def test_fairplay_never_enters_ai_or_confirmation(self):
+        message = SimpleNamespace(
+            channel=SimpleNamespace(id=CHANNEL_ID),
+            author=SimpleNamespace(bot=False),
+            guild=SimpleNamespace(id=10),
+            content="<@42> confirm 123456",
+        )
+        with patch.object(ui, 'handle_message', new_callable=AsyncMock) as handler, \
+             patch('shark_ai.handle_mention', new_callable=AsyncMock) as ai, \
+             patch('shark_commands.consume_confirmation') as confirmation:
+            await bot.on_message(message)
+            handler.assert_awaited_once_with(message)
+            ai.assert_not_awaited()
+            confirmation.assert_not_called()
+
     async def test_gateway_guard_blocks_before_view_modal_and_command_dispatch(self):
         original = Mock();tasks=[]
         connection = SimpleNamespace(parsers={'INTERACTION_CREATE':original},_view_store=SimpleNamespace(add_task=tasks.append))
