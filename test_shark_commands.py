@@ -104,6 +104,21 @@ class SharkCommandTests(unittest.TestCase):
         for command in ("!shop", "!box", "!pets", "!review", "!balance"):
             self.assertFalse(route._needs_confirmation(command))
 
+    def test_dispatch_rejects_bot_authors_and_unavailable_channels(self):
+        from shark_dispatch import dispatch_existing_command
+        async def run_case(is_bot=False, can_send=True):
+            msg = MockMessage("show shop")
+            msg.author.bot = is_bot
+            msg.guild.me = SimpleNamespace(id=999)
+            msg.channel.permissions_for = lambda member: SimpleNamespace(
+                view_channel=True, send_messages=can_send
+            )
+            client = SimpleNamespace(user=SimpleNamespace(id=999), dispatch=lambda *a: None)
+            return await dispatch_existing_command(msg, client, "!shop")
+        self.assertFalse(asyncio.run(run_case(is_bot=True)))
+        self.assertFalse(asyncio.run(run_case(can_send=False)))
+        self.assertTrue(asyncio.run(run_case()))
+
     def test_pgn_is_never_invented_by_model(self):
         self.assertEqual(route._parse_command(
             "!review 1. d4 d5", "analyze my PGN"), "!review")

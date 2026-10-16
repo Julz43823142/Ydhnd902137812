@@ -14,7 +14,14 @@ async def dispatch_existing_command(message, client, command, *, confirmed=False
     This reaches the same listeners as a user typing a command manually.
     No synthetic identity, elevated permissions, coins or admin tool access.
     """
-    if not message.guild or not client.user or not _is_chat_channel(message.channel.id):
+    if (not message.guild or not client.user or message.author.bot
+            or not _is_chat_channel(message.channel.id)):
+        return False
+    member = message.guild.me
+    if member is None:
+        return False
+    permissions = message.channel.permissions_for(member)
+    if not (permissions.view_channel and permissions.send_messages):
         return False
     # Confirmations carry a command validated against the original request.
     # The follow-up message may contain only 'yes', not the earlier arguments.
