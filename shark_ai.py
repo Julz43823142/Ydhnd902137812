@@ -80,6 +80,8 @@ async def handle_mention(message, client):
     if not prompt:
         prompt = "Hello!"
     prompt = prompt[:MAX_INPUT]
+    # Do not forward potentially sensitive Discord attachments or embeds.
+    # Only the text the user explicitly included with the bot mention is sent.
     scope = _scope(message)
     lock = _locks[scope]
     if lock.locked():
