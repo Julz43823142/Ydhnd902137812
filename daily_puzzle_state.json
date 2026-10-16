@@ -2957,7 +2957,7 @@
       "started_at": 1792184249.1924014,
       "run_id": "rush:442597396195704832:1792184249192",
       "end_at": 1792184549.1924014,
-      "score": 1,
+      "score": 2,
       "wrong": 1,
       "mistakes": [
         {
@@ -2980,60 +2980,45 @@
       ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/ptazu",
-        "title": "Lichess • 1208",
-        "fen": "1r1r2k1/2q2p1p/4p1p1/p1NnNn2/1p1P2P1/2P2Q2/PP3PKP/R3R3 b - - 0 26",
-        "current_fen": "1r1r2k1/2q2p1p/4p1p1/p1NnN3/1p1P2Pn/2P2QK1/PP3P1P/R3R3 b - - 2 27",
-        "last_move_uci": "g2g3",
-        "pgn": "Nh4+ Kg3 Nxf3",
+        "url": "https://lichess.org/training/RGErR",
+        "title": "Lichess • 1243",
+        "fen": "r6k/p1bp2p1/1pb5/n1P1p3/8/3Q1rq1/PBB5/2R2R1K w - - 0 30",
+        "current_fen": "r6k/p1bp2p1/1pb5/n1P1p3/8/3Q1rq1/PBB5/2R2R1K w - - 0 30",
+        "last_move_uci": "f8f3",
+        "pgn": "Qh7#",
         "all_moves": [
           {
-            "uci": "f5h4",
-            "san": "Nh4+",
-            "color": "black"
-          },
-          {
-            "uci": "g2g3",
-            "san": "Kg3",
+            "uci": "d3h7",
+            "san": "Qh7#",
             "color": "white"
-          },
-          {
-            "uci": "h4f3",
-            "san": "Nxf3",
-            "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "f5h4",
-            "san": "Nh4+",
-            "color": "black"
-          },
-          {
-            "uci": "h4f3",
-            "san": "Nxf3",
-            "color": "black"
+            "uci": "d3h7",
+            "san": "Qh7#",
+            "color": "white"
           }
         ],
-        "player_color": "black",
-        "player_move_count": 2,
-        "posted_at": "2026-10-16T20:57:45.064270+00:00",
+        "player_color": "white",
+        "player_move_count": 1,
+        "posted_at": "2026-10-16T20:57:53.924079+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_ptazu_1792184265064",
-        "rating": 1208,
-        "next_solution_index": 2,
+        "puzzle_id": "practice_rush_442597396195704832_RGErR_1792184273924",
+        "rating": 1243,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1560758675138940970,
+      "message_id": 1560758694650847273,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792184269.9406555,
-      "last_feedback": "✅ **Nh4+** • Opponent: **Kg3**"
+      "last_card_activity_at": 1792184273.9180388,
+      "last_feedback": "✅ **Nxf3** — solved! Score: **2**."
     },
     "362606514764251137": {
       "active": false,
