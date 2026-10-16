@@ -92,7 +92,7 @@ def _fit_reply(text, limit=MAX_REPLY_CHARS):
     budget = limit - len(suffix)
     prefix = text[:budget]
     # Prefer a finished sentence/paragraph over cutting in the middle of words.
-    ends = [m.end() for m in re.finditer(r"[.!?](?=\\s|$)", prefix)]
+    ends = [m.end() for m in re.finditer(r"[.!?](?=\s|$)", prefix)]
     last = max(ends, default=0)
     if last >= budget // 2:
         prefix = prefix[:last]
@@ -128,19 +128,19 @@ async def handle_mention(message, client):
     # Preserve existing explicit bot commands.
     if message.content.lstrip().startswith(("!", "/")):
         return False
-    if not os.getenv("GROQ_API_KEY", "").strip():
-        return False
     prompt = re.sub(r"<@!?%d>" % client.user.id, "", message.content).strip()
     if not prompt:
         prompt = "Hello!"
     prompt = prompt[:MAX_INPUT]
     # Keep the public version factual even without a Groq request.
-    if re.fullmatch(r"(?:hey[ ,]+)?(?:what(?:\u0027s| is)?|which)\s+(?:sharkbot\s+)?version(?:\s+(?:are you|is this|is sharkbot|do you run))?\??|(?:sharkbot\s+)?version\??", prompt, re.I):
+    if re.fullmatch(r"(?:hey[ ,]+)?(?:(?:what(?:\u0027s| is)?|which)\s+(?:(?:your|the|sharkbot)\s+)?version(?:\s+(?:are you|is this|is sharkbot|do you run))?|(?:sharkbot\s+)?version|welke\s+versie\s+ben\s+jij|wat\s+is\s+(?:je|jouw)\s+versie)\??", prompt, re.I):
         await message.reply(
             f"I\u0027m SharkBot version {SHARKBOT_VERSION}.",
             mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
         )
         return True
+    if not os.getenv("GROQ_API_KEY", "").strip():
+        return False
     # Do not forward potentially sensitive Discord attachments or embeds.
     # Only the text the user explicitly included with the bot mention is sent.
     scope = _scope(message)
