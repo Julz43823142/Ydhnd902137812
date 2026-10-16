@@ -254,6 +254,27 @@ async def plan_mention(message, prompt, complete):
 
     # Never run game/economy commands in ordinary channels: the existing
     # command handlers deliberately restrict execution to chess channels.
+    # Read-only account information and owner-bound pet menus work in any channel.
+    if command in {"!pets", "!pet"} and not _is_chat_channel(message.channel.id):
+        from pet_ui import send_profile
+        await send_profile(message)
+        return True
+    if command in {"!balance", "!coins", "!bank", "!bal", "!balans"} and not _is_chat_channel(message.channel.id):
+        from shared_leaderboard import get_cosmetic_profile
+        try:
+            profile = await asyncio.to_thread(
+                get_cosmetic_profile, message.author.id, message.author.display_name
+            )
+            await message.reply(
+                f"You currently have **{profile.get('coins', 0)} coins**.",
+                mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
+            )
+        except Exception:
+            await message.reply(
+                "I couldn't load your balance right now.",
+                mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
+            )
+        return True
     if not _is_chat_channel(message.channel.id):
         await message.reply(
             "I can help with that, but game and account commands run in "
@@ -318,3 +339,17 @@ async def dispatch_existing_command(message, client, command):
         message.content = original_content
         message.mentions = original_mentions
     return True
+
+class RoutedMessage:
+    """Command text layered over the original user's Discord message."""
+    def __init__(self, original, command, bot_id):
+        if not isinstance(command, str) or not command.startswith("!"):
+            raise ValueError("Invalid command")
+        self._original = original
+        self.content = command
+        # The original requesting user is retained, but mentioning SharkBot
+        # must not invoke the AI handler a second time.
+        self.mentions = [u for u in original.mentions if u.id != bot_id]
+
+    def __getattr__(self, key):
+        return getattr(self._original, key)
