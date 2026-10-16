@@ -1,66 +1,66 @@
 {
   "latest_random_puzzle": {
-    "url": "https://lichess.org/training/TPAli",
-    "title": "Lichess • 2740",
-    "fen": "1r1q2k1/1R2brp1/R2p3p/2pPp1n1/P1P1Pp2/1QN2P2/3B1PKP/8 b - - 6 30",
-    "current_fen": "1r1q2k1/1R2brp1/R2p3p/2pPp1n1/P1P1Pp2/1QN2P2/3B1PKP/8 b - - 6 30",
-    "last_move_uci": "c2b3",
-    "pgn": "Bf8 Rxb8 Qd7 Kf1 Nxf3",
+    "url": "https://lichess.org/training/2sCSW",
+    "title": "Lichess • 2180",
+    "fen": "r4rk1/1p3ppp/pq3R2/3p4/3n4/3B3Q/PP1N2PP/R1B3K1 b - - 0 17",
+    "current_fen": "r4rk1/1p3ppp/pq3R2/3p4/3n4/3B3Q/PP1N2PP/R1B3K1 b - - 0 17",
+    "last_move_uci": "f3f6",
+    "pgn": "Nf3+ Kf1 Qg1+ Ke2 Nd4#",
     "all_moves": [
       {
-        "uci": "e7f8",
-        "san": "Bf8",
+        "uci": "d4f3",
+        "san": "Nf3+",
         "color": "black"
       },
       {
-        "uci": "b7b8",
-        "san": "Rxb8",
-        "color": "white"
-      },
-      {
-        "uci": "d8d7",
-        "san": "Qd7",
-        "color": "black"
-      },
-      {
-        "uci": "g2f1",
+        "uci": "g1f1",
         "san": "Kf1",
         "color": "white"
       },
       {
-        "uci": "g5f3",
-        "san": "Nxf3",
+        "uci": "b6g1",
+        "san": "Qg1+",
+        "color": "black"
+      },
+      {
+        "uci": "f1e2",
+        "san": "Ke2",
+        "color": "white"
+      },
+      {
+        "uci": "f3d4",
+        "san": "Nd4#",
         "color": "black"
       }
     ],
     "player_moves": [
       {
-        "uci": "e7f8",
-        "san": "Bf8",
+        "uci": "d4f3",
+        "san": "Nf3+",
         "color": "black"
       },
       {
-        "uci": "d8d7",
-        "san": "Qd7",
+        "uci": "b6g1",
+        "san": "Qg1+",
         "color": "black"
       },
       {
-        "uci": "g5f3",
-        "san": "Nxf3",
+        "uci": "f3d4",
+        "san": "Nd4#",
         "color": "black"
       }
     ],
     "player_color": "black",
     "player_move_count": 3,
-    "posted_at": "2026-10-16T11:22:45.303843+00:00",
-    "answer_posted": true,
+    "posted_at": "2026-10-16T11:23:19.804273+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "random_TPAli_1792149765303",
-    "last_activity_at": "2026-10-16T11:22:45.303843+00:00",
-    "rating": 2740,
-    "rp_band": 5,
+    "puzzle_id": "random_2sCSW_1792149799804",
+    "last_activity_at": "2026-10-16T11:23:19.804273+00:00",
+    "rating": 2180,
+    "rp_band": 3,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
@@ -68,10 +68,8 @@
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_ids": {
-      "1468320170891022417": 1560613971034247249
-    },
-    "message_id": 1560613971034247249,
+    "message_ids": {},
+    "message_id": null,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {},
@@ -79,13 +77,9 @@
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "board_attachment_filenames": {
-      "1468320170891022417": "random_puzzle.png"
-    },
-    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Bf8 Qd7 Nxf3"
+    "helper_candidate_users": []
   },
-  "latest_puzzle_type": "daily",
+  "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-16",
