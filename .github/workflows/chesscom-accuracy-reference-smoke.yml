@@ -1,0 +1,71 @@
+name: Chess.com Accuracy Reference Live Smoke
+
+on:
+  pull_request:
+    paths:
+      - 'scripts/collect_chesscom_accuracy.py'
+      - 'scripts/verify_chesscom_accuracy_dataset.py'
+      - 'test_chesscom_reference*.py'
+      - '.github/workflows/chesscom-accuracy-reference-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  public-api-smoke:
+    name: Official Chess.com API (non-blocking connectivity check)
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install minimal API and PGN dependencies
+        run: python -m pip install requests python-chess
+      - name: Run offline validation tests first
+        run: python -m unittest -v test_chesscom_reference_collector test_chesscom_reference_verify
+      - name: Collect real public references (may be blocked by provider/network)
+        id: live
+        continue-on-error: true
+        run: |
+          python scripts/collect_chesscom_accuracy.py \
+            --player Sharkmeister --limit 100 \
+            --max-archives 24 --max-requests 35 --max-attempts 2 \
+            --output-dir "$RUNNER_TEMP/sharkbot-reference.local"
+      - name: Independently verify the actual saved data, print aggregate results only
+        env:
+          DATA_ROOT: ${{ runner.temp }}/sharkbot-reference.local
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          from scripts.verify_chesscom_accuracy_dataset import verify
+
+          root = Path(os.environ["DATA_ROOT"])
+          folders = sorted(root.glob("run-*"))
+          if not folders:
+              print("LIVE API RESULT: collector produced no output; inspect its prior step")
+              with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
+                  f.write("Live Chess.com API: no output (not a successful fetch).\n")
+          else:
+              latest = folders[-1]
+              report = json.loads((latest / "report.json").read_text())
+              actual = verify(latest / "dataset.json", latest / "report.json")
+              print("LIVE API RESULT: checked=", report["checked_games"],
+                    "valid=", actual, "archives=", len(report["archives_visited"]),
+                    "requests=", report["http_requests"],
+                    "stop_reason=", report["stop_reason"],
+                    "errors=", report["api_errors"])
+              with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
+                  f.write(
+                      f"Live Chess.com API: checked **{report['checked_games']}**, "
+                      f"independently verified **{actual}** games, "
+                      f"archives **{len(report['archives_visited'])}**, "
+                      f"HTTP attempts **{report['http_requests']}**, "
+                      f"stop reason **{report['stop_reason']}**. "
+                      "No PGNs uploaded or committed.\n"
+                  )
+          PY
