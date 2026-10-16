@@ -2957,40 +2957,40 @@
       "started_at": 1792180373.8945549,
       "run_id": "rush:442597396195704832:1792180373894",
       "end_at": 1792180673.8945549,
-      "score": 0,
+      "score": 1,
       "wrong": 0,
       "mistakes": [],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/OEPdv",
-        "title": "Lichess • 1228",
-        "fen": "r1q1r3/1b1nbk1p/p1p1pnpB/1p6/P2P4/2NB3Q/1PP2PPP/R3R1K1 w - - 0 18",
-        "current_fen": "r1q1r3/1b1nbk1p/p1p1pnpB/1p6/P2P4/2NB3Q/1PP2PPP/R3R1K1 w - - 0 18",
-        "last_move_uci": "g8f7",
-        "pgn": "Qxe6#",
+        "url": "https://lichess.org/training/QmGUi",
+        "title": "Lichess • 1276",
+        "fen": "8/8/8/R7/5k1K/2P2P2/P2r4/8 b - - 0 51",
+        "current_fen": "8/8/8/R7/5k1K/2P2P2/P2r4/8 b - - 0 51",
+        "last_move_uci": "h3h4",
+        "pgn": "Rh2#",
         "all_moves": [
           {
-            "uci": "h3e6",
-            "san": "Qxe6#",
-            "color": "white"
+            "uci": "d2h2",
+            "san": "Rh2#",
+            "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "h3e6",
-            "san": "Qxe6#",
-            "color": "white"
+            "uci": "d2h2",
+            "san": "Rh2#",
+            "color": "black"
           }
         ],
-        "player_color": "white",
+        "player_color": "black",
         "player_move_count": 1,
-        "posted_at": "2026-10-16T19:52:53.898105+00:00",
+        "posted_at": "2026-10-16T19:52:57.874912+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_OEPdv_1792180373898",
-        "rating": 1228,
+        "puzzle_id": "practice_rush_442597396195704832_QmGUi_1792180377874",
+        "rating": 1276,
         "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
@@ -2999,8 +2999,8 @@
       "message_id": 1560742353763827863,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792180373.8945901,
-      "last_feedback": "🎯 **Type your move in chat.** Your answer message will be removed. You have **3 lives**."
+      "last_card_activity_at": 1792180377.8674622,
+      "last_feedback": "✅ **Qxe6#** — solved! Score: **1**."
     },
     "362606514764251137": {
       "active": false,
