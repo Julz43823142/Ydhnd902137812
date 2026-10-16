@@ -196,6 +196,18 @@ class SharkCommandTests(unittest.TestCase):
         for command in ("!shop", "!box", "!pets", "!review", "!balance"):
             self.assertFalse(route._needs_confirmation(command))
 
+    def test_ai_profile_mutations_always_require_approval(self):
+        for command in (
+            "!profile badge 0", "!profile badge 2", "!me board classic",
+            "!profile piece default", "!me color red",
+        ):
+            self.assertTrue(route._needs_confirmation(command), command)
+        for command in (
+            "!profile", "!me", "!profile badges", "!profile boards 2",
+            "!me pieces", "!profile Alice",
+        ):
+            self.assertFalse(route._needs_confirmation(command), command)
+
     def test_dispatch_rejects_bot_authors_and_unavailable_channels(self):
         from shark_dispatch import dispatch_existing_command
         async def run_case(is_bot=False, can_send=True):
