@@ -21,6 +21,7 @@ NIGHT = datetime(2026, 10, 17, 0, 12, tzinfo=lab.LOCAL)
 
 def record(num):
     item = example(num)
+    item["pgn"] = item["pgn"].replace('[Event "Live Chess"]', f'[Event "Research Game {num}"]')
     row, err = validate(item, "sharkmeister", OCT, "2026-10-16T00:00:00+00:00")
     assert not err, err
     return row
@@ -130,21 +131,21 @@ class Capture(unittest.TestCase):
                     counter.append(1)
                     return pretend_analyze(moves, **kwargs)
                 first = lab.run(tmp, now=NIGHT.replace(hour=0), now_fn=lambda: NIGHT.replace(hour=0),
-                                collector=collect_stub, analyze=tracked, max_games_per_run=1, trials=0)
+                                collector=collect_stub, analyze=tracked, collector=collect_stub, max_games_per_run=1, trials=0)
                 self.assertEqual(first["status"], "no_reference_snapshot")
                 # Seed an independently audited snapshot as a prior full fetch.
                 lab.atomic_json(Path(tmp) / "dataset.json", games)
                 second = lab.run(tmp, now=NIGHT.replace(hour=0), now_fn=lambda: NIGHT.replace(hour=0),
-                                 analyze=tracked, max_games_per_run=1, trials=0)
+                                 analyze=tracked, collector=collect_stub, max_games_per_run=1, trials=0)
                 third = lab.run(tmp, now=NIGHT.replace(hour=0), now_fn=lambda: NIGHT.replace(hour=0),
-                                analyze=tracked, max_games_per_run=1, trials=0)
+                                analyze=tracked, collector=collect_stub, max_games_per_run=1, trials=0)
                 self.assertEqual([second["new_completed_games"], third["new_completed_games"]], [1, 1])
                 self.assertEqual(third["cached_research_metrics"], 2)
                 fourth = lab.run(tmp, now=NIGHT.replace(hour=0), now_fn=lambda: NIGHT.replace(hour=0),
-                                 analyze=tracked, trials=0)
+                                 analyze=tracked, collector=collect_stub, trials=0)
                 self.assertEqual(fourth["new_completed_games"], 0)
                 night1 = lab.run(tmp, now=NIGHT.replace(hour=1), now_fn=lambda: NIGHT.replace(hour=1),
-                                 analyze=tracked, max_games_per_run=1, trials=0)
+                                 analyze=tracked, collector=collect_stub, max_games_per_run=1, trials=0)
                 self.assertEqual(night1["mode"], "time1")
                 self.assertEqual(night1["new_completed_games"], 1)
                 self.assertEqual(len(counter), 3)
@@ -159,7 +160,7 @@ class Capture(unittest.TestCase):
                 def interrupted(moves, **kwargs):
                     raise lab.DeadlineReached()
                 outcome = lab.run(tmp, now=NIGHT, now_fn=lambda: NIGHT,
-                                  analyze=interrupted, max_games_per_run=1, trials=0)
+                                  analyze=interrupted, collector=lambda p,n: ([], {"api_errors": ["mock"]}), max_games_per_run=1, trials=0)
                 self.assertTrue(outcome["incomplete_game_interrupted"])
                 self.assertEqual(outcome["cached_research_metrics"], 0)
                 self.assertFalse(list(Path(tmp).glob("metrics/**/*.json")))
