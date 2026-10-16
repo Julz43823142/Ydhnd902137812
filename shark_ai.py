@@ -83,7 +83,7 @@ async def _complete(messages, response_format=None):
                     text = choice["message"].get("content") or ""
                     if text.strip():
                         if choice.get("finish_reason") == "length":
-                            return _close_incomplete_reply(text), None
+                            return text.strip(), "truncated"
                         return text.strip(), None
             except (aiohttp.ClientError, asyncio.TimeoutError, KeyError, IndexError, ValueError):
                 return None, "error"
