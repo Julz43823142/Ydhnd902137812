@@ -255,7 +255,8 @@ async def handle_mention(message, client):
         messages = [{"role": "system", "content": SYSTEM_RULES}]
         for _, role, text in _history[scope]:
             messages.append({"role": role, "content": text})
-        messages.append({"role": "user", "content": prompt})
+        speaker_prompt = f"Player {message.author.id}: {prompt}"
+        messages.append({"role": "user", "content": speaker_prompt})
         try:
             await asyncio.wait_for(_slots.acquire(), timeout=MAX_WAIT_SECONDS)
         except asyncio.TimeoutError:
@@ -278,7 +279,7 @@ async def handle_mention(message, client):
                      else "Can't answer right now. Try again in a bit.")
         else:
             reply = _fit_reply(answer)
-            _history[scope].append((time.monotonic(), "user", prompt))
+            _history[scope].append((time.monotonic(), "user", speaker_prompt))
             _history[scope].append((time.monotonic(), "assistant", reply))
         await message.reply(reply, mention_author=False, allowed_mentions=discord.AllowedMentions.none())
     return True
