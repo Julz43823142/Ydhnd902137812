@@ -21,6 +21,10 @@ class ReplyLimitTests(unittest.TestCase):
         self.assertTrue(reply.endswith("Ask me for more details.)"))
         self.assertFalse(reply.endswith("pieces. Always test your"))
 
+    def test_emoji_count_for_discord(self):
+        reply = shark_ai._fit_reply("😀" * 1200)
+        self.assertLessEqual(len(reply.encode("utf-16-le")) // 2, 1400)
+
     def test_safe_mentions(self):
         reply = shark_ai._fit_reply("@everyone @here hello")
         self.assertNotIn("@everyone", reply)
