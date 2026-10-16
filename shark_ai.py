@@ -334,7 +334,7 @@ async def handle_mention(message, client):
         return True
     # Direct, authenticated gameplay statistics are independent of the AI model.
     # Read-only: no generated or user-supplied IDs can change game state.
-    if re.search(r"\\b(?:how many|hoeveel|who|wie|what|wat|compare|vergelijk|killed|gekild|gedood)\\b", prompt, re.I):
+    if re.search(r"\b(?:how many|hoeveel|who|wie|what|wat|compare|vergelijk|killed|gekild|gedood)\b", prompt, re.I):
         from shark_stats_query import answer as answer_player_stats
         factual = await asyncio.to_thread(
             answer_player_stats, prompt, message.guild, message.author
