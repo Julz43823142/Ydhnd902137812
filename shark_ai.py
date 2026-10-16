@@ -99,25 +99,28 @@ def _fit_reply(text, limit=MAX_REPLY_CHARS):
 
     if units(text) <= limit:
         return text
-    suffix = "\n\n(Shortened to fit Discord. Ask me for more details.)"
-    budget = limit - units(suffix)
-    used = 0
-    pieces = []
-    for char in text:
-        length = units(char)
-        if used + length > budget:
+    # Fallback if the summarizer is unavailable: keep whole paragraphs only.
+    # Never end with a blank list marker or a hanging heading.
+    selected = []
+    for paragraph in re.split(r"\n\s*\n", text):
+        paragraph = paragraph.strip()
+        if units("\n\n".join(selected + [paragraph])) > limit:
             break
-        pieces.append(char)
-        used += length
-    prefix = "".join(pieces)
-    # Prefer a finished sentence/paragraph over cutting in the middle of words.
-    ends = [m.end() for m in re.finditer(r"[.!?](?=\s|$)", prefix)]
-    last = max(ends, default=0)
-    if last >= budget // 2:
-        prefix = prefix[:last]
-    else:
-        prefix = prefix.rsplit(" ", 1)[0].rstrip(" ,;:-")
-    return prefix.rstrip() + suffix
+        selected.append(paragraph)
+    while selected and (
+        re.fullmatch(r"(?:#{1,6}\s*)?[^.!?\n]{1,80}:?", selected[-1])
+        or re.fullmatch(r"\d+[.)]", selected[-1])
+    ):
+        selected.pop()
+    if selected:
+        return "\n\n".join(selected)
+    sentences = re.split(r"(?<=[.!?])\s+", text.replace("\n", " "))
+    kept = []
+    for sentence in sentences:
+        if units(" ".join(kept + [sentence])) > limit:
+            break
+        kept.append(sentence)
+    return " ".join(kept) if kept else "Please ask for a shorter summary."
 
 
 def _close_incomplete_reply(text):
