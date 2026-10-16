@@ -2965,8 +2965,8 @@
         "url": "https://lichess.org/training/eItgi",
         "title": "Lichess • 1388",
         "fen": "1r6/RR6/8/1k1Np2p/2p3pP/4P3/2r5/6K1 b - - 17 47",
-        "current_fen": "8/1R6/8/1k1Np2p/2p3pP/4P3/2r5/6K1 b - - 0 48",
-        "last_move_uci": "a7b7",
+        "current_fen": "8/1R6/2k5/4p2p/1Np3pP/4P3/2r5/6K1 b - - 2 49",
+        "last_move_uci": "d5b4",
         "pgn": "Rxb7 Rxb7+ Kc6 Nb4+ Kxb7",
         "all_moves": [
           {
@@ -3021,16 +3021,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_eItgi_1792179881215",
         "rating": 1388,
-        "next_solution_index": 2,
+        "next_solution_index": 4,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1560740286110629939,
+      "message_id": 1560740300886900939,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792179884.7482755,
-      "last_feedback": "✅ **Rxb7** • Opponent: **Rxb7+**"
+      "last_card_activity_at": 1792179887.5779843,
+      "last_feedback": "✅ **Kc6** • Opponent: **Nb4+**"
     },
     "362606514764251137": {
       "active": false,
