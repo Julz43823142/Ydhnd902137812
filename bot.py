@@ -20141,13 +20141,7 @@ async def on_message(
         # Runtime build check. Safe for everyone; it changes no data.
         if command_lower in ("!v", "!version"):
             from shark_version import SHARKBOT_VERSION
-            await message.channel.send(
-                f"**SharkBot version:** `{SHARKBOT_VERSION}`\n"
-                f"**Bot:** `{RP_BUILD}`\n"
-                f"**Ledger:** `{SHARED_LEDGER_BUILD}`\n"
-                f"**Puzzle Stats:** `{PUZZLE_STATS_BUILD}`\n"
-                f"**Chess Play:** `{CHESS_PLAY_BUILD}`"
-            )
+            await message.channel.send(SHARKBOT_VERSION)
             return
 
         if (command_lower.split(maxsplit=1) or [""])[0] in ("!pet", "!pets"):
