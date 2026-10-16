@@ -8,6 +8,14 @@ on:
       - 'assets/profile_themes/**'
       - 'minigames/**'
       - '.github/workflows/**'
+  push:
+    branches: [main]
+    paths:
+      - '*.py'
+      - 'scripts/**'
+      - 'assets/profile_themes/**'
+      - 'minigames/**'
+      - '.github/workflows/**'
   workflow_dispatch:
 
 permissions:
