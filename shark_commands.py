@@ -267,9 +267,9 @@ def free_box_claim_request(prompt):
     if re.search(r"<@!?\d+>|@everyone|@here|[?!]", text):
         return False
     # No broad keyword combinations: only an unambiguous direct claim.
-    if re.fullmatch(r"(?:please\\s+)?(?:open|claim)\\s+(?:(?:my|the)\\s+)?(?:daily\\s+)?box\\.?", text):
+    if re.fullmatch(r"(?:please\s+)?(?:open|claim)\s+(?:(?:my|the)\s+)?(?:daily\s+)?box\.?", text):
         return True
-    if re.fullmatch(r"(?:open|pak|claim)\\s+(?:(?:mijn|de)\\s+)?box\\.?", text):
+    if re.fullmatch(r"(?:open|pak|claim)\s+(?:(?:mijn|de)\s+)?box\.?", text):
         return True
     return bool(re.fullmatch(
         r"(?:please\s+)?(?:claim|redeem|collect|open)\s+"
