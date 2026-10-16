@@ -1,0 +1,35 @@
+name: SharkBot natural command safety
+on:
+  pull_request:
+    paths:
+      - 'shark_actions.py'
+      - 'shark_ai.py'
+      - 'bot.py'
+      - 'test_shark_actions.py'
+      - 'test_shark_ai_safety.py'
+      - '.github/workflows/shark_ai_router_tests.yml'
+  push:
+    paths:
+      - 'shark_actions.py'
+      - 'shark_ai.py'
+      - 'bot.py'
+      - 'test_shark_actions.py'
+      - 'test_shark_ai_safety.py'
+      - '.github/workflows/shark_ai_router_tests.yml'
+permissions:
+  contents: read
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install minimal Discord dependency
+        run: python -m pip install 'discord.py==2.7.1'
+      - name: Compile safely routed modules
+        run: python -m py_compile shark_ai.py shark_actions.py bot.py
+      - name: Verify allowlist, user identity, consent and privacy
+        run: python -m unittest -v test_shark_ai_safety test_shark_actions
