@@ -1,0 +1,16 @@
+{
+  "action": "rush_complete",
+  "amount": 1,
+  "created_at": 1792180706,
+  "created_at_ns": 1792180706311997024,
+  "daily_key": "daily:2026-10-16",
+  "display_name": "Thice",
+  "metadata": {
+    "score": 19
+  },
+  "operation": "quest-progress",
+  "quest_build": "quests-v1-2026-09-08",
+  "transaction_id": "quest:rush-complete:rush:442597396195704832:1792180373894:442597396195704832",
+  "user_id": "442597396195704832",
+  "weekly_key": "weekly:2026-10-12"
+}
