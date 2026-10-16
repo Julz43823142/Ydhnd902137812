@@ -51,7 +51,7 @@ NO_ARGUMENTS = frozenset("""
 COMMAND_HINTS = re.compile(
     r"\b(?:shop|store|buy|purchase|order|mystery\s*box|box|coins?|balance|bank|"
     r"pets?|shelter|adopt|feed|dog|cat|collection|badges?|leaderboard|rank|"
-    r"profile|stats|statistics|quests?|trades?|donat|send\s+coins|"
+    r"profile|stats|statistics|quests?|trades?|donat(?:e|ion|ing)?|send\s+coins|"
     r"challeng|play\s+(?:against|with|a\s+game|chess)|playbot|"
     r"review|pgn|analy[sz]e\s+(?:my|this|the)\s+(?:game|match|pgn)|"
     r"chess\s*(?:pieces?|board|set)|pieces?\s*set|custom\s*(?:pieces?|boards?)|"
