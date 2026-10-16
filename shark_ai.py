@@ -43,7 +43,7 @@ def _prune(scope, now):
     while q and now - q[0][0] > HISTORY_TTL:
         q.popleft()
 
-async def _complete(messages):
+async def _complete(messages, response_format=None):
     key = os.getenv("GROQ_API_KEY", "").strip()
     if not key:
         return None, "unconfigured"
@@ -121,6 +121,11 @@ async def handle_mention(message, client):
             return True
         try:
             async with message.channel.typing():
+                # The planner has no bot tools and can only suggest allowlisted commands.
+                from shark_commands import plan_mention
+                routed = await plan_mention(message, prompt, _complete)
+                if routed is not None:
+                    return routed
                 answer, failure = await _complete(messages)
         finally:
             _slots.release()
