@@ -13,7 +13,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
+      - name: Fetch main release version only
+        run: git fetch origin "$GITHUB_BASE_REF" --depth=1
       - name: Require the next SharkBot version on every update
         run: |
           python - <<'PY'
@@ -35,7 +37,7 @@ jobs:
           current = extract(pathlib.Path("shark_version.py").read_text(encoding="utf-8"))
           base = os.environ["GITHUB_BASE_REF"]
           previous = subprocess.run(
-              ["git", "show", f"origin/{base}:shark_version.py"],
+              ["git", "show", "FETCH_HEAD:shark_version.py"],
               check=False, capture_output=True, text=True,
           )
           old = extract(previous.stdout) if previous.returncode == 0 else 1
