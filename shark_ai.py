@@ -83,7 +83,8 @@ async def handle_mention(message, client):
     """Return True only if a message was handled as a chat mention."""
     if not message.guild or not client.user:
         return False
-    from shark_commands import consume_confirmation, dispatch_existing_command
+    from shark_commands import consume_confirmation
+    from shark_dispatch import dispatch_existing_command
     confirmed = consume_confirmation(message, client.user.id)
     if confirmed is True:
         await message.reply("Cancelled.", mention_author=False, allowed_mentions=discord.AllowedMentions.none())
