@@ -75,8 +75,11 @@ async def _complete(messages, response_format=None):
                     if response.status != 200:
                         return None, "error"
                     data = await response.json()
-                    text = data["choices"][0]["message"].get("content") or ""
+                    choice = data["choices"][0]
+                    text = choice["message"].get("content") or ""
                     if text.strip():
+                        if choice.get("finish_reason") == "length":
+                            return _close_incomplete_reply(text), None
                         return text.strip(), None
             except (aiohttp.ClientError, asyncio.TimeoutError, KeyError, IndexError, ValueError):
                 return None, "error"
@@ -111,6 +114,16 @@ def _fit_reply(text, limit=MAX_REPLY_CHARS):
     else:
         prefix = prefix.rsplit(" ", 1)[0].rstrip(" ,;:-")
     return prefix.rstrip() + suffix
+
+
+def _close_incomplete_reply(text):
+    """Never send a mid-sentence continuation when Groq runs out of tokens."""
+    text = text.strip()
+    complete = [m.end() for m in re.finditer(r"[.!?](?=\s|$)", text)]
+    end = max(complete, default=0)
+    if end >= 30:
+        return _fit_reply(text[:end].rstrip() + "\n\n(Shortened; ask me to continue.)")
+    return "That answer was too long for one reply. Ask me for a shorter explanation or one part at a time."
 
 
 async def handle_mention(message, client):
