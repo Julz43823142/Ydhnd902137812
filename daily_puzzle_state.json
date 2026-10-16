@@ -1,81 +1,81 @@
 {
   "latest_random_puzzle": {
-    "url": "https://lichess.org/training/2RRT1",
-    "title": "Lichess • 2703",
-    "fen": "8/6b1/2NR4/5pkp/4p3/6PP/2r2P1K/8 w - - 1 39",
-    "current_fen": "8/6b1/2NR4/5pkp/4p3/6PP/2r2P1K/8 w - - 1 39",
-    "last_move_uci": "c1c2",
-    "pgn": "h4+ Kg4 Kg2 f4 Rg6+ Kf5 Ne7+",
+    "url": "https://lichess.org/training/TL4Jn",
+    "title": "Lichess • 1907",
+    "fen": "2k5/1pp3R1/pq2rp2/3p1p1p/3n1P1P/1N1B1P2/PPPQ4/2K5 b - - 0 27",
+    "current_fen": "2k5/1pp3R1/pq2rp2/3p1p1p/3n1P1P/1N1B1P2/PPPQ4/2K5 b - - 0 27",
+    "last_move_uci": "g6g7",
+    "pgn": "Nxf3 Qd1 Re1 Rg8+ Kd7 Qxe1 Nxe1",
     "all_moves": [
       {
-        "uci": "h3h4",
-        "san": "h4+",
-        "color": "white"
-      },
-      {
-        "uci": "g5g4",
-        "san": "Kg4",
+        "uci": "d4f3",
+        "san": "Nxf3",
         "color": "black"
       },
       {
-        "uci": "h2g2",
-        "san": "Kg2",
+        "uci": "d2d1",
+        "san": "Qd1",
         "color": "white"
       },
       {
-        "uci": "f5f4",
-        "san": "f4",
+        "uci": "e6e1",
+        "san": "Re1",
         "color": "black"
       },
       {
-        "uci": "d6g6",
-        "san": "Rg6+",
+        "uci": "g7g8",
+        "san": "Rg8+",
         "color": "white"
       },
       {
-        "uci": "g4f5",
-        "san": "Kf5",
+        "uci": "c8d7",
+        "san": "Kd7",
         "color": "black"
       },
       {
-        "uci": "c6e7",
-        "san": "Ne7+",
+        "uci": "d1e1",
+        "san": "Qxe1",
         "color": "white"
+      },
+      {
+        "uci": "f3e1",
+        "san": "Nxe1",
+        "color": "black"
       }
     ],
     "player_moves": [
       {
-        "uci": "h3h4",
-        "san": "h4+",
-        "color": "white"
+        "uci": "d4f3",
+        "san": "Nxf3",
+        "color": "black"
       },
       {
-        "uci": "h2g2",
-        "san": "Kg2",
-        "color": "white"
+        "uci": "e6e1",
+        "san": "Re1",
+        "color": "black"
       },
       {
-        "uci": "d6g6",
-        "san": "Rg6+",
-        "color": "white"
+        "uci": "c8d7",
+        "san": "Kd7",
+        "color": "black"
       },
       {
-        "uci": "c6e7",
-        "san": "Ne7+",
-        "color": "white"
+        "uci": "f3e1",
+        "san": "Nxe1",
+        "color": "black"
       }
     ],
-    "player_color": "white",
+    "player_color": "black",
     "player_move_count": 4,
-    "posted_at": "2026-10-16T11:36:36.765533+00:00",
-    "answer_posted": false,
+    "posted_at": "2026-10-15T15:00:02.371836+00:00",
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "random_2RRT1_1792150596765",
-    "last_activity_at": "2026-10-16T11:36:36.765533+00:00",
-    "rating": 2703,
-    "rp_band": 5,
+    "puzzle_id": "random_TL4Jn_1792076402371",
+    "last_activity_at": "2026-10-15T15:00:02.371836+00:00",
+    "rating": 1907,
+    "rp_band": 2,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
@@ -83,8 +83,10 @@
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_ids": {},
-    "message_id": null,
+    "message_ids": {
+      "1468320170891022417": 1560306274782941376
+    },
+    "message_id": 1560306274782941376,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {},
@@ -92,9 +94,13 @@
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "board_attachment_filenames": {
+      "1468320170891022417": "random_puzzle.png"
+    },
+    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Nxf3 Re1 Kd7 Nxe1"
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-16",
@@ -10381,9 +10387,9 @@
     }
   },
   "twitch_oauth_v1": {
-    "refresh_token_enc": "gAAAAABq0fVf7ekZIamIWQJU-Og2xXA7EaIRnQcsa3RRwURqKZs-h54H8m2Vhli_GRQfEA4uaE67UwXPT-c1tYuToi4ATUiS4X8FwZnvjLwY6mwZe3TCQ1IGIr5UMAkDoILK4wVu1q6_pt1qppOlGNSoCEevPfAFXA==",
-    "updated_at": 1792144735,
-    "reason": "live-preview-401"
+    "refresh_token_enc": "gAAAAABq0g29jo5i1mvc9D3cBANThMvtGT2ERD3NMGDnmHRz_no7AMoymiJF0nKLY7M2yBJ49CmDBDBu-6yLpWwLVT08cYf--q8Pw3OzcdO4pZGzGtUxfHqjPty6Z0efi9wyTM4Qf6hF7o9X2pDqswmacP-G_hX5GQ==",
+    "updated_at": 1792150973,
+    "reason": "worker-start"
   },
   "twitch_pending_redemptions_v1": {
     "2e64827e-b674-48cd-8da5-fdeff053a10a": {
