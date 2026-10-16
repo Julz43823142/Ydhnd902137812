@@ -85,6 +85,23 @@ class ConsentTests(IsolatedAsyncioTestCase):
         self.assertTrue(routed._shark_ai_routed)
         self.assertFalse(await actions.handle_confirmation(accept, self.client))
 
+    async def test_challenge_target_survives_only_own_confirmation(self):
+        target = SimpleNamespace(id=41)
+        bot = self.client.user
+        request = fake_message(content="<@99> play against <@41>", mentions=[bot, target])
+        self.assertTrue(await actions.route(request, self.client, "!play", "<@41>"))
+        confirmation = fake_message(uid=20, content="<@99> yes", mentions=[bot])
+        self.assertTrue(await actions.handle_confirmation(confirmation, self.client))
+        routed = self.client.on_message.await_args.args[0]
+        self.assertEqual([user.id for user in routed.mentions], [41])
+        self.assertEqual(routed.author.id, 20)
+
+    async def test_unsupported_survival_and_admin_never_route(self):
+        msg = fake_message()
+        self.assertTrue(await actions.route(msg, self.client, "!survival", ""))
+        self.assertTrue(await actions.route(msg, self.client, "!editcoins", "Bob 5000"))
+        self.client.on_message.assert_not_awaited()
+
     async def test_channel_gate(self):
         msg = fake_message(channel_id=123, content="<@99> review my PGN")
         self.assertTrue(await actions.route(msg, self.client, "!review", "1. e4 e5"))
