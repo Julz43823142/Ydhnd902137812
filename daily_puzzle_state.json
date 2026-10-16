@@ -2983,8 +2983,8 @@
         "url": "https://lichess.org/training/L3IWr",
         "title": "Lichess • 1898",
         "fen": "6k1/p1p2r2/1r1p3R/3Q2p1/3P1q2/2P2PpP/P5P1/4R1K1 b - - 0 28",
-        "current_fen": "6k1/p1p2r2/1r1p3R/3Q2p1/3P1q2/2P2PpP/P5P1/4R1K1 b - - 0 28",
-        "last_move_uci": "e6h6",
+        "current_fen": "6k1/p1p2r2/1r1p3R/3Q2p1/3P4/2P1RPpP/P5P1/6K1 b - - 0 29",
+        "last_move_uci": "e1e3",
         "pgn": "Qe3+ Rxe3 Rb1+ Re1 Rxe1#",
         "all_moves": [
           {
@@ -3039,16 +3039,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_L3IWr_1792180554759",
         "rating": 1898,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1560743094180126901,
+      "message_id": 1560743112001855633,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792180554.7533422,
-      "last_feedback": "❌ **rg5** was wrong. Correct move: **Rxh3**."
+      "last_card_activity_at": 1792180561.7879307,
+      "last_feedback": "✅ **Qe3+** • Opponent: **Rxe3**"
     },
     "362606514764251137": {
       "active": false,
