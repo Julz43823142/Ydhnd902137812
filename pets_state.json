@@ -656,8 +656,8 @@
       {
         "born_at": 1792184809.6673455,
         "fed_at": 1792184809.6673455,
-        "happiness": 80,
-        "happy_at": 1792184809.6673455,
+        "happiness": 100,
+        "happy_at": 1792184836.5668738,
         "id": "93f7026f2e0e4ae587bd180fef05031b",
         "name": "",
         "owner_history": [
@@ -666,22 +666,29 @@
             "at": 1792184809,
             "owner_id": "442597396195704832",
             "owner_name": "Thice"
+          },
+          {
+            "action": "Hatched",
+            "at": 1792184836,
+            "owner_id": "442597396195704832",
+            "owner_name": "Thice"
           }
         ],
         "puzzle": {
           "day": "2026-10-16",
-          "fen": "r1b1k2r/pp1p1p1p/1qP1pp2/8/8/1P3N2/P1PK1bPP/RN1Q1B1R b kq - 1 10",
+          "fen": "r1b1k2r/pp1p1p1p/2P1pp2/8/8/1P2qN2/P1PK1bPP/RN1Q1B1R w kq - 2 11",
           "id": "jpe90",
-          "index": 2,
+          "index": 3,
           "moves": [
             "c5f2",
             "e1d2",
             "b6e3"
           ]
         },
+        "puzzle_day": "2026-10-16",
         "rarity": "rare",
         "species": "Wolf",
-        "xp": 0
+        "xp": 20
       }
     ]
   }
