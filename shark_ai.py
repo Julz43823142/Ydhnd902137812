@@ -42,6 +42,19 @@ _last_claim = {}
 _last_cleanup = 0.0
 MAX_CACHED_SCOPES = 512
 CLAIM_COOLDOWN_SECONDS = 30
+_cleanup_task = None
+
+
+async def _periodic_cleanup():
+    while True:
+        await asyncio.sleep(300)
+        _cleanup_caches(time.monotonic())
+
+
+def _start_periodic_cleanup():
+    global _cleanup_task
+    if _cleanup_task is None or _cleanup_task.done():
+        _cleanup_task = asyncio.create_task(_periodic_cleanup())
 
 
 def _cleanup_caches(now):
@@ -194,6 +207,7 @@ async def handle_mention(message, client):
         return True
     if client.user not in message.mentions:
         return False
+    _start_periodic_cleanup()
     member = message.guild.me
     if member is None:
         return False
