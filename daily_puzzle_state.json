@@ -2965,8 +2965,8 @@
         "url": "https://lichess.org/training/3QHWC",
         "title": "Lichess • 1293",
         "fen": "8/8/3p4/1PbP4/K7/8/5pB1/4k3 w - - 48 84",
-        "current_fen": "8/8/3p4/1PbP4/K7/8/5pB1/4k3 w - - 48 84",
-        "last_move_uci": "b6c5",
+        "current_fen": "8/8/3p4/KPbP4/8/8/6B1/4kb2 w - - 0 85",
+        "last_move_uci": "f2f1b",
         "pgn": "Ka5 f1=B Bxf1",
         "all_moves": [
           {
@@ -3006,16 +3006,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_3QHWC_1792179856599",
         "rating": 1293,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1560740166858047598,
+      "message_id": 1560740182850797699,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792179856.595162,
-      "last_feedback": "✅ **Nxd8** — solved! Score: **3**."
+      "last_card_activity_at": 1792179868.0846684,
+      "last_feedback": "✅ **Ka5** • Opponent: **f1=B**"
     },
     "362606514764251137": {
       "active": false,
