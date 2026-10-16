@@ -4,7 +4,12 @@ Never let the language model supply IDs, balances or statistics. Resolve
 Discord identities first; read authoritative game state for each reply.
 """
 import re
+import time
 import discord
+
+_CONTEXT = {}
+_CONTEXT_TTL = 180
+
 
 ANIMALS = r"(?:animals?|dieren?|pets?|huisdieren?)"
 COUNT = r"(?:how many|hoeveel)"
@@ -20,6 +25,9 @@ def _resolve(guild, author, text):
     raw = re.sub(r"^[\s'\"@]+|[\s'\"?.!]+$", "", text).strip()
     if not raw or raw.casefold() in ME or raw.casefold() == author.display_name.casefold():
         return (author.id, author.display_name)
+    if raw.isdecimal():
+        member = guild.get_member(int(raw))
+        return (member.id, member.display_name) if member and not member.bot else "I couldn't find that player in this server."
     mention = re.fullmatch(r"<@!?(\d+)>", raw)
     if mention:
         member = guild.get_member(int(mention.group(1)))
@@ -63,9 +71,9 @@ def _pet_totals(user_id):
 
 def _metric(prompt):
     lower = prompt.casefold()
-    if re.search(r"\b(?:starve|starved|starvation|verhongerd|verhongeren|verhongering)\b", lower) and re.search(ANIMALS, lower):
+    if re.search(r"\b(?:starve|starved|starvation|verhongerd|verhongeren|verhongering)\b", lower) and (re.search(ANIMALS, lower) or "pets" in lower):
         return "starved"
-    if re.search(r"\b(?:memorial|dead|dode|dood|overleden|gestorven)\b", lower) and re.search(ANIMALS, lower):
+    if re.search(r"\b(?:memorial|dead|dode|dood|overleden|gestorven)\b", lower) and (re.search(ANIMALS, lower) or "memorial" in lower):
         return "dead"
     if re.search(r"\b(?:unique|unieke|verschillende|distinct)\b", lower) and re.search(r"\b(?:badges?|insignes?)\b", lower):
         return "unique_badges"
@@ -117,14 +125,31 @@ def _target(prompt, metric):
     return None
 
 
-def answer(prompt, guild, author):
+def answer(prompt, guild, author, channel_id=None):
     """Return a factual read-only answer, or None for unrelated messages."""
+    key = (getattr(guild, "id", id(guild)), channel_id, author.id)
+    prior = _CONTEXT.get(key)
+    if prior and time.monotonic() - prior[2] > _CONTEXT_TTL:
+        _CONTEXT.pop(key, None)
+        prior = None
     metric = _metric(prompt)
-    if metric is None or not re.search(
+    followup = bool(re.fullmatch(
+        r"(?:en|and)?\s*(?:hoeveel|how many|what about)?\s*"
+        r"(?:unieke|unique|verschillende|dode|dead|overleden|levende|living)\??",
+        prompt.strip(), re.I))
+    if prior and followup:
+        word = prompt.casefold()
+        if re.search(r"\b(?:unieke|unique|verschillende)\b", word) and prior[1] in {"badges", "unique_badges"}:
+            metric = "unique_badges"
+        elif re.search(r"\b(?:dode|dead|overleden)\b", word) and prior[1] in {"pets", "dead", "starved", "killed"}:
+            metric = "dead"
+        elif re.search(r"\b(?:living|levende)\b", word) and prior[1] in {"pets", "dead", "starved", "killed"}:
+            metric = "pets"
+    if metric is None or (not re.search(
         r"\b(?:how many|hoeveel|what|wat|who|wie|which|welke|compare|vergelijk|"
         r"do|does|did|has|have|heeft|kill|killed|gekild|gedood|murder|vermoord)\b",
         prompt, re.I,
-    ):
+    ) and not (prior and followup)):
         return None
     lower = prompt.casefold()
     if metric == "coins" and re.search(r"\b(?:richest|rijkste|most coins|meeste munten)\b", lower):
@@ -138,13 +163,14 @@ def answer(prompt, guild, author):
         if member is None:
             return "I can't verify the richest player in this server right now."
         return f"{_safe_name(member.display_name)} has the most recorded coins: **{float(entry.get('coins', 0)):g}**."
-    target = _target(prompt, metric)
+    target = prior[0] if prior and followup else _target(prompt, metric)
     if target is None:
         return None
     resolved = _resolve(guild, author, target)
     if isinstance(resolved, str):
         return resolved
     user_id, name = resolved
+    _CONTEXT[key] = (str(user_id), metric, time.monotonic())
     safe = _safe_name(name)
     try:
         if metric in {"killed", "starved", "dead", "pets", "rarest", "strongest"}:

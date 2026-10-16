@@ -156,10 +156,13 @@ class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
             reply=reply,
         )
         result = {"already_claimed": False, "badge": "TestBadge", "rarity_label": "Rare"}
-        with patch("asyncio.to_thread", return_value=result) as worker:
+        async def claim_only(func, *args, **kwargs):
+            return result if getattr(func, "__name__", "") == "claim_daily_mystery_box" else None
+        with patch("asyncio.to_thread", side_effect=claim_only) as worker:
             self.assertTrue(await shark_ai.handle_mention(msg, SimpleNamespace(user=bot)))
-        self.assertEqual(worker.call_args_list[0].args[1:], (123, "Player"))
-        self.assertEqual(worker.call_args_list[0].args[0].__name__, "claim_daily_mystery_box")
+        claim_calls = [call for call in worker.call_args_list if getattr(call.args[0], "__name__", "") == "claim_daily_mystery_box"]
+        self.assertEqual(len(claim_calls), 1)
+        self.assertEqual(claim_calls[0].args[1:], (123, "Player"))
         self.assertIn("TestBadge", replies[0])
         self.assertIn("No coins spent", replies[0])
 
