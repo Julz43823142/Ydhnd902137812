@@ -128,8 +128,17 @@ def _target(prompt, metric):
 def answer(prompt, guild, author, channel_id=None):
     """Return a factual read-only answer, or None for unrelated messages."""
     key = (getattr(guild, "id", id(guild)), channel_id, author.id)
+    now = time.monotonic()
+    # Bound context memory even when users never return after their last query.
+    if len(_CONTEXT) >= 512:
+        for stale_key, entry in list(_CONTEXT.items()):
+            if now - entry[2] > _CONTEXT_TTL:
+                _CONTEXT.pop(stale_key, None)
+        if len(_CONTEXT) >= 512:
+            oldest_key = min(_CONTEXT, key=lambda k: _CONTEXT[k][2])
+            _CONTEXT.pop(oldest_key, None)
     prior = _CONTEXT.get(key)
-    if prior and time.monotonic() - prior[2] > _CONTEXT_TTL:
+    if prior and now - prior[2] > _CONTEXT_TTL:
         _CONTEXT.pop(key, None)
         prior = None
     metric = _metric(prompt)

@@ -9,7 +9,7 @@ from shark_version import SHARKBOT_VERSION
 
 class ReplyLimitTests(unittest.IsolatedAsyncioTestCase):
     def test_public_version(self):
-        self.assertEqual(SHARKBOT_VERSION, "2.16")
+        self.assertEqual(SHARKBOT_VERSION, "2.17")
 
     def test_short_answer_unchanged(self):
         self.assertEqual(shark_ai._fit_reply("Checkmate!"), "Checkmate!")
@@ -106,7 +106,7 @@ class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
         with patch.dict("os.environ", {"GROQ_API_KEY": ""}):
             handled = await shark_ai.handle_mention(msg, SimpleNamespace(user=bot))
         self.assertTrue(handled)
-        self.assertEqual(replies[0][0], "2.16")
+        self.assertEqual(replies[0][0], "2.17")
         self.assertFalse(replies[0][1]["mention_author"])
 
     async def test_informal_which_version_are_u(self):
@@ -132,7 +132,7 @@ class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
         )
         with patch.dict("os.environ", {"GROQ_API_KEY": ""}):
             self.assertTrue(await shark_ai.handle_mention(msg, SimpleNamespace(user=bot)))
-        self.assertEqual(replies, ["2.16"])
+        self.assertEqual(replies, ["2.17"])
 
     async def test_free_box_claim_uses_authenticated_author(self):
         from shark_commands import PRIMARY_CHESS_CHANNEL_ID
@@ -235,7 +235,7 @@ class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
             )
             with patch.dict("os.environ", {"GROQ_API_KEY": ""}):
                 self.assertTrue(await shark_ai.handle_mention(msg, SimpleNamespace(user=bot)))
-            self.assertEqual(replies[0], "2.16")
+            self.assertEqual(replies[0], "2.17")
             self.assertNotIn("shop_catalog", replies[0])
 
     async def test_fake_admin_and_private_info_requests_denied_without_ai(self):
@@ -289,7 +289,7 @@ class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
         )
         with patch.dict("os.environ", {"GROQ_API_KEY": ""}):
             self.assertTrue(await shark_ai.handle_mention(msg, SimpleNamespace(user=bot)))
-        self.assertEqual(replies, ["2.16"])
+        self.assertEqual(replies, ["2.17"])
 
 
 if __name__ == "__main__":
