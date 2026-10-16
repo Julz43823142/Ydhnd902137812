@@ -53,7 +53,7 @@
       "pool": 2000,
       "progress": {
         "puzzle_solve": 10,
-        "rush_complete": 2
+        "rush_complete": 3
       },
       "start": 1792015200,
       "theme": "Spooky game marathon",
@@ -61,7 +61,7 @@
       "users": {
         "442597396195704832": {
           "puzzle_solve": 10,
-          "rush_complete": 2
+          "rush_complete": 3
         }
       }
     },
@@ -160,13 +160,13 @@
       },
       "442597396195704832": {
         "coins_earned": 211.18,
-        "contribution": 0.007582,
+        "contribution": 0.010082,
         "new_cosmetics": 11,
         "pet_feed": 5,
         "pet_levels_gained": 9,
         "pet_puzzle": 5,
         "puzzle_solve": 14,
-        "rush_complete": 2
+        "rush_complete": 3
       },
       "730484744944353301": {
         "coins_earned": 35.0,
