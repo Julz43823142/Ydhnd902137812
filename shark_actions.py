@@ -213,7 +213,7 @@ def _requires_confirmation(command, args):
 
 class RoutedMessage:
     """Read-only proxy: never change the original author's user ID or permissions."""
-    def __init__(self, original, content, bot_id):
+    def __init__(self, original, content, bot_id, target_mentions=None):
         self._original = original
         self._shark_ai_routed = True
         self.content = content
