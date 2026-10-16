@@ -185,6 +185,10 @@ def _needs_confirmation(command):
         "!survivallb", "!slb", "!dailyb", "!dailyboard", "!dailychessboard",
         "!review", "!cancelreview",
     }
+    # The authenticated requester explicitly accepts or declines their own
+    # pending trade; original trade ownership and validity checks still apply.
+    if base in {"!accepttrade", "!declinetrade"} and not args.strip():
+        return False
     if base in {"!profile", "!me"}:
         # These apparently read-only commands also implement equip mutations.
         # Never let an AI classifier silently change profile settings.
