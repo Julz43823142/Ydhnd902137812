@@ -377,7 +377,7 @@ async def plan_mention(message, prompt, complete):
 
     if _needs_confirmation(command):
         _clear_expired()
-        nonce = secrets.token_hex(3)
+        nonce = secrets.token_hex(6)
         _pending[_confirmation_key(message)] = (command, time.monotonic(), nonce)
         await message.reply(
             "I can do that using SharkBot's existing commands. "
