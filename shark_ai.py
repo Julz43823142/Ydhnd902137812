@@ -377,19 +377,31 @@ async def handle_mention(message, client):
             reply = "I can't read today's answer count right now."
         await message.reply(reply, mention_author=False, allowed_mentions=discord.AllowedMentions.none())
         return True
-    # Direct, authenticated gameplay statistics are independent of the AI model.
-    # Read-only: no generated or user-supplied IDs can change game state.
-    if re.search(r"\b(?:how many|hoeveel|who|wie|what|wat|compare|vergelijk|killed|gekild|gedood)\b", prompt, re.I):
-        from shark_stats_query import answer as answer_player_stats
-        factual = await asyncio.to_thread(
-            answer_player_stats, prompt, message.guild, message.author
-        )
-        if factual is not None:
-            await _counted_reply(message,
-                factual, mention_author=False,
-                allowed_mentions=discord.AllowedMentions.none(),
-            )
-            return True
+    # Authoritative read-only queries, including short follow-ups, bypass Groq.
+    from shark_stats_query import answer as answer_player_stats
+    factual = await asyncio.to_thread(
+        answer_player_stats, prompt, message.guild, message.author, message.channel.id
+    )
+    if factual is not None:
+        await _counted_reply(message, factual, mention_author=False,
+                             allowed_mentions=discord.AllowedMentions.none())
+        return True
+    # An explicit accept/decline targets only the requester's pending trade.
+    # The existing Discord command handler enforces trade ownership and validity.
+    if re.fullmatch(r"(?:please\\s+)?(?:accept|decline|reject)\\s+(?:(?:my|the)\\s+)?(?:dog\\s+|pet\\s+)?trade[.!]?", prompt, re.I):
+        command = "!declinetrade" if re.match(r"(?:please\\s+)?(?:decline|reject)\\b", prompt, re.I) else "!accepttrade"
+        if not await dispatch_existing_command(message, client, command):
+            await _counted_reply(message, "I couldn't process your pending trade here.",
+                                 mention_author=False, allowed_mentions=discord.AllowedMentions.none())
+        return True
+    # Explain genuine public free features without inventing today's eligibility.
+    if re.fullmatch(r"(?:what can i|wat kan ik|welke beloningen kan ik)\\s+(?:claim|claimen|gratis claimen|free claim)\\s+(?:today|vandaag)\\??", prompt, re.I):
+        await _counted_reply(message,
+            "You can claim one free daily Mystery Box per Amsterdam day. "
+            "Say `open box` here to claim it; I'll verify whether you already claimed it. "
+            "Other rewards depend on your current quests and events.",
+            mention_author=False, allowed_mentions=discord.AllowedMentions.none())
+        return True
     # Real, deterministic menu routing works even when Groq is unavailable.
     # A free box is never claimed automatically: the original owner-bound
     # shop button performs all eligibility and daily-limit checks.
