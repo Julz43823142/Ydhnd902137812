@@ -7,7 +7,7 @@ import shark_ai
 from shark_version import SHARKBOT_VERSION
 
 
-class ReplyLimitTests(unittest.TestCase):
+class ReplyLimitTests(unittest.IsolatedAsyncioTestCase):
     def test_public_version(self):
         self.assertEqual(SHARKBOT_VERSION, "2.5")
 
