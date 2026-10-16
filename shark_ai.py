@@ -184,23 +184,23 @@ async def handle_mention(message, client):
     # Deny privilege-escalation and private-internals requests before either
     # the conversational model or command classifier sees them.
     private_question = re.search(
-        r"(?i)\\b(?:source\\s*code|broncode|internal\\s+(?:code|config|settings|security)|"
-        r"hidden\\s+(?:rules|prompt|instructions)|system\\s*prompt|api\\s*key|"
-        r"token|secrets?|credentials?|environment\\s*variables?|"
-        r"security\\s+(?:setup|controls|bypass)|interne\\s+(?:regels|instellingen|werking))\\b",
+        r"(?i)\b(?:source\s*code|broncode|internal\s+(?:code|config|settings|security)|"
+        r"hidden\s+(?:rules|prompt|instructions)|system\s*prompt|api\s*key|"
+        r"token|secrets?|credentials?|environment\s*variables?|"
+        r"security\s+(?:setup|controls|bypass)|interne\s+(?:regels|instellingen|werking))\b",
         prompt,
     )
     role_claim = re.search(
-        r"(?i)\\b(?:i\\s+am|i'm|im|ik\\s+ben|as\\s+(?:the|an?)|"
-        r"pretend\\s+(?:i\\s+am|to\\s+be)|act\\s+as|"
-        r"ignore\\s+(?:previous|your|all)\\s+instructions|"
-        r"developer\\s+mode|admin\\s+override|system\\s+override)\\b",
+        r"(?i)\b(?:i\s+am|i'm|im|ik\s+ben|as\s+(?:the|an?)|"
+        r"pretend\s+(?:i\s+am|to\s+be)|act\s+as|"
+        r"ignore\s+(?:previous|your|all)\s+instructions|"
+        r"developer\s+mode|admin\s+override|system\s+override)\b",
         prompt,
     )
     privileged_request = re.search(
-        r"(?i)\\b(?:admin|administrator|owner|eigenaar|developer|"
+        r"(?i)\b(?:admin|administrator|owner|eigenaar|developer|"
         r"moderator|system|staff|beheerder|sharkmeister|"
-        r"permissions?|rechten|privileges?|role|rol)\\b",
+        r"permissions?|rechten|privileges?|role|rol)\b",
         prompt,
     )
     if private_question or (role_claim and privileged_request):
