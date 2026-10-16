@@ -257,7 +257,12 @@ def free_box_claim_request(prompt):
         text,
     )
     paid = re.search(r"\b(?:paid|buy|purchase|for\s+\d+\s+coins?)\b", text)
-    return bool(free_box and wants_claim and not paid)
+    informational = re.search(
+        r"\b(?:how\s+(?:do|can|to)|where\s+(?:do|can)|what\s+(?:is|happens)|"
+        r"when\s+can|don't|do\s+not|never|not\s+to)\b", text,
+    )
+    third_party = re.search(r"\b(?:for|on\s+behalf\s+of)\s+<@!?\d+>", text)
+    return bool(free_box and wants_claim and not paid and not informational and not third_party)
 
 
 def _is_chat_channel(channel_id):
