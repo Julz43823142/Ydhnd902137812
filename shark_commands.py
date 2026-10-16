@@ -172,7 +172,7 @@ def _parse_command(value, original):
 
 
 def _needs_confirmation(command):
-    """Every state change must be explicitly confirmed."""
+    """Require confirmation for purchases, transfers and other risky mutations."""
     base, _, args = command.partition(" ")
     safe_views = {
         "!help", "!info", "!menu", "!version", "!v", "!i", "!m",
@@ -263,8 +263,12 @@ def free_box_claim_request(prompt):
     if re.search(r"<@!?\d+>|@everyone|@here|[?!]", text):
         return False
     # No broad keyword combinations: only an unambiguous direct claim.
+    if re.fullmatch(r"(?:please\\s+)?(?:open|claim)\\s+(?:(?:my|the)\\s+)?(?:daily\\s+)?box\\.?", text):
+        return True
+    if re.fullmatch(r"(?:open|pak|claim)\\s+(?:(?:mijn|de)\\s+)?box\\.?", text):
+        return True
     return bool(re.fullmatch(
-        r"(?:please\s+)?(?:claim|redeem|collect)\s+"
+        r"(?:please\s+)?(?:claim|redeem|collect|open)\s+"
         r"(?:(?:my|the|a)\s+)?free\s+(?:(?:daily|mystery)\s+){0,2}box"
         r"(?:\s+(?:please|now|today))?\.?|"
         r"(?:claim|pak|haal|open)\s+"

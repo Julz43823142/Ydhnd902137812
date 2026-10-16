@@ -50,17 +50,25 @@ def _pet_totals(user_id):
     alive = [p for p in collection if not p.get("died_at")]
     killed = [p for p in collection if p.get("death_cause") == "murder"
               and str(p.get("killed_by")) == str(user_id)]
+    dead = [p for p in collection if p.get("died_at")]
+    starved = [p for p in dead if p.get("death_cause") in (None, "starvation", "starved")]
     rarest = max(alive, key=lambda p: (
         {"common": 0, "uncommon": 1, "rare": 2,
          "epic": 3, "legendary": 4}.get(p.get("rarity"), -1),
         level(p)), default=None)
     strongest = max(alive, key=level, default=None)
-    return {"killed": len(killed), "pets": len(alive),
+    return {"killed": len(killed), "starved": len(starved), "dead": len(dead), "pets": len(alive),
             "rarest": rarest, "strongest": strongest}
 
 
 def _metric(prompt):
     lower = prompt.casefold()
+    if re.search(r"\b(?:starve|starved|starvation|verhongerd|verhongeren|verhongering)\b", lower) and re.search(ANIMALS, lower):
+        return "starved"
+    if re.search(r"\b(?:memorial|dead|dode|dood|overleden|gestorven)\b", lower) and re.search(ANIMALS, lower):
+        return "dead"
+    if re.search(r"\b(?:unique|unieke|verschillende|distinct)\b", lower) and re.search(r"\b(?:badges?|insignes?)\b", lower):
+        return "unique_badges"
     if re.search(r"\b(?:kill(?:ed|s)?|murder(?:ed|s)?|gedood|vermoord|vermoorde|gekild)\b", lower) and re.search(ANIMALS, lower):
         return "killed"
     if re.search(r"\b(?:coins?|munten|saldo|balance|rijk|rich(?:est)?)\b", lower):
@@ -82,8 +90,9 @@ def _target(prompt, metric):
     """Extract the subject from supported English/Dutch statistic questions."""
     text = prompt.strip().rstrip(" ?!.")
     patterns = [
+        r"^(?:how many|hoeveel)\s+(?:pets?|animals?|dieren?|huisdieren?)\s+(?:in|are in|staan in)\s+(.+?)(?:['’]s)?\s+memorial$",
         # How many animals did Thijs kill?
-        r"^(?:how many|hoeveel)\s+.+?\s+(?:did|does|has|have|heeft|hebben)\s+(.+?)\s+(?:kill|killed|murder|murdered|gedood|vermoord|gekild)$",
+        r"^(?:how many|hoeveel)\s+.+?\s+(?:did|does|has|have|heeft|hebben)\s+(.+?)\s+(?:kill|killed|murder|murdered|gedood|vermoord|gekild|starve|starved|verhongeren|verhongerd)$",
         # Hoeveel dieren heeft Thijs gekild? (same structure)
         # How many coins does Thijs have?
         r"^(?:how many|hoeveel)\s+.+?\s+(?:does|has|have|did|heeft|hebben)\s+(.+?)\s+(?:have|hebben)$",
@@ -138,10 +147,14 @@ def answer(prompt, guild, author):
     user_id, name = resolved
     safe = _safe_name(name)
     try:
-        if metric in {"killed", "pets", "rarest", "strongest"}:
+        if metric in {"killed", "starved", "dead", "pets", "rarest", "strongest"}:
             data = _pet_totals(user_id)
             if metric == "killed":
-                return f"{safe} has killed **{data['killed']}** recorded pets in SharkBot."
+                return f"{safe} directly killed **{data['killed']}** pets and had **{data['starved']}** pets die of starvation."
+            if metric == "starved":
+                return f"{safe} had **{data['starved']}** pets die of starvation."
+            if metric == "dead":
+                return f"{safe} has **{data['dead']}** deceased pets in the memorial."
             if metric == "pets":
                 return f"{safe} currently has **{data['pets']}** living pets."
             pet = data[metric]
@@ -152,6 +165,8 @@ def answer(prompt, guild, author):
                     f"({pet.get('rarity', 'unknown')}, level {level(pet)}).")
         from shared_leaderboard import get_cosmetic_profile
         data = get_cosmetic_profile(user_id, name)
+        if metric == "unique_badges":
+            return f"{safe} owns **{len(set(map(str, data.get('badges', []))))}** unique badges."
         if metric == "badges":
             return f"{safe} owns **{len(data.get('badges', []))}** badges."
         value = float(data.get(metric, 0))
