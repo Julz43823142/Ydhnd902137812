@@ -232,9 +232,9 @@ def _is_daily_answer_question(prompt):
 def _asks_public_version(prompt: str) -> bool:
     """Recognize questions about the bot's published release number."""
     normalized = " ".join(prompt.casefold().split())
-    if not re.search(r"\\b(?:versie|version|versienummer|versionnummer)\\b", normalized):
+    if not re.search(r"\b(?:versie|version|versienummer|versionnummer)\b", normalized):
         return False
-    if re.search(r"\\b(?:python|stockfish|minecraft|windows|chess960)\\b", normalized):
+    if re.search(r"\b(?:python|stockfish|minecraft|windows|chess960)\b", normalized):
         return False
     return True
 
