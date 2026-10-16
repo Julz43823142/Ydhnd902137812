@@ -21,6 +21,14 @@ class ReplyLimitTests(unittest.TestCase):
         self.assertTrue(reply.endswith("Ask me for more details.)"))
         self.assertFalse(reply.endswith("pieces. Always test your"))
 
+    def test_groq_token_limit_does_not_end_mid_sentence(self):
+        reply = shark_ai._close_incomplete_reply(
+            "First, choose a theme. Next, prepare the equipment and"
+        )
+        self.assertIn("First, choose a theme.", reply)
+        self.assertNotIn("equipment and", reply)
+        self.assertIn("Shortened", reply)
+
     def test_emoji_count_for_discord(self):
         reply = shark_ai._fit_reply("😀" * 1200)
         self.assertLessEqual(len(reply.encode("utf-16-le")) // 2, 1400)
