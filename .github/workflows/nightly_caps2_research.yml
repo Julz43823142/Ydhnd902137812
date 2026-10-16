@@ -24,9 +24,9 @@ jobs:
     env:
       PYTHONUNBUFFERED: '1'
       PYTHONDONTWRITEBYTECODE: '1'
-      PYTHONPATH: ${ github.workspace }}
-      STATE_DIR: ${ runner.temp }}/caps2-state/research/caps2
-      STATE_REPO: ${ runner.temp }}/caps2-state
+      PYTHONPATH: ${{ github.workspace }}
+      STATE_DIR: ${{ runner.temp }}/caps2-state/research/caps2
+      STATE_REPO: ${{ runner.temp }}/caps2-state
     steps:
       - name: Checkout latest research code from main
         uses: actions/checkout@v4
@@ -72,7 +72,7 @@ jobs:
         if: steps.window.outputs.active == 'true'
         with:
           path: /tmp/stockfish19-official-pgo/Stockfish/src/stockfish
-          key: stockfish-${ runner.os }}-${ runner.arch }}-edb0d9db6731067ec50ce619ff372b463bc4dd5d-pgo-v1
+          key: stockfish-${{ runner.os }}-${{ runner.arch }}-edb0d9db6731067ec50ce619ff372b463bc4dd5d-pgo-v1
       - name: Prepare verified pinned Stockfish 19
         if: steps.window.outputs.active == 'true'
         run: python scripts/prepare_stockfish.py --github-env --profile-build
