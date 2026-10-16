@@ -5,9 +5,12 @@ privileged callback. A real Discord message from the requesting user is routed
 through the original on_message command handler; all old game, coin and owner
 checks still apply. Unknown, admin and unsafe commands fail closed.
 """
+import asyncio
 import json
 import re
 import time
+
+import discord
 
 PRIMARY_CHESS_CHANNEL_ID = 1468320170891022417
 SECONDARY_CHESS_CHANNEL_ID = 1546557493038284840
@@ -27,6 +30,8 @@ ALLOWED = frozenset("""
 !opponentleft !iamhere !daily !board !chessboard
 !rush !puzzlerush !stoprush !survival !stopsurvival
 !practice !random !randompuzzle !rp !puzzlestreak
+!bal !balans !l !m !v !i !dailyb !dailyboard !dailym !dailymove
+!dailychessboard !survivalboard !survivallb !heart !addheart !p
 """.split())
 
 # Most of these open read-only menus; purchasing a box or adopting a pet still
@@ -38,6 +43,7 @@ NO_ARGUMENTS = frozenset("""
 !cancelreview !racercancel !accept !decline !resign !draw !offerdraw
 !acceptdraw !declinedraw !opponentleft !iamhere !board !chessboard
 !rush !puzzlerush !stoprush !stopsurvival !practice !random !randompuzzle !rp
+!survivalboard !survivallb !dailyb !dailyboard !dailychessboard !l !m !v !i
 """.split())
 
 # Only use Groq classification for probable bot-feature requests. Ordinary
@@ -142,27 +148,46 @@ def _parse_command(value, original):
         set(re.findall(r"<@!?(\d{15,22})>", original))
     ):
         return None
+    if base == "!review":
+        return "!review"  # PGN is sourced from original message only.
     if base != "!review":
         # Never let the model invent an Elo, stake, coin amount or catalog page.
         numbers = re.findall(r"(?<![\w])\d+(?![\w])", args)
         source_numbers = re.findall(r"(?<![\w])\d+(?![\w])", original)
         if any(n not in source_numbers for n in numbers):
             return None
+        grammar = {"buy", "equip", "test", "move", "game", "challenge", "draw", "resign", "accept", "decline", "bot", "open", "cancel", "board", "trade", "offer", "daily", "stop", "start", "yes", "no"}
+        source = original.casefold()
+        for word in re.findall(r"[a-zA-Z][a-zA-Z0-9_-]*", args):
+            if word.casefold() not in grammar and word.casefold() not in source:
+                return None
     return base + (" " + args.strip() if args.strip() else "")
 
 
 def _needs_confirmation(command):
+    """Every state change must be explicitly confirmed."""
     base, _, args = command.partition(" ")
-    # Catalogs, profiles and menus use the original UI buttons to confirm.
-    if base in {"!donate", "!trade", "!accepttrade", "!declinetrade",
-                "!resign", "!accept", "!decline", "!offerdraw",
-                "!acceptdraw", "!declinedraw", "!move", "!racer",
-                "!play", "!daily"}:
-        return True
-    if base in {"!customboard", "!custompiece", "!color", "!theme",
-                "!profiletheme"} and re.search(r"\bbuy\b", args, re.I):
-        return True
-    return False
+    safe_views = {
+        "!help", "!info", "!menu", "!version", "!v", "!i", "!m",
+        "!balance", "!bal", "!balans", "!coins", "!bank", "!economy",
+        "!quests", "!quest", "!q", "!me", "!profile", "!stats", "!chessstats",
+        "!leaderboard", "!lb", "!l", "!puzzlestreak", "!week",
+        "!collection", "!community", "!challenge", "!event",
+        "!shop", "!box", "!pets", "!pet", "!trades", "!tradeinbox",
+        "!pendingtrade", "!board", "!chessboard", "!survivalboard",
+        "!survivallb", "!dailyb", "!dailyboard", "!dailychessboard",
+        "!review", "!cancelreview",
+    }
+    if base in safe_views and (
+        not args or base in {"!profile", "!me", "!chessstats", "!pets", "!pet", "!review"}
+    ):
+        return False
+    if base in {"!customboard", "!custompiece", "!arrow", "!arrowcolor",
+                "!color", "!theme", "!profiletheme"} and (
+        not args or args.isdigit()
+    ):
+        return False
+    return True
 
 
 def _confirmation_key(message):
@@ -189,7 +214,7 @@ def consume_confirmation(message, bot_id):
     if text in {"cancel", "no", "nope", "stop", "never mind"}:
         _pending.pop(key, None)
         return True
-    if text in {"yes", "y", "confirm", "yes please", "do it", "go ahead"}:
+    if text in {"yes", "y", "confirm", "yes please", "do it", "go ahead", "ja", "zeker"}:
         _pending.pop(key, None)
         return pending[0]
     return None
