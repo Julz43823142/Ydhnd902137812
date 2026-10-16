@@ -2957,50 +2957,65 @@
       "started_at": 1792180373.8945549,
       "run_id": "rush:442597396195704832:1792180373894",
       "end_at": 1792180673.8945549,
-      "score": 6,
+      "score": 7,
       "wrong": 0,
       "mistakes": [],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/FsN0T",
-        "title": "Lichess • 1415",
-        "fen": "4rk2/R6R/6p1/1p3p2/1P6/P3p2P/r5PK/8 w - - 0 40",
-        "current_fen": "4rk2/R6R/6p1/1p3p2/1P6/P3p2P/r5PK/8 w - - 0 40",
-        "last_move_uci": "e4e3",
-        "pgn": "Rh8#",
+        "url": "https://lichess.org/training/nQKMF",
+        "title": "Lichess • 1502",
+        "fen": "r2qk2r/pppb2bp/4p2p/3pn3/B7/2N2N2/PPP2PPP/R2QK2R w KQkq - 0 11",
+        "current_fen": "r2qk2r/pppb2bp/4p2p/3pn3/B7/2N2N2/PPP2PPP/R2QK2R w KQkq - 0 11",
+        "last_move_uci": "c6e5",
+        "pgn": "Nxe5 Bxe5 Qh5+",
         "all_moves": [
           {
-            "uci": "h7h8",
-            "san": "Rh8#",
+            "uci": "f3e5",
+            "san": "Nxe5",
+            "color": "white"
+          },
+          {
+            "uci": "g7e5",
+            "san": "Bxe5",
+            "color": "black"
+          },
+          {
+            "uci": "d1h5",
+            "san": "Qh5+",
             "color": "white"
           }
         ],
         "player_moves": [
           {
-            "uci": "h7h8",
-            "san": "Rh8#",
+            "uci": "f3e5",
+            "san": "Nxe5",
+            "color": "white"
+          },
+          {
+            "uci": "d1h5",
+            "san": "Qh5+",
             "color": "white"
           }
         ],
         "player_color": "white",
-        "player_move_count": 1,
-        "posted_at": "2026-10-16T19:53:47.255036+00:00",
+        "player_move_count": 2,
+        "posted_at": "2026-10-16T19:53:52.757677+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_FsN0T_1792180427255",
-        "rating": 1415,
+        "puzzle_id": "practice_rush_442597396195704832_nQKMF_1792180432757",
+        "rating": 1502,
         "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1560742550686400513,
+      "message_id": 1560742576892543097,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792180427.2488468,
-      "last_feedback": "✅ **Rd8#** — solved! Score: **6**. Alternate checkmate accepted."
+      "last_card_activity_at": 1792180432.75194,
+      "last_feedback": "✅ **Rh8#** — solved! Score: **7**."
     },
     "362606514764251137": {
       "active": false,
