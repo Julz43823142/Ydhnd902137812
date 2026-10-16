@@ -2965,8 +2965,8 @@
         "url": "https://lichess.org/training/iQ00f",
         "title": "Lichess • 1245",
         "fen": "3Q4/p4pBk/1p3P1p/2p5/4r1q1/3P4/PP1R2PP/5K2 b - - 0 29",
-        "current_fen": "3Q4/p4pBk/1p3P1p/2p5/4r1q1/3P4/PP1R2PP/5K2 b - - 0 29",
-        "last_move_uci": "c7d8",
+        "current_fen": "3Q4/p4pBk/1p3P1p/2p5/4rq2/3P4/PP3RPP/5K2 b - - 2 30",
+        "last_move_uci": "d2f2",
         "pgn": "Qf4+ Rf2 Qc1#",
         "all_moves": [
           {
@@ -3006,7 +3006,7 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_iQ00f_1792179822888",
         "rating": 1245,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
@@ -3014,8 +3014,8 @@
       "message_id": 1560740041712599203,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792179822.885189,
-      "last_feedback": "🎯 **Type your move in chat.** Your answer message will be removed. You have **3 lives**."
+      "last_card_activity_at": 1792179831.2203252,
+      "last_feedback": "✅ **Qf4+** • Opponent: **Rf2**"
     },
     "362606514764251137": {
       "active": false,
