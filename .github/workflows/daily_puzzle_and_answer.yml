@@ -213,7 +213,7 @@ jobs:
           PY
 
       - name: Validate AI chat safety
-        run: python -m unittest -v test_shark_ai_safety test_shark_commands
+        run: python -m unittest -v test_shark_ai_safety test_shark_commands test_shark_dispatch
 
       - name: Run Daily Puzzle
         run: python bot.py
