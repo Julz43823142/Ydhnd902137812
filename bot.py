@@ -18566,6 +18566,17 @@ async def on_message(
         if message.author.bot:
             return
 
+        # A second, independent gate: synthetic AI messages cannot carry
+        # unknown or privileged commands into the existing dispatcher.
+        if getattr(message, "_shark_ai_routed", False):
+            from shark_actions import COMMAND_HELP
+            routed_content = str(getattr(message, "content", ""))
+            if not any(
+                routed_content == command or routed_content.startswith(command + " ")
+                for command in COMMAND_HELP
+            ):
+                return
+
         # Natural-language player commands: only replies to THIS user's own
         # pending confirmation, in the same channel, can execute an action.
         # Routed messages retain the original author and never enter AI routing.
