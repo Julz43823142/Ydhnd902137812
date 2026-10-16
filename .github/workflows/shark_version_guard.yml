@@ -1,0 +1,48 @@
+name: SharkBot release version guard
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Require the next SharkBot version on every update
+        run: |
+          python - <<'PY'
+          import ast
+          import os
+          import pathlib
+          import subprocess
+
+          def extract(source):
+              tree = ast.parse(source)
+              for item in tree.body:
+                  if isinstance(item, ast.Assign):
+                      if any(isinstance(target, ast.Name) and target.id == "SHARKBOT_VERSION" for target in item.targets):
+                          version = ast.literal_eval(item.value)
+                          if isinstance(version, int) and not isinstance(version, bool) and version > 0:
+                              return version
+              raise ValueError("SHARKBOT_VERSION must be a positive integer.")
+
+          current = extract(pathlib.Path("shark_version.py").read_text(encoding="utf-8"))
+          base = os.environ["GITHUB_BASE_REF"]
+          previous = subprocess.run(
+              ["git", "show", f"origin/{base}:shark_version.py"],
+              check=False, capture_output=True, text=True,
+          )
+          old = extract(previous.stdout) if previous.returncode == 0 else 1
+          if current != old + 1:
+              raise SystemExit(
+                  f"SharkBot updates must increase the version by exactly one: "
+                  f"main={old}, proposed={current}, required={old + 1}."
+              )
+          print(f"SharkBot version validated: {old} -> {current}")
+          PY
