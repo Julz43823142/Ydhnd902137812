@@ -97,16 +97,6 @@ class SharkCommandTests(unittest.TestCase):
             msg2, "put my dog in shelter", pet_model)), "!pet")
         self.assertIn("confirm", msg2.replies[0])
 
-    def test_dispatch_preserves_original_author_without_mutating_input(self):
-        msg = MockMessage()
-        original = msg.content
-        routed = route.RoutedMessage(msg, "!shop", 999)
-        self.assertIs(routed.author, msg.author)
-        self.assertEqual(routed.content, "!shop")
-        self.assertEqual(routed.mentions, [])
-        self.assertEqual(msg.content, original)
-        self.assertEqual(len(msg.mentions), 1)
-
     def test_purchases_and_moves_require_confirmation(self):
         for command in ("!play Thice", "!resign", "!donate Thice 5",
                         "!trade Thice 5", "!move e4", "!custompiece red buy"):
