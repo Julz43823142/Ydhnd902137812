@@ -18,7 +18,7 @@ class ReplyLimitTests(unittest.TestCase):
         text = "Always test your pieces. " * 200
         reply = shark_ai._fit_reply(text)
         self.assertLessEqual(len(reply), 1400)
-        self.assertTrue(reply.endswith("Ask me for more details.)"))
+        self.assertFalse("Shortened to fit Discord" in reply)
         self.assertFalse(reply.endswith("pieces. Always test your"))
 
     def test_groq_token_limit_does_not_end_mid_sentence(self):
@@ -27,11 +27,29 @@ class ReplyLimitTests(unittest.TestCase):
         )
         self.assertIn("First, choose a theme.", reply)
         self.assertNotIn("equipment and", reply)
-        self.assertIn("Shortened", reply)
+        self.assertTrue(reply.endswith("First, choose a theme."))
 
     def test_emoji_count_for_discord(self):
         reply = shark_ai._fit_reply("😀" * 1200)
         self.assertLessEqual(len(reply.encode("utf-16-le")) // 2, 1400)
+
+    def test_no_orphan_key_takeaways(self):
+        draft = (
+            "FIDE faced governance disputes. " * 45
+            + "\n\nKey take-aways\n\n1."
+            + "\n\nAdditional context that exceeds the limit. " * 30
+        )
+        reply = shark_ai._fit_reply(draft, limit=600)
+        self.assertLessEqual(len(reply), 600)
+        self.assertNotIn("Key take-aways", reply)
+        self.assertNotIn("Shortened to fit Discord", reply)
+        self.assertFalse(reply.endswith("1."))
+
+    async def test_summarizer_uses_model_for_compact_draft(self):
+        with patch("shark_ai._complete", return_value=("Concise answer.", None)) as model:
+            summary = await shark_ai._summarize_for_discord("Long draft " * 300)
+        self.assertEqual(summary, "Concise answer.")
+        model.assert_awaited_once()
 
     def test_safe_mentions(self):
         reply = shark_ai._fit_reply("@everyone @here hello")
