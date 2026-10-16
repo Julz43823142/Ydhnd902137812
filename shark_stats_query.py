@@ -127,7 +127,7 @@ def _target(prompt, metric):
 
 def answer(prompt, guild, author, channel_id=None):
     """Return a factual read-only answer, or None for unrelated messages."""
-    key = (guild.id, channel_id, author.id)
+    key = (getattr(guild, "id", id(guild)), channel_id, author.id)
     prior = _CONTEXT.get(key)
     if prior and time.monotonic() - prior[2] > _CONTEXT_TTL:
         _CONTEXT.pop(key, None)
