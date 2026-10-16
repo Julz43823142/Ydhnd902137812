@@ -592,9 +592,9 @@
         ],
         "puzzle": {
           "day": "2026-10-16",
-          "fen": "4r3/pp4k1/2p2p1p/3p1PpQ/3P2P1/P1P5/4qP2/R5K1 w - - 2 31",
+          "fen": "4rk2/pp6/2p2pQp/3p1Pp1/3P2P1/P1P5/4qP2/R5K1 w - - 4 32",
           "id": "ri0Zl",
-          "index": 0,
+          "index": 2,
           "moves": [
             "h5g6",
             "g7f8",
