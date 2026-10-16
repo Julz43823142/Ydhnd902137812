@@ -1,0 +1,28 @@
+{
+  "cached_profiles": {
+    "depth18": 0,
+    "fast": 1
+  },
+  "errors": [],
+  "finished_at_utc": "2026-10-16T14:46:26.997720+00:00",
+  "interrupted": false,
+  "mode": "fast",
+  "new_completed_games": 1,
+  "no_chesscom_data": true,
+  "no_chesscom_requests": true,
+  "no_production_changes": true,
+  "optimization": {
+    "baseline": {
+      "holdout_mae": null,
+      "training_mae": null
+    },
+    "holdout_games": 0,
+    "no_chesscom_data": true,
+    "paired_games": 0,
+    "status": "insufficient_paired_original_games",
+    "train_games": 0
+  },
+  "paired_games": 0,
+  "started_at_utc": "2026-10-16T14:46:13.855546+00:00",
+  "status": "completed"
+}
