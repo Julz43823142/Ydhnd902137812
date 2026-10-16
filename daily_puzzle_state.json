@@ -2965,8 +2965,8 @@
         "url": "https://lichess.org/training/XasTf",
         "title": "Lichess • 1713",
         "fen": "4Q2r/1pp2Npp/1k6/n2q4/4n3/2N1b3/PPP3PP/R4R1K b - - 1 19",
-        "current_fen": "4Q2r/1pp2Npp/1k6/n2q4/4n3/2N1b3/PPP3PP/R4R1K b - - 1 19",
-        "last_move_uci": "g1h1",
+        "current_fen": "4Q2r/1pp2Npp/1k6/n2q4/8/2N1b1P1/PPP3P1/R4R1K b - - 0 20",
+        "last_move_uci": "h2g3",
         "pgn": "Ng3+ hxg3 Qh5#",
         "all_moves": [
           {
@@ -3006,16 +3006,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_XasTf_1792180501506",
         "rating": 1713,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1560742878970511361,
+      "message_id": 1560742888013439028,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792180501.500695,
-      "last_feedback": "✅ **Bxd6** — solved! Score: **14**."
+      "last_card_activity_at": 1792180505.6807117,
+      "last_feedback": "✅ **Ng3+** • Opponent: **hxg3**"
     },
     "362606514764251137": {
       "active": false,
