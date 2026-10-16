@@ -20456,6 +20456,14 @@ async def on_ready():
         STATE_FILE,
         {}
     )
+    # Migrate any pre-release plaintext answers on worker startup, before
+    # future puzzle interactions can use the loaded state.
+    if os.getenv("DISCORD_TOKEN") and os.path.exists(STATE_FILE):
+        from shark_state_privacy import is_sealed
+        persisted = json.loads(Path(STATE_FILE).read_text(encoding="utf-8"))
+        if not is_sealed(persisted):
+            if not await save_all(wait_for_remote=True):
+                raise RuntimeError("Could not secure Daily puzzle state on GitHub")
     pending_puzzles = [state.get('current_puzzle')] + [_latest_random_for_channel(cid) for cid in CHESS_CHANNEL_IDS]
     for pending in pending_puzzles:
         if isinstance(pending, dict) and pending.get('completion_failed') and pending.get('completion_solver_id'):
