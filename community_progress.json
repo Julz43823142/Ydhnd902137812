@@ -52,7 +52,7 @@
       "paid": [],
       "pool": 2000,
       "progress": {
-        "puzzle_solve": 9,
+        "puzzle_solve": 10,
         "rush_complete": 1
       },
       "start": 1792015200,
@@ -60,7 +60,7 @@
       "title": "Halloween Community Challenge",
       "users": {
         "442597396195704832": {
-          "puzzle_solve": 9,
+          "puzzle_solve": 10,
           "rush_complete": 1
         }
       }
@@ -155,13 +155,13 @@
     },
     "2026-W42": {
       "442597396195704832": {
-        "coins_earned": 165.18,
-        "contribution": 0.004957,
+        "coins_earned": 166.18,
+        "contribution": 0.005082,
         "new_cosmetics": 7,
         "pet_feed": 4,
         "pet_levels_gained": 7,
         "pet_puzzle": 4,
-        "puzzle_solve": 13,
+        "puzzle_solve": 14,
         "rush_complete": 1
       },
       "730484744944353301": {
