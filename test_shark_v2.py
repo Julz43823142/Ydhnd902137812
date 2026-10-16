@@ -9,7 +9,7 @@ from shark_version import SHARKBOT_VERSION
 
 class ReplyLimitTests(unittest.TestCase):
     def test_public_version(self):
-        self.assertEqual(SHARKBOT_VERSION, "2.3")
+        self.assertEqual(SHARKBOT_VERSION, "2.4")
 
     def test_short_answer_unchanged(self):
         self.assertEqual(shark_ai._fit_reply("Checkmate!"), "Checkmate!")
@@ -66,7 +66,7 @@ class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
         with patch.dict("os.environ", {"GROQ_API_KEY": ""}):
             handled = await shark_ai.handle_mention(msg, SimpleNamespace(user=bot))
         self.assertTrue(handled)
-        self.assertEqual(replies[0][0], "I'm SharkBot version 2.3.")
+        self.assertEqual(replies[0][0], "I'm SharkBot version 2.4.")
         self.assertFalse(replies[0][1]["mention_author"])
 
     async def test_informal_which_version_are_u(self):
@@ -92,7 +92,36 @@ class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
         )
         with patch.dict("os.environ", {"GROQ_API_KEY": ""}):
             self.assertTrue(await shark_ai.handle_mention(msg, SimpleNamespace(user=bot)))
-        self.assertEqual(replies, ["I'm SharkBot version 2.3."])
+        self.assertEqual(replies, ["I'm SharkBot version 2.4."])
+
+    async def test_free_box_claim_uses_authenticated_author(self):
+        from shark_commands import PRIMARY_CHESS_CHANNEL_ID
+        bot = SimpleNamespace(id=42)
+        replies = []
+        async def reply(text, **kwargs):
+            replies.append(text)
+        user = SimpleNamespace(id=123, bot=False, display_name="Player")
+        msg = SimpleNamespace(
+            guild=SimpleNamespace(id=5, me=bot),
+            author=user,
+            channel=SimpleNamespace(
+                id=PRIMARY_CHESS_CHANNEL_ID,
+                permissions_for=lambda _: SimpleNamespace(
+                    view_channel=True, send_messages=True,
+                    send_messages_in_threads=True,
+                ),
+            ),
+            mentions=[bot],
+            content="<@42> claim my free daily mystery box",
+            reply=reply,
+        )
+        result = {"already_claimed": False, "badge": "TestBadge", "rarity_label": "Rare"}
+        with patch("asyncio.to_thread", return_value=result) as worker:
+            self.assertTrue(await shark_ai.handle_mention(msg, SimpleNamespace(user=bot)))
+        self.assertEqual(worker.call_args.args[1:], (123, "Player"))
+        self.assertEqual(worker.call_args.args[0].__name__, "claim_daily_mystery_box")
+        self.assertIn("TestBadge", replies[0])
+        self.assertIn("No coins spent", replies[0])
 
     async def test_dutch_version_question(self):
         bot = SimpleNamespace(id=42)
@@ -118,7 +147,7 @@ class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
         )
         with patch.dict("os.environ", {"GROQ_API_KEY": ""}):
             self.assertTrue(await shark_ai.handle_mention(msg, SimpleNamespace(user=bot)))
-        self.assertEqual(replies, ["I'm SharkBot version 2.3."])
+        self.assertEqual(replies, ["I'm SharkBot version 2.4."])
 
 
 if __name__ == "__main__":

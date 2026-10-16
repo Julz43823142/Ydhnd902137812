@@ -67,6 +67,16 @@ class SharkCommandTests(unittest.TestCase):
         self.assertNotIn("Reply **yes**", msg.replies[0])
         self.assertIsNone(route.consume_confirmation(MockMessage("yes"), 999))
 
+    def test_free_box_claim_intent(self):
+        self.assertTrue(route.free_box_claim_request("claim my free daily mystery box"))
+        self.assertTrue(route.free_box_claim_request("claim free mystery box"))
+        self.assertFalse(route.free_box_claim_request("open free access menu"))
+        self.assertFalse(route.free_box_claim_request("buy mystery box"))
+        self.assertFalse(route.free_box_claim_request("claim paid mystery box"))
+        self.assertFalse(route.free_box_claim_request("how can I claim my free daily mystery box?"))
+        self.assertFalse(route.free_box_claim_request("do not claim my free daily mystery box"))
+        self.assertFalse(route.free_box_claim_request("claim free box for <@123456789012345678>"))
+
     def test_free_access_opens_real_shop_not_fake_slash_command(self):
         for prompt in (
             "open free access menu",
