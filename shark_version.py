@@ -1,3 +1,3 @@
 """Public SharkBot release version (major.minor)."""
 
-SHARKBOT_VERSION = "2.14"
+SHARKBOT_VERSION = "2.16"
