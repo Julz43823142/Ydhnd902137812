@@ -2965,8 +2965,8 @@
         "url": "https://lichess.org/training/gCkA1",
         "title": "Lichess • 1799",
         "fen": "r4r1k/5pp1/4p1Pb/qB4P1/2P5/1K1n1P2/1Q6/7R w - - 0 30",
-        "current_fen": "r4rk1/5pp1/4p1PR/qB4P1/2P5/1K1n1P2/1Q6/8 w - - 1 31",
-        "last_move_uci": "h8g8",
+        "current_fen": "r4r1k/5pp1/4p1P1/qB4P1/2P5/1K1n1P2/1Q6/8 w - - 0 32",
+        "last_move_uci": "g8h8",
         "pgn": "Rxh6+ Kg8 Rh8+ Kxh8 Qh2+ Kg8 Qh7#",
         "all_moves": [
           {
@@ -3036,16 +3036,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_gCkA1_1792180522253",
         "rating": 1799,
-        "next_solution_index": 2,
+        "next_solution_index": 4,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1560742975020212318,
+      "message_id": 1560742995454599169,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792180527.1495948,
-      "last_feedback": "✅ **Rxh6+** • Opponent: **Kg8**"
+      "last_card_activity_at": 1792180529.8611357,
+      "last_feedback": "✅ **Rh8+** • Opponent: **Kxh8**"
     },
     "362606514764251137": {
       "active": false,
