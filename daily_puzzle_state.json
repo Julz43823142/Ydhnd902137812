@@ -2957,7 +2957,7 @@
       "started_at": 1792184249.1924014,
       "run_id": "rush:442597396195704832:1792184249192",
       "end_at": 1792184549.1924014,
-      "score": 9,
+      "score": 10,
       "wrong": 1,
       "mistakes": [
         {
@@ -2980,120 +2980,75 @@
       ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/C5Hwn",
-        "title": "Lichess • 1540",
-        "fen": "8/8/4BK2/4p1p1/4Pn1k/7P/8/8 b - - 0 50",
-        "current_fen": "8/8/3KP3/8/8/7k/6p1/8 b - - 0 55",
-        "last_move_uci": "e5e6",
-        "pgn": "Nxe6 Kxe6 Kxh3 Kxe5 g4 Kd6 g3 e5 g2 e6 g1=Q",
+        "url": "https://lichess.org/training/6nbla",
+        "title": "Lichess • 1633",
+        "fen": "4b3/1B1k4/2p1p3/2PpPpK1/3P4/4P3/8/8 w - - 3 42",
+        "current_fen": "4b3/1B1k4/2p1p3/2PpPpK1/3P4/4P3/8/8 w - - 3 42",
+        "last_move_uci": "e7d7",
+        "pgn": "Kf6 Bh5 Bxc6+ Kxc6 Kxe6",
         "all_moves": [
           {
-            "uci": "f4e6",
-            "san": "Nxe6",
+            "uci": "g5f6",
+            "san": "Kf6",
+            "color": "white"
+          },
+          {
+            "uci": "e8h5",
+            "san": "Bh5",
+            "color": "black"
+          },
+          {
+            "uci": "b7c6",
+            "san": "Bxc6+",
+            "color": "white"
+          },
+          {
+            "uci": "d7c6",
+            "san": "Kxc6",
             "color": "black"
           },
           {
             "uci": "f6e6",
             "san": "Kxe6",
             "color": "white"
-          },
-          {
-            "uci": "h4h3",
-            "san": "Kxh3",
-            "color": "black"
-          },
-          {
-            "uci": "e6e5",
-            "san": "Kxe5",
-            "color": "white"
-          },
-          {
-            "uci": "g5g4",
-            "san": "g4",
-            "color": "black"
-          },
-          {
-            "uci": "e5d6",
-            "san": "Kd6",
-            "color": "white"
-          },
-          {
-            "uci": "g4g3",
-            "san": "g3",
-            "color": "black"
-          },
-          {
-            "uci": "e4e5",
-            "san": "e5",
-            "color": "white"
-          },
-          {
-            "uci": "g3g2",
-            "san": "g2",
-            "color": "black"
-          },
-          {
-            "uci": "e5e6",
-            "san": "e6",
-            "color": "white"
-          },
-          {
-            "uci": "g2g1q",
-            "san": "g1=Q",
-            "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "f4e6",
-            "san": "Nxe6",
-            "color": "black"
+            "uci": "g5f6",
+            "san": "Kf6",
+            "color": "white"
           },
           {
-            "uci": "h4h3",
-            "san": "Kxh3",
-            "color": "black"
+            "uci": "b7c6",
+            "san": "Bxc6+",
+            "color": "white"
           },
           {
-            "uci": "g5g4",
-            "san": "g4",
-            "color": "black"
-          },
-          {
-            "uci": "g4g3",
-            "san": "g3",
-            "color": "black"
-          },
-          {
-            "uci": "g3g2",
-            "san": "g2",
-            "color": "black"
-          },
-          {
-            "uci": "g2g1q",
-            "san": "g1=Q",
-            "color": "black"
+            "uci": "f6e6",
+            "san": "Kxe6",
+            "color": "white"
           }
         ],
-        "player_color": "black",
-        "player_move_count": 6,
-        "posted_at": "2026-10-16T20:59:06.363693+00:00",
+        "player_color": "white",
+        "player_move_count": 3,
+        "posted_at": "2026-10-16T20:59:27.868803+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_C5Hwn_1792184346363",
-        "rating": 1540,
-        "next_solution_index": 10,
+        "puzzle_id": "practice_rush_442597396195704832_6nbla_1792184367868",
+        "rating": 1633,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1560759078882377849,
+      "message_id": 1560759091822071940,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792184364.6870012,
-      "last_feedback": "✅ **g2** • Opponent: **e6**"
+      "last_card_activity_at": 1792184367.8631926,
+      "last_feedback": "✅ **g1=Q** — solved! Score: **10**."
     },
     "362606514764251137": {
       "active": false,
