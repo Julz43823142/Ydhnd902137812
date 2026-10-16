@@ -5,6 +5,10 @@ on:
     branches: [main]
     paths:
       - 'bot.py'
+      - 'shark_ai.py'
+      - 'shark_commands.py'
+      - 'shark_dispatch.py'
+      - 'test_shark*.py'
       - 'chess_play.py'
       - 'fairplay*.py'
       - 'scripts/prepare_stockfish.py'
