@@ -73,7 +73,7 @@ def _metric(prompt):
     lower = prompt.casefold()
     if re.search(r"\b(?:starve|starved|starvation|verhongerd|verhongeren|verhongering)\b", lower) and re.search(ANIMALS, lower):
         return "starved"
-    if re.search(r"\b(?:memorial|dead|dode|dood|overleden|gestorven)\b", lower) and re.search(ANIMALS, lower):
+    if re.search(r"\b(?:memorial|dead|dode|dood|overleden|gestorven)\b", lower) and (re.search(ANIMALS, lower) or "memorial" in lower):
         return "dead"
     if re.search(r"\b(?:unique|unieke|verschillende|distinct)\b", lower) and re.search(r"\b(?:badges?|insignes?)\b", lower):
         return "unique_badges"
@@ -145,11 +145,11 @@ def answer(prompt, guild, author, channel_id=None):
             metric = "dead"
         elif re.search(r"\b(?:living|levende)\b", word) and prior[1] in {"pets", "dead", "starved", "killed"}:
             metric = "pets"
-    if metric is None or not re.search(
+    if metric is None or (not re.search(
         r"\b(?:how many|hoeveel|what|wat|who|wie|which|welke|compare|vergelijk|"
         r"do|does|did|has|have|heeft|kill|killed|gekild|gedood|murder|vermoord)\b",
         prompt, re.I,
-    ) and not (prior and followup):
+    ) and not (prior and followup)):
         return None
     lower = prompt.casefold()
     if metric == "coins" and re.search(r"\b(?:richest|rijkste|most coins|meeste munten)\b", lower):
