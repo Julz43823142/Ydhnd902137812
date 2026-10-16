@@ -233,10 +233,31 @@ def free_access_command(prompt):
     the existing owner-bound button and daily eligibility checks.
     """
     text = prompt.strip().casefold()
-    if re.search(r"\b(?:free\s+(?:access|daily\s+(?:mystery\s+)?box)|gratis\s+(?:toegang|dagelijkse\s+(?:mystery\s+)?box))\b", text):
+    if re.search(r"\b(?:free\s+(?:access|(?:(?:daily|mystery)\s+){0,2}box)|gratis\s+(?:toegang|dagelijkse\s+(?:mystery\s+)?box))\b", text):
         if re.search(r"\b(?:open|show|give|claim|use|access|want|get|where|take|start|can|please|free|gratis|toon|openen|geef|pak|haal|laat|wil)\b", text):
             return "!shop"
     return None
+
+
+def free_box_claim_request(prompt):
+    """A free claim requires an explicit request, not merely opening a menu.
+
+    No recipient or paid-box variant is accepted here. The authenticated
+    message author becomes the backend claim owner.
+    """
+    text = str(prompt or "").casefold()
+    free_box = re.search(
+        r"\b(?:free\s+(?:(?:daily|mystery)\s+){0,2}box|"
+        r"gratis\s+(?:(?:dagelijkse|mystery)\s+){0,2}box)\b",
+        text,
+    )
+    wants_claim = re.search(
+        r"\b(?:claim|redeem|collect|open\s+(?:my|the|a)\s+free|"
+        r"give\s+me|pak|claimen|ophalen)\b",
+        text,
+    )
+    paid = re.search(r"\b(?:paid|buy|purchase|for\s+\d+\s+coins?)\b", text)
+    return bool(free_box and wants_claim and not paid)
 
 
 def _is_chat_channel(channel_id):
