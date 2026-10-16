@@ -4,6 +4,10 @@ from collections import defaultdict, deque
 import os
 import re
 import time
+import sqlite3
+from datetime import datetime
+from pathlib import Path
+from zoneinfo import ZoneInfo
 
 from shark_version import SHARKBOT_VERSION
 
@@ -192,6 +196,39 @@ async def _summarize_for_discord(draft):
     return _fit_reply(_close_incomplete_reply(draft))
 
 
+_ANSWER_DB = Path(os.getenv("SHARKBOT_ANSWER_COUNT_DB", "shark_answer_counts.sqlite3"))
+_ANSWER_TZ = ZoneInfo("Europe/Amsterdam")
+
+
+def _answer_count(guild_id, increment=False):
+    """Persistent local count of replies successfully sent by this handler."""
+    today = datetime.now(_ANSWER_TZ).date().isoformat()
+    with sqlite3.connect(_ANSWER_DB, timeout=5) as db:
+        db.execute("CREATE TABLE IF NOT EXISTS daily_answers (day TEXT NOT NULL, guild_id TEXT NOT NULL, count INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(day, guild_id))")
+        if increment:
+            db.execute("INSERT INTO daily_answers(day, guild_id, count) VALUES (?, ?, 1) ON CONFLICT(day, guild_id) DO UPDATE SET count=count+1", (today, str(guild_id)))
+        row = db.execute("SELECT count FROM daily_answers WHERE day=? AND guild_id=?", (today, str(guild_id))).fetchone()
+        return row[0] if row else 0
+
+
+async def _counted_reply(message, *args, **kwargs):
+    sent = await message.reply(*args, **kwargs)
+    try:
+        await asyncio.to_thread(_answer_count, message.guild.id, True)
+    except (OSError, sqlite3.Error):
+        pass  # Never break a Discord reply because local metrics are unavailable.
+    return sent
+
+
+def _is_daily_answer_question(prompt):
+    return bool(re.search(
+        r"(?i)\\b(?:hoeveel|how many)\\b.{0,90}\\b(?:vragen|questions|berichten|messages)\\b"
+        r".{0,90}\\b(?:vandaag|today)\\b|"
+        r"\\b(?:hoeveel|how many)\\b.{0,90}\\b(?:vandaag|today)\\b"
+        r".{0,90}\\b(?:vragen|questions|berichten|messages)\\b", prompt,
+    ))
+
+
 async def handle_mention(message, client):
     """Return True only if a message was handled as a chat mention."""
     if not message.guild or not client.user:
@@ -200,7 +237,7 @@ async def handle_mention(message, client):
     from shark_dispatch import dispatch_existing_command
     confirmed = consume_confirmation(message, client.user.id)
     if confirmed is True:
-        await message.reply("Cancelled.", mention_author=False, allowed_mentions=discord.AllowedMentions.none())
+        await _counted_reply(message,"Cancelled.", mention_author=False, allowed_mentions=discord.AllowedMentions.none())
         return True
     if isinstance(confirmed, str):
         await dispatch_existing_command(message, client, confirmed)
@@ -247,7 +284,7 @@ async def handle_mention(message, client):
         prompt,
     )
     if private_question or (role_claim and privileged_request):
-        await message.reply(
+        await _counted_reply(message,
             "I can help with public SharkBot features, but I can't provide "
             "private technical details or grant special permissions.",
             mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
@@ -255,7 +292,7 @@ async def handle_mention(message, client):
         return True
     # Keep the public version factual even without a Groq request.
     if re.fullmatch(r"(?:hey[ ,]+)?(?:(?:what(?:\u0027s| is)?|which)\s+(?:(?:your|the|sharkbot)\s+)?version(?:\s+(?:are (?:you|u)|is this|is sharkbot|do you run))?|(?:sharkbot\s+)?version|welke\s+versie\s+ben\s+jij|wat\s+is\s+(?:je|jouw)\s+versie)\??", prompt, re.I):
-        await message.reply(
+        await _counted_reply(message,
             SHARKBOT_VERSION,
             mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
         )
@@ -270,7 +307,7 @@ async def handle_mention(message, client):
         r"wijzigingen?\s+(?:in|tussen)\s+versies?)\b",
         prompt, re.I,
     ):
-        await message.reply(
+        await _counted_reply(message,
             SHARKBOT_VERSION,
             mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
         )
@@ -281,7 +318,7 @@ async def handle_mention(message, client):
         r"\b(?:instructions?\s+you\s+follow|regels?\s+van\s+(?:de\s+)?bot)\b",
         prompt, re.I,
     ):
-        await message.reply(
+        await _counted_reply(message,
             "I can help with chess and public gameplay.",
             mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
         )
@@ -294,7 +331,7 @@ async def handle_mention(message, client):
         weight = BADGE_RARITY_WEIGHTS["legendary"]
         total = sum(BADGE_RARITY_WEIGHTS.values())
         chance = 100 * weight / total
-        await message.reply(
+        await _counted_reply(message,
             f"The chance of a Legendary badge from a normal Mystery Box, "
             f"including the free daily box, is **{chance:g}%** per box. "
             "You can open the shop with `!shop`.",
@@ -304,7 +341,7 @@ async def handle_mention(message, client):
     if re.search(r"\b(?:code|source\s*code|broncode)\b", prompt, re.I) and re.search(
         r"\b(?:see|read|access|view|zien|lezen|bekijken|toegang)\b", prompt, re.I
     ):
-        await message.reply(
+        await _counted_reply(message,
             "No. I can answer questions about public SharkBot features and "
             "game rules, but I cannot access or reveal the bot's source code "
             "or private settings.",
@@ -326,11 +363,19 @@ async def handle_mention(message, client):
         r"release\s*history|update\s*history)\b",
         prompt, re.I,
     ):
-        await message.reply(
+        await _counted_reply(message,
             "I can help with public SharkBot gameplay and chess questions, "
             "but I can't discuss internal systems, security or development details.",
             mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
         )
+        return True
+    if _is_daily_answer_question(prompt):
+        try:
+            count = await asyncio.to_thread(_answer_count, message.guild.id)
+            reply = f"Today I've answered **{count}** questions in this server (Amsterdam time)."
+        except (OSError, sqlite3.Error):
+            reply = "I can't read today's answer count right now."
+        await message.reply(reply, mention_author=False, allowed_mentions=discord.AllowedMentions.none())
         return True
     # Direct, authenticated gameplay statistics are independent of the AI model.
     # Read-only: no generated or user-supplied IDs can change game state.
@@ -340,7 +385,7 @@ async def handle_mention(message, client):
             answer_player_stats, prompt, message.guild, message.author
         )
         if factual is not None:
-            await message.reply(
+            await _counted_reply(message,
                 factual, mention_author=False,
                 allowed_mentions=discord.AllowedMentions.none(),
             )
@@ -351,7 +396,7 @@ async def handle_mention(message, client):
     from shark_commands import free_access_command, free_box_claim_request, _is_chat_channel, PRIMARY_CHESS_CHANNEL_ID, SECONDARY_CHESS_CHANNEL_ID
     if free_access_command(prompt):
         if not _is_chat_channel(message.channel.id):
-            await message.reply(
+            await _counted_reply(message,
                 "The free daily Mystery Box is in the Shark Shop. Ask me in "
                 f"<#{PRIMARY_CHESS_CHANNEL_ID}> or <#{SECONDARY_CHESS_CHANNEL_ID}> "
                 "to open that menu.",
@@ -363,7 +408,7 @@ async def handle_mention(message, client):
             _cleanup_caches(now)
             claim_key = (message.guild.id, message.author.id)
             if now - _last_claim.get(claim_key, -1e9) < CLAIM_COOLDOWN_SECONDS:
-                await message.reply(
+                await _counted_reply(message,
                     "Please wait before retrying your free box claim.",
                     mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
                 )
@@ -378,7 +423,7 @@ async def handle_mention(message, client):
                     claim_daily_mystery_box, message.author.id, message.author.display_name
                 )
             except Exception:
-                await message.reply(
+                await _counted_reply(message,
                     "I couldn't confirm your free Mystery Box claim. "
                     "Please retry or use the Free Daily Mystery Box button in !shop. "
                     "No paid box was purchased.",
@@ -399,13 +444,13 @@ async def handle_mention(message, client):
                     f"({discord.utils.escape_markdown(str(receipt.get('rarity_label', '?')))}). "
                     "No coins spent."
                 )
-            await message.reply(
+            await _counted_reply(message,
                 answer, mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
             )
             return True
         opened = await dispatch_existing_command(message, client, "!shop")
         if not opened:
-            await message.reply(
+            await _counted_reply(message,
                 "I couldn't open the Shark Shop here. Please try `!shop` in a chess channel.",
                 mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
             )
@@ -419,7 +464,7 @@ async def handle_mention(message, client):
         donation = await plan_mention(message, prompt, no_model)
         if isinstance(donation, str):
             if not await dispatch_existing_command(message, client, donation):
-                await message.reply(
+                await _counted_reply(message,
                     "That donation command could not be started here.",
                     mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
                 )
@@ -476,5 +521,5 @@ async def handle_mention(message, client):
                 reply = "I can help with chess and public SharkBot gameplay."
             _history[scope].append((time.monotonic(), "user", speaker_prompt))
             _history[scope].append((time.monotonic(), "assistant", reply))
-        await message.reply(reply, mention_author=False, allowed_mentions=discord.AllowedMentions.none())
+        await _counted_reply(message,reply, mention_author=False, allowed_mentions=discord.AllowedMentions.none())
     return True
