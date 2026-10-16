@@ -106,23 +106,9 @@
           "url": "https://lichess.org/training/zmPWu",
           "start_fen": "8/5pkp/4p1p1/4P1P1/p1nP1B2/2P5/P4K1P/r3R3 b - - 5 38",
           "current_fen": "8/5pkp/4p1p1/4P1P1/p1nP1B2/2P2K2/r6P/4R3 b - - 1 39",
-          "solution": [
-            {
-              "uci": "a1a2",
-              "san": "Rxa2+",
-              "color": "black"
-            },
-            {
-              "uci": "f2f3",
-              "san": "Kf3",
-              "color": "white"
-            },
-            {
-              "uci": "a4a3",
-              "san": "a3",
-              "color": "black"
-            }
-          ],
+          "solution": {
+            "__shark_answer_ciphertext_v1__": "gAAAAABq0qC2yfZYfydNqmPXoEuAF_q0TQAgesr0QquBV_Ry5DPrO1nG1fGrrMH0l5eRCFtpjbcdsGa_bauY7gSPEFijfmI5ut-G8a1kGeITS96oHFu7txaHOZVCFSU0_rZuCvhVKYsfr97EE-X7m3QEsYC-a5jK_epx8N5Q0r_icpMLHKXibCK0Y5-waU7CpXVTzoGuX1r98P-1SGGGT1cUawcnuI1rK4TxxB0ijd2yL70bPn_TikOEUef638c03F6QxJRBU45_"
+          },
           "player_color": "black",
           "next_solution_index": 2,
           "first_solver_id": null,
@@ -236,23 +222,9 @@
           "url": "https://lichess.org/training/sK6Js",
           "start_fen": "5qk1/1p4p1/2p1p1Bp/p2nP3/3P3P/P4Q2/1P4P1/6K1 w - - 1 36",
           "current_fen": "5qk1/1p4p1/2p1p1Bp/p2nP3/3P3P/P4Q2/1P4P1/6K1 w - - 1 36",
-          "solution": [
-            {
-              "uci": "g6h7",
-              "san": "Bh7+",
-              "color": "white"
-            },
-            {
-              "uci": "g8h7",
-              "san": "Kxh7",
-              "color": "black"
-            },
-            {
-              "uci": "f3f8",
-              "san": "Qxf8",
-              "color": "white"
-            }
-          ],
+          "solution": {
+            "__shark_answer_ciphertext_v1__": "gAAAAABq0qC2cZSbLKKxF08aALWw9nnNrCfhwJuuGHQRjyiTpvZrhSMUV0iOp0yonMY7NfhgTAflXYr5dm5KobcvpxwtqvvoLaoE3rgmIlTsCzwMOH57q62ptxqJD39DqMgIpZYqHJliLrgStu3xMqitR3jPUFgH6cDS3Jo4TnrgD56nGUhig6UQUfVPOIUnjtvRJZTHDP360z2prdLFzM97gycvAqaog2YgSk3Y24MMfdXiTiVRWPStZQUmfBOMoYPW4qvbKy90"
+          },
           "player_color": "white",
           "next_solution_index": 0,
           "first_solver_id": null,
@@ -307,23 +279,9 @@
           "url": "https://lichess.org/training/ZvvAT",
           "start_fen": "8/2P5/R4bk1/3K4/1p4p1/1P6/P7/2r5 w - - 1 62",
           "current_fen": "8/2P5/R4bk1/3K4/1p4p1/1P6/P7/2r5 w - - 1 62",
-          "solution": [
-            {
-              "uci": "a6c6",
-              "san": "Rc6",
-              "color": "white"
-            },
-            {
-              "uci": "c1c6",
-              "san": "Rxc6",
-              "color": "black"
-            },
-            {
-              "uci": "d5c6",
-              "san": "Kxc6",
-              "color": "white"
-            }
-          ],
+          "solution": {
+            "__shark_answer_ciphertext_v1__": "gAAAAABq0qC2LQB1FAgXvRDkP8gZ9Gni34AE4PsXIGD8vHIqEvkoguYsspQaUxfh3ewGw5hU76rR77KnboZM9jNqVS8wkG2vHjHI42mOPJcbek_rUHEoe8uUL9-jq0I-D5uiMjKHyGPMg2cK9Cv1xzZwUzA2SfPgKGg7Mk9FuNARYzh37jQVMTtF3VzLXrM-hpL-YJFonlspht0-aCLL9DdGSQmvdzJ4d5kRlQyj9fM1iKvDdJNrt-_Zh4YGvFDJ40jfRlQ-LjD8"
+          },
           "player_color": "white",
           "next_solution_index": 0,
           "first_solver_id": null,
@@ -395,33 +353,9 @@
           "url": "https://lichess.org/training/powne",
           "start_fen": "3r2k1/1p1q1p1p/4P1p1/p6P/2p5/b1K3Q1/P1P2PP1/3R3R b - - 0 24",
           "current_fen": "3r2k1/1p1q1p1p/4P1p1/p6P/2p5/b1K3Q1/P1P2PP1/3R3R b - - 0 24",
-          "solution": [
-            {
-              "uci": "a3b4",
-              "san": "Bb4+",
-              "color": "black"
-            },
-            {
-              "uci": "c3b2",
-              "san": "Kb2",
-              "color": "white"
-            },
-            {
-              "uci": "c4c3",
-              "san": "c3+",
-              "color": "black"
-            },
-            {
-              "uci": "g3c3",
-              "san": "Qxc3",
-              "color": "white"
-            },
-            {
-              "uci": "b4c3",
-              "san": "Bxc3+",
-              "color": "black"
-            }
-          ],
+          "solution": {
+            "__shark_answer_ciphertext_v1__": "gAAAAABq0qC2ivyYpibjJL3ExNIUyMiRaQH_Y6pq2ehSOVWA8fut7nJv0uCV2uueSDrwsqGCIxnzEYn1tYam7R-ynaoiNZD-yG9G8FB10JOJUv7NbugyFuyDvmm_8ZI48vVD970ZSfGzFvzj0KreX2vAckHCYtYWuunlzqcCBnx0pAuiuZFD9d_8I58q-XhCWLS3X8WYPmFjkJw24tFreh9MHQZgtTvSZJY3Csdpv3FPkBy2SNds_wpzyjQoNSYNI2xSgBscf6ChcIcnoZJud_TwkePFBSeOxzKuOfPJgYjxwAPRlPMjXsksEC1MTS_E7FWw6aw0qW_ax6GAG0jOTuJIQYmGZ1TuuZLKsK9GtbsmVRNB2VmZCX4="
+          },
           "player_color": "black",
           "next_solution_index": 0,
           "first_solver_id": null,
@@ -481,23 +415,9 @@
           "url": "https://lichess.org/training/gSEWq",
           "start_fen": "rnq2r2/1Q2b1pk/p1p3p1/4N3/3PpBP1/4P3/PP3PK1/R4R2 b - - 2 20",
           "current_fen": "rnq2r2/1Q2b1pk/p1p3p1/4N3/3PpBP1/4P3/PP3PK1/R4R2 b - - 2 20",
-          "solution": [
-            {
-              "uci": "c8b7",
-              "san": "Qxb7",
-              "color": "black"
-            },
-            {
-              "uci": "f1h1",
-              "san": "Rh1+",
-              "color": "white"
-            },
-            {
-              "uci": "h7g8",
-              "san": "Kg8",
-              "color": "black"
-            }
-          ],
+          "solution": {
+            "__shark_answer_ciphertext_v1__": "gAAAAABq0qC2A6XHFb0Nz_wg-H08kskh0zzc4GmiMkeiuvraFWkaCkHF1PcHnS27C7QL1iBpElZ8dvkmyeM5lHZ2nDYZmQVBvn0vAK4otQPc3rwls_VWYBos_8UrvGWjIDEU5ryiu0WFzfvkAPg2mxwwBeF_ejwDfT9-JipFVVXTwMlbE1W2XQcXlcytJ5FWz1BFE9wiE7zZdtH5gfJQ89vRJo5HfTdiB2b0iJdaHAnlap_pqTJMCrYo7_l2cd6Rp7mFge7IeEU4"
+          },
           "player_color": "black",
           "next_solution_index": 0,
           "first_solver_id": null,
@@ -607,23 +527,9 @@
           "url": "https://lichess.org/training/r9avF",
           "start_fen": "r7/1P2p1k1/3pP3/2pP1p2/2Pb2pR/1Q4P1/4BPK1/2q5 b - - 0 40",
           "current_fen": "r7/1P2p1k1/3pP3/2pP1p2/2Pb2pR/1Q4P1/4BPK1/2q5 b - - 0 40",
-          "solution": [
-            {
-              "uci": "c1e1",
-              "san": "Qe1",
-              "color": "black"
-            },
-            {
-              "uci": "b3b1",
-              "san": "Qb1",
-              "color": "white"
-            },
-            {
-              "uci": "e1f2",
-              "san": "Qxf2+",
-              "color": "black"
-            }
-          ],
+          "solution": {
+            "__shark_answer_ciphertext_v1__": "gAAAAABq0qC2s0QRVG1KQRSGosyo19YKNFTqiOrt5I9nAOX4u9pGNn_6O9Ac9ni36RTeO_xM9i_5FqPnD3Yr2LtgjWBaNQHLs3cr82KvE0AYaIJdn7ffWUvz24BR3ODX04JMtqtxvRahyXoPdkBZ2PzaPqrzX__4JElP_9r-svPoW1Co6jZFT-Bz25nRUJmTi9141M0eJOsMepBUNy55PhIHDIjHu0VWq9zdn_mnnnujvOrGRp-LLVXS7ggQFDYavzCBVCs6iWSp"
+          },
           "player_color": "black",
           "next_solution_index": 0,
           "first_solver_id": null,
@@ -691,23 +597,9 @@
           "url": "https://lichess.org/training/G9TZa",
           "start_fen": "8/6rk/5Q1p/3RPnq1/8/6P1/5PKP/8 b - - 2 40",
           "current_fen": "8/6rk/5Q1p/3RPnq1/8/6P1/5PKP/8 b - - 2 40",
-          "solution": [
-            {
-              "uci": "f5h4",
-              "san": "Nh4+",
-              "color": "black"
-            },
-            {
-              "uci": "g2f1",
-              "san": "Kf1",
-              "color": "white"
-            },
-            {
-              "uci": "g5c1",
-              "san": "Qc1+",
-              "color": "black"
-            }
-          ],
+          "solution": {
+            "__shark_answer_ciphertext_v1__": "gAAAAABq0qC2IuItK8_Px47q9jNK553PuwYHJLt8Ks9OJzOP7JmYOQDV2KB-A4jIbZCLZ-oniWmXmgzg4fEPsIgBDHKg5zDsjSLw6tNKbdmgIiHRF8mEL6o50h2a_dd4JuE-g56Gn6DlJzxUM7t5_8hVzsfmljIdg1LV-hFzVBcYJqPKsSt09VztmKTxdVtVyaXzKRrs0DV5zCNif5g-XUK2Fb_Rie7Lw4gYygRqHJgeS7S5cyHgxrd-k9FXaRPLatA9GIrlVKbJ"
+          },
           "player_color": "black",
           "next_solution_index": 0,
           "first_solver_id": null,
@@ -775,23 +667,9 @@
           "url": "https://lichess.org/training/6nBPi",
           "start_fen": "4Q3/6pk/p5rp/1p6/4p3/1B1q2P1/P4P1P/5K2 w - - 1 37",
           "current_fen": "4Q3/6pk/p5rp/1p6/4p3/1B1q2P1/P4P1P/5K2 w - - 1 37",
-          "solution": [
-            {
-              "uci": "f1g2",
-              "san": "Kg2",
-              "color": "white"
-            },
-            {
-              "uci": "d3b3",
-              "san": "Qxb3",
-              "color": "black"
-            },
-            {
-              "uci": "a2b3",
-              "san": "axb3",
-              "color": "white"
-            }
-          ],
+          "solution": {
+            "__shark_answer_ciphertext_v1__": "gAAAAABq0qC2-ZCcbeBZL-7JMD536jfR16QylHmc1B3i2MI_trjpdZNlMFVQFHVeepU8FUHsVhOKB5KbHXU7GE-dsbxXDyrytbdaGhXiNLIJy3Jrv2qOa92tWIU90zkAKODMBFisD6VC9rNUh2BSL-7ZUMohW6cc9UzNk2-cX3DEhkpllgsDEbo23paMtbS48Kktkkcv1VOvA2EDlKOEpDW871QTe562VTD7BKdkmNBST1HQm9u2BXW4ep4PBvRwpXdQBXeuZ4LD"
+          },
           "player_color": "white",
           "next_solution_index": 0,
           "first_solver_id": null,
