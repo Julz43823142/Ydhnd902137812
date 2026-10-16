@@ -208,7 +208,12 @@ def load_json(
                 encoding="utf-8"
             )
         )
+        if filename == SURVIVAL_STATE_FILE:
+            from shark_state_privacy import open_state
+            return open_state(data)
         return data
+    except RuntimeError:
+        raise  # Never discard encrypted puzzle state after a key change.
     except Exception:
         return default
 
@@ -217,6 +222,9 @@ def save_json(
     filename,
     data,
 ):
+    if filename == SURVIVAL_STATE_FILE:
+        from shark_state_privacy import seal_state
+        data = seal_state(data)
     path = Path(filename)
     temp = path.with_suffix(
         ".tmp"
@@ -258,6 +266,9 @@ def push_state_files():
     """Publish only Survival state, retrying atop concurrent bots' commits."""
     branch = git_branch()
     payload = Path(SURVIVAL_STATE_FILE).read_text(encoding="utf-8")
+    from shark_state_privacy import is_sealed
+    if not is_sealed(json.loads(payload)):
+        raise RuntimeError("Refusing to publish unencrypted Survival answers")
     def run(*args, env=None, data=None):
         result = subprocess.run(["git", *args], input=data, text=True,
                                 capture_output=True, timeout=30, env=env)
@@ -332,6 +343,10 @@ def load_remote_runs():
         return None
     try:
         data = json.loads(result.stdout)
+        from shark_state_privacy import open_state
+        data = open_state(data)
+    except RuntimeError:
+        raise
     except Exception:
         return None
     if not isinstance(data, dict):
@@ -2291,6 +2306,12 @@ class SurvivalBot(
         )
 
         self.state = load_runs()
+        # Seal legacy plaintext solutions immediately on worker startup.
+        if os.getenv("DISCORD_TOKEN") and Path(SURVIVAL_STATE_FILE).exists():
+            from shark_state_privacy import is_sealed
+            persisted = json.loads(Path(SURVIVAL_STATE_FILE).read_text(encoding="utf-8"))
+            if not is_sealed(persisted):
+                save_state(self.state, push=True)
         self.pending_team = None
         self.game_lock = asyncio.Lock()
         self.puzzle_fetches = {}

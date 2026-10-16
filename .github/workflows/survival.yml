@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'survival_bot.py'
+      - 'shark_state_privacy.py'
       - 'shared_leaderboard.py'
       - 'pets.py'
       - 'shop_catalog.py'
@@ -41,7 +42,7 @@ jobs:
       - name: Install requirements
         run: |
           python -m pip install --upgrade pip
-          pip install "discord.py==2.7.1" requests python-chess cairosvg
+          pip install "discord.py==2.7.1" requests python-chess cairosvg cryptography
 
       - name: Verify Survival puzzle validation
         run: |
@@ -79,6 +80,7 @@ jobs:
         run: python survival_bot.py
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          SHARK_STATE_ENCRYPTION_KEY: ${{ secrets.SHARK_STATE_ENCRYPTION_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_REF_NAME: ${{ github.ref_name }}

@@ -867,8 +867,16 @@ def load_json(filename, default):
             encoding="utf-8"
         ) as file:
 
-            return json.load(file)
+            data = json.load(file)
+            if filename == STATE_FILE:
+                from shark_state_privacy import open_state
+                return open_state(data)
+            return data
 
+    except RuntimeError:
+        if filename == STATE_FILE:
+            raise  # Never overwrite encrypted state with an empty default.
+        raise
     except Exception as error:
 
         print(
@@ -882,6 +890,9 @@ def load_json(filename, default):
 def save_json(filename, data):
 
     try:
+        if filename == STATE_FILE:
+            from shark_state_privacy import seal_state
+            data = seal_state(data)
 
         with open(
             filename,
@@ -1184,6 +1195,9 @@ def push_to_github():
         try:
             with open(STATE_FILE, "r", encoding="utf-8") as file:
                 state_text = file.read()
+            from shark_state_privacy import is_sealed
+            if not is_sealed(json.loads(state_text)):
+                raise RuntimeError("Refusing to publish unencrypted puzzle answers")
 
             for attempt in range(1, 9):
                 if not shared_ledger._fetch_retry():
@@ -1372,10 +1386,11 @@ async def daily_workflow_rotation_loop():
 
 async def save_all(wait_for_remote=False):
 
-    save_json(
+    if not save_json(
         STATE_FILE,
         state
-    )
+    ):
+        return False
 
     task = queue_github_sync()
     if wait_for_remote and task is not None:
@@ -10072,8 +10087,9 @@ async def admin_color_role(user_id, color):
 
 def _serialize_daily_state(snapshot):
     """Serialize Daily-owned state exactly once for an admin correction."""
+    from shark_state_privacy import seal_state
     return json.dumps(
-        snapshot,
+        seal_state(snapshot),
         indent=2,
         ensure_ascii=False,
         allow_nan=False,
@@ -10206,6 +10222,9 @@ async def admin_edit_daily_record(actor_id, user_id, name, operation, field, val
             history[transaction_id] = {"at": when, "result": result}
 
         desired_state_text = _serialize_daily_state(state)
+        from shark_state_privacy import is_sealed
+        if not is_sealed(json.loads(desired_state_text)):
+            raise RuntimeError("Refusing to publish unencrypted puzzle answers")
         saved = await asyncio.to_thread(
             _push_daily_admin_snapshot, desired_state_text, transaction_id
         )
@@ -10213,7 +10232,8 @@ async def admin_edit_daily_record(actor_id, user_id, name, operation, field, val
             # Roll back both memory and the runner-local mirror. The admin can
             # retry safely after checking the Daily Puzzle Actions log.
             state.clear()
-            state.update(json.loads(before_state_text))
+            from shark_state_privacy import open_state
+            state.update(open_state(json.loads(before_state_text)))
             save_json(STATE_FILE, state)
             raise RuntimeError(
                 "Daily admin correction was not saved remotely; in-memory change rolled back."
@@ -20121,13 +20141,7 @@ async def on_message(
         # Runtime build check. Safe for everyone; it changes no data.
         if command_lower in ("!v", "!version"):
             from shark_version import SHARKBOT_VERSION
-            await message.channel.send(
-                f"**SharkBot version:** `{SHARKBOT_VERSION}`\n"
-                f"**Bot:** `{RP_BUILD}`\n"
-                f"**Ledger:** `{SHARED_LEDGER_BUILD}`\n"
-                f"**Puzzle Stats:** `{PUZZLE_STATS_BUILD}`\n"
-                f"**Chess Play:** `{CHESS_PLAY_BUILD}`"
-            )
+            await message.channel.send(SHARKBOT_VERSION)
             return
 
         if (command_lower.split(maxsplit=1) or [""])[0] in ("!pet", "!pets"):
@@ -20442,6 +20456,15 @@ async def on_ready():
         STATE_FILE,
         {}
     )
+    # Migrate any pre-release plaintext answers on worker startup, before
+    # future puzzle interactions can use the loaded state.
+    if os.getenv("DISCORD_TOKEN") and os.path.exists(STATE_FILE):
+        from shark_state_privacy import is_sealed
+        with open(STATE_FILE, "r", encoding="utf-8") as handle:
+            persisted = json.load(handle)
+        if not is_sealed(persisted):
+            if not await save_all(wait_for_remote=True):
+                raise RuntimeError("Could not secure Daily puzzle state on GitHub")
     pending_puzzles = [state.get('current_puzzle')] + [_latest_random_for_channel(cid) for cid in CHESS_CHANNEL_IDS]
     for pending in pending_puzzles:
         if isinstance(pending, dict) and pending.get('completion_failed') and pending.get('completion_solver_id'):
