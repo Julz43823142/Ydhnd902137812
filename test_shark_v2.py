@@ -41,7 +41,7 @@ class ReplyLimitTests(unittest.TestCase):
 
 class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
     async def test_version_works_without_groq(self):
-        user = SimpleNamespace(id=999)
+        user = SimpleNamespace(id=999, bot=False)
         bot = SimpleNamespace(id=42)
         channel = SimpleNamespace(
             id=12,
@@ -85,7 +85,7 @@ class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
 
         msg = SimpleNamespace(
             guild=SimpleNamespace(id=5, me=bot),
-            author=SimpleNamespace(id=77),
+            author=SimpleNamespace(id=77, bot=False),
             channel=channel,
             mentions=[bot],
             content="<@42> welke versie ben jij?",
