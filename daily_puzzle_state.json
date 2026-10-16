@@ -2983,8 +2983,8 @@
         "url": "https://lichess.org/training/XB8pQ",
         "title": "Lichess • 1498",
         "fen": "6k1/pp1q2p1/1n6/3p1Qnp/1b1B2P1/1PN2P2/P6P/2R3K1 b - - 0 27",
-        "current_fen": "6k1/pp1q2p1/1n6/3p1Qnp/1b1B2P1/1PN2P2/P6P/2R3K1 b - - 0 27",
-        "last_move_uci": "d3f5",
+        "current_fen": "6k1/pp4p1/1n6/3p1Pnp/1b1B4/1PN2P2/P6P/2R3K1 b - - 0 28",
+        "last_move_uci": "g4f5",
         "pgn": "Qxf5 gxf5 Nxf3+ Kh1 Nxd4",
         "all_moves": [
           {
@@ -3039,16 +3039,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_XB8pQ_1792184317740",
         "rating": 1498,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1560758881532125185,
+      "message_id": 1560758894643388452,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792184317.7343435,
-      "last_feedback": "✅ **Bxe4** — solved! Score: **7**."
+      "last_card_activity_at": 1792184322.6071103,
+      "last_feedback": "✅ **Qxf5** • Opponent: **gxf5**"
     },
     "362606514764251137": {
       "active": false,
