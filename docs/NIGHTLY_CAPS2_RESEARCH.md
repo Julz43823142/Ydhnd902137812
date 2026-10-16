@@ -1,10 +1,12 @@
-# Nightly CAPS2 accuracy research (not deployed to Discord)
+# Chess.com CAPS2 reference research (disabled pending permission)
 
-## Status and schedule
+**Disabled as of 2026-10-16.** Automatic Chess.com reference harvesting has been suspended because written authorization is required for the intended calibration use. The workflow has **no recurring schedule** and can only run after explicit manual dispatch with repository variable `CHESSCOM_RESEARCH_WRITTEN_AUTHORIZATION=true` set following appropriate written permission. See [the independent Stockfish alternative](INDEPENDENT_FORMULA_RESEARCH.md).
+
+## Previous schedule (INACTIVE)
 
 The research workflow is `.github/workflows/nightly_caps2_research.yml`.
 
-- Scheduled **every day at 00:07, 01:07, ..., 08:07 Europe/Amsterdam** (DST-aware, including winter and summer time).
+- **No automatic research is currently scheduled.** The former schedule was 00:07 to 08:07 Europe/Amsterdam; the notes here describe that historical design.
 - Work is allowed only during **00:00-09:00 local time**. Every run checks the clock before provisioning and again before every move. Long-running analysis is interrupted at the cutoff; partial games are never treated as completed.
 - Runs for at most 42 minutes of analysis per hourly execution, with runner timeout 58 minutes, leaving overhead for engine preparation and git state persistence. Scheduled starts are best-effort; GitHub can delay or omit runs. This is nine bounded hourly slots, **not** one guaranteed uninterrupted nine-hour process.
 - A separate queue and branch are used. The research worker does not dispatch Fair Play workers, ordinary reviews, or change `main` scoring.
@@ -43,7 +45,7 @@ Importantly, this process **cannot modify the Discord review formula or Fair Pla
 
 - Scheduled workflow and runs: [Nightly accuracy research](../../actions/workflows/nightly_caps2_research.yml)
 - Checkpoints: [Research state branch](../../tree/caps2-research-state/research/caps2) (appears after first successful active-night run).
-- The workflow can be manually dispatched, but if the Dutch local time is outside the window it **skips** engine computation.
+- The workflow requires a manual dispatch **and** the written-authorization repository flag. Even with authorization, it skips engine computation outside the Dutch nightly window.
 
 Offline tests:
 
