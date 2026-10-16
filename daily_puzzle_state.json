@@ -2957,7 +2957,7 @@
       "started_at": 1792184249.1924014,
       "run_id": "rush:442597396195704832:1792184249192",
       "end_at": 1792184549.1924014,
-      "score": 7,
+      "score": 8,
       "wrong": 1,
       "mistakes": [
         {
@@ -2980,75 +2980,75 @@
       ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/XB8pQ",
-        "title": "Lichess • 1498",
-        "fen": "6k1/pp1q2p1/1n6/3p1Qnp/1b1B2P1/1PN2P2/P6P/2R3K1 b - - 0 27",
-        "current_fen": "6k1/pp4p1/1n6/3p1P1p/1b1B4/1PN2n2/P6P/2R4K b - - 1 29",
-        "last_move_uci": "g1h1",
-        "pgn": "Qxf5 gxf5 Nxf3+ Kh1 Nxd4",
+        "url": "https://lichess.org/training/0ZN5G",
+        "title": "Lichess • 1538",
+        "fen": "3rr1k1/5pb1/6pp/2p5/Rn6/6P1/1P3PBP/2B1RK2 b - - 4 32",
+        "current_fen": "3rr1k1/5pb1/6pp/2p5/Rn6/6P1/1P3PBP/2B1RK2 b - - 4 32",
+        "last_move_uci": "g1f1",
+        "pgn": "Rxe1+ Kxe1 Nd3+ Kf1 Nxc1",
         "all_moves": [
           {
-            "uci": "d7f5",
-            "san": "Qxf5",
+            "uci": "e8e1",
+            "san": "Rxe1+",
             "color": "black"
           },
           {
-            "uci": "g4f5",
-            "san": "gxf5",
+            "uci": "f1e1",
+            "san": "Kxe1",
             "color": "white"
           },
           {
-            "uci": "g5f3",
-            "san": "Nxf3+",
+            "uci": "b4d3",
+            "san": "Nd3+",
             "color": "black"
           },
           {
-            "uci": "g1h1",
-            "san": "Kh1",
+            "uci": "e1f1",
+            "san": "Kf1",
             "color": "white"
           },
           {
-            "uci": "f3d4",
-            "san": "Nxd4",
+            "uci": "d3c1",
+            "san": "Nxc1",
             "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "d7f5",
-            "san": "Qxf5",
+            "uci": "e8e1",
+            "san": "Rxe1+",
             "color": "black"
           },
           {
-            "uci": "g5f3",
-            "san": "Nxf3+",
+            "uci": "b4d3",
+            "san": "Nd3+",
             "color": "black"
           },
           {
-            "uci": "f3d4",
-            "san": "Nxd4",
+            "uci": "d3c1",
+            "san": "Nxc1",
             "color": "black"
           }
         ],
         "player_color": "black",
         "player_move_count": 3,
-        "posted_at": "2026-10-16T20:58:37.740302+00:00",
+        "posted_at": "2026-10-16T20:58:47.447484+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_XB8pQ_1792184317740",
-        "rating": 1498,
-        "next_solution_index": 4,
+        "puzzle_id": "practice_rush_442597396195704832_0ZN5G_1792184327447",
+        "rating": 1538,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1560758914927169709,
+      "message_id": 1560758922913124363,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792184324.5418847,
-      "last_feedback": "✅ **Nxf3+** • Opponent: **Kh1**"
+      "last_card_activity_at": 1792184327.441262,
+      "last_feedback": "✅ **Nxd4** — solved! Score: **8**."
     },
     "362606514764251137": {
       "active": false,
