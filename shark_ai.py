@@ -39,7 +39,11 @@ _model_pause_until = {}
 _slots = asyncio.Semaphore(MAX_CONCURRENT_REQUESTS)
 
 def _scope(message):
+    return (message.guild.id, message.channel.id)
+
+def _rate_scope(message):
     return (message.guild.id, message.channel.id, message.author.id)
+
 
 def _prune(scope, now):
     q = _history[scope]
@@ -243,9 +247,10 @@ async def handle_mention(message, client):
         return True
     async with lock:
         now = time.monotonic()
-        if now - _last_request.get(scope, -1e9) < COOLDOWN_SECONDS:
+        rate_scope = _rate_scope(message)
+        if now - _last_request.get(rate_scope, -1e9) < COOLDOWN_SECONDS:
             return True
-        _last_request[scope] = now
+        _last_request[rate_scope] = now
         _prune(scope, now)
         messages = [{"role": "system", "content": SYSTEM_RULES}]
         for _, role, text in _history[scope]:
