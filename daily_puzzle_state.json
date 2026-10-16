@@ -2957,7 +2957,7 @@
       "started_at": 1792184249.1924014,
       "run_id": "rush:442597396195704832:1792184249192",
       "end_at": 1792184549.1924014,
-      "score": 0,
+      "score": 1,
       "wrong": 1,
       "mistakes": [
         {
@@ -2980,60 +2980,60 @@
       ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/mswhl",
-        "title": "Lichess • 1243",
-        "fen": "3r4/1p3p1k/5np1/5N1p/7P/pP6/P1P3P1/2KR4 b - - 1 28",
-        "current_fen": "8/1p3p1k/5np1/5N1p/7P/pP6/P1P3P1/3K4 b - - 0 29",
-        "last_move_uci": "c1d1",
-        "pgn": "Rxd1+ Kxd1 gxf5",
+        "url": "https://lichess.org/training/ptazu",
+        "title": "Lichess • 1208",
+        "fen": "1r1r2k1/2q2p1p/4p1p1/p1NnNn2/1p1P2P1/2P2Q2/PP3PKP/R3R3 b - - 0 26",
+        "current_fen": "1r1r2k1/2q2p1p/4p1p1/p1NnNn2/1p1P2P1/2P2Q2/PP3PKP/R3R3 b - - 0 26",
+        "last_move_uci": "g3g4",
+        "pgn": "Nh4+ Kg3 Nxf3",
         "all_moves": [
           {
-            "uci": "d8d1",
-            "san": "Rxd1+",
+            "uci": "f5h4",
+            "san": "Nh4+",
             "color": "black"
           },
           {
-            "uci": "c1d1",
-            "san": "Kxd1",
+            "uci": "g2g3",
+            "san": "Kg3",
             "color": "white"
           },
           {
-            "uci": "g6f5",
-            "san": "gxf5",
+            "uci": "h4f3",
+            "san": "Nxf3",
             "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "d8d1",
-            "san": "Rxd1+",
+            "uci": "f5h4",
+            "san": "Nh4+",
             "color": "black"
           },
           {
-            "uci": "g6f5",
-            "san": "gxf5",
+            "uci": "h4f3",
+            "san": "Nxf3",
             "color": "black"
           }
         ],
         "player_color": "black",
         "player_move_count": 2,
-        "posted_at": "2026-10-16T20:57:33.083696+00:00",
+        "posted_at": "2026-10-16T20:57:45.064270+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_mswhl_1792184253083",
-        "rating": 1243,
-        "next_solution_index": 2,
+        "puzzle_id": "practice_rush_442597396195704832_ptazu_1792184265064",
+        "rating": 1208,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1560758623515189361,
+      "message_id": 1560758659624083589,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792184261.7691617,
-      "last_feedback": "✅ **Rxd1+** • Opponent: **Kxd1**"
+      "last_card_activity_at": 1792184265.059248,
+      "last_feedback": "✅ **gxf5** — solved! Score: **1**."
     },
     "362606514764251137": {
       "active": false,
