@@ -2958,7 +2958,7 @@
       "run_id": "rush:442597396195704832:1792179822885",
       "end_at": 1792180122.8851821,
       "score": 6,
-      "wrong": 1,
+      "wrong": 2,
       "mistakes": [
         {
           "puzzle_number": 7,
@@ -2976,79 +2976,81 @@
             "arrow_theme": "pink"
           },
           "recorded_at": 1792179899.7611132
+        },
+        {
+          "puzzle_number": 8,
+          "submitted": "nxd4",
+          "correct": "Re1+",
+          "puzzle": {
+            "puzzle_id": "practice_rush_442597396195704832_n3Lql_1792179899765",
+            "fen": "4r1k1/2q3p1/1npb1p1p/3p4/3P3N/2P4P/PPQN1PP1/R1B3K1 b - - 0 23",
+            "current_fen": "4r1k1/2q3p1/1npb1p1p/3p4/3P3N/2P4P/PPQN1PP1/R1B3K1 b - - 0 23",
+            "last_move_uci": "d1c2",
+            "player_color": "black",
+            "rating": 1442,
+            "board_theme": "blue",
+            "piece_theme": "classic",
+            "arrow_theme": "pink"
+          },
+          "recorded_at": 1792179904.4006293
         }
       ],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/n3Lql",
-        "title": "Lichess • 1442",
-        "fen": "4r1k1/2q3p1/1npb1p1p/3p4/3P3N/2P4P/PPQN1PP1/R1B3K1 b - - 0 23",
-        "current_fen": "4r1k1/2q3p1/1npb1p1p/3p4/3P3N/2P4P/PPQN1PP1/R1B3K1 b - - 0 23",
-        "last_move_uci": "d1c2",
-        "pgn": "Re1+ Nf1 Bh2+ Kh1 Rxf1#",
+        "url": "https://lichess.org/training/C97EN",
+        "title": "Lichess • 1406",
+        "fen": "r1bq4/ppp3pk/3p2Np/4P3/3n4/2N1b2P/PPQ3P1/5R1K w - - 0 26",
+        "current_fen": "r1bq4/ppp3pk/3p2Np/4P3/3n4/2N1b2P/PPQ3P1/5R1K w - - 0 26",
+        "last_move_uci": "c6d4",
+        "pgn": "Nf8+ Kh8 Qh7#",
         "all_moves": [
           {
-            "uci": "e8e1",
-            "san": "Re1+",
-            "color": "black"
-          },
-          {
-            "uci": "d2f1",
-            "san": "Nf1",
+            "uci": "g6f8",
+            "san": "Nf8+",
             "color": "white"
           },
           {
-            "uci": "d6h2",
-            "san": "Bh2+",
+            "uci": "h7h8",
+            "san": "Kh8",
             "color": "black"
           },
           {
-            "uci": "g1h1",
-            "san": "Kh1",
+            "uci": "c2h7",
+            "san": "Qh7#",
             "color": "white"
-          },
-          {
-            "uci": "e1f1",
-            "san": "Rxf1#",
-            "color": "black"
           }
         ],
         "player_moves": [
           {
-            "uci": "e8e1",
-            "san": "Re1+",
-            "color": "black"
+            "uci": "g6f8",
+            "san": "Nf8+",
+            "color": "white"
           },
           {
-            "uci": "d6h2",
-            "san": "Bh2+",
-            "color": "black"
-          },
-          {
-            "uci": "e1f1",
-            "san": "Rxf1#",
-            "color": "black"
+            "uci": "c2h7",
+            "san": "Qh7#",
+            "color": "white"
           }
         ],
-        "player_color": "black",
-        "player_move_count": 3,
-        "posted_at": "2026-10-16T19:44:59.765498+00:00",
+        "player_color": "white",
+        "player_move_count": 2,
+        "posted_at": "2026-10-16T19:45:04.404912+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_n3Lql_1792179899765",
-        "rating": 1442,
+        "puzzle_id": "practice_rush_442597396195704832_C97EN_1792179904404",
+        "rating": 1406,
         "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1560740331551592463,
+      "message_id": 1560740364757893141,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792179899.760385,
-      "last_feedback": "❌ **r8c2** was wrong. Correct move: **Rcc2**."
+      "last_card_activity_at": 1792179904.3999307,
+      "last_feedback": "❌ **nxd4** was wrong. Correct move: **Re1+**."
     },
     "362606514764251137": {
       "active": false,
