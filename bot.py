@@ -20460,7 +20460,8 @@ async def on_ready():
     # future puzzle interactions can use the loaded state.
     if os.getenv("DISCORD_TOKEN") and os.path.exists(STATE_FILE):
         from shark_state_privacy import is_sealed
-        persisted = json.loads(Path(STATE_FILE).read_text(encoding="utf-8"))
+        with open(STATE_FILE, "r", encoding="utf-8") as handle:
+            persisted = json.load(handle)
         if not is_sealed(persisted):
             if not await save_all(wait_for_remote=True):
                 raise RuntimeError("Could not secure Daily puzzle state on GitHub")
