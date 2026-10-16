@@ -79,26 +79,30 @@ def _metric(prompt):
 
 
 def _target(prompt, metric):
-    text = prompt.strip()
+    """Extract the subject from supported English/Dutch statistic questions."""
+    text = prompt.strip().rstrip(" ?!.")
     patterns = [
-        r"(?:how many|hoeveel)\s+.+?\s+(?:did|does|has|have|heeft|hebben)\s+(.+?)\s+(?:kill|killed|murder|murdered|gedood|vermoord|gekild)(?:\s+.*)?$",
-        r"(?:how many|hoeveel)\s+.+?\s+(?:does|has|have|heeft|hebben)\s+(.+?)\s*(?:have|hebben)?$",
-        r"(?:how many|hoeveel)\s+.+?\s+(?:does|has|have|heeft|hebben)\s+(.+?)$",
-        r"(?:what(?:'s| is)|wat is)\s+(.+?)['’]s\s+",
-        r"(?:hoeveel|how many)\s+.+?\s+(?:heeft|has|does)\s+(.+?)$",
-        r"(?:van|of|for|voor)\s+(.+?)$",
+        # How many animals did Thijs kill?
+        r"^(?:how many|hoeveel)\s+.+?\s+(?:did|does|has|have|heeft|hebben)\s+(.+?)\s+(?:kill|killed|murder|murdered|gedood|vermoord|gekild)$",
+        # Hoeveel dieren heeft Thijs gekild? (same structure)
+        # How many coins does Thijs have?
+        r"^(?:how many|hoeveel)\s+.+?\s+(?:does|has|have|did|heeft|hebben)\s+(.+?)\s+(?:have|hebben)$",
+        # How many coins does Thijs? / Hoeveel coins heeft Thijs?
+        r"^(?:how many|hoeveel)\s+.+?\s+(?:does|has|have|heeft|hebben)\s+(.+?)$",
+        # What is Thijs's coin balance?
+        r"^(?:what(?:'s| is)|wat is)\s+(.+?)['’]s\s+",
+        # Thijs's coins
+        r"^(.+?)['’]s\s+(?:coins?|pets?|badges?|points?)\b",
+        # Hoeveel coins heeft Thijs / How many coins has Thijs
+        r"\b(?:heeft|has)\s+([\w-]+)\s*(?:coins?|pets?|badges?|punten|dieren)?$",
+        r"\b(?:van|of|for|voor)\s+(.+?)$",
     ]
-    for p in patterns:
-        match = re.search(p, text, re.I)
+    for pattern in patterns:
+        match = re.search(pattern, text, re.I)
         if match:
-            return match.group(1)
-    # Possessive: "Thijs's coins" / "Thijs heeft hoeveel coins?"
-    poss = re.search(r"([\w-]+)['’]s\s+(?:coins?|pets?|badges?|points?)", text, re.I)
-    if poss:
-        return poss.group(1)
-    dutch = re.search(r"\b(?:heeft|has)\s+([\w-]+)\s+(?:\w+\s+){0,3}(?:coins?|pets?|badges?|punten|dieren)", text, re.I)
-    if dutch:
-        return dutch.group(1)
+            target = match.group(1).strip()
+            if target:
+                return target
     if re.search(r"\b(?:i|my|me|ik|mijn|mij)\b", text, re.I):
         return "me"
     return None
