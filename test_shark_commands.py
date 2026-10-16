@@ -52,9 +52,9 @@ class SharkCommandTests(unittest.TestCase):
         msg = MockMessage("type !donate thice 10")
         result = asyncio.run(route.plan_mention(msg, "type !donate thice 10", never_model))
         self.assertIs(result, True)
-        self.assertIn("Reply **yes**", msg.replies[0])
+        self.assertIn("Reply **confirm ", msg.replies[0])
         self.assertEqual(
-            route.consume_confirmation(MockMessage("yes"), 999),
+            route.consume_confirmation(MockMessage("confirm " + route._pending[(10, route.PRIMARY_CHESS_CHANNEL_ID, 100)][2]), 999),
             "!donate thice 10",
         )
 
@@ -64,7 +64,7 @@ class SharkCommandTests(unittest.TestCase):
         msg = MockMessage("donate 10")
         self.assertIs(asyncio.run(route.plan_mention(msg, "donate 10", model)), True)
         self.assertIn("recipient", msg.replies[0])
-        self.assertNotIn("Reply **yes**", msg.replies[0])
+        self.assertNotIn("Reply **confirm ", msg.replies[0])
         self.assertIsNone(route.consume_confirmation(MockMessage("yes"), 999))
 
     def test_free_box_claim_intent(self):
@@ -118,12 +118,25 @@ class SharkCommandTests(unittest.TestCase):
         msg = MockMessage(uid=100)
         self.assertIs(asyncio.run(route.plan_mention(
             msg, "donate Thice 5 coins", model)), True)
-        self.assertIn("Reply **yes**", msg.replies[0])
+        self.assertIn("Reply **confirm ", msg.replies[0])
         self.assertIsNone(route.consume_confirmation(MockMessage("yes", uid=101), 999))
         self.assertIsNone(route.consume_confirmation(MockMessage("yes", uid=100, cid=101), 999))
-        self.assertEqual(route.consume_confirmation(MockMessage("yes", uid=100), 999),
+        self.assertIsNone(route.consume_confirmation(MockMessage("yes", uid=100), 999))
+        code = route._pending[(10, route.PRIMARY_CHESS_CHANNEL_ID, 100)][2]
+        self.assertEqual(route.consume_confirmation(MockMessage("confirm " + code, uid=100), 999),
                          "!donate Thice 5")
         self.assertIsNone(route.consume_confirmation(MockMessage("yes", uid=100), 999))
+
+    def test_plain_yes_and_wrong_codes_never_approve(self):
+        async def model(messages, response_format):
+            return '{"command":"!donate Thice 5"}', None
+        msg = MockMessage(uid=100)
+        self.assertIs(asyncio.run(route.plan_mention(msg, "donate Thice 5 coins", model)), True)
+        self.assertIsNone(route.consume_confirmation(MockMessage("yes"), 999))
+        self.assertIsNone(route.consume_confirmation(MockMessage("confirm wrong"), 999))
+        code = route._pending[(10, route.PRIMARY_CHESS_CHANNEL_ID, 100)][2]
+        self.assertEqual(route.consume_confirmation(MockMessage("confirm " + code), 999), "!donate Thice 5")
+        self.assertIsNone(route.consume_confirmation(MockMessage("confirm " + code), 999))
 
     def test_cancel_pending(self):
         async def model(messages, response_format):
