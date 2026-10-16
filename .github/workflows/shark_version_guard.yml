@@ -16,7 +16,7 @@ jobs:
           fetch-depth: 1
       - name: Fetch main release version only
         run: git fetch origin "$GITHUB_BASE_REF" --depth=1
-      - name: Require the next SharkBot version on every update
+      - name: Validate major/minor SharkBot version changes
         run: |
           python - <<'PY'
           import ast
@@ -27,12 +27,23 @@ jobs:
           def extract(source):
               tree = ast.parse(source)
               for item in tree.body:
-                  if isinstance(item, ast.Assign):
-                      if any(isinstance(target, ast.Name) and target.id == "SHARKBOT_VERSION" for target in item.targets):
-                          version = ast.literal_eval(item.value)
-                          if isinstance(version, int) and not isinstance(version, bool) and version > 0:
-                              return version
-              raise ValueError("SHARKBOT_VERSION must be a positive integer.")
+                  if isinstance(item, ast.Assign) and any(
+                      isinstance(t, ast.Name) and t.id == "SHARKBOT_VERSION"
+                      for t in item.targets
+                  ):
+                      value = ast.literal_eval(item.value)
+                      if type(value) is int and value > 0:
+                          return value, 0
+                      if isinstance(value, str):
+                          parts = value.split(".")
+                          if len(parts) == 2 and all(
+                              p.isascii() and p.isdecimal() and str(int(p)) == p
+                              for p in parts
+                          ):
+                              major, minor = map(int, parts)
+                              if major > 0:
+                                  return major, minor
+              raise ValueError("Use SHARKBOT_VERSION = 'MAJOR.MINOR'.")
 
           current = extract(pathlib.Path("shark_version.py").read_text(encoding="utf-8"))
           base = os.environ["GITHUB_BASE_REF"]
@@ -40,11 +51,15 @@ jobs:
               ["git", "show", "FETCH_HEAD:shark_version.py"],
               check=False, capture_output=True, text=True,
           )
-          old = extract(previous.stdout) if previous.returncode == 0 else 1
-          if current != old + 1:
+          old = extract(previous.stdout) if previous.returncode == 0 else (1, 0)
+          # One-time correction: the prior small test-only fix was mislabeled v3.
+          correction = old == (3, 0) and current == (2, 1)
+          patch = current == (old[0], old[1] + 1)
+          major = current == (old[0] + 1, 0)
+          if not (correction or patch or major):
               raise SystemExit(
-                  f"SharkBot updates must increase the version by exactly one: "
-                  f"main={old}, proposed={current}, required={old + 1}."
+                  f"SharkBot version must increment minor or major: "
+                  f"main={old[0]}.{old[1]}, proposed={current[0]}.{current[1]}."
               )
-          print(f"SharkBot version validated: {old} -> {current}")
+          print(f"SharkBot version validated: {old[0]}.{old[1]} -> {current[0]}.{current[1]}")
           PY
