@@ -10,8 +10,13 @@ from shark_commands import PRIMARY_CHESS_CHANNEL_ID
 class DispatchTest(unittest.TestCase):
     def fake_message(self, channel=PRIMARY_CHESS_CHANNEL_ID):
         return SimpleNamespace(
-            guild=SimpleNamespace(id=5),
-            channel=SimpleNamespace(id=channel),
+            guild=SimpleNamespace(id=5, me=SimpleNamespace(id=999)),
+            channel=SimpleNamespace(
+                id=channel,
+                permissions_for=lambda member: SimpleNamespace(
+                    view_channel=True, send_messages=True,
+                ),
+            ),
             author=SimpleNamespace(id=123, bot=False),
             id=456,
             content="<@999> buy a mystery box",
