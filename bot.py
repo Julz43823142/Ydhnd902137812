@@ -18580,7 +18580,7 @@ async def on_message(
                 )
                 return
             if isinstance(approved, str):
-                if not await dispatch_existing_command(message, client, approved):
+                if not await dispatch_existing_command(message, client, approved, confirmed=True):
                     await message.reply("That action is not available here.", mention_author=False, allowed_mentions=discord.AllowedMentions.none())
                 return
 
