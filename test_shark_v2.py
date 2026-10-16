@@ -9,7 +9,7 @@ from shark_version import SHARKBOT_VERSION
 
 class ReplyLimitTests(unittest.TestCase):
     def test_public_version(self):
-        self.assertEqual(SHARKBOT_VERSION, 2)
+        self.assertEqual(SHARKBOT_VERSION, 3)
 
     def test_short_answer_unchanged(self):
         self.assertEqual(shark_ai._fit_reply("Checkmate!"), "Checkmate!")
@@ -41,7 +41,7 @@ class ReplyLimitTests(unittest.TestCase):
 
 class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
     async def test_version_works_without_groq(self):
-        user = SimpleNamespace(id=999)
+        user = SimpleNamespace(id=999, bot=False)
         bot = SimpleNamespace(id=42)
         channel = SimpleNamespace(
             id=12,
@@ -66,7 +66,7 @@ class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
         with patch.dict("os.environ", {"GROQ_API_KEY": ""}):
             handled = await shark_ai.handle_mention(msg, SimpleNamespace(user=bot))
         self.assertTrue(handled)
-        self.assertEqual(replies[0][0], "I'm SharkBot version 2.")
+        self.assertEqual(replies[0][0], "I'm SharkBot version 3.")
         self.assertFalse(replies[0][1]["mention_author"])
 
     async def test_dutch_version_question(self):
@@ -85,7 +85,7 @@ class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
 
         msg = SimpleNamespace(
             guild=SimpleNamespace(id=5, me=bot),
-            author=SimpleNamespace(id=77),
+            author=SimpleNamespace(id=77, bot=False),
             channel=channel,
             mentions=[bot],
             content="<@42> welke versie ben jij?",
@@ -93,7 +93,7 @@ class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
         )
         with patch.dict("os.environ", {"GROQ_API_KEY": ""}):
             self.assertTrue(await shark_ai.handle_mention(msg, SimpleNamespace(user=bot)))
-        self.assertEqual(replies, ["I'm SharkBot version 2."])
+        self.assertEqual(replies, ["I'm SharkBot version 3."])
 
 
 if __name__ == "__main__":
