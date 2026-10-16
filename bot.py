@@ -18566,6 +18566,11 @@ async def on_message(
         if message.author.bot:
             return
 
+        # Optional Groq AI: intercept mentions before channel-specific early returns.
+        from shark_ai import handle_mention as handle_shark_ai_mention
+        if await handle_shark_ai_mention(message, client):
+            return
+
         if message.channel.id==FAIRPLAY_CHANNEL_ID:
             from fairplay_ui import handle_message
             await handle_message(message)
