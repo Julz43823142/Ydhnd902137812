@@ -167,7 +167,7 @@ async def handle_mention(message, client):
     # Real, deterministic menu routing works even when Groq is unavailable.
     # A free box is never claimed automatically: the original owner-bound
     # shop button performs all eligibility and daily-limit checks.
-    from shark_commands import free_access_command, _is_chat_channel, PRIMARY_CHESS_CHANNEL_ID, SECONDARY_CHESS_CHANNEL_ID
+    from shark_commands import free_access_command, free_box_claim_request, _is_chat_channel, PRIMARY_CHESS_CHANNEL_ID, SECONDARY_CHESS_CHANNEL_ID
     if free_access_command(prompt):
         if not _is_chat_channel(message.channel.id):
             await message.reply(
@@ -175,6 +175,41 @@ async def handle_mention(message, client):
                 f"<#{PRIMARY_CHESS_CHANNEL_ID}> or <#{SECONDARY_CHESS_CHANNEL_ID}> "
                 "to open that menu.",
                 mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
+            )
+            return True
+        if free_box_claim_request(prompt):
+            # Use exactly the same atomic once-per-user/day ledger transaction
+            # as the authenticated Shop button. Never accept a model-supplied
+            # user ID, badge or price, and never claim paid boxes.
+            from shared_leaderboard import claim_daily_mystery_box
+            try:
+                receipt = await asyncio.to_thread(
+                    claim_daily_mystery_box, message.author.id, message.author.display_name
+                )
+            except Exception:
+                await message.reply(
+                    "I couldn't confirm your free Mystery Box claim. "
+                    "Please retry or use the Free Daily Mystery Box button in !shop. "
+                    "No paid box was purchased.",
+                    mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
+                )
+                return True
+            if receipt.get("already_claimed"):
+                answer = (
+                    "You already claimed today's free Mystery Box. "
+                    "Your recorded reward was: "
+                    f"{discord.utils.escape_markdown(str(receipt.get('badge', '?')))}. "
+                    "Your next free claim resets at midnight Amsterdam."
+                )
+            else:
+                answer = (
+                    "Your free daily Mystery Box was claimed! Reward: "
+                    f"{discord.utils.escape_markdown(str(receipt.get('badge', '?')))} "
+                    f"({discord.utils.escape_markdown(str(receipt.get('rarity_label', '?')))}). "
+                    "No coins spent."
+                )
+            await message.reply(
+                answer, mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
             )
             return True
         opened = await dispatch_existing_command(message, client, "!shop")
