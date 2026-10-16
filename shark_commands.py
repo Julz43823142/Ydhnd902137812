@@ -267,3 +267,29 @@ async def plan_mention(message, prompt, complete):
             mention_author=False,
         )
     return command
+
+
+async def dispatch_existing_command(message, client, command):
+    """Invoke the original event handler, never a privileged internal function.
+
+    Rewriting only the ephemeral message view keeps Discord's authenticated
+    author, guild, channel and ID. Restoring it also avoids confusing listeners.
+    The nested invocation stops naturally: the bot mention is removed, the
+    content starts with !, and the pending confirmation was consumed.
+    """
+    if not message.guild or not _is_chat_channel(message.channel.id):
+        return False
+    if _parse_command(command, command) is None:
+        return False
+    original_content = message.content
+    original_mentions = message.mentions
+    try:
+        message.content = command
+        message.mentions = [
+            member for member in original_mentions if member.id != client.user.id
+        ]
+        await client.on_message(message)
+    finally:
+        message.content = original_content
+        message.mentions = original_mentions
+    return True
