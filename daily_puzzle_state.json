@@ -2965,8 +2965,8 @@
         "url": "https://lichess.org/training/5d1xy",
         "title": "Lichess • 1623",
         "fen": "3r1k1r/p3pp1p/2q5/5b1p/8/2p2PQ1/PP4R1/R6K w - - 0 25",
-        "current_fen": "3r1k1r/p3pp1p/2q5/5b1p/8/2p2PQ1/PP4R1/R6K w - - 0 25",
-        "last_move_uci": "c5c6",
+        "current_fen": "3rk2r/p3ppQp/2q5/5b1p/8/2p2P2/PP4R1/R6K w - - 2 26",
+        "last_move_uci": "f8e8",
         "pgn": "Qg7+ Ke8 Qxh8+ Kd7 Rd1+",
         "all_moves": [
           {
@@ -3021,16 +3021,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_5d1xy_1792180457118",
         "rating": 1623,
-        "next_solution_index": 0,
+        "next_solution_index": 2,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1560742690398666796,
+      "message_id": 1560742703195496589,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792180457.1120422,
-      "last_feedback": "✅ **Rh6#** — solved! Score: **10**."
+      "last_card_activity_at": 1792180464.870683,
+      "last_feedback": "✅ **Qg7+** • Opponent: **Ke8**"
     },
     "362606514764251137": {
       "active": false,
