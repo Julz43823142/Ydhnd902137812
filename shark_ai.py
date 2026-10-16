@@ -184,6 +184,20 @@ async def handle_mention(message, client):
                 mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
             )
         return True
+    # Explicit donation commands are deterministic and do not need Groq.
+    # Use the same channel, approval and ownership checks as any AI plan.
+    if re.fullmatch(r"\\s*(?:please\\s+)?(?:type|run|execute|use)\\s+!donate(?:\\s+[^\\r\\n]*)?\\s*", prompt, re.I):
+        from shark_commands import plan_mention
+        async def no_model(*args, **kwargs):
+            return None, "unconfigured"
+        donation = await plan_mention(message, prompt, no_model)
+        if isinstance(donation, str):
+            if not await dispatch_existing_command(message, client, donation):
+                await message.reply(
+                    "That donation command could not be started here.",
+                    mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
+                )
+        return True
     if not os.getenv("GROQ_API_KEY", "").strip():
         return False
     # Do not forward potentially sensitive Discord attachments or embeds.

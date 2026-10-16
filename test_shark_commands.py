@@ -38,6 +38,35 @@ class SharkCommandTests(unittest.TestCase):
         self.assertEqual(route._parse_command("!donate Thice 5", "donate Thice 5 coins"),
                          "!donate Thice 5")
 
+    def test_donation_needs_recipient_and_amount(self):
+        for command in ("!donate", "!donate 10", "!donate Thice", "!donate Thice 0"):
+            self.assertIsNone(route._parse_command(command, command))
+        self.assertEqual(
+            route._parse_command("!donate Thice 10", "type !donate Thice 10"),
+            "!donate Thice 10",
+        )
+
+    def test_explicit_donation_requires_confirmation_not_model(self):
+        async def never_model(*args, **kwargs):
+            raise AssertionError("explicit command must not call AI")
+        msg = MockMessage("type !donate thice 10")
+        result = asyncio.run(route.plan_mention(msg, "type !donate thice 10", never_model))
+        self.assertIs(result, True)
+        self.assertIn("Reply **yes**", msg.replies[0])
+        self.assertEqual(
+            route.consume_confirmation(MockMessage("yes"), 999),
+            "!donate thice 10",
+        )
+
+    def test_incomplete_donation_rejected_before_confirmation(self):
+        async def model(messages, response_format):
+            return '{"command":"!donate 10"}', None
+        msg = MockMessage("donate 10")
+        self.assertIs(asyncio.run(route.plan_mention(msg, "donate 10", model)), True)
+        self.assertIn("recipient", msg.replies[0])
+        self.assertNotIn("Reply **yes**", msg.replies[0])
+        self.assertIsNone(route.consume_confirmation(MockMessage("yes"), 999))
+
     def test_free_access_opens_real_shop_not_fake_slash_command(self):
         for prompt in (
             "open free access menu",
