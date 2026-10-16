@@ -1,0 +1,102 @@
+name: Independent Stockfish Formula Research (near-continuous)
+
+on:
+  schedule:
+    # Run whenever possible, including nights, weekends and daytime.
+    # A single concurrency group prevents simultaneous state writes.
+    # GitHub-hosted scheduling is best-effort, NOT a guaranteed 24/7 runner.
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: sharkbot-independent-formula-research
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  independent-lab:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 59
+    env:
+      PYTHONUNBUFFERED: '1'
+      PYTHONDONTWRITEBYTECODE: '1'
+      PYTHONPATH: ${{ github.workspace }}
+      STATE_REPO: /tmp/sharkbot-independent-state
+      STATE_DIR: /tmp/sharkbot-independent-state/research/independent
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install Python chess engine interface
+        run: python -m pip install python-chess requests
+      - name: Restore independent research checkpoints
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if git fetch --no-tags --depth=1 origin refs/heads/sharkbot-independent-state; then
+            git worktree add --detach "$STATE_REPO" FETCH_HEAD
+          else
+            echo "Initializing ORIGINAL (non-Chess.com) research checkpoints."
+            git worktree add --detach "$STATE_REPO" HEAD
+          fi
+          mkdir -p "$STATE_DIR"
+      - uses: actions/cache@v4
+        with:
+          path: /tmp/stockfish19-official-pgo/Stockfish/src/stockfish
+          key: stockfish-${{ runner.os }}-${{ runner.arch }}-edb0d9db6731067ec50ce619ff372b463bc4dd5d-pgo-v1
+      - name: Prepare verified Stockfish 19
+        run: python scripts/prepare_stockfish.py --github-env --profile-build
+      - name: Examine original games and search accuracy parameters
+        id: research
+        continue-on-error: true
+        run: |
+          python scripts/independent_formula_lab.py \
+            --state-dir "$STATE_DIR" \
+            --max-minutes 48 --trials 2000 --max-games 100
+      - name: Checkpoint ONLY independently generated games and analyses
+        shell: bash
+        run: |
+          set -euo pipefail
+          git -C "$STATE_REPO" config user.name 'github-actions[bot]'
+          git -C "$STATE_REPO" config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git -C "$STATE_REPO" add -A research/independent
+          if git -C "$STATE_REPO" diff --cached --quiet; then
+            echo "Nothing new to checkpoint."
+          else
+            git -C "$STATE_REPO" commit -m "research: checkpoint original Stockfish experiment"
+            git -C "$STATE_REPO" push origin HEAD:refs/heads/sharkbot-independent-state
+          fi
+      - name: Summarize independent experiments
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          report_file = Path(os.environ["STATE_DIR"]) / "latest_report.json"
+          if report_file.exists():
+              report = json.loads(report_file.read_text())
+              details = report.get("optimization", {})
+              msg = ("Independent formula research: original games with both engine profiles "
+                     + str(report.get("paired_games", 0))
+                     + ", held-out Stockfish-reference MAE: "
+                     + str(details.get("candidate_holdout_mae", "not enough data"))
+                     + ". No Chess.com data collected or tested.")
+          else:
+              msg = "No new research report; inspect logs."
+          print(msg)
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as out:
+              out.write(msg + "\n")
+          PY
+      - name: Fail job if analysis failed after checkpoint
+        if: steps.research.outcome == 'failure'
+        run: exit 1
