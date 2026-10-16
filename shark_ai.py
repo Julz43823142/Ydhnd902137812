@@ -222,10 +222,10 @@ async def _counted_reply(message, *args, **kwargs):
 
 def _is_daily_answer_question(prompt):
     return bool(re.search(
-        r"(?i)\\b(?:hoeveel|how many)\\b.{0,90}\\b(?:vragen|questions|berichten|messages)\\b"
-        r".{0,90}\\b(?:vandaag|today)\\b|"
-        r"\\b(?:hoeveel|how many)\\b.{0,90}\\b(?:vandaag|today)\\b"
-        r".{0,90}\\b(?:vragen|questions|berichten|messages)\\b", prompt,
+        r"(?i)\b(?:hoeveel|how many)\b.{0,90}\b(?:vragen|questions|berichten|messages)\b"
+        r".{0,90}\b(?:vandaag|today)\b|"
+        r"\b(?:hoeveel|how many)\b.{0,90}\b(?:vandaag|today)\b"
+        r".{0,90}\b(?:vragen|questions|berichten|messages)\b", prompt,
     ))
 
 
