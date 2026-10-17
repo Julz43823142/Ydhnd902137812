@@ -10,6 +10,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from shark_version import SHARKBOT_VERSION
+from shark_ai_version import SHARKBOT_AI_VERSION
 
 import aiohttp
 import discord
@@ -301,7 +302,7 @@ async def handle_mention(message, client):
         )
         return True
     if _asks_public_version(prompt):
-        await _counted_reply(message, SHARKBOT_VERSION,
+        await _counted_reply(message, SHARKBOT_AI_VERSION if re.search(r"(?i)\\b(?:ai|sharkbotai)\\b", prompt) else SHARKBOT_VERSION,
             mention_author=False, allowed_mentions=discord.AllowedMentions.none())
         return True
     # Version number is public; release history and internal changes are not.
