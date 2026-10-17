@@ -9,6 +9,7 @@ on:
   push:
     branches: [main]
     paths:
+      - '.github/workflows/minigames.yml'
       - 'minigames/**'
       - 'quests.py'
       - 'shared_leaderboard.py'
