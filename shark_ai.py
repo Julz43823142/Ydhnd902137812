@@ -410,12 +410,10 @@ async def handle_mention(message, client):
         # Dispatch validates the original authenticated user's request.
         # Contextual follow-ups are explicit requests, but the theme is
         # sourced from prior public conversation rather than model output.
-        if example_followup and theme:
-            await _counted_reply(message,
-                "For a playable example, ask me for an en passant puzzle explicitly.",
-                mention_author=False, allowed_mentions=discord.AllowedMentions.none())
-            return True
-        if not await dispatch_existing_command(message, client, command):
+        if not await dispatch_existing_command(
+            message, client, command,
+            context_theme=theme if example_followup else None,
+        ):
             await _counted_reply(message, "I couldn't start that puzzle here.",
                 mention_author=False, allowed_mentions=discord.AllowedMentions.none())
         return True
