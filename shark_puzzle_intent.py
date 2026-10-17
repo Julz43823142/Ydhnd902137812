@@ -19,5 +19,5 @@ def puzzle_request(prompt, recent=()):
         return "enpassant"
     if EXAMPLE.search(text) and any(EN_PASSANT.search(x) for x in recent[-5:]):
         # An example of a rule is an explanation, NOT automatically a puzzle.
-        return None
+        return "enpassant"
     return None
