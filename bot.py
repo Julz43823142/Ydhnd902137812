@@ -18384,12 +18384,22 @@ class ChessNewHereView(discord.ui.View):
 
     @discord.ui.button(label="Menu", emoji="🦈", style=discord.ButtonStyle.primary, custom_id="shark:new-here:menu:v1")
     async def menu(self, interaction, button):
-        await interaction.response.send_message(
-            embed=main_menu_embed(),
-            view=MainMenuView(),
-            ephemeral=True,
-            allowed_mentions=discord.AllowedMentions.none(),
-        )
+        # Acknowledge immediately: menu construction may involve other modules.
+        await interaction.response.defer(ephemeral=True)
+        try:
+            await interaction.followup.send(
+                embed=main_menu_embed(),
+                view=MainMenuView(),
+                ephemeral=True,
+                allowed_mentions=discord.AllowedMentions.none(),
+            )
+        except Exception:
+            print("NEW HERE menu failed:", flush=True)
+            traceback.print_exc()
+            await interaction.followup.send(
+                "Menu could not load. Type `!menu` in a chess channel.",
+                ephemeral=True,
+            )
 
 
 class MainMenuView(discord.ui.View):
@@ -18720,7 +18730,7 @@ async def on_message(
         public_shared_commands = {'!week','!collection','!community','!challenge','!event','!pet','!pets','!shop','!box','!customboard','!custompiece','!arrow','!arrowcolor',
                                   '!color','!me','!profile','!donate','!trade','!pendingtrade','!trades','!tradeinbox',
                                   '!accepttrade','!declinetrade','!pending','!accept','!decline',
-                                  '!l','!lb','!leaderboard','!chessstats','!puzzlestreak','!quests','!quest','!q'}
+                                  '!menu','!m','!help','!info','!i','!l','!lb','!leaderboard','!chessstats','!puzzlestreak','!quests','!quest','!q'}
         command_token = message.content.strip().casefold().split(' ',1)[0]
         # In the Minigames channel, `!stats` is owned only by minigames.py.
 
