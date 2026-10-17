@@ -9645,11 +9645,13 @@
     "schema": 1
   },
   "twitch_live_notifications_v1": {
-    "message_ids": [],
+    "message_ids": [
+      "1561099854933922014"
+    ],
     "last_cleanup_at": "2026-10-15T00:14:10.840457+00:00",
     "last_cleanup_date": "2026-10-01",
-    "last_started_at": "2026-10-14T19:19:26Z",
-    "last_sent_at": "2026-10-14T19:19:50.619447+00:00",
+    "last_started_at": "2026-10-17T19:33:03Z",
+    "last_sent_at": "2026-10-17T19:33:29.898451+00:00",
     "channel_id": "1320033128676589669"
   },
   "seasonal_bot_profile_v1": {
