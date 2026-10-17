@@ -17,7 +17,7 @@ on:
   schedule:
     - cron: '13 0,5,10,15,20 * * *'
 permissions:
-  contents: write
+  contents: read
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -41,6 +41,8 @@ jobs:
           python -m unittest discover -s minigames -p test_minigames.py
 
   minigames:
+    permissions:
+      contents: write
     if: github.event_name != 'pull_request'
     needs: verify
     runs-on: ubuntu-latest
