@@ -376,6 +376,12 @@ async def handle_mention(message, client):
             mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
         )
         return True
+    # The stream timetable is public and deterministic; Groq must not invent it.
+    from shark_stream_schedule import asks_stream_schedule, streaming_answer
+    if asks_stream_schedule(prompt):
+        await _counted_reply(message, streaming_answer(prompt),
+            mention_author=False, allowed_mentions=discord.AllowedMentions.none())
+        return True
     if _is_daily_answer_question(prompt):
         try:
             count = await asyncio.to_thread(_answer_count, message.guild.id)
