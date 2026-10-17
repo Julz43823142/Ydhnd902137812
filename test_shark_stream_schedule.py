@@ -1,4 +1,4 @@
-"""Public SharkM4te schedule regression tests."""
+"""Public Sh4rkmate schedule regression tests."""
 import unittest
 from datetime import datetime
 from pathlib import Path
@@ -11,13 +11,13 @@ TZ = ZoneInfo("Europe/Amsterdam")
 
 class StreamScheduleTests(unittest.TestCase):
     def test_today_saturday(self):
-        answer = streaming_answer("is sharkm4te streaming today", datetime(2026, 10, 17, 17, 18, tzinfo=TZ))
+        answer = streaming_answer("is sh4rkmate streaming today", datetime(2026, 10, 17, 17, 18, tzinfo=TZ))
         self.assertIn("Today (Saturday)", answer)
         self.assertIn("22:00 to 23:00", answer)
         self.assertIn("not a guarantee", answer)
 
     def test_friday_no_stream_and_video(self):
-        answer = streaming_answer("is sharkm4te streaming today", datetime(2026, 10, 16, 13, 0, tzinfo=TZ))
+        answer = streaming_answer("is sh4rkmate streaming today", datetime(2026, 10, 16, 13, 0, tzinfo=TZ))
         self.assertIn("no-stream day", answer)
         self.assertIn("YouTube video: Friday at 6:00 PM", answer)
 
@@ -28,7 +28,7 @@ class StreamScheduleTests(unittest.TestCase):
         self.assertIn("Sunday: 9:00–11:00 PM", answer)
 
     def test_detection_does_not_capture_ordinary_chess(self):
-        self.assertTrue(asks_stream_schedule("is sharkm4te streaming today"))
+        self.assertTrue(asks_stream_schedule("is sh4rkmate streaming today"))
         self.assertTrue(asks_stream_schedule("what is the stream schedule?"))
         self.assertFalse(asks_stream_schedule("can you explain chess openings?"))
         self.assertFalse(asks_stream_schedule("tell me about streaming data in Python"))

@@ -20,7 +20,7 @@ STREAM_NAMES = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturda
 def asks_stream_schedule(text):
     """A conservative public-info route, so unrelated chess chat is unaffected."""
     prompt = text.casefold()
-    subject = bool(re.search(r"\b(?:sharkm4te|sh4rkmate|sharkmate|shark|he|you)\b", prompt))
+    subject = bool(re.search(r"\b(?:sh4rkmate|sh4rkmate|sharkmate|shark|he|you)\b", prompt))
     streaming = bool(re.search(r"\b(?:stream(?:ing|s)?|live|schedule|twitch)\b", prompt))
     return streaming and (
         subject or bool(re.search(r"\b(?:stream(?:ing)?\s+schedule|streamtijden|streamschema)\b", prompt))
@@ -45,12 +45,12 @@ def streaming_answer(text, now=None):
     if day is not None:
         slot = STREAM_DAYS.get(day)
         if slot:
-            intro = f"{label} ({STREAM_NAMES[day]}), SharkM4te normally streams from {slot[0]:02d}:00 to {slot[1]:02d}:00 (Dutch time). "
+            intro = f"{label} ({STREAM_NAMES[day]}), Sh4rkmate normally streams from {slot[0]:02d}:00 to {slot[1]:02d}:00 (Dutch time). "
         else:
             intro = f"{label} ({STREAM_NAMES[day]}) is normally a no-stream day. "
     return (
         intro +
-        "SharkM4te's usual stream schedule (Dutch time):\n"
+        "Sh4rkmate's usual stream schedule (Dutch time):\n"
         "Monday: 9:00–11:00 PM\n"
         "Tuesday: 9:00–11:00 PM\n"
         "Wednesday: 9:00–11:00 PM\n"
