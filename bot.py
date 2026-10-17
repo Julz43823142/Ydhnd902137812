@@ -2673,6 +2673,69 @@ def fetch_random_puzzle(force_band=None):
 
 
 
+def fetch_en_passant_puzzle():
+    """Find a real Lichess pool puzzle whose solution contains en passant.
+
+    Never synthesize a chess position or claim a theme without verification.
+    """
+    if not os.path.exists(RP_POOL_FILE):
+        raise RuntimeError("The offline puzzle pool is unavailable.")
+    from rp_pool import band_row_ids
+    with _rp_pool_lock:
+        with sqlite3.connect(f"file:{RP_POOL_FILE}?mode=ro", uri=True, timeout=5) as con:
+            # Sample across rating bands; avoid scanning the whole database.
+            for _ in range(24000):
+                band = random.randrange(len(RP_BANDS))
+                ids = band_row_ids(RP_POOL_FILE, band)
+                if not ids:
+                    continue
+                row = con.execute(
+                    "SELECT puzzle_id, fen, moves, rating, band FROM puzzles WHERE rowid=?",
+                    (ids[random.randrange(len(ids))],),
+                ).fetchone()
+                if not row:
+                    continue
+                puzzle_id, fen, moves_text, rating, stored_band = row
+                moves = str(moves_text).split()
+                if len(moves) < 2:
+                    continue
+                try:
+                    board = board_from_fen_safe(str(fen))
+                    setup = chess.Move.from_uci(moves[0])
+                    if setup not in board.legal_moves:
+                        continue
+                    board.push(setup)
+                    initial_fen = board.fen()
+                    solution = []
+                    themed = False
+                    for index, uci in enumerate(moves[1:]):
+                        move = chess.Move.from_uci(uci)
+                        if move not in board.legal_moves:
+                            break
+                        # A themed puzzle must have an en passant move by
+                        # the solver, not merely in the opponent's line.
+                        if index % 2 == 0 and board.is_en_passant(move):
+                            themed = True
+                        solution.append(board.san(move))
+                        board.push(move)
+                    else:
+                        if themed:
+                            return {
+                                "fen": initial_fen,
+                                "pgn": " ".join(solution),
+                                "url": f"https://lichess.org/training/{puzzle_id}",
+                                "title": f"Lichess • {rating}",
+                                "lichess_id": str(puzzle_id),
+                                "rating": int(rating),
+                                "rp_band": int(stored_band),
+                                "setup_uci": setup.uci(),
+                            }
+                except (ValueError, chess.InvalidMoveError, chess.IllegalMoveError):
+                    continue
+    raise RuntimeError("No verified en passant puzzle found in the local pool. Please try again.")
+
+
+
 def fetch_practice_puzzle(target_rating, window=100):
     """Pick an offline Lichess puzzle close to the user's current Puzzle Elo."""
     global _rp_recent_ids
@@ -11482,7 +11545,8 @@ _ANY_PREVIOUS_PUZZLE = object()
 async def post_random_puzzle(
     channel,
     owner=None,
-    *, expected_previous=_ANY_PREVIOUS_PUZZLE, theme=None,
+    *, expected_previous=_ANY_PREVIOUS_PUZZLE,
+    theme=None,
 ):
     channel_rp_lock = _rp_command_lock_for_channel(channel.id)
     if channel_rp_lock.locked():
@@ -11499,9 +11563,14 @@ async def post_random_puzzle(
         if not await prepare_interactive_puzzle_start(channel, owner, "Random Puzzle"):
             return False
         try:
-            boss = not theme and random.random() < BOSS_PUZZLE_CHANCE
+            if theme not in (None, "enpassant", "promotion", "castling"):
+                await channel.send("That puzzle theme is not supported yet.")
+                return False
+            boss = theme is None and random.random() < BOSS_PUZZLE_CHANCE
 
-            if theme:
+            if theme == "enpassant":
+                data = await asyncio.to_thread(fetch_en_passant_puzzle)
+            elif theme:
                 from shark_theme_puzzles import fetch_theme_puzzle
                 data = await asyncio.to_thread(fetch_theme_puzzle, RP_POOL_FILE, RP_BANDS, theme)
             elif boss:
@@ -11601,10 +11670,7 @@ async def post_random_puzzle(
                     f"**{count} {move_word(count)}**."
                 )
 
-            if theme:
-                embed_title = f"♟️ {data['title']} — Training (no points or coins)"
-                reward_text = "\n\n**Training only:** no points, coins, Elo or streak rewards."
-            elif boss:
+            if boss:
                 embed_title = (
                     f"☠️ BOSS PUZZLE — {data.get('rating', '?')}"
                 )
@@ -11613,8 +11679,8 @@ async def post_random_puzzle(
                     "helpers **+1**."
                 )
             else:
-                embed_title = f"🎲 Random Puzzle — {title}"
-                reward_text = ""
+                embed_title = (f"🧩 {theme.replace('enpassant', 'En Passant').capitalize() if theme != 'enpassant' else 'En Passant'} Puzzle — {title}" if theme else f"🎲 Random Puzzle — {title}")
+                reward_text = ("\n\n**Training only — no points, coins, Elo or streak rewards.**" if theme else "")
 
             embed = discord.Embed(
                 title=embed_title,
@@ -11643,7 +11709,7 @@ async def post_random_puzzle(
             save_json(STATE_FILE, state)
 
             print(
-                f"{'THEME ' if theme else ('BOSS ' if boss else '')}Random Puzzle posted: rating {data.get('rating')} "
+                f"{'BOSS ' if boss else ''}Random Puzzle posted: rating {data.get('rating')} "
                 f"(band {data.get('rp_band')}, {count} player moves).",
                 flush=True
             )
@@ -18321,12 +18387,22 @@ class ChessNewHereView(discord.ui.View):
 
     @discord.ui.button(label="Menu", emoji="🦈", style=discord.ButtonStyle.primary, custom_id="shark:new-here:menu:v1")
     async def menu(self, interaction, button):
-        await interaction.response.send_message(
-            embed=main_menu_embed(),
-            view=MainMenuView(),
-            ephemeral=True,
-            allowed_mentions=discord.AllowedMentions.none(),
-        )
+        # Acknowledge immediately: menu construction may involve other modules.
+        await interaction.response.defer(ephemeral=True)
+        try:
+            await interaction.followup.send(
+                embed=main_menu_embed(),
+                view=MainMenuView(),
+                ephemeral=True,
+                allowed_mentions=discord.AllowedMentions.none(),
+            )
+        except Exception:
+            print("NEW HERE menu failed:", flush=True)
+            traceback.print_exc()
+            await interaction.followup.send(
+                "Menu could not load. Type `!menu` in a chess channel.",
+                ephemeral=True,
+            )
 
 
 class MainMenuView(discord.ui.View):
@@ -18649,6 +18725,10 @@ async def on_message(
                 return
 
         in_minigames = message.channel.id == 1546155761405788230
+        # The separate Minigames client in this same repository owns its own
+        # !menu / !info commands. Do not send a second chess-game menu here.
+        if in_minigames and message.content.strip().casefold() in {'!menu', '!m', '!help', '!info', '!i'}:
+            return
         in_chess_channel = is_chess_channel_id(message.channel.id)
         if not in_chess_channel and not in_minigames:
             return
@@ -18657,7 +18737,7 @@ async def on_message(
         public_shared_commands = {'!week','!collection','!community','!challenge','!event','!pet','!pets','!shop','!box','!customboard','!custompiece','!arrow','!arrowcolor',
                                   '!color','!me','!profile','!donate','!trade','!pendingtrade','!trades','!tradeinbox',
                                   '!accepttrade','!declinetrade','!pending','!accept','!decline',
-                                  '!l','!lb','!leaderboard','!chessstats','!puzzlestreak','!quests','!quest','!q'}
+                                  '!menu','!m','!help','!info','!i','!l','!lb','!leaderboard','!chessstats','!puzzlestreak','!quests','!quest','!q'}
         command_token = message.content.strip().casefold().split(' ',1)[0]
         # In the Minigames channel, `!stats` is owned only by minigames.py.
 
@@ -20255,17 +20335,14 @@ async def on_message(
             return
 
         # =====================================================
-        # THEMED PUZZLE — training only, never awards points/coins
+        # RANDOM PUZZLE
         # =====================================================
+
         if command_lower.startswith("!themepuzzle "):
             requested_theme = command_lower.partition(" ")[2].strip()
             if requested_theme in {"enpassant", "promotion", "castling"}:
                 await post_random_puzzle(message.channel, message.author, theme=requested_theme)
             return
-
-        # =====================================================
-        # RANDOM PUZZLE
-        # =====================================================
 
         if command_lower in (
             "!random",

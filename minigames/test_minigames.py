@@ -701,6 +701,51 @@ class Storage(unittest.TestCase):
         st.ledger._fetch_retry();wallets,_=st.ledger._origin_state()
         self.assertEqual(wallets['0']['coins'],101);self.assertEqual(wallets['1']['coins'],107)
 
+
+class MinigamesTextCommands(unittest.IsolatedAsyncioTestCase):
+    async def test_blackjack_shortcut_replies_with_existing_stake_modal_button(self):
+        import minigames as ui
+        from unittest.mock import AsyncMock
+        from types import SimpleNamespace
+
+        app = ui.Arcade()
+        app.ready_event.set()
+        app.handle_math_message = AsyncMock(return_value=False)
+        for command in ('!blackjack', '!bj'):
+            msg = SimpleNamespace(
+                author=SimpleNamespace(id=123, bot=False, display_name='Thice'),
+                channel=SimpleNamespace(id=ui.CHANNEL_ID),
+                content=command,
+                reply=AsyncMock(),
+            )
+            await app.on_message(msg)
+            msg.reply.assert_awaited_once()
+            view = msg.reply.await_args.kwargs['view']
+            self.assertEqual(
+                [item.custom_id for item in view.children if getattr(item, 'custom_id', None)],
+                ['mg:pick:blackjack'],
+            )
+        await app.close()
+
+    async def test_menu_shortcut_still_works_for_regular_user(self):
+        import minigames as ui
+        from unittest.mock import AsyncMock
+        from types import SimpleNamespace
+
+        app = ui.Arcade()
+        app.ready_event.set()
+        app.handle_math_message = AsyncMock(return_value=False)
+        msg = SimpleNamespace(
+            author=SimpleNamespace(id=123, bot=False, display_name='Thice'),
+            channel=SimpleNamespace(id=ui.CHANNEL_ID),
+            content='!menu',
+            reply=AsyncMock(),
+        )
+        await app.on_message(msg)
+        msg.reply.assert_awaited_once()
+        self.assertEqual(msg.reply.await_args.kwargs['embed'].title, '🎮 Shark Minigames — Quick Menu')
+        await app.close()
+
 class Interactions(unittest.IsolatedAsyncioTestCase):
     async def test_lobby_join_start_and_actual_column_button(self):
         import minigames as ui

@@ -1,6 +1,11 @@
 name: Minigames
 on:
   workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'minigames/**'
+      - '.github/workflows/minigames.yml'
   push:
     branches: [main]
     paths:
@@ -15,11 +20,13 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
+        timeout-minutes: 5
         with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v6
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       - name: Install dependencies
@@ -33,6 +40,7 @@ jobs:
           python -m unittest discover -s minigames -p test_minigames.py
 
   minigames:
+    if: github.event_name != 'pull_request'
     needs: verify
     runs-on: ubuntu-latest
     timeout-minutes: 350
@@ -42,10 +50,10 @@ jobs:
     env:
       PYTHONPATH: ${{ github.workspace }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       - name: Install dependencies

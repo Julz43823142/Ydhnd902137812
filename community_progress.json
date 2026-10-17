@@ -53,7 +53,7 @@
       "pool": 2000,
       "progress": {
         "minigame_win": 7,
-        "puzzle_solve": 17,
+        "puzzle_solve": 21,
         "rush_complete": 3
       },
       "start": 1792015200,
@@ -62,7 +62,7 @@
       "users": {
         "442597396195704832": {
           "minigame_win": 7,
-          "puzzle_solve": 17,
+          "puzzle_solve": 21,
           "rush_complete": 3
         }
       }
@@ -161,14 +161,14 @@
         "new_cosmetics": 1
       },
       "442597396195704832": {
-        "coins_earned": 224.18,
-        "contribution": 0.020288,
+        "coins_earned": 264.18,
+        "contribution": 0.020788,
         "minigame_win": 7,
-        "new_cosmetics": 11,
-        "pet_feed": 6,
-        "pet_levels_gained": 13,
+        "new_cosmetics": 12,
+        "pet_feed": 9,
+        "pet_levels_gained": 15,
         "pet_puzzle": 8,
-        "puzzle_solve": 21,
+        "puzzle_solve": 25,
         "rush_complete": 3
       },
       "730484744944353301": {

@@ -8,7 +8,7 @@ PRIVILEGED = frozenset({
     "!addheart", "!heart", "!kill", "!bf2",
 })
 
-async def dispatch_existing_command(message, client, command, *, confirmed=False, context_theme=None):
+async def dispatch_existing_command(message, client, command, *, confirmed=False):
     """Schedule a normal Discord message event for a checked command.
 
     This reaches the same listeners as a user typing a command manually.
@@ -25,7 +25,7 @@ async def dispatch_existing_command(message, client, command, *, confirmed=False
         return False
     # Confirmations carry a command validated against the original request.
     # The follow-up message may contain only 'yes', not the earlier arguments.
-    validated = _parse_command(command, command if confirmed else (message.content + (" " + context_theme if context_theme in {"enpassant", "promotion", "castling"} and command == "!themepuzzle " + context_theme else "")))
+    validated = _parse_command(command, command if confirmed else message.content)
     is_original_pgn = (
         command.startswith("!review ")
         and validated == "!review"
@@ -37,6 +37,26 @@ async def dispatch_existing_command(message, client, command, *, confirmed=False
         return False
     routed = copy(message)
     routed.content = command
+    routed.mentions = [m for m in message.mentions if m.id != client.user.id]
+    client.dispatch("message", routed)
+    return True
+
+
+async def dispatch_puzzle_request(message, client, kind):
+    """Only dispatch fixed, audited puzzle commands from explicit AI intent."""
+    if kind not in {"random", "enpassant", "promotion", "castling"}:
+        return False
+    if (not message.guild or not client.user or message.author.bot
+            or not _is_chat_channel(message.channel.id)):
+        return False
+    member = message.guild.me
+    if member is None:
+        return False
+    permissions = message.channel.permissions_for(member)
+    if not (permissions.view_channel and permissions.send_messages):
+        return False
+    routed = copy(message)
+    routed.content = "!random" if kind == "random" else "!themepuzzle " + kind
     routed.mentions = [m for m in message.mentions if m.id != client.user.id]
     client.dispatch("message", routed)
     return True

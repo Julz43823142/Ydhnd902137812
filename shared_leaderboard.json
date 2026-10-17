@@ -472,13 +472,14 @@
       "🏹",
       "🚕",
       "🤚",
-      "🧬"
+      "🧬",
+      "🧙"
     ],
     "boards": [
       "ruby",
       "blue"
     ],
-    "coins": 36.45,
+    "coins": 51.45,
     "colors": [
       "purple",
       "pink"
@@ -493,7 +494,7 @@
       "kiwen-suwi",
       "purple"
     ],
-    "points": 1806.0,
+    "points": 1810.0,
     "profile_themes": [
       "killer_frequency",
       "purple"

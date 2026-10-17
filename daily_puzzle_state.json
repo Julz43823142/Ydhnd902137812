@@ -1,30 +1,30 @@
 {
   "latest_random_puzzle": {
-    "url": "https://lichess.org/training/DtCzH",
-    "title": "Lichess • 2061",
-    "fen": "2r5/p1q2p2/1p1kp3/3b4/1PrR3Q/P5P1/5P1P/3R2K1 w - - 9 37",
-    "current_fen": "2r5/p1q2p2/1p1kp3/3b4/1PrR3Q/P5P1/5P1P/3R2K1 w - - 9 37",
-    "last_move_uci": "e7d6",
+    "url": "https://lichess.org/training/wG6Gf",
+    "title": "Lichess • 2903",
+    "fen": "b4bk1/R4pp1/1n2p2p/2rpP3/8/1BP2N1P/3B1PP1/6K1 w - - 0 33",
+    "current_fen": "b4bk1/R4pp1/1n2p2p/2rpP3/8/1BP2N1P/3B1PP1/6K1 w - - 0 33",
+    "last_move_uci": "c8c5",
     "pgn": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq059e-58A5_qzAPcSfttuKxSxNZyWoolqEEeCcHP4xzs_NdYvjVe02Tcpw7UgiK3jZhz2xdbXoe0c1I9GsDrc7NLJt1VT_E_GS1OjCeOnmsIlLkk="
+      "__shark_answer_ciphertext_v1__": "gAAAAABq06UpBHLaoUVplcb7RJD-u5NChHK84qn-9eLLeDMhZOsaqw8kB5mFTQB6xzn54qrWNfekH5i1CWLH3zFoGmhxqsADAlnfDejBra20_fX_47174aA="
     },
     "all_moves": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq059e0Hf7DdTrSNRw2F0ES8n4CkmkB-XbbQ9UeEsOBosN3N-GGBPg8YE9DFXV_E8nsM5CvogmEevA9_wXPaGUW5sLOuGUPhyKXFgIL6NHTfkms-M3lVwt1RW29D9TfI8anY0ZPKnDXGZpt3FFADtLnkr_1MiGK8sbRQYq66cC-WjPPkQj_0FqVQwNh0lqzdy2GbfvGJ9dx-s60ir3bFQKPHOKedCzfndT-Vl6D5SjLmAoh5Cj0Gv4JZxDjfsabfH1atJY"
+      "__shark_answer_ciphertext_v1__": "gAAAAABq06Upelz8eGAwDifEH-1a-JihIGlAyA0wfcfZVgxsutpQSEH2U9ALl2RdWoqIuMWoPXBSteFgsN2DIUH66w7TSOQO_KoyAnYKVV5OifH4Q89y-XN3eo3ZtbBUbMKg69B88RorpbjJOD4Ly9ZCsx05_vhS_E_gBX2UK9LnBx-MHFKBpcH4xHaUNXb7GZFIE3gvp1XT6g3LsPOUGVTYQfF_mg6p_Gi4FxSs-zy7fye3QYXXfSd3OJicIA47gdVm_zTXQjuHOr2JU7SRXsD0jKSdw-rqcXeKbvAtDMuzz9_y82XjOROMztEPohviu26V7lz9N3aMZWeU9CRs8-QOoPvXWCRhI_t-XGCHZ5fsHIx-ubhKZKQ="
     },
     "player_moves": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq059eZneIj5FdkMXnbxJ_wLO9Q23XXxft1u0yH90MyORMyxGEfNMNxzG7OhBeSTh491TnpAoLaJWpQrKrxvz91ux1vV4RiYIDpth1bK0KyDVOvmECarJIG7EBJCPW-fzz1lIrOdy34_Io02wETujAQ9nQt8ixo0b0qFsLFdQjaDkZePd482ZjdUFJBkfcLMm75Q3J"
+      "__shark_answer_ciphertext_v1__": "gAAAAABq06UpNLvbeQJamXEwBW5tMuApNUBCeCk-kCJXAInZdT-Aerao8PRzHHdI3Kj21Oy2bVjfw27zV-IIF43mfozuSfBNPpbi1AbGFMIIyvF-O-uGeAI41bXqJVZii5_Y9tr2zVKErin4mBq04Dm084EjIFLBi0reA4qQ5Q3ImZgVd5P6bl9t4PDYBFnySjfkyP8p6I1HHNOOgzyjNF86beURgoM4-fzafZ0ba2sqshERrq03GORDHcl_XAKgHXXbNjSDQEob"
     },
     "player_color": "white",
-    "player_move_count": 2,
-    "posted_at": "2026-10-16T21:30:11.104087+00:00",
+    "player_move_count": 3,
+    "posted_at": "2026-10-17T16:41:11.563610+00:00",
     "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "random_DtCzH_1792186211104",
-    "last_activity_at": "2026-10-16T21:32:59.565636+00:00",
-    "rating": 2061,
-    "rp_band": 2,
+    "puzzle_id": "random_wG6Gf_1792255271563",
+    "last_activity_at": "2026-10-17T16:41:11.563610+00:00",
+    "rating": 2903,
+    "rp_band": 5,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
@@ -33,19 +33,12 @@
     "next_player_index": 0,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1560767542287671379
+      "1468320170891022417": 1561056504247750717
     },
-    "message_id": 1560767542287671379,
+    "message_id": 1561056504247750717,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {
-      "442597396195704832": {
-        "name": "Thice",
-        "move": "qf4",
-        "correct": false,
-        "timestamp": "2026-10-16T21:32:59.567166+00:00"
-      }
-    },
+    "attempted_users": {},
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
@@ -54,12 +47,7 @@
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
-    "last_card_activity_at": "2026-10-16T21:32:59.565636+00:00",
-    "recent_accepted_moves": [],
-    "wrong_attempt_counts": {
-      "442597396195704832": 1
-    },
-    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Rxd5+ Qf6+"
+    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Ra6 Be3 Rxa8"
   },
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
