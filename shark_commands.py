@@ -30,7 +30,7 @@ ALLOWED = frozenset("""
 !accept !decline !resign !draw !offerdraw !acceptdraw !declinedraw
 !opponentleft !iamhere !daily !board !chessboard
 !rush !puzzlerush !stoprush !survival !stopsurvival
-!practice !random !randompuzzle !rp !puzzlestreak
+!practice !random !randompuzzle !rp !themepuzzle !puzzlestreak
 !bal !balans !l !m !v !i !dailyb !dailyboard !dailym !dailymove
 !dailychessboard !survivalboard !survivallb !slb !p
 """.split())
@@ -155,6 +155,15 @@ def _parse_command(value, original):
             return None
         if tokens[-1].isdecimal() and int(tokens[-1]) <= 0:
             return None
+    if base == "!themepuzzle":
+        theme = args.strip().casefold()
+        if theme not in {"enpassant", "promotion", "castling"}:
+            return None
+        source = original.casefold()
+        words = {"enpassant": r"en[ -]?passant", "promotion": r"promotion|promotie", "castling": r"castling|rokade"}
+        if not re.search(words[theme], source):
+            return None
+        return "!themepuzzle " + theme
     if base == "!review":
         return "!review"  # PGN is sourced from original message only.
     if base != "!review":

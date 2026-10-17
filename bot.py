@@ -11563,13 +11563,16 @@ async def post_random_puzzle(
         if not await prepare_interactive_puzzle_start(channel, owner, "Random Puzzle"):
             return False
         try:
-            if theme not in (None, "enpassant"):
+            if theme not in (None, "enpassant", "promotion", "castling"):
                 await channel.send("That puzzle theme is not supported yet.")
                 return False
             boss = theme is None and random.random() < BOSS_PUZZLE_CHANCE
 
             if theme == "enpassant":
                 data = await asyncio.to_thread(fetch_en_passant_puzzle)
+            elif theme:
+                from shark_theme_puzzles import fetch_theme_puzzle
+                data = await asyncio.to_thread(fetch_theme_puzzle, RP_POOL_FILE, RP_BANDS, theme)
             elif boss:
                 data = await asyncio.to_thread(
                     fetch_random_puzzle,
@@ -11676,8 +11679,8 @@ async def post_random_puzzle(
                     "helpers **+1**."
                 )
             else:
-                embed_title = (f"🧩 En Passant Puzzle — {title}" if theme else f"🎲 Random Puzzle — {title}")
-                reward_text = ("\\n\\n**Training only — no points or coins.**" if theme else "")
+                embed_title = (f"🧩 {theme.replace('enpassant', 'En Passant').capitalize() if theme != 'enpassant' else 'En Passant'} Puzzle — {title}" if theme else f"🎲 Random Puzzle — {title}")
+                reward_text = ("\n\n**Training only — no points, coins, Elo or streak rewards.**" if theme else "")
 
             embed = discord.Embed(
                 title=embed_title,
@@ -20335,8 +20338,10 @@ async def on_message(
         # RANDOM PUZZLE
         # =====================================================
 
-        if command_lower == "!themepuzzle enpassant":
-            await post_random_puzzle(message.channel, message.author, theme="enpassant")
+        if command_lower.startswith("!themepuzzle "):
+            requested_theme = command_lower.partition(" ")[2].strip()
+            if requested_theme in {"enpassant", "promotion", "castling"}:
+                await post_random_puzzle(message.channel, message.author, theme=requested_theme)
             return
 
         if command_lower in (

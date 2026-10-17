@@ -44,7 +44,7 @@ async def dispatch_existing_command(message, client, command, *, confirmed=False
 
 async def dispatch_puzzle_request(message, client, kind):
     """Only dispatch fixed, audited puzzle commands from explicit AI intent."""
-    if kind not in {"random", "enpassant"}:
+    if kind not in {"random", "enpassant", "promotion", "castling"}:
         return False
     if (not message.guild or not client.user or message.author.bot
             or not _is_chat_channel(message.channel.id)):
@@ -56,7 +56,7 @@ async def dispatch_puzzle_request(message, client, kind):
     if not (permissions.view_channel and permissions.send_messages):
         return False
     routed = copy(message)
-    routed.content = "!random" if kind == "random" else "!themepuzzle enpassant"
+    routed.content = "!random" if kind == "random" else "!themepuzzle " + kind
     routed.mentions = [m for m in message.mentions if m.id != client.user.id]
     client.dispatch("message", routed)
     return True
