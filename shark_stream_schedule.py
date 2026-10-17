@@ -45,12 +45,12 @@ def streaming_answer(text, now=None):
     if day is not None:
         slot = STREAM_DAYS.get(day)
         if slot:
-            intro = f"{label} ({STREAM_NAMES[day]}), SharkM4te normally streams from {slot[0]:02d}:00 to {slot[1]:02d}:00 (Dutch time). "
+            intro = f"{label} ({STREAM_NAMES[day]}), SH4RKMATE normally streams from {slot[0]:02d}:00 to {slot[1]:02d}:00 (Dutch time). "
         else:
             intro = f"{label} ({STREAM_NAMES[day]}) is normally a no-stream day. "
     return (
         intro +
-        "SharkM4te's usual stream schedule (Dutch time):\n"
+        "SH4RKMATE's usual stream schedule (Dutch time):\n"
         "Monday: 9:00–11:00 PM\n"
         "Tuesday: 9:00–11:00 PM\n"
         "Wednesday: 9:00–11:00 PM\n"
