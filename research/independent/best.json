@@ -1,20 +1,20 @@
 {
   "baseline": {
-    "holdout_mae": 0.94,
-    "training_mae": 0.9205
+    "holdout_mae": 0.99,
+    "training_mae": 0.926
   },
   "best_settings": {
-    "loss_power": 0.7144687,
-    "loss_scale": 0.0859791,
-    "worst_move_weight": 0.0394473
+    "loss_power": 0.6516336,
+    "loss_scale": 0.1073291,
+    "worst_move_weight": 0.0552906
   },
-  "candidate_holdout_mae": 2.51,
-  "candidate_training_mae": 1.9148,
-  "holdout_games": 20,
+  "candidate_holdout_mae": 2.57,
+  "candidate_training_mae": 2.216,
+  "holdout_games": 25,
   "no_chesscom_data": true,
-  "paired_games": 81,
+  "paired_games": 100,
   "production_changed": false,
   "status": "evaluated",
   "target": "original Stockfish depth-18 review scores (NOT Chess.com)",
-  "train_games": 61
+  "train_games": 75
 }
