@@ -1,0 +1,14 @@
+{
+  "after_points": 1809.0,
+  "amount": 1.0,
+  "before_points": 1808.0,
+  "created_at": 1792255236,
+  "created_at_ns": 1792255236327751523,
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "add",
+  "pet_coin_bonus": 0.0,
+  "source": "puzzle-first",
+  "transaction_id": "puzzle:random_cpPLG_1792255168040:first:442597396195704832",
+  "user_id": "442597396195704832"
+}
