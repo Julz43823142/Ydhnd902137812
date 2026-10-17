@@ -510,7 +510,7 @@ async def handle_mention(message, client):
         except (OSError, sqlite3.Error):
             tone_score = 0.0
         # Rival status must be based on an authenticated Discord ID, never a nickname.
-        rival_ids = {value.strip() for value in os.getenv("SHARK_FRIENDLY_RIVAL_IDS", "").split(",") if value.strip()}
+        rival_ids = {value.strip() for value in os.getenv("SHARK_FRIENDLY_RIVAL_IDS", "442597396195704832").split(",") if value.strip()}
         persona = persona_instructions(tone_score, prompt, str(message.author.id) in rival_ids)
         pet_match = PET_REQUEST.search(prompt)
         if pet_match:
