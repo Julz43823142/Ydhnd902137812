@@ -9,7 +9,7 @@ from shark_version import SHARKBOT_VERSION
 
 class ReplyLimitTests(unittest.IsolatedAsyncioTestCase):
     def test_public_version(self):
-        self.assertEqual(SHARKBOT_VERSION, "2.21")
+        self.assertEqual(SHARKBOT_VERSION, "V1.0.0")
 
     def test_short_answer_unchanged(self):
         self.assertEqual(shark_ai._fit_reply("Checkmate!"), "Checkmate!")
