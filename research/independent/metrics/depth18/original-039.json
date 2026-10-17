@@ -1,0 +1,349 @@
+{
+  "analysed_plies": 48,
+  "id": "original-039",
+  "mode": "depth18",
+  "model_version": "independent-sf19-comparison-v1",
+  "moves": [
+    {
+      "classification": "book",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "white",
+      "win_loss_pct": 2.945
+    },
+    {
+      "classification": "mistake",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "black",
+      "win_loss_pct": 11.97
+    },
+    {
+      "classification": "best",
+      "is_best": true,
+      "sacrifice_cp": 0,
+      "side": "white",
+      "win_loss_pct": 0.0
+    },
+    {
+      "classification": "good",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "black",
+      "win_loss_pct": 4.359
+    },
+    {
+      "classification": "miss",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "white",
+      "win_loss_pct": 20.606
+    },
+    {
+      "classification": "good",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "black",
+      "win_loss_pct": 3.587
+    },
+    {
+      "classification": "inaccuracy",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "white",
+      "win_loss_pct": 8.35
+    },
+    {
+      "classification": "mistake",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "black",
+      "win_loss_pct": 15.253
+    },
+    {
+      "classification": "blunder",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "white",
+      "win_loss_pct": 21.374
+    },
+    {
+      "classification": "blunder",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "black",
+      "win_loss_pct": 21.538
+    },
+    {
+      "classification": "blunder",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "white",
+      "win_loss_pct": 54.874
+    },
+    {
+      "classification": "great",
+      "is_best": true,
+      "sacrifice_cp": 0,
+      "side": "black",
+      "win_loss_pct": 0.0
+    },
+    {
+      "classification": "good",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "white",
+      "win_loss_pct": 4.68
+    },
+    {
+      "classification": "good",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "black",
+      "win_loss_pct": 4.974
+    },
+    {
+      "classification": "good",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "white",
+      "win_loss_pct": 4.727
+    },
+    {
+      "classification": "good",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "black",
+      "win_loss_pct": 4.509
+    },
+    {
+      "classification": "good",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "white",
+      "win_loss_pct": 4.251
+    },
+    {
+      "classification": "excellent",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "black",
+      "win_loss_pct": 0.136
+    },
+    {
+      "classification": "excellent",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "white",
+      "win_loss_pct": 0.299
+    },
+    {
+      "classification": "excellent",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "black",
+      "win_loss_pct": 0.0
+    },
+    {
+      "classification": "excellent",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "white",
+      "win_loss_pct": 0.389
+    },
+    {
+      "classification": "good",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "black",
+      "win_loss_pct": 2.056
+    },
+    {
+      "classification": "excellent",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "white",
+      "win_loss_pct": 1.397
+    },
+    {
+      "classification": "blunder",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "black",
+      "win_loss_pct": 31.639
+    },
+    {
+      "classification": "blunder",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "white",
+      "win_loss_pct": 31.476
+    },
+    {
+      "classification": "blunder",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "black",
+      "win_loss_pct": 86.895
+    },
+    {
+      "classification": "blunder",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "white",
+      "win_loss_pct": 88.071
+    },
+    {
+      "classification": "excellent",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "black",
+      "win_loss_pct": 0.0
+    },
+    {
+      "classification": "excellent",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "white",
+      "win_loss_pct": 0.0
+    },
+    {
+      "classification": "good",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "black",
+      "win_loss_pct": 4.092
+    },
+    {
+      "classification": "best",
+      "is_best": true,
+      "sacrifice_cp": 0,
+      "side": "white",
+      "win_loss_pct": 0.0
+    },
+    {
+      "classification": "blunder",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "black",
+      "win_loss_pct": 85.691
+    },
+    {
+      "classification": "blunder",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "white",
+      "win_loss_pct": 84.524
+    },
+    {
+      "classification": "blunder",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "black",
+      "win_loss_pct": 36.916
+    },
+    {
+      "classification": "blunder",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "white",
+      "win_loss_pct": 26.942
+    },
+    {
+      "classification": "blunder",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "black",
+      "win_loss_pct": 43.029
+    },
+    {
+      "classification": "great",
+      "is_best": true,
+      "sacrifice_cp": 0,
+      "side": "white",
+      "win_loss_pct": 0.0
+    },
+    {
+      "classification": "great",
+      "is_best": true,
+      "sacrifice_cp": 0,
+      "side": "black",
+      "win_loss_pct": 0.0
+    },
+    {
+      "classification": "blunder",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "white",
+      "win_loss_pct": 23.952
+    },
+    {
+      "classification": "inaccuracy",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "black",
+      "win_loss_pct": 6.067
+    },
+    {
+      "classification": "mistake",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "white",
+      "win_loss_pct": 13.72
+    },
+    {
+      "classification": "blunder",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "black",
+      "win_loss_pct": 54.002
+    },
+    {
+      "classification": "blunder",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "white",
+      "win_loss_pct": 46.691
+    },
+    {
+      "classification": "best",
+      "is_best": true,
+      "sacrifice_cp": 0,
+      "side": "black",
+      "win_loss_pct": 0.0
+    },
+    {
+      "classification": "blunder",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "white",
+      "win_loss_pct": 24.037
+    },
+    {
+      "classification": "miss",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "black",
+      "win_loss_pct": 23.643
+    },
+    {
+      "classification": "best",
+      "is_best": true,
+      "sacrifice_cp": 0,
+      "side": "white",
+      "win_loss_pct": 0.0
+    },
+    {
+      "classification": "mistake",
+      "is_best": false,
+      "sacrifice_cp": 0,
+      "side": "black",
+      "win_loss_pct": 11.882
+    }
+  ],
+  "reference_scores": {
+    "black": 56.8,
+    "white": 53.8
+  },
+  "sha256": "ce60bdfdbf714207981f77114661238aa6e05ba21341baa9260423388f03bc35"
+}

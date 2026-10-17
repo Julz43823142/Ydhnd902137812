@@ -1,37 +1,37 @@
 {
   "cached_profiles": {
-    "depth18": 29,
+    "depth18": 55,
     "fast": 100
   },
   "errors": [],
-  "finished_at_utc": "2026-10-16T21:47:59.050884+00:00",
-  "interrupted": false,
-  "mode": "fast",
-  "new_completed_games": 99,
+  "finished_at_utc": "2026-10-17T00:34:59.782523+00:00",
+  "interrupted": true,
+  "mode": "depth18",
+  "new_completed_games": 26,
   "no_chesscom_data": true,
   "no_chesscom_requests": true,
   "no_production_changes": true,
   "optimization": {
     "baseline": {
-      "holdout_mae": 0.9056,
-      "training_mae": 1.0975
+      "holdout_mae": 0.7962,
+      "training_mae": 1.0119
     },
     "best_settings": {
-      "loss_power": 0.6134217,
-      "loss_scale": 0.1226714,
-      "worst_move_weight": 0.0393664
+      "loss_power": 0.5382781,
+      "loss_scale": 0.1592743,
+      "worst_move_weight": 0.0293747
     },
-    "candidate_holdout_mae": 1.9944,
-    "candidate_training_mae": 2.335,
-    "holdout_games": 9,
+    "candidate_holdout_mae": 2.9269,
+    "candidate_training_mae": 2.4024,
+    "holdout_games": 13,
     "no_chesscom_data": true,
-    "paired_games": 29,
+    "paired_games": 55,
     "production_changed": false,
     "status": "evaluated",
     "target": "original Stockfish depth-18 review scores (NOT Chess.com)",
-    "train_games": 20
+    "train_games": 42
   },
-  "paired_games": 29,
-  "started_at_utc": "2026-10-16T21:29:16.841907+00:00",
+  "paired_games": 55,
+  "started_at_utc": "2026-10-16T23:46:50.439933+00:00",
   "status": "completed"
 }
