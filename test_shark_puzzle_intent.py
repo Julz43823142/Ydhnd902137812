@@ -19,6 +19,7 @@ class PuzzleIntentTests(unittest.TestCase):
     def test_explanation_not_game(self):
         self.assertIsNone(puzzle_request("what is en passant?"))
         self.assertEqual(puzzle_request("give me an example", ["what is en passant?"]), "enpassant")
+        self.assertEqual(puzzle_request("Ja, is goed, geef maar eentje", ["what is en passant?", "Want an example?"]), "enpassant")
         self.assertIsNone(puzzle_request("explain a chess puzzle"))
 
     def test_no_command_injection(self):
