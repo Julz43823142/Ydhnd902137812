@@ -445,9 +445,9 @@
           "name": "Thice",
           "paid": [],
           "progress": {
-            "daily:2026-10-17:puzzle:solve-10": 3
+            "daily:2026-10-17:puzzle:solve-10": 4
           },
-          "updated_at": 1792255236
+          "updated_at": 1792255268
         }
       }
     },
@@ -657,12 +657,14 @@
       "users": {
         "442597396195704832": {
           "name": "Thice",
-          "paid": [],
+          "paid": [
+            "weekly:2026-10-12:puzzle:solve-25"
+          ],
           "progress": {
             "weekly:2026-10-12:minigame:minigame-8": 7,
-            "weekly:2026-10-12:puzzle:solve-25": 24
+            "weekly:2026-10-12:puzzle:solve-25": 25
           },
-          "updated_at": 1792255236
+          "updated_at": 1792255268
         },
         "730484744944353301": {
           "name": "Julian21",
