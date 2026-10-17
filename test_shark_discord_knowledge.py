@@ -34,7 +34,7 @@ class KnowledgeTests(unittest.TestCase):
 
     def test_bounded_constants(self):
         self.assertLessEqual(k.MAX_CHANNELS, 8)
-        self.assertLessEqual(k.MAX_RESULTS, 5)
+        self.assertEqual(k.MAX_RESULTS, 1)
         self.assertLessEqual(k.SEARCH_TIMEOUT, 5)
 
 
