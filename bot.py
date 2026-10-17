@@ -11602,8 +11602,8 @@ async def post_random_puzzle(
                 )
 
             if theme:
-                embed_title = f"♟️ {data[\"title\"]} — Training (no points or coins)"
-                reward_text = "\\n\\n**Training only:** no points, coins, Elo or streak rewards."
+                embed_title = f"♟️ {data['title']} — Training (no points or coins)"
+                reward_text = "\n\n**Training only:** no points, coins, Elo or streak rewards."
             elif boss:
                 embed_title = (
                     f"☠️ BOSS PUZZLE — {data.get('rating', '?')}"
