@@ -11482,7 +11482,7 @@ _ANY_PREVIOUS_PUZZLE = object()
 async def post_random_puzzle(
     channel,
     owner=None,
-    *, expected_previous=_ANY_PREVIOUS_PUZZLE,
+    *, expected_previous=_ANY_PREVIOUS_PUZZLE, theme=None,
 ):
     channel_rp_lock = _rp_command_lock_for_channel(channel.id)
     if channel_rp_lock.locked():
@@ -11499,9 +11499,12 @@ async def post_random_puzzle(
         if not await prepare_interactive_puzzle_start(channel, owner, "Random Puzzle"):
             return False
         try:
-            boss = random.random() < BOSS_PUZZLE_CHANCE
+            boss = not theme and random.random() < BOSS_PUZZLE_CHANCE
 
-            if boss:
+            if theme:
+                from shark_theme_puzzles import fetch_theme_puzzle
+                data = await asyncio.to_thread(fetch_theme_puzzle, RP_POOL_FILE, RP_BANDS, theme)
+            elif boss:
                 data = await asyncio.to_thread(
                     fetch_random_puzzle,
                     BOSS_RP_BAND_INDEX,
@@ -11531,6 +11534,10 @@ async def post_random_puzzle(
             puzzle["rating"] = data.get("rating")
             puzzle["rp_band"] = data.get("rp_band")
             puzzle["boss"] = bool(boss)
+            if theme:
+                puzzle["practice_only"] = True
+                puzzle["rated_practice"] = False
+                puzzle["theme"] = theme
             if owner is not None:
                 try:
                     cosmetic = await asyncio.to_thread(
@@ -11594,7 +11601,10 @@ async def post_random_puzzle(
                     f"**{count} {move_word(count)}**."
                 )
 
-            if boss:
+            if theme:
+                embed_title = f"♟️ {data[\"title\"]} — Training (no points or coins)"
+                reward_text = "\\n\\n**Training only:** no points, coins, Elo or streak rewards."
+            elif boss:
                 embed_title = (
                     f"☠️ BOSS PUZZLE — {data.get('rating', '?')}"
                 )
@@ -11633,7 +11643,7 @@ async def post_random_puzzle(
             save_json(STATE_FILE, state)
 
             print(
-                f"{'BOSS ' if boss else ''}Random Puzzle posted: rating {data.get('rating')} "
+                f"{'THEME ' if theme else ('BOSS ' if boss else '')}Random Puzzle posted: rating {data.get('rating')} "
                 f"(band {data.get('rp_band')}, {count} player moves).",
                 flush=True
             )
@@ -20242,6 +20252,15 @@ async def on_message(
                 )
 
             await post_practice_puzzle(message.channel, message.author)
+            return
+
+        # =====================================================
+        # THEMED PUZZLE — training only, never awards points/coins
+        # =====================================================
+        if command_lower.startswith("!themepuzzle "):
+            requested_theme = command_lower.partition(" ")[2].strip()
+            if requested_theme in {"enpassant", "promotion", "castling"}:
+                await post_random_puzzle(message.channel, message.author, theme=requested_theme)
             return
 
         # =====================================================
