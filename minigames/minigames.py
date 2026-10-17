@@ -984,7 +984,7 @@ class Arcade(discord.Client):
         if message.channel.id!=CHANNEL_ID:return
         self.last_human_activity=time.monotonic();self.idle_tip_sent=False
         raw_command=message.content.strip();command=raw_command.lower();token=command.split(' ',1)[0]
-        allowed=('!i','!info','!help','!games','!minigames','!m','!menu','!stats','!mstats','!minigamestats','!coins','!bank','!balance','!bal','!balans','!quests','!quest','!q')
+        allowed=('!i','!info','!help','!games','!minigames','!m','!menu','!blackjack','!bj','!stats','!mstats','!minigamestats','!coins','!bank','!balance','!bal','!balans','!quests','!quest','!q')
         if token not in allowed:return
         if not self.ready_event.is_set():return
         if token in ('!stats','!mstats','!minigamestats'):
@@ -1026,6 +1026,22 @@ class Arcade(discord.Client):
                 LOG.exception('Could not show shared coin balance')
                 await message.reply('That coin balance could not be loaded. Please try again shortly.',
                                     mention_author=False, allowed_mentions=discord.AllowedMentions.none())
+            return
+        # Text shortcut for the existing blackjack UI. Never auto-charge a stake:
+        # the user must choose 0-50 coins in the normal confirmation modal.
+        if command in ('!blackjack', '!bj'):
+            view = discord.ui.View(timeout=300)
+            button(view, 'Play Blackjack', 'mg:pick:blackjack', discord.ButtonStyle.primary)
+            await message.reply(
+                embed=discord.Embed(
+                    title='🃏 Blackjack',
+                    description='Select **Play Blackjack** to choose your stake (0 coins = free).',
+                    color=0x4dd6b6,
+                ),
+                view=view,
+                mention_author=False,
+                allowed_mentions=discord.AllowedMentions.none(),
+            )
             return
         # `!m` / `!menu` is deliberately tiny: game buttons without the rule wall.
         if command in ('!m','!menu'):
