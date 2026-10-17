@@ -52,7 +52,7 @@
       "paid": [],
       "pool": 2000,
       "progress": {
-        "minigame_win": 7,
+        "minigame_win": 8,
         "puzzle_solve": 21,
         "rush_complete": 3
       },
@@ -61,7 +61,7 @@
       "title": "Halloween Community Challenge",
       "users": {
         "442597396195704832": {
-          "minigame_win": 7,
+          "minigame_win": 8,
           "puzzle_solve": 21,
           "rush_complete": 3
         }
@@ -162,8 +162,8 @@
       },
       "442597396195704832": {
         "coins_earned": 264.18,
-        "contribution": 0.020788,
-        "minigame_win": 7,
+        "contribution": 0.022121,
+        "minigame_win": 8,
         "new_cosmetics": 12,
         "pet_feed": 9,
         "pet_levels_gained": 15,
