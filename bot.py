@@ -18534,7 +18534,8 @@ async def chess_idle_tip_loop(channel):
                 and time.monotonic() - float(state_for_channel.get("last_human", 0.0) or 0.0) >= _CHESS_IDLE_SECONDS
             ):
                 await channel.send(
-                    "👋 **New here?** Choose **Info** for help or **Menu** for quick-play buttons.",
+                    ("👋 **New here?** Choose **Info** for help or **Menu** for quick-play buttons.\n"
+                     f"💬 Have a question? Mention <@{client.user.id}> to ask SharkBot directly."),
                     view=ChessNewHereView(),
                     allowed_mentions=discord.AllowedMentions.none(),
                 )
