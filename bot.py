@@ -18722,6 +18722,10 @@ async def on_message(
                 return
 
         in_minigames = message.channel.id == 1546155761405788230
+        # The separate Minigames client in this same repository owns its own
+        # !menu / !info commands. Do not send a second chess-game menu here.
+        if in_minigames and message.content.strip().casefold() in {'!menu', '!m', '!help', '!info', '!i'}:
+            return
         in_chess_channel = is_chess_channel_id(message.channel.id)
         if not in_chess_channel and not in_minigames:
             return
