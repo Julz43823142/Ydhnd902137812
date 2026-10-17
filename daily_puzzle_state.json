@@ -1,30 +1,30 @@
 {
   "latest_random_puzzle": {
-    "url": "https://lichess.org/training/DtCzH",
-    "title": "Lichess • 2061",
-    "fen": "2r5/p1q2p2/1p1kp3/3b4/1PrR3Q/P5P1/5P1P/3R2K1 w - - 9 37",
-    "current_fen": "2r5/p1q2p2/1p1kp3/3b4/1PrR3Q/P5P1/5P1P/3R2K1 w - - 9 37",
-    "last_move_uci": "e7d6",
+    "url": "https://lichess.org/training/mLAUt",
+    "title": "Lichess • 2479",
+    "fen": "r7/1pk1b3/2P2p2/p7/5q1p/B4Q1B/PPP1R3/4K3 b - - 0 37",
+    "current_fen": "r7/1pk1b3/2P2p2/p7/5q1p/B4Q1B/PPP1R3/4K3 b - - 0 37",
+    "last_move_uci": "c3f3",
     "pgn": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq059e-58A5_qzAPcSfttuKxSxNZyWoolqEEeCcHP4xzs_NdYvjVe02Tcpw7UgiK3jZhz2xdbXoe0c1I9GsDrc7NLJt1VT_E_GS1OjCeOnmsIlLkk="
+      "__shark_answer_ciphertext_v1__": "gAAAAABq06Rso5IiORObVe4qLXR9eb5LNE_gDg2pkemMKstKnvFQzkG_yes2FNUnTujdALndiTNR5MT5yizVPE7W8ibgLRv-e4CNMHwG10SvqLAlmtQlhAw="
     },
     "all_moves": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq059e0Hf7DdTrSNRw2F0ES8n4CkmkB-XbbQ9UeEsOBosN3N-GGBPg8YE9DFXV_E8nsM5CvogmEevA9_wXPaGUW5sLOuGUPhyKXFgIL6NHTfkms-M3lVwt1RW29D9TfI8anY0ZPKnDXGZpt3FFADtLnkr_1MiGK8sbRQYq66cC-WjPPkQj_0FqVQwNh0lqzdy2GbfvGJ9dx-s60ir3bFQKPHOKedCzfndT-Vl6D5SjLmAoh5Cj0Gv4JZxDjfsabfH1atJY"
+      "__shark_answer_ciphertext_v1__": "gAAAAABq06RsMRaY3tsvQad1G4xUgG5N0rnCc5OS_Y64rwlDUKlVL0nxHtqatlhBE-F8rF7YLgFswRBY29P5DhXtqGGaRT01v3Fb1x1wHYOtt88RNh9bBhbMLeFGHPRIXItdMm6cqNa7PMBkzkNdBLxkJVFjAiHyASGybXF9it8NwJKWCRxhkD0rl-70flGcuYyUADtGaxv0vTyGAyXjtnMxpDgvyvJEzdHCzAlKt1blwcs6maVrAhNgirtgul71j7V68clekcz0"
     },
     "player_moves": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq059eZneIj5FdkMXnbxJ_wLO9Q23XXxft1u0yH90MyORMyxGEfNMNxzG7OhBeSTh491TnpAoLaJWpQrKrxvz91ux1vV4RiYIDpth1bK0KyDVOvmECarJIG7EBJCPW-fzz1lIrOdy34_Io02wETujAQ9nQt8ixo0b0qFsLFdQjaDkZePd482ZjdUFJBkfcLMm75Q3J"
+      "__shark_answer_ciphertext_v1__": "gAAAAABq06RsezhAQNQyD2vXLirBLjlEkKFPMgL36VBf1xyhIZr2Fz-NDTnXmKwMO4J2LE85o4xPp9LS3wLpKJY-s9sX8rG_Vjb8N-aXTud9HudgBolSJ1NRtPEaSs8c7JMG0qz1bd9dC3m6VLi49-0ta3ehoYTOdKA2IPTBwHo8N9mJn1xlGthpI4iVpwM2fzOG6zKkZuvL"
     },
-    "player_color": "white",
+    "player_color": "black",
     "player_move_count": 2,
-    "posted_at": "2026-10-16T21:30:11.104087+00:00",
-    "answer_posted": true,
+    "posted_at": "2026-10-17T16:38:04.039164+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "random_DtCzH_1792186211104",
-    "last_activity_at": "2026-10-16T21:32:59.565636+00:00",
-    "rating": 2061,
-    "rp_band": 2,
+    "puzzle_id": "random_mLAUt_1792255084039",
+    "last_activity_at": "2026-10-17T16:38:04.039164+00:00",
+    "rating": 2479,
+    "rp_band": 4,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
@@ -32,36 +32,18 @@
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_ids": {
-      "1468320170891022417": 1560767542287671379
-    },
-    "message_id": 1560767542287671379,
+    "message_ids": {},
+    "message_id": null,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {
-      "442597396195704832": {
-        "name": "Thice",
-        "move": "qf4",
-        "correct": false,
-        "timestamp": "2026-10-16T21:32:59.567166+00:00"
-      }
-    },
+    "attempted_users": {},
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "board_attachment_filenames": {
-      "1468320170891022417": "random_puzzle.png"
-    },
-    "last_card_activity_at": "2026-10-16T21:32:59.565636+00:00",
-    "recent_accepted_moves": [],
-    "wrong_attempt_counts": {
-      "442597396195704832": 1
-    },
-    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Rxd5+ Qf6+"
+    "helper_candidate_users": []
   },
-  "latest_puzzle_type": "daily",
+  "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-17",
