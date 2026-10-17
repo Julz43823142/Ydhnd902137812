@@ -504,7 +504,22 @@ async def handle_mention(message, client):
             return True
         _last_request[rate_scope] = now
         _prune(scope, now)
-        messages = [{"role": "system", "content": SYSTEM_RULES}]
+        from shark_personality import update_tone, persona_instructions, PET_REQUEST, pet_profile
+        try:
+            tone_score = await asyncio.to_thread(update_tone, message.guild.id, message.author.id, prompt)
+        except (OSError, sqlite3.Error):
+            tone_score = 0.0
+        # Rival status must be based on an authenticated Discord ID, never a nickname.
+        rival_ids = {value.strip() for value in os.getenv("SHARK_FRIENDLY_RIVAL_IDS", "442597396195704832").split(",") if value.strip()}
+        persona = persona_instructions(tone_score, prompt, str(message.author.id) in rival_ids)
+        pet_match = PET_REQUEST.search(prompt)
+        if pet_match:
+            pet_name = pet_match.group(1).strip(" .!?")
+            profile = pet_profile(message.guild.id, message.author.id, pet_name)
+            persona += (" The user is asking for a fictional pet roleplay named " + repr(pet_name) +
+                        ". Speak AS that pet, with this consistent character: " + repr(profile) +
+                        ". This is roleplay only: do not assert pet ownership, inventory, rewards or game actions.")
+        messages = [{"role": "system", "content": SYSTEM_RULES + "\\n" + persona}]
         for _, role, text in _history[scope]:
             messages.append({"role": role, "content": text})
         speaker_prompt = f"Player {discord.utils.escape_markdown(message.author.display_name[:64])}: {prompt}"
