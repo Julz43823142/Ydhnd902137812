@@ -1,5 +1,6 @@
 """Synthetic-only closure alerts; no labels or private accounts in fixtures."""
 import copy
+import asyncio
 from pathlib import Path
 import tempfile
 from types import SimpleNamespace
@@ -45,6 +46,24 @@ class Alerts(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(set(s['users']['1']['subscriptions']),{'synthetic-second'})
         self.assertIn('synthetic-player',s['users']['2']['subscriptions'])
         self.assertFalse(s['users']['1']['muted'])
+    def test_pings_default_on_and_mute_survives_another_subscription(self):
+        self.subscribe()
+        self.assertFalse(self.store.snapshot()['users']['1']['muted'])
+        mute(self.store,1,True)
+        self.subscribe(target='synthetic-second')
+        self.assertTrue(self.store.snapshot()['users']['1']['muted'])
+
+    async def test_periodic_checks_never_publish_a_subscription_panel(self):
+        channel=SimpleNamespace(send=AsyncMock())
+        service=AlertService(SimpleNamespace(user=SimpleNamespace(id=5)),channel,self.store,Settings())
+        with (patch('fairplay_ban_alerts_ui.poll',return_value={}) as check,
+              patch.object(service,'deliver',new_callable=AsyncMock),
+              patch('fairplay_ban_alerts_ui.asyncio.sleep',new_callable=AsyncMock,
+                    side_effect=[None,asyncio.CancelledError])):
+            with self.assertRaises(asyncio.CancelledError):await service.run()
+            self.assertEqual(check.call_count,2)
+        channel.send.assert_not_awaited()
+
     def test_existing_closures_baseline_no_old_spam(self):
         self.subscribe();API.status=FAIRPLAY_CLOSED;self.tick();self.tick(NOW+3601)
         self.assertFalse(self.store.snapshot()['outbox'])
@@ -92,6 +111,9 @@ class Alerts(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(channel.send.call_args.kwargs['content'])
         self.assertFalse(channel.send.call_args.kwargs['allowed_mentions'].users)
         self.assertEqual(self.store.snapshot()['outbox'][key]['state'],'sent')
+        view=channel.send.call_args.kwargs['view']
+        self.assertEqual(len(view.children),5)
+        self.assertEqual(view.children[0].label,'Subscribe')
     async def test_unknown_discord_ack_not_blindly_retried(self):
         key=self.event()
         async def history(**kwargs):

@@ -20723,10 +20723,12 @@ async def on_ready():
         state.setdefault("seasonal_bot_profile_v1", {}), save_all_critical,
     )
     asyncio.create_task(seasonal_profile.run())
-    asyncio.create_task(holiday_launch_loop(
-        client, channels, state.setdefault("holiday_announcements_v1", {}),
-        save_all_critical,
-    ))
+    if (any(int(channel.id)==PRIMARY_CHESS_CHANNEL_ID for channel in channels)
+            and (not getattr(client, '_holiday_launch_task', None) or client._holiday_launch_task.done())):
+        client._holiday_launch_task = asyncio.create_task(holiday_launch_loop(
+            client, [channel for channel in channels if int(channel.id)==PRIMARY_CHESS_CHANNEL_ID],
+            state.setdefault("holiday_announcements_v1", {}), save_all_critical,
+        ))
 
     if TWITCH_EVENTSUB_ENABLED and (
         _twitch_eventsub_task is None or _twitch_eventsub_task.done()

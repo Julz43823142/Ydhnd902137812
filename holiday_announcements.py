@@ -1,4 +1,4 @@
-"""Daily Holiday/weekly reminders in both chess channels, owned by Daily only."""
+"""Daily Holiday/weekly reminders for the configured announcement channels."""
 import asyncio
 import logging
 from datetime import datetime, time, timedelta

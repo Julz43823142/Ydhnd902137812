@@ -125,3 +125,37 @@ class PetNavigation(unittest.IsolatedAsyncioTestCase):
     def test_guess_profile_shows_collection(self):
         with patch.object(guess_chatter, 'get_cosmetic_profile', return_value={}), patch.object(pet_ui, 'user_collection_summary', return_value='2 living pets · Buddy'):
             self.assertIn('2 living pets · Buddy', guess_chatter.guess_cosmetic_profile_dashboard(42, 'Shark'))
+
+
+class PrimaryAnnouncementRouting(unittest.TestCase):
+    def test_reconnect_does_not_duplicate_task_and_secondary_gets_no_reminders(self):
+        import ast
+        from pathlib import Path
+        from unittest.mock import Mock
+        tree=ast.parse(Path(bot.__file__).read_text())
+        ready=next(n for n in tree.body if isinstance(n,ast.AsyncFunctionDef) and n.name=='on_ready')
+        branch=next(n for n in ready.body if isinstance(n,ast.If) and any(
+            isinstance(x,ast.Attribute) and isinstance(x.ctx,ast.Store) and x.attr=='_holiday_launch_task'
+            for x in ast.walk(n)))
+        code=compile(ast.fix_missing_locations(ast.Module(body=[branch],type_ignores=[])),
+                     '<actual holiday startup routing>','exec')
+        primary=SimpleNamespace(id=bot.PRIMARY_CHESS_CHANNEL_ID)
+        secondary=SimpleNamespace(id=bot.SECONDARY_CHESS_CHANNEL_ID)
+        for channels,expected in (([secondary,primary],[primary]),([secondary],[])):
+            launch=Mock(return_value=object())
+            create=Mock(return_value=SimpleNamespace(done=lambda:False))
+            env=dict(client=SimpleNamespace(),channels=channels,state={},save_all_critical=Mock(),
+                PRIMARY_CHESS_CHANNEL_ID=bot.PRIMARY_CHESS_CHANNEL_ID,
+                asyncio=SimpleNamespace(create_task=create),holiday_launch_loop=launch)
+            exec(code,env);exec(code,env)
+            if expected:
+                launch.assert_called_once()
+                self.assertEqual(launch.call_args.args[1],expected)
+                create.assert_called_once()
+            else:
+                launch.assert_not_called();create.assert_not_called()
+                # Retry can start the announcer when primary becomes available.
+                env['channels']=[primary]
+                exec(code,env);exec(code,env)
+                launch.assert_called_once();create.assert_called_once()
+                self.assertEqual(launch.call_args.args[1],[primary])
