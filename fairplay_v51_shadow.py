@@ -218,7 +218,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI,
             if game_id in by_id and _verify_deep(remote, config):
                 by_id[game_id].decisions = remote.decisions
                 by_id[game_id].deep = True
-        missing = [(game, d) for game in games if not game.deep
+        missing = [(game, d) for game in games if not _verify_deep(game, config)
                    for d in game.decisions]
         progress(f"Depth-18 rapid/blitz · depth-12 bullet: 0 / {len(missing)} positions")
         # Bounded batches; no 500-game backlog of concurrent future objects.
