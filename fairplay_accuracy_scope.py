@@ -29,7 +29,7 @@ def _spread(rows, count):
     return [rows[round(i*(len(rows)-1)/(count-1))] for i in range(count)]
 
 
-def maia_scope(games):
+def maia_scope(games, *, complete_reference=False):
     """Full move inference in >80 games plus fixed comparison games.
 
     Comparators are sampled by chronology, not engine matches, wins, names,
@@ -59,6 +59,10 @@ def maia_scope(games):
             chosen += _spread([g for g in missing if g.identity not in chosen_ids], remaining)
         controls += chosen
     selected_ids = candidate_ids | {g.identity for g in controls}
+    if complete_reference:
+        # A scoring reference cannot depend on which games somebody happened
+        # to review on Chess.com. Retain misses and missing published scores.
+        selected_ids = {g.identity for g in ordered}
     selected = [g for g in ordered if g.identity in selected_ids]
     return selected, {
         'threshold': ACCURACY_THRESHOLD, 'eligible_rated_games': len(ordered),
@@ -67,7 +71,10 @@ def maia_scope(games):
         'accuracy_selected_games': len(candidates), 'comparison_games': len(controls),
         'selected_games': len(selected),
         'selected_positions': sum(len(g.decisions) for g in selected),
-        'selection': 'Published Accuracy >80 plus chronological comparison games; not a representative population sample',
+        'all_rated_games': bool(complete_reference),
+        'selection': ('Every collected rated game, independent of published Accuracy'
+                      if complete_reference else
+                      'Published Accuracy >80 plus chronological comparison games; not a representative population sample'),
     }
 
 
@@ -116,7 +123,9 @@ def model_summary(games, scope, reference):
                   model=reference.get('model'), positions=0,
                   inference_positions=reference.get('positions', 0),
                   reason=reference.get('reason'), by_class={},
-                  role='Selected-game human move reference; not a cheating probability or a standalone priority route')
+                  role=('Full-sample human reference; bounded engine/model period comparison can set review priority'
+                        if scope.get('all_rated_games') else
+                        'Selected-game human move reference; not a cheating probability or a standalone priority route'))
     for kind in ('bullet', 'blitz', 'rapid'):
         group = [g for g in games if g.time_class == kind] if result['available'] else []
         compared = rare = rare_strong = contributors = 0

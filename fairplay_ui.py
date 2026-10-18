@@ -52,7 +52,7 @@ def panel_embed():
         embed=discord.Embed(title=PANEL_TITLE,color=0x427CBA,
             description=("Review up to 200 completed rated Bullet, Blitz and Rapid "
                          "games at Stockfish depth 12 (Bullet) or 18 (Blitz/Rapid), MultiPV 3. "
-                         "Local Maia-3 checks games above 80 published Accuracy plus comparison games. "
+                         "Local Maia-3 checks every collected rated game, including misses and missing Accuracy. "
                          "Three independent English chart reports plot accuracy, opponent Elo "
                          "and observed move think time by GAME number. There is no calibrated "
                          "population baseline or automatic cheating verdict. "
@@ -480,10 +480,11 @@ def detail_embed(result, mode):
                 embed.add_field(name="Local human reference",inline=False,
                     value=(f"Available: **{bool(maia.get('available'))}** · "
                            f"full-game selected move checks: **{maia.get('positions',0)}/{maia.get('selected_positions',0)}**\n"
-                           f"Published Accuracy >80 games: {maia.get('accuracy_selected_games',0)} · "
-                           f"comparison games: {maia.get('comparison_games',0)}\n"
+                           + ("All collected rated games; published Accuracy does not select model coverage.\n"
+                              if maia.get('all_rated_games') else
+                              f"Published Accuracy >80 games: {maia.get('accuracy_selected_games',0)} · comparison games: {maia.get('comparison_games',0)}\n")
                            + (maia.get('reason') or 'Local Maia-3 5M with real preceding board history; no scan-time model download.')
-                           + '\nRare strong moves are descriptive; selected-game rates cannot establish HIGH.')[:1024])
+                           + '\nMove likelihood is not misconduct probability. Only a covered multi-game engine/model period can use the new route.')[:1024])
                 for kind,row in maia.get('by_class',{}).items():
                     embed.add_field(name=f"{kind.title()} human-policy observations",inline=False,
                         value=(f"Eligible decisions: {row['compared_decisions']} · low-policy choices: {row['low_policy_moves']}\n"
@@ -492,6 +493,26 @@ def detail_embed(result, mode):
             else:
                 embed.add_field(name="Human reference",inline=False,
                     value="No learned Maia inference is recorded for this older report. Engine heuristics are not human move probabilities.")
+        if mode in ('Review Gates','Human Moves','Engine Analysis','Clusters & History'):
+            model_periods=tier.get('model_periods',{})
+            period=model_periods.get('selected')
+            if period:
+                s=period['summary']
+                status='PASS' if period['passed'] else 'FAIL'
+                fraction=(f"{100*s['hit_fraction']:.1f}%" if s['hit_fraction'] is not None else 'Unknown')
+                embed.add_field(name=f"Combined engine / Maia period — {status}",inline=False,
+                    value=(f"{period['time_class'].title()} games {period['first_game']}–{period['last_game']} · "
+                           f"{s['games']} chronological games\n"
+                           f"Model anomaly hits: {s['hits']}/{s['opportunities']} ({fraction}) · "
+                           f"heuristic lower bound: {100*s['hit_lower']:.1f}%\n"
+                           f"Contributor games: {s['contributors']} · mean signed quality excess: {s['signed_excess']:.3f}\n"
+                           f"Difficult engine hits: {s['engine_hits']}/{s['engine_opportunities']}\n"
+                           + 'Missing checks: '+('; '.join(period['blockers']) or 'None')
+                           + '\nThese are sampled decision fractions, NOT a cheating percentage. Unknown alternative quality is treated conservatively. Maximum HIGH.')[:1024])
+            elif model_periods:
+                embed.add_field(name="Combined engine / Maia period",inline=False,
+                    value=(model_periods.get('reason') or
+                           'No eligible chronological multi-game period; existing engine routes remain active.')[:1024])
         if mode in ('Review Gates','Engine Analysis','Clusters & History'):
             shift=tier.get('recent_shift',{})
             candidate=shift.get('selected')

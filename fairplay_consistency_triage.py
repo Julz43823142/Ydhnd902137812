@@ -167,7 +167,7 @@ def apply_triage(assessment, triage):
     result['gameplay_priority'] = assessment['priority']
     result['gameplay_reasons'] = list(assessment['reasons'])
     result['gameplay_profile'] = assessment.get('classifier_profile')
-    result['classifier_profile'] = 'v55-configured-review-triage'
+    result['classifier_profile'] = (result['gameplay_profile'] or 'gameplay') + '+configured-review-triage'
     result['consistency_triage'] = triage
     result['priority_basis'] = 'gameplay_assessment'
     result['triggered_routes'] = list(assessment['triggered_routes'])
