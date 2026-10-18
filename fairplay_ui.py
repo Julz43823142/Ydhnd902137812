@@ -42,7 +42,7 @@ def public_text(value):
 def panel_embed():
     if os.getenv("FAIRPLAY_V51")=="1":
         embed=discord.Embed(title=PANEL_TITLE,color=0x427CBA,
-            description=("Experimental v51: up to 500 completed Bullet, Blitz and Rapid "
+            description=("Experimental depth-only review: up to 500 completed Bullet, Blitz and Rapid "
                          "games, rated and unrated, are evaluated at Stockfish depth "
                          "12 (Bullet) or 18 (Blitz/Rapid), MultiPV 3. No fast pass. "
                          "Three independent English chart reports plot accuracy, opponent Elo "
@@ -122,15 +122,25 @@ def result_embed(result: ReviewResult):
     if result.diagnostics.get("v51_shadow"):
         record=result.diagnostics["v51_shadow"]
         val=record["accuracy_validation"]
+        icons={'LOW':'🟢','MODERATE':'🟡','HIGH':'🟠','VERY HIGH':'🔴','INSUFFICIENT DATA':'⚪'}
+        tier=record.get('review_priority',{})
         embed=discord.Embed(title=REPORT_PREFIX+result.username,
-            description=("**EXPERIMENTAL — observational only**\n"
-                         "500-game deep-only Stockfish review; no fast pass or "
-                         "calibrated cheating verdict. Human review is mandatory."),
+            description=(f"{icons.get(result.priority,'⚪')} **{result.priority} review priority**\n"
+                         "**Experimental heuristic — not a cheating verdict.**\n"
+                         "Complete Stockfish review of up to 500 collected games. "
+                         "Human review is mandatory."),
             color=0x427CBA)
+        embed.add_field(name="Data coverage confidence",value=result.confidence,inline=True)
+        embed.add_field(name="Priority basis",inline=False,
+            value=('\n'.join(tier.get('reasons',result.reasons)) or 'No eligible review tier.')[:1024])
         embed.add_field(name="Engine coverage",inline=False,
             value=(f"Deep games: **{record['deep_games']}** / 500 maximum\n"
                    "Fast games: **0**\n"
                    "Bullet depth 12; Blitz/Rapid depth 18; MultiPV 3."))
+        embed.add_field(name="Priority sample",inline=False,
+            value=(f"Rated games: **{tier.get('rated_games',0)}** · "
+                   f"rated games with enough useful decisions: **{tier.get('scoring_games',0)}**\n"
+                   "Unrated games are chart context only. Selected games do not cover the entire account history."))
         embed.add_field(name="Accuracy calibration vs Chess.com",inline=False,
             value=(f"Paired official scores: **{val['compared_games']}**\n"
                    f"MAE: **{number(val['mae'], ' points')}**\n"
@@ -142,9 +152,9 @@ def result_embed(result: ReviewResult):
                 value=(f"Games: **{row['games']}**\n"
                        f"Clock data: **{row['clock_games']}**\n"
                        f"Descriptive shift flags: **{len(row['flags'])}**"))
-        embed.add_field(name="Charts",value="Separate Bullet, Blitz and Rapid PNG reports follow below, where data exists.",inline=False)
+        embed.add_field(name="Charts",value="Separate Bullet, Blitz and Rapid PNG reports, plus a side-by-side opponent-Elo comparison, follow below where data exists. Axes zoom to observed values.",inline=False)
         embed.add_field(name="Important",value=SHORT_SCREENING_NOTICE,inline=False)
-        embed.set_footer(text=f"Version: {result.version} · No automatic HIGH")
+        embed.set_footer(text=f"Version: {result.version} · Heuristic review priority, not probability")
         return embed
     """Discord-safe summary; keep technical diagnostics in the detail buttons.
 
@@ -394,14 +404,35 @@ def add_selective_policy_fields(embed,result):
 def detail_embed(result, mode):
     if result.diagnostics.get("v51_shadow"):
         record=result.diagnostics["v51_shadow"]
+        tier=record.get('review_priority',{})
         embed=discord.Embed(title=f"{mode} — {result.username}",
                             description=("Experimental deep-only audit. Descriptive "
                                          "change markers are not cheating evidence."),
                             color=0x427CBA)
+        embed.add_field(name="Experimental review priority",inline=False,
+            value=(f"**{result.priority}** · data coverage confidence: **{result.confidence}**\n"
+                   + '\n'.join(tier.get('reasons',result.reasons)))[:1024])
+        if mode=='Human Moves':
+            embed.add_field(name="Human reference",inline=False,
+                value="No learned Maia inference runs in this depth-only mode. Rating-conditioned engine heuristics are not human move probabilities.")
+        if mode in ('Review Gates','Engine Analysis','Clusters & History'):
+            for kind,row in tier.get('classes',{}).items():
+                embed.add_field(name=f"{kind.title()} priority gates",inline=False,
+                    value=(f"Rated games: {row['games']} · fixed block size: {row['block_size']}\n"
+                           f"Qualified disjoint blocks: {row['qualifying_disjoint_blocks']}/{row['blocks_evaluated']}\n"
+                           f"Same-period clock support: {row['independent_clock_support']}\n"
+                           + 'Whole-class blockers: ' + ('; '.join(row['blockers']) or 'None'))[:1024])
         for kind,row in record["by_class"].items():
             details=(f"Deep games: {row['games']} · valid-clock games: {row['clock_games']}\n"
                      f"Compared Chess.com scores: {row['accuracy_validation']['compared_games']}\n"
                      f"Accuracy MAE: {number(row['accuracy_validation']['mae'], ' points')}\n")
+            if mode=='Engine Analysis':
+                engine=result.classes.get(kind,{})
+                details+=(f"Useful decisions: {engine.get('decisions',0)} · "
+                          f"median CPL: {number(engine.get('median_cpl'))}\n"
+                          f"Top-1 / top-3: {percentage(engine.get('top1'))} / {percentage(engine.get('top3'))}\n"
+                          f"Critical decisions: {engine.get('critical',0)} · "
+                          f"critical top-1: {percentage(engine.get('critical_top1'))}\n")
             for flag in row["flags"][:3]:
                 details+=(f"Control {flag['control']} · rated={flag['rated']}: "
                           f"accuracy change {flag['accuracy_shift']:+.1f} points, "
@@ -410,8 +441,8 @@ def detail_embed(result, mode):
         embed.add_field(name="Limitations",inline=False,
                         value=("No external population reference has been calibrated. "
                                "Missing PGN move clocks remain missing. Accuracy is an "
-                               "independent approximation. No automatic HIGH or "
-                               "punishment can follow from these charts."))
+                               "independent approximation. Heuristic tiers are not "
+                               "validated misconduct probabilities. No punishment follows automatically."))
         embed.set_footer(text=DISCLAIMER)
         return embed
     embed = discord.Embed(title=f'{mode} — {result.username}',color=0x427CBA)
@@ -1310,7 +1341,7 @@ class FairPlayService:
                         attachments=[discord.File(io.BytesIO(data),filename=name)
                                      for name,data in chart_files]
                         await self.channel.send(
-                            content="**Fair Play v51 — charts by time control** (game index, not calendar time)",
+                            content=f"**Fair Play — charts by time control** (game index, not calendar time) · {result.version}",
                             files=attachments,reference=job.message,
                             allowed_mentions=discord.AllowedMentions.none())
                     except discord.HTTPException:
