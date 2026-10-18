@@ -161,6 +161,21 @@ class Alerts(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(result['cancelled'])
         self.assertEqual(before,self.store.snapshot())
 
+    def test_subscription_added_during_poll_does_not_get_old_closure(self):
+        self.subscribe();self.tick();API.status=FAIRPLAY_CLOSED
+        original=API.get;added=[]
+        def get(api,target,suffix='',*,profile=False):
+            if profile and not added:
+                added.append(True)
+                with patch('fairplay_ban_alerts.time.time',return_value=NOW+3602):
+                    subscribe(self.store,2,'synthetic-player')
+            return original(api,target,suffix,profile=profile)
+        with patch.object(API,'get',get):self.tick(NOW+3601)
+        state=self.store.snapshot()
+        self.assertNotIn('synthetic-opponent',state['users']['2']['subscriptions']['synthetic-player']['seen'])
+        self.tick(NOW+7202)
+        self.assertEqual({e['user'] for e in self.store.snapshot()['outbox'].values()},{'1'})
+
     def test_persistent_namespace_and_review_independence(self):
         from fairplay_routing import permitted
         view=AlertView();self.assertIsNone(view.timeout)
