@@ -746,6 +746,17 @@
             "owner_name": "Thice"
           }
         ],
+        "puzzle": {
+          "day": "2026-10-18",
+          "fen": "rn1qk2r/pp3ppp/3bpn2/3p4/3P1Bb1/1QPB4/PP2NPPP/RN2K2R b KQkq - 2 8",
+          "id": "I3gcc",
+          "index": 0,
+          "moves": [
+            "g4e2",
+            "d3e2",
+            "d6f4"
+          ]
+        },
         "rarity": "uncommon",
         "species": "Penguin",
         "xp": 0
