@@ -26,6 +26,24 @@ MAX_BYTES = 256 * 1024 * 1024
 MAGIC = b"SHARK-PRIVATE-VALIDATION-1\0"
 
 
+def feature_signature():
+    """Bind resumed feature records to source, not only numeric settings.
+
+    A scoring/report revision may safely reuse unchanged engine features.
+    Editing extraction, opening or human-quality code invalidates them even
+    when CONFIG and the Stockfish name have not changed.
+    """
+    root = Path(__file__).resolve().parents[1]
+    names = ('chess_play.py', 'fairplay_analysis.py', 'fairplay_config.py',
+             'fairplay_data.py', 'fairplay_human.py', 'fairplay_difficulty.py',
+             'fairplay_positions.py', 'fairplay_opening.py', 'fairplay_engine.py',
+             'fairplay_runtime.py')
+    digest = hashlib.sha256()
+    for name in names:
+        digest.update(name.encode()+b'\0'+(root/name).read_bytes()+b'\0')
+    return digest.hexdigest()
+
+
 def generate_key(path):
     key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
     path = Path(path)
@@ -106,10 +124,15 @@ def compute(payload, destination, *, seconds=6600):
     source_config = payload.get('config')
     if source_config is not None and source_config != repr(CONFIG):
         raise ValueError('Validation resume configuration changed')
+    signature = feature_signature()
+    source_signature = payload.get('feature_signature')
+    if source_signature is not None and source_signature != signature:
+        raise ValueError('Validation feature extraction source changed')
     deadline = time.monotonic() + seconds
     outputs = []
     status = {"schema": 1, "code": os.getenv("GITHUB_SHA", ""),
-              "config": repr(CONFIG), "games": outputs, "complete": False,
+              "config": repr(CONFIG), "feature_signature": signature,
+              "games": outputs, "complete": False,
               "requested": len(payload["games"])}
     def save():
         Path(destination).write_bytes(seal(status, recipient))
@@ -124,8 +147,9 @@ def compute(payload, destination, *, seconds=6600):
                 if not isinstance(case, int) or isinstance(case, bool) or not 0 <= case <= 9999:
                     raise ValueError("Invalid opaque case index")
                 game = deserialize_game(item["game"])
-                if any(d.metrics for d in game.decisions) and source_config != repr(CONFIG):
-                    raise ValueError('Cached validation positions need a matching configuration')
+                if any(d.metrics for d in game.decisions) and (
+                        source_config != repr(CONFIG) or source_signature != signature):
+                    raise ValueError('Cached validation positions need matching source and configuration')
                 if game.time_class not in ("bullet", "blitz", "rapid"):
                     raise ValueError("Unsupported validation time class")
                 error = None

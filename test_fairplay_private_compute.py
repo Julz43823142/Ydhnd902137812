@@ -7,7 +7,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from cryptography.exceptions import InvalidTag
-from scripts.fairplay_private_compute import generate_key, seal, unseal, wait_input, compute
+from scripts.fairplay_private_compute import generate_key, seal, unseal, wait_input, compute, feature_signature
 
 
 class PrivateComputeTransport(unittest.TestCase):
@@ -51,7 +51,8 @@ class PrivateComputeTransport(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     seal({'large': 'a'*20}, path.with_suffix('.pub').read_bytes())
 
-    def resume(self, *, multipv=3, engine='Synthetic engine', source_config=True):
+    def resume(self, *, multipv=3, engine='Synthetic engine', source_config=True,
+               matching_source=True):
         import chess
         from fairplay_config import CONFIG
         from fairplay_data import Decision, GameSample
@@ -79,9 +80,11 @@ class PrivateComputeTransport(unittest.TestCase):
             key=Path(temporary)/'local.pem';generate_key(key)
             payload={'schema':1,'result_public_key':key.with_suffix('.pub').read_text(),
                      'games':[{'case':1,'game':asdict(game)}]}
-            if source_config:payload['config']=repr(CONFIG)
+            if source_config:
+                payload['config']=repr(CONFIG)
+                payload['feature_signature']=feature_signature() if matching_source else '0'*64
             with patch('fairplay_analysis.SharedEnginePool',Pool),patch('fairplay_analysis.summarize'):
-                if not source_config:
+                if not source_config or not matching_source:
                     with self.assertRaises(ValueError):compute(payload,Path(temporary)/'result.enc',seconds=30)
                     return calls
                 compute(payload,Path(temporary)/'result.enc',seconds=30)
@@ -96,6 +99,9 @@ class PrivateComputeTransport(unittest.TestCase):
 
     def test_resume_cannot_accept_cache_without_configuration_provenance(self):
         self.assertEqual(self.resume(source_config=False),[])
+
+    def test_same_settings_cannot_reuse_features_from_different_source(self):
+        self.assertEqual(self.resume(matching_source=False),[])
 
 
 if __name__ == '__main__':

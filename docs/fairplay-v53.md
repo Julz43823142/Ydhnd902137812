@@ -81,7 +81,7 @@ An opt-in mode of the existing manual research workflow supports an explicitly
 owner-requested private cohort. It has no schedule. Fourteen bounded jobs use
 two single-thread engines each, with a 150-minute job ceiling, a default
 20-minute compute checkpoint and an explicit maximum of 110 minutes. Complete
-same-engine/config/depth positions can resume; mismatched/partial contracts
+same-engine/config/feature-source/depth positions can resume; mismatched/partial contracts
 are re-searched. Public workflow inputs contain only opaque references.
 Normal research behavior remains the default when that input is empty.
 
