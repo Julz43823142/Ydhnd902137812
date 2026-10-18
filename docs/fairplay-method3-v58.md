@@ -1,5 +1,7 @@
 # Method 3 — v58 live Discord route
 
+Historical v58 contract. Current Method 3: [v59 with 1,000-game history](fairplay-method3-v59.md).
+
 `FAIRPLAY_METHOD3=1` switches the existing Fair Play review entry point to up to
 200 rated standard live games. The Daily Puzzle workflow enables it by default;
 set repository variable `FAIRPLAY_METHOD3=0` to restore the previous V51 route.
