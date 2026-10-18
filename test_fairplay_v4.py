@@ -151,8 +151,9 @@ class ClusterSafety(unittest.TestCase):
         result=report(games)
         self.assertEqual(result.coverage['fast_scanned'],100);self.assertEqual(result.coverage['used'],85)
         self.assertEqual(result.coverage['excluded_after_fast'],15)
-        self.assertIn('**100**',ui.result_embed(result).fields[2].value)
-        self.assertIn('**85**',ui.result_embed(result).fields[2].value)
+        sample=next(f.value for f in ui.result_embed(result).fields if f.name=='Games analyzed')
+        self.assertIn('**100**',sample)
+        self.assertIn('**85**',sample)
 
     def test_all_diagnostic_views_fit_discord_and_remain_neutral(self):
         result=report([game(i,i>=30) for i in range(40)])

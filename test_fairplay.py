@@ -892,7 +892,7 @@ class Isolation(unittest.IsolatedAsyncioTestCase):
             await bot.on_message(message)
             handler.assert_awaited_once_with(message);chess_activity.assert_not_called();admin.assert_not_awaited()
 
-    async def test_fairplay_never_enters_ai_or_confirmation(self):
+    async def test_fairplay_enters_chat_only_before_confirmation(self):
         message = SimpleNamespace(
             channel=SimpleNamespace(id=CHANNEL_ID),
             author=SimpleNamespace(bot=False),
@@ -904,7 +904,7 @@ class Isolation(unittest.IsolatedAsyncioTestCase):
              patch('shark_commands.consume_confirmation') as confirmation:
             await bot.on_message(message)
             handler.assert_awaited_once_with(message)
-            ai.assert_not_awaited()
+            ai.assert_awaited_once_with(message,bot.client)
             confirmation.assert_not_called()
 
     async def test_gateway_guard_blocks_before_view_modal_and_command_dispatch(self):

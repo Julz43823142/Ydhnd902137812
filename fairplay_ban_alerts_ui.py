@@ -27,6 +27,25 @@ def alert_embed(event,key):
     return e
 
 
+def panel_embed():
+    return discord.Embed(title=PANEL_TITLE,color=0x427cba,description=(
+        'Subscribe to alerts about opponents of a Chess.com account. '
+        'Enter your own username to follow your opponents. '
+        'Checks run hourly; existing closures do not trigger old alerts. '
+        'Use the buttons to manage subscriptions and pings.'))
+
+
+async def open_menu(ctx):
+    if ctx.channel_id != CHANNEL_ID:
+        await ctx.response.send_message(f'Use `/alert` in <#{CHANNEL_ID}>.',ephemeral=True)
+        return
+    if ctx.user.bot:return
+    if not _service or _service.closed:
+        await ctx.response.send_message('Ban Alerts are reconnecting. Please try again shortly.',ephemeral=True)
+        return
+    await ctx.response.send_message(embed=panel_embed(),view=AlertView(),ephemeral=True)
+
+
 class AlertModal(discord.ui.Modal):
     def __init__(self,remove=False):
         super().__init__(title='Unsubscribe Ban Alerts' if remove else 'Subscribe Ban Alerts',custom_id=PREFIX+('remove-modal' if remove else 'add-modal'))
@@ -145,7 +164,7 @@ class AlertService:
         async for message in self.channel.history(limit=200):
             if message.author.id==self.client.user.id and any(e.title==PANEL_TITLE for e in message.embeds):
                 await asyncio.to_thread(self.store.update,lambda s:s.update(panel_id=message.id));return
-        card=discord.Embed(title=PANEL_TITLE,color=0x427cba,description='Opt in to newly detected official Chess.com Fair Play account closures among public opponents. Follow any account; ownership is not verified. Existing closures are baseline only. Mute mentions separately. Hourly polling is bounded and may be delayed by API caching.')
+        card=panel_embed()
         message=await self.channel.send(embed=card,view=AlertView(),allowed_mentions=discord.AllowedMentions.none())
         await asyncio.to_thread(self.store.update,lambda s:s.update(panel_id=message.id))
 

@@ -41,3 +41,15 @@ active review finishes. Never cancel a running review just to deploy this mode.
 Verify progress/report footer `fairplay-v58-method3-results`. Rollback variable
 requires the next normal process start. The existing engine route remains
 available for independent gameplay confirmation.
+
+## Discord presentation and chat
+
+The main report retains priority, sample/confidence, a plain-language reason,
+expected/actual points, and the screening limitation. Report Details preserves
+the selected period and technical explanation. Existing charts and detailed
+buttons remain available; presentation changes do not alter classification.
+
+Mentioning SharkBot in Fair Play Task Force enables text replies using the
+existing chat provider and rate limits. This channel never enters confirmation,
+free-box claim, trade/donation or AI command-planning paths. Slash `/alert`
+uses its own authenticated subscription UI; chat cannot change subscriptions.

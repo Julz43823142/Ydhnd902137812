@@ -82,3 +82,11 @@ Actions uses the existing repository Git proxy/token and `contents: write`;
 branch rules must permit the dedicated encrypted branch. Do not rotate keys
 without migrating the encrypted state: losing receipts loses dedup history.
 No private usernames/results or live payloads are checked into main or CI.
+
+## Open the menu
+
+Use `/alert` (no arguments) in Fair Play Task Force. It opens a private menu
+with Subscribe, Unsubscribe, Mute Pings, Unmute Pings and My Subscriptions.
+Enter the followed account (for example your own username), not an opponent
+that you want to accuse. Existing public panels keep working. If the service
+is reconnecting or disabled, the command explains that it is unavailable.

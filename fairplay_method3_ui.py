@@ -12,17 +12,17 @@ def result_embed(result):
     d=result.diagnostics['method3'];s=d['subject'];r=s['overall_results']
     icon={'LOW':'🟢','MODERATE':'🟡','HIGH':'🟠','INSUFFICIENT DATA':'⚪'}.get(result.priority,'⚪')
     e=discord.Embed(title='🛡️ Fair Play Review — '+result.username,color=priority_color(result.priority),
-        description=f'{icon} **{result.priority} review priority**\n**Method 3 · experimental results-only screening.**\nNot an engine-confirmed gameplay finding.')
-    e.add_field(name='Why this result?',value=result.reasons[0],inline=False)
-    e.add_field(name='Sample / coverage',value=f'{len(result.games)} rated live games · coverage confidence: {result.confidence}\nStockfish: not run · Maia: not run · clocks: descriptive only.',inline=False)
-    e.add_field(name='Expected versus observed points',value=f"Expected: **{fmt(r['expected_points'])}** · observed: **{fmt(r['actual_points'])}**\nActual winrate: **{fmt(r['win_fraction'],True)}**. Elo predicts points including draws, not win probability.",inline=False)
-    selected=d.get('selected')
-    if selected:
-        q=selected['results']
-        e.add_field(name='Selected chronological period',value=f"{selected['time_class'].title()} · games {selected['first_game']}–{selected['last_game']}\nExpected / observed points: {fmt(q['expected_points'])} / {fmt(q['actual_points'])}\nScore excess: {fmt(q['score_excess'],True)} · descriptive residual: {fmt(q['standardized_residual'])}",inline=False)
-    e.add_field(name='Accuracy',value='Official Chess.com scores only, where published. Earlier matched personal references are descriptive; no universal Elo→Accuracy norm and no invented estimates. Accuracy alone can support MODERATE, never HIGH.',inline=False)
-    e.add_field(name='Limits',value=('Collection incomplete. ' if result.partial else '')+d['limits'],inline=False)
-    e.add_field(name='Automated screening only',value=DISCLAIMER,inline=False)
+        description=f'{icon} **{result.priority} review priority**\n**Method 3 · experimental results-only screening.**')
+    explanations={
+        'HIGH':'A recent stretch scored well above the results expected from the ratings. Check those games.',
+        'MODERATE':'Published Accuracy was higher than in comparable earlier games. Take a closer look.',
+        'LOW':'No strong results-based review flag was found. This does not prove fair play.',
+        'INSUFFICIENT DATA':'There are not enough usable games for a reliable comparison.'}
+    e.add_field(name='Why this result?',value=explanations.get(result.priority,'See the detail buttons.'),inline=False)
+    e.add_field(name='Sample / coverage',value=f'{len(result.games)} rated live games · confidence: {result.confidence}'+(' · incomplete collection' if result.partial else ''),inline=False)
+    e.add_field(name='Results',value=f"Expected points: **{fmt(r['expected_points'])}** · scored: **{fmt(r['actual_points'])}**\nWinrate: **{fmt(r['win_fraction'],True)}** · a draw counts as half a point.",inline=False)
+    e.add_field(name='Limits',value='Stockfish: not run · Maia: not run. Results-only screening can flag honest improving players. Technical details are available below.',inline=False)
+    e.add_field(name='Important',value='Not proof of cheating. Human review is required before any action.',inline=False)
     e.set_footer(text=f'Version: {result.version} · Method 3 · uncalibrated heuristic, not probability')
     return e
 
@@ -31,6 +31,17 @@ def detail_embed(result,mode):
     from fairplay_ui import priority_color
     d=result.diagnostics['method3'];s=d['subject']
     e=discord.Embed(title=f'{mode} — {result.username}',description='Method 3: results-only experimental triage. No Stockfish/Maia screening.',color=priority_color(result.priority))
+    if mode in ('Performance', 'Report Details'):
+        e.add_field(name='Explanation',value='\n'.join(result.reasons)[:1024],inline=False)
+        e.add_field(name='Limits',value=d['limits'][:1024],inline=False)
+        selected=d.get('selected')
+        if selected:
+            q=selected['results']
+            e.add_field(name='Selected chronological period',value=(
+                f"{selected['time_class'].title()} · games {selected['first_game']}–{selected['last_game']}\n"
+                f"Expected / observed points: {fmt(q['expected_points'])} / {fmt(q['actual_points'])}\n"
+                f"Score excess: {fmt(q['score_excess'],True)} · descriptive residual: {fmt(q['standardized_residual'])}"),inline=False)
+
     if mode in ('Engine Analysis','Human Moves'):
         e.add_field(name='Not performed',value='This method does not run Stockfish or Maia. No engine ranks, human-move likelihoods or deep confirmation are claimed.',inline=False)
     elif mode=='Review Gates':
