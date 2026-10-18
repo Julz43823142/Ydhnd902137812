@@ -33,6 +33,7 @@ def metrics(phase, *, depth=18):
     result = {"search_contract": {
         "completed": True, "exact": True, "mode": "depth" if phase == "deep" else "nodes",
         "requested": depth if phase == "deep" else CONFIG.fast_nodes,
+        "multipv": CONFIG.deep_multipv if phase == "deep" else CONFIG.fast_multipv,
     }}
     if phase == "deep":
         result["search_depth"] = depth

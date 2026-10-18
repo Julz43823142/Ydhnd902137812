@@ -297,7 +297,12 @@ class CheckpointStore:
                         config.deep_nodes if phase == 'deep' else config.fast_nodes)
             # The 500-game broad screening (PV1) cannot be restored as a PV3
             # evidential recheck. Keep the phases separately and verify PV count.
-            multipv_ok = (contract.get("multipv") == 3 if phase == "fast-pv3" else True)
+            multipv_ok = True
+            if phase == "fast-pv3":
+                multipv_ok = contract.get("multipv") == 3
+            elif phase == "deep" and full_depth:
+                multipv_ok = (type(contract.get("multipv")) is int
+                              and contract["multipv"] == config.deep_multipv)
             valid = (contract.get("completed") is True
                      and contract.get("exact") is True
                      and contract.get("mode") == ("depth" if phase == "deep" and full_depth else "nodes")
@@ -325,8 +330,9 @@ class CheckpointStore:
                 or contract.get("exact") is not True
                 or (decision.metrics.get("search_inconsistent")
                     and contract.get("mode") != "depth")):
-            # An inconsistent search must not be frozen across worker
-            # restarts. A repeat search can settle the bound/score uncertainty.
+            # Node-mode uncertainty needs a repeat search. A completed depth
+            # contract is separately certified and keeps its uncertainty flag;
+            # restoration never turns that evaluation into reliable evidence.
             return False
         with self.lock:
             job = self.state["jobs"].get(target)

@@ -141,7 +141,7 @@ class DeepOnlyShadow(unittest.TestCase):
         pngs = chart_pngs(groups)
         self.assertEqual([name for name, _ in pngs],
                          ["fairplay_bullet_charts.png", "fairplay_blitz_charts.png",
-                          "fairplay_rapid_charts.png"])
+                          "fairplay_rapid_charts.png", "fairplay_opponent_elo_comparison.png"])
         self.assertTrue(all(data.startswith(b"\x89PNG\r\n\x1a\n") and len(data) > 5000
                             for _,data in pngs))
 
