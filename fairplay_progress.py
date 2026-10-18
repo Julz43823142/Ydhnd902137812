@@ -3,6 +3,8 @@ import re
 
 
 def estimate(stage):
+    if stage.startswith('Method 3: comparing'):return 75
+    if stage.startswith('Method 3: building'):return 95
     if stage == 'Complete':
         return 100
     if stage.startswith('Fast engine scan:'):

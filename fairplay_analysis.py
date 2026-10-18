@@ -963,6 +963,9 @@ def require_recent_maia_coverage(reference, latest_games):
 
 def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI, engine_factory=None,
            cancel=None, engine_workers=None, engine_pool=None, checkpoint=None):
+    if os.getenv('FAIRPLAY_METHOD3') == '1' and config == CONFIG:
+        from fairplay_method3 import review as method3_review
+        return method3_review(target,progress,config,api_factory=api_factory,cancel=cancel)
     if os.getenv('FAIRPLAY_V51') == '1' and config == CONFIG:
         from fairplay_v51_shadow import review as depth_only_review
         return depth_only_review(target,progress,config,api_factory=api_factory,
