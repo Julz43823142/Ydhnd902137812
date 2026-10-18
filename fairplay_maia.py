@@ -352,9 +352,6 @@ def annotate_history(games,predictor=None,*,full_coverage=False,recent_full_ids=
     if progress is not None:progress(f'Building human-move profile: 0 / {len(chosen)} positions')
     try:
         with _lock:
-            if predictor is None:
-                if _worker is None:_worker=LocalPolicyWorker(model_path)
-                predictor=_worker.predict
             keys=[hashlib.sha256((MODEL_SHA256+json.dumps(item,sort_keys=True)).encode()).hexdigest() for _,_,item in chosen]
             if checkpoint is not None:
                 for (game,decision,_),key in zip(chosen,keys):
@@ -363,6 +360,11 @@ def annotate_history(games,predictor=None,*,full_coverage=False,recent_full_ids=
                         _cache[key]=saved
             missing=[i for i,key in enumerate(keys) if key not in _cache]
             if missing:
+                # Verified policies already identify the pinned model. Do not
+                # start a PyTorch process just to read a fully cached review.
+                if predictor is None:
+                    if _worker is None:_worker=LocalPolicyWorker(model_path)
+                    predictor=_worker.predict
                 # Bound each CPU-inference request and IPC payload. A full
                 # 100-game review may contain thousands of useful positions.
                 for offset in range(0,len(missing),64):

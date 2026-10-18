@@ -123,6 +123,9 @@ class BoundedCollection(unittest.TestCase):
         d.ply=1;d.fen=chess.STARTING_FEN;d.move='e2e4';d.fast_policy={}
         d.human_policy={};row.moves=['e2e4']
         remote=deepcopy(row)
+        # Exercise the real remote replacement branch: a game already fully
+        # verified locally no longer needs to be dispatched to remote workers.
+        d.metrics={}
         policy={move.uci():1/20 for move in chess.Board().legal_moves}
         class API:
             def __init__(self,deadline):pass
