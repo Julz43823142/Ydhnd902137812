@@ -16,6 +16,7 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+import tempfile
 import time
 
 from cryptography.hazmat.primitives import hashes, serialization
@@ -89,6 +90,24 @@ def unseal(blob, private_key):
     return json.loads(raw)
 
 
+def save_encrypted(value, destination, recipient):
+    """Cancellation must not replace a valid checkpoint with a partial file."""
+    destination = Path(destination)
+    encrypted = seal(value, recipient)
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(dir=destination.parent,
+                prefix='.'+destination.name+'.', suffix='.tmp', delete=False) as stream:
+            temporary = Path(stream.name)  # created with owner-only permissions
+            stream.write(encrypted)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, destination)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+
+
 def wait_input(branch, shard, deadline):
     if not re.fullmatch(r"validation-input-[0-9a-f]{16}", branch):
         raise ValueError("Invalid validation input branch")
@@ -135,7 +154,7 @@ def compute(payload, destination, *, seconds=6600):
               "games": outputs, "complete": False,
               "requested": len(payload["games"])}
     def save():
-        Path(destination).write_bytes(seal(status, recipient))
+        save_encrypted(status, destination, recipient)
     pool = SharedEnginePool(CONFIG, size=2)
     status["engine"] = pool.name
     try:

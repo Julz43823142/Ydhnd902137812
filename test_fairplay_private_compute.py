@@ -7,7 +7,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from cryptography.exceptions import InvalidTag
-from scripts.fairplay_private_compute import generate_key, seal, unseal, wait_input, compute, feature_signature
+from scripts.fairplay_private_compute import generate_key, seal, unseal, wait_input, compute, feature_signature, save_encrypted
 
 
 class PrivateComputeTransport(unittest.TestCase):
@@ -34,6 +34,20 @@ class PrivateComputeTransport(unittest.TestCase):
             with self.assertRaises(FileExistsError):
                 generate_key(path)
             self.assertEqual(path.read_bytes(), before)
+
+    def test_interrupted_checkpoint_write_preserves_the_previous_envelope(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            key=Path(temporary)/'worker.pem';generate_key(key)
+            recipient=key.with_suffix('.pub').read_bytes()
+            path=Path(temporary)/'result.enc'
+            save_encrypted({'checkpoint':1},path,recipient)
+            before=path.read_bytes()
+            with patch('scripts.fairplay_private_compute.os.replace',side_effect=OSError):
+                with self.assertRaises(OSError):save_encrypted({'checkpoint':2},path,recipient)
+            self.assertEqual(path.read_bytes(),before)
+            self.assertEqual(unseal(path.read_bytes(),key.read_bytes()),{'checkpoint':1})
+            self.assertEqual(path.stat().st_mode & 0o777,0o600)
+            self.assertEqual(list(Path(temporary).glob('.result.enc.*.tmp')),[])
 
     def test_branch_is_opaque_not_arbitrary_git_syntax(self):
         with patch('scripts.fairplay_private_compute.subprocess.run') as command:
