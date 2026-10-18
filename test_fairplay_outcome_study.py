@@ -126,6 +126,13 @@ class ResultsAndAccuracy(unittest.TestCase):
         self.assertEqual(p['actual_points'],p['games']*.5)
         self.assertEqual(p['score_excess'],0)
 
+    def test_overall_latest_sample_win_fraction_is_available_as_context(self):
+        result=evaluate(cohort())['players'][0]
+        self.assertEqual(result['overall_results']['games'],80)
+        self.assertEqual(result['overall_results']['win_fraction'],.25)
+        self.assertEqual(result['overall_results']['expected_score_fraction'],.5)
+        self.assertEqual(result['class_results']['blitz'],result['overall_results'])
+
     def test_latest_200_and_rated_standard_live_scope(self):
         rows=cohort()
         rows[0]['games']=[game(i) for i in range(240)]

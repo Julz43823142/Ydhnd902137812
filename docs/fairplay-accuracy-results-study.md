@@ -37,6 +37,8 @@ chronology. At widths 10/20/50/200, evaluate fixed contiguous blocks, latest
 tails and the whole available class. Short peaks are not averaged away.
 Overlapping windows never become independent replications. Missing Accuracy
 requires coverage reporting, not a normal-play conclusion.
+Overall and per-class result summaries also show the latest sample's win
+fraction and expected point fraction as context; tiers still use periods.
 
 ## Prespecified scenarios and ablations
 

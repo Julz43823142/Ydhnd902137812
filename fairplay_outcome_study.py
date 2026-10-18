@@ -224,6 +224,9 @@ def evaluate(players, *, source='official_accuracy', config=CONFIG, scenarios=SC
                 chosen=max(periods,key=lambda p:(rank[tier(p)],p['games']),default=None)
                 ablations[mode][scenario.name]={'priority':tier(chosen) if chosen else 'INSUFFICIENT DATA',
                                                'selected':chosen}
-        output['players'].append({'player_key':key,'rated_games':len(games),'outcomes':outcomes,
+        output['players'].append({'player_key':key,'rated_games':len(games),
+                                  'overall_results':_result(games),
+                                  'class_results':{kind:_result([g for g in games if g['time_class']==kind]) for kind in CLASSES},
+                                  'outcomes':outcomes,
                                   'ablations':ablations,'periods':periods})
     return output
