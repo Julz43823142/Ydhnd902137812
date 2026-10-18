@@ -48,6 +48,10 @@ def priority_color(priority):
 
 
 def panel_embed():
+    if os.getenv('FAIRPLAY_METHOD3')=='1':
+        embed=discord.Embed(title=PANEL_TITLE,color=0x427CBA,description='Method 3 reviews up to 200 rated live games using Elo-expected points and observed results. Published Accuracy and clocks are descriptive. No Stockfish or Maia scan. Experimental screening, not proof of cheating.')
+        embed.set_footer(text=PANEL_MARKER+' · '+active_version())
+        return embed
     if os.getenv("FAIRPLAY_V51")=="1":
         embed=discord.Embed(title=PANEL_TITLE,color=0x427CBA,
             description=("Review up to 200 completed rated Bullet, Blitz and Rapid "
@@ -127,6 +131,9 @@ SHORT_SCREENING_NOTICE = (
 
 
 def result_embed(result: ReviewResult):
+    if result.diagnostics.get('method3'):
+        from fairplay_method3_ui import result_embed as render
+        return render(result)
     if result.diagnostics.get("v51_shadow"):
         record=result.diagnostics["v51_shadow"]
         val=record["accuracy_validation"]
@@ -445,6 +452,9 @@ def add_selective_policy_fields(embed,result):
 
 
 def detail_embed(result, mode):
+    if result.diagnostics.get('method3'):
+        from fairplay_method3_ui import detail_embed as render
+        return render(result,mode)
     if result.diagnostics.get("v51_shadow"):
         record=result.diagnostics["v51_shadow"]
         tier=record.get('review_priority',{})
@@ -1447,7 +1457,7 @@ class FairPlayService:
                     # delivery of a fully completed screening result.
                     result.diagnostics['manual_maia_examples']=[]
                 return result
-            if os.getenv("FAIRPLAY_V21")=="1" and os.getenv("FAIRPLAY_FULL_DEPTH18")=="1":
+            if os.getenv("FAIRPLAY_METHOD3")!="1" and os.getenv("FAIRPLAY_V21")=="1" and os.getenv("FAIRPLAY_FULL_DEPTH18")=="1":
                 if not isinstance(job.timing,ReliableTiming):
                     job.timing=ReliableTiming()
             else:
@@ -1461,7 +1471,12 @@ class FairPlayService:
             result = await future
             if job.cancel_requested:return
             chart_files=[]
-            if result.diagnostics.get("v51_shadow"):
+            if result.diagnostics.get('method3'):
+                try:
+                    from fairplay_method3_ui import chart_pngs
+                    chart_files=await asyncio.to_thread(chart_pngs,result)
+                except Exception:chart_files=[]
+            elif result.diagnostics.get("v51_shadow"):
                 try:
                     from fairplay_v51_shadow import observations, chart_pngs
                     chart_files=await asyncio.to_thread(
@@ -1754,7 +1769,8 @@ async def startup(client):
             print('Fair Play local human reference: '+('ready' if ready else 'not installed'),flush=True)
         except Exception:
             print('Fair Play local human reference unavailable; Stockfish remains available.',flush=True)
-    _service.pool_warm_task=asyncio.create_task(warm_engine_pool(),name='fairplay-engine-warmup')
+    if os.getenv('FAIRPLAY_METHOD3')!='1':
+        _service.pool_warm_task=asyncio.create_task(warm_engine_pool(),name='fairplay-engine-warmup')
     _service.workers = [
         asyncio.create_task(_service.run_queue(),name=f'fairplay-queue-{index+1}')
         for index in range(MAX_CONCURRENT_SCANS)
