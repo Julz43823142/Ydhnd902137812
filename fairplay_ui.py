@@ -40,6 +40,17 @@ def public_text(value):
 
 
 def panel_embed():
+    if os.getenv("FAIRPLAY_V51")=="1":
+        embed=discord.Embed(title=PANEL_TITLE,color=0x427CBA,
+            description=("Experimental v51: up to 500 completed Bullet, Blitz and Rapid "
+                         "games, rated and unrated, are evaluated at Stockfish depth "
+                         "12 (Bullet) or 18 (Blitz/Rapid), MultiPV 3. No fast pass. "
+                         "Three independent English chart reports plot accuracy, opponent Elo "
+                         "and observed move think time by GAME number. There is no calibrated "
+                         "population baseline or automatic cheating verdict. "
+                         "Human review is required."))
+        embed.set_footer(text=PANEL_MARKER)
+        return embed
     parallel=os.getenv("FAIRPLAY_DISTRIBUTED")=="1"
     scope=("up to 200 comparable-opponent rated games and 50 stratified historical games, "
            "with eighteen on-demand encrypted Stockfish compute jobs"
@@ -108,6 +119,33 @@ SHORT_SCREENING_NOTICE = (
 
 
 def result_embed(result: ReviewResult):
+    if result.diagnostics.get("v51_shadow"):
+        record=result.diagnostics["v51_shadow"]
+        val=record["accuracy_validation"]
+        embed=discord.Embed(title=REPORT_PREFIX+result.username,
+            description=("**EXPERIMENTAL — observational only**\n"
+                         "500-game deep-only Stockfish review; no fast pass or "
+                         "calibrated cheating verdict. Human review is mandatory."),
+            color=0x427CBA)
+        embed.add_field(name="Engine coverage",inline=False,
+            value=(f"Deep games: **{record['deep_games']}** / 500 maximum\n"
+                   "Fast games: **0**\n"
+                   "Bullet depth 12; Blitz/Rapid depth 18; MultiPV 3."))
+        embed.add_field(name="Accuracy calibration vs Chess.com",inline=False,
+            value=(f"Paired official scores: **{val['compared_games']}**\n"
+                   f"MAE: **{number(val['mae'], ' points')}**\n"
+                   f"Within 2 points: **{percentage(val['within_2'])}**\n"
+                   f"Within 5 points: **{percentage(val['within_5'])}**\n"
+                   "This is an uncalibrated approximation, not Chess.com CAPS2."))
+        for kind,row in record["by_class"].items():
+            embed.add_field(name=kind.title(),inline=True,
+                value=(f"Games: **{row['games']}**\n"
+                       f"Clock data: **{row['clock_games']}**\n"
+                       f"Descriptive shift flags: **{len(row['flags'])}**"))
+        embed.add_field(name="Charts",value="Separate Bullet, Blitz and Rapid PNG reports follow below, where data exists.",inline=False)
+        embed.add_field(name="Important",value=SHORT_SCREENING_NOTICE,inline=False)
+        embed.set_footer(text=f"Version: {result.version} · No automatic HIGH")
+        return embed
     """Discord-safe summary; keep technical diagnostics in the detail buttons.
 
     Discord limits a whole embed to 6,000 characters and every field value to
@@ -354,6 +392,28 @@ def add_selective_policy_fields(embed,result):
 
 
 def detail_embed(result, mode):
+    if result.diagnostics.get("v51_shadow"):
+        record=result.diagnostics["v51_shadow"]
+        embed=discord.Embed(title=f"{mode} — {result.username}",
+                            description=("Experimental deep-only audit. Descriptive "
+                                         "change markers are not cheating evidence."),
+                            color=0x427CBA)
+        for kind,row in record["by_class"].items():
+            details=(f"Deep games: {row['games']} · valid-clock games: {row['clock_games']}\n"
+                     f"Compared Chess.com scores: {row['accuracy_validation']['compared_games']}\n"
+                     f"Accuracy MAE: {number(row['accuracy_validation']['mae'], ' points')}\n")
+            for flag in row["flags"][:3]:
+                details+=(f"Control {flag['control']} · rated={flag['rated']}: "
+                          f"accuracy change {flag['accuracy_shift']:+.1f} points, "
+                          f"opponent Elo change {flag['opponent_elo_shift']:+d}.\n")
+            embed.add_field(name=kind.title(),value=details[:1024],inline=False)
+        embed.add_field(name="Limitations",inline=False,
+                        value=("No external population reference has been calibrated. "
+                               "Missing PGN move clocks remain missing. Accuracy is an "
+                               "independent approximation. No automatic HIGH or "
+                               "punishment can follow from these charts."))
+        embed.set_footer(text=DISCLAIMER)
+        return embed
     embed = discord.Embed(title=f'{mode} — {result.username}',color=0x427CBA)
     daily=result.diagnostics.get('daily_review',{})
     scoped=result.diagnostics.get('retrieved_period_review') or {}
@@ -1205,7 +1265,15 @@ class FairPlayService:
                     if await self.safe_progress(job,job.stage):last = job.stage
                 await asyncio.wait({future},timeout=3)
             result = await future
-            if job.cancel_requested:return  # A late completed scan is NOT a report.
+            if job.cancel_requested:return
+            chart_files=[]
+            if result.diagnostics.get("v51_shadow"):
+                try:
+                    from fairplay_v51_shadow import observations, chart_pngs
+                    chart_files=await asyncio.to_thread(
+                        chart_pngs,observations(result.games))
+                except Exception:
+                    chart_files=[]  # Report still publishes if image rendering fails.  # A late completed scan is NOT a report.
             # All detailed position caches remain bounded in the engine worker.
             # Discord detail pages need game summaries, not thousands of FENs.
             for game in result.games:game.decisions.clear()
@@ -1230,6 +1298,19 @@ class FairPlayService:
                     job,'Complete',view=ReportView(result.username),
                     embed=fallback)
             if published and not job.cancel_requested:
+                if chart_files:
+                    try:
+                        import io
+                        # An image failure never invalidates the verified
+                        # depth analysis or causes a duplicate main report.
+                        attachments=[discord.File(io.BytesIO(data),filename=name)
+                                     for name,data in chart_files]
+                        await self.channel.send(
+                            content="**Fair Play v51 — charts by time control** (game index, not calendar time)",
+                            files=attachments,reference=job.message,
+                            allowed_mentions=discord.AllowedMentions.none())
+                    except discord.HTTPException:
+                        pass
                 self.results[job.message.id] = (time.time(),result)
                 self.cache[job.target] = (time.time(),result,job.message)
                 job.report_published=True

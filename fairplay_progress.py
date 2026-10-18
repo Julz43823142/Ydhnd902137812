@@ -130,8 +130,8 @@ class ReliableTiming(LiveTiming):
         self.planned={}
         self.fractions={}
         import os
-        self.expected_deep_games=(250 if os.getenv('FAIRPLAY_DISTRIBUTED')=='1'
-                                  else 125)
+        self.expected_deep_games=(500 if os.getenv('FAIRPLAY_V51')=='1' else
+                                  250 if os.getenv('FAIRPLAY_DISTRIBUTED')=='1' else 125)
 
     def configure(self, work):
         """Counts from the actual plan, not a guessed 250/500 fraction."""

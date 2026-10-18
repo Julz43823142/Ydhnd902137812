@@ -356,6 +356,7 @@ class PubAPI:
 def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG,
                   *, include_latest_fifty_short=False,
                   include_recent_nonbullet_short_count=0,
+                  include_recent_all_short_count=0,
                   include_unrated=False):
     payload = api.get(target, '/games/archives')
     if payload is None:raise ReviewError('No public game archives are available for this account.')
@@ -402,6 +403,7 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG,
                 # invent consecutiveness by skipping their records.
                 allow_short=(row.get('time_class')=='daily'
                     or include_latest_fifty_short and len(samples)<50
+                    or (include_recent_all_short_count>0 and len(samples)<include_recent_all_short_count)
                     or (include_recent_nonbullet_short_count>0
                         and row.get('time_class') in ('blitz','rapid')
                         and recent_standard<include_recent_nonbullet_short_count))
