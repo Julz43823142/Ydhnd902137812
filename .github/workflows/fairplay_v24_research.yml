@@ -7,6 +7,10 @@ on:
         description: "Optional opaque validation-input ref; no usernames, labels or keys"
         type: string
         default: ''
+      private_seconds:
+        description: 'Private validation compute checkpoint interval (600–6600 seconds)'
+        type: string
+        default: '1200'
 
 permissions:
   contents: read
@@ -89,6 +93,7 @@ jobs:
       PYTHONDONTWRITEBYTECODE: '1'
       PRIVATE_BATCH: ${{ inputs.private_batch }}
       PRIVATE_SHARD: ${{ matrix.shard }}
+      PRIVATE_SECONDS: ${{ inputs.private_seconds || '1200' }}
     steps:
       - name: Validate opaque branch before allocating compute
         run: '[[ "$PRIVATE_BATCH" =~ ^validation-input-[0-9a-f]{16}$ ]]'
@@ -125,6 +130,7 @@ jobs:
           python scripts/fairplay_private_compute.py compute
           --key "$RUNNER_TEMP/validation.pem" --branch "$PRIVATE_BATCH"
           --shard "$PRIVATE_SHARD" --output "$RUNNER_TEMP/validation-result.enc"
+          --seconds "$PRIVATE_SECONDS"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

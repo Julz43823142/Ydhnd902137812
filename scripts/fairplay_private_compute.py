@@ -96,13 +96,16 @@ def compute(payload, destination, *, seconds=6600):
     from fairplay_analysis import SharedEnginePool, summarize
     from fairplay_config import CONFIG
     from fairplay_distributed import deserialize_game, serialize_game
-    from fairplay_v51_shadow import _verify_deep
+    from fairplay_v51_shadow import _verify_deep, _verified_decision
 
     if payload.get("schema") != 1 or not isinstance(payload.get("games"), list):
         raise ValueError("Invalid validation input schema")
     if len(payload["games"]) > 1000:
         raise ValueError("Too many validation games")
     recipient = payload["result_public_key"].encode("ascii")
+    source_config = payload.get('config')
+    if source_config is not None and source_config != repr(CONFIG):
+        raise ValueError('Validation resume configuration changed')
     deadline = time.monotonic() + seconds
     outputs = []
     status = {"schema": 1, "code": os.getenv("GITHUB_SHA", ""),
@@ -121,6 +124,8 @@ def compute(payload, destination, *, seconds=6600):
                 if not isinstance(case, int) or isinstance(case, bool) or not 0 <= case <= 9999:
                     raise ValueError("Invalid opaque case index")
                 game = deserialize_game(item["game"])
+                if any(d.metrics for d in game.decisions) and source_config != repr(CONFIG):
+                    raise ValueError('Cached validation positions need a matching configuration')
                 if game.time_class not in ("bullet", "blitz", "rapid"):
                     raise ValueError("Unsupported validation time class")
                 error = None
@@ -129,7 +134,9 @@ def compute(payload, destination, *, seconds=6600):
                     budget = chess.engine.Limit(depth=depth)
                     for start in range(0, len(game.decisions), 16):
                         futures = [executor.submit(pool.run_decision, game, decision, budget, deadline)
-                                   for decision in game.decisions[start:start+16]]
+                                   for decision in game.decisions[start:start+16]
+                                   if not (_verified_decision(decision, game.time_class, CONFIG)
+                                           and decision.metrics['search_contract'].get('engine') == pool.name)]
                         for future in as_completed(futures):
                             future.result()
                     if not _verify_deep(game, CONFIG):
@@ -141,6 +148,7 @@ def compute(payload, destination, *, seconds=6600):
                 outputs.append({"case": case, "game": serialize_game(game), "error": error})
                 if len(outputs) % 5 == 0:
                     save()
+                    print(f'Private full-game records checkpointed: {len(outputs)} / {len(payload["games"])}', flush=True)
                 if error and pool.failed.is_set():
                     break
         status["complete"] = len(outputs) == len(payload["games"]) and not any(g["error"] for g in outputs)
@@ -156,17 +164,19 @@ def main():
     parser.add_argument("--branch")
     parser.add_argument("--shard", type=int)
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--seconds", type=int, default=1200)
     args = parser.parse_args()
     os.umask(0o077)
     if args.action == "key":
         generate_key(args.key)
         return
-    if args.shard is None or not 0 <= args.shard < 14 or args.output is None:
+    if (args.shard is None or not 0 <= args.shard < 14 or args.output is None
+            or not 600 <= args.seconds <= 6600):
         parser.error("Valid shard/output required")
     try:
         blob = wait_input(args.branch, args.shard, time.monotonic()+1200)
         payload = unseal(blob, args.key.read_bytes())
-        compute(payload, args.output)
+        compute(payload, args.output, seconds=args.seconds)
     except Exception:
         # Tracebacks can include private positions/identities. Only a generic
         # failure leaves the worker; successful/partial details are encrypted.

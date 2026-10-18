@@ -2,10 +2,12 @@
 import tempfile
 from pathlib import Path
 import unittest
+from dataclasses import asdict
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from cryptography.exceptions import InvalidTag
-from scripts.fairplay_private_compute import generate_key, seal, unseal, wait_input
+from scripts.fairplay_private_compute import generate_key, seal, unseal, wait_input, compute
 
 
 class PrivateComputeTransport(unittest.TestCase):
@@ -48,6 +50,52 @@ class PrivateComputeTransport(unittest.TestCase):
             with patch('scripts.fairplay_private_compute.MAX_BYTES', 10):
                 with self.assertRaises(ValueError):
                     seal({'large': 'a'*20}, path.with_suffix('.pub').read_bytes())
+
+    def resume(self, *, multipv=3, engine='Synthetic engine', source_config=True):
+        import chess
+        from fairplay_config import CONFIG
+        from fairplay_data import Decision, GameSample
+        certificate={'search_depth':18, 'search_contract':{
+            'mode':'depth','requested':18,'multipv':multipv,'completed':True,
+            'exact':True,'engine':engine}}
+        first=Decision(1,1,chess.STARTING_FEN,'e2e4',None,None,None,20,
+                       False,False,'opening',False,False,False,False,metrics=certificate)
+        second=Decision(3,2,chess.STARTING_FEN,'g1f3',None,None,None,20,
+                        False,False,'opening',False,False,False,False)
+        game=GameSample('synthetic-private-game','',1700000000,'blitz',1500,1500,
+                        'Win',1.0,None,True,[first,second],rated=True)
+        calls=[]
+        class Pool:
+            name='Synthetic engine'
+            failed=SimpleNamespace(is_set=lambda:False)
+            def __init__(self,*args,**kwargs):pass
+            def close(self):pass
+            def run_decision(self,game,d,budget,deadline):
+                calls.append(d.ply)
+                d.metrics={'search_depth':18,'search_contract':{
+                    'mode':'depth','requested':18,'multipv':3,'completed':True,
+                    'exact':True,'engine':self.name}}
+        with tempfile.TemporaryDirectory() as temporary:
+            key=Path(temporary)/'local.pem';generate_key(key)
+            payload={'schema':1,'result_public_key':key.with_suffix('.pub').read_text(),
+                     'games':[{'case':1,'game':asdict(game)}]}
+            if source_config:payload['config']=repr(CONFIG)
+            with patch('fairplay_analysis.SharedEnginePool',Pool),patch('fairplay_analysis.summarize'):
+                if not source_config:
+                    with self.assertRaises(ValueError):compute(payload,Path(temporary)/'result.enc',seconds=30)
+                    return calls
+                compute(payload,Path(temporary)/'result.enc',seconds=30)
+            result=unseal((Path(temporary)/'result.enc').read_bytes(),key.read_bytes())
+            self.assertTrue(result['complete'])
+        return calls
+
+    def test_resume_reuses_only_complete_matching_engine_positions(self):
+        self.assertEqual(self.resume(),[3])
+        self.assertEqual(sorted(self.resume(multipv=1)),[1,3])
+        self.assertEqual(sorted(self.resume(engine='Other engine')),[1,3])
+
+    def test_resume_cannot_accept_cache_without_configuration_provenance(self):
+        self.assertEqual(self.resume(source_config=False),[])
 
 
 if __name__ == '__main__':
