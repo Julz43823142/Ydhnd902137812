@@ -211,6 +211,29 @@ class RecentGameplayPriority(unittest.TestCase):
 
 
 class DepthOnlyProgress(unittest.TestCase):
+    def test_dense_control_diagnostics_fit_discord_card_limits(self):
+        from fairplay_ui import detail_embed
+        from fairplay_v51_shadow import observations, summarize_observations
+        from test_fairplay_v51 import game as reviewed_game
+        record=summarize_observations(observations([reviewed_game(1)]))
+        record['review_priority']={'reasons':['Synthetic audit'], 'classes':{}}
+        record['official_accuracy_tails']=[]
+        for kind in ('bullet','blitz','rapid'):
+            record['review_priority']['classes'][kind]={
+                'games':100,'block_size':10,'qualifying_disjoint_blocks':0,
+                'blocks_evaluated':10,'independent_clock_support':False,
+                'blockers':['Synthetic missing coverage '*60]}
+            for i in range(15):
+                record['official_accuracy_tails'].append({
+                    'time_class':kind,'time_control':f'{60+i}+1','recent_games':20,
+                    'recent_median':85,'recent_published':20,'baseline_median':80,
+                    'baseline_published':30,'median_shift':5})
+        result=SimpleNamespace(username='synthetic-scope',priority='LOW',confidence='HIGH',
+                               diagnostics={'v51_shadow':record},reasons=[],classes={})
+        embed=detail_embed(result,'Review Gates')
+        self.assertLessEqual(len(embed),6000)
+        self.assertIn('not proof of cheating',embed.footer.text)
+
     def test_submission_panel_and_progress_advertise_the_actual_route(self):
         from fairplay_config import DEPTH_VERSION
         from fairplay_ui import panel_embed, progress_embed

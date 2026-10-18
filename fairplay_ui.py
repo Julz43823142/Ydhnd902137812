@@ -507,7 +507,7 @@ def detail_embed(result, mode):
                                "independent approximation. Heuristic tiers are not "
                                "validated misconduct probabilities. No punishment follows automatically."))
         embed.set_footer(text=DISCLAIMER)
-        return embed
+        return _bounded_detail_embed(embed)
     embed = discord.Embed(title=f'{mode} — {result.username}',color=0x427CBA)
     daily=result.diagnostics.get('daily_review',{})
     scoped=result.diagnostics.get('retrieved_period_review') or {}
