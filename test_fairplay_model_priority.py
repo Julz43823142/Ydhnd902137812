@@ -3,23 +3,37 @@ from copy import deepcopy
 from dataclasses import replace
 from types import SimpleNamespace
 import unittest
+import chess
 
 from fairplay_accuracy_scope import maia_scope
 from fairplay_config import CONFIG
 from fairplay_human import annotate_game, quality_components, period_raw_excess_floor
 from fairplay_model_priority import model_periods, integrate_model_periods
 from fairplay_recent_priority import recent_priority
-from test_fairplay_maia import decision, distribution
+from test_fairplay_maia import decision
 
 CFG = replace(CONFIG, human_reachable_headroom=True)
 REFERENCE = {'available': True}
 
 
+def distribution(d, *, rare=True, preferred=None):
+    legal=[move.uci() for move in chess.Board(d.fen).legal_moves]
+    selected=preferred or (d.metrics['candidates'][1] if rare else d.move)
+    values={move:.19/(len(legal)-1) for move in legal}
+    values[selected]=.81
+    return values
+
+
 def sample(index, *, strong=True, count=2, kind='blitz', human=False):
     decisions=[]
+    board=chess.Board()
+    plies=('e2e4','e7e5','g1f3','b8c6','f1c4','f8c5','d2d3','d7d6',
+           'c2c3','g8f6','e1g1','e8g8','f1e1','a7a6','c4b3','c5a7')
     for i in range(8):
         d=decision()
-        d.metrics['candidates']=d.metrics['candidates'][:3]
+        d.fen=board.fen();d.move=plies[2*i]
+        choices=[m.uci() for m in board.legal_moves if m.uci()!=d.move]
+        d.metrics['candidates']=[d.move]+choices[:2]
         d.metrics['candidate_cp']=[0,-150,-250]
         d.ply=2*i+1;d.legal=20;d.capture=d.check=d.gives_check=False
         d.human_policy=distribution(d,rare=not human)
@@ -34,6 +48,7 @@ def sample(index, *, strong=True, count=2, kind='blitz', human=False):
             d.metrics.update(actual_cp=-150,cpl=150,scaled_loss=.15,rank=2,near_best=False)
         if i>=count:d.metrics['easy_conversion']=True
         decisions.append(d)
+        board.push_uci(plies[2*i]);board.push_uci(plies[2*i+1])
     g=SimpleNamespace(identity=f'invented-{index}',ended=1700000000+index*600,
         rated=True,rating=1000,opponent_rating=1000,time_class=kind,time_control='180+0',
         accuracy=None,decisions=decisions,deep=True,fast_metrics={},moves=[],
@@ -92,6 +107,17 @@ class CoveredModelPeriods(unittest.TestCase):
         result=assess(rows)
         self.assertEqual(result['priority'],'LOW')
         self.assertLessEqual(result['model_periods']['selected']['summary']['opportunities'],120)
+
+    def test_repeated_board_with_different_move_counters_is_not_new_evidence(self):
+        rows=[sample(i) for i in range(10)]
+        for g in rows:
+            d=g.decisions[0]
+            g.decisions=[deepcopy(d) for _ in range(8)]
+            for i,item in enumerate(g.decisions):
+                fields=item.fen.split();fields[-2:]=[str(i),str(i+1)]
+                item.fen=' '.join(fields)
+        self.assertEqual(assess(rows)['priority'],'LOW')
+        self.assertFalse(assess(rows)['model_periods']['passed'])
 
     def test_two_good_games_or_only_six_total_do_not_override_account_minimum(self):
         rows=[sample(i,strong=i>=18) for i in range(20)]
@@ -155,8 +181,7 @@ class CoveredModelPeriods(unittest.TestCase):
                     d.metrics['candidate_cp']=[0,-4,-250]
                     d.move=d.metrics['candidates'][rank-1]
                     # Most human mass on the genuinely inferior candidate.
-                    p={move:.01 for move in d.human_policy};p[d.metrics['candidates'][2]]=.81
-                    d.human_policy=p
+                    d.human_policy=distribution(d,preferred=d.metrics['candidates'][2])
                     d.metrics.update(actual_cp=-4*(rank-1),cpl=4*(rank-1),scaled_loss=.004*(rank-1),rank=rank)
                 annotate_game(g,CFG)
             self.assertEqual(assess(rows)['priority'],'HIGH')

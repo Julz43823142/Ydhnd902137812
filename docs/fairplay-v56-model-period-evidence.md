@@ -36,11 +36,16 @@ leaves the owner-configured worklist overlay explicitly separate.
   opportunities**, including misses. Book, forced, trivial, automatic material
   gain and easy conversion protections remain. Each game contributes at most
   six uniformly selected opportunities, chosen before inspecting their values.
+  Repeated board positions within one game do not become new discoveries;
+  changing FEN move counters does not evade this safeguard.
 - The learned reference uses `fairplay_maia.policy_evidence`: objective actual
   quality minus an **upper bound** on Maia-expected alternative quality.
   Unsearched alternatives receive perfect quality; the existing .10 allowance
   accounts conservatively for model/domain uncertainty. A rare bad move or
   an equivalent good alternative is not anomalous merely for being rare.
+  With only three evaluated, equivalent candidates, a strong third choice may
+  lack informative alternative-quality evidence. The route then declines to
+  confirm an anomaly; it never invents a fourth/fifth search result.
 - A joint hit requires excellent actual quality (>=.85), model excess >=.20,
   and the rating-conditioned difficult engine hit on that same decision.
   Per-game signed averages retain mistakes; positive-only tails cannot qualify.
@@ -86,7 +91,7 @@ Synthetic regressions cover 19/22 across six contributors, a short recent
 period after normal history, one huge game, 60% alone, ordinary expected human
 play, #2/#3 choices, Bullet guards, missing/invalid model or exact-depth data,
 missing comparison data, unknown alternatives, book/conversion exclusions,
-normal elite quality, duplicates, archive gaps, ablations, immutability,
+normal elite quality, duplicate games/repeated positions, archive gaps, ablations, immutability,
 identity/status/Accuracy invariance and Discord limits. They establish route
 behavior, not real-world detection accuracy. Private case replays stay outside
 Git and must be reported separately from synthetic tests.

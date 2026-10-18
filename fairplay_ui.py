@@ -504,7 +504,7 @@ def detail_embed(result, mode):
                     value=(f"{period['time_class'].title()} games {period['first_game']}–{period['last_game']} · "
                            f"{s['games']} chronological games\n"
                            f"Model anomaly hits: {s['hits']}/{s['opportunities']} ({fraction}) · "
-                           f"sample lower bound: {100*s['hit_lower']:.1f}%\n"
+                           f"heuristic lower bound: {100*s['hit_lower']:.1f}%\n"
                            f"Contributor games: {s['contributors']} · mean signed quality excess: {s['signed_excess']:.3f}\n"
                            f"Difficult engine hits: {s['engine_hits']}/{s['engine_opportunities']}\n"
                            + 'Missing checks: '+('; '.join(period['blockers']) or 'None')

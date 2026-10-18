@@ -50,6 +50,7 @@ def _game(game, config, thresholds):
     from fairplay_v51_shadow import _verified_decision
     model = []
     engine = []
+    seen_positions = set()
     coverage = bool(game.decisions and game.rating is not None
                     and game.opponent_rating is not None)
     for decision in game.decisions:
@@ -67,8 +68,14 @@ def _game(game, config, thresholds):
                 and not decision.forced and not decision.trivial_kind
                 and decision.phase != 'opening'):
             coverage = False
-        if not verified:
+        if not verified or not aligned:
             continue
+        # Repeating a board is not another difficult discovery. FEN's move
+        # counters change during repetitions, so compare its position fields.
+        position = tuple(decision.fen.split()[:4])
+        if position in seen_positions:
+            continue
+        seen_positions.add(position)
         if m.get('human_opportunity'):
             engine.append(m)
         if (m.get('human_opportunity') and row and row['eligible']
