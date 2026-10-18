@@ -90,3 +90,8 @@ with Subscribe, Unsubscribe, Mute Pings, Unmute Pings and My Subscriptions.
 Enter the followed account (for example your own username), not an opponent
 that you want to accuse. Existing public panels keep working. If the service
 is reconnecting or disabled, the command explains that it is unavailable.
+
+Startup and hourly checks no longer publish a public subscription panel. Use
+`/alert` to open a private menu. Existing panels remain usable. Actual closure
+notifications include the same subscription controls. New subscribers have
+pings enabled by default; muting is preserved across subsequent subscriptions.

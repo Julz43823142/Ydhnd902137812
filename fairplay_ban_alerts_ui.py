@@ -22,6 +22,7 @@ def alert_embed(event,key):
     e.add_field(name='Opponent',value=event['opponent'])
     e.add_field(name='Official status',value='Closed — Fair Play')
     e.add_field(name='Public links',inline=False,value=f"[View Game]({event['url']}) · [Opponent profile](https://www.chess.com/member/{event['opponent']})\nRecorded meetings: {event['games']}")
+    e.add_field(name='Get your own alerts',value='Use Subscribe below and enter your Chess.com username to follow your opponents. Manage subscriptions with `/alert`.',inline=False)
     e.add_field(name='Detected by SharkBot',inline=False,value=datetime.fromtimestamp(event['detected'],timezone.utc).isoformat()+'\nThis closure was newly detected, not necessarily newly imposed.')
     e.set_footer(text='Alert ID: '+key)
     return e
@@ -131,7 +132,7 @@ class AlertService:
                 ping=not user.get('muted',False)
                 try:
                     message=await self.channel.send(content=f"<@{event['user']}>" if ping else None,
-                        embed=alert_embed(event,key),nonce=key,
+                        embed=alert_embed(event,key),view=AlertView(),nonce=key,
                         allowed_mentions=discord.AllowedMentions(users=[discord.Object(id=int(event['user']))] if ping else [],roles=False,everyone=False,replied_user=False))
                 except discord.HTTPException as error:
                     # An explicit 4xx rejection has no published message.
@@ -147,7 +148,6 @@ class AlertService:
             try:
                 if getattr(self.store,'failed',False):
                     self.store=await asyncio.to_thread(AlertStore)
-                await self.panel()
                 await asyncio.to_thread(poll,self.store,self.settings,cancel=self.stop)
                 await self.deliver()
             except asyncio.CancelledError:raise
@@ -184,8 +184,7 @@ async def startup(client):
         lookback_days=setting('FAIRPLAY_BAN_ALERTS_LOOKBACK_DAYS',90,1,365))
     _service=AlertService(client,channel,store,settings)
     client.add_view(AlertView())
-    try:await _service.panel()
-    except Exception:print('Ban Alerts panel unavailable; periodic polling remains enabled.',flush=True)
+    # /alert opens the menu on demand; startup never posts another public panel.
     _service.task=asyncio.create_task(_service.run(),name='fairplay-ban-alerts')
 
 

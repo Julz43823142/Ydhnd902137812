@@ -19,7 +19,8 @@ def result_embed(result):
         'LOW':'No strong results-based review flag was found. This does not prove fair play.',
         'INSUFFICIENT DATA':'There are not enough usable games for a reliable comparison.'}
     e.add_field(name='Why this result?',value=explanations.get(result.priority,'See the detail buttons.'),inline=False)
-    e.add_field(name='Sample / coverage',value=f'{len(result.games)} rated live games · confidence: {result.confidence}'+(' · incomplete collection' if result.partial else ''),inline=False)
+    accuracy_games=sum(g.accuracy is not None for g in result.games)
+    e.add_field(name='Sample / coverage',value=f'{len(result.games)} rated live games · results confidence: {result.confidence}'+(' · incomplete collection' if result.partial else '')+f'\nPublished Accuracy: {accuracy_games}/{len(result.games)} games. Missing scores were not engine-reviewed.',inline=False)
     e.add_field(name='Results',value=f"Expected points: **{fmt(r['expected_points'])}** · scored: **{fmt(r['actual_points'])}**\nWinrate: **{fmt(r['win_fraction'],True)}** · a draw counts as half a point.",inline=False)
     e.add_field(name='Limits',value='Stockfish: not run · Maia: not run. Results-only screening can flag honest improving players. Technical details are available below.',inline=False)
     e.add_field(name='Important',value='Not proof of cheating. Human review is required before any action.',inline=False)
