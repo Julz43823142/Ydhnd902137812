@@ -20534,6 +20534,10 @@ async def on_ready():
         return
 
     client.started = True
+    # Restore owner-only Fair Play diagnostic buttons after a runner restart.
+    # Discord retains the DM, but callbacks need re-registration each process.
+    from fairplay_failure import FailureView
+    client.add_view(FailureView())
     client.add_view(PlayerChallengeView())
     client.add_view(OpenChessChallengeView())
     client.add_view(OpenShopTradeView())
