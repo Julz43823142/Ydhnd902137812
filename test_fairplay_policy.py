@@ -269,6 +269,8 @@ class OpportunityWeighting(unittest.TestCase):
 class Lifecycle(unittest.TestCase):
     def test_empty_alternative_sets_complete_without_an_engine(self):
         games=[sample(0)]
+        for d in games[0].decisions:
+            d.metrics['search_contract']={'engine':'Synthetic Stockfish'}
         with (patch.object(policy,'alternatives',return_value=[]),
               patch.object(policy,'search_alternatives',side_effect=AssertionError('no engine needed')),
               patch('fairplay_maia.refresh_game')):
@@ -279,6 +281,7 @@ class Lifecycle(unittest.TestCase):
         for d in games[0].decisions:
             self.assertTrue(valid_counterfactual(d.metrics['policy_search']))
             self.assertEqual(d.metrics['policy_search']['scores'],{})
+            self.assertEqual(d.metrics['policy_search']['search_contract']['engine'],'Synthetic Stockfish')
 
     def test_optional_failure_clears_stale_priority_evidence(self):
         games=[sample(0)]

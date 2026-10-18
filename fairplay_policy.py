@@ -220,7 +220,9 @@ def complete(games,nodes,deadline,*,executor=None,pool=None,scanner=None,fast=Fa
             # completed positions with exactly the same empty search contract.
             check_deadline(deadline)
             saved={mode:requested, 'scores':{}, 'search_contract':{
-                'mode':mode, 'requested':requested, 'completed':True, 'exact':True}}
+                'mode':mode, 'requested':requested, 'completed':True, 'exact':True,
+                'engine':getattr(pool,'name',None) or getattr(scanner,'name',None)
+                         or (d.metrics.get('search_contract') or {}).get('engine','')}}
         if saved is None:pending.append((game,d))
         else:
             d.metrics['policy_search']=saved
