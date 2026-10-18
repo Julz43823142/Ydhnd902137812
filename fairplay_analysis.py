@@ -963,6 +963,12 @@ def require_recent_maia_coverage(reference, latest_games):
 
 def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI, engine_factory=None,
            cancel=None, engine_workers=None, engine_pool=None, checkpoint=None):
+    if os.getenv('FAIRPLAY_V51') == '1' and config == CONFIG:
+        from fairplay_v51_shadow import review as depth_only_review
+        return depth_only_review(target,progress,config,api_factory=api_factory,
+                                 engine_factory=engine_factory,cancel=cancel,
+                                 engine_workers=engine_workers,engine_pool=engine_pool,
+                                 checkpoint=checkpoint)
     import copy
     started = time.monotonic()
     full_depth_mode=(os.getenv('FAIRPLAY_FULL_DEPTH18')=='1' and config==CONFIG)
