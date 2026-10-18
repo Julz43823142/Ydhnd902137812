@@ -47,6 +47,54 @@ class ResultsAndAccuracy(unittest.TestCase):
             for outcome in player['ablations']['results_only'].values():
                 self.assertEqual(outcome['priority'], 'LOW')
 
+    def test_opponent_bands_keep_exact_controls_and_draws(self):
+        rows = [{'player_key':'subject','games':[
+            game(1, elo=1500, opponent=1599, score=1),
+            game(2, elo=1500, opponent=1600, score=.5),
+            game(3, elo=1500, opponent=1599, control='180+2',score=0)]}]
+        groups = evaluate(rows)['players'][0]['opponent_groups']
+        self.assertEqual(len(groups), 3)
+        draw = next(g for g in groups if g['opponent_elo_min']==1600)
+        self.assertEqual(draw['results']['actual_points'], .5)
+        self.assertEqual(draw['results']['win_fraction'], 0)
+        self.assertAlmostEqual(draw['results']['expected_points'],expected_points(1500,1600))
+        self.assertIsNone(draw['expected_win_fraction'])
+        self.assertTrue(draw['limited_sample'])
+        self.assertFalse(draw['accuracy_reference_sufficient'])
+        self.assertIsNone(draw['accuracy']['matched_reference_median'])
+        self.assertEqual(draw['accuracy']['observed_median'],60)
+
+    def test_accuracy_group_reports_same_matched_subset(self):
+        rows = cohort(abnormal=False)
+        for g in rows[0]['games']:g['official_accuracy']=80
+        groups=evaluate(rows)['players'][0]['opponent_groups']
+        self.assertEqual(len(groups),1)
+        a=groups[0]['accuracy']
+        self.assertEqual(a['matched_games'],groups[0]['games'])
+        self.assertEqual(a['matched_observed_median'],80)
+        self.assertEqual(a['matched_reference_median'],62)
+        self.assertEqual(a['median_excess'],18)
+        self.assertTrue(groups[0]['accuracy_reference_sufficient'])
+
+    def test_missing_accuracy_does_not_search_unused_references(self):
+        from unittest.mock import patch
+        rows=cohort()
+        for p in rows:
+            for g in p['games']:g['official_accuracy']=None
+        with patch('fairplay_outcome_study._reference',side_effect=AssertionError('unused lookup')):
+            evaluate(rows)
+
+    def test_group_csv_is_private_and_destinations_cannot_alias(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder)
+            inp=root/'input.json';inp.write_text(json.dumps({'players':cohort()}))
+            args=['--input',str(inp),'--output',str(root/'report.json'),
+                  '--csv',str(root/'summary.csv'),'--groups-csv',str(root/'groups.csv')]
+            main(args)
+            self.assertIn('matched_reference_accuracy',(root/'groups.csv').read_text())
+            self.assertEqual((root/'groups.csv').stat().st_mode & 0o777,0o600)
+            with self.assertRaises(ValueError):main(args[:-1]+[str(inp)])
+
     def test_elo_is_expected_points_and_missing_rating_is_unknown(self):
         self.assertEqual(expected_points(500,500),.5)
         self.assertAlmostEqual(expected_points(500,400),.6400649998)
