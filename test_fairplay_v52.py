@@ -46,6 +46,28 @@ class Priority(unittest.TestCase):
         self.assertEqual(review_priority(rows, complete=True)["priority"], "MODERATE")
         self.assertEqual(review_priority(rows[:1], complete=True)["priority"], "INSUFFICIENT DATA")
 
+    def test_block_diagnostics_explain_a_recent_period_without_changing_the_tier(self):
+        rows=[sample(i,extraordinary=i>=30) for i in range(40)]
+        result=review_priority(rows,complete=True)
+        self.assertEqual(result['priority'],'MODERATE')
+        self.assertEqual(result['classifier_profile'],'deployed-v52')
+        row=result['classes']['blitz']
+        self.assertEqual(len(row['fixed_blocks']),4)
+        closest=row['closest_fixed_block']
+        self.assertEqual((closest['first_game'],closest['last_game']),(31,40))
+        self.assertTrue(closest['passed'])
+        self.assertEqual(closest['blockers'],[])
+        self.assertEqual(closest['summary']['opportunities'],120)
+
+    def test_bullet_detail_includes_bullet_checks_instead_of_empty_blockers(self):
+        rows=[sample(i,extraordinary=True,kind='bullet') for i in range(30)]
+        for row in rows:row.metrics['human']['information']=.2
+        result=review_priority(rows,complete=True)
+        self.assertEqual(result['priority'],'LOW')
+        closest=result['classes']['bullet']['closest_fixed_block']
+        self.assertFalse(closest['passed'])
+        self.assertIn('bullet rating-adjusted information',closest['blockers'])
+
     def test_timing_alone_and_generic_elite_precision_cannot_be_high(self):
         rows = [sample(i) for i in range(40)]
         for row in rows:
@@ -85,6 +107,7 @@ class Priority(unittest.TestCase):
     def test_bullet_requires_broader_replication(self):
         rows = [sample(i, extraordinary=True, kind="bullet") for i in range(60)]
         self.assertEqual(review_priority(rows[:20], complete=True)["priority"], "LOW")
+        # Research-only whole-period qualification must not alter v52 tiers.
         self.assertEqual(review_priority(rows[:30], complete=True)["priority"], "MODERATE")
         self.assertEqual(review_priority(rows, complete=True)["priority"], "HIGH")
 
@@ -184,7 +207,7 @@ class Recovery(unittest.TestCase):
         with (patch("fairplay_v51_shadow.collect_games", return_value=(rows, {}, False)),
               patch("fairplay_v51_shadow.ThreadPoolExecutor", Executor),
               patch("fairplay_v51_shadow.get_shared_engine_pool", return_value=Pool()),
-              patch("fairplay_v51_shadow.summarize", side_effect=lambda g, config: setattr(g, "metrics", {})),
+              patch("fairplay_v51_shadow.summarize", side_effect=lambda g, config, **kwargs: setattr(g, "metrics", {})),
               patch("fairplay_v51_shadow.aggregate", side_effect=lambda games: {"games": len(games)})):
             review("synthetic", lambda stage: None, api_factory=API, checkpoint=Checkpoint())
         self.assertEqual(recorded, [2, 1])
@@ -243,7 +266,7 @@ class Recovery(unittest.TestCase):
             def flush(self, **kwargs): counter["flush"] += 1
         with (patch("fairplay_v51_shadow.collect_games", return_value=(rows, {}, False)),
               patch("fairplay_v51_shadow.get_shared_engine_pool", return_value=Pool()),
-              patch("fairplay_v51_shadow.summarize", side_effect=lambda g, config: setattr(g, "metrics", {})),
+              patch("fairplay_v51_shadow.summarize", side_effect=lambda g, config, **kwargs: setattr(g, "metrics", {})),
               patch("fairplay_v51_shadow.aggregate", side_effect=lambda games: {"games": len(games)})):
             result = review("synthetic", lambda stage: None, api_factory=API, checkpoint=Checkpoint())
         self.assertEqual(counter["engine"], 64)

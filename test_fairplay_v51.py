@@ -123,7 +123,7 @@ class DeepOnlyShadow(unittest.TestCase):
                     return_value=(rows, {}, False)) as collected,
               patch("fairplay_v51_shadow.EngineScanner", scanner),
               patch("fairplay_v51_shadow.summarize",
-                    side_effect=lambda g,config: setattr(g, "metrics", {})),
+                    side_effect=lambda g,config,**kwargs: setattr(g, "metrics", {})),
               patch("fairplay_v51_shadow.aggregate",
                     side_effect=lambda games: {"games":len(games),"decisions":len(games)})):
             result=review("username",lambda stage:None,api_factory=API,

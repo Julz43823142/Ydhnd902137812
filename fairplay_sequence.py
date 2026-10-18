@@ -27,16 +27,25 @@ def consecutive_class_games(left,right):
             and getattr(right,'control_index',None)==old+1)
 
 
-def class_absolute(summary,kind,config=CONFIG):
-    if not absolute_qualified(summary,config):return False
-    if kind!='bullet':return True
+def class_blockers(summary,kind,config=CONFIG, *, relative=False):
+    """Describe the exact same checks used by class qualification."""
+    from fairplay_human import absolute_blockers
+    blockers=absolute_blockers(summary,config,relative=relative)
+    if kind!='bullet':return blockers
     # Bullet precision is less reliable, not categorically unusable. Require
     # substantially broader, more extreme gameplay evidence before deep review.
-    return bool(summary['games']>=config.bullet_human_games
-        and summary['opportunities']>=config.bullet_human_opportunities
-        and summary['contributors']>=config.bullet_human_contributors
-        and summary['hit_lower']>=config.bullet_human_hit_lower
-        and summary['information']>=config.bullet_human_information)
+    tests={
+        'bullet game coverage':summary['games']>=config.bullet_human_games,
+        'bullet opportunity coverage':summary['opportunities']>=config.bullet_human_opportunities,
+        'bullet contributor breadth':summary['contributors']>=config.bullet_human_contributors,
+        'bullet anomaly hit lower bound':summary['hit_lower']>=config.bullet_human_hit_lower,
+        'bullet rating-adjusted information':summary['information']>=config.bullet_human_information,
+    }
+    return blockers+[name for name,passed in tests.items() if not passed]
+
+
+def class_absolute(summary,kind,config=CONFIG, *, relative=False):
+    return not class_blockers(summary,kind,config,relative=relative)
 
 
 def class_periods(games, config=CONFIG, *, strict_original_sequence=False):

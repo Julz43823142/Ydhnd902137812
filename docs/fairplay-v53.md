@@ -1,9 +1,17 @@
 # v53 — recent gameplay change and reproducible private validation
 
 The existing `FAIRPLAY_V51=1` runtime switch and full-depth engine pipeline
-remain. Version: `fairplay-v53-recent-gameplay-shift`. Bullet stays depth 12;
-Blitz/Rapid stay depth 18, MultiPV 3. No production Accuracy formula, economy
-state, channel routing, runner count or Discord process changes.
+remain. **Production keeps the v52 scoring rules and version.** The local-only
+candidate is `fairplay-v53-relative-gameplay-research`; it requires the explicit
+validation CLI profile `candidate-local`. Discord and environment variables
+cannot select it. Bullet stays depth 12; Blitz/Rapid stay depth 18, MultiPV 3.
+No production Accuracy formula, economy state, channel routing, runner count
+or Discord process changes.
+
+The new scoring profile passed synthetic regressions but did **not** improve
+the completed real-cohort classification target. It must not be presented as
+a validated detector improvement. Validation-entry, forensic and explanation
+fixes apply to production; the candidate scoring changes below do not.
 
 ## Verified architectural blind spots
 
@@ -19,11 +27,56 @@ depth-only results fall back to their reviewed games when exporting decisions.
 The old ablation helper explicitly rejects depth-only input rather than
 silently recomputing it with the unrelated v50 scorer.
 
+Review Gates now include fixed-block opportunity/contributor counts and exact
+block-level failures, including Bullet-specific checks. A weak whole-history
+average no longer hides the explanation for an individual recent block. The
+closest block is for explanation only and cannot change the production tier.
+
 v52 required two qualifying disjoint ten-game blocks for non-Bullet HIGH.
 One anomalous recent ten-game block could only reach MODERATE, regardless of
 how different the earlier comparable games were. A whole-history average also
-cannot establish the absence of a short episode. v53 keeps the existing broad
-route and adds a separately documented recent-change route.
+cannot establish the absence of a short episode. The local v53 candidate keeps
+the existing broad route and adds a separately documented recent-change route.
+
+## Relative quality and feasible ceiling guards
+
+The legacy human heuristic remains reproducible with its default arguments.
+The local candidate profile explicitly re-annotates decisions using the new
+`relative=True` quality profile after the exact engine pass. This changes no
+Stockfish score, search budget, opening/forced exclusion or Accuracy formula.
+
+Previously every anomaly hit needed observed quality >= 0.85, even when a
+strong #2/#3 move materially exceeded a low-rating reference. The relative
+profile instead requires observed quality >= 0.65 AND at least half of the
+remaining reference headroom, alongside the existing raw-margin, anomaly,
+difficulty and competitive-position requirements. Higher references require
+correspondingly stronger decisions; generic high Accuracy is not evidence.
+
+Another old gate could require raw excess 0.175 when the reference was 0.97,
+although even perfect observed quality could only exceed it by 0.03. The
+relative profile caps the move/period raw floor at **90% of actual remaining
+headroom**. At reference 0.97, the required period quality is therefore at least
+0.997. Small ceiling residuals still fail. These unitless quality indices are
+not Chess.com Accuracy or misconduct probabilities. The constants are shared
+in `fairplay_human.py`; the old profile remains an explicit comparison.
+
+## Distributed whole-period HIGH
+
+Two ten-game blocks each needing 40 opportunities accidentally required 80
+opportunities to raise a twenty-game period, despite the whole-period rule
+requiring 40. The new route retains the full class/period quality and sample
+gates, then requires separately supported chronological halves with proportional
+coverage floors. It examines fixed, newest-aligned partitions at the existing
+configured widths and the whole class; overlapping widths are alternatives.
+
+Normal HIGH still needs at least 20 games. At least 60% of ALL games must
+contribute, both overall and in each half; games without opportunities stay in
+that denominator. Each half retains the absolute quality/rating gates with at
+least 20 opportunities and a proportional contributor floor. Bullet needs the
+existing stricter whole-period 30-game / 100-opportunity / 20-contributor and
+0.90 hit-lower-bound qualification; halves need at least 15 games, 50
+opportunities, ten contributors and a 0.85 lower bound. This route caps at HIGH.
+It does not claim the halves are statistically independent trials.
 
 ## Recent change route — maximum HIGH
 
@@ -47,9 +100,10 @@ Every required check must pass:
 
 - complete required engine coverage and no missing archive inside the required
   comparison interval; a missing older optional archive does not block it;
-- all existing absolute gameplay requirements for the recent window, including
-  rating coverage, capped opportunity/contributor counts, signed quality
-  excess, information and Wilson hit lower bound;
+- the existing rating-relative gameplay quality, contributor, information and
+  Wilson requirements, with a recent floor of 20 opportunities (or twice the
+  number of opportunity-bearing games, whichever is greater); the separate
+  earlier comparison still needs 40 opportunities;
 - at least 20 comparable earlier games and 40 earlier difficult opportunities;
 - contributing games in both recent halves (at least two / one third each);
 - median difficult-decision quality rises by at least 0.25;
@@ -67,8 +121,9 @@ explanations remain possible. No punishment follows automatically.
 
 The result identifies the triggering route and the selected comparison.
 Review Gates / Engine Analysis / Clusters & History show opportunity counts,
-quality changes and exact missing checks. Existing broad HIGH and stricter
-VERY HIGH remain separate. A recent-change result alone cannot create VERY HIGH.
+quality changes, the covered whole-period route and exact missing checks.
+Existing disjoint-block HIGH and stricter VERY HIGH remain separate. A recent
+change or new whole-period qualification alone cannot create VERY HIGH.
 
 ## Compute and validation privacy
 
@@ -94,6 +149,14 @@ for one day. No production key, token extraction, Discord token, target names,
 labels, PGNs or FENs enter public inputs/logs. Existing production workflows,
 queues and state refs are not modified. Partial work is not a completed case.
 
+For a priority-only comparison, every rated game inside the SAME production
+selection must be fully certified. Unrated games cannot affect this scorer
+and need not be re-searched merely to compare priorities. This does NOT certify
+a completed Discord report or complete unrated chart coverage. Case counts
+and these two kinds of coverage must be reported separately. Old cached raw
+features are re-annotated for the selected quality profile; old and new labels
+are compared without mixing their derived hit definitions.
+
 Validation labels are consulted only after results freeze. Physical games
 shared between accounts must stay within the same development/control
 partition. A current-pass control split among previously supplied accounts is
@@ -112,3 +175,34 @@ round trips, wrong keys, tampering, bounds and opaque ref validation.
 Real cohort outcomes must be reported separately from synthetic test results.
 The requested label distribution is an evaluation target, not a production
 rule, and must never be manufactured by identity overrides or ban metadata.
+
+## Completed private evaluation and rejected hypothesis
+
+All eleven requested accounts had complete **rated priority inputs** under the
+frozen production selection: 3,342 rated games, with every required decision
+certified at the exact production depth/MultiPV. Unrated chart-only games were
+not all searched; this is not eleven completed Discord reports. Both v52 and
+the local v53 heuristic candidate returned LOW on all eleven accounts. Thus
+the requested five-of-six positive HIGH target failed (zero of six HIGH), while
+all five owner-supplied normal controls remained LOW. This small, supplied
+cohort is not an estimate of population sensitivity or specificity.
+
+The tested Maia-3 experiment used the pinned local 5M policy, causal history,
+all decisions in the latest up to 100 rated games and separate Rapid/Blitz
+chronological windows. A bounded human/engine contrast included misses, capped
+each game's contribution, and used a conservative pointwise likelihood envelope
+over rating references 0/+300/+600. That envelope was frozen before inspecting
+the current-pass holdout outcomes. It reduced one development-control failure,
+but still crossed the preregistered research cutoff on an elite holdout control,
+while four of the six supplied positives did not cross it. Those are raw
+research-cutoff outcomes, not fully confirmed review tiers. The hypothesis was
+rejected for production; it is not imported by bot routing or used to assign
+HIGH. Exact code, protocol and per-case output remain private outside Git.
+
+More engine depth alone did not fix the feature/aggregation problem. A local
+learned human move policy is also not a calibrated misconduct model; strength
+conditioning and a rating envelope did not eliminate domain/style mismatch.
+The next validation needs independently labeled game periods and broader
+normal-player reference coverage. Do not repeatedly tune these eleven accounts
+and then call them a blind or external holdout. Account closure cannot provide
+the missing game-level labels and remains excluded from all scoring.

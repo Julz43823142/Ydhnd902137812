@@ -7,6 +7,10 @@ from fairplay_recent_shift import recent_shift
 from test_fairplay_v52 import sample
 
 
+def candidate_priority(*args, **kwargs):
+    return review_priority(*args, **kwargs, candidate=True)
+
+
 def timeline(*, baseline=80, tail=10, extraordinary=True):
     rows = [sample(i, extraordinary=False) for i in range(baseline)]
     rows += [sample(baseline+i, extraordinary=extraordinary) for i in range(tail)]
@@ -19,7 +23,7 @@ def timeline(*, baseline=80, tail=10, extraordinary=True):
 class RecentGameplay(unittest.TestCase):
     def test_ten_extreme_recent_games_against_older_history_can_be_high(self):
         rows=timeline()
-        result=review_priority(rows,complete=True)
+        result=candidate_priority(rows,complete=True)
         self.assertEqual(result['priority'],'HIGH')
         self.assertTrue(result['recent_shift']['passed'])
         self.assertIn('recent_personal_shift',result['triggered_routes'])
@@ -31,7 +35,7 @@ class RecentGameplay(unittest.TestCase):
             self.assertTrue(recent_shift(timeline(baseline=baseline),complete=True)['passed'])
 
     def test_published_accuracy_jump_alone_is_not_high(self):
-        result=review_priority(timeline(extraordinary=False),complete=True)
+        result=candidate_priority(timeline(extraordinary=False),complete=True)
         self.assertEqual(result['priority'],'LOW')
         self.assertFalse(result['recent_shift']['passed'])
 
@@ -41,11 +45,17 @@ class RecentGameplay(unittest.TestCase):
         replacement.opponent_rating=1600
         rows[-1]=replacement
         self.assertFalse(recent_shift(rows,complete=True)['passed'])
-        self.assertEqual(review_priority(rows,complete=True)['priority'],'LOW')
+        self.assertEqual(candidate_priority(rows,complete=True)['priority'],'LOW')
 
     def test_incomplete_engine_coverage_cannot_confirm_change(self):
         self.assertFalse(recent_shift(timeline(),complete=False)['passed'])
-        self.assertEqual(review_priority(timeline(),complete=False)['priority'],'INSUFFICIENT DATA')
+        self.assertEqual(candidate_priority(timeline(),complete=False)['priority'],'INSUFFICIENT DATA')
+
+    def test_new_high_route_is_not_enabled_in_the_deployed_default(self):
+        rows=timeline()
+        self.assertEqual(review_priority(rows,complete=True)['priority'],'MODERATE')
+        self.assertNotIn('recent_shift',review_priority(rows,complete=True))
+        self.assertEqual(candidate_priority(rows,complete=True)['priority'],'HIGH')
 
     def test_easier_opponents_cannot_supply_earlier_reference(self):
         rows=timeline()

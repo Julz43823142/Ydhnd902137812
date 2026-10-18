@@ -27,7 +27,18 @@ class ValidationMissBuckets(unittest.TestCase):
             self.assertIs(analyze_target('synthetic-validation','production-local',config),expected)
             self.assertIs(deployed.call_args.args[2],config)
             self.assertEqual(deployed.call_args.args[0],'synthetic-validation')
+            self.assertNotIn('candidate',deployed.call_args.kwargs)
             legacy.assert_not_called()
+
+    def test_research_candidate_requires_an_explicit_local_profile(self):
+        from unittest.mock import patch
+        from fairplay_validation import analyze_target,analysis_config,local_production_profile
+        from fairplay_v51_shadow import MODE,CANDIDATE_MODE
+        self.assertNotEqual(MODE,CANDIDATE_MODE)
+        with patch('fairplay_v51_shadow.review') as candidate:
+            with local_production_profile('candidate-local'):
+                analyze_target('synthetic-validation','candidate-local',analysis_config('candidate-local'))
+            self.assertTrue(candidate.call_args.kwargs['candidate'])
 
     def test_legacy_and_screening_are_explicit_separate_comparisons(self):
         from unittest.mock import patch
@@ -47,6 +58,14 @@ class ValidationMissBuckets(unittest.TestCase):
         self.assertEqual(positive_low_bucket(weak)[0],'weak_window')
         self.assertEqual(positive_low_bucket(none)[0],'weak_window')
         self.assertIsNone(positive_low_bucket(result('MODERATE'))[0])
+
+    def test_depth_only_miss_bucket_reads_the_deployed_diagnostics(self):
+        report=SimpleNamespace(priority='LOW',diagnostics={'v51_shadow':{'review_priority':{
+            'classes':{'blitz':{'closest_fixed_block':{
+                'passed':False,'summary':{'information':.2},'blockers':['anomaly hit lower bound']}}}}}})
+        self.assertEqual(positive_low_bucket(report),('near_miss',('anomaly hit lower bound',)))
+        report.diagnostics['v51_shadow']['review_priority']['classes']['blitz']['closest_fixed_block']=None
+        self.assertEqual(positive_low_bucket(report),('weak_window',('no complete fixed gameplay block',)))
 
     def test_validation_labels_are_consulted_only_after_frozen_analysis(self):
         cases=[

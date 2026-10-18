@@ -8,6 +8,7 @@ mandatory. These thresholds require external holdout validation.
 """
 from collections import Counter
 from dataclasses import dataclass
+from dataclasses import replace
 from datetime import datetime, timezone
 from statistics import median
 
@@ -21,6 +22,7 @@ class RecentShiftConfig:
     baseline_games: int = 20
     baseline_limit: int = 100
     baseline_opportunities: int = 40
+    recent_opportunity_floor: int = 20
     quality_shift: float = .25
     excess_shift: float = .20
     lower_bound_gap: float = .15
@@ -97,7 +99,11 @@ def recent_shift(games, config=CONFIG, *, complete, thresholds=RECENT_CONFIG,
             midpoint = width//2
             halves = [period_summary(part, config) for part in (recent[:midpoint], recent[midpoint:])]
             half_breadth = all(part['contributors'] >= max(2, (part['games']+2)//3) for part in halves)
-            absolute_failures = absolute_blockers(summary, config)
+            # Relative-change evidence has a separately covered earlier
+            # denominator. Keep its recent minimum proportional; Wilson and
+            # every quality/contributor gate still apply to the real count.
+            recent_config=replace(config,human_min_opportunities=thresholds.recent_opportunity_floor)
+            absolute_failures = absolute_blockers(summary, recent_config,relative=True)
             required = baseline+recent
             earliest = datetime.fromtimestamp(min(g.ended for g in required), timezone.utc).strftime('%Y-%m')
             latest = datetime.fromtimestamp(max(g.ended for g in required), timezone.utc).strftime('%Y-%m')

@@ -74,3 +74,15 @@ a failed positive scan cannot disappear and inflate apparent sensitivity.
 Read these alongside coverage, recall and false-positive rate.
 
 No scoring gates, model weights or production thresholds change in this patch.
+
+## Local v53 candidate
+
+`--profile candidate-local` is an explicit, non-deployed comparison using the
+same collection/engine budgets as production and separately versioned research
+scoring. It enables the relative-quality, whole-period and recent-10/20/50-game
+rules described in [the v53 research notes](fairplay-v53.md). It is never
+reported as the deployed classifier. Discord does not select this profile.
+
+The completed supplied cohort did not meet the requested positive-detection
+target. Keep this candidate local until independent evaluation supports it;
+passing synthetic tests is not evidence of real-world detection accuracy.

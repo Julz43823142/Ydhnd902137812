@@ -24,7 +24,8 @@ from fairplay_data import (PubAPI, ReviewError, ScanDeadline, collect_games,
 from fairplay_analysis import (ReviewResult, aggregate, get_shared_engine_pool,
                                EngineScanner, summarize)
 
-MODE = "fairplay-v53-recent-gameplay-shift"
+MODE = "fairplay-v52-depth-review-priority"
+CANDIDATE_MODE = "fairplay-v53-relative-gameplay-research"
 CLASSES = ("bullet", "blitz", "rapid")
 MAX_GAMES = 500
 
@@ -166,7 +167,7 @@ def _verify_deep(game, config):
 
 def review(target, progress, config=CONFIG, *, api_factory=PubAPI,
            engine_factory=None, cancel=None, engine_workers=None,
-           engine_pool=None, checkpoint=None):
+           engine_pool=None, checkpoint=None, candidate=False):
     """One 500-game deep Stockfish pass; no fast stage or Maia stage.
 
     Remote shards are attempted where available. Exact local checkpoint
@@ -278,12 +279,14 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI,
         for game in games:
             if not _verify_deep(game, config):
                 raise ReviewError("Complete exact Stockfish depth coverage was not achieved. No review issued.")
-            summarize(game, config)
+            summarize(game, config, relative=candidate)
             game.deep = True
         grouped = observations(games)
         diagnostics = summarize_observations(grouped)
+        if candidate:
+            diagnostics['schema'] = CANDIDATE_MODE
         from fairplay_depth_priority import review_priority
-        tier = review_priority(games, config, complete=True,
+        tier = review_priority(games, config, complete=True, candidate=candidate,
             incomplete_archive_months=getattr(api, 'fairplay_collection_coverage', {}).get(
                 'incomplete_archive_months', ()))
         diagnostics["review_priority"] = tier
@@ -298,7 +301,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI,
             families={}, priority=tier["priority"], confidence=tier["confidence"],
             reasons=tier["reasons"],
             deep_confirmed=False, deep_coverage={"games": len(games)},
-            elapsed=elapsed, version=MODE,
+            elapsed=elapsed, version=CANDIDATE_MODE if candidate else MODE,
             coverage={"deep_reviewed": len(games), "fast_scanned": 0,
                       "primary_collected": len(games), "used": len(games),
                       "rated_primary": sum(g.rated is True for g in games),

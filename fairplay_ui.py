@@ -430,11 +430,22 @@ def detail_embed(result, mode):
                            + 'Missing checks: ' + ('; '.join(candidate['blockers']+candidate['absolute_blockers']) or 'None')
                            + '\nAlternative tail lengths are not independent replications. This route caps at HIGH.')[:1024])
             for kind,row in tier.get('classes',{}).items():
+                closest=row.get('closest_fixed_block')
+                block_text=''
+                if closest:
+                    block=closest['summary']
+                    block_text=(f"\nClosest fixed block: games {closest['first_game']}–{closest['last_game']} · "
+                                f"opportunities: {block['opportunities']} · contributors: {block['contributors']}\n"
+                                'Block checks missing: '+('; '.join(closest['blockers']) or 'None'))
+                period=row.get('distributed_periods')
+                period_text=(f"Covered whole-period research route: {period['passed']} · "
+                             f"periods examined: {period['periods_examined']}\n" if period else '')
                 embed.add_field(name=f"{kind.title()} priority gates",inline=False,
                     value=(f"Rated games: {row['games']} · fixed block size: {row['block_size']}\n"
                            f"Qualified disjoint blocks: {row['qualifying_disjoint_blocks']}/{row['blocks_evaluated']}\n"
                            f"Same-period clock support: {row['independent_clock_support']}\n"
-                           + 'Whole-class blockers: ' + ('; '.join(row['blockers']) or 'None'))[:1024])
+                           + period_text + block_text + '\nWhole-class blockers: '
+                           + ('; '.join(row['blockers']) or 'None'))[:1024])
         for kind,row in record["by_class"].items():
             details=(f"Deep games: {row['games']} · valid-clock games: {row['clock_games']}\n"
                      f"Compared Chess.com scores: {row['accuracy_validation']['compared_games']}\n"
