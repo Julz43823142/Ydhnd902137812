@@ -148,6 +148,14 @@ class PrimaryAnnouncementRouting(unittest.TestCase):
                 PRIMARY_CHESS_CHANNEL_ID=bot.PRIMARY_CHESS_CHANNEL_ID,
                 asyncio=SimpleNamespace(create_task=create),holiday_launch_loop=launch)
             exec(code,env);exec(code,env)
-            launch.assert_called_once()
-            self.assertEqual(launch.call_args.args[1],expected)
-            create.assert_called_once()
+            if expected:
+                launch.assert_called_once()
+                self.assertEqual(launch.call_args.args[1],expected)
+                create.assert_called_once()
+            else:
+                launch.assert_not_called();create.assert_not_called()
+                # Retry can start the announcer when primary becomes available.
+                env['channels']=[primary]
+                exec(code,env);exec(code,env)
+                launch.assert_called_once();create.assert_called_once()
+                self.assertEqual(launch.call_args.args[1],[primary])
