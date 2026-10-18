@@ -80,6 +80,43 @@ class DeepOnlyShadow(unittest.TestCase):
         self.assertFalse(_verify_deep(valid, CONFIG))
         self.assertTrue(_verify_deep(game(2, "bullet"), CONFIG))
 
+    def test_deep_only_review_never_executes_fast_engine(self):
+        from unittest.mock import patch
+        from fairplay_v51_shadow import review
+
+        rows = [game(i, kind) for i,kind in enumerate(("blitz", "bullet", "rapid"))]
+        class API:
+            def __init__(self, deadline): self.deadline = deadline
+            def get(self, target, profile=False):
+                return {"username": target} if profile else None
+            def close(self): pass
+
+        class Scanner:
+            def __init__(self, deadline, config, factory):
+                self.name="Mock Stockfish 19"
+            def analyse_decision(self, item, decision, budget):
+                self.budgets.append(budget.depth)
+                decision.metrics["search_depth"]=budget.depth
+                decision.metrics["search_contract"]["requested"]=budget.depth
+            def close(self): pass
+            budgets=[]
+        scanner=Scanner
+        with (patch("fairplay_v51_shadow.collect_games",
+                    return_value=(rows, {}, False)) as collected,
+              patch("fairplay_v51_shadow.EngineScanner", scanner),
+              patch("fairplay_v51_shadow.summarize",
+                    side_effect=lambda g,config: setattr(g, "metrics", {})),
+              patch("fairplay_v51_shadow.aggregate",
+                    side_effect=lambda games: {"games":len(games),"decisions":len(games)})):
+            result=review("username",lambda stage:None,api_factory=API,
+                          engine_factory=lambda:None)
+        self.assertEqual(result.diagnostics["v51_shadow"]["fast_games"],0)
+        self.assertEqual(result.coverage["deep_reviewed"],3)
+        self.assertEqual(result.priority,"INSUFFICIENT DATA")
+        self.assertEqual(sorted(scanner.budgets),[12,18,18])
+        self.assertTrue(collected.call_args.kwargs["include_unrated"])
+        self.assertEqual(collected.call_args.kwargs["include_recent_all_short_count"],500)
+
     def test_pngs_are_separate_and_named_by_class(self):
         groups = observations([game(i, kind)
             for i,kind in enumerate(("rapid", "bullet", "blitz", "bullet"))])
