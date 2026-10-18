@@ -125,6 +125,45 @@ class CausalSelection(unittest.TestCase):
             self.assertEqual(item['history'],history[-8:])
             self.assertEqual(item['history'][-1],d.fen)
 
+    def test_fully_cached_reference_does_not_start_a_neural_process(self):
+        import tempfile
+        from pathlib import Path
+        def predict(items):
+            return [{m.uci():1/chess.Board(i['history'][-1]).legal_moves.count()
+                     for m in chess.Board(i['history'][-1]).legal_moves} for i in items]
+        first=maia.annotate_history(self.games,predictor=predict,full_coverage=True)
+        with tempfile.TemporaryDirectory() as folder:
+            model=Path(folder)/'synthetic-model.pt';model.touch()
+            with (patch.dict('os.environ',{'FAIRPLAY_MAIA_CHECKPOINT':str(model)}),
+                  patch.object(maia,'LocalPolicyWorker') as worker):
+                second=maia.annotate_history(self.games,full_coverage=True)
+                worker.assert_not_called()
+        self.assertTrue(second['available'])
+        self.assertEqual(second['positions'],first['positions'])
+        self.assertEqual(second['cache_hits'],first['positions'])
+
+    def test_one_missing_policy_still_loads_model_and_completes_reference(self):
+        import tempfile
+        from pathlib import Path
+        batches=[]
+        def predict(items):
+            batches.append(len(items))
+            return [{m.uci():1/chess.Board(i['history'][-1]).legal_moves.count()
+                     for m in chess.Board(i['history'][-1]).legal_moves} for i in items]
+        first=maia.annotate_history(self.games,predictor=predict,full_coverage=True)
+        maia._cache.popitem();batches.clear()
+        with tempfile.TemporaryDirectory() as folder:
+            model=Path(folder)/'synthetic-model.pt';model.touch()
+            with (patch.dict('os.environ',{'FAIRPLAY_MAIA_CHECKPOINT':str(model)}),
+                  patch.object(maia,'_worker',None),
+                  patch.object(maia,'LocalPolicyWorker',return_value=SimpleNamespace(predict=predict)) as worker):
+                second=maia.annotate_history(self.games,full_coverage=True)
+                worker.assert_called_once_with(str(model))
+        self.assertEqual(batches,[1])
+        self.assertTrue(second['available'])
+        self.assertEqual(second['positions'],first['positions'])
+        self.assertEqual(second['cache_hits'],first['positions']-1)
+
     def test_selection_does_not_cherry_pick_successes(self):
         baseline=[d.ply for _,d,_ in maia.selection(self.games)]
         for game in self.games:

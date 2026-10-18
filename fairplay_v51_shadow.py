@@ -6,7 +6,7 @@ No remote accusation service, account-status feature or public case store.
 from __future__ import annotations
 
 from collections import defaultdict
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from copy import deepcopy
 from dataclasses import dataclass, replace
 from io import BytesIO
@@ -164,6 +164,61 @@ def _verify_deep(game, config):
         _verified_decision(d, game.time_class, config) for d in game.decisions)
 
 
+def _scan_position_queue(executor, pool, positions, config, deadline,
+                         record_completed, flush_checkpoint, progress, *, limit=128):
+    """Keep a bounded rolling queue; one slow position cannot stall a batch.
+
+    Engine budgets and per-position hash resets are unchanged. Record every
+    completed search, including misses; checkpoint serialization stays batched.
+    """
+    if limit<1:
+        raise ValueError('Position queue limit must be positive.')
+    remaining=iter(positions)
+    pending={}
+    completed=reported=0
+    exhausted=False
+    try:
+        while pending or not exhausted:
+            check_deadline(deadline)
+            while not exhausted and len(pending)<limit:
+                try:
+                    game,decision=next(remaining)
+                except StopIteration:
+                    exhausted=True
+                    break
+                budget=chess.engine.Limit(depth=config.bullet_deep_depth
+                                         if game.time_class=='bullet' else 18)
+                future=executor.submit(pool.run_decision,game,decision,budget,deadline)
+                pending[future]=(game,decision)
+            if not pending:
+                break
+            done,_=wait(pending,timeout=1,return_when=FIRST_COMPLETED)
+            for future in done:
+                game,decision=pending.pop(future)
+                future.result()  # A failed search never becomes completed evidence.
+                record_completed(game,decision)
+                completed+=1
+            if completed-reported>=128:
+                flush_checkpoint()
+                progress(f"Depth-18 rapid/blitz · depth-12 bullet: {completed} / {len(positions)} positions")
+                reported=completed
+    except BaseException:
+        # Drain exactly as on normal shutdown, saving other completed searches
+        # even when one worker fails. Do not launch replacement work here.
+        for future in pending:future.cancel()
+        for future,(game,decision) in pending.items():
+            try:future.result()
+            except BaseException:continue
+            try:record_completed(game,decision)
+            except Exception:pass  # Preserve the original failure if storage failed.
+        try:flush_checkpoint()
+        except Exception:pass
+        raise
+    if completed>reported:
+        flush_checkpoint()
+        progress(f"Depth-18 rapid/blitz · depth-12 bullet: {completed} / {len(positions)} positions")
+
+
 def review(target, progress, config=CONFIG, *, api_factory=PubAPI,
            engine_factory=None, cancel=None, engine_workers=None,
            engine_pool=None, checkpoint=None, candidate=False):
@@ -233,13 +288,27 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI,
             from fairplay_maia import MODEL_SHA256
             checkpoint.bind(target, engine=engine_name, version=CANDIDATE_MODE if candidate else MODE,
                             config=config, full_depth=True, maia=MODEL_SHA256)
+        # Restore only after the engine/model/config contract is bound, but
+        # BEFORE dispatch. Otherwise remote workers repeat already saved games.
+        restored=0
+        for game in games:
+            check_deadline(deadline)
+            for decision in game.decisions:
+                if checkpoint is not None and not _verified_decision(decision,game.time_class,config):
+                    checkpoint.restore(target,game,decision,'deep',config,True)
+                    restored+=int(_verified_decision(decision,game.time_class,config))
+        engine_pending=[g for g in games if not _verify_deep(g,config)]
+        pending_positions=sum(not _verified_decision(d,g.time_class,config)
+                              for g in games for d in g.decisions)
+        if callable(getattr(progress,'workload',None)):
+            progress.workload({'deep':pending_positions})
         completed_remote = {}
         remote_handle = None
-        if (engine_factory is None and pool is not None
+        if (engine_pending and engine_factory is None and pool is not None
                 and os.getenv("FAIRPLAY_DISTRIBUTED") == "1"
                 and os.getenv("GITHUB_ACTIONS") == "true"):
             from fairplay_distributed import start
-            remote_handle = start(games, target,
+            remote_handle = start(engine_pending, target,
                                   revision=os.getenv("GITHUB_SHA", ""),
                                   engine=engine_name)
         from fairplay_accuracy_scope import maia_scope, accuracy_tails, model_summary
@@ -273,33 +342,21 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI,
         missing = [(game, d) for game in games for d in game.decisions
                    if not _verified_decision(d, game.time_class, config)]
         progress(f"Depth-18 rapid/blitz · depth-12 bullet: 0 / {len(missing)} positions")
-        # Bounded batches; no unbounded backlog of concurrent future objects.
-        if pool is not None:
+        # Bounded rolling queue; no unbounded backlog of future objects.
+        if pool is not None and missing:
             executor = ThreadPoolExecutor(max_workers=max(1, min(workers, 16)))
-        for offset in range(0, len(missing), 128):
-            check_deadline(deadline)
-            batch = missing[offset:offset + 128]
-            scheduled = []
-            for game, decision in batch:
-                if (checkpoint is not None
-                        and checkpoint.restore(target, game, decision, "deep", config, True)):
-                    continue
+            _scan_position_queue(executor,pool,missing,config,deadline,
+                                 record_completed,flush_checkpoint,progress)
+        else:
+            for index,(game,decision) in enumerate(missing,1):
+                check_deadline(deadline)
                 budget = chess.engine.Limit(
                     depth=config.bullet_deep_depth if game.time_class == "bullet" else 18)
-                if executor is not None:
-                    future = executor.submit(pool.run_decision, game, decision, budget, deadline)
-                    scheduled.append((future, game, decision))
-                else:
-                    private_scanner.analyse_decision(game, decision, budget)
-                    record_completed(game, decision)
-            if scheduled:
-                pending = {future: (game, decision) for future, game, decision in scheduled}
-                for future in as_completed(pending):
-                    game, decision = pending[future]
-                    future.result()
-                    record_completed(game, decision)
-            flush_checkpoint()
-            progress(f"Depth-18 rapid/blitz · depth-12 bullet: {min(offset + len(batch), len(missing))} / {len(missing)} positions")
+                private_scanner.analyse_decision(game, decision, budget)
+                record_completed(game, decision)
+                if index%128==0 or index==len(missing):
+                    flush_checkpoint()
+                    progress(f"Depth-18 rapid/blitz · depth-12 bullet: {index} / {len(missing)} positions")
         for game in games:
             if not _verify_deep(game, config):
                 raise ReviewError("Complete exact Stockfish depth coverage was not achieved. No review issued.")
@@ -350,6 +407,9 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI,
                                                    "blitz": 18, "rapid": 18},
                                           "code_revision": os.getenv("GITHUB_SHA", "")[:12]},
                          "v51_elapsed_seconds": round(elapsed, 2),
+                         "v51_execution": {"checkpoint_restored_positions":restored,
+                             "remote_requested_games":len(engine_pending) if remote_handle else 0,
+                             "local_searched_positions":len(missing)},
                          "v51_distributed_games": len(completed_remote)})
         progress("Building report…")
         return result
