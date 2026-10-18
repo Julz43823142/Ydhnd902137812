@@ -77,21 +77,34 @@
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_id": 1561280009652404325,
-    "attempted_users": {},
+    "message_id": 1561318628668735641,
+    "attempted_users": {
+      "442597396195704832": {
+        "name": "Thice",
+        "move": "D7",
+        "correct": false,
+        "timestamp": "2026-10-18T10:02:48.872246+00:00"
+      }
+    },
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1561280009652404325
+      "1468320170891022417": 1561318628668735641
     },
     "channel_id": 1468320170891022417,
     "board_attachment_filenames": {
-      "1468320170891022417": "daily_puzzle.png"
+      "1468320170891022417": "random_puzzle.png"
     },
-    "chat_since_refresh": 0
+    "chat_since_refresh": 0,
+    "last_card_activity_at": "2026-10-18T10:02:48.871622+00:00",
+    "recent_accepted_moves": [],
+    "wrong_attempt_counts": {
+      "442597396195704832": 1
+    },
+    "last_feedback": "❌ **Puzzle verdict on Thice: you turned a puzzle into a demonstration of why checking your work matters.**\n↪️ **Move played:** `D7`"
   },
   "lichess_rating_used": {
     "2000": [
