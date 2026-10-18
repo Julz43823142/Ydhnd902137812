@@ -172,6 +172,11 @@ class ResultsAndAccuracy(unittest.TestCase):
         self.assertEqual({s['name'] for s in report['scenarios']},{'strict','balanced','permissive'})
         self.assertNotIn('VERY HIGH',[o['priority'] for p in report['players'] for o in p['outcomes'].values()])
 
+    def test_spreadsheet_formula_or_control_character_ids_are_rejected(self):
+        for key in ('=SUM(1,1)','+cmd','-cmd','@formula','\tname','a'*129):
+            rows=cohort();rows[0]['player_key']=key
+            with self.assertRaises(ValueError):evaluate(rows)
+
     def test_cli_writes_private_reports_and_refuses_repository_output(self):
         with tempfile.TemporaryDirectory() as folder:
             root=Path(folder);inp=root/'input.json';inp.write_text(json.dumps({'players':cohort()}))

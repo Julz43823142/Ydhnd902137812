@@ -7,6 +7,7 @@ not population norms. Status/ban/validation labels are intentionally unused.
 from dataclasses import dataclass, asdict
 from math import isfinite, sqrt
 from statistics import median
+import re
 
 SCHEMA = 'fairplay-accuracy-results-study-v1'
 CLASSES = ('rapid', 'blitz', 'bullet')
@@ -172,8 +173,11 @@ def evaluate(players, *, source='official_accuracy', config=CONFIG, scenarios=SC
     if source not in ('official_accuracy','estimated_accuracy'):
         raise ValueError('Keep official and estimated Accuracy in separate runs')
     keys = [p.get('player_key') for p in players]
-    if any(not isinstance(key,str) or not key for key in keys) or len(keys)!=len(set(keys)):
-        raise ValueError('Players need unique pseudonymous player_key values')
+    if (any(not isinstance(key,str) or not re.fullmatch(r'[A-Za-z0-9_][A-Za-z0-9_-]{0,127}',key)
+            for key in keys) or len(keys)!=len(set(keys))):
+        # IDs are exported to spreadsheets. Never accept formula prefixes or
+        # control characters as supposedly harmless pseudonyms.
+        raise ValueError('Players need unique bounded ASCII alphanumeric/underscore/hyphen pseudonyms')
     data = {p['player_key']:_games(p,config) for p in players}
     # A physical game can contain two subject rows. Never let an opponent's
     # view of the very same game leak into a subject's reference.
