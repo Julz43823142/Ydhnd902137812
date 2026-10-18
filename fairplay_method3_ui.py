@@ -99,24 +99,25 @@ def chart_pngs(result):
             'orange dashed: official Chess.com · no engine estimate')
         svg=mark_recent(svg,rows,(150,470,790))
         files.append((f'fairplay_{kind}_charts.png',cairosvg.svg2png(bytestring=svg.encode())))
-    files.append(('fairplay_opponent_elo_comparison.png',cairosvg.svg2png(bytestring=comparison_svg(grouped).encode())))
-    parts=['<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1120" viewBox="0 0 1440 1120"><rect width="1440" height="1120" fill="white"/>',text(45,45,'Method 3 — rolling 10-game expected / observed points',26)]
-    for index,kind in enumerate(('rapid','blitz','bullet')):
-        games=[g for g in rated_games if g.time_class==kind]
-        predicted=[];actual=[]
-        for i in range(len(games)):
-            window=games[max(0,i-9):i+1]
-            valid=[(g,expected_points(g.rating,g.opponent_rating)) for g in window]
-            valid=[(g,p) for g,p in valid if p is not None and g.score in (0,.5,1)]
-            predicted.append(sum(p for g,p in valid)/len(valid)*100 if valid else None)
-            actual.append(sum(g.score for g,p in valid)/len(valid)*100 if valid else None)
-        if games:plot(parts,games,105+index*325,kind.title()+' · blue expected / orange observed points',predicted,'%', '#2563eb',second=actual)
-    parts.append('</svg>')
-    svg=''.join(parts)
-    for index,kind in enumerate(('rapid','blitz','bullet')):
-        if grouped[kind]:svg=mark_recent(svg,grouped[kind],(105+index*325,))
-    files.append(('fairplay_method3_expected_points.png',cairosvg.svg2png(bytestring=svg.encode())))
-    files.append(('fairplay_method3_history_change.png',cairosvg.svg2png(bytestring=history_svg(result).encode())))
+    if rated_games:
+        files.append(('fairplay_opponent_elo_comparison.png',cairosvg.svg2png(bytestring=comparison_svg(grouped).encode())))
+        parts=['<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1120" viewBox="0 0 1440 1120"><rect width="1440" height="1120" fill="white"/>',text(45,45,'Method 3 — rolling 10-game expected / observed points',26)]
+        for index,kind in enumerate(('rapid','blitz','bullet')):
+            games=[g for g in rated_games if g.time_class==kind]
+            predicted=[];actual=[]
+            for i in range(len(games)):
+                window=games[max(0,i-9):i+1]
+                valid=[(g,expected_points(g.rating,g.opponent_rating)) for g in window]
+                valid=[(g,p) for g,p in valid if p is not None and g.score in (0,.5,1)]
+                predicted.append(sum(p for g,p in valid)/len(valid)*100 if valid else None)
+                actual.append(sum(g.score for g,p in valid)/len(valid)*100 if valid else None)
+            if games:plot(parts,games,105+index*325,kind.title()+' · blue expected / orange observed points',predicted,'%', '#2563eb',second=actual)
+        parts.append('</svg>')
+        svg=''.join(parts)
+        for index,kind in enumerate(('rapid','blitz','bullet')):
+            if grouped[kind]:svg=mark_recent(svg,grouped[kind],(105+index*325,))
+        files.append(('fairplay_method3_expected_points.png',cairosvg.svg2png(bytestring=svg.encode())))
+        files.append(('fairplay_method3_history_change.png',cairosvg.svg2png(bytestring=history_svg(result).encode())))
     # Separate full-history unrated charts: no rating-status mixing in lines,
     # clocks, reference pools or chronological priority tails. At most 9 files.
     for kind,rows in observations([g for g in result.games if g.rated is False]).items():

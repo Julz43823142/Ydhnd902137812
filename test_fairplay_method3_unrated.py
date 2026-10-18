@@ -49,7 +49,8 @@ class UnratedCohorts(unittest.TestCase):
         from fairplay_method3_ui import result_embed,detail_embed,chart_pngs
         self.assertIn('ratings may be out of date',str(result_embed(result).to_dict()))
         self.assertIn('Unrated Rapid',str(detail_embed(result,'Performance').to_dict()))
-        self.assertTrue(any('unrated_rapid' in name for name,data in chart_pngs(result)))
+        files=chart_pngs(result)
+        self.assertEqual([name for name,data in files],['fairplay_unrated_rapid_charts.png'])
 
     def test_high_accuracy_against_weak_opponents_does_not_force_high(self):
         result=self.run_rows(self.rows(n=18,player=1400,opponent=500))
