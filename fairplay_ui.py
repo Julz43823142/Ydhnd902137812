@@ -1314,6 +1314,7 @@ class FairPlayService:
 
     async def safe_progress(self,job,stage,*,view=None,embed=None):
         if job.message_deleted:return False
+        attempted_send=False
         try:
             if job.delivery_unknown and job.message is None:
                 async for candidate in self.channel.history(limit=100):
@@ -1328,6 +1329,7 @@ class FairPlayService:
             card.set_footer(text=(card.footer.text or '')+f' · Review ID: {job.token}')
             if job.message is None:
                 job.delivery_unknown = True
+                attempted_send=True
                 job.message = await self.channel.send(embed=card,view=view,nonce=job.token,
                                                       allowed_mentions=discord.AllowedMentions.none())
                 job.delivery_unknown = False
@@ -1346,7 +1348,7 @@ class FairPlayService:
         except discord.HTTPException as error:
             # An explicit client-error response rejected the initial send.
             # Unlike a lost/5xx ACK, it is safe to try the smaller fallback.
-            if job.message is None and 400 <= error.status < 500:
+            if attempted_send and job.message is None and 400 <= error.status < 500:
                 job.delivery_unknown = False
         return False
 

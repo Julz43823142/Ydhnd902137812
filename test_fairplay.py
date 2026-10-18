@@ -785,6 +785,26 @@ class DiscordRules(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(await self.service.safe_progress(job,'Fast scan'))
         self.assertEqual(self.channel.sends,1)
 
+    async def test_history_denied_after_uncertain_send_never_permits_reposting(self):
+        original_send=self.channel.send
+        async def lost(**kwargs):
+            await original_send(**kwargs)
+            raise discord.HTTPException(SimpleNamespace(status=503,reason='Unavailable'),'uncertain')
+        self.channel.send=lost
+        job=ui.Job(TARGET,ctx())
+        self.assertFalse(await self.service.safe_progress(job,'Collecting games…'))
+        self.channel.send=original_send
+        original_history=self.channel.history
+        async def denied(**kwargs):
+            raise discord.Forbidden(SimpleNamespace(status=403,reason='Forbidden'),'history denied')
+            yield  # Match Discord's asynchronous history iterator.
+        self.channel.history=denied
+        self.assertFalse(await self.service.safe_progress(job,'Reviewing games…'))
+        self.assertTrue(job.delivery_unknown)
+        self.channel.history=original_history
+        self.assertTrue(await self.service.safe_progress(job,'Reviewing games…'))
+        self.assertEqual(self.channel.sends,1)
+
     async def test_validation_defers_immediately_invalid_input_has_no_job(self):
         event = ctx()
         await ui.submit(event,'https://example.org')
