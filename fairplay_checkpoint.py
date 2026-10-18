@@ -304,7 +304,8 @@ class CheckpointStore:
                      and isinstance(contract.get("requested"),int)
                      and not isinstance(contract.get("requested"),bool)
                      and contract.get("requested") == required
-                     and not metrics.get("search_inconsistent"))
+                     and (contract.get("mode") == "depth"
+                          or not metrics.get("search_inconsistent")))
             if not valid or not multipv_ok or (phase == "deep" and full_depth and (
                              not isinstance(metrics.get("search_depth"),int)
                              or isinstance(metrics.get("search_depth"),bool)
@@ -322,7 +323,8 @@ class CheckpointStore:
         contract = decision.metrics.get("search_contract")
         if (not isinstance(contract,dict) or contract.get("completed") is not True
                 or contract.get("exact") is not True
-                or decision.metrics.get("search_inconsistent")):
+                or (decision.metrics.get("search_inconsistent")
+                    and contract.get("mode") != "depth")):
             # An inconsistent search must not be frozen across worker
             # restarts. A repeat search can settle the bound/score uncertainty.
             return False
