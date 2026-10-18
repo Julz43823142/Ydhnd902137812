@@ -47,6 +47,23 @@ class PositionQueue(unittest.TestCase):
                 ScanDeadline(float('inf'),stop),Mock(),Mock(),Mock())
         executor.submit.assert_not_called()
 
+    def test_failure_preserves_other_finished_searches_without_starting_more(self):
+        from concurrent.futures import Future
+        futures=[];recorded=[]
+        class Executor:
+            def submit(self,function,game,decision,*args):
+                future=Future();futures.append(future)
+                if decision.ply==0:future.set_exception(RuntimeError('synthetic failure'))
+                else:future.set_result(True)
+                return future
+        rows=[(NS(time_class='bullet'),NS(ply=i)) for i in range(3)]
+        with patch('fairplay_v51_shadow.wait',side_effect=lambda *a,**k:({futures[0]},set())):
+            with self.assertRaisesRegex(RuntimeError,'synthetic failure'):
+                _scan_position_queue(Executor(),Mock(),rows,CONFIG,float('inf'),
+                    lambda g,d:recorded.append(d.ply),lambda:None,lambda stage:None,limit=2)
+        self.assertEqual(recorded,[1])
+        self.assertEqual(len(futures),2)
+
     def test_pending_futures_are_bounded_and_every_position_is_recorded_once(self):
         from concurrent.futures import Future
         outstanding=peak=0

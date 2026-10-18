@@ -13,7 +13,9 @@ Three execution changes remove avoidable work:
    most 128 futures. A free worker can start subsequent positions while an
    earlier slow search finishes. Depth 12 Bullet / depth 18 Blitz and Rapid,
    MultiPV 3, engine hash resets, engine concurrency and completion checks remain
-   unchanged. Failed futures do not count as evidence. Checkpoint writes remain
+   unchanged. Failed futures do not count as evidence. Other finished positions
+   are drained and checkpointed when a worker fails, so recovery does not repeat
+   successful work from the same pending queue. Checkpoint writes remain
    batched; cancellation is checked while waiting and before refilling.
 3. Instantiate the local Maia worker only if validated, pinned policies are
    missing. A fully cached reference does not need a new neural process. One

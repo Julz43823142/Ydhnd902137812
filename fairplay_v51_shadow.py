@@ -177,30 +177,43 @@ def _scan_position_queue(executor, pool, positions, config, deadline,
     pending={}
     completed=reported=0
     exhausted=False
-    while pending or not exhausted:
-        check_deadline(deadline)
-        while not exhausted and len(pending)<limit:
-            try:
-                game,decision=next(remaining)
-            except StopIteration:
-                exhausted=True
+    try:
+        while pending or not exhausted:
+            check_deadline(deadline)
+            while not exhausted and len(pending)<limit:
+                try:
+                    game,decision=next(remaining)
+                except StopIteration:
+                    exhausted=True
+                    break
+                budget=chess.engine.Limit(depth=config.bullet_deep_depth
+                                         if game.time_class=='bullet' else 18)
+                future=executor.submit(pool.run_decision,game,decision,budget,deadline)
+                pending[future]=(game,decision)
+            if not pending:
                 break
-            budget=chess.engine.Limit(depth=config.bullet_deep_depth
-                                     if game.time_class=='bullet' else 18)
-            future=executor.submit(pool.run_decision,game,decision,budget,deadline)
-            pending[future]=(game,decision)
-        if not pending:
-            break
-        done,_=wait(pending,timeout=1,return_when=FIRST_COMPLETED)
-        for future in done:
-            game,decision=pending.pop(future)
-            future.result()  # A failed search never becomes completed evidence.
-            record_completed(game,decision)
-            completed+=1
-        if completed-reported>=128:
-            flush_checkpoint()
-            progress(f"Depth-18 rapid/blitz · depth-12 bullet: {completed} / {len(positions)} positions")
-            reported=completed
+            done,_=wait(pending,timeout=1,return_when=FIRST_COMPLETED)
+            for future in done:
+                game,decision=pending.pop(future)
+                future.result()  # A failed search never becomes completed evidence.
+                record_completed(game,decision)
+                completed+=1
+            if completed-reported>=128:
+                flush_checkpoint()
+                progress(f"Depth-18 rapid/blitz · depth-12 bullet: {completed} / {len(positions)} positions")
+                reported=completed
+    except BaseException:
+        # Drain exactly as on normal shutdown, saving other completed searches
+        # even when one worker fails. Do not launch replacement work here.
+        for future in pending:future.cancel()
+        for future,(game,decision) in pending.items():
+            try:future.result()
+            except BaseException:continue
+            try:record_completed(game,decision)
+            except Exception:pass  # Preserve the original failure if storage failed.
+        try:flush_checkpoint()
+        except Exception:pass
+        raise
     if completed>reported:
         flush_checkpoint()
         progress(f"Depth-18 rapid/blitz · depth-12 bullet: {completed} / {len(positions)} positions")
