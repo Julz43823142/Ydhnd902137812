@@ -709,6 +709,17 @@
             "owner_name": "Thice"
           }
         ],
+        "puzzle": {
+          "day": "2026-10-18",
+          "fen": "r1r3k1/5pp1/7p/B2RPP2/1P6/2q4P/3Q2PK/8 w - - 2 37",
+          "id": "nsmp2",
+          "index": 0,
+          "moves": [
+            "d5d8",
+            "c8d8",
+            "d2c3"
+          ]
+        },
         "rarity": "uncommon",
         "species": "Penguin",
         "xp": 0
