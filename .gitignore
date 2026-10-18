@@ -13,3 +13,7 @@ chesscom_reference.local/
 
 # Private reference optimizer state and detailed per-game metrics.
 data/accuracy_optimizer.local/
+
+# Encrypted, local Ban Alert subscription state.
+.fairplay_ban_alerts.enc
+.fairplay_ban_alerts.tmp
