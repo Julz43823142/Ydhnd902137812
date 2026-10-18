@@ -49,7 +49,7 @@ def priority_color(priority):
 
 def panel_embed():
     if os.getenv('FAIRPLAY_METHOD3')=='1':
-        embed=discord.Embed(title=PANEL_TITLE,color=0x427CBA,description='Method 3 reviews up to 200 rated live games using Elo-expected points and observed results. Published Accuracy and clocks are descriptive. No Stockfish or Maia scan. Experimental screening, not proof of cheating.')
+        embed=discord.Embed(title=PANEL_TITLE,color=0x427CBA,description='Method 3 reviews up to 200 rated live games using Elo-expected points and observed results. Published Accuracy can add a review flag; clocks are descriptive. No Stockfish or Maia scan. Experimental screening, not proof of cheating.')
         embed.set_footer(text=PANEL_MARKER+' · '+active_version())
         return embed
     if os.getenv("FAIRPLAY_V51")=="1":
@@ -1618,7 +1618,9 @@ class FairPlayService:
 
     def is_panel(self,message):
         return (message.author.id==self.client.user.id and bool(message.embeds)
-                and message.embeds[0].title==PANEL_TITLE and message.embeds[0].footer.text==PANEL_MARKER)
+                and message.embeds[0].title==PANEL_TITLE
+                and (message.embeds[0].footer.text==PANEL_MARKER
+                     or str(message.embeds[0].footer.text or '').startswith(PANEL_MARKER+' · ')))
 
     async def restore_history(self):
         try:
@@ -1654,7 +1656,8 @@ class FairPlayService:
                     self.panel_id = messages[0].id
                     for old in panels[1:]:await old.delete()
                     current=panel_embed()
-                    if messages[0].embeds[0].description!=current.description:
+                    if (messages[0].embeds[0].description!=current.description
+                            or messages[0].embeds[0].footer.text!=current.footer.text):
                         await messages[0].edit(embed=current,view=SubmitView(),
                                                allowed_mentions=discord.AllowedMentions.none())
                     return False

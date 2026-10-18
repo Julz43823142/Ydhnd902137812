@@ -638,6 +638,19 @@ class DiscordRules(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(sum(self.service.is_panel(m) for m in self.channel.messages),1)
         self.assertTrue(self.service.is_panel(self.channel.messages[-1]))
 
+    async def test_method3_versioned_panel_is_reused_and_old_duplicates_removed(self):
+        with patch.dict(os.environ,{'FAIRPLAY_METHOD3':'1'}):
+            self.assertTrue(await self.service.ensure_panel())
+            self.assertFalse(await self.service.ensure_panel())
+            self.assertEqual(self.channel.sends,1)
+            self.assertTrue(self.service.is_panel(self.channel.messages[0]))
+            old=ui.panel_embed();old.set_footer(text=ui.PANEL_MARKER+' · old-detector-version')
+            self.channel.messages.append(FakeMessage(self.channel,999,old))
+            self.assertFalse(await self.service.ensure_panel())
+            self.assertEqual(self.channel.sends,1)
+            self.assertEqual(sum(self.service.is_panel(m) for m in self.channel.messages),1)
+            self.assertEqual(self.channel.messages[0].embeds[0].footer.text,ui.panel_embed().footer.text)
+
     async def test_latest_legacy_panel_updates_capacity_without_reposting(self):
         old=ui.panel_embed();old.description='Review up to 100 games with 500-game history.'
         message=FakeMessage(self.channel,1,old,created=time.time()-3700)
