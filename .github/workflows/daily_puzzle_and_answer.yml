@@ -66,7 +66,7 @@ jobs:
     # Emergency ceiling only. Normal workers hand off after ~4h20.
     timeout-minutes: 350
     env:
-      # Default to the newly requested shadow study; set repository variable
+      # Default to the bounded 200-game review; set repository variable
       # FAIRPLAY_V51=0 to roll back to the v50 normal analysis without a code revert.
       FAIRPLAY_V51: ${{ vars.FAIRPLAY_V51 || '1' }}
 
@@ -86,7 +86,6 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Prepare optional local Maia human reference
-        if: env.FAIRPLAY_V51 != '1'
         continue-on-error: true
         run: |
           python -m pip install torch==2.8.0 --index-url https://download.pytorch.org/whl/cpu
@@ -234,8 +233,9 @@ jobs:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
           SHARK_STATE_ENCRYPTION_KEY: ${{ secrets.SHARK_STATE_ENCRYPTION_KEY }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          # v51 experiment (default): no fast pass, up to 500 deep games,
-          # three class-separated descriptive charts. Legacy v50 is available
+          # v54 (default): at most 200 rated live games, complete Stockfish,
+          # selected >80 Accuracy games plus controls receive real local Maia.
+          # Legacy v50 is available
           # with FAIRPLAY_V51=0. Both paths use pinned distributed workers.
           FAIRPLAY_V51: ${{ vars.FAIRPLAY_V51 || '1' }}
           FAIRPLAY_FULL_DEPTH18: "1"

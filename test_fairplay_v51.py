@@ -133,8 +133,10 @@ class DeepOnlyShadow(unittest.TestCase):
         self.assertIs(result.timeline,result.games)
         self.assertEqual(result.priority,"INSUFFICIENT DATA")
         self.assertEqual(sorted(scanner.budgets),[12,18,18])
-        self.assertTrue(collected.call_args.kwargs["include_unrated"])
-        self.assertEqual(collected.call_args.kwargs["include_recent_all_short_count"],500)
+        self.assertFalse(collected.call_args.kwargs["include_unrated"])
+        self.assertEqual(collected.call_args.kwargs["include_recent_all_short_count"],200)
+        self.assertEqual(collected.call_args.kwargs['time_classes'],('bullet','blitz','rapid'))
+        self.assertEqual(collected.call_args.args[3].history_games,200)
 
     def test_pngs_are_separate_and_named_by_class(self):
         groups = observations([game(i, kind)

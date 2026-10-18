@@ -6,6 +6,13 @@ NAMESPACE = 'shark:fairplay:'
 DISCLAIMER = ('Automated fair-play screening only. This result is not proof of cheating '
               'and must not be used as the sole basis for punishment. Human review is mandatory.')
 VERSION = 'fairplay-v50-selective-policy'
+DEPTH_VERSION = 'fairplay-v54-recent-200-maia'
+
+
+def active_version():
+    """One source for the deployed route, progress card and automatic rescans."""
+    import os
+    return DEPTH_VERSION if os.getenv('FAIRPLAY_V51') == '1' else VERSION
 
 
 @dataclass(frozen=True)

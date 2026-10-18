@@ -19,7 +19,7 @@ import discord
 from fairplay_analysis import (ReviewResult, review, review_interest,
                                get_shared_engine_pool, close_shared_engine_pool,
                                available_engine_cpus, available_engine_memory_mb)
-from fairplay_config import CHANNEL_ID, DISCLAIMER, NAMESPACE, CONFIG, VERSION
+from fairplay_config import CHANNEL_ID, DISCLAIMER, NAMESPACE, CONFIG, VERSION, active_version
 from fairplay_data import AccountNotFound, ReviewError, username
 from fairplay_progress import estimate, bar, label, duration, LiveTiming, ReliableTiming
 from fairplay_checkpoint import CheckpointStore
@@ -42,9 +42,9 @@ def public_text(value):
 def panel_embed():
     if os.getenv("FAIRPLAY_V51")=="1":
         embed=discord.Embed(title=PANEL_TITLE,color=0x427CBA,
-            description=("Experimental depth-only review: up to 500 completed Bullet, Blitz and Rapid "
-                         "games, rated and unrated, are evaluated at Stockfish depth "
-                         "12 (Bullet) or 18 (Blitz/Rapid), MultiPV 3. No fast pass. "
+            description=("Review up to 200 completed rated Bullet, Blitz and Rapid "
+                         "games at Stockfish depth 12 (Bullet) or 18 (Blitz/Rapid), MultiPV 3. "
+                         "Local Maia-3 checks games above 80 published Accuracy plus comparison games. "
                          "Three independent English chart reports plot accuracy, opponent Elo "
                          "and observed move think time by GAME number. There is no calibrated "
                          "population baseline or automatic cheating verdict. "
@@ -73,7 +73,7 @@ def progress_embed(target, stage, value=None, timing=None):
                  else bar(value)+"\n\n"+label(stage))
     if timing is not None:description+='\n'+timing.summary(stage)
     embed = discord.Embed(title=REPORT_PREFIX+target, description=description, color=0x427CBA)
-    embed.set_footer(text=f"Version: {VERSION} · Progress is not percent of elapsed time.")
+    embed.set_footer(text=f"Version: {active_version()} · Progress is not percent of elapsed time.")
     embed.add_field(name='Important', value=SHORT_SCREENING_NOTICE, inline=False)
     return embed
 
@@ -122,25 +122,36 @@ def result_embed(result: ReviewResult):
     if result.diagnostics.get("v51_shadow"):
         record=result.diagnostics["v51_shadow"]
         val=record["accuracy_validation"]
+        limit=record.get('requested_games',500)
+        maia=record.get('maia_reference',{})
         icons={'LOW':'🟢','MODERATE':'🟡','HIGH':'🟠','VERY HIGH':'🔴','INSUFFICIENT DATA':'⚪'}
         tier=record.get('review_priority',{})
         embed=discord.Embed(title=REPORT_PREFIX+result.username,
             description=(f"{icons.get(result.priority,'⚪')} **{result.priority} review priority**\n"
                          "**Experimental heuristic — not a cheating verdict.**\n"
-                         "Complete Stockfish review of up to 500 collected games. "
+                         f"Complete Stockfish review of up to {limit} rated live games. "
                          "Human review is mandatory."),
             color=0x427CBA)
         embed.add_field(name="Data coverage confidence",value=result.confidence,inline=True)
         embed.add_field(name="Priority basis",inline=False,
             value=('\n'.join(tier.get('reasons',result.reasons)) or 'No eligible review tier.')[:1024])
         embed.add_field(name="Engine coverage",inline=False,
-            value=(f"Deep games: **{record['deep_games']}** / 500 maximum\n"
+            value=(f"Deep games: **{record['deep_games']}** / {limit} maximum\n"
                    "Fast games: **0**\n"
                    "Bullet depth 12; Blitz/Rapid depth 18; MultiPV 3."))
         embed.add_field(name="Priority sample",inline=False,
             value=(f"Rated games: **{tier.get('rated_games',0)}** · "
                    f"rated games with enough useful decisions: **{tier.get('scoring_games',0)}**\n"
-                   "Unrated games are chart context only. Selected games do not cover the entire account history."))
+                   "Only rated games affect priority. Selected games do not cover the entire account history."))
+        if maia:
+            status='Available' if maia.get('available') else 'Unavailable'
+            embed.add_field(name=f"Local Maia-3 — {status}",inline=False,
+                value=(f"Accuracy >80 games: **{maia.get('accuracy_selected_games',0)}** · "
+                       f"comparison games: **{maia.get('comparison_games',0)}**\n"
+                       f"Completed move checks: **{maia.get('positions',0)}** / "
+                       f"{maia.get('selected_positions',0)} selected\n"
+                       f"Games without published Accuracy: **{maia.get('missing_accuracy_games',0)}**\n"
+                       "Move likelihood is not a cheating probability. Selected games are not a representative sample.")[:1024])
         embed.add_field(name="Accuracy calibration vs Chess.com",inline=False,
             value=(f"Paired official scores: **{val['compared_games']}**\n"
                    f"MAE: **{number(val['mae'], ' points')}**\n"
@@ -153,7 +164,7 @@ def result_embed(result: ReviewResult):
                        f"Clock data: **{row['clock_games']}**\n"
                        f"Descriptive shift flags: **{len(row['flags'])}**"))
         embed.add_field(name="Charts",value="Separate Bullet, Blitz and Rapid PNG reports, plus a side-by-side opponent-Elo comparison, follow below where data exists. Axes zoom to observed values.",inline=False)
-        embed.add_field(name="Important",value=SHORT_SCREENING_NOTICE,inline=False)
+        embed.add_field(name="Important",value=DISCLAIMER,inline=False)
         embed.set_footer(text=f"Version: {result.version} · Heuristic review priority, not probability")
         return embed
     """Discord-safe summary; keep technical diagnostics in the detail buttons.
@@ -413,8 +424,23 @@ def detail_embed(result, mode):
             value=(f"**{result.priority}** · data coverage confidence: **{result.confidence}**\n"
                    + '\n'.join(tier.get('reasons',result.reasons)))[:1024])
         if mode=='Human Moves':
-            embed.add_field(name="Human reference",inline=False,
-                value="No learned Maia inference runs in this depth-only mode. Rating-conditioned engine heuristics are not human move probabilities.")
+            maia=record.get('maia_reference',{})
+            if maia:
+                embed.add_field(name="Local human reference",inline=False,
+                    value=(f"Available: **{bool(maia.get('available'))}** · "
+                           f"full-game selected move checks: **{maia.get('positions',0)}/{maia.get('selected_positions',0)}**\n"
+                           f"Published Accuracy >80 games: {maia.get('accuracy_selected_games',0)} · "
+                           f"comparison games: {maia.get('comparison_games',0)}\n"
+                           + (maia.get('reason') or 'Local Maia-3 5M with real preceding board history; no scan-time model download.')
+                           + '\nRare strong moves are descriptive; selected-game rates cannot establish HIGH.')[:1024])
+                for kind,row in maia.get('by_class',{}).items():
+                    embed.add_field(name=f"{kind.title()} human-policy observations",inline=False,
+                        value=(f"Eligible decisions: {row['compared_decisions']} · low-policy choices: {row['low_policy_moves']}\n"
+                               f"Low-policy strong choices: {row['low_policy_strong_moves']} · games with multiple: {row['multi_hit_games']}\n"
+                               "Unexpected weak moves do not count as strong-play evidence. Bullet has greater model/domain uncertainty."))
+            else:
+                embed.add_field(name="Human reference",inline=False,
+                    value="No learned Maia inference is recorded for this older report. Engine heuristics are not human move probabilities.")
         if mode in ('Review Gates','Engine Analysis','Clusters & History'):
             shift=tier.get('recent_shift',{})
             candidate=shift.get('selected')
@@ -446,6 +472,19 @@ def detail_embed(result, mode):
                            f"Same-period clock support: {row['independent_clock_support']}\n"
                            + period_text + block_text + '\nWhole-class blockers: '
                            + ('; '.join(row['blockers']) or 'None'))[:1024])
+        if mode in ('Performance','Review Gates','Clusters & History'):
+            tails=record.get('official_accuracy_tails',[])
+            for kind in ('bullet','blitz','rapid'):
+                selected=[row for row in tails if row['time_class']==kind and row['recent_games']==20]
+                if not selected:continue
+                text='\n'.join(
+                    f"{row['time_control']}: latest 20 median {number(row['recent_median'])} "
+                    f"({row['recent_published']}/20 published) · earlier median {number(row['baseline_median'])} "
+                    f"({row['baseline_published']} published comparable games) · "
+                    f"shift {number(row['median_shift'], ' points')}"
+                    for row in selected)
+                embed.add_field(name=f"{kind.title()} published Accuracy tails",inline=False,
+                    value=(text+'\nMissing scores remain unknown. Accuracy alone never sets HIGH; tails are not averaged into the whole history.')[:1024])
         for kind,row in record["by_class"].items():
             details=(f"Deep games: {row['games']} · valid-clock games: {row['clock_games']}\n"
                      f"Compared Chess.com scores: {row['accuracy_validation']['compared_games']}\n"

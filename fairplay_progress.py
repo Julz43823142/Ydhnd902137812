@@ -130,7 +130,7 @@ class ReliableTiming(LiveTiming):
         self.planned={}
         self.fractions={}
         import os
-        self.expected_deep_games=(500 if os.getenv('FAIRPLAY_V51')=='1' else
+        self.expected_deep_games=(200 if os.getenv('FAIRPLAY_V51')=='1' else
                                   250 if os.getenv('FAIRPLAY_DISTRIBUTED')=='1' else 125)
 
     def configure(self, work):
@@ -159,7 +159,8 @@ class ReliableTiming(LiveTiming):
         if stage=='Complete':return 100
         if stage.startswith('Building report'):return 99
         if stage.startswith('Comparing personal timing'):return 98
-        if self.planned.get('deep') and self.phases.get('wide'):
+        no_fast_plan = self.planned.get('wide') == 0 and 'deep' in self.planned
+        if self.planned.get('deep') and (self.phases.get('wide') or no_fast_plan):
             costs={key:(self.phases[key]['total'] if key in self.phases else self.planned.get(key,0))*self.rate.get(key,self.PRIOR[key]) for key in self.PRIOR}
             reserve=20+(180 if 'policy_deep' not in self.planned else 0)
             total=sum(costs.values())+reserve
@@ -305,6 +306,27 @@ class ReliableTiming(LiveTiming):
 
         if self.recovering:
             return label+" · Re-estimating after local worker recovery starts."
+        if self.planned.get('wide') == 0 and 'deep' in self.planned:
+            # A depth-only review never has fast throughput. Waiting for that
+            # nonexistent phase previously suppressed its ETA for the full run.
+            deep = self.phases.get('deep')
+            if not deep or 'deep' not in self.rate:
+                return label+" · Time remaining: not yet available."
+            if deep['done'] < deep['total'] and now-deep.get('last_progress',now) >= 60:
+                return label+" · Waiting for new worker progress; the previous ETA is no longer reliable."
+            remaining = 20.0
+            for key,total in self.planned.items():
+                phase = self.phases.get(key)
+                done = phase['done'] if phase else 0
+                value = max(0,total-done)*self.rate.get(key,self.PRIOR[key])
+                if (key == 'deep' and self.worker_remaining is not None
+                        and self.worker_updated is not None and now-self.worker_updated < 120
+                        and deep['done'] < deep['total']):
+                    value = self.worker_remaining
+                remaining += value
+            return (label+" · Estimated TOTAL time remaining: **~"+
+                    duration(.65*remaining)+"–"+duration(1.35*remaining)+
+                    "** (updated from measured Stockfish throughput; approximate)")
         wide=self.phases.get("wide")
         if not wide or "wide" not in self.rate:
             if stage.startswith(("Fast Maia alternatives","Deep Maia alternatives")):

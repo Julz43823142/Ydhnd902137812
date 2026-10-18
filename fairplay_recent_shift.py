@@ -7,6 +7,7 @@ or an underrated account can have innocent explanations; manual review stays
 mandatory. These thresholds require external holdout validation.
 """
 from collections import Counter
+from math import ceil
 from dataclasses import dataclass
 from dataclasses import replace
 from datetime import datetime, timezone
@@ -51,7 +52,7 @@ def _mix_distance(left, right):
 
 
 def recent_shift(games, config=CONFIG, *, complete, thresholds=RECENT_CONFIG,
-                 incomplete_archive_months=()):
+                 incomplete_archive_months=(), include_bullet=False):
     """Do not average a recent tail into the whole 500-game history.
 
     Only three predefined endpoints per live non-Bullet class are tested.
@@ -61,10 +62,16 @@ def recent_shift(games, config=CONFIG, *, complete, thresholds=RECENT_CONFIG,
     never independent replications and never a VERY HIGH route.
     """
     candidates = []
-    for kind in ('rapid', 'blitz'):
+    kinds = ('rapid', 'blitz', 'bullet') if include_bullet else ('rapid', 'blitz')
+    for kind in kinds:
         group = sorted((g for g in games if g.rated is True and g.time_class == kind),
                        key=lambda g: (g.ended, g.identity))
         for width in thresholds.windows:
+            # Bullet requires a longer recent period and stronger per-period
+            # evidence. A separate matched baseline replaces the old demand
+            # for two 30-game absolute blocks; clocks are never mandatory.
+            if kind == 'bullet' and width < 20:
+                continue
             if len(group) < width+thresholds.baseline_games:
                 continue
             recent = group[-width:]
@@ -103,6 +110,12 @@ def recent_shift(games, config=CONFIG, *, complete, thresholds=RECENT_CONFIG,
             # denominator. Keep its recent minimum proportional; Wilson and
             # every quality/contributor gate still apply to the real count.
             recent_config=replace(config,human_min_opportunities=thresholds.recent_opportunity_floor)
+            if kind == 'bullet':
+                recent_config=replace(recent_config,
+                    human_min_opportunities=config.bullet_human_deep_opportunities,
+                    human_min_contributors=max(config.bullet_human_deep_games, ceil(.6*width)),
+                    human_hit_lower=config.bullet_human_deep_hit_lower,
+                    human_absolute_information_floor=config.bullet_human_information)
             absolute_failures = absolute_blockers(summary, recent_config,relative=True)
             required = baseline+recent
             earliest = datetime.fromtimestamp(min(g.ended for g in required), timezone.utc).strftime('%Y-%m')

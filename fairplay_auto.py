@@ -9,7 +9,7 @@ import re
 import time
 
 import discord
-from fairplay_config import VERSION
+from fairplay_config import active_version
 from fairplay_data import username, ReviewError
 
 PREFIX = '🛡️ Fair Play Review — '
@@ -54,7 +54,7 @@ class AutoRescanner:
             if enabled and self.state.get('enabled'):
                 return 'Automatic reviews are already enabled.'
             if enabled:
-                self.state = dict(enabled=True, version=VERSION, before=None,
+                self.state = dict(enabled=True, version=active_version(), before=None,
                                   seen=[], exhausted=False, started=time.time())
             else:self.state['enabled'] = False
             await self.persist()
@@ -77,8 +77,8 @@ class AutoRescanner:
             service = self.service
             if (not self.state.get('enabled') or service.closed or service.jobs
                     or not service.queue.empty()):return
-            if self.state.get('version') != VERSION:
-                self.state = dict(enabled=True, version=VERSION, before=None,
+            if self.state.get('version') != active_version():
+                self.state = dict(enabled=True, version=active_version(), before=None,
                                   seen=[], exhausted=False, started=time.time())
             if self.state.get('exhausted'):return
             seen = set(self.state.get('seen', []))
@@ -101,7 +101,7 @@ class AutoRescanner:
                 if target in seen:continue
                 seen.add(target)
                 self.state['seen'] = sorted(seen)
-                current = int(VERSION_PATTERN.search(VERSION).group(1))
+                current = int(VERSION_PATTERN.search(active_version()).group(1))
                 if major >= current:continue
                 # Recent successful manual scans are never repeated by automation.
                 if target in service.cache:continue
