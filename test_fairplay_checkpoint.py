@@ -74,6 +74,9 @@ class CheckpointTests(unittest.TestCase):
         resumed=self.store();self.bind(resumed)
         for d in game.decisions:
             self.assertEqual(resumed.policy('privateaccount',game,d),{'e2e4':1.0})
+        with patch.object(resumed,'_write',wraps=resumed._write) as writes:
+            resumed.record_policies('privateaccount',[(game,d) for d in game.decisions])
+            writes.assert_not_called()
 
     def test_encrypted_resume_skips_completed_positions_across_restart(self):
         a = self.store()

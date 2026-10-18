@@ -393,8 +393,9 @@ def annotate_history(games,predictor=None,*,full_coverage=False,recent_full_ids=
                 if not valid_policy(decision,policy):raise ValueError('Invalid reused local policy distribution')
                 decision.human_policy=dict(policy);_cache.move_to_end(key)
             if checkpoint is not None:
-                checkpoint.record_policies(target,[(game,decision) for game,decision,_ in chosen],persist=False)
-                checkpoint.flush(force=False)
+                checkpoint.record_policies(target,[(game,decision) for game,decision,_ in chosen],
+                                           persist=not checkpoint_pending)
+                if checkpoint_pending:checkpoint.flush(force=False)
                 checkpoint_pending=0
             while len(_cache)>2400:_cache.popitem(last=False)
         if progress is not None:progress(f'Building human-move profile: {len(chosen)} / {len(chosen)} positions')
