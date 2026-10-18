@@ -238,6 +238,9 @@ jobs:
           # Legacy v50 is available
           # with FAIRPLAY_V51=0. Both paths use pinned distributed workers.
           FAIRPLAY_V51: ${{ vars.FAIRPLAY_V51 || '1' }}
+          # Owner-requested Accuracy worklist rule. Gameplay assessment stays
+          # separate and visible; set variable to 0 to disable only the overlay.
+          FAIRPLAY_BULLET_CONSISTENCY_TRIAGE: ${{ vars.FAIRPLAY_BULLET_CONSISTENCY_TRIAGE || '1' }}
           FAIRPLAY_FULL_DEPTH18: "1"
           FAIRPLAY_V21: "1"
           # v23: on-demand encrypted compute over ten separate runner jobs.

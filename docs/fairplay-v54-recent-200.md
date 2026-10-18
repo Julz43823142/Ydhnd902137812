@@ -1,5 +1,10 @@
 # Bounded recent-game review
 
+For the separately labelled, owner-configured v55 worklist overlay, see
+[`fairplay-v55-consistency-triage.md`](fairplay-v55-consistency-triage.md).
+It can promote manual-review priority while leaving this gameplay assessment
+unchanged. Historical v54 behavior below remains the gameplay reference.
+
 `fairplay-v54-recent-200-maia` uses the existing Discord process, queue,
 encrypted compute workers, exact search verification and persistent views.
 It replaces the default v52 500-game depth-only review. The legacy v50

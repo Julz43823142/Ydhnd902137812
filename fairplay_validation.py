@@ -20,6 +20,14 @@ POSITIVE_LABELS = ('known_fair_play_closed', 'positive', 'holdout_positive')
 NORMAL_LABELS = ('trusted_normal', 'holdout_normal')
 
 
+def analytical_priority(result):
+    """Configured worklist promotion is not a detector validation success."""
+    diagnostics=getattr(result,'diagnostics',{})
+    depth=(diagnostics.get('v51_shadow',{}).get('review_priority',{})
+           if isinstance(diagnostics,dict) else {})
+    return str(depth.get('gameplay_priority',getattr(result,'priority','')))
+
+
 def ranking_summary(indices):
     """Pairwise ordering on each partition; never tune against pooled holdout.
 
@@ -51,7 +59,7 @@ def positive_low_bucket(result):
     is treated as a weak-window/multi-blocked miss. This classification is for
     aggregate validation only and never feeds thresholds or production scoring.
     """
-    priority=str(getattr(result,'priority',''))
+    priority=analytical_priority(result)
     if priority!='LOW':return None,()
     diagnostics=getattr(result,'diagnostics',{})
     depth=(diagnostics.get('v51_shadow',{}).get('review_priority',{})
@@ -164,6 +172,7 @@ def analyze_target(target, profile, config, **kwargs):
 def evaluate_cases(cases, analyze):
     cases=validated_cases(cases)
     counts = {label:Counter() for label in LABELS}
+    worklist_counts = {label:Counter() for label in LABELS}
     failures = Counter()
     indices={label:[] for label in LABELS}
     positive_low_buckets=Counter();positive_low_blockers=Counter()
@@ -174,12 +183,15 @@ def evaluate_cases(cases, analyze):
         # The analyzer receives ONLY the target, never a label or the case dict.
         try:
             result = analyze(username(case.get('username','')))
-            frozen_priority = str(result.priority)
-            if frozen_priority not in PRIORITIES:raise ValueError('Invalid analytical priority.')
+            frozen_priority = analytical_priority(result)
+            frozen_worklist = str(result.priority)
+            if frozen_priority not in PRIORITIES or frozen_worklist not in PRIORITIES:
+                raise ValueError('Invalid review priority.')
         except Exception:
             failures[case['label']] += 1
             continue  # no private target/error detail reaches stdout/public logs
         counts[case['label']][frozen_priority] += 1
+        worklist_counts[case['label']][frozen_worklist] += 1
         diagnostics=getattr(result,'diagnostics',{})
         index=diagnostics.get('gameplay',{}).get('research_evidence_index') if isinstance(diagnostics,dict) else None
         if (isinstance(index,(int,float)) and not isinstance(index,bool)
@@ -215,6 +227,8 @@ def evaluate_cases(cases, analyze):
                         'failed':sum(failures.values()),'insufficient_data':abstentions,
                         'completion_fraction':completed/len(cases)},
             'cases':{label:{p:counts[label][p] for p in PRIORITIES} for label in LABELS},
+            'worklist_cases':{label:{p:worklist_counts[label][p] for p in PRIORITIES} for label in LABELS},
+            'priority_metric_basis':'Gameplay assessment; configured Accuracy worklist promotions are reported separately and never counted as improved detection.',
             'failed':{label:failures[label] for label in LABELS},
             'known_positive_completed':sum(counts[LABELS[0]].values()),
             'high_or_higher_recall':(
