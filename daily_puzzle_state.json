@@ -9489,9 +9489,9 @@
     }
   },
   "twitch_oauth_v1": {
-    "refresh_token_enc": "gAAAAABq1UQvs3qciZqAYRM1UliC1CK_7fJp7j7wzIGPQNuz50K0mS2ceCDGtC4wbUwjMSmov2lY7N8cj9Q54TfeSfcH_zGW_WGeA3pc3Cps2khh--2NiuGXdpkptpJUIDIDJ_w_ni84DJhSL7Ui3NsgD7rDsIc2Sg==",
-    "updated_at": 1792361519,
-    "reason": "worker-start"
+    "refresh_token_enc": "gAAAAABq1UQ17UbHKw_ySA1YucZlJ-jy7jqYiLM2-LgyoQu5HO2sBRAh7qphnRFEfclF1-wxJfVRKgM-CcZYaadJ74bXRkmpBzczKWvUwaICynnF2LaNlJqTUT2oMjSn3tS96mkYRB3gfTfMS9dvU8a8QDmyCDJQEA==",
+    "updated_at": 1792361525,
+    "reason": "live-preview-401"
   },
   "twitch_pending_redemptions_v1": {
     "2e64827e-b674-48cd-8da5-fdeff053a10a": {
@@ -9758,7 +9758,8 @@
     "1546557493038284840:halloween:2026-10-17": 1560774353723986013,
     "1468320170891022417:halloween:2026-10-18": 1561136728088248523,
     "1546557493038284840:halloween:2026-10-18": 1561136742055284939,
-    "1468320170891022417:halloween:2026-10-19": 1561499115232305193
+    "1468320170891022417:halloween:2026-10-19": 1561499115232305193,
+    "1546557493038284840:halloween:2026-10-19": 1561499126456258662
   },
   "puzzle_auto_next": {
     "1546557493038284840": true,
