@@ -20522,6 +20522,10 @@ async def on_ready():
     import fairplay_ui
     try:await fairplay_ui.startup(client)
     except Exception:print('Fair Play startup needs a retry; normal SharkBot remains available.',flush=True)
+    try:
+        from fairplay_ban_alerts_ui import startup as start_ban_alerts
+        await start_ban_alerts(client)
+    except Exception:print('Ban Alerts startup unavailable; existing reviews continue.',flush=True)
     from next_batch_ui import restore_public_views
     try:await restore_public_views(client)
     except Exception:print('Public recap/match buttons need restore retry.',flush=True)

@@ -44,6 +44,8 @@ class FairPlayClient(discord.Client):
         install_owner_evidence()
 
     async def close(self):
+        from fairplay_ban_alerts_ui import shutdown as stop_alerts
+        await stop_alerts(self)
         import fairplay_ui
         service = fairplay_ui._service
         if service is not None and service.client is self:await service.close()
