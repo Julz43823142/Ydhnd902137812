@@ -1334,32 +1334,30 @@ class FairPlayService:
     async def enqueue(self,ctx,target):
         self.expire_cache()
         if self.closed:
-            await ctx.followup.send('Fair Play is restarting. Please try again shortly.',ephemeral=True);return
+            await self.channel.send(content='Fair Play is restarting. Please try again shortly.',allowed_mentions=discord.AllowedMentions.none());return
         if target in self.jobs:
             job = self.jobs[target]
             text = 'This account already has a queued or running review. The existing scan is reused.'
             if job.message:text += f' [View progress]({job.message.jump_url})'
-            await ctx.followup.send(text,ephemeral=True);return
+            await self.channel.send(content=text,allowed_mentions=discord.AllowedMentions.none());return
         if target in self.cache:
             _,result,message = self.cache[target]
-            await ctx.followup.send(f'A recent review is cached. [View review]({message.jump_url}). Re-scan becomes available after 30 minutes.',ephemeral=True);return
+            await self.channel.send(content=f'A recent review is cached. [View review]({message.jump_url}). Re-scan becomes available after 30 minutes.',allowed_mentions=discord.AllowedMentions.none());return
         if len(self.jobs)>=MAX_JOBS:
-            await ctx.followup.send(
-                f'The Fair Play queue is full ({MAX_CONCURRENT_SCANS} active + {MAX_WAITING_SCANS} waiting). Please try again later.',
-                ephemeral=True);return
+            await self.channel.send(
+                content=f'The Fair Play queue is full ({MAX_CONCURRENT_SCANS} active + {MAX_WAITING_SCANS} waiting). Please try again later.',
+                allowed_mentions=discord.AllowedMentions.none());return
+        waiting=len(self.jobs)>=MAX_CONCURRENT_SCANS
         job = Job(target,ctx)
         self.jobs[target] = job
         self.queue.put_nowait(job)
-        saved = (await asyncio.to_thread(self.checkpoints.note,target,token=job.token)
-                 if getattr(self,'checkpoints',None) is not None else False)
+        if getattr(self,'checkpoints',None) is not None:
+            await asyncio.to_thread(self.checkpoints.note,target,token=job.token)
         import feature_usage
         feature_usage.note('use:fairplay-scan',ctx.user.id)
-        await ctx.followup.send(
-            f'Review accepted. Up to {MAX_CONCURRENT_SCANS} heavy scans run in parallel; additional reviews wait in queue. '
-            'Public progress appears after the account is validated.'
-            + ('' if saved or self.checkpoints is None else
-               ' Durable checkpoint storage is unavailable; recovery after a worker crash is not guaranteed.'),
-            ephemeral=True)
+        if waiting:
+            await self.channel.send(content='Your Fair Play review is queued. Public progress will appear when it starts.',
+                                    allowed_mentions=discord.AllowedMentions.none())
 
     async def safe_progress(self,job,stage,*,view=None,embed=None):
         if job.message_deleted:return False
@@ -1556,7 +1554,7 @@ class FairPlayService:
                 await asyncio.to_thread(self.checkpoints.suspend,job.target)
             try:
                 if job.ctx is not None:
-                    await job.ctx.followup.send('❌ **Chess.com account not found**\nCheck the username and try again.',ephemeral=True)
+                    await self.channel.send(content='❌ **Chess.com account not found**\nCheck the username and try again.',allowed_mentions=discord.AllowedMentions.none())
             except discord.HTTPException:pass
         except ReviewError as error:
             if job.cancel_requested:return
@@ -1567,7 +1565,7 @@ class FairPlayService:
             else:
                 try:
                     if job.ctx is not None:
-                        await job.ctx.followup.send('❌ '+str(error),ephemeral=True)
+                        await self.channel.send(content='❌ '+str(error),allowed_mentions=discord.AllowedMentions.none())
                 except discord.HTTPException:pass
         except asyncio.CancelledError:
             job.stop.set()
@@ -1587,7 +1585,7 @@ class FairPlayService:
             else:
                 try:
                     if job.ctx is not None:
-                        await job.ctx.followup.send('Analysis could not finish safely. Please try again later.',ephemeral=True)
+                        await self.channel.send(content='Analysis could not finish safely. Please try again later.',allowed_mentions=discord.AllowedMentions.none())
                 except discord.HTTPException:pass
         finally:
             if job.cancel_requested:
@@ -1722,14 +1720,20 @@ async def stop_current_review(ctx):
 
 
 async def submit(ctx,target):
+    # Discord requires acknowledgement within three seconds. Remove the
+    # transient private placeholder once the request has been handled.
     await ctx.response.defer(ephemeral=True,thinking=True)
-    try:target = username(target)
-    except ReviewError as error:
-        await ctx.followup.send(str(error),ephemeral=True);return
-    if _service is None:
-        await ctx.followup.send('Fair Play is reconnecting. Please try again shortly.',ephemeral=True);return
-    _service.note_human()
-    await _service.enqueue(ctx,target)
+    try:
+        try:target = username(target)
+        except ReviewError as error:
+            await ctx.channel.send(content=str(error),allowed_mentions=discord.AllowedMentions.none());return
+        if _service is None:
+            await ctx.channel.send(content='Fair Play is reconnecting. Please try again shortly.',allowed_mentions=discord.AllowedMentions.none());return
+        _service.note_human()
+        await _service.enqueue(ctx,target)
+    finally:
+        try:await ctx.delete_original_response()
+        except discord.HTTPException:pass
 
 
 async def handle_message(message):

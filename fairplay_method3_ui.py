@@ -12,16 +12,19 @@ def result_embed(result):
     d=result.diagnostics['method3'];s=d['subject'];r=(d.get('selected') or {}).get('results',s['overall_results'])
     icon={'LOW':'🟢','MODERATE':'🟡','HIGH':'🟠','INSUFFICIENT DATA':'⚪'}.get(result.priority,'⚪')
     e=discord.Embed(title='🛡️ Fair Play Review — '+result.username,color=priority_color(result.priority),
-        description=f'{icon} **{result.priority} review priority**\n**Method 3 · experimental results-only screening.**')
+        description=f'{icon} **{result.priority} review priority**\n**Method 3 · experimental results/Accuracy screening.**')
     explanations={
         'HIGH':'A recent stretch scored well above the results expected from the ratings. Check those games.',
-        'MODERATE':'Published Accuracy was higher than in comparable earlier games. Take a closer look.',
+        'MODERATE':('An unrated period needs a closer look. Its ratings may be out of date.' if d.get('priority_basis')=='unrated_context' else 'Published Accuracy was higher than in comparable earlier games. Take a closer look.'),
         'LOW':'No strong results-based review flag was found. This does not prove fair play.',
         'INSUFFICIENT DATA':'There are not enough usable games for a reliable comparison.'}
     e.add_field(name='Why this result?',value=explanations.get(result.priority,'See the detail buttons.'),inline=False)
     accuracy_games=sum(g.accuracy is not None for g in result.games)
-    e.add_field(name='Sample / coverage',value=f'{len(result.games)} rated history games · latest {d.get("priority_games",len(result.games))} used for priority · results confidence: {result.confidence}'+(' · incomplete collection' if result.partial else '')+f'\nPublished Accuracy: {accuracy_games}/{len(result.games)} games. Missing scores were not engine-reviewed.',inline=False)
-    e.add_field(name='Selected recent period',value=f"Expected points: **{fmt(r['expected_points'])}** · scored: **{fmt(r['actual_points'])}**\nWinrate: **{fmt(r['win_fraction'],True)}** · a draw counts as half a point.",inline=False)
+    e.add_field(name='Sample / coverage',value=f'{len(result.games)} live history games: {d.get("rated_games",len(result.games))} rated · {d.get("unrated_games",0)} unrated\nRated priority: latest {d.get("priority_games",len(result.games))} · results confidence: {result.confidence}'+(' · incomplete collection' if result.partial else '')+f'\nPublished Accuracy: {accuracy_games}/{len(result.games)} games. Missing scores were not engine-reviewed.',inline=False)
+    e.add_field(name='Selected recent period',value=('Unrated · stale ratings possible\n' if d.get('priority_basis')=='unrated_context' else 'Rated\n')+f"Expected points: **{fmt(r['expected_points'])}** · scored: **{fmt(r['actual_points'])}**\nWinrate: **{fmt(r['win_fraction'],True)}** · a draw counts as half a point.",inline=False)
+    if d.get('unrated_games'):
+        u=d['unrated_subject']['overall_results']
+        e.add_field(name='Unrated context · separate comparison',value=f"{d['unrated_games']} games · expected/scored points: {fmt(u['expected_points'])}/{fmt(u['actual_points'])}. Ratings can be stale; unrated evidence alone cannot produce HIGH. Bullet is included; Daily is excluded.",inline=False)
     e.add_field(name='Limits',value='Stockfish: not run · Maia: not run. Results-only screening can flag honest improving players. Technical details are available below.',inline=False)
     if any(row['results_increase'] for row in d.get('history_changes',[])):
         e.add_field(name='History comparison',value='Recent results rose against matched earlier games. This is supporting context, not a separate cheating signal.',inline=False)
@@ -33,7 +36,7 @@ def result_embed(result):
 def detail_embed(result,mode):
     from fairplay_ui import priority_color
     d=result.diagnostics['method3'];s=d['subject']
-    e=discord.Embed(title=f'{mode} — {result.username}',description='Method 3: results-only experimental triage. No Stockfish/Maia screening.',color=priority_color(result.priority))
+    e=discord.Embed(title=f'{mode} — {result.username}',description='Method 3: experimental results and published Accuracy. No Stockfish/Maia screening.',color=priority_color(result.priority))
     if mode in ('Performance', 'Report Details'):
         e.add_field(name='Explanation',value='\n'.join(result.reasons)[:1024],inline=False)
         e.add_field(name='Limits',value=d['limits'][:1024],inline=False)
@@ -55,14 +58,19 @@ def detail_embed(result,mode):
                 f"Median game think time: {fmt(a['think_median'])} → {fmt(b['think_median'])} sec\n"
                 + ('Comparable reference' if change['results_comparable'] else 'Limited reference'))
         e.add_field(name='Earlier → recent · same control',value=('\n\n'.join(rows) or 'Not enough comparable earlier/recent games.')[:1024],inline=False)
-        e.add_field(name='History scope',value=f"{len(result.games)} collected; priority searches only the latest {d.get('priority_games',len(result.games))}. Older games can supply strictly earlier matched references and charts; no dilution into an account-wide average. Changes are descriptive, not an independent HIGH vote.",inline=False)
+        e.add_field(name='History scope',value=f"{len(result.games)} live games collected; priority searches the latest 200 per rated/unrated cohort (up to {d.get('priority_games',len(result.games))} rated available). Cohorts stay separate. Older games can supply strictly earlier matched references and charts; no dilution into an account-wide average. Changes are descriptive, not an independent HIGH vote.",inline=False)
     if mode in ('Engine Analysis','Human Moves'):
         e.add_field(name='Not performed',value='This method does not run Stockfish or Maia. No engine ranks, human-move likelihoods or deep confirmation are claimed.',inline=False)
     elif mode=='Review Gates':
-        e.add_field(name='Configured boundaries',value='HIGH: a ≥10-game chronological period with ≥80% valid results, Elo-points residual ≥2.4 and score excess ≥20 percentage points. MODERATE: official Accuracy exceeds an adequately covered earlier matched personal reference by ≥8 points, with ≥60% above its upper reference. VERY HIGH is unavailable. These thresholds were chosen on development data, not calibrated on independent holdouts.',inline=False)
+        e.add_field(name='Configured boundaries',value='HIGH: a ≥10-game rated chronological period with ≥80% valid results, Elo-points residual ≥2.4 and score excess ≥20 percentage points. MODERATE: official Accuracy exceeds an adequately covered earlier matched personal reference by ≥8 points, with ≥60% above its upper reference. Unrated results/Accuracy can support MODERATE only; ratings may be stale. VERY HIGH is unavailable. These thresholds were chosen on development data, not calibrated on independent holdouts.',inline=False)
     elif mode=='Timing':
         e.add_field(name='Descriptive clocks only',value='PGN clocks supply the think-time charts. Timing does not change this method’s priority.',inline=False)
-    for group in s['opponent_groups'][:12]:
+    from statistics import median
+    for kind,q in d.get('unrated_subject',{}).get('class_results',{}).items():
+        if not q['games']:continue
+        scores=[g.accuracy for g in result.games if g.rated is False and g.time_class==kind and g.accuracy is not None]
+        e.add_field(name='Unrated '+kind.title()+' · descriptive results',value=f"{q['games']} games · expected/scored points {fmt(q['expected_points'])}/{fmt(q['actual_points'])} · winrate {fmt(q['win_fraction'],True)}.\nPublished Accuracy: {len(scores)} available · median {fmt(median(scores) if scores else None)}. Ratings can be stale.",inline=False)
+    for group in s['opponent_groups'][:9]:
         r=group['results'];a=group['accuracy']
         e.add_field(name=f"{group['time_class'].title()} {group['time_control']} · opponent {group['opponent_elo_min']}–{group['opponent_elo_max']}",
             value=f"n={group['games']} · {'limited sample' if group['limited_sample'] else 'descriptive group'}\nPoints expected / actual: {fmt(r['expected_points'])} / {fmt(r['actual_points'])} · winrate {fmt(r['win_fraction'],True)}\nPublished Accuracy median: {fmt(a['observed_median'])} · cross-player norm unavailable.",inline=False)
@@ -71,7 +79,7 @@ def detail_embed(result,mode):
         p=max(personal,key=lambda p:p['last_game']);a=p['accuracy']
         e.add_field(name='Earlier personal Accuracy comparison',value=f"{p['time_class'].title()} · {a['matched_games']}/{p['games']} matched subject games\nObserved / reference median: {fmt(a['matched_observed_median'])} / {fmt(a['matched_reference_median'])}\nPartial matching is not a complete-period norm; reference games are earlier, not labelled honest.",inline=False)
     else:e.add_field(name='Accuracy reference',value='Not enough earlier, same-control and rating-matched official scores. Reference unknown; missing does not mean LOW.',inline=False)
-    if len(s['opponent_groups'])>12:e.add_field(name='Display limit',value='Additional opponent groups omitted from this card.',inline=False)
+    if len(s['opponent_groups'])>9:e.add_field(name='Display limit',value='Additional opponent groups omitted from this card.',inline=False)
     e.add_field(name='Automated screening only',value=DISCLAIMER,inline=False)
     e.set_footer(text=result.version)
     return e
@@ -82,32 +90,43 @@ def chart_pngs(result):
     from fairplay_method3 import observations
     import cairosvg
     from fairplay_outcome_study import expected_points
-    grouped=observations(result.games)
+    rated_games=[g for g in result.games if g.rated is True]
+    grouped=observations(rated_games)
     files=[]
     for kind,rows in grouped.items():
         if not rows:continue
-        svg=class_svg(kind,rows).replace('blue: SharkBot estimate · orange dashed: official Chess.com',
+        svg=class_svg(kind,rows).replace(f'{kind.title()}',f'Rated {kind.title()}',1).replace('blue: SharkBot estimate · orange dashed: official Chess.com',
             'orange dashed: official Chess.com · no engine estimate')
         svg=mark_recent(svg,rows,(150,470,790))
         files.append((f'fairplay_{kind}_charts.png',cairosvg.svg2png(bytestring=svg.encode())))
-    files.append(('fairplay_opponent_elo_comparison.png',cairosvg.svg2png(bytestring=comparison_svg(grouped).encode())))
-    parts=['<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1120" viewBox="0 0 1440 1120"><rect width="1440" height="1120" fill="white"/>',text(45,45,'Method 3 — rolling 10-game expected / observed points',26)]
-    for index,kind in enumerate(('rapid','blitz','bullet')):
-        games=[g for g in result.games if g.time_class==kind]
-        predicted=[];actual=[]
-        for i in range(len(games)):
-            window=games[max(0,i-9):i+1]
-            valid=[(g,expected_points(g.rating,g.opponent_rating)) for g in window]
-            valid=[(g,p) for g,p in valid if p is not None and g.score in (0,.5,1)]
-            predicted.append(sum(p for g,p in valid)/len(valid)*100 if valid else None)
-            actual.append(sum(g.score for g,p in valid)/len(valid)*100 if valid else None)
-        if games:plot(parts,games,105+index*325,kind.title()+' · blue expected / orange observed points',predicted,'%', '#2563eb',second=actual)
-    parts.append('</svg>')
-    svg=''.join(parts)
-    for index,kind in enumerate(('rapid','blitz','bullet')):
-        if grouped[kind]:svg=mark_recent(svg,grouped[kind],(105+index*325,))
-    files.append(('fairplay_method3_expected_points.png',cairosvg.svg2png(bytestring=svg.encode())))
-    files.append(('fairplay_method3_history_change.png',cairosvg.svg2png(bytestring=history_svg(result).encode())))
+    if rated_games:
+        files.append(('fairplay_opponent_elo_comparison.png',cairosvg.svg2png(bytestring=comparison_svg(grouped).encode())))
+        parts=['<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1120" viewBox="0 0 1440 1120"><rect width="1440" height="1120" fill="white"/>',text(45,45,'Method 3 — rolling 10-game expected / observed points',26)]
+        for index,kind in enumerate(('rapid','blitz','bullet')):
+            games=[g for g in rated_games if g.time_class==kind]
+            predicted=[];actual=[]
+            for i in range(len(games)):
+                window=games[max(0,i-9):i+1]
+                valid=[(g,expected_points(g.rating,g.opponent_rating)) for g in window]
+                valid=[(g,p) for g,p in valid if p is not None and g.score in (0,.5,1)]
+                predicted.append(sum(p for g,p in valid)/len(valid)*100 if valid else None)
+                actual.append(sum(g.score for g,p in valid)/len(valid)*100 if valid else None)
+            if games:plot(parts,games,105+index*325,kind.title()+' · blue expected / orange observed points',predicted,'%', '#2563eb',second=actual)
+        parts.append('</svg>')
+        svg=''.join(parts)
+        for index,kind in enumerate(('rapid','blitz','bullet')):
+            if grouped[kind]:svg=mark_recent(svg,grouped[kind],(105+index*325,))
+        files.append(('fairplay_method3_expected_points.png',cairosvg.svg2png(bytestring=svg.encode())))
+        files.append(('fairplay_method3_history_change.png',cairosvg.svg2png(bytestring=history_svg(result).encode())))
+    # Separate full-history unrated charts: no rating-status mixing in lines,
+    # clocks, reference pools or chronological priority tails. At most 9 files.
+    for kind,rows in observations([g for g in result.games if g.rated is False]).items():
+        if not rows:continue
+        svg=class_svg(kind,rows).replace(f'{kind.title()}',f'Unrated {kind.title()}',1).replace(
+            'blue: SharkBot estimate · orange dashed: official Chess.com',
+            'orange dashed: official Chess.com · unrated ratings may be stale')
+        svg=mark_recent(svg,rows,(150,470,790))
+        files.append((f'fairplay_unrated_{kind}_charts.png',cairosvg.svg2png(bytestring=svg.encode())))
     return files
 
 

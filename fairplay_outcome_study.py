@@ -78,13 +78,13 @@ def _accuracy(game, source):
     return value if value is not None and 0 <= value <= 100 else None
 
 
-def _games(player, config):
+def _games(player, config, rated=True):
     games = []
     seen = set()
     for game in player.get('games', []):
         if not isinstance(game, dict):
             raise ValueError('Games must be objects')
-        if (game.get('rated') is not True or game.get('time_class') not in CLASSES
+        if (game.get('rated') is not rated or game.get('time_class') not in CLASSES
                 or game.get('rules', 'chess') != 'chess'):
             continue
         key = game.get('identity')
@@ -231,7 +231,9 @@ def _classify(games, accuracy, result, scenario, config):
             'results_covered':results_covered}
 
 
-def evaluate(players, *, source='official_accuracy', config=CONFIG, scenarios=SCENARIOS, candidate_tail=None):
+def evaluate(players, *, source='official_accuracy', config=CONFIG, scenarios=SCENARIOS, candidate_tail=None, rated=True):
+    if type(rated) is not bool:
+        raise ValueError('Rated cohort must be an explicit boolean')
     if candidate_tail is not None and (type(candidate_tail) is not int or candidate_tail < config.minimum_games):
         raise ValueError('Candidate tail must contain at least the minimum games')
     if source not in ('official_accuracy','estimated_accuracy'):
@@ -242,7 +244,7 @@ def evaluate(players, *, source='official_accuracy', config=CONFIG, scenarios=SC
         # IDs are exported to spreadsheets. Never accept formula prefixes or
         # control characters as supposedly harmless pseudonyms.
         raise ValueError('Players need unique bounded ASCII alphanumeric/underscore/hyphen pseudonyms')
-    data = {p['player_key']:_games(p,config) for p in players}
+    data = {p['player_key']:_games(p,config,rated) for p in players}
     # A physical game can contain two subject rows. Never let an opponent's
     # view of the very same game leak into a subject's reference.
     output = {'schema':SCHEMA, 'source':source, 'disclaimer':DISCLAIMER, 'config':asdict(config),
@@ -297,7 +299,8 @@ def evaluate(players, *, source='official_accuracy', config=CONFIG, scenarios=SC
                 chosen=max(periods,key=lambda p:(rank[tier(p)],p['games']),default=None)
                 ablations[mode][scenario.name]={'priority':tier(chosen) if chosen else 'INSUFFICIENT DATA',
                                                'selected':chosen}
-        output['players'].append({'player_key':key,'rated_games':len(games),
+        output['players'].append({'player_key':key,'rated_games':len(games) if rated else 0,
+                                  'unrated_games':len(games) if not rated else 0,
                                   'overall_results':_result(games),
                                   'opponent_groups':_opponent_groups(games, others, source, config, reference_cache),
                                   'opponent_group_excluded_games':sum(number(g.get('opponent_elo')) is None or

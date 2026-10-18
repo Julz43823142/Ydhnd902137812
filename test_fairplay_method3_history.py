@@ -73,7 +73,7 @@ class RecentHistory(unittest.TestCase):
         self.assertEqual(row['recent']['think_median'],5)
         self.assertFalse(row['results_increase'])
 
-    def test_real_collector_and_study_keep_latest_thousand_unique_rated_standard(self):
+    def test_real_collector_and_study_keep_latest_thousand_unique_live_standard(self):
         from fairplay_method3 import review
         base=sample_row(1);rows=[]
         for i in range(1,1011):
@@ -85,8 +85,9 @@ class RecentHistory(unittest.TestCase):
         result=review(TARGET,lambda _:None,api_factory=API)
         self.assertEqual(len(result.games),1000)
         self.assertEqual(len({g.identity for g in result.games}),1000)
-        self.assertEqual(result.games[0].ended,1700000011)
-        self.assertEqual(result.diagnostics['method3']['subject']['rated_games'],1000)
+        self.assertEqual(result.games[0].ended,1700000012)
+        self.assertEqual(result.diagnostics['method3']['subject']['rated_games'],999)
+        self.assertEqual(result.diagnostics['method3']['unrated_games'],1)
         self.assertEqual(result.diagnostics['method3']['priority_games'],200)
         self.assertEqual(result.coverage['fast_scanned'],0)
         from fairplay_method3 import observations
