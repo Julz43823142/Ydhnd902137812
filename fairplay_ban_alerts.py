@@ -19,6 +19,7 @@ class Settings:
     max_opponents: int=2000
     max_games: int=2000
     max_subscriptions: int=5
+    max_total_subscriptions: int=500
     cycle_seconds: int=3000
 
 
@@ -27,6 +28,8 @@ def subscribe(store,user,target,settings=Settings()):
     def change(s):
         u=s['users'].setdefault(uid,{'muted':False,'subscriptions':{}})
         if target in u['subscriptions']:return False
+        if sum(len(row['subscriptions']) for row in s['users'].values())>=settings.max_total_subscriptions:
+            raise ValueError('Global subscription capacity reached')
         if len(u['subscriptions'])>=settings.max_subscriptions:raise ValueError('Subscription limit reached')
         accounts={t for row in s['users'].values() for t in row['subscriptions']}
         if target not in accounts and len(accounts)>=settings.max_accounts:raise ValueError('Tracked-account limit reached')

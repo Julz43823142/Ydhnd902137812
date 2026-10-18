@@ -17,7 +17,7 @@ _service=None
 
 def alert_embed(event,key):
     e=discord.Embed(title='SharkBot — Fair Play Ban Alert',color=0xe89b35,
-        description='Chess.com lists an account you followed games against as closed for a Fair Play violation. This reports the platform’s account status, not which game involved misconduct.')
+        description='SharkBot observed Chess.com’s Fair Play closure status for an opponent of the followed account. This does not identify which game involved misconduct.')
     e.add_field(name='Followed Chess.com account',value=event['target'])
     e.add_field(name='Opponent',value=event['opponent'])
     e.add_field(name='Official status',value='Closed — Fair Play')
@@ -34,6 +34,7 @@ class AlertModal(discord.ui.Modal):
         self.account=discord.ui.TextInput(label='Chess.com username',max_length=25,required=True)
         self.add_item(self.account)
     async def on_submit(self,ctx):
+        if ctx.channel_id!=CHANNEL_ID or ctx.user.bot:return
         await ctx.response.defer(ephemeral=True,thinking=True)
         if not _service:return await ctx.followup.send('Ban Alerts are reconnecting.',ephemeral=True)
         try:
@@ -47,7 +48,8 @@ class AlertModal(discord.ui.Modal):
                     api=PubAPI(ScanDeadline(time.monotonic()+45))
                     try:return api.get(target,profile=True)
                     finally:api.close()
-                profile=await asyncio.to_thread(validate)
+                async with _service.validation_slots:
+                    profile=await asyncio.to_thread(validate)
                 if not isinstance(profile,dict) or username(profile.get('username',''))!=target:raise ReviewError('Account not found')
                 await asyncio.to_thread(subscribe,_service.store,ctx.user.id,target,_service.settings)
                 text='Subscribed. Initial history is a baseline: existing closures do not generate old alerts. This does not verify account ownership.'
@@ -82,7 +84,7 @@ class AlertView(discord.ui.View):
 class AlertService:
     def __init__(self,client,channel,store,settings):
         self.client=client;self.channel=channel;self.store=store;self.settings=settings
-        self.task=None;self.lock=asyncio.Lock();self.closed=False;self.stop=threading.Event()
+        self.task=None;self.lock=asyncio.Lock();self.validation_slots=asyncio.Semaphore(2);self.closed=False;self.stop=threading.Event()
     async def reconcile(self):
         # Never blindly retry a send with an unknown ACK. A missing history
         # match leaves it uncertain; at-most-once beats an accidental duplicate.

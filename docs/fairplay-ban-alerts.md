@@ -32,7 +32,7 @@ One serial, paced PubAPI client/cycle, no engine/model processes. Shared opponen
 profiles are deduplicated and cached for an hour; fresh subscription baselines
 refresh older cached profiles. At most 2,000 oldest-checked opponents per cycle
 rotate fairly; a large watchlist can therefore take multiple cycles. Max 50
-unique tracked accounts and five subscriptions per Discord user. Defaults are
+unique tracked accounts, 500 total subscriptions and five per Discord user. Subscription-validation HTTP concurrency is limited to two. Defaults are
 conservative resource bounds, not a promise of realtime coverage. Cycle budget
 50 minutes and cancellation are bounded; normal bot shutdown signals the poll.
 
