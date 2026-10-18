@@ -99,3 +99,15 @@ checkouts, is written mode 0600, and routine output contains no player keys or
 case measurements. Real case identities and labels never belong in public
 fixtures, PR descriptions or CI logs. No nightly calibration or external jobs
 are started. Tests use synthetic players and distributions only.
+
+## Opt-in post-hoc development sensitivity
+
+`--development-sensitivity` retains the three original scenarios and adds
+`development_lower/middle/upper`: result residual 2.35/2.40/2.45 and score
+excess .18/.20/.22. Accuracy requirements remain 8 points and .60. These
+thresholds were selected AFTER examining the development cohort. They are
+not an independent validation or a new production default. Research JSON
+explicitly records this provenance. Adjacent settings measure sensitivity,
+not generalization. Results-only HIGH does not establish abnormal gameplay;
+underrating, real improvement and multiple-window selection remain explanations.
+Use a new untouched cohort and frozen thresholds before considering deployment.

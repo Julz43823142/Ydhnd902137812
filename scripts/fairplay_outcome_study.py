@@ -14,7 +14,7 @@ import os
 from pathlib import Path
 import sys
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
-from fairplay_outcome_study import evaluate
+from fairplay_outcome_study import evaluate, SCENARIOS, DEVELOPMENT_SCENARIOS
 
 
 def inside_checkout(path):
@@ -41,9 +41,17 @@ def main(argv=None):
     parser.add_argument('--output',required=True,type=Path)
     parser.add_argument('--csv',required=True,type=Path)
     parser.add_argument('--source',choices=('official_accuracy','estimated_accuracy'),default='official_accuracy')
+    parser.add_argument('--development-sensitivity', action='store_true',
+                        help='Include post-hoc development thresholds; not validated for deployment')
     args=parser.parse_args(argv)
     data=json.loads(args.input.read_text())
-    result=evaluate(data['players'],source=args.source)
+    result=evaluate(data['players'],source=args.source,
+                    scenarios=SCENARIOS + DEVELOPMENT_SCENARIOS if args.development_sensitivity else SCENARIOS)
+    result['post_hoc_development_sensitivity'] = args.development_sensitivity
+    if args.development_sensitivity:
+        result['development_warning'] = ('Thresholds selected after examining development cases. '
+            'Adjacent settings are sensitivity checks, not independent holdout validation. '
+            'Research HIGH from results alone is not gameplay confirmation.')
     csv_text=io.StringIO()
     writer=csv.writer(csv_text)
     writer.writerow(('player_key','mode','scenario','research_priority','time_class','games','reference_mode',
