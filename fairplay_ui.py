@@ -451,7 +451,7 @@ def detail_embed(result, mode):
         embed=discord.Embed(title=f"{mode} — {result.username}",
                             description=("Experimental deep-only audit. Descriptive "
                                          "change markers are not cheating evidence."),
-                            color=priority_color(result.priority))
+                            color=priority_color(getattr(result,'priority',None)))
         embed.add_field(name="Experimental review priority",inline=False,
             value=(f"**{result.priority}** · data coverage confidence: **{result.confidence}**\n"
                    + '\n'.join(tier.get('reasons',result.reasons)))[:1024])
@@ -559,7 +559,8 @@ def detail_embed(result, mode):
                                "validated misconduct probabilities. No punishment follows automatically."))
         embed.set_footer(text=DISCLAIMER)
         return _bounded_detail_embed(embed)
-    embed = discord.Embed(title=f'{mode} — {result.username}',color=priority_color(result.priority))
+    embed = discord.Embed(title=f'{mode} — {result.username}',
+                          color=priority_color(getattr(result,'priority',None)))
     daily=result.diagnostics.get('daily_review',{})
     scoped=result.diagnostics.get('retrieved_period_review') or {}
     if mode in ('Review Gates','Engine Analysis') and scoped.get('evaluated'):
