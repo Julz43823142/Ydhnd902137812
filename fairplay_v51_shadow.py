@@ -171,7 +171,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI,
     private_scanner = None
     executor = None
     try:
-        progress("Collecting games for deep-only review…")
+        progress("Fetching profile…")
         profile = api.get(target, profile=True)
         if not isinstance(profile, dict) or username(profile.get("username", "")) != target:
             raise ReviewError("The public profile cannot be verified.")
@@ -185,6 +185,8 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI,
         if not games:
             raise ReviewError("No eligible Bullet, Blitz, or Rapid games were found.")
         check_deadline(deadline)
+        if callable(getattr(progress, 'workload', None)):
+            progress.workload({'deep': sum(len(g.decisions) for g in games)})
         if engine_factory is None:
             pool = engine_pool or get_shared_engine_pool(config)
             engine_name = pool.name
@@ -218,7 +220,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI,
                 by_id[game_id].deep = True
         missing = [(game, d) for game in games if not game.deep
                    for d in game.decisions]
-        progress(f"Depth-only Stockfish: 0 / {len(missing)} local positions")
+        progress(f"Depth-18 rapid/blitz · depth-12 bullet: 0 / {len(missing)} positions")
         # Bounded batches; no 500-game backlog of concurrent future objects.
         if pool is not None:
             executor = ThreadPoolExecutor(max_workers=max(1, min(workers, 16)))
@@ -244,7 +246,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI,
                     future.result()
                     if checkpoint is not None:
                         checkpoint.record(target, game, decision, "deep")
-            progress(f"Depth-only Stockfish: {min(offset + len(batch), len(missing))} / {len(missing)} local positions")
+            progress(f"Depth-18 rapid/blitz · depth-12 bullet: {min(offset + len(batch), len(missing))} / {len(missing)} positions")
         for game in games:
             if not _verify_deep(game, config):
                 raise ReviewError("Complete exact Stockfish depth coverage was not achieved. No review issued.")
@@ -278,7 +280,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI,
                                           "code_revision": os.getenv("GITHUB_SHA", "")[:12]},
                          "v51_elapsed_seconds": round(elapsed, 2),
                          "v51_distributed_games": len(completed_remote)})
-        progress("Building per-control charts…")
+        progress("Building report…")
         return result
     finally:
         if executor is not None:
