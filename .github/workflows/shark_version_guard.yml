@@ -56,7 +56,14 @@ jobs:
               check=False, capture_output=True, text=True,
           )
           old = extract(previous.stdout) if previous.returncode == 0 else (1, 0)
-          # A maintenance PR may keep the same public version only when the\n          # version declaration itself is unchanged from the base branch.\n          if current == old:\n              if pathlib.Path("shark_version.py").read_text(encoding="utf-8") != previous.stdout:\n                  raise SystemExit("Version declaration changed without a version increment.")\n              print(f"SharkBot version unchanged: {old[0]}.{old[1]} (maintenance PR).")\n              raise SystemExit(0)\n          # One-time correction: the prior small test-only fix was mislabeled v3.
+          # A maintenance PR may keep the same public version only when the
+          # version declaration itself is unchanged from the base branch.
+          if current == old:
+              if pathlib.Path("shark_version.py").read_text(encoding="utf-8") != previous.stdout:
+                  raise SystemExit("Version declaration changed without a version increment.")
+              print(f"SharkBot version unchanged: {old[0]}.{old[1]} (maintenance PR).")
+              raise SystemExit(0)
+          # One-time correction: the prior small test-only fix was mislabeled v3.
           correction = old == (3, 0) and current == (2, 1)
           patch = current[0] == old[0] and current[1] > old[1]
           major = current == (old[0] + 1, 0)
