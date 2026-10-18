@@ -49,7 +49,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         accuracy_support=subject['ablations']['accuracy_only']['balanced']
         priority=('HIGH' if middle['priority']=='HIGH' else 'MODERATE' if accuracy_support['priority']=='HIGH'
                   else middle['priority'])
-        chosen=middle['selected']
+        chosen=accuracy_support['selected'] if priority=='MODERATE' else middle['selected']
         confidence=('LOW' if partial or len(games)<30 else 'HIGH' if len(games)>=100 else 'MEDIUM')
         reasons=[('A chronological rated period scored substantially above its Elo-point expectation. '
                   'This experimental results-only flag is not engine or Maia confirmation.') if priority=='HIGH' else

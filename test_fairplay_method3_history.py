@@ -96,3 +96,17 @@ class RecentHistory(unittest.TestCase):
         self.assertIn('latest 200',str(result_embed(result).to_dict()))
         self.assertIn('Recent priority sample',mark_recent('<svg></svg>',grouped,(150,)))
         self.assertIn('Earlier',history_svg(result))
+
+    def test_moderate_report_selects_actual_accuracy_period(self):
+        from unittest.mock import patch
+        from fairplay_method3 import review
+        rows=[profile_game(i) for i in range(1000)]
+        for i,g in enumerate(rows):g.accuracy=60 if i<800 else 90
+        API.status='basic'
+        with patch('fairplay_method3.collect_games',return_value=(rows,{},False)):
+            result=review(TARGET,lambda _:None,api_factory=API)
+        self.assertEqual(result.priority,'MODERATE')
+        selected=result.diagnostics['method3']['selected']
+        self.assertEqual(selected['reference_mode'],'personal_earlier')
+        self.assertGreater(selected['accuracy']['median_excess'],8)
+        self.assertGreaterEqual(selected['first_game'],801)
