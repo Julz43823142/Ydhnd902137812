@@ -52,47 +52,38 @@
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
-    "url": "https://www.chess.com/daily/2026-10-17",
-    "title": "Crash! Bang! gg",
-    "fen": "2k3r1/pp2pbr1/q1p4p/4RPn1/3P4/PNB1Q3/1PP3BP/5R1K b - - 0 1",
-    "current_fen": "2k3r1/pp2pbr1/q1p4p/4RPn1/3P4/PNB1Q3/1PP3BP/5R1K b - - 0 1",
+    "url": "https://www.chess.com/daily/2026-10-18",
+    "title": "Last Pawn Standing",
+    "fen": "8/p3p2p/2PPk3/1Pn5/7P/6K1/8/8 w - - 0 1",
+    "current_fen": "8/p3p2p/2PPk3/1Pn5/7P/6K1/8/8 w - - 0 1",
     "last_move_uci": null,
     "pgn": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq1G9F3HkCFhVF0bvdGc4jvk-rRZCuGq3SnzV_ywmn31qwXEeGuKsYdlKvU926ebeGTsCr_iu414aH5VDn8ebR1U1_5UqeMiSr08dyxCkVadHYqLQRb1Zf7AmEZVks417wpoKGUMfQAgRVIZYoqFoulz2fwin1tc_JgROzKpN4HGr0bHHoIk7OWUSae3WIVYNv4HZj7lSBK1uao5qU0I0d2EC5SGpF8UgIzKLg2zjKoqTkO0s="
+      "__shark_answer_ciphertext_v1__": "gAAAAABq1HVRzkjOzX94NZli6R4fwJgYfWt2jTvPA3uefnqhPB7svX1vma9pymd-fCjrwJI8uSjpKe2mPwH5urppNCsSHMh-nq2iX5EvgsB7QsW-pYOgvqpOq45fWghlXuaqxr4RNaHyfGvyWlYcjeEJ8BqXGG23xughW5b1VWDLhsJgh5DBYSJPc_lz8CkJ6P4qFftbm3iTorgtc5ZSsdUdMwIPRbgh666ovgTA-NPAKPhvoWlJiZRCcgyLnOSZymN2I4kTpSfZNucoXZW0DtW-NL8GDWr09dnN3HEVRRJRJ2CngWB0jQks0YyuwWaRqNh5wqW7HybS"
     },
     "all_moves": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq1G9Fm2i8ODi2Ess_QfQB1JLrz0FhZ5fqFu4hfyNUkRlelglSWJUlIeJg-DQYtRIQJUtKhv3sOguD8MjWljtjeZSBXyxAyxDfCeZDHysiNvxHIKAnZYgom_8hkAfIPqLlkKosXCWxIwRcmuSOzCA7iyCWsadN3aVFH73lT8FssG3K4fKwtPr3uMpxZZ0bZuG2pSPMoS-5mZtyW4-iMzaGybm_Bz_zhApLok0_IlUoM_PX3H3BmVq81_TrCsu7Viaue_ndXtZkE6LH-rnSgm6ahzAWre8VCVTvTbWX2RUn8-DaUDzbpGbkg8mAEJibufZA3n7RvhwONn_szcYzdL94fIN4xKJgOujJvLR50tia1VRo9c4="
+      "__shark_answer_ciphertext_v1__": "gAAAAABq1HVR4uGpbuMvZlNmUSBgyfH3euGaa1xpAcpsBZMSS0cPLhOR6s7JKBCU2-UnpcnChx_MStw9_gsRx-k2JSzzxh0Y1_q3Kssl0ETsVBLS2IVpVop_K8cETgQEdY93GWne-anRajdMghlm1LQqyzhnxndFPNtbwFRybJ--1tAb2o9DfTuD4CGy_FFXZzhbGUMaLK2c-d_bgO7B9GMc0lwRKMX8hNIzGhmDwaUUGmnxrIXcoZqcDszrlGaJ0Rnhm1SM99SjxCI3FtBufGAQKciqzRkpcCwjVcu6yVNq7U9sP5Wcn6PJ7w2luXVDJ6yF4WmEvwQ8atbuEFQgzfdlt1w88ygTr2KvGSlr_3w7NEAb4ZuG5r20u3pfh7NVwo_OBdWtjmjOHVwtrbXDMDP1Gq8wWaGj6kJ1igiyBBDxTyWpkbDoLg0TIL9kZYy3JbDxY1NBHcqUh60ZJlxhxDOtYjwZbFG2Zg=="
     },
     "player_moves": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq1G9FIvxUYvBz_SzVjyuqALi9Sgg5FczGnY3Si8K-TU0uEolGc0N-xshVY-kobcmsgkGkR2J_7BJ1uYbVON7O4rwVmWajJYxPhGKeBFNTyh7zZ371ndT9pqgVQ9CtmmPBLy5w1Ydxvy--bnFLbQaTuUl0yRwLUgfhrwulZ-vxAYswSb1bYtR7dZLl7BgDZOSpQCCxfBTg1E7vwBnfFSNnGewN7iZgPc3lArdCqflzM7owkro7hrctVMamFbb6I6MpLyWc"
+      "__shark_answer_ciphertext_v1__": "gAAAAABq1HVRuBxVF-vUGo9Wb6nkF2uQxXAVuGwCDjKjLiXUYZYvjEp7QNmCx5OAHm9ZWibzytWBdLPaFA6sCy1rBmRSifBoVnJG-dnPUjGDFOgVzziN4uT6mEm76_D5eIMRxY4TI2CEmIyWIxRtLeYnOSqWx21w_8nGmwgdBzeD15BQ4HZeizMD5RDeMWEL45zCdvindgvPcYhe1muBesIAT0gPHIf-mQaNg_LEQ_tgVAoZerT9QzZ54yUpcoJRIZY3wLUJ7v_p4t2hsaMqP7uQWdgzgEg6PA9CWz4lJ25KxZxBe76V4Bc="
     },
-    "player_color": "black",
-    "player_move_count": 3,
-    "posted_at": "2026-10-17T07:22:17.741286+00:00",
-    "answer_posted": true,
+    "player_color": "white",
+    "player_move_count": 4,
+    "posted_at": "2026-10-18T07:29:21.180523+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "daily_1792221737741",
+    "puzzle_id": "daily_1792308561180",
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_id": 1560915845733949441,
+    "message_id": null,
     "attempted_users": {},
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "message_ids": {
-      "1468320170891022417": 1560915845733949441
-    },
-    "channel_id": 1468320170891022417,
-    "board_attachment_filenames": {
-      "1468320170891022417": "daily_puzzle.png"
-    },
-    "chat_since_refresh": 0,
-    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Qxf1+ Nf3 Rg1#"
+    "helper_candidate_users": []
   },
   "lichess_rating_used": {
     "2000": [
