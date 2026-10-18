@@ -319,8 +319,13 @@ def chart_pngs(grouped):
                 yy = chart_top + h * (1 - fraction)
                 parts.append(f'<line x1="{left}" y1="{yy}" x2="{right}" y2="{yy}" stroke="#e3ebf0"/>')
                 parts.append(text(left-9, yy+5, f"{y_min+(y_max-y_min)*fraction:.0f}{unit}", 12, anchor="end"))
-            parts.append(text(left, chart_top+h+22, "Game 1", 13))
-            parts.append(text(right, chart_top+h+22, f"Game {len(rows)}", 13, anchor="end"))
+            for fraction in (0, .25, .5, .75, 1):
+                position = left + fraction*(right-left)
+                game_number = 1 + round(fraction*max(0, len(rows)-1))
+                parts.append(text(position, chart_top+h+22, f"{game_number}",
+                                  13, anchor="middle"))
+            parts.append(text((left+right)/2, chart_top+h+42,
+                              "Game number (chronological)", 13, "#526477", "middle"))
             def draw(series, stroke, dashed=False):
                 segment = []
                 for index, value in enumerate(series):
@@ -351,10 +356,11 @@ def chart_pngs(grouped):
              [r["opponent_elo"] for r in rows], elo_min, elo_max, "", "#0f766e")
         plot(707, "Median Think Time by Game (valid PGN clocks only)",
              [r["median_think_seconds"] for r in rows], 0, 120, "s", "#7c3aed")
-        parts.append(text(50, 1010, "Accuracy by Opponent Elo (200-point groups)", 20))
+        parts.append(text(50, 1010, "Chess.com Accuracy by Opponent Elo (200-point groups)", 20))
         bins = defaultdict(list)
         for row in rows:
-            acc = row["official_accuracy"] if row["official_accuracy"] is not None else row["estimated_accuracy"]
+            # Never blend differently scaled official and estimated scores.
+            acc = row["official_accuracy"]
             if row["opponent_elo"] is not None and acc is not None:
                 bins[int(row["opponent_elo"]) // 200 * 200].append(acc)
         keys = sorted(bins)
@@ -369,7 +375,7 @@ def chart_pngs(grouped):
                 parts.append(text(center, y_base+19, f"{key}–{key+199}", 11, anchor="middle"))
                 parts.append(text(center, y_base+36, f"n={len(bins[key])}", 11, "#526477", "middle"))
         else:
-            parts.append(text(90, 1100, "Insufficient rating and accuracy data"))
+            parts.append(text(90, 1100, "No paired opponent Elo / official Chess.com Accuracy available"))
         parts.append("</svg>")
         png = cairosvg.svg2png(bytestring="".join(parts).encode("utf-8"))
         result.append((f"fairplay_{kind}_charts.png", png))
