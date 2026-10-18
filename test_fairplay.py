@@ -579,7 +579,7 @@ class Pipeline(unittest.TestCase):
 def ctx():
     return SimpleNamespace(channel_id=CHANNEL_ID,user=SimpleNamespace(id=42,bot=False),
         response=SimpleNamespace(defer=AsyncMock(),send_message=AsyncMock(),send_modal=AsyncMock(),is_done=Mock(return_value=False)),
-        followup=SimpleNamespace(send=AsyncMock()),data={})
+        followup=SimpleNamespace(send=AsyncMock()),delete_original_response=AsyncMock(),channel=FakeChannel(),data={})
 
 
 class FakeMessage:
@@ -608,6 +608,7 @@ class FakeChannel:
     async def send(self,**kwargs):
         self.sends += 1
         message = FakeMessage(self,len(self.messages)+100,kwargs.get('embed'))
+        message.content=kwargs.get('content','')
         self.messages.append(message)
         return message
     def get_partial_message(self,key):
@@ -694,7 +695,7 @@ class DiscordRules(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(len(self.service.jobs),ui.MAX_JOBS)
             self.assertEqual(note.call_count,ui.MAX_JOBS)
             self.assertTrue(all(call.args==('use:fairplay-scan',42) for call in note.call_args_list))
-            self.assertIn('queue is full',events[-1].followup.send.call_args.args[0])
+            self.assertIn('queue is full',self.channel.messages[-1].content)
 
     async def test_only_configured_reviews_run_and_next_waits(self):
         release=threading.Event();capacity_started=threading.Event();started=[];lock=threading.Lock()
@@ -823,21 +824,42 @@ class DiscordRules(unittest.IsolatedAsyncioTestCase):
         await ui.submit(event,'https://example.org')
         event.response.defer.assert_awaited_once_with(ephemeral=True,thinking=True)
         self.assertFalse(self.service.jobs)
+        event.delete_original_response.assert_awaited_once()
+        event.followup.send.assert_not_awaited()
+        self.assertEqual(event.channel.sends,1)
 
-    async def test_not_found_is_private_and_no_public_card(self):
+    async def test_immediate_submit_is_quiet_but_queue_and_duplicates_are_public(self):
+        with patch('feature_usage.note'):
+            first=ctx()
+            await ui.submit(first,TARGET)
+            first.delete_original_response.assert_awaited_once()
+            first.followup.send.assert_not_awaited()
+            self.assertEqual(self.channel.sends,0)
+            await ui.submit(ctx(),TARGET)
+            self.assertIn('queued or running',self.channel.messages[-1].content)
+            self.channel.messages.clear();self.channel.sends=0
+            for i in range(ui.MAX_CONCURRENT_SCANS):
+                await ui.submit(ctx(),f'synthetic-{i}')
+            self.assertIn('queued',self.channel.messages[-1].content)
+            self.assertNotIn('Review accepted',str([m.content for m in self.channel.messages]))
+
+    async def test_not_found_is_public_without_a_review_card(self):
         event = ctx()
         self.service.analyzer = Mock(side_effect=data.AccountNotFound())
         await self.service.process(ui.Job(TARGET,event))
-        self.assertEqual(self.channel.sends,0)
-        self.assertTrue(event.followup.send.call_args.kwargs['ephemeral'])
+        self.assertEqual(self.channel.sends,1)
+        self.assertIn('account not found',self.channel.messages[-1].content)
+        self.assertFalse(self.channel.messages[-1].embeds)
+        event.followup.send.assert_not_awaited()
 
-    async def test_worker_start_failure_is_private_and_does_not_escape_queue(self):
+    async def test_worker_start_failure_is_public_and_does_not_escape_queue(self):
         event = ctx()
         with patch.object(self.service.executor,'submit',side_effect=RuntimeError('Synthetic thread limit')):
             await self.service.process(ui.Job(TARGET,event))
-        self.assertEqual(self.channel.sends,0)
-        self.assertTrue(event.followup.send.call_args.kwargs['ephemeral'])
-        self.assertNotIn('Synthetic thread limit',event.followup.send.call_args.args[0])
+        self.assertEqual(self.channel.sends,1)
+        self.assertNotIn('Synthetic thread limit',self.channel.messages[-1].content)
+        self.assertIn('could not finish safely',self.channel.messages[-1].content)
+        event.followup.send.assert_not_awaited()
 
     async def test_other_channels_refuse_submission_without_changing_jobs(self):
         event = ctx();event.channel_id = bot.PRIMARY_CHESS_CHANNEL_ID

@@ -12,7 +12,7 @@ DEPTH_VERSION = 'fairplay-v57-runtime-throughput'
 def active_version():
     """One source for the deployed route, progress card and automatic rescans."""
     import os
-    if os.getenv('FAIRPLAY_METHOD3') == '1':return 'fairplay-v59-method3-history-1000'
+    if os.getenv('FAIRPLAY_METHOD3') == '1':return 'fairplay-v60-method3-unrated-context'
     return DEPTH_VERSION if os.getenv('FAIRPLAY_V51') == '1' else VERSION
 
 
