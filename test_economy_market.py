@@ -120,7 +120,9 @@ class MarketTransactions(unittest.TestCase):
         self.assertIsNone(ledger._origin_file(transactions.event_path('conflict-adopt')))
 
     def test_weekly_report_freezes_once_and_outbox_claim_has_one_winner(self):
-        self.now+=7*pets.DAY
+        # Eight days crosses a local calendar-week boundary even when the
+        # autumn DST transition makes a seven-day duration one hour short.
+        self.now+=8*pets.DAY
         first=economy_reports.prepare(self.now);second=economy_reports.prepare(self.now)
         self.assertTrue(first['eligible']);self.assertEqual(first,second)
         winner=economy_reports.update(first['week'],'sending',claim='one')
