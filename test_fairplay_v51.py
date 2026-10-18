@@ -123,13 +123,14 @@ class DeepOnlyShadow(unittest.TestCase):
                     return_value=(rows, {}, False)) as collected,
               patch("fairplay_v51_shadow.EngineScanner", scanner),
               patch("fairplay_v51_shadow.summarize",
-                    side_effect=lambda g,config: setattr(g, "metrics", {})),
+                    side_effect=lambda g,config,**kwargs: setattr(g, "metrics", {})),
               patch("fairplay_v51_shadow.aggregate",
                     side_effect=lambda games: {"games":len(games),"decisions":len(games)})):
             result=review("username",lambda stage:None,api_factory=API,
                           engine_factory=lambda:None)
         self.assertEqual(result.diagnostics["v51_shadow"]["fast_games"],0)
         self.assertEqual(result.coverage["deep_reviewed"],3)
+        self.assertIs(result.timeline,result.games)
         self.assertEqual(result.priority,"INSUFFICIENT DATA")
         self.assertEqual(sorted(scanner.budgets),[12,18,18])
         self.assertTrue(collected.call_args.kwargs["include_unrated"])

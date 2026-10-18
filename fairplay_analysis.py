@@ -97,7 +97,7 @@ def engine_metrics(decision, lines, actual_line, color, config=CONFIG):
                        * (1.0 if abs(values[0])<=300 else .5) * min(1.0,.25+(gap or 0)/180)) if useful else 0.0}
 
 
-def summarize(game: GameSample, config=CONFIG):
+def summarize(game: GameSample, config=CONFIG, *, relative=False):
     from fairplay_positions import position_context, position_summary
     position_context(game,config)
     moves = [d for d in game.decisions if d.metrics.get('useful')]
@@ -146,7 +146,7 @@ def summarize(game: GameSample, config=CONFIG):
                     'critical_mistakes': sum(d.metrics['cpl'] >= config.mistake_cp for d in critical)}
     game.metrics.update(position_summary(game))
     from fairplay_human import annotate_game
-    annotate_game(game,config)
+    annotate_game(game,config,relative=relative)
     if any(d.human_policy for d in game.decisions):
         __import__('fairplay_maia').refresh_game(game)
     game.metrics['timing'] = timing_metrics(game,config)

@@ -416,12 +416,36 @@ def detail_embed(result, mode):
             embed.add_field(name="Human reference",inline=False,
                 value="No learned Maia inference runs in this depth-only mode. Rating-conditioned engine heuristics are not human move probabilities.")
         if mode in ('Review Gates','Engine Analysis','Clusters & History'):
+            shift=tier.get('recent_shift',{})
+            candidate=shift.get('selected')
+            if candidate:
+                status='PASS' if shift.get('passed') else 'FAIL'
+                embed.add_field(name=f"Recent personal gameplay shift — {status}",inline=False,
+                    value=(f"Latest {candidate['recent_games']} rated {candidate['time_class']} games · "
+                           f"earlier comparable games: {candidate['baseline_games']}\n"
+                           f"Difficult opportunities: {candidate['recent_opportunities']} · "
+                           f"contributor games: {candidate['recent_contributors']}\n"
+                           f"Median quality / rating-adjusted excess rise: {number(candidate['quality_shift'])} / "
+                           f"{number(candidate['quality_excess_shift'])}\n"
+                           + 'Missing checks: ' + ('; '.join(candidate['blockers']+candidate['absolute_blockers']) or 'None')
+                           + '\nAlternative tail lengths are not independent replications. This route caps at HIGH.')[:1024])
             for kind,row in tier.get('classes',{}).items():
+                closest=row.get('closest_fixed_block')
+                block_text=''
+                if closest:
+                    block=closest['summary']
+                    block_text=(f"\nClosest fixed block: games {closest['first_game']}–{closest['last_game']} · "
+                                f"opportunities: {block['opportunities']} · contributors: {block['contributors']}\n"
+                                'Block checks missing: '+('; '.join(closest['blockers']) or 'None'))
+                period=row.get('distributed_periods')
+                period_text=(f"Covered whole-period research route: {period['passed']} · "
+                             f"periods examined: {period['periods_examined']}\n" if period else '')
                 embed.add_field(name=f"{kind.title()} priority gates",inline=False,
                     value=(f"Rated games: {row['games']} · fixed block size: {row['block_size']}\n"
                            f"Qualified disjoint blocks: {row['qualifying_disjoint_blocks']}/{row['blocks_evaluated']}\n"
                            f"Same-period clock support: {row['independent_clock_support']}\n"
-                           + 'Whole-class blockers: ' + ('; '.join(row['blockers']) or 'None'))[:1024])
+                           + period_text + block_text + '\nWhole-class blockers: '
+                           + ('; '.join(row['blockers']) or 'None'))[:1024])
         for kind,row in record["by_class"].items():
             details=(f"Deep games: {row['games']} · valid-clock games: {row['clock_games']}\n"
                      f"Compared Chess.com scores: {row['accuracy_validation']['compared_games']}\n"

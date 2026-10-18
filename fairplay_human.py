@@ -36,9 +36,15 @@ class HeuristicHumanModel:
 
 HumanMoveModel = HumanReferenceModel
 FALLBACK = HeuristicHumanModel()
+# Relative-profile guards: a move must close at least half the remaining
+# quality gap; near the ceiling, raw separation must close 90% of headroom.
+# These are bounded quality indices, not calibrated human/misconduct odds.
+RELATIVE_MIN_QUALITY = .65
+RELATIVE_MIN_RESIDUAL = .50
+CEILING_HEADROOM_FRACTION = .90
 
 
-def quality_components(observed, expected, rating, config=CONFIG):
+def quality_components(observed, expected, rating, config=CONFIG, *, relative=False):
     """Raw excess plus remaining-headroom-normalized anomaly strength.
 
     This is deliberately not a probability. Fixed raw-excess gates become
@@ -56,6 +62,8 @@ def quality_components(observed, expected, rating, config=CONFIG):
         0.0, rating_strength-config.human_elite_threshold_start
     )*config.human_elite_threshold_scale
     raw_threshold=config.human_min_raw_excess_base+config.human_min_raw_excess_rating*rating_strength
+    if relative:
+        raw_threshold=min(raw_threshold,CEILING_HEADROOM_FRACTION*max(0,1-expected))
     return excess,residual,strength,hit_threshold,raw_threshold
 
 
@@ -66,7 +74,7 @@ def accuracy_index(scaled_loss):
     return max(0.0,min(100.0,103.1668*math.exp(-.04354*loss_percent)-3.1669))
 
 
-def annotate_game(game, config=CONFIG, model=None):
+def annotate_game(game, config=CONFIG, model=None, *, relative=False):
     model = model or FALLBACK
     failures = 0
     for d in game.decisions:
@@ -111,10 +119,12 @@ def annotate_game(game, config=CONFIG, model=None):
         observed = min(clamp(1-m.get('cpl', 1000)/150),
                        clamp(1-m.get('scaled_loss', m.get('cpl', 1000)/1000)/.20))
         excess,residual,anomaly,hit_threshold,raw_threshold=quality_components(
-            observed,expected,game.rating,config)
+            observed,expected,game.rating,config,relative=relative)
         uniqueness = 1/max(1, m.get('plausible_good_moves', 1))**.25
         information = m.get('difficulty', 0)*anomaly*uniqueness if opportunity else 0.0
-        hit = (opportunity and observed>=.85 and excess>=raw_threshold
+        quality_pass=(observed>=RELATIVE_MIN_QUALITY and residual>=RELATIVE_MIN_RESIDUAL
+                      if relative else observed>=.85)
+        hit = (opportunity and quality_pass and excess>=raw_threshold
                and anomaly>=hit_threshold)
         quiet = not (d.capture or d.check or d.gives_check)
         # Positive-tail information can locate selective assistance, but an
@@ -133,6 +143,7 @@ def annotate_game(game, config=CONFIG, model=None):
                  informative_quiet_hit=bool(hit and quiet and m.get('plausible_good_moves', 1)<=3
                                             and m.get('played_boundary_cp', 0)>=config.critical_gap),
                  human_model=FALLBACK.name if fallback else model.name)
+        m['quality_reference_profile']='relative-headroom' if relative else 'legacy'
         stability(d, config)
     rows = [d.metrics for d in game.decisions if d.metrics.get('useful')]
     ranks = {str(k):sum(m.get('rank')==k for m in rows) for k in range(1, 6)}
@@ -244,14 +255,17 @@ def period_summary(games, config=CONFIG, *, fast=False):
         'inversion_strength':average('difficulty_inversion_strength') or 0}
 
 
-def period_raw_excess_floor(s, config=CONFIG):
+def period_raw_excess_floor(s, config=CONFIG, *, relative=False):
     """Minimum period-level raw separation required beside residual strength."""
     reference=s.get('quality_reference')
     ceiling=max(0.0,(reference if reference is not None else 1.0)-config.human_period_ceiling_reference)
-    return config.human_period_min_raw_excess+ceiling*config.human_period_ceiling_raw_scale
+    nominal=config.human_period_min_raw_excess+ceiling*config.human_period_ceiling_raw_scale
+    if relative and reference is not None:
+        return min(nominal,CEILING_HEADROOM_FRACTION*max(0,1-reference))
+    return nominal
 
 
-def absolute_blockers(s, config=CONFIG):
+def absolute_blockers(s, config=CONFIG, *, relative=False):
     # Wilson bounds describe the sampled anomaly-hit fraction, NOT an expected
     # human-quality probability. Residual strength is paired with a raw-excess
     # floor so tiny differences near the expected-quality ceiling cannot alone
@@ -265,14 +279,14 @@ def absolute_blockers(s, config=CONFIG):
         'distributed opportunity coverage':s['opportunities']>=required_opportunities,
         'distributed contributor games':s['contributors']>=required_contributors,
         'rating-adjusted information':s['information']>=config.human_absolute_information_floor,
-        'raw quality excess beyond ceiling guard':s.get('quality_excess', 0)>=period_raw_excess_floor(s,config),
+        'raw quality excess beyond ceiling guard':s.get('quality_excess', 0)>=period_raw_excess_floor(s,config,relative=relative),
         'headroom-aware anomaly strength':s.get('anomaly_strength', 0)>=config.human_period_excess,
         'anomaly hit lower bound':s['hit_lower']>=config.human_hit_lower}
     return [label for label, passed in tests.items() if not passed]
 
 
-def absolute_qualified(summary, config=CONFIG):
-    return not absolute_blockers(summary, config)
+def absolute_qualified(summary, config=CONFIG, *, relative=False):
+    return not absolute_blockers(summary, config,relative=relative)
 
 
 def evidence_funnel(games, config=CONFIG):
