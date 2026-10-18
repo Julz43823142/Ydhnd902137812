@@ -1,5 +1,11 @@
 # Chess.com CAPS2 reference research (disabled pending permission)
 
+The proposed opt-in successor is documented in
+[ACCURACY_OPTIMIZER.md](ACCURACY_OPTIMIZER.md). It expands this lab to explicit
+node/depth/time budgets, encrypted checkpoints and aggregate status. It remains
+disabled unless separately authorized AND isolated capacity is confirmed.
+The remainder of this page describes the historical two-profile nightly lab.
+
 **Disabled as of 2026-10-16.** Automatic Chess.com reference harvesting has been suspended because written authorization is required for the intended calibration use. The workflow has **no recurring schedule** and can only run after explicit manual dispatch with repository variable `CHESSCOM_RESEARCH_WRITTEN_AUTHORIZATION=true` set following appropriate written permission. See [the independent Stockfish alternative](INDEPENDENT_FORMULA_RESEARCH.md).
 
 ## Previous schedule (INACTIVE)

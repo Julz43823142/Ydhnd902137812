@@ -10,3 +10,6 @@ chesscom_reference.local/
 *.chesscom_accuracy.local.json
 *.chesscom_accuracy.local.csv
 *.chesscom_accuracy.local.md
+
+# Private reference optimizer state and detailed per-game metrics.
+data/accuracy_optimizer.local/
