@@ -6,7 +6,7 @@ NAMESPACE = 'shark:fairplay:'
 DISCLAIMER = ('Automated fair-play screening only. This result is not proof of cheating '
               'and must not be used as the sole basis for punishment. Human review is mandatory.')
 VERSION = 'fairplay-v50-selective-policy'
-DEPTH_VERSION = 'fairplay-v55-bullet-consistency-triage'
+DEPTH_VERSION = 'fairplay-v56-model-period-evidence'
 
 
 def active_version():
@@ -129,6 +129,9 @@ class ReviewConfig:
     human_period_min_raw_excess: float = .11
     human_period_ceiling_reference: float = .84
     human_period_ceiling_raw_scale: float = .50
+    # Enabled only by the current depth pipeline. Keep legacy review replay
+    # reproducible while making a perfect quality index reachable at any Elo.
+    human_reachable_headroom: bool = False
     human_residual_headroom_floor: float = .04
     human_residual_power: float = .50
     human_residual_weight: float = .55

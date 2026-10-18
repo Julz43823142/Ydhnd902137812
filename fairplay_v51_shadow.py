@@ -230,6 +230,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI,
     """
     if config != CONFIG:
         raise ReviewError("v51 must use the production configuration.")
+    scoring_config = replace(config, human_reachable_headroom=True)
     began = time.monotonic()
     seconds = max(0, int(os.getenv("FAIRPLAY_FULL_SCAN_DEADLINE_SECONDS", "0")))
     deadline = ScanDeadline(began + seconds if seconds else float("inf"), cancel)
@@ -313,7 +314,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI,
                                   engine=engine_name)
         from fairplay_accuracy_scope import maia_scope, accuracy_tails, model_summary
         from fairplay_maia import annotate_history, refresh_game
-        selected, model_scope = maia_scope(games)
+        selected, model_scope = maia_scope(games, complete_reference=True)
 
         def model_progress(stage):
             check_deadline(deadline)
@@ -360,7 +361,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI,
         for game in games:
             if not _verify_deep(game, config):
                 raise ReviewError("Complete exact Stockfish depth coverage was not achieved. No review issued.")
-            summarize(game, config, relative=candidate)
+            summarize(game, scoring_config, relative=candidate)
             game.deep = True
             refresh_game(game)
         grouped = observations(games)
@@ -371,12 +372,13 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI,
         incomplete_months = collection_coverage.get('incomplete_archive_months', ())
         if candidate:
             from fairplay_depth_priority import review_priority
-            tier = review_priority(games, config, complete=True, candidate=True,
+            tier = review_priority(games, scoring_config, complete=True, candidate=True,
                                    incomplete_archive_months=incomplete_months)
         else:
             from fairplay_recent_priority import recent_priority
-            tier = recent_priority(games, config, complete=True,
-                                   incomplete_archive_months=incomplete_months)
+            tier = recent_priority(games, scoring_config, complete=True,
+                                   incomplete_archive_months=incomplete_months,
+                                   model_reference=model_reference)
         diagnostics["review_priority"] = tier
         diagnostics['requested_games'] = MAX_GAMES
         diagnostics['collection'] = collection_coverage

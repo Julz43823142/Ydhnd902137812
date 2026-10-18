@@ -12,7 +12,8 @@ from fairplay_human import annotate_game
 from fairplay_recent_shift import recent_shift
 
 
-def recent_priority(games, config=CONFIG, *, complete, incomplete_archive_months=()):
+def recent_priority(games, config=CONFIG, *, complete, incomplete_archive_months=(),
+                    model_reference=None):
     result = review_priority(games, config, complete=complete,
                              incomplete_archive_months=incomplete_archive_months)
     # Keep legacy metrics untouched, side-by-side with the explicitly relative
@@ -23,7 +24,8 @@ def recent_priority(games, config=CONFIG, *, complete, incomplete_archive_months
             annotate_game(game, config, relative=True)
     shift = recent_shift(comparison, config, complete=complete, include_bullet=True,
                          incomplete_archive_months=incomplete_archive_months)
-    result['classifier_profile'] = 'v54-bounded-recent-gameplay'
+    result['classifier_profile'] = ('v56-model-period-evidence' if config.human_reachable_headroom
+                                    else 'v54-bounded-recent-gameplay')
     result['recent_shift'] = shift
     if shift['passed'] and result['priority'] in ('LOW', 'MODERATE'):
         result['priority'] = 'HIGH'
@@ -32,6 +34,10 @@ def recent_priority(games, config=CONFIG, *, complete, incomplete_archive_months
             'A recent full-engine-reviewed period differs strongly from comparable '
             'earlier games in difficult competitive decisions, with contributors '
             'in both recent halves. This experimental review flag is not proof.']
+    from fairplay_model_priority import integrate_model_periods
+    integrate_model_periods(result, games, config, complete=complete,
+                           reference=model_reference,
+                           incomplete_archive_months=incomplete_archive_months)
     from fairplay_consistency_triage import consistency_triage, apply_triage
     triage = consistency_triage(games, config, complete=complete,
                                incomplete_archive_months=incomplete_archive_months)

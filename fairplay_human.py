@@ -62,7 +62,7 @@ def quality_components(observed, expected, rating, config=CONFIG, *, relative=Fa
         0.0, rating_strength-config.human_elite_threshold_start
     )*config.human_elite_threshold_scale
     raw_threshold=config.human_min_raw_excess_base+config.human_min_raw_excess_rating*rating_strength
-    if relative:
+    if relative or config.human_reachable_headroom:
         raw_threshold=min(raw_threshold,CEILING_HEADROOM_FRACTION*max(0,1-expected))
     return excess,residual,strength,hit_threshold,raw_threshold
 
@@ -260,7 +260,7 @@ def period_raw_excess_floor(s, config=CONFIG, *, relative=False):
     reference=s.get('quality_reference')
     ceiling=max(0.0,(reference if reference is not None else 1.0)-config.human_period_ceiling_reference)
     nominal=config.human_period_min_raw_excess+ceiling*config.human_period_ceiling_raw_scale
-    if relative and reference is not None:
+    if (relative or config.human_reachable_headroom) and reference is not None:
         return min(nominal,CEILING_HEADROOM_FRACTION*max(0,1-reference))
     return nominal
 
