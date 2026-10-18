@@ -94,6 +94,16 @@ class ResultsAndAccuracy(unittest.TestCase):
         self.assertEqual(outcome(rows,source='estimated_accuracy')['priority'],'HIGH')
         self.assertNotEqual(outcome(rows,source='official_accuracy')['priority'],'HIGH')
 
+    def test_results_only_does_not_depend_on_accuracy_source_or_availability(self):
+        rows=cohort()
+        before=evaluate(rows)['players'][0]['ablations']['results_only']
+        for player in rows:
+            for g in player['games']:g['official_accuracy']=None;g['estimated_accuracy']=99
+        for source in ('official_accuracy','estimated_accuracy'):
+            after=evaluate(rows,source=source)['players'][0]['ablations']['results_only']
+            self.assertEqual({k:v['priority'] for k,v in after.items()},
+                             {k:v['priority'] for k,v in before.items()})
+
     def test_personal_reference_uses_only_earlier_games(self):
         rows=cohort()
         report=evaluate([rows[0]])['players'][0]
