@@ -125,6 +125,59 @@ class CausalSelection(unittest.TestCase):
             self.assertEqual(item['history'],history[-8:])
             self.assertEqual(item['history'][-1],d.fen)
 
+    def test_policy_checkpoint_batches_are_deferred_and_finally_flushed(self):
+        from unittest.mock import Mock
+        game,d,item=maia.selection(self.games,full_coverage=True)[0]
+        rows=[]
+        for index in range(130):
+            context=copy.deepcopy(item);context['rating']+=index
+            rows.append((game,copy.deepcopy(d),context))
+        game.decisions=[row[1] for row in rows]
+        checkpoint=Mock();checkpoint.policy.return_value=None
+        def predict(items):
+            return [{m.uci():1/chess.Board(i['history'][-1]).legal_moves.count()
+                     for m in chess.Board(i['history'][-1]).legal_moves} for i in items]
+        with patch.object(maia,'selection',return_value=rows):
+            result=maia.annotate_history([game],predictor=predict,checkpoint=checkpoint,target='synthetic')
+        self.assertTrue(result['available'])
+        self.assertEqual(checkpoint.flush.call_count,1)
+        self.assertTrue(all(call.kwargs.get('persist') is False
+                            for call in checkpoint.record_policies.call_args_list))
+
+    def test_identical_model_inputs_infer_once_but_attach_every_decision(self):
+        original=maia.selection(self.games,full_coverage=True)[0]
+        game,d,item=original
+        repeated=[(game,copy.deepcopy(d),copy.deepcopy(item)) for _ in range(130)]
+        game.decisions=[row[1] for row in repeated]
+        calls=[]
+        def predict(items):
+            calls.append(len(items))
+            return [{m.uci():1/chess.Board(i['history'][-1]).legal_moves.count()
+                     for m in chess.Board(i['history'][-1]).legal_moves} for i in items]
+        with patch.object(maia,'selection',return_value=repeated):
+            result=maia.annotate_history([game],predictor=predict,full_coverage=True)
+        self.assertTrue(result['available'])
+        self.assertEqual(result['positions'],130)
+        self.assertEqual(calls,[1])
+        self.assertEqual(result['inference_positions'],1)
+        self.assertEqual(result['duplicate_inference_positions'],129)
+        self.assertTrue(all(maia.valid_policy(d,d.human_policy) for d in game.decisions))
+        self.assertIsNot(game.decisions[0].human_policy,game.decisions[1].human_policy)
+
+    def test_model_input_rating_changes_are_not_deduplicated(self):
+        game,d,item=maia.selection(self.games,full_coverage=True)[0]
+        other=copy.deepcopy(item);other['rating']+=1
+        rows=[(game,d,item),(game,copy.deepcopy(d),other)]
+        game.decisions=[r[1] for r in rows]
+        calls=[]
+        def predict(items):
+            calls.append(len(items))
+            return [{m.uci():1/chess.Board(i['history'][-1]).legal_moves.count()
+                     for m in chess.Board(i['history'][-1]).legal_moves} for i in items]
+        with patch.object(maia,'selection',return_value=rows):
+            result=maia.annotate_history([game],predictor=predict,full_coverage=True)
+        self.assertTrue(result['available']);self.assertEqual(calls,[2])
+
     def test_fully_cached_reference_does_not_start_a_neural_process(self):
         import tempfile
         from pathlib import Path

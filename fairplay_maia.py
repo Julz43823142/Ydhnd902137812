@@ -350,6 +350,8 @@ def annotate_history(games,predictor=None,*,full_coverage=False,recent_full_ids=
         'reason':'No positions with verified causal history and both ratings.'}
     if callable(getattr(progress,'workload',None)):progress.workload({'maia':len(chosen)})
     if progress is not None:progress(f'Building human-move profile: 0 / {len(chosen)} positions')
+    checkpoint_pending=0
+    last_checkpoint=time.monotonic()
     try:
         with _lock:
             keys=[hashlib.sha256((MODEL_SHA256+json.dumps(item,sort_keys=True)).encode()).hexdigest() for _,_,item in chosen]
@@ -359,6 +361,9 @@ def annotate_history(games,predictor=None,*,full_coverage=False,recent_full_ids=
                     if saved is not None and valid_policy(decision,saved):
                         _cache[key]=saved
             missing=[i for i,key in enumerate(keys) if key not in _cache]
+            # Identical model+history+ratings inputs have identical policies.
+            # Infer once, but validate and attach to EVERY decision below.
+            unique_missing=list({keys[i]:i for i in missing}.values())
             if missing:
                 # Verified policies already identify the pinned model. Do not
                 # start a PyTorch process just to read a fully cached review.
@@ -367,22 +372,30 @@ def annotate_history(games,predictor=None,*,full_coverage=False,recent_full_ids=
                     predictor=_worker.predict
                 # Bound each CPU-inference request and IPC payload. A full
                 # 100-game review may contain thousands of useful positions.
-                for offset in range(0,len(missing),64):
-                    group=missing[offset:offset+64]
+                for offset in range(0,len(unique_missing),64):
+                    group=unique_missing[offset:offset+64]
                     policies=predictor([chosen[i][2] for i in group])
                     if len(policies)!=len(group):raise ValueError('Incomplete local policies')
                     for i,policy in zip(group,policies):
                         if not valid_policy(chosen[i][1],policy):
                             raise ValueError('Invalid local policy distribution')
                         _cache[keys[i]]=policy
-                    if progress is not None:progress(f'Building human-move profile: {len(chosen)-len(missing)+min(len(missing),offset+64)} / {len(chosen)} positions')
+                    if progress is not None:progress(f'Building human-move profile: {sum(key in _cache for key in keys)} / {len(chosen)} positions')
                     if checkpoint is not None:
                         for i in group:chosen[i][1].human_policy=dict(_cache[keys[i]])
-                        checkpoint.record_policies(target,[(chosen[i][0],chosen[i][1]) for i in group])
+                        checkpoint.record_policies(target,[(chosen[i][0],chosen[i][1]) for i in group],persist=False)
+                        checkpoint_pending+=len(group)
+                        if checkpoint_pending>=512 or time.monotonic()-last_checkpoint>=15:
+                            checkpoint.flush(force=False)
+                            checkpoint_pending=0;last_checkpoint=time.monotonic()
             for (game,decision,_),key in zip(chosen,keys):
-                decision.human_policy=dict(_cache[key]);_cache.move_to_end(key)
+                policy=_cache[key]
+                if not valid_policy(decision,policy):raise ValueError('Invalid reused local policy distribution')
+                decision.human_policy=dict(policy);_cache.move_to_end(key)
             if checkpoint is not None:
-                checkpoint.record_policies(target,[(game,decision) for game,decision,_ in chosen])
+                checkpoint.record_policies(target,[(game,decision) for game,decision,_ in chosen],persist=False)
+                checkpoint.flush(force=False)
+                checkpoint_pending=0
             while len(_cache)>2400:_cache.popitem(last=False)
         if progress is not None:progress(f'Building human-move profile: {len(chosen)} / {len(chosen)} positions')
         for game in games:refresh_game(game)
@@ -391,9 +404,14 @@ def annotate_history(games,predictor=None,*,full_coverage=False,recent_full_ids=
             'recent_full_positions_completed':actual_recent,
             'recent_full_complete':bool(recent_set and coverage['recent_full_selection_complete']),
             'games':sum(bool(g.human_reference.get('positions')) for g in games),
-            'cache_hits':len(chosen)-len(missing),'seconds':time.monotonic()-start,
+            'cache_hits':len(chosen)-len(missing),
+            'inference_positions':len(unique_missing),
+            'duplicate_inference_positions':len(missing)-len(unique_missing),'seconds':time.monotonic()-start,
             'role':'Learned human-policy comparison with Stockfish counterfactuals and paired deep confirmation; not a calibrated misconduct probability.'}
     except Exception as error:
+        if checkpoint is not None and checkpoint_pending:
+            try:checkpoint.flush(force=False)
+            except Exception:pass  # Preserve unavailable-reference handling.
         # A failed *later* 64-position batch can leave earlier policies on
         # decisions. Do not allow partial model evidence to influence scoring
         # when the declared Maia reference is unavailable.

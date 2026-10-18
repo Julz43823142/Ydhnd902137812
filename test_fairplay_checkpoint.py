@@ -60,6 +60,21 @@ class CheckpointTests(unittest.TestCase):
         store.bind("privateaccount", engine="Stockfish 19", version=VERSION,
                    config=CONFIG, full_depth=True, maia="maia-sha")
 
+    def test_deferred_policy_batches_flush_once_and_resume_identically(self):
+        store=self.store();self.bind(store)
+        game=game_with_positions(130)
+        for d in game.decisions:d.human_policy={'e2e4':1.0}
+        with patch.object(store,'_write',wraps=store._write) as writes:
+            for offset in range(0,130,64):
+                self.assertTrue(store.record_policies('privateaccount',
+                    [(game,d) for d in game.decisions[offset:offset+64]],persist=False))
+            writes.assert_not_called()
+            store.flush(force=False)
+            self.assertEqual(writes.call_count,1)
+        resumed=self.store();self.bind(resumed)
+        for d in game.decisions:
+            self.assertEqual(resumed.policy('privateaccount',game,d),{'e2e4':1.0})
+
     def test_encrypted_resume_skips_completed_positions_across_restart(self):
         a = self.store()
         self.bind(a)

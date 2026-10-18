@@ -49,6 +49,20 @@ def completed(game, engine="Stockfish synthetic"):
 
 
 class Sharding(unittest.TestCase):
+    def test_policy_root_cost_balances_expensive_fragments(self):
+        games=[sample(i+1) for i in range(36)]
+        for i,g in enumerate(games):
+            g.decisions=g.decisions[:1]
+            g.decisions[0].metrics['synthetic_roots']=12 if i%6==0 else 1
+        with patch('fairplay_policy.alternatives',side_effect=lambda d:list(range(d.metrics['synthetic_roots']))):
+            old=shard_games(games,count=6)
+            new=shard_games(games,count=6,phase='policy')
+            def cost(shards):
+                return max(sum(estimated_depth_work(g,phase='policy') for g in group) for group in shards)
+            self.assertLess(cost(new),cost(old)/2)
+            self.assertEqual(sorted(g.identity for group in new for g in group),sorted(g.identity for g in games))
+            self.assertEqual(new,shard_games(games,count=6,phase='policy'))
+
     def test_shards_balanced_and_complete(self):
         games=[sample(i+1) for i in range(17)]
         # Add varying length to prove position rather than game-count balance.
