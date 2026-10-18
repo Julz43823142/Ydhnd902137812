@@ -80,6 +80,17 @@ class DeepOnlyShadow(unittest.TestCase):
         self.assertFalse(_verify_deep(valid, CONFIG))
         self.assertTrue(_verify_deep(game(2, "bullet"), CONFIG))
 
+    def test_exact_depth_with_inconsistent_scores_keeps_coverage_but_no_evidence(self):
+        # Fixed-depth search completion is independent of PV score consistency.
+        # The suspect position must remain excluded from accuracy evidence.
+        row = game(80)
+        row.decisions[0].metrics["search_inconsistent"] = True
+        row.decisions[0].metrics["useful"] = False
+        self.assertTrue(_verify_deep(row, CONFIG))
+        self.assertIsNone(_accuracy(row))
+        row.decisions[0].metrics["search_contract"]["exact"] = False
+        self.assertFalse(_verify_deep(row, CONFIG))
+
     def test_deep_only_review_never_executes_fast_engine(self):
         from unittest.mock import patch
         from fairplay_v51_shadow import review

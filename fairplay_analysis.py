@@ -473,7 +473,7 @@ class EngineScanner:
             'requested':nodes.depth if depth_search else nodes,
             'multipv':multipv,
             'completed':True,
-            'exact':not decision.metrics.get('search_inconsistent',False),
+            'exact':(depth_search or not decision.metrics.get('search_inconsistent',False)),
         }
         decision.metrics['nodes']=(max(int(x.get('nodes',0) or 0) for x in lines) if depth_search else nodes)
         if depth_search:
