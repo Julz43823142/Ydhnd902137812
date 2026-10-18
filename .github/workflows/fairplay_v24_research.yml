@@ -2,6 +2,11 @@ name: Fair Play v24 research (manual, aggregate-only)
 
 on:
   workflow_dispatch:
+    inputs:
+      private_batch:
+        description: "Optional opaque validation-input ref; no usernames, labels or keys"
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -14,6 +19,7 @@ concurrency:
 
 jobs:
   research:
+    if: inputs.private_batch == ''
     name: Research ${{ matrix.task }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -68,3 +74,64 @@ jobs:
           path: ${{ runner.temp }}/chessfraud-aggregates.json
           if-no-files-found: error
           retention-days: 14
+
+  private-validation:
+    if: inputs.private_batch != '' && github.actor == github.repository_owner
+    name: Private exact-depth shard ${{ matrix.shard }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      max-parallel: 14
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      PRIVATE_BATCH: ${{ inputs.private_batch }}
+      PRIVATE_SHARD: ${{ matrix.shard }}
+    steps:
+      - name: Validate opaque branch before allocating compute
+        run: '[[ "$PRIVATE_BATCH" =~ ^validation-input-[0-9a-f]{16}$ ]]'
+      - uses: actions/checkout@v6
+        with:
+          filter: blob:none
+          sparse-checkout: |
+            /*.py
+            /scripts/
+            /assets/fairplay/
+          sparse-checkout-cone-mode: false
+          fetch-depth: 1
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Install compute-only dependencies
+        run: python -m pip install python-chess requests cryptography
+      - name: Generate ephemeral worker key (private key never uploaded)
+        run: python scripts/fairplay_private_compute.py key --key "$RUNNER_TEMP/validation.pem"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: validation-public-key-${{ matrix.shard }}
+          path: ${{ runner.temp }}/validation.pub
+          retention-days: 1
+          if-no-files-found: error
+      - uses: actions/cache@v4
+        with:
+          path: /tmp/stockfish19-official-pgo/Stockfish/src/stockfish
+          key: stockfish-${{ runner.os }}-${{ runner.arch }}-edb0d9db6731067ec50ce619ff372b463bc4dd5d-pgo-v1
+      - name: Prepare pinned official Stockfish 19
+        run: python scripts/prepare_stockfish.py --github-env --profile-build
+      - name: Exact-depth analysis (encrypted input/output only)
+        run: >-
+          python scripts/fairplay_private_compute.py compute
+          --key "$RUNNER_TEMP/validation.pem" --branch "$PRIVATE_BATCH"
+          --shard "$PRIVATE_SHARD" --output "$RUNNER_TEMP/validation-result.enc"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: validation-encrypted-result-${{ matrix.shard }}
+          path: ${{ runner.temp }}/validation-result.enc
+          retention-days: 1
+          if-no-files-found: ignore
+      - name: Remove ephemeral private input key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/validation.pem"
