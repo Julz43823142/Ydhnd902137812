@@ -85,6 +85,8 @@ class DeepOnlyShadow(unittest.TestCase):
         from fairplay_v51_shadow import review
 
         rows = [game(i, kind) for i,kind in enumerate(("blitz", "bullet", "rapid"))]
+        for row in rows:
+            row.deep = False  # Exercise the actual depth-only engine path.
         class API:
             def __init__(self, deadline): self.deadline = deadline
             def get(self, target, profile=False):
@@ -100,6 +102,7 @@ class DeepOnlyShadow(unittest.TestCase):
                 decision.metrics["search_contract"]["requested"]=budget.depth
             def close(self): pass
             budgets=[]
+        Scanner.budgets = []
         scanner=Scanner
         with (patch("fairplay_v51_shadow.collect_games",
                     return_value=(rows, {}, False)) as collected,
