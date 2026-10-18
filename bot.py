@@ -20534,6 +20534,9 @@ async def on_ready():
         return
 
     client.started = True
+    # Re-register persistent Fair Play diagnostic DM callbacks after restarts.
+    from fairplay_failure import FailureView
+    client.add_view(FailureView())
     client.add_view(PlayerChallengeView())
     client.add_view(OpenChessChallengeView())
     client.add_view(OpenShopTradeView())
