@@ -49,7 +49,7 @@ def main(argv=None):
     writer.writerow(('player_key','mode','scenario','research_priority','time_class','games','reference_mode',
                      'accuracy_matched_games','accuracy_excess','above_reference_fraction',
                      'win_fraction','expected_score_fraction','actual_points','expected_points','result_residual',
-                     'overall_win_fraction','overall_expected_score_fraction'))
+                     'overall_win_fraction','overall_expected_score_fraction','disclaimer'))
     for player in result['players']:
         for mode,outcomes in {'joint':player['outcomes'],**player['ablations']}.items():
             for scenario,outcome in outcomes.items():
@@ -59,7 +59,7 @@ def main(argv=None):
                     accuracy.get('median_excess'),accuracy.get('above_reference_fraction'),score.get('win_fraction'),
                     score.get('expected_score_fraction'),score.get('actual_points'),score.get('expected_points'),
                     score.get('standardized_residual'),player['overall_results']['win_fraction'],
-                    player['overall_results']['expected_score_fraction']))
+                    player['overall_results']['expected_score_fraction'],result['disclaimer']))
     # Validate BOTH output destinations before writing either report.
     paths=[args.output.resolve(),args.csv.resolve()]
     if paths[0]==paths[1] or args.input.resolve() in paths:

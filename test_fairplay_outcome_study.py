@@ -42,6 +42,7 @@ class ResultsAndAccuracy(unittest.TestCase):
         self.assertEqual(result['priority'],'HIGH')
         self.assertEqual(result['selected']['games'],20)
         self.assertFalse(evaluate(cohort())['production_enabled'])
+        self.assertIn('not proof of cheating',evaluate(cohort())['disclaimer'])
 
     def test_normal_history_does_not_dilute_a_recent_period(self):
         rows=cohort()

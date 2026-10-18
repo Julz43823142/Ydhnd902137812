@@ -10,6 +10,8 @@ from statistics import median
 
 SCHEMA = 'fairplay-accuracy-results-study-v1'
 CLASSES = ('rapid', 'blitz', 'bullet')
+DISCLAIMER = ('Automated fair-play screening only. This result is not proof of cheating '
+              'and must not be used as the sole basis for punishment. Human review is mandatory.')
 
 
 @dataclass(frozen=True)
@@ -175,7 +177,7 @@ def evaluate(players, *, source='official_accuracy', config=CONFIG, scenarios=SC
     data = {p['player_key']:_games(p,config) for p in players}
     # A physical game can contain two subject rows. Never let an opponent's
     # view of the very same game leak into a subject's reference.
-    output = {'schema':SCHEMA, 'source':source, 'config':asdict(config),
+    output = {'schema':SCHEMA, 'source':source, 'disclaimer':DISCLAIMER, 'config':asdict(config),
               'scenarios':[asdict(s) for s in scenarios], 'production_enabled':False,
               'limitations':'Small selected development cohort; not a population reference or independent holdout. Alternative windows are correlated. No misconduct probabilities.',
               'players':[]}
