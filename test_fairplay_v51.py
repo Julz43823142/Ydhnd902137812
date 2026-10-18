@@ -102,6 +102,8 @@ class DeepOnlyShadow(unittest.TestCase):
                 self.budgets.append(budget.depth)
                 decision.metrics["search_depth"]=budget.depth
                 decision.metrics["search_contract"]["requested"]=budget.depth
+                decision.metrics["search_contract"]["completed"]=True
+                decision.metrics["search_contract"]["exact"]=True
             def close(self): pass
             budgets=[]
         Scanner.budgets = []
