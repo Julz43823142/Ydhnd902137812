@@ -165,6 +165,7 @@ class ReviewRule(unittest.TestCase):
                   reasons=assessment['reasons'],version=DEPTH_VERSION,
                   diagnostics={'v51_shadow':record},classes={})
         card=result_embed(result)
+        self.assertEqual(card.colour.value,0xEA8537)
         text=json.dumps(card.to_dict())
         self.assertIn('HIGH review priority',text)
         self.assertIn('Stockfish / gameplay assessment',text)
@@ -172,6 +173,7 @@ class ReviewRule(unittest.TestCase):
         self.assertIn('honest strong players',text.lower())
         self.assertLessEqual(len(card),6000)
         details=detail_embed(result,'Review Gates')
+        self.assertEqual(details.colour.value,0xEA8537)
         self.assertIn('Configured Bullet consistency rule',json.dumps(details.to_dict()))
         self.assertLessEqual(len(details),6000)
 

@@ -726,6 +726,53 @@ class DiscordRules(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(await self.service.safe_progress(job,'Complete'))
         self.assertTrue(job.message_deleted);self.assertEqual(self.channel.sends,1)
 
+    async def test_checkpoint_write_failure_does_not_undo_acknowledged_delivery(self):
+        self.service.checkpoints=SimpleNamespace(
+            note=Mock(side_effect=OSError('synthetic private storage failure')),
+            flush=Mock())
+        job=ui.Job(TARGET,ctx())
+        with patch('builtins.print') as output:
+            self.assertTrue(await self.service.safe_progress(job,'Collecting games…'))
+            self.assertTrue(await self.service.safe_progress(job,'Reviewing games…'))
+        self.assertTrue(job.checkpoint_warning)
+        self.assertEqual(self.channel.sends,1)
+        self.assertEqual(job.message.edits,1)
+        output.assert_called_once()
+        self.assertNotIn('private storage failure',str(output.call_args))
+
+    async def test_rejected_report_fallback_keeps_priority_source_and_survives_cleanup_failure(self):
+        from fairplay_v51_shadow import summarize_observations
+        record=summarize_observations({'bullet':[],'blitz':[],'rapid':[]})
+        record['review_priority']={
+            'priority_basis':'configured_manual_review_rule',
+            'gameplay_priority':'LOW', 'reasons':['Configured manual review.']}
+        result=SimpleNamespace(username=TARGET,priority='HIGH',confidence='HIGH',
+            reasons=['Configured manual review.'],version='synthetic-version',
+            games=[],diagnostics={'v51_shadow':record})
+        self.service.analyzer=lambda *a,**k:result
+        self.service.checkpoints=SimpleNamespace(note=Mock(return_value=True),
+            finish=Mock(side_effect=OSError('synthetic cleanup failure')),flush=Mock())
+        original=self.channel.send
+        async def reject_full(**kwargs):
+            if 'Short report' not in (kwargs['embed'].footer.text or ''):
+                raise discord.HTTPException(SimpleNamespace(status=400,reason='Bad Request'),'synthetic rejection')
+            return await original(**kwargs)
+        self.channel.send=reject_full
+        job=ui.Job(TARGET,ctx())
+        with patch('fairplay_v51_shadow.chart_pngs',return_value=[]),patch('builtins.print'):
+            await self.service.process(job)
+        self.assertTrue(job.report_published)
+        self.assertTrue(job.checkpoint_warning)
+        self.assertIs(self.service.result_for(job.message.id),result)
+        self.assertEqual(self.channel.sends,1)
+        card=job.message.embeds[0]
+        self.assertEqual(card.colour.value,0xEA8537)
+        self.assertIn('gameplay assessment: LOW',card.description)
+        self.assertIn('Not engine/Maia-confirmed',card.description)
+        self.assertIn('synthetic-version',card.footer.text)
+        self.assertIn(job.token,card.footer.text)
+        self.assertLess(len(card),6000)
+
     async def test_unknown_discord_send_ack_reconciles_without_reposting(self):
         original = self.channel.send
         async def lost(**kwargs):

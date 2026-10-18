@@ -27,6 +27,10 @@ from fairplay_checkpoint import CheckpointStore
 RESERVED = '🛡️ This channel is reserved for Fair Play reviews.'
 PANEL_TITLE = '🛡️ Fair Play Task Force'
 REPORT_PREFIX = '🛡️ Fair Play Review — '
+PRIORITY_COLORS = {
+    'LOW': 0x2E9E65, 'MODERATE': 0xE9B44C, 'HIGH': 0xEA8537,
+    'VERY HIGH': 0xD94F55, 'INSUFFICIENT DATA': 0x788491,
+}
 IDLE_SECONDS = CONFIG.intro_panel_seconds
 PANEL_MARKER = 'shark:fairplay:panel:v1'
 MAX_CONCURRENT_SCANS = 1
@@ -37,6 +41,10 @@ _service = None
 
 def public_text(value):
     return discord.utils.escape_markdown(str(value))
+
+
+def priority_color(priority):
+    return PRIORITY_COLORS.get(priority, PRIORITY_COLORS['INSUFFICIENT DATA'])
 
 
 def panel_embed():
@@ -134,7 +142,7 @@ def result_embed(result: ReviewResult):
                          "**Experimental heuristic — not a cheating verdict.**\n"
                          f"Complete Stockfish review of up to {limit} rated live games. "
                          "Human review is mandatory."),
-            color=0x427CBA)
+            color=priority_color(result.priority))
         embed.add_field(name="Data coverage confidence",value=result.confidence,inline=True)
         embed.add_field(name="Priority basis",inline=False,
             value=('\n'.join(tier.get('reasons',result.reasons)) or 'No eligible review tier.')[:1024])
@@ -185,14 +193,12 @@ def result_embed(result: ReviewResult):
     """
     icons = {'LOW':'🟢','MODERATE':'🟡','HIGH':'🟠',
              'VERY HIGH':'🔴','INSUFFICIENT DATA':'⚪'}
-    colors = {'LOW':0x2E9E65,'MODERATE':0xE9B44C,'HIGH':0xEA8537,
-              'VERY HIGH':0xD94F55,'INSUFFICIENT DATA':0x788491}
-    level=result.priority if result.priority in colors else 'INSUFFICIENT DATA'
+    level=result.priority if result.priority in PRIORITY_COLORS else 'INSUFFICIENT DATA'
     embed=discord.Embed(
         title=REPORT_PREFIX+result.username,
         description=f"{icons[level]} **{level} review priority**\n"
                     "This is a reason to check the games, not a cheating verdict.",
-        color=colors[level])
+        color=priority_color(level))
     coverage=result.coverage or {}
     total=result.totals or {}
     v21=result.diagnostics.get('v21_selection') or {}
@@ -392,6 +398,22 @@ def result_embed(result: ReviewResult):
     return embed
 
 
+def fallback_result_embed(result):
+    """A tiny delivery fallback must retain the source of a review priority."""
+    tier=(result.diagnostics.get('v51_shadow') or {}).get('review_priority',{})
+    notice=''
+    if tier.get('priority_basis')=='configured_manual_review_rule':
+        notice=(f"Configured Accuracy review rule; gameplay assessment: {tier.get('gameplay_priority', 'Unavailable')}.\n"
+                "Not engine/Maia-confirmed assistance; honest players can qualify.\n")
+    embed=discord.Embed(title=REPORT_PREFIX+result.username,
+        description=(f"**{result.priority} review priority**\n"+notice+
+                     "Detailed report could not be displayed. Use the buttons to open the results.\n"
+                     +SHORT_SCREENING_NOTICE),
+        color=priority_color(result.priority))
+    embed.set_footer(text=f"Version: {result.version} · Short report (delivery fallback)")
+    return embed
+
+
 def _bounded_detail_embed(embed):
     """Apply Discord's limits to every detail view, including early returns."""
     embed.set_footer(text=DISCLAIMER)
@@ -429,7 +451,7 @@ def detail_embed(result, mode):
         embed=discord.Embed(title=f"{mode} — {result.username}",
                             description=("Experimental deep-only audit. Descriptive "
                                          "change markers are not cheating evidence."),
-                            color=0x427CBA)
+                            color=priority_color(result.priority))
         embed.add_field(name="Experimental review priority",inline=False,
             value=(f"**{result.priority}** · data coverage confidence: **{result.confidence}**\n"
                    + '\n'.join(tier.get('reasons',result.reasons)))[:1024])
@@ -537,7 +559,7 @@ def detail_embed(result, mode):
                                "validated misconduct probabilities. No punishment follows automatically."))
         embed.set_footer(text=DISCLAIMER)
         return _bounded_detail_embed(embed)
-    embed = discord.Embed(title=f'{mode} — {result.username}',color=0x427CBA)
+    embed = discord.Embed(title=f'{mode} — {result.username}',color=priority_color(result.priority))
     daily=result.diagnostics.get('daily_review',{})
     scoped=result.diagnostics.get('retrieved_period_review') or {}
     if mode in ('Review Gates','Engine Analysis') and scoped.get('evaluated'):
@@ -1196,6 +1218,7 @@ class Job:
     report_published: bool = False  # do not retroactively cancel a delivered review
     message_deleted: bool = False
     delivery_unknown: bool = False
+    checkpoint_warning: bool = False
     token: str = field(default_factory=lambda:uuid.uuid4().hex[:12])
 
 
@@ -1314,13 +1337,33 @@ class FairPlayService:
                 # editing the existing card rather than posting a fresh panel.
                 metadata=({"timing":job.timing.snapshot()}
                           if isinstance(job.timing,ReliableTiming) else {})
-                await asyncio.to_thread(
-                    self.checkpoints.note,job.target,message_id=job.message.id,
-                    token=job.token,stage=stage,force=False,**metadata)
+                await self.note_delivered_checkpoint(job, 'note',
+                    message_id=job.message.id,token=job.token,stage=stage,
+                    force=False,**metadata)
             return True
         except discord.NotFound:job.message_deleted = True
-        except discord.HTTPException:pass  # retry later; never create a second progress card
+        except discord.HTTPException as error:
+            # An explicit client-error response rejected the initial send.
+            # Unlike a lost/5xx ACK, it is safe to try the smaller fallback.
+            if job.message is None and 400 <= error.status < 500:
+                job.delivery_unknown = False
         return False
+
+    async def note_delivered_checkpoint(self,job,operation,**kwargs):
+        """Storage trouble cannot undo an acknowledged Discord delivery.
+
+        This is only for post-delivery metadata/cleanup. Engine checkpoint
+        validation and explicit cancellation keep their stricter contracts.
+        """
+        try:
+            return await asyncio.to_thread(
+                getattr(self.checkpoints,operation),job.target,**kwargs)
+        except Exception:
+            if not job.checkpoint_warning:
+                # No account, report, paths or exception values in public logs.
+                print('Fair Play delivery succeeded; restart checkpoint update failed.',flush=True)
+                job.checkpoint_warning=True
+            return False
 
     async def save_failure(self, job, error):
         """Best-effort owner-only audit; a reporting error must never mask failure."""
@@ -1413,14 +1456,7 @@ class FairPlayService:
                 job,'Complete',view=ReportView(result.username),
                 embed=result_embed(result))
             if not published and not job.cancel_requested and not job.message_deleted:
-                fallback=discord.Embed(
-                    title=REPORT_PREFIX+result.username,
-                    description=(f"**{result.priority} review priority**\n"
-                                 "Detailed report could not be displayed. "
-                                 "Use the buttons to open the results.\n"
-                                 + SHORT_SCREENING_NOTICE),
-                    color=0x427CBA)
-                fallback.set_footer(text='Short report (delivery fallback)')
+                fallback=fallback_result_embed(result)
                 published=await self.safe_progress(
                     job,'Complete',view=ReportView(result.username),
                     embed=fallback)
@@ -1443,7 +1479,7 @@ class FairPlayService:
                 job.report_published=True
                 self.expire_cache()
                 if getattr(self,'checkpoints',None) is not None:
-                    await asyncio.to_thread(self.checkpoints.finish,job.target)
+                    await self.note_delivered_checkpoint(job, 'finish')
                 if self.auto is not None:
                     try:await self.auto.completed(job.target)
                     except Exception:pass  # report delivery remains successful
