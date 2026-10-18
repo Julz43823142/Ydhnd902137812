@@ -16,7 +16,7 @@ class ResumeCertification(unittest.TestCase):
     setUp = checkpoint_fixture.CheckpointTests.setUp
     store = checkpoint_fixture.CheckpointTests.store
     bind = checkpoint_fixture.CheckpointTests.bind
-    def test_missing_exact_or_inconsistent_search_is_not_recorded(self):
+    def test_missing_exact_is_rejected_but_completed_depth_can_be_inconsistent(self):
         store=self.store();self.bind(store);g=game_with_positions(1);d=g.decisions[0]
         for value in (None,False,1,'true'):
             d.metrics=metrics('deep')
@@ -24,12 +24,14 @@ class ResumeCertification(unittest.TestCase):
             else:d.metrics['search_contract']['exact']=value
             self.assertFalse(store.record('privateaccount',g,d,'deep',persist=False))
         d.metrics=metrics('deep');d.metrics['search_inconsistent']=True
-        self.assertFalse(store.record('privateaccount',g,d,'deep',persist=False))
+        self.assertTrue(store.record('privateaccount',g,d,'deep',persist=False))
+        self.assertTrue(store.restore('privateaccount',g,d,'deep',CONFIG,True))
+        self.assertTrue(d.metrics['search_inconsistent'])
 
     def test_restore_rejects_uncertified_or_malformed_metrics_without_mutation(self):
         store=self.store();self.bind(store);g=game_with_positions(1);d=g.decisions[0]
         key=store._key(g,d,'deep')
-        for change in ('missing_exact','missing_depth','string_depth','boolean_depth','inconsistent','null_contract','null_metrics'):
+        for change in ('missing_exact','missing_depth','string_depth','boolean_depth','null_contract','null_metrics'):
             row=metrics('deep')
             if change=='missing_exact':row['search_contract'].pop('exact')
             elif change=='missing_depth':row.pop('search_depth')
@@ -42,6 +44,18 @@ class ResumeCertification(unittest.TestCase):
             d.metrics={'sentinel':True}
             self.assertFalse(store.restore('privateaccount',g,d,'deep',CONFIG,True))
             self.assertEqual(d.metrics,{'sentinel':True})
+
+    def test_inconsistent_depth_restore_requires_exact_depth_contract(self):
+        store=self.store();self.bind(store);g=game_with_positions(1);d=g.decisions[0]
+        row=metrics('deep');row['search_inconsistent']=True
+        key=store._key(g,d,'deep')
+        store.state['jobs']['privateaccount']['positions'][key]={'metrics':row}
+        self.assertTrue(store.restore('privateaccount',g,d,'deep',CONFIG,True))
+        self.assertTrue(d.metrics['search_inconsistent'])
+        row['search_depth']=17
+        d.metrics={'sentinel':True}
+        self.assertFalse(store.restore('privateaccount',g,d,'deep',CONFIG,True))
+        self.assertEqual(d.metrics,{'sentinel':True})
 
     def test_counterfactual_declared_depth_does_not_replace_achieved_depth(self):
         store=self.store();self.bind(store);g=game_with_positions(1);d=g.decisions[0]
