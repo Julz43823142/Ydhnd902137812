@@ -126,8 +126,11 @@ def result_embed(result: ReviewResult):
         maia=record.get('maia_reference',{})
         icons={'LOW':'🟢','MODERATE':'🟡','HIGH':'🟠','VERY HIGH':'🔴','INSUFFICIENT DATA':'⚪'}
         tier=record.get('review_priority',{})
+        priority_notice=(f"**Configured Accuracy review rule; gameplay assessment: {tier['gameplay_priority']}.**\n"
+                         if tier.get('priority_basis')=='configured_manual_review_rule' else '')
         embed=discord.Embed(title=REPORT_PREFIX+result.username,
             description=(f"{icons.get(result.priority,'⚪')} **{result.priority} review priority**\n"
+                         + priority_notice +
                          "**Experimental heuristic — not a cheating verdict.**\n"
                          f"Complete Stockfish review of up to {limit} rated live games. "
                          "Human review is mandatory."),
@@ -135,6 +138,13 @@ def result_embed(result: ReviewResult):
         embed.add_field(name="Data coverage confidence",value=result.confidence,inline=True)
         embed.add_field(name="Priority basis",inline=False,
             value=('\n'.join(tier.get('reasons',result.reasons)) or 'No eligible review tier.')[:1024])
+        if 'gameplay_priority' in tier:
+            embed.add_field(name="Stockfish / gameplay assessment",inline=False,
+                value=(f"**{tier['gameplay_priority']}**\n"
+                       + ('\n'.join(tier.get('gameplay_reasons',[])) or 'No separate explanation available.')
+                       + ('\n**HIGH above comes from the configured Accuracy review rule. '
+                          'It is not engine/Maia-confirmed assistance. Honest strong players can qualify.**'
+                          if tier.get('priority_basis')=='configured_manual_review_rule' else ''))[:1024])
         embed.add_field(name="Engine coverage",inline=False,
             value=(f"Deep games: **{record['deep_games']}** / {limit} maximum\n"
                    "Fast games: **0**\n"
@@ -423,6 +433,25 @@ def detail_embed(result, mode):
         embed.add_field(name="Experimental review priority",inline=False,
             value=(f"**{result.priority}** · data coverage confidence: **{result.confidence}**\n"
                    + '\n'.join(tier.get('reasons',result.reasons)))[:1024])
+        triage=tier.get('consistency_triage')
+        if triage and mode in ('Review Gates','Engine Analysis','Clusters & History','Performance'):
+            selected=triage.get('selected')
+            details=(f"Enabled: {triage['enabled']} · rule: {'PASS' if triage['passed'] else 'FAIL'}\n"
+                     f"Underlying gameplay assessment: **{tier.get('gameplay_priority',result.priority)}**\n")
+            if selected:
+                details+=(f"{selected['time_control']} · {selected['games']} qualifying games in "
+                          f"{selected['span_games']} chronological games; adjacent: {selected['contiguous']}\n")
+                for block in selected['blocks']:
+                    details+=(f"Fixed games {block['first_game']}–{block['last_game']}: published median "
+                              f"{block['median_accuracy']:.2f}, MAD {block['accuracy_mad']:.2f}, "
+                              f"published {block['published_games']}/{block['games']}\n")
+            settings=triage['config']
+            details+=(f"Requires two disjoint {settings['block_games']}-game Bullet blocks in one control; "
+                      f"median ≥{settings['median_accuracy']:g}, lower quartile ≥{settings['lower_quartile_accuracy']:g}, "
+                      f"MAD ≤{settings['max_accuracy_mad']:g}; rating/peer/competitive-coverage checks also apply.\n"
+                      "Owner-configured triage, not a calibrated human norm. This can select honest players. "
+                      "It never creates VERY HIGH or changes engine/Maia evidence.")
+            embed.add_field(name="Configured Bullet consistency rule",value=details[:1024],inline=False)
         if mode=='Human Moves':
             maia=record.get('maia_reference',{})
             if maia:

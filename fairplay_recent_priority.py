@@ -1,7 +1,8 @@
 """Preserve broad v52 routes and add a separately audited recent-change path.
 
 Old games supply comparison evidence, not votes that dilute a recent period.
-Published Accuracy and learned policy likelihood never directly set a tier.
+Published Accuracy does not change the gameplay assessment. An explicitly
+labelled owner-configured review rule can separately prioritize the worklist.
 """
 from copy import deepcopy
 
@@ -31,4 +32,7 @@ def recent_priority(games, config=CONFIG, *, complete, incomplete_archive_months
             'A recent full-engine-reviewed period differs strongly from comparable '
             'earlier games in difficult competitive decisions, with contributors '
             'in both recent halves. This experimental review flag is not proof.']
-    return result
+    from fairplay_consistency_triage import consistency_triage, apply_triage
+    triage = consistency_triage(games, config, complete=complete,
+                               incomplete_archive_months=incomplete_archive_months)
+    return apply_triage(result, triage)
