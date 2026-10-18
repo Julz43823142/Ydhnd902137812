@@ -86,7 +86,9 @@ class DeepOnlyShadow(unittest.TestCase):
 
         rows = [game(i, kind) for i,kind in enumerate(("blitz", "bullet", "rapid"))]
         for row in rows:
-            row.deep = False  # Exercise the actual depth-only engine path.
+            row.deep = False
+            row.decisions[0].metrics["search_contract"]["completed"] = False
+            row.decisions[0].metrics["search_contract"]["exact"] = False
         class API:
             def __init__(self, deadline): self.deadline = deadline
             def get(self, target, profile=False):
@@ -100,6 +102,8 @@ class DeepOnlyShadow(unittest.TestCase):
                 self.budgets.append(budget.depth)
                 decision.metrics["search_depth"]=budget.depth
                 decision.metrics["search_contract"]["requested"]=budget.depth
+                decision.metrics["search_contract"]["completed"]=True
+                decision.metrics["search_contract"]["exact"]=True
             def close(self): pass
             budgets=[]
         Scanner.budgets = []
