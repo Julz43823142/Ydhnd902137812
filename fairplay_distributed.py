@@ -153,7 +153,7 @@ def deserialize_game(value):
     return GameSample(**data,decisions=decisions)
 
 
-def estimated_depth_work(game):
+def estimated_depth_work(game, *, phase="objective"):
     """Scheduling estimate only; every decision keeps its required search depth.
 
     Bullet receives depth 12 while blitz/rapid receive depth 18. Counting all
@@ -163,20 +163,24 @@ def estimated_depth_work(game):
     Actual engine complexity is measured separately. This value never enters
     evidence or scoring.
     """
-    return len(game.decisions) * (1 if game.time_class == 'bullet'
-                                  else DEPTH18_SCHEDULING_WEIGHT)
+    units = len(game.decisions)
+    if phase == 'policy':
+        from fairplay_policy import alternatives
+        units = sum(len(alternatives(d)) for d in game.decisions)
+    return units * (1 if game.time_class == 'bullet' else DEPTH18_SCHEDULING_WEIGHT)
 
 
-def shard_games(games, count=WORKERS):
+def shard_games(games, count=WORKERS, *, phase="objective"):
     """Balance estimated depth work, not game count; preserve archive order."""
     count=max(1,min(WORKERS,int(count)))
     shards=[[] for _ in range(count)]
     costs=[0]*count
+    estimates = {id(game):estimated_depth_work(game, phase=phase) for game in games}
     for original_index,game in sorted(enumerate(games),
-        key=lambda item:(-estimated_depth_work(item[1]),item[0])):
+        key=lambda item:(-estimates[id(item[1])],item[0])):
         slot=min(range(count),key=lambda i:(costs[i],len(shards[i]),i))
         shards[slot].append((original_index,game))
-        costs[slot]+=estimated_depth_work(game)
+        costs[slot]+=estimates[id(game)]
     return [[game for _,game in sorted(rows)] for rows in shards]
 
 
@@ -590,7 +594,7 @@ def start(games,target,*,revision,engine,store=None,env=None,phase="objective"):
     task_games=games
     if chunked:
         task_games,fragments,sources,aliases=fragment_work(games,deduplicate=phase=="objective",policy=phase=="policy")
-    shards=copy.deepcopy(shard_games(task_games))
+    shards=copy.deepcopy(shard_games(task_games, phase=phase))
     payload={"schema":SCHEMA,"ticket":ticket,"revision":revision,
              "engine":engine,"config":repr(CONFIG),"version":VERSION,
              "created":time.time(),"workload_hash":workload_digest(games),"games":[[serialize_game(g) for g in shard]

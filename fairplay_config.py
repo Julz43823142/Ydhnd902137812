@@ -6,7 +6,7 @@ NAMESPACE = 'shark:fairplay:'
 DISCLAIMER = ('Automated fair-play screening only. This result is not proof of cheating '
               'and must not be used as the sole basis for punishment. Human review is mandatory.')
 VERSION = 'fairplay-v50-selective-policy'
-DEPTH_VERSION = 'fairplay-v56-model-period-evidence'
+DEPTH_VERSION = 'fairplay-v57-runtime-throughput'
 
 
 def active_version():

@@ -215,6 +215,14 @@ def complete(games,nodes,deadline,*,executor=None,pool=None,scanner=None,fast=Fa
                if checkpoint is not None else None)
         # A resumed older/smaller root set cannot satisfy today's reference.
         if saved is not None and set(saved.get('scores',{}))!=set(alternatives(d)):saved=None
+        if saved is None and not alternatives(d):
+            # Empty root sets require no engine process, but still count as
+            # completed positions with exactly the same empty search contract.
+            check_deadline(deadline)
+            saved={mode:requested, 'scores':{}, 'search_contract':{
+                'mode':mode, 'requested':requested, 'completed':True, 'exact':True,
+                'engine':getattr(pool,'name',None) or getattr(scanner,'name',None)
+                         or (d.metrics.get('search_contract') or {}).get('engine','')}}
         if saved is None:pending.append((game,d))
         else:
             d.metrics['policy_search']=saved

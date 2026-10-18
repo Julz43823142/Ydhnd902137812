@@ -370,8 +370,8 @@ class CheckpointStore:
                 return self._write()
             return True
 
-    def record_policies(self, target, pairs):
-        """Commit an entire completed Maia inference batch in one atomic write."""
+    def record_policies(self, target, pairs, *, persist=True):
+        """Record validated Maia batches; callers may defer atomic serialization."""
         if not self.enabled:
             return False
         with self.lock:
@@ -388,7 +388,7 @@ class CheckpointStore:
                     changed = True
             if changed:
                 job["updated"] = time.time()
-                return self._write()
+                return self._write() if persist else True
             return True
 
     def restore_counterfactual(self, target, game, decision, phase, nodes):
