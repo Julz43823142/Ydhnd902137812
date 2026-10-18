@@ -100,6 +100,7 @@ class DeepOnlyShadow(unittest.TestCase):
                 decision.metrics["search_contract"]["requested"]=budget.depth
             def close(self): pass
             budgets=[]
+        Scanner.budgets = []
         scanner=Scanner
         with (patch("fairplay_v51_shadow.collect_games",
                     return_value=(rows, {}, False)) as collected,
