@@ -956,9 +956,13 @@ def add_gameplay_fields(embed,result):
             value=' → '.join(f'{key.replace("_"," ")} {value}' for key,value in flow.items())[:1024])
 
 
+STAFF_TEST_CHANNEL_ID = 1539255761593434202
+FAIRPLAY_ALLOWED_CHANNEL_IDS = frozenset((CHANNEL_ID, STAFF_TEST_CHANNEL_ID))
+
+
 async def channel_check(ctx):
-    if ctx.channel_id==CHANNEL_ID and not ctx.user.bot:return True
-    await ctx.response.send_message('🛡️ Fair Play reviews are only available in the Fair Play Task Force channel.',ephemeral=True)
+    if ctx.channel_id in FAIRPLAY_ALLOWED_CHANNEL_IDS and not ctx.user.bot:return True
+    await ctx.response.send_message('🛡️ Fair Play reviews are only available in the Fair Play Task Force or staff test channel.',ephemeral=True)
     return False
 
 
