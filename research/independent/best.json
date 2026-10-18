@@ -4,12 +4,12 @@
     "training_mae": 0.926
   },
   "best_settings": {
-    "loss_power": 0.650983,
-    "loss_scale": 0.1113509,
-    "worst_move_weight": 0.0300676
+    "loss_power": 0.6993145,
+    "loss_scale": 0.0904867,
+    "worst_move_weight": 0.0442277
   },
-  "candidate_holdout_mae": 2.376,
-  "candidate_training_mae": 2.0827,
+  "candidate_holdout_mae": 2.442,
+  "candidate_training_mae": 2.052,
   "holdout_games": 25,
   "no_chesscom_data": true,
   "paired_games": 100,
