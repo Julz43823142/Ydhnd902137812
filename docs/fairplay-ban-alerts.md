@@ -41,7 +41,7 @@ conservative resource bounds, not a promise of realtime coverage. Cycle budget
 Only encrypted data reaches dedicated Git branch `fairplay-ban-alerts`, file
 `subscriptions.enc`. This is not the `fairplay-checkpoints` branch. Encryption
 uses a distinct key derivation domain. Local writes are atomic and mode 0600;
-remote non-force pushes compare against the loaded revision. Two stale writers
+remote non-force pushes compare against the loaded revision. Snapshots use fast gzip before encryption; encrypted/plaintext limits are 32/64 MiB, with bounded decompression. Oversized or unreadable state fails closed rather than discarding receipts. Two stale writers
 cannot both durably reserve the same pending event. A state write failure
 prevents delivery and requires reload. Schema v1 is explicit; unreadable state
 is not silently reset. A single bot/writer is required for local-only storage.

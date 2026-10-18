@@ -6,6 +6,8 @@ A failed durable reservation MUST prevent Discord delivery. Single local writer.
 import base64
 import copy
 import hashlib
+import gzip
+import io
 import json
 import os
 from pathlib import Path
@@ -15,6 +17,8 @@ from fairplay_checkpoint import _git
 
 BRANCH='fairplay-ban-alerts'
 FILE='subscriptions.enc'
+MAX_CIPHERTEXT=32*1024*1024
+MAX_PLAINTEXT=64*1024*1024
 
 
 class AlertStore:
@@ -31,12 +35,20 @@ class AlertStore:
             ref=f'refs/remotes/{self.remote}/{BRANCH}'
             fetched=_git(['fetch','--depth=1','--no-tags','-q',self.remote,f'+refs/heads/{BRANCH}:{ref}'])
             if fetched.returncode==0:
+                size=_git(['cat-file','-s',f'{ref}:{FILE}'])
+                if size.returncode or not 0<int(size.stdout)<=MAX_CIPHERTEXT:raise ValueError('Invalid Ban Alert snapshot size')
                 rev=_git(['rev-parse',ref]);blob=_git(['show',f'{ref}:{FILE}'])
                 if rev.returncode or blob.returncode:raise ValueError('Cannot load Ban Alert state')
                 self.revision=rev.stdout.decode().strip();payload=blob.stdout
-        elif self.path.exists():payload=self.path.read_bytes()
+        elif self.path.exists():
+            if self.path.stat().st_size>MAX_CIPHERTEXT:raise ValueError('Ban Alert snapshot is too large')
+            payload=self.path.read_bytes()
         if payload:
-            loaded=json.loads(self.cipher.decrypt(payload))
+            raw=self.cipher.decrypt(payload)
+            if raw.startswith(b'gzip-v1\0'):
+                with gzip.GzipFile(fileobj=io.BytesIO(raw[8:])) as source:raw=source.read(MAX_PLAINTEXT+1)
+            if len(raw)>MAX_PLAINTEXT:raise ValueError('Ban Alert state exceeds its bounded size')
+            loaded=json.loads(raw)
             if loaded.get('schema')!=1:raise ValueError('Unsupported Ban Alert state schema')
             for key in self.state:
                 if key in loaded:self.state[key]=loaded[key]
@@ -60,7 +72,10 @@ class AlertStore:
                 raise
 
     def _save(self):
-        payload=self.cipher.encrypt(json.dumps(self.state,separators=(',',':'),allow_nan=False).encode())
+        raw=json.dumps(self.state,separators=(',',':'),allow_nan=False).encode()
+        if len(raw)>MAX_PLAINTEXT:raise ValueError('Ban Alert state exceeds its bounded size')
+        payload=self.cipher.encrypt(b'gzip-v1\0'+gzip.compress(raw,compresslevel=1,mtime=0))
+        if len(payload)>MAX_CIPHERTEXT:raise ValueError('Ban Alert snapshot exceeds its bounded size')
         if self.remote:
             # Never fetch a new parent and overwrite it with stale local state.
             # Competing writers must reload; a rejected claim never sends.
