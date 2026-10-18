@@ -357,7 +357,13 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG,
                   *, include_latest_fifty_short=False,
                   include_recent_nonbullet_short_count=0,
                   include_recent_all_short_count=0,
-                  include_unrated=False):
+                  include_unrated=False, time_classes=None):
+    # An excluded class must not consume the requested sample quota. Older
+    # callers retain their mixed live/correspondence collection contract.
+    if time_classes is not None:
+        time_classes = frozenset(time_classes)
+        if not time_classes or not time_classes <= {'bullet', 'blitz', 'rapid', 'daily'}:
+            raise ValueError('Invalid Fair Play collection classes.')
     payload = api.get(target, '/games/archives')
     if payload is None:raise ReviewError('No public game archives are available for this account.')
     months = set()
@@ -397,6 +403,9 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG,
                 check_deadline(api.deadline)
                 if not isinstance(row,dict):
                     skipped['other_invalid']+=1;incomplete_months.add(f'{year:04d}-{month:02d}');continue
+                if time_classes is not None and row.get('time_class') not in time_classes:
+                    skipped['out_of_scope_time_class'] += 1
+                    continue
                 # The extended ten-window scope needs *all* rated blitz and
                 # rapid games, including short finished games which cannot
                 # provide much suspicious-move evidence. Never silently

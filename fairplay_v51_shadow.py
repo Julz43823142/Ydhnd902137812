@@ -1,15 +1,14 @@
-"""Fair Play v51: complete depth-only observational experiment.
+"""Bounded full-depth review, selected local Maia and recent-period screening.
 
-Opt-in from /fairplay with FAIRPLAY_V51=1. This shadow methodology has no
-cheating classification or moderation authority. No fast engine search, Maia
-inference, personal identity archive, or external baseline is invented.
+The legacy module name remains for persistent bot/validation integrations.
+No remote accusation service, account-status feature or public case store.
 """
 from __future__ import annotations
 
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from copy import deepcopy
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from io import BytesIO
 from math import exp, isfinite
 from statistics import mean, median
@@ -18,16 +17,16 @@ import time
 
 import chess.engine
 
-from fairplay_config import CONFIG, VERSION
+from fairplay_config import CONFIG, DEPTH_VERSION
 from fairplay_data import (PubAPI, ReviewError, ScanDeadline, collect_games,
                            check_deadline, username)
 from fairplay_analysis import (ReviewResult, aggregate, get_shared_engine_pool,
                                EngineScanner, summarize)
 
-MODE = "fairplay-v52-depth-review-priority"
+MODE = DEPTH_VERSION
 CANDIDATE_MODE = "fairplay-v53-relative-gameplay-research"
 CLASSES = ("bullet", "blitz", "rapid")
-MAX_GAMES = 500
+MAX_GAMES = 200
 
 
 def _finite(value):
@@ -168,7 +167,7 @@ def _verify_deep(game, config):
 def review(target, progress, config=CONFIG, *, api_factory=PubAPI,
            engine_factory=None, cancel=None, engine_workers=None,
            engine_pool=None, checkpoint=None, candidate=False):
-    """One 500-game deep Stockfish pass; no fast stage or Maia stage.
+    """At most 200 rated live games; selected full-game local Maia inference.
 
     Remote shards are attempted where available. Exact local checkpoint
     recovery covers incomplete shards. No result is returned for partial or
@@ -203,18 +202,24 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI,
         profile = api.get(target, profile=True)
         if not isinstance(profile, dict) or username(profile.get("username", "")) != target:
             raise ReviewError("The public profile cannot be verified.")
+        # Bound API collection itself, rather than fetching up to 1000 games
+        # via the legacy v21 environment and truncating them afterwards.
+        collection_config = replace(config, max_games=MAX_GAMES,
+                                    history_games=MAX_GAMES, primary_engine_games=MAX_GAMES)
         games, skipped, partial = collect_games(
-            api, target, progress, config,
-            include_unrated=True, include_latest_fifty_short=True,
-            include_recent_all_short_count=MAX_GAMES)
+            api, target, progress, collection_config,
+            include_unrated=False, include_latest_fifty_short=True,
+            include_recent_all_short_count=MAX_GAMES, time_classes=CLASSES)
         games = sorted((g for g in games if g.time_class in CLASSES
-                        and type(g.rated) is bool),
+                        and g.rated is True),
                        key=lambda g: (g.ended, g.identity))[-MAX_GAMES:]
         if not games:
             raise ReviewError("No eligible Bullet, Blitz, or Rapid games were found.")
         check_deadline(deadline)
         if callable(getattr(progress, 'workload', None)):
-            progress.workload({'deep': sum(len(g.decisions) for g in games)})
+            progress.workload({'deep': sum(len(g.decisions) for g in games),
+                               'wide': 0, 'candidate': 0, 'maia': 0,
+                               'policy_fast': 0, 'policy_deep': 0})
         if engine_factory is None:
             pool = engine_pool or get_shared_engine_pool(config)
             engine_name = pool.name
@@ -226,7 +231,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI,
             workers = 1
         if checkpoint is not None:
             from fairplay_maia import MODEL_SHA256
-            checkpoint.bind(target, engine=engine_name, version=VERSION,
+            checkpoint.bind(target, engine=engine_name, version=CANDIDATE_MODE if candidate else MODE,
                             config=config, full_depth=True, maia=MODEL_SHA256)
         completed_remote = {}
         remote_handle = None
@@ -237,6 +242,22 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI,
             remote_handle = start(games, target,
                                   revision=os.getenv("GITHUB_SHA", ""),
                                   engine=engine_name)
+        from fairplay_accuracy_scope import maia_scope, accuracy_tails, model_summary
+        from fairplay_maia import annotate_history, refresh_game
+        selected, model_scope = maia_scope(games)
+
+        def model_progress(stage):
+            check_deadline(deadline)
+            progress(stage)
+
+        if callable(getattr(progress, 'workload', None)):
+            model_progress.workload = progress.workload
+
+        # Overlap local CPU inference with encrypted remote Stockfish work.
+        # No automatic download, extra bot, or extra engine roots are needed.
+        model_reference = annotate_history(selected, full_coverage=True,
+            checkpoint=checkpoint, target=target, progress=model_progress)
+        check_deadline(deadline)
         if remote_handle:
             from fairplay_distributed import join
             progress("Waiting for deep Stockfish workers…")
@@ -244,12 +265,15 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI,
         by_id = {g.identity: g for g in games}
         for game_id, remote in completed_remote.items():
             if game_id in by_id and _verify_deep(remote, config):
+                if model_reference.get('available'):
+                    from fairplay_maia import carry_policy_after_deep
+                    carry_policy_after_deep(by_id[game_id], remote)
                 by_id[game_id].decisions = remote.decisions
                 by_id[game_id].deep = True
         missing = [(game, d) for game in games for d in game.decisions
                    if not _verified_decision(d, game.time_class, config)]
         progress(f"Depth-18 rapid/blitz · depth-12 bullet: 0 / {len(missing)} positions")
-        # Bounded batches; no 500-game backlog of concurrent future objects.
+        # Bounded batches; no unbounded backlog of concurrent future objects.
         if pool is not None:
             executor = ThreadPoolExecutor(max_workers=max(1, min(workers, 16)))
         for offset in range(0, len(missing), 128):
@@ -281,15 +305,26 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI,
                 raise ReviewError("Complete exact Stockfish depth coverage was not achieved. No review issued.")
             summarize(game, config, relative=candidate)
             game.deep = True
+            refresh_game(game)
         grouped = observations(games)
         diagnostics = summarize_observations(grouped)
         if candidate:
             diagnostics['schema'] = CANDIDATE_MODE
-        from fairplay_depth_priority import review_priority
-        tier = review_priority(games, config, complete=True, candidate=candidate,
-            incomplete_archive_months=getattr(api, 'fairplay_collection_coverage', {}).get(
-                'incomplete_archive_months', ()))
+        collection_coverage = getattr(api, 'fairplay_collection_coverage', {})
+        incomplete_months = collection_coverage.get('incomplete_archive_months', ())
+        if candidate:
+            from fairplay_depth_priority import review_priority
+            tier = review_priority(games, config, complete=True, candidate=True,
+                                   incomplete_archive_months=incomplete_months)
+        else:
+            from fairplay_recent_priority import recent_priority
+            tier = recent_priority(games, config, complete=True,
+                                   incomplete_archive_months=incomplete_months)
         diagnostics["review_priority"] = tier
+        diagnostics['requested_games'] = MAX_GAMES
+        diagnostics['collection'] = collection_coverage
+        diagnostics['official_accuracy_tails'] = accuracy_tails(games)
+        diagnostics['maia_reference'] = model_summary(selected, model_scope, model_reference)
         totals = aggregate(games)
         classes = {kind: aggregate([g for g in games if g.time_class == kind])
                    for kind in CLASSES}
@@ -303,7 +338,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI,
             deep_confirmed=False, deep_coverage={"games": len(games)},
             elapsed=elapsed, version=CANDIDATE_MODE if candidate else MODE,
             coverage={"deep_reviewed": len(games), "fast_scanned": 0,
-                      "primary_collected": len(games), "used": len(games),
+                      "primary_collected": len(games), "used": tier['scoring_games'],
                       "rated_primary": sum(g.rated is True for g in games),
                       "casual_primary": sum(g.rated is False for g in games),
                       "requested_primary_limit": MAX_GAMES},

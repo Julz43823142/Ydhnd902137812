@@ -44,6 +44,17 @@ def service(messages):
 
 
 class AutoTests(unittest.IsolatedAsyncioTestCase):
+    async def test_active_depth_route_rescans_old_depth_reports_only(self):
+        from fairplay_config import DEPTH_VERSION
+        s=service([message(3,'already-current',DEPTH_VERSION),
+                   message(2,'previous-depth','fairplay-v52-depth-review-priority')])
+        with patch.dict('os.environ',{'FAIRPLAY_V51':'1'}):
+            a=AutoRescanner(s)
+            await a.set_enabled(True)
+            self.assertEqual(a.state['version'],DEPTH_VERSION)
+            await a.tick()
+        self.assertEqual(list(s.jobs),['previous-depth'])
+
     async def test_newest_first_dedup_current_version_and_finished_only(self):
         s=service([message(9,'current',VERSION), message(8,'current'),
                    message(7,'synthetic-first'),message(6,'synthetic-first'),message(5,'synthetic-next'),
