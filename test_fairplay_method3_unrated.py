@@ -35,27 +35,27 @@ class UnratedCohorts(unittest.TestCase):
         d=result.diagnostics['method3']
         self.assertEqual(d['rated_games'],20);self.assertEqual(d['unrated_games'],20)
         self.assertEqual(d['subject']['class_results']['bullet']['games'],20)
-        self.assertEqual(d['unrated_subject']['class_results']['rapid']['games'],20)
+        self.assertEqual(d['subject']['class_results']['rapid']['games'],20)
         self.assertEqual(result.priority,'HIGH')  # Existing rated route preserved.
-        self.assertEqual(d['priority_basis'],'rated_results')
+        self.assertEqual(d['priority_basis'],'results')
 
-    def test_unrated_discrepancy_can_only_support_moderate(self):
+    def test_unrated_discrepancy_has_same_high_rules(self):
         result=self.run_rows(self.rows())
-        self.assertEqual(result.priority,'MODERATE')
+        self.assertEqual(result.priority,'HIGH')
         self.assertEqual(result.confidence,'LOW')
         self.assertEqual(result.diagnostics['method3']['subject']['rated_games'],0)
-        self.assertEqual(result.diagnostics['method3']['unrated_subject']['unrated_games'],20)
+        self.assertEqual(result.diagnostics['method3']['subject']['unrated_games'],20)
         self.assertFalse(result.deep_confirmed)
         from fairplay_method3_ui import result_embed,detail_embed,chart_pngs
-        self.assertIn('ratings may be out of date',str(result_embed(result).to_dict()))
-        self.assertIn('Unrated Rapid',str(detail_embed(result,'Performance').to_dict()))
+        self.assertIn('Equal priority rules',str(result_embed(result).to_dict()))
+        self.assertIn('Rapid',str(detail_embed(result,'Performance').to_dict()))
         files=chart_pngs(result)
-        self.assertEqual([name for name,data in files],['fairplay_unrated_rapid_charts.png'])
+        self.assertIn('fairplay_rapid_charts.png',[name for name,data in files])
 
     def test_high_accuracy_against_weak_opponents_does_not_force_high(self):
         result=self.run_rows(self.rows(n=18,player=1400,opponent=500))
         self.assertEqual(result.priority,'LOW')
-        q=result.diagnostics['method3']['unrated_subject']['overall_results']
+        q=result.diagnostics['method3']['subject']['overall_results']
         self.assertGreater(q['expected_points'],17)
         self.assertEqual(q['actual_points'],18)
 
@@ -84,7 +84,7 @@ class UnratedCohorts(unittest.TestCase):
         for row in rated:
             row['white']['result']='resigned';row['black']['result']='win'
             row['pgn']=row['pgn'].replace('1-0','0-1')
-        self.assertEqual(self.run_rows(rated+self.rows(start=21)).priority,'MODERATE')
+        self.assertEqual(self.run_rows(rated+self.rows(start=21)).priority,'HIGH')
 
     def test_unrated_closure_status_does_not_change_analysis(self):
         API.rows=self.rows()
@@ -107,7 +107,7 @@ class UnratedCohorts(unittest.TestCase):
         with patch('fairplay_method3.collect_games',return_value=(rows,{},False)):
             r=review(TARGET,lambda _:None,api_factory=API)
         files=chart_pngs(r)
-        self.assertEqual(len(files),9)
+        self.assertEqual(len(files),6)
         self.assertTrue(all(data.startswith(b'\x89PNG') for name,data in files))
         for mode in ('Performance','Report Details','Review Gates','Timing','Human Moves'):
             self.assertLessEqual(len(detail_embed(r,mode)),6000)

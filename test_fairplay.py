@@ -611,6 +611,10 @@ class FakeChannel:
         message.content=kwargs.get('content','')
         self.messages.append(message)
         return message
+    async def fetch_message(self,key):
+        message=next((m for m in self.messages if m.id==key),None)
+        if message:return message
+        raise discord.NotFound(SimpleNamespace(status=404,reason='Not Found'),'gone')
     def get_partial_message(self,key):
         message = next((m for m in self.messages if m.id==key),None)
         if message:return message
@@ -635,9 +639,25 @@ class DiscordRules(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(await self.service.ensure_panel())
         self.assertFalse(await self.service.ensure_panel());self.assertEqual(self.channel.sends,1)
         self.channel.messages.append(FakeMessage(self.channel,200,ui.progress_embed(TARGET,'Complete'),created=time.time()-3700))
-        self.assertTrue(await self.service.ensure_panel())
+        original=self.service.panel_id
+        self.assertFalse(await self.service.ensure_panel())
         self.assertEqual(sum(self.service.is_panel(m) for m in self.channel.messages),1)
-        self.assertTrue(self.service.is_panel(self.channel.messages[-1]))
+        self.assertEqual(self.service.panel_id,original)
+        self.assertEqual(self.channel.sends,1)
+
+    async def test_panel_is_not_reposted_after_other_bots_or_beyond_history_page(self):
+        with patch.dict(os.environ,{'FAIRPLAY_METHOD3':'1'}):
+            self.assertTrue(await self.service.ensure_panel())
+            panel=self.channel.messages[0]
+            for i in range(205):
+                self.channel.messages.append(FakeMessage(self.channel,1000+i,ui.progress_embed(TARGET,'Complete')))
+            for _ in range(3):self.assertFalse(await self.service.ensure_panel())
+            self.assertEqual(self.channel.sends,1)
+            self.assertIn(panel,self.channel.messages)
+            self.assertEqual(self.service.panel_id,panel.id)
+            self.assertNotIn('Method 3',panel.embeds[0].description)
+            self.assertNotIn('200 rated',panel.embeds[0].description)
+            self.assertEqual(panel.edits,0)
 
     async def test_method3_versioned_panel_is_reused_and_old_duplicates_removed(self):
         with patch.dict(os.environ,{'FAIRPLAY_METHOD3':'1'}):
