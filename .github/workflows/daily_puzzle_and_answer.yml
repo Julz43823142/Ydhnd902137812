@@ -65,6 +65,10 @@ jobs:
     runs-on: ${{ vars.SHARKBOT_DAILY_RUNNER || 'ubuntu-latest' }}
     # Emergency ceiling only. Normal workers hand off after ~4h20.
     timeout-minutes: 350
+    env:
+      # Default to the newly requested shadow study; set repository variable
+      # FAIRPLAY_V51=0 to roll back to the v50 normal analysis without a code revert.
+      FAIRPLAY_V51: ${{ vars.FAIRPLAY_V51 || '1' }}
 
     steps:
       - uses: actions/checkout@v6
@@ -82,6 +86,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Prepare optional local Maia human reference
+        if: env.FAIRPLAY_V51 != '1'
         continue-on-error: true
         run: |
           python -m pip install torch==2.8.0 --index-url https://download.pytorch.org/whl/cpu
@@ -89,6 +94,7 @@ jobs:
           python scripts/prepare_fairplay_maia.py /tmp/sharkbot-maia/maia3-5m.pt --github-env
 
       - name: Prepare supplementary Maia-3 23M and 79M local policies
+        if: env.FAIRPLAY_V51 != '1'
         # Independent research-only observations; if unavailable, report
         # "unavailable" rather than altering LOW/HIGH outcomes.
         continue-on-error: true
@@ -103,6 +109,7 @@ jobs:
           key: fairplay-lc0-v0.32.1-smallnet-portable-v2
 
       - name: Provision independent Lc0 CPU inference (optional)
+        if: env.FAIRPLAY_V51 != '1'
         # Leela is observational only; build or network failure must not
         # prevent the Discord bot or required Stockfish depth-18 scan.
         continue-on-error: true
@@ -227,9 +234,10 @@ jobs:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
           SHARK_STATE_ENCRYPTION_KEY: ${{ secrets.SHARK_STATE_ENCRYPTION_KEY }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          # Broad MultiPV1 screening of 500 rated games, with up to 250
-          # selected deep MultiPV3 games and bounded Maia observations.
-          # v23 pins the external compute checkout to this controller SHA.
+          # v51 experiment (default): no fast pass, up to 500 deep games,
+          # three class-separated descriptive charts. Legacy v50 is available
+          # with FAIRPLAY_V51=0. Both paths use pinned distributed workers.
+          FAIRPLAY_V51: ${{ vars.FAIRPLAY_V51 || '1' }}
           FAIRPLAY_FULL_DEPTH18: "1"
           FAIRPLAY_V21: "1"
           # v23: on-demand encrypted compute over ten separate runner jobs.
