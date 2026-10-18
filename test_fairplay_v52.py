@@ -276,6 +276,26 @@ class Recovery(unittest.TestCase):
 
 
 class Presentation(unittest.TestCase):
+    def test_all_priority_colours_match_between_summary_and_details(self):
+        from fairplay_analysis import ReviewResult
+        from fairplay_ui import result_embed, detail_embed
+        from fairplay_v51_shadow import summarize_observations, MODE
+        record=summarize_observations(observations([]))
+        result=ReviewResult(username='Synthetic',games=[],selected_games=0,
+            skipped={},partial=False,engine='Synthetic engine',totals={},
+            classes={},performance={},context={},families={},priority='LOW',
+            confidence='LOW',reasons=[],deep_confirmed=False,deep_coverage={},
+            elapsed=0,version=MODE)
+        for diagnostics in ({}, {'v51_shadow':record}):
+            result.diagnostics=diagnostics
+            for priority,colour in (('LOW',0x2E9E65),('MODERATE',0xE9B44C),
+                                    ('HIGH',0xEA8537),('VERY HIGH',0xD94F55),
+                                    ('INSUFFICIENT DATA',0x788491)):
+                with self.subTest(current=bool(diagnostics),priority=priority):
+                    result.priority=priority
+                    self.assertEqual(result_embed(result).colour.value,colour)
+                    self.assertEqual(detail_embed(result,'Human Moves').colour.value,colour)
+
     def test_report_shows_tier_and_details_do_not_invent_maia(self):
         from fairplay_v51_shadow import summarize_observations, MODE
         from fairplay_ui import result_embed, detail_embed
