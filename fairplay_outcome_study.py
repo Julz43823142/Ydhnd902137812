@@ -30,6 +30,15 @@ SCENARIOS = (Scenario('strict', 12, .70, 3.0, .20),
              Scenario('permissive', 5, .50, 1.5, .10))
 
 
+# Exploratory, chosen AFTER inspecting development data. Not a validated default.
+# Keep the original scenarios unchanged to preserve an honest comparison.
+DEVELOPMENT_SCENARIOS = (
+    Scenario('development_lower', 8, .60, 2.35, .18),
+    Scenario('development_middle', 8, .60, 2.40, .20),
+    Scenario('development_upper', 8, .60, 2.45, .22),
+)
+
+
 @dataclass(frozen=True)
 class StudyConfig:
     widths: tuple = (10, 20, 50, 200)

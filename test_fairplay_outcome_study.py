@@ -30,6 +30,23 @@ def outcome(rows,scenario='balanced',source='official_accuracy'):
 
 
 class ResultsAndAccuracy(unittest.TestCase):
+    def test_development_scenarios_are_opt_in_and_do_not_replace_defaults(self):
+        from fairplay_outcome_study import SCENARIOS, DEVELOPMENT_SCENARIOS
+        self.assertEqual(len(SCENARIOS), 3)
+        scenarios = SCENARIOS + DEVELOPMENT_SCENARIOS
+        report = evaluate(cohort(), scenarios=scenarios)
+        self.assertEqual(len(report['scenarios']), 6)
+        self.assertFalse(report['production_enabled'])
+        for scenario in DEVELOPMENT_SCENARIOS:
+            self.assertEqual(report['players'][0]['ablations']['results_only'][scenario.name]['priority'], 'HIGH')
+
+    def test_development_thresholds_still_reject_ordinary_results(self):
+        from fairplay_outcome_study import DEVELOPMENT_SCENARIOS
+        report = evaluate(cohort(abnormal=False), scenarios=DEVELOPMENT_SCENARIOS)
+        for player in report['players']:
+            for outcome in player['ablations']['results_only'].values():
+                self.assertEqual(outcome['priority'], 'LOW')
+
     def test_elo_is_expected_points_and_missing_rating_is_unknown(self):
         self.assertEqual(expected_points(500,500),.5)
         self.assertAlmostEqual(expected_points(500,400),.6400649998)
