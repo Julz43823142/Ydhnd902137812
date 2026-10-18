@@ -134,3 +134,5 @@ spreadsheet. All output paths are checked for collisions and Git checkouts
 before writing. No production pipelines or diagnostics are removed. Missing
 Accuracy skips unnecessary reference lookups and reference-player grouping
 is single-pass; classifications and original scenario defaults are preserved.
+
+Cross-player reference pools are indexed once per subject by exact time class/control; rating matching and subject/shared-game exclusion remain unchanged.

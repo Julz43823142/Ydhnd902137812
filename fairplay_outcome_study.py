@@ -124,7 +124,17 @@ def _result(games):
             'note': 'Descriptive Elo score residual, not a p-value or cheating probability; draws are points, not wins.'}
 
 
+def _index_reference(rows):
+    indexed = {}
+    for owner, game in rows:
+        key = (game.get('time_class'), game.get('time_control'))
+        indexed.setdefault(key, []).append((owner, game))
+    return indexed
+
+
 def _reference(game, pool, source, config, minimum_players):
+    if isinstance(pool, dict):
+        pool = pool.get((game.get('time_class'), game.get('time_control')), ())
     matches = [(key,g) for key,g in pool if _accuracy(g,source) is not None and _matches(game,g,config)]
     players = {key for key,_ in matches}
     physical_games = len({g['identity'] for _,g in matches})
@@ -240,8 +250,8 @@ def evaluate(players, *, source='official_accuracy', config=CONFIG, scenarios=SC
     rank = {'INSUFFICIENT DATA':0,'LOW':1,'MODERATE':2,'HIGH':3}
     for key,games in data.items():
         subject_ids = {g['identity'] for g in games}
-        others = [(owner,g) for owner,rows in data.items() if owner!=key for g in rows
-                  if g['identity'] not in subject_ids]
+        others = _index_reference([(owner,g) for owner,rows in data.items() if owner!=key for g in rows
+                  if g['identity'] not in subject_ids])
         periods = []
         reference_cache = {}
         for kind in CLASSES:
