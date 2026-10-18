@@ -1,4 +1,4 @@
-"""Offline Accuracy/results ablation. NEVER imported by production scoring.
+"""Pure Accuracy/results statistics shared by research and the Method 3 adapter.
 
 Elo predicts expected POINTS, not win probability. Empirical Accuracy norms
 are estimated from other players in the supplied research sample; they are
@@ -231,7 +231,9 @@ def _classify(games, accuracy, result, scenario, config):
             'results_covered':results_covered}
 
 
-def evaluate(players, *, source='official_accuracy', config=CONFIG, scenarios=SCENARIOS):
+def evaluate(players, *, source='official_accuracy', config=CONFIG, scenarios=SCENARIOS, candidate_tail=None):
+    if candidate_tail is not None and (type(candidate_tail) is not int or candidate_tail < config.minimum_games):
+        raise ValueError('Candidate tail must contain at least the minimum games')
     if source not in ('official_accuracy','estimated_accuracy'):
         raise ValueError('Keep official and estimated Accuracy in separate runs')
     keys = [p.get('player_key') for p in players]
@@ -254,13 +256,16 @@ def evaluate(players, *, source='official_accuracy', config=CONFIG, scenarios=SC
                   if g['identity'] not in subject_ids])
         periods = []
         reference_cache = {}
+        recent_ids={g['identity'] for g in games[-candidate_tail:]} if candidate_tail is not None else None
         for kind in CLASSES:
             group = [g for g in games if g['time_class']==kind]
-            widths = sorted({w for w in config.widths if config.minimum_games<=w<=len(group)}
-                            | ({len(group)} if len(group)>=config.minimum_games else set()))
+            offset=next((i for i,g in enumerate(group) if g['identity'] in recent_ids),len(group)) if recent_ids is not None else 0
+            eligible=len(group)-offset
+            widths = sorted({w for w in config.widths if config.minimum_games<=w<=eligible}
+                            | ({eligible} if eligible>=config.minimum_games else set()))
             seen = set()
             for width in widths:
-                for start in sorted(set(range(0,len(group)-width+1,width))|{len(group)-width}):
+                for start in sorted(set(range(offset,len(group)-width+1,width))|{len(group)-width}):
                     members=group[start:start+width]
                     ids=tuple(g['identity'] for g in members)
                     if ids in seen:continue

@@ -49,7 +49,7 @@ def priority_color(priority):
 
 def panel_embed():
     if os.getenv('FAIRPLAY_METHOD3')=='1':
-        embed=discord.Embed(title=PANEL_TITLE,color=0x427CBA,description='Method 3 reviews up to 200 rated live games using Elo-expected points and observed results. Published Accuracy can add a review flag; clocks are descriptive. No Stockfish or Maia scan. Experimental screening, not proof of cheating.')
+        embed=discord.Embed(title=PANEL_TITLE,color=0x427CBA,description='Method 3 collects up to 1,000 rated live games for history; priority uses recent periods within the latest 200. Published Accuracy can add a review flag; clocks are descriptive. No Stockfish or Maia scan. Experimental screening, not proof of cheating.')
         embed.set_footer(text=PANEL_MARKER+' · '+active_version())
         return embed
     if os.getenv("FAIRPLAY_V51")=="1":
