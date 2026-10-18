@@ -41,7 +41,7 @@ class AlertStore:
                 if rev.returncode or blob.returncode:raise ValueError('Cannot load Ban Alert state')
                 self.revision=rev.stdout.decode().strip();payload=blob.stdout
         elif self.path.exists():
-            if self.path.stat().st_size>MAX_CIPHERTEXT:raise ValueError('Ban Alert snapshot is too large')
+            if not 0<self.path.stat().st_size<=MAX_CIPHERTEXT:raise ValueError('Ban Alert snapshot is too large')
             payload=self.path.read_bytes()
         if payload:
             raw=self.cipher.decrypt(payload)

@@ -176,6 +176,13 @@ class Alerts(unittest.IsolatedAsyncioTestCase):
         self.tick(NOW+7202)
         self.assertEqual({e['user'] for e in self.store.snapshot()['outbox'].values()},{'1'})
 
+    def test_empty_or_oversized_state_never_silently_resets_receipts(self):
+        self.subscribe()
+        with patch('fairplay_alert_store.MAX_PLAINTEXT',16):
+            with self.assertRaises(ValueError):AlertStore(self.path,remote='',secret='synthetic-test-key')
+        self.path.write_bytes(b'')
+        with self.assertRaises(ValueError):AlertStore(self.path,remote='',secret='synthetic-test-key')
+
     def test_persistent_namespace_and_review_independence(self):
         from fairplay_routing import permitted
         view=AlertView();self.assertIsNone(view.timeout)
