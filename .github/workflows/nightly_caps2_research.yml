@@ -1,13 +1,11 @@
-name: Chess.com Reference Research (manual, written authorization required)
+name: Chess.com Accuracy Optimizer (opt-in isolated research)
 
 on:
-  # Disabled by default: Chess.com's current terms require prior written
-  # authorization for automated reference harvesting/model calibration.
-  # No schedule. An approved manual invocation additionally needs a
-  # repository authorization flag, set only after securing permission.
+  # Prepared only: every job also requires three explicit repository switches.
+  schedule:
+    - cron: '17,47 * * * *'
   workflow_dispatch:
 
-# Independent from Fair Play and ordinary Discord game reviews.
 concurrency:
   group: chesscom-caps2-research-only
   cancel-in-progress: false
@@ -16,118 +14,91 @@ permissions:
   contents: write
 
 jobs:
-  nightly-research:
-    if: github.ref == 'refs/heads/main' && vars.CHESSCOM_RESEARCH_WRITTEN_AUTHORIZATION == 'true'
-    name: Research-only Stockfish evaluations and CAPS2 trials
-    runs-on: ubuntu-latest
-    timeout-minutes: 58
+  reference-optimizer:
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      vars.ACCURACY_OPTIMIZER_ENABLED == 'true' &&
+      vars.ACCURACY_OPTIMIZER_COMPUTE_ISOLATED == 'true' &&
+      vars.CHESSCOM_RESEARCH_WRITTEN_AUTHORIZATION == 'true'
+    runs-on: ${{ vars.ACCURACY_OPTIMIZER_RUNNER || 'ubuntu-latest' }}
+    timeout-minutes: 35
     env:
-      PYTHONUNBUFFERED: '1'
       PYTHONDONTWRITEBYTECODE: '1'
-      PYTHONPATH: ${{ github.workspace }}
-      STATE_DIR: /tmp/sharkbot-caps2-state/research/caps2
-      STATE_REPO: /tmp/sharkbot-caps2-state
+      PYTHONUNBUFFERED: '1'
+      STATE_DIR: /tmp/sharkbot-accuracy-optimizer
+      STATE_REPO: /tmp/sharkbot-accuracy-persistence
+      CHESSCOM_RESEARCH_WRITTEN_AUTHORIZATION: 'true'
+      ACCURACY_OPTIMIZER_STATE_KEY: ${{ secrets.ACCURACY_OPTIMIZER_STATE_KEY }}
+      GH_TOKEN: ${{ github.token }}
     steps:
-      - name: Checkout latest research code from main
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
-          persist-credentials: true
-      - name: Determine current Dutch time before expensive provisioning
-        id: window
-        shell: bash
-        run: |
-          set -euo pipefail
-          LOCAL_HOUR="$(TZ=Europe/Amsterdam date +%H)"
-          echo "Dutch hour at startup: ${LOCAL_HOUR}"
-          if (( 10#$LOCAL_HOUR < 9 )); then
-            echo "active=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "active=false" >> "$GITHUB_OUTPUT"
-            echo "Skipped: outside 00:00-09:00 Europe/Amsterdam." >> "$GITHUB_STEP_SUMMARY"
-          fi
-      - name: Setup Python
-        if: steps.window.outputs.active == 'true'
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install minimal research dependencies
-        if: steps.window.outputs.active == 'true'
-        run: python -m pip install python-chess requests
-      - name: Restore persistent research state branch or prepare initial state
-        if: steps.window.outputs.active == 'true'
+      - name: Install isolated research dependencies
+        run: python -m pip install python-chess requests cryptography
+      - name: Restore encrypted reference-lab state
+        id: restore
         shell: bash
         run: |
           set -euo pipefail
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          test -n "$ACCURACY_OPTIMIZER_STATE_KEY"
+          gh auth setup-git --hostname github.com
+          git clone --quiet --no-checkout . "$STATE_REPO"
+          git -C "$STATE_REPO" remote set-url origin "$(git remote get-url origin)"
           if git fetch --no-tags --depth=1 origin refs/heads/caps2-research-state; then
-            git worktree add --detach "$STATE_REPO" FETCH_HEAD
+            STATE_COMMIT=$(git rev-parse FETCH_HEAD)
+            git -C "$STATE_REPO" fetch --quiet "$GITHUB_WORKSPACE" "$STATE_COMMIT"
+            git -C "$STATE_REPO" checkout --quiet --detach FETCH_HEAD
           else
-            echo "Research state branch unavailable; bootstrap from current main."
-            git worktree add --detach "$STATE_REPO" HEAD
+            git -C "$STATE_REPO" checkout --quiet --orphan accuracy-state
+            git -C "$STATE_REPO" rm -rf --ignore-unmatch .
           fi
-          mkdir -p "$STATE_DIR"
+          BUNDLE="$STATE_REPO/research/caps2/optimizer/state.enc"
+          if [[ -f "$BUNDLE" ]]; then
+            python scripts/accuracy_optimizer.py unseal --state-dir "$STATE_DIR" --bundle "$BUNDLE"
+          else
+            mkdir -p "$STATE_DIR"
+            echo "No encrypted reference dataset yet; no automatic collection will occur."
+          fi
+          if [[ -f "$STATE_DIR/dataset.json" ]]; then
+            echo "dataset=true" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/cache@v4
-        if: steps.window.outputs.active == 'true'
+        if: steps.restore.outputs.dataset == 'true'
         with:
           path: /tmp/stockfish19-official-pgo/Stockfish/src/stockfish
           key: stockfish-${{ runner.os }}-${{ runner.arch }}-edb0d9db6731067ec50ce619ff372b463bc4dd5d-pgo-v1
-      - name: Prepare verified pinned Stockfish 19
-        if: steps.window.outputs.active == 'true'
+      - name: Prepare independent verified Stockfish
+        if: steps.restore.outputs.dataset == 'true'
         run: python scripts/prepare_stockfish.py --github-env --profile-build
-      - name: Run bounded overnight analysis and candidate optimization
-        if: steps.window.outputs.active == 'true'
-        id: analyze
+      - name: Run bounded reference experiments
+        id: research
         continue-on-error: true
-        run: |
-          python scripts/nightly_caps2_lab.py \
-            --state-dir "$STATE_DIR" \
-            --max-minutes 42 --max-games-per-run 100 --trials 2000
-      - name: Publish ONLY reference research state, never live bot scoring
-        if: steps.window.outputs.active == 'true'
+        run: >-
+          python scripts/accuracy_optimizer.py run --state-dir "$STATE_DIR"
+          --isolated --minutes 25 --trials 2000
+      - name: Persist encrypted data and aggregate-only public status
+        if: always() && steps.research.outcome != 'skipped' && steps.research.outcome != ''
         shell: bash
         run: |
           set -euo pipefail
+          TARGET="$STATE_REPO/research/caps2/optimizer"
+          mkdir -p "$TARGET"
+          python scripts/accuracy_optimizer.py seal --state-dir "$STATE_DIR" --bundle "$TARGET/state.enc"
+          cp "$STATE_DIR/status.json" "$TARGET/status.json"
+          cp "$STATE_DIR/runs.json" "$TARGET/runs.json"
           git -C "$STATE_REPO" config user.name 'github-actions[bot]'
           git -C "$STATE_REPO" config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git -C "$STATE_REPO" add -A research/caps2
-          if git -C "$STATE_REPO" diff --cached --quiet; then
-            echo "No new research state to publish."
-          else
-            git -C "$STATE_REPO" commit -m "research: checkpoint public Chess.com accuracy experiments"
+          git -C "$STATE_REPO" add research/caps2/optimizer/state.enc research/caps2/optimizer/status.json research/caps2/optimizer/runs.json
+          if ! git -C "$STATE_REPO" diff --cached --quiet; then
+            git -C "$STATE_REPO" commit -m "research: checkpoint encrypted accuracy optimizer"
             git -C "$STATE_REPO" push origin HEAD:refs/heads/caps2-research-state
           fi
-      - name: Report research coverage and held-out accuracy
-        if: steps.window.outputs.active == 'true'
-        shell: bash
-        run: |
-          python - <<'PY'
-          import json
-          import os
-          from pathlib import Path
-          path = Path(os.environ["STATE_DIR"]) / "latest_report.json"
-          if not path.exists():
-              message = "No completed accuracy research report. Check job logs."
-          else:
-              report = json.loads(path.read_text())
-              mode = report.get("mode", "?")
-              found = report.get("official_reference_games", 0)
-              completed = report.get("cached_research_metrics", 0)
-              fit = report.get("selection") or {}
-              candidate = fit.get("candidate_holdout_mae", "not enough reviewed games")
-              message = (
-                  f"CAPS2 lab: **{mode}**; official reference PGNs **{found}**; "
-                  f"engine-reviewed **{completed}**; "
-                  f"candidate held-out MAE **{candidate}**; "
-                  "research only, no production or Fair Play changes."
-              )
-          print(message)
-          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as stream:
-              stream.write(message + "\n")
-          PY
-      - name: Surface underlying research failure AFTER checkpoint
-        if: steps.window.outputs.active == 'true' && steps.analyze.outcome == 'failure'
-        run: |
-          echo "Research run reported errors. State was checkpointed; inspect latest_report.json."
-          exit 1
+      - name: Publish honest result summary
+        run: python scripts/accuracy_optimizer.py status --state-dir "$STATE_DIR" >> "$GITHUB_STEP_SUMMARY"
+      - name: Surface worker failure after persistence
+        if: steps.research.outcome == 'failure'
+        run: exit 1
