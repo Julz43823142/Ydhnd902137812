@@ -130,6 +130,7 @@ class DeepOnlyShadow(unittest.TestCase):
                           engine_factory=lambda:None)
         self.assertEqual(result.diagnostics["v51_shadow"]["fast_games"],0)
         self.assertEqual(result.coverage["deep_reviewed"],3)
+        self.assertIs(result.timeline,result.games)
         self.assertEqual(result.priority,"INSUFFICIENT DATA")
         self.assertEqual(sorted(scanner.budgets),[12,18,18])
         self.assertTrue(collected.call_args.kwargs["include_unrated"])

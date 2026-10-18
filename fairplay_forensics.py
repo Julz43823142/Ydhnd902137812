@@ -8,7 +8,7 @@ def export_decisions(result,path,limit=100):
     from fairplay_validation import private_input_path
     path=private_input_path(path)
     rows=[]
-    for game in result.timeline:
+    for game in (getattr(result, 'timeline', None) or result.games):
         for d in game.decisions:
             m=d.metrics
             if not m:continue
@@ -30,6 +30,8 @@ def export_decisions(result,path,limit=100):
 
 def ablate(result,profile,remove,config=None):
     """Research-only sensitivity analysis; removal groups overlap by design."""
+    if 'v51_shadow' in getattr(result, 'diagnostics', {}):
+        raise ValueError('Depth-only ablation requires its matching scorer; legacy v50 ablation is not a valid comparison.')
     from fairplay_config import CONFIG
     from fairplay_scoring import score_review
     from dataclasses import replace

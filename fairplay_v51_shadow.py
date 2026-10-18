@@ -24,7 +24,7 @@ from fairplay_data import (PubAPI, ReviewError, ScanDeadline, collect_games,
 from fairplay_analysis import (ReviewResult, aggregate, get_shared_engine_pool,
                                EngineScanner, summarize)
 
-MODE = "fairplay-v52-depth-review-priority"
+MODE = "fairplay-v53-recent-gameplay-shift"
 CLASSES = ("bullet", "blitz", "rapid")
 MAX_GAMES = 500
 
@@ -283,14 +283,16 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI,
         grouped = observations(games)
         diagnostics = summarize_observations(grouped)
         from fairplay_depth_priority import review_priority
-        tier = review_priority(games, config, complete=True)
+        tier = review_priority(games, config, complete=True,
+            incomplete_archive_months=getattr(api, 'fairplay_collection_coverage', {}).get(
+                'incomplete_archive_months', ()))
         diagnostics["review_priority"] = tier
         totals = aggregate(games)
         classes = {kind: aggregate([g for g in games if g.time_class == kind])
                    for kind in CLASSES}
         elapsed = time.monotonic() - began
         result = ReviewResult(
-            username=target, games=games, selected_games=len(games),
+            username=target, games=games, timeline=games, selected_games=len(games),
             skipped=skipped, partial=partial, engine=engine_name,
             totals=totals, classes=classes, performance={}, context={},
             families={}, priority=tier["priority"], confidence=tier["confidence"],

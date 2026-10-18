@@ -19,14 +19,19 @@ python -m fairplay_validation /tmp/private-cohort.json --live \
   --profile production-local --partition development
 ```
 
-This preserves the deployed `CONFIG`, full-depth mode, latest-rated guarantees,
-500-game primary scope and distributed-size deep selection. It removes dispatch
-credentials and uses the existing exact **local** fallback; it never schedules
-GitHub workers or posts Discord messages. Install the pinned Stockfish/Maia
-requirements first. A complete batch can take hours on a small local machine.
-Optional model sidecars in the Discord presentation are not run; they have no
-scoring influence. Local CPU, cache and transport timing are not production
-latency measurements.
+This now explicitly calls `fairplay_v51_shadow.review`, the deployed
+depth-only entry point. The older CLI called `fairplay_analysis.review` even
+when the Discord workflow selected v52; that tested v50 under an incorrect
+production-equivalence claim. `--profile legacy-production-local` now retains
+that older comparison deliberately. Profiles are named in every report.
+
+Production-local preserves `CONFIG`, latest up-to-500 live-game selection and
+exact depths (Bullet 12, Blitz/Rapid 18), including unrated chart context but
+rated-only priority. Maia is not used by this deployed depth-only mode. The
+CLI removes dispatch credentials and uses the exact **local** fallback; it
+never schedules workers or posts Discord messages. Install pinned Stockfish
+19 first. A complete batch can take hours. Local CPU/cache/transport timings
+are not production latency measurements.
 
 The default `--profile screening` is explicitly a different, fixed-node profile.
 It cannot inherit live production flags/credentials, even if an overridden quota

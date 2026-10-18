@@ -13,7 +13,7 @@ from fairplay_sequence import class_absolute
 from fairplay_timing import trivial_delay_summary
 
 
-def review_priority(games, config=CONFIG, *, complete):
+def review_priority(games, config=CONFIG, *, complete, incomplete_archive_months=()):
     rated = sorted((g for g in games if g.rated is True), key=lambda g: (g.ended, g.identity))
     useful = [g for g in rated if g.metrics.get("decisions", 0) >= config.min_game_decisions]
     decisions = sum(g.metrics.get("decisions", 0) for g in useful)
@@ -81,10 +81,26 @@ def review_priority(games, config=CONFIG, *, complete):
         }
         level = max(level, class_level)
     result["priority"] = ("LOW", "MODERATE", "HIGH", "VERY HIGH")[level]
+    from fairplay_recent_shift import recent_shift
+    shift = recent_shift(rated, config, complete=complete,
+                         incomplete_archive_months=incomplete_archive_months)
+    result["recent_shift"] = shift
+    result["triggered_routes"] = (["distributed_blocks"] if level >= 2 else [])
+    if shift["passed"]:
+        result["triggered_routes"].append("recent_personal_shift")
+        level = max(level, 2)
+        result["priority"] = ("LOW", "MODERATE", "HIGH", "VERY HIGH")[level]
     result["reasons"] = [{
         0: "No sufficiently distributed rating-conditioned gameplay anomaly was established; LOW does not establish fair play.",
         1: "A rating-conditioned gameplay anomaly met the existing opportunity and contributor requirements; replication remains limited.",
         2: "Extraordinary rating-conditioned gameplay qualified in multiple disjoint full-depth game blocks. This is an experimental review flag.",
         3: "Replicated full-depth gameplay anomalies also had same-period clock corroboration across multiple sessions. Manual review remains mandatory.",
     }[level]]
+    if shift["passed"] and level == 2:
+        selected = shift["selected"]
+        result["reasons"] = [
+            f"The latest {selected['recent_games']} rated {selected['time_class']} games showed "
+            "extraordinary difficult-decision quality and a large, distributed change from earlier "
+            "rating/control-matched games, all at the required engine depth. This is a review flag, not proof."
+        ]
     return result

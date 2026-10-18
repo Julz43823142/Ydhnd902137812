@@ -17,6 +17,28 @@ def result(priority, *, blockers=(), candidate_games=0, passed=False, index=None
 
 
 class ValidationMissBuckets(unittest.TestCase):
+    def test_production_validation_calls_the_actual_depth_only_entry_point(self):
+        from unittest.mock import patch
+        from fairplay_validation import analyze_target, analysis_config
+        config=analysis_config('production-local')
+        expected=object()
+        with patch('fairplay_v51_shadow.review',return_value=expected) as deployed, \
+                patch('fairplay_analysis.review') as legacy:
+            self.assertIs(analyze_target('synthetic-validation','production-local',config),expected)
+            self.assertIs(deployed.call_args.args[2],config)
+            self.assertEqual(deployed.call_args.args[0],'synthetic-validation')
+            legacy.assert_not_called()
+
+    def test_legacy_and_screening_are_explicit_separate_comparisons(self):
+        from unittest.mock import patch
+        from fairplay_validation import analyze_target, analysis_config
+        for profile in ('screening','legacy-production-local'):
+            with patch('fairplay_v51_shadow.review') as deployed, \
+                    patch('fairplay_analysis.review') as legacy:
+                analyze_target('synthetic-validation',profile,analysis_config(profile))
+                legacy.assert_called_once()
+                deployed.assert_not_called()
+
     def test_positive_low_bucket_distinguishes_near_miss_from_multi_blocked(self):
         near=result('LOW',blockers=('deep semantic-quality stability',),candidate_games=40)
         weak=result('LOW',blockers=('anomaly hit lower bound','raw quality separation'),candidate_games=40)

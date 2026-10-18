@@ -94,14 +94,16 @@ def validated_cases(cases, partition='all'):
 def local_production_profile(profile='production-local'):
     """CLI-only production selection/search settings, without remote dispatch.
 
-    The real pipeline currently couples its 200+50 selection scope to the
-    distributed environment flag. Removing ALL dispatch credentials preserves
-    that same scope while requiring the existing exact local compute fallback.
+    Production-local explicitly selects the deployed depth-only entry,
+    rather than assuming fairplay_analysis.review observes FAIRPLAY_V51.
+    Legacy production remains an explicit comparison profile. Removing ALL
+    dispatch credentials requires the existing exact local compute fallback.
     Never call this context manager from the running Discord process.
     """
-    if profile not in ('production-local','screening'):raise ValueError('Invalid analysis profile.')
-    full=profile=='production-local'
+    if profile not in ('production-local','legacy-production-local','screening'):raise ValueError('Invalid analysis profile.')
+    full=profile!='screening'
     flags={'GITHUB_ACTIONS':'true' if full else 'false',
+           'FAIRPLAY_V51':'1' if profile=='production-local' else '0',
            **{key:'1' if full else '0' for key in (
                'FAIRPLAY_FULL_DEPTH18','FAIRPLAY_V21','FAIRPLAY_DISTRIBUTED','FAIRPLAY_REQUIRE_MAIA')}}
     credentials=('GITHUB_TOKEN','GH_TOKEN','DISCORD_TOKEN',
@@ -121,12 +123,27 @@ def local_production_profile(profile='production-local'):
 def analysis_config(profile, history_games=None):
     from dataclasses import replace
     from fairplay_config import CONFIG
-    if profile=='production-local':
+    if profile in ('production-local','legacy-production-local'):
         if history_games is not None and history_games!=CONFIG.history_games:
             raise ValueError('Production profile cannot override the history quota.')
         return CONFIG  # equality is required by production v21 entry guards
     if profile!='screening':raise ValueError('Invalid analysis profile.')
     return replace(CONFIG,history_games=max(1,min(500,200 if history_games is None else history_games)))
+
+
+def analyze_target(target, profile, config, **kwargs):
+    """Match the deployed entry point explicitly; labels are never arguments.
+
+    fairplay_analysis.review is v50 and does not delegate to the depth-only
+    switch. Previously the CLI could claim production equivalence while testing v50.
+    """
+    if profile == 'production-local':
+        from fairplay_v51_shadow import review
+    elif profile in ('legacy-production-local', 'screening'):
+        from fairplay_analysis import review
+    else:
+        raise ValueError('Invalid analysis profile.')
+    return review(target, lambda stage: None, config, **kwargs)
 
 
 def evaluate_cases(cases, analyze):
@@ -247,11 +264,10 @@ def main():
     source.add_argument('--offline-dir',type=Path,help='Private ignored directory with per-account JSON {profile, games}.')
     source.add_argument('--live',action='store_true',help='Explicitly permit serial PubAPI scans. No Discord activity.')
     parser.add_argument('--history-games',type=int,default=None)
-    parser.add_argument('--profile',choices=('screening','production-local'),default='screening',
-                        help='Screening is NOT the deployed depth-18 pipeline. Production-local preserves deployed selection and budgets, uses local compute only, and can take hours.')
+    parser.add_argument('--profile',choices=('screening','production-local','legacy-production-local'),default='screening',
+                        help='Production-local explicitly uses the deployed depth-only detector. Legacy-production-local uses v50. Screening is a different fixed-node detector. Exact local scans may take hours.')
     parser.add_argument('--partition',choices=('all','development','holdout'),default='development')
     args=parser.parse_args()
-    from fairplay_analysis import review
     try:config=analysis_config(args.profile,args.history_games)
     except ValueError:parser.exit(2,'Invalid analysis profile or history quota.\n')
     def analyze(target):
@@ -266,7 +282,7 @@ def main():
                     return {'games':payload['games']}
                 def close(self):pass
             kwargs['api_factory']=OfflineAPI
-        return review(target,lambda stage:None,config,**kwargs)
+        return analyze_target(target,args.profile,config,**kwargs)
     try:
         private_input_path(args.cases)
         if args.offline_dir:private_input_path(args.offline_dir)
@@ -275,6 +291,8 @@ def main():
         with local_production_profile(args.profile):summary=evaluate_cases(cases,analyze)
         summary['validation_profile']={'name':args.profile,'partition':args.partition,
             'matches_deployed_selection_and_budgets':args.profile=='production-local',
+            'entry_point':('fairplay_v51_shadow.review' if args.profile=='production-local'
+                           else 'fairplay_analysis.review'),
             'remote_dispatch_allowed':False,
             'note':'User-provided account labels are not game-level proof. Ten accounts do not establish general accuracy.'}
     except (ValueError,OSError,TypeError):

@@ -416,6 +416,19 @@ def detail_embed(result, mode):
             embed.add_field(name="Human reference",inline=False,
                 value="No learned Maia inference runs in this depth-only mode. Rating-conditioned engine heuristics are not human move probabilities.")
         if mode in ('Review Gates','Engine Analysis','Clusters & History'):
+            shift=tier.get('recent_shift',{})
+            candidate=shift.get('selected')
+            if candidate:
+                status='PASS' if shift.get('passed') else 'FAIL'
+                embed.add_field(name=f"Recent personal gameplay shift — {status}",inline=False,
+                    value=(f"Latest {candidate['recent_games']} rated {candidate['time_class']} games · "
+                           f"earlier comparable games: {candidate['baseline_games']}\n"
+                           f"Difficult opportunities: {candidate['recent_opportunities']} · "
+                           f"contributor games: {candidate['recent_contributors']}\n"
+                           f"Median quality / rating-adjusted excess rise: {number(candidate['quality_shift'])} / "
+                           f"{number(candidate['quality_excess_shift'])}\n"
+                           + 'Missing checks: ' + ('; '.join(candidate['blockers']+candidate['absolute_blockers']) or 'None')
+                           + '\nAlternative tail lengths are not independent replications. This route caps at HIGH.')[:1024])
             for kind,row in tier.get('classes',{}).items():
                 embed.add_field(name=f"{kind.title()} priority gates",inline=False,
                     value=(f"Rated games: {row['games']} · fixed block size: {row['block_size']}\n"
