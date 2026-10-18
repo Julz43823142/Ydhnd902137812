@@ -711,9 +711,9 @@
         ],
         "puzzle": {
           "day": "2026-10-18",
-          "fen": "r1r3k1/5pp1/7p/B2RPP2/1P6/2q4P/3Q2PK/8 w - - 2 37",
+          "fen": "r2r2k1/5pp1/7p/B3PP2/1P6/2q4P/3Q2PK/8 w - - 0 38",
           "id": "nsmp2",
-          "index": 0,
+          "index": 2,
           "moves": [
             "d5d8",
             "c8d8",
