@@ -7,7 +7,7 @@ from types import SimpleNamespace
 
 import discord
 
-from fairplay_ui import result_embed, progress_embed, SHORT_SCREENING_NOTICE
+from fairplay_ui import result_embed, detail_embed, progress_embed, SHORT_SCREENING_NOTICE
 from fairplay_progress import ReliableTiming
 from fairplay_config import VERSION
 
@@ -84,7 +84,8 @@ class CompactResultCard(unittest.TestCase):
                          'recent_opponent_median':229,
                          'earlier_opponent_median':836}])
         card=result_embed(case)
-        field=next(f for f in card.fields if f.name=='Latest 20 Accuracy')
+        self.assertFalse(any(f.name=='Latest 20 Accuracy' for f in card.fields))
+        field=next(f for f in detail_embed(case,'Report Details').fields if f.name=='Latest 20 Accuracy')
         self.assertIn('not directly comparable',field.value)
         self.assertIn('Rapid published-score median',field.value)
         self.assertEqual(case.priority,'LOW')

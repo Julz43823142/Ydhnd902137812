@@ -184,7 +184,8 @@ class UnratedTenGameWindows(unittest.TestCase):
             'window_details':[{'mean_accuracy':None}]}
         card=result_embed(case)
         self.assertLess(len(card),6000)
-        rendered=str(card.to_dict())
+        from fairplay_ui import detail_embed
+        rendered=str(detail_embed(case,'Report Details').to_dict())
         self.assertIn('unrated',rendered.lower())
         self.assertIn('95%',rendered)
         self.assertIn('missing Accuracy',rendered)

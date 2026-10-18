@@ -242,17 +242,20 @@ def _asks_public_version(prompt: str) -> bool:
 
 async def handle_mention(message, client):
     """Return True only if a message was handled as a chat mention."""
-    if not message.guild or not client.user:
+    if not getattr(message, "guild", None) or not client.user:
         return False
-    from shark_commands import consume_confirmation
-    from shark_dispatch import dispatch_existing_command
-    confirmed = consume_confirmation(message, client.user.id)
-    if confirmed is True:
-        await _counted_reply(message,"Cancelled.", mention_author=False, allowed_mentions=discord.AllowedMentions.none())
-        return True
-    if isinstance(confirmed, str):
-        await dispatch_existing_command(message, client, confirmed)
-        return True
+    from fairplay_config import CHANNEL_ID as FAIRPLAY_CHANNEL_ID
+    chat_only = message.channel.id == FAIRPLAY_CHANNEL_ID
+    if not chat_only:
+        from shark_commands import consume_confirmation
+        from shark_dispatch import dispatch_existing_command
+        confirmed = consume_confirmation(message, client.user.id)
+        if confirmed is True:
+            await _counted_reply(message,"Cancelled.", mention_author=False, allowed_mentions=discord.AllowedMentions.none())
+            return True
+        if isinstance(confirmed, str):
+            await dispatch_existing_command(message, client, confirmed)
+            return True
     if client.user not in message.mentions:
         return False
     _start_periodic_cleanup()
@@ -413,101 +416,102 @@ async def handle_mention(message, client):
         await _counted_reply(message, factual, mention_author=False,
                              allowed_mentions=discord.AllowedMentions.none())
         return True
-    # An explicit accept/decline targets only the requester's pending trade.
-    # The existing Discord command handler enforces trade ownership and validity.
-    if re.fullmatch(r"(?:please\s+)?(?:accept|decline|reject)\s+(?:(?:my|the)\s+)?(?:dog\s+|pet\s+)?trade[.!]?", prompt, re.I):
-        command = "!declinetrade" if re.match(r"(?:please\s+)?(?:decline|reject)\b", prompt, re.I) else "!accepttrade"
-        if not await dispatch_existing_command(message, client, command):
-            await _counted_reply(message, "I couldn't process your pending trade here.",
-                                 mention_author=False, allowed_mentions=discord.AllowedMentions.none())
-        return True
-    # Explain genuine public free features without inventing today's eligibility.
-    if re.fullmatch(r"(?:what can i|wat kan ik|welke beloningen kan ik)\s+(?:claim|claimen|gratis claimen|free claim)\s+(?:today|vandaag)\??", prompt, re.I):
-        await _counted_reply(message,
-            "You can claim one free daily Mystery Box per Amsterdam day. "
-            "Say `open box` here to claim it; I'll verify whether you already claimed it. "
-            "Other rewards depend on your current quests and events.",
-            mention_author=False, allowed_mentions=discord.AllowedMentions.none())
-        return True
-    # Real, deterministic menu routing works even when Groq is unavailable.
-    # A free box is never claimed automatically: the original owner-bound
-    # shop button performs all eligibility and daily-limit checks.
-    from shark_commands import free_access_command, free_box_claim_request, _is_chat_channel, PRIMARY_CHESS_CHANNEL_ID, SECONDARY_CHESS_CHANNEL_ID
-    if free_access_command(prompt) or free_box_claim_request(prompt):
-        if not _is_chat_channel(message.channel.id):
-            await _counted_reply(message,
-                "The free daily Mystery Box is in the Shark Shop. Ask me in "
-                f"<#{PRIMARY_CHESS_CHANNEL_ID}> or <#{SECONDARY_CHESS_CHANNEL_ID}> "
-                "to open that menu.",
-                mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
-            )
+    if not chat_only:
+        # An explicit accept/decline targets only the requester's pending trade.
+        # The existing Discord command handler enforces trade ownership and validity.
+        if re.fullmatch(r"(?:please\s+)?(?:accept|decline|reject)\s+(?:(?:my|the)\s+)?(?:dog\s+|pet\s+)?trade[.!]?", prompt, re.I):
+            command = "!declinetrade" if re.match(r"(?:please\s+)?(?:decline|reject)\b", prompt, re.I) else "!accepttrade"
+            if not await dispatch_existing_command(message, client, command):
+                await _counted_reply(message, "I couldn't process your pending trade here.",
+                                     mention_author=False, allowed_mentions=discord.AllowedMentions.none())
             return True
-        if free_box_claim_request(prompt):
-            now = time.monotonic()
-            _cleanup_caches(now)
-            claim_key = (message.guild.id, message.author.id)
-            if now - _last_claim.get(claim_key, -1e9) < CLAIM_COOLDOWN_SECONDS:
+        # Explain genuine public free features without inventing today's eligibility.
+        if re.fullmatch(r"(?:what can i|wat kan ik|welke beloningen kan ik)\s+(?:claim|claimen|gratis claimen|free claim)\s+(?:today|vandaag)\??", prompt, re.I):
+            await _counted_reply(message,
+                "You can claim one free daily Mystery Box per Amsterdam day. "
+                "Say `open box` here to claim it; I'll verify whether you already claimed it. "
+                "Other rewards depend on your current quests and events.",
+                mention_author=False, allowed_mentions=discord.AllowedMentions.none())
+            return True
+        # Real, deterministic menu routing works even when Groq is unavailable.
+        # A free box is never claimed automatically: the original owner-bound
+        # shop button performs all eligibility and daily-limit checks.
+        from shark_commands import free_access_command, free_box_claim_request, _is_chat_channel, PRIMARY_CHESS_CHANNEL_ID, SECONDARY_CHESS_CHANNEL_ID
+        if free_access_command(prompt) or free_box_claim_request(prompt):
+            if not _is_chat_channel(message.channel.id):
                 await _counted_reply(message,
-                    "Please wait before retrying your free box claim.",
+                    "The free daily Mystery Box is in the Shark Shop. Ask me in "
+                    f"<#{PRIMARY_CHESS_CHANNEL_ID}> or <#{SECONDARY_CHESS_CHANNEL_ID}> "
+                    "to open that menu.",
                     mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
                 )
                 return True
-            _last_claim[claim_key] = now
-            # Use exactly the same atomic once-per-user/day ledger transaction
-            # as the authenticated Shop button. Never accept a model-supplied
-            # user ID, badge or price, and never claim paid boxes.
-            from shared_leaderboard import claim_daily_mystery_box
-            try:
-                receipt = await asyncio.to_thread(
-                    claim_daily_mystery_box, message.author.id, message.author.display_name
-                )
-            except Exception:
+            if free_box_claim_request(prompt):
+                now = time.monotonic()
+                _cleanup_caches(now)
+                claim_key = (message.guild.id, message.author.id)
+                if now - _last_claim.get(claim_key, -1e9) < CLAIM_COOLDOWN_SECONDS:
+                    await _counted_reply(message,
+                        "Please wait before retrying your free box claim.",
+                        mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
+                    )
+                    return True
+                _last_claim[claim_key] = now
+                # Use exactly the same atomic once-per-user/day ledger transaction
+                # as the authenticated Shop button. Never accept a model-supplied
+                # user ID, badge or price, and never claim paid boxes.
+                from shared_leaderboard import claim_daily_mystery_box
+                try:
+                    receipt = await asyncio.to_thread(
+                        claim_daily_mystery_box, message.author.id, message.author.display_name
+                    )
+                except Exception:
+                    await _counted_reply(message,
+                        "I couldn't confirm your free Mystery Box claim. "
+                        "Please retry or use the Free Daily Mystery Box button in !shop. "
+                        "No paid box was purchased.",
+                        mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
+                    )
+                    return True
+                if receipt.get("already_claimed"):
+                    answer = (
+                        "You already claimed today's free Mystery Box. "
+                        "Your recorded reward was: "
+                        f"{discord.utils.escape_markdown(str(receipt.get('badge', '?')))}. "
+                        "Your next free claim resets at midnight Amsterdam."
+                    )
+                else:
+                    answer = (
+                        "Your free daily Mystery Box was claimed! Reward: "
+                        f"{discord.utils.escape_markdown(str(receipt.get('badge', '?')))} "
+                        f"({discord.utils.escape_markdown(str(receipt.get('rarity_label', '?')))}). "
+                        "No coins spent."
+                    )
                 await _counted_reply(message,
-                    "I couldn't confirm your free Mystery Box claim. "
-                    "Please retry or use the Free Daily Mystery Box button in !shop. "
-                    "No paid box was purchased.",
-                    mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
+                    answer, mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
                 )
                 return True
-            if receipt.get("already_claimed"):
-                answer = (
-                    "You already claimed today's free Mystery Box. "
-                    "Your recorded reward was: "
-                    f"{discord.utils.escape_markdown(str(receipt.get('badge', '?')))}. "
-                    "Your next free claim resets at midnight Amsterdam."
-                )
-            else:
-                answer = (
-                    "Your free daily Mystery Box was claimed! Reward: "
-                    f"{discord.utils.escape_markdown(str(receipt.get('badge', '?')))} "
-                    f"({discord.utils.escape_markdown(str(receipt.get('rarity_label', '?')))}). "
-                    "No coins spent."
-                )
-            await _counted_reply(message,
-                answer, mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
-            )
-            return True
-        opened = await dispatch_existing_command(message, client, "!shop")
-        if not opened:
-            await _counted_reply(message,
-                "I couldn't open the Shark Shop here. Please try `!shop` in a chess channel.",
-                mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
-            )
-        return True
-    # Explicit donation commands are deterministic and do not need Groq.
-    # Use the same channel, approval and ownership checks as any AI plan.
-    if re.fullmatch(r"\s*(?:please\s+)?(?:type|run|execute|use)\s+!donate(?:\s+[^\r\n]*)?\s*", prompt, re.I):
-        from shark_commands import plan_mention
-        async def no_model(*args, **kwargs):
-            return None, "unconfigured"
-        donation = await plan_mention(message, prompt, no_model)
-        if isinstance(donation, str):
-            if not await dispatch_existing_command(message, client, donation):
+            opened = await dispatch_existing_command(message, client, "!shop")
+            if not opened:
                 await _counted_reply(message,
-                    "That donation command could not be started here.",
+                    "I couldn't open the Shark Shop here. Please try `!shop` in a chess channel.",
                     mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
                 )
-        return True
+            return True
+        # Explicit donation commands are deterministic and do not need Groq.
+        # Use the same channel, approval and ownership checks as any AI plan.
+        if re.fullmatch(r"\s*(?:please\s+)?(?:type|run|execute|use)\s+!donate(?:\s+[^\r\n]*)?\s*", prompt, re.I):
+            from shark_commands import plan_mention
+            async def no_model(*args, **kwargs):
+                return None, "unconfigured"
+            donation = await plan_mention(message, prompt, no_model)
+            if isinstance(donation, str):
+                if not await dispatch_existing_command(message, client, donation):
+                    await _counted_reply(message,
+                        "That donation command could not be started here.",
+                        mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
+                    )
+            return True
     if not os.getenv("GROQ_API_KEY", "").strip():
         return False
     # Do not forward potentially sensitive Discord attachments or embeds.
@@ -540,6 +544,8 @@ async def handle_mention(message, client):
                         ". Speak AS that pet, with this consistent character: " + repr(profile) +
                         ". This is roleplay only: do not assert pet ownership, inventory, rewards or game actions.")
         messages = [{"role": "system", "content": SYSTEM_RULES + "\\n" + persona}]
+        if chat_only:
+            messages.append({"role": "system", "content": "In this channel you are text-only. You cannot perform actions, claim rewards or change subscriptions. Never claim to have reviewed games or verified misconduct. Explain screening limits; direct subscription requests to /alert."})
         for _, role, text in _history[scope]:
             messages.append({"role": role, "content": text})
         speaker_prompt = f"Player {discord.utils.escape_markdown(message.author.display_name[:64])}: {prompt}"
@@ -573,7 +579,7 @@ async def handle_mention(message, client):
             async with message.channel.typing():
                 # Classification can only suggest a validated public command.
                 from shark_commands import plan_mention
-                routed = await plan_mention(message, prompt, _complete)
+                routed = None if chat_only else await plan_mention(message, prompt, _complete)
                 if routed is None:
                     answer, failure = await _complete(messages)
         finally:

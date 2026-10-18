@@ -742,6 +742,12 @@ async def fairplay_auto_stop(interaction: discord.Interaction):
     await control(interaction, False)
 
 
+@command_tree.command(name='alert',description='Manage Chess.com Fair Play ban alert subscriptions.')
+async def alert_command(interaction: discord.Interaction):
+    from fairplay_ban_alerts_ui import open_menu
+    await open_menu(interaction)
+
+
 @command_tree.command(name='stopfairplay',description='Stop the currently running Fair Play review (server moderators only).')
 async def stopfairplay_command(interaction: discord.Interaction):
     from fairplay_ui import stop_current_review
@@ -18673,11 +18679,13 @@ async def on_message(
         if message.author.bot:
             return
 
-        # Fairplay is isolated from AI, confirmations, chess and economy routing.
+        # Fair Play allows mention-only chat, never game/economy actions.
         # Dispatch it first, including for guild-less test messages.
         if message.channel.id == FAIRPLAY_CHANNEL_ID:
             from fairplay_ui import handle_message
             await handle_message(message)
+            from shark_ai import handle_mention
+            await handle_mention(message, client)
             return
 
         # Natural-language commands always run as the original author through

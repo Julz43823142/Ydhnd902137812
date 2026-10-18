@@ -131,6 +131,22 @@ SHORT_SCREENING_NOTICE = (
 
 
 def result_embed(result: ReviewResult):
+    """Keep the public card readable; preserve detailed measurements below."""
+    card = _full_result_embed(result)
+    if result.diagnostics.get('method3'):
+        return card
+    keep = {'Data coverage confidence', 'Priority basis', 'Stockfish / gameplay assessment',
+            'Engine coverage', 'Priority sample', 'Games analyzed', 'Daily / correspondence',
+            'Limits', 'Last 10 games', 'Why this result?', 'Important'}
+    for index in range(len(card.fields)-1, -1, -1):
+        if card.fields[index].name not in keep:
+            card.remove_field(index)
+    if not any(f.name == 'Data coverage confidence' for f in card.fields):
+        card.add_field(name='Data coverage confidence', value=getattr(result,'confidence','Unknown'))
+    return card
+
+
+def _full_result_embed(result: ReviewResult):
     if result.diagnostics.get('method3'):
         from fairplay_method3_ui import result_embed as render
         return render(result)
@@ -455,6 +471,8 @@ def detail_embed(result, mode):
     if result.diagnostics.get('method3'):
         from fairplay_method3_ui import detail_embed as render
         return render(result,mode)
+    if mode == 'Report Details':
+        return _full_result_embed(result)
     if result.diagnostics.get("v51_shadow"):
         record=result.diagnostics["v51_shadow"]
         tier=record.get('review_priority',{})
@@ -1212,7 +1230,7 @@ class ReportView(SubmitView):
     def __init__(self,target=None):
         super().__init__()
         self.clear_items()
-        for label,emoji,action in [('Highest-Signal Games','🎯','games'),('Timing','⏱️','timing'),
+        for label,emoji,action in [('Report Details','📄','summary'),('Highest-Signal Games','🎯','games'),('Timing','⏱️','timing'),
                                    ('Performance','📈','performance'),('Clusters & History','🔬','clusters'),('Engine Analysis','♟️','engine'),('Human Moves','🧠','human'),('Review Gates','🛡️','gates'),('Scan Timing','⏱️','runtime'),('Re-scan','🔄','rescan'),('Copy Report','📋','copy')]:
             button = discord.ui.Button(label=label,emoji=emoji,custom_id=NAMESPACE+action)
             async def show(ctx,action=action,label=label):
