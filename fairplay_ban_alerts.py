@@ -150,6 +150,7 @@ def poll(store,settings=Settings(),api_factory=PubAPI,now=None,cancel=None):
                 for other,game in opponents.items():
                     profile=profiles.get(other)
                     if profile is None or not isinstance(profile.get('status'),str):continue
+                    if other not in sub['seen'] and profile['checked']<sub['created']:continue
                     closed=profile['status']==FAIRPLAY_CLOSED
                     previous=sub['seen'].get(other)
                     sub['seen'][other]=closed

@@ -32,7 +32,8 @@ class Alerts(unittest.IsolatedAsyncioTestCase):
         self.store=AlertStore(self.path,remote='',secret='synthetic-test-key')
         API.status='basic';API.failed=False;API.calls=[]
     def tick(self,now=NOW):return poll(self.store,api_factory=API,now=now)
-    def subscribe(self,user=1,target='synthetic-player'):subscribe(self.store,user,target)
+    def subscribe(self,user=1,target='synthetic-player'):
+        with patch('fairplay_ban_alerts.time.time',return_value=NOW-1):subscribe(self.store,user,target)
     def event(self):
         self.subscribe();self.tick();API.status=FAIRPLAY_CLOSED;self.tick(NOW+3601)
         return next(iter(self.store.snapshot()['outbox']))
