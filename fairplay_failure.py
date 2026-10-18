@@ -76,6 +76,12 @@ def classify(error):
             return "maia_reference_incomplete"
         if "runtime limit" in message:
             return "scan_deadline"
+        if "exact Stockfish depth coverage" in message:
+            return "incomplete_exact_stockfish_depth"
+        if "primary games must complete" in message:
+            return "incomplete_primary_engine_coverage"
+        if "latest fifty rated games" in message:
+            return "incomplete_latest_fifty_depth"
         return "review_coverage_or_data_gate"
     return "unexpected_internal_error"
 
