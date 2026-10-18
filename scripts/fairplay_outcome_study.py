@@ -40,6 +40,7 @@ def main(argv=None):
     parser.add_argument('--input',required=True,type=Path)
     parser.add_argument('--output',required=True,type=Path)
     parser.add_argument('--csv',required=True,type=Path)
+    parser.add_argument('--groups-csv', type=Path, help='Optional private opponent-group overview')
     parser.add_argument('--source',choices=('official_accuracy','estimated_accuracy'),default='official_accuracy')
     parser.add_argument('--development-sensitivity', action='store_true',
                         help='Include post-hoc development thresholds; not validated for deployment')
@@ -68,15 +69,36 @@ def main(argv=None):
                     score.get('expected_score_fraction'),score.get('actual_points'),score.get('expected_points'),
                     score.get('standardized_residual'),player['overall_results']['win_fraction'],
                     player['overall_results']['expected_score_fraction'],result['disclaimer']))
-    # Validate BOTH output destinations before writing either report.
+    group_text = io.StringIO()
+    group_writer = csv.writer(group_text)
+    group_writer.writerow(('player_key','time_class','time_control','opponent_elo_min','opponent_elo_max',
+        'games','result_games','wins','draws','actual_win_fraction','expected_score_fraction',
+        'actual_points','expected_points','accuracy_source','accuracy_scores_available','observed_accuracy','accuracy_matched_games',
+        'matched_observed_accuracy','matched_reference_accuracy','median_accuracy_excess',
+        'limited_sample','accuracy_reference_sufficient','disclaimer'))
+    for player in result['players']:
+        for group in player['opponent_groups']:
+            score, accuracy = group['results'], group['accuracy']
+            group_writer.writerow((player['player_key'],group['time_class'],group['time_control'],
+                group['opponent_elo_min'],group['opponent_elo_max'],group['games'],score['games'],
+                score['wins'],score['draws'],score['win_fraction'],score['expected_score_fraction'],
+                score['actual_points'],score['expected_points'],result['source'],accuracy['scores_available'],
+                accuracy['observed_median'],accuracy['matched_games'],
+                accuracy['matched_observed_median'],accuracy['matched_reference_median'],accuracy['median_excess'],
+                group['limited_sample'],group['accuracy_reference_sufficient'],result['disclaimer']))
+    # Validate every output destination before writing any report.
     paths=[args.output.resolve(),args.csv.resolve()]
-    if paths[0]==paths[1] or args.input.resolve() in paths:
+    if args.groups_csv:
+        paths.append(args.groups_csv.resolve())
+    if len(set(paths)) != len(paths) or args.input.resolve() in paths:
         raise ValueError('Input and output paths must be distinct')
     for path in paths:
         if inside_checkout(path):
             raise ValueError('Private research output must be outside a Git checkout')
     private_write(args.output,json.dumps(result,indent=2,allow_nan=False))
     private_write(args.csv,csv_text.getvalue())
+    if args.groups_csv:
+        private_write(args.groups_csv, group_text.getvalue())
     print(f'Completed research comparison for {len(result["players"])} pseudonymous players. Production unchanged.')
 
 

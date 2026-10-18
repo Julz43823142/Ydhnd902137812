@@ -132,7 +132,9 @@ def _reference(game, pool, source, config, minimum_players):
         return None
     # Equal total weight per reference player prevents one prolific account
     # from defining the norm. Quantiles are descriptive, not calibrated CIs.
-    by_player = {key:[_accuracy(g,source) for owner,g in matches if owner==key] for key in sorted(players)}
+    by_player = {}
+    for key, game in matches:
+        by_player.setdefault(key, []).append(_accuracy(game, source))
     centers = [median(values) for values in by_player.values()]
     upper = [_quantile(values,.90) for values in by_player.values()]
     return {'median':median(centers), 'upper':median(upper),
@@ -142,22 +144,63 @@ def _reference(game, pool, source, config, minimum_players):
 def _accuracy_summary(games, pool, source, config, minimum_players, cache, scope):
     rows = []
     published = 0
+    available_scores = []
     for game in games:
         observed = _accuracy(game,source)
         published += observed is not None
+        if observed is None:
+            continue  # Missing Accuracy cannot use a reference; avoid needless matching.
+        available_scores.append(observed)
         cache_key=(scope,game['identity'])
         if cache_key not in cache:
             cache[cache_key]=_reference(game,pool,source,config,minimum_players)
         reference=cache[cache_key] if observed is not None else None
         if reference:
-            rows.append({'excess':observed-reference['median'],
+            rows.append({'observed':observed, 'expected':reference['median'],
+                         'excess':observed-reference['median'],
                          'above_upper':observed>reference['upper'],
                          'reference_games':reference['games'], 'reference_players':reference['players']})
-    return {'scores_available':published, 'matched_games':len(rows),
+    return {'scores_available':published,
+            'observed_median':median(available_scores) if available_scores else None, 'matched_games':len(rows),
+            'matched_observed_median':median(row['observed'] for row in rows) if rows else None,
+            'matched_reference_median':median(row['expected'] for row in rows) if rows else None,
             'median_excess':median(row['excess'] for row in rows) if rows else None,
             'above_reference_fraction':sum(row['above_upper'] for row in rows)/len(rows) if rows else None,
             'minimum_reference_games':min((row['reference_games'] for row in rows),default=0),
             'minimum_reference_players':min((row['reference_players'] for row in rows),default=0)}
+
+
+
+def _opponent_groups(games, others, source, config, cache):
+    """Descriptive 100-Elo opponent bands, exact control; never new HIGH votes.
+
+    Expected points are computed per game (not at the band midpoint). Accuracy
+    compares the same matched subset, with missing coverage explicitly shown.
+    """
+    buckets = {}
+    for game in games:
+        rating = number(game.get('opponent_elo'))
+        if rating is None or rating < 0:
+            continue
+        band = int(rating // 100) * 100
+        key = (game['time_class'], str(game.get('time_control', '')), band)
+        buckets.setdefault(key, []).append(game)
+    rows = []
+    for (kind, control, band), members in sorted(buckets.items()):
+        accuracy = _accuracy_summary(members, others, source, config,
+                                     config.minimum_reference_players, cache,
+                                     ('other_players', None))
+        results = _result(members)
+        rows.append({'time_class':kind, 'time_control':control,
+                     'opponent_elo_min':band, 'opponent_elo_max':band+99,
+                     'games':len(members), 'results':results, 'accuracy':accuracy,
+                     'limited_sample':results['games'] < config.minimum_games,
+                     'accuracy_reference_sufficient':accuracy['matched_games'] >=
+                         max(config.minimum_games, config.coverage * len(members)),
+                     'expected_win_fraction':None,
+                     'note':'Elo predicts points including draws, not win probability. '
+                            'Small groups are descriptive; no independent HIGH vote.'})
+    return rows
 
 
 def _classify(games, accuracy, result, scenario, config):
@@ -241,6 +284,9 @@ def evaluate(players, *, source='official_accuracy', config=CONFIG, scenarios=SC
                                                'selected':chosen}
         output['players'].append({'player_key':key,'rated_games':len(games),
                                   'overall_results':_result(games),
+                                  'opponent_groups':_opponent_groups(games, others, source, config, reference_cache),
+                                  'opponent_group_excluded_games':sum(number(g.get('opponent_elo')) is None or
+                                      number(g.get('opponent_elo')) < 0 for g in games),
                                   'class_results':{kind:_result([g for g in games if g['time_class']==kind]) for kind in CLASSES},
                                   'outcomes':outcomes,
                                   'ablations':ablations,'periods':periods})

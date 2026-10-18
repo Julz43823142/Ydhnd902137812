@@ -111,3 +111,26 @@ explicitly records this provenance. Adjacent settings measure sensitivity,
 not generalization. Results-only HIGH does not establish abnormal gameplay;
 underrating, real improvement and multiple-window selection remain explanations.
 Use a new untouched cohort and frozen thresholds before considering deployment.
+
+## Opponent-group overview
+
+Every player JSON now includes `opponent_groups`, split by exact control,
+time class and 100-point opponent Elo bands (1500–1599, 1600–1699, etc.).
+Expectations are evaluated at each game's actual player and opponent ratings,
+not the midpoint of a band. Actual wins/draws, actual win fraction, expected
+points and actual points are separate. `expected_win_fraction` is deliberately
+null: Elo does not identify win versus draw probabilities. Missing/negative
+opponent Elo rows are counted in `opponent_group_excluded_games`.
+
+Accuracy shows both the observed median of available scores and observed
+versus reference medians on the SAME matched subset. Median paired excess
+need not equal the difference of medians. Missing references remain null.
+Groups below ten valid results are limited; Accuracy reference sufficiency
+requires at least ten matched subject games and 80% group coverage. These
+are descriptive coverage flags, not confidence intervals or new HIGH gates.
+
+Use `--groups-csv /private/opponent-groups.csv` for a separate, private
+spreadsheet. All output paths are checked for collisions and Git checkouts
+before writing. No production pipelines or diagnostics are removed. Missing
+Accuracy skips unnecessary reference lookups and reference-player grouping
+is single-pass; classifications and original scenario defaults are preserved.
