@@ -26,7 +26,7 @@ def result_embed(result):
     if any(row['results_increase'] for row in d.get('history_changes',[])):
         e.add_field(name='History comparison',value='Recent results rose against matched earlier games. This is supporting context, not a separate cheating signal.',inline=False)
     e.add_field(name='Important',value='Not proof of cheating. Human review is required before any action.',inline=False)
-    e.set_footer(text=f'Version: {result.version} · Method 3 · uncalibrated heuristic, not probability')
+    e.set_footer(text=f'Version: {result.version} · uncalibrated heuristic, not probability')
     return e
 
 
@@ -97,7 +97,7 @@ def chart_pngs(result):
         files.append((f'fairplay_{kind}_charts.png',cairosvg.svg2png(bytestring=svg.encode())))
     if live_games:
         files.append(('fairplay_opponent_elo_comparison.png',cairosvg.svg2png(bytestring=comparison_svg(grouped).encode())))
-        parts=['<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1120" viewBox="0 0 1440 1120"><rect width="1440" height="1120" fill="white"/>',text(45,45,'Method 3 — rolling 10-game expected / observed points',26)]
+        parts=['<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1120" viewBox="0 0 1440 1120"><rect width="1440" height="1120" fill="white"/>',text(45,45,'Rolling 10-game expected / observed points',26)]
         for index,kind in enumerate(('rapid','blitz','bullet')):
             games=[g for g in live_games if g.time_class==kind]
             predicted=[];actual=[]
