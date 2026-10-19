@@ -411,6 +411,9 @@ TWITCH_PRIVACY_MIGRATION_KEY = "twitch_privacy_migration_v1"
 TWITCH_LIVE_STATE_KEY = "twitch_live_notifications_v1"
 TWITCH_LIVE_DISCORD_CHANNEL_ID = 1320033128676589669
 TWITCH_CHANNEL_LOGIN = os.getenv("TWITCH_CHANNEL_LOGIN", "sh4rkmate").strip().lstrip("@").casefold()
+TWITCH_CHAT_ENABLED = os.getenv("TWITCH_CHAT_ENABLED", "0").strip() == "1"
+_twitch_ai_last_request = {}
+_twitch_chat_reply_lock = asyncio.Semaphore(2)
 TWITCH_LIVE_TIMEZONE = ZoneInfo("Europe/Amsterdam")
 TWITCH_LIVE_PREVIEW_DELAY_SECONDS = 10
 TWITCH_REWARD_CONFIG = {
@@ -1812,17 +1815,90 @@ async def _twitch_prepare_access_token():
     return await _twitch_refresh_access_token("worker-start")
 
 
+async def _twitch_send_chat(text, reply_to=None):
+    """Send a short reply through Twitch Helix using the existing broadcaster token."""
+    token = _twitch_access_token or await _twitch_prepare_access_token()
+    payload = {
+        "broadcaster_id": TWITCH_BROADCASTER_ID,
+        "sender_id": TWITCH_BROADCASTER_ID,
+        "message": str(text).replace("\\n", " ").strip()[:450],
+    }
+    if reply_to:
+        payload["reply_parent_message_id"] = str(reply_to)
+    async with aiohttp.ClientSession() as session:
+        async with session.post(
+            "https://api.twitch.tv/helix/chat/messages",
+            headers={"Authorization": f"Bearer {token}", "Client-Id": TWITCH_CLIENT_ID},
+            json=payload, timeout=aiohttp.ClientTimeout(total=15),
+        ) as response:
+            if response.status == 401:
+                await _twitch_refresh_access_token("chat-401")
+                return await _twitch_send_chat(text, reply_to)
+            if response.status != 200:
+                raise RuntimeError(f"Twitch chat reply failed (HTTP {response.status})")
+            data = await response.json()
+            if not data.get("data") or not data["data"][0].get("is_sent"):
+                raise RuntimeError("Twitch did not accept the chat message.")
+
+
+async def _twitch_handle_chat_message(event):
+    """Only explicit commands trigger replies; rejected AI requests are silent."""
+    try:
+        user_id = str(event.get("chatter_user_id", "")).strip()
+        login = str(event.get("chatter_user_login", "")).strip()
+        message_id = str(event.get("message_id", "")).strip()
+        message = str((event.get("message") or {}).get("text", "")).strip()
+        if not user_id or user_id == TWITCH_BROADCASTER_ID or not message:
+            return
+        command, _, argument = message.partition(" ")
+        command = command.casefold()
+        if command == "!coins":
+            link = _twitch_discord_user_for_twitch(user_id)
+            if not link:
+                response = f"@{login} Your Twitch account is not linked to Discord yet."
+            else:
+                balance = shared_get_coins(link["user_id"])
+                response = f"@{login} You have {balance} SharkBot coins."
+            await _twitch_send_chat(response, message_id)
+        elif command == "!ai" and argument.strip():
+            now = time.monotonic()
+            last = _twitch_ai_last_request.get(user_id, -float("inf"))
+            if now - last < 5:
+                return
+            _twitch_ai_last_request[user_id] = now
+            # Bound memory even during long-running streams.
+            if len(_twitch_ai_last_request) > 2000:
+                for key, value in list(_twitch_ai_last_request.items()):
+                    if now - value > 60:
+                        _twitch_ai_last_request.pop(key, None)
+            import shark_ai
+            async with _twitch_chat_reply_lock:
+                result, error = await shark_ai._complete([
+                    {"role": "system", "content": "You are SharkBot, a concise Twitch chess chat assistant. Answer in English, in at most 280 characters. Never claim to perform actions."},
+                    {"role": "user", "content": argument.strip()[:450]},
+                ])
+                if error or not result:
+                    return
+                answer = str(result).strip()
+                if answer:
+                    await _twitch_send_chat(f"@{login} {answer[:300]}", message_id)
+    except Exception as error:
+        print(f"Twitch chat command warning: {type(error).__name__}: {error}", flush=True)
+
+
 async def _twitch_create_subscriptions(session_id):
     token = _twitch_access_token or await _twitch_prepare_access_token()
     subscriptions = (
         ("Channel Points", "channel.channel_points_custom_reward_redemption.add"),
         ("stream-online", "stream.online"),
     )
-    for label, subscription_type in subscriptions:
+    for label, subscription_type in (*subscriptions, *((("Chat", "channel.chat.message"),) if TWITCH_CHAT_ENABLED else ())):
         payload = {
             "type": subscription_type,
             "version": "1",
-            "condition": {"broadcaster_user_id": TWITCH_BROADCASTER_ID},
+            "condition": ({"broadcaster_user_id": TWITCH_BROADCASTER_ID, "user_id": TWITCH_BROADCASTER_ID}
+                          if subscription_type == "channel.chat.message" else
+                          {"broadcaster_user_id": TWITCH_BROADCASTER_ID}),
             "transport": {"method": "websocket", "session_id": str(session_id)},
         }
         created = False
@@ -2498,6 +2574,8 @@ async def twitch_eventsub_loop(guild, fallback_channel):
                             await _twitch_handle_redemption(event, guild, fallback_channel)
                         elif subscription_type == "stream.online":
                             await _twitch_handle_stream_online(event)
+                        elif subscription_type == "channel.chat.message" and TWITCH_CHAT_ENABLED:
+                            asyncio.create_task(_twitch_handle_chat_message(event))
 
             if reconnect_url:
                 next_url = reconnect_url
