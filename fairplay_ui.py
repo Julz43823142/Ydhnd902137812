@@ -1230,8 +1230,16 @@ class ReportView(SubmitView):
     def __init__(self,target=None):
         super().__init__()
         self.clear_items()
-        for label,emoji,action in [('Report Details','📄','summary'),('Highest-Signal Games','🎯','games'),('Timing','⏱️','timing'),
-                                   ('Performance','📈','performance'),('Clusters & History','🔬','clusters'),('Engine Analysis','♟️','engine'),('Human Moves','🧠','human'),('Review Gates','🛡️','gates'),('Scan Timing','⏱️','runtime'),('Re-scan','🔄','rescan'),('Copy Report','📋','copy')]:
+        method3 = os.getenv('FAIRPLAY_METHOD3') == '1'
+        options = ([('Overview','📄','summary'),('Performance','📈','performance'),
+                    ('History','🔬','clusters'),('Review Rules','🛡️','gates'),
+                    ('Re-scan','🔄','rescan'),('Copy Report','📋','copy')]
+                   if method3 else
+                   [('Report Details','📄','summary'),('Highest-Signal Games','🎯','games'),('Timing','⏱️','timing'),
+                    ('Performance','📈','performance'),('Clusters & History','🔬','clusters'),('Engine Analysis','♟️','engine'),
+                    ('Human Moves','🧠','human'),('Review Gates','🛡️','gates'),('Scan Timing','⏱️','runtime'),
+                    ('Re-scan','🔄','rescan'),('Copy Report','📋','copy')])
+        for label,emoji,action in options:
             button = discord.ui.Button(label=label,emoji=emoji,custom_id=NAMESPACE+action)
             async def show(ctx,action=action,label=label):
                 if action=='copy':
@@ -1246,7 +1254,7 @@ class ReportView(SubmitView):
                 result = _service.result_for(ctx.message.id)
                 if result is None:
                     await ctx.response.send_message('Detailed data expired or was cleared after a restart. Re-scan to rebuild it. The public review remains in Discord.',ephemeral=True);return
-                await ctx.response.send_message(embed=detail_embed(result,label),ephemeral=True,view=CopyTextView(),allowed_mentions=discord.AllowedMentions.none())
+                await ctx.response.send_message(embed=detail_embed(result,{'Overview':'Report Details','History':'Clusters & History','Review Rules':'Review Gates'}.get(label,label)),ephemeral=True,view=CopyTextView(),allowed_mentions=discord.AllowedMentions.none())
             button.callback = show;self.add_item(button)
         if target:self.add_item(discord.ui.Button(label='Chess.com Profile',emoji='🔗',url=f'https://www.chess.com/member/{username(target)}'))
 
@@ -1259,6 +1267,7 @@ class Job:
     progress_percent: int = 0
     timing: LiveTiming = field(default_factory=LiveTiming)
     last_progress_edit: float = 0.0
+    progress_display_at: float = 0.0
 
     def timing_elapsed(self):
         return max(0,time.monotonic()-self.timing.started)
@@ -1369,7 +1378,20 @@ class FairPlayService:
                         job.message = candidate;job.delivery_unknown = False;break
                 if job.message is None:return False  # an uncertain ACK is not permission to repost
             job.timing.observe(stage)
-            job.progress_percent=max(job.progress_percent,job.timing.percent(stage) if hasattr(job.timing,'percent') else estimate(stage))
+            target=max(job.progress_percent,job.timing.percent(stage) if hasattr(job.timing,'percent') else estimate(stage))
+            if stage=='Complete':
+                job.progress_percent=100
+            elif os.getenv('FAIRPLAY_METHOD3')=='1':
+                now=time.monotonic()
+                if job.progress_display_at == 0:
+                    job.progress_display_at=now
+                # At least five percentage points per second: any jump catches
+                # up within twenty seconds, without holding back analysis.
+                allowance=max(1,int((now-job.progress_display_at)*5))
+                job.progress_percent=min(target,job.progress_percent+allowance,99)
+                job.progress_display_at=now
+            else:
+                job.progress_percent=target
             card = (embed.copy() if embed is not None else progress_embed(job.target,stage,job.progress_percent,job.timing))
             if embed is not None and stage=='Complete':
                 card.add_field(name='Total scan time',value=duration(job.timing_elapsed()),inline=False)
@@ -1481,27 +1503,27 @@ class FairPlayService:
             future = loop.run_in_executor(self.executor,run_review)
             while not future.done():
                 if (not job.cancel_requested and job.stage!='Fetching profile…' and
-                        (job.stage!=last or (job.message is not None and time.monotonic()-job.last_progress_edit>=15))):
+                        (job.stage!=last or (job.message is not None and time.monotonic()-job.last_progress_edit>=(1.5 if os.getenv('FAIRPLAY_METHOD3')=='1' else 15)))):
                     if await self.safe_progress(job,job.stage):last = job.stage
-                await asyncio.wait({future},timeout=3)
+                await asyncio.wait({future},timeout=1.5 if os.getenv('FAIRPLAY_METHOD3')=='1' else 3)
             result = await future
             if job.cancel_requested:return
             chart_files=[]
             if result.diagnostics.get('method3'):
                 try:
                     from fairplay_method3_ui import chart_pngs
-                    job.stage='Method 3: rendering charts…'
+                    job.stage='Rendering charts…'
                     await self.safe_progress(job,job.stage)
                     def chart_progress(done,total):
-                        progress(f'Method 3: rendering chart {done}/{total}…')
+                        progress(f'Rendering chart {done}/{total}…')
                     chart_task=asyncio.create_task(asyncio.to_thread(chart_pngs,result,chart_progress))
                     last_chart_stage=None
                     while not chart_task.done():
                         if (job.stage!=last_chart_stage or
-                                time.monotonic()-job.last_progress_edit>=15):
+                                time.monotonic()-job.last_progress_edit>=1.5):
                             if await self.safe_progress(job,job.stage):
                                 last_chart_stage=job.stage
-                        await asyncio.wait({chart_task},timeout=3)
+                        await asyncio.wait({chart_task},timeout=1.5)
                     chart_files=await chart_task
                 except Exception:chart_files=[]
             elif result.diagnostics.get("v51_shadow"):
