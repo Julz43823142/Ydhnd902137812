@@ -357,7 +357,7 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG,
                   *, include_latest_fifty_short=False,
                   include_recent_nonbullet_short_count=0,
                   include_recent_all_short_count=0,
-                  include_unrated=False, time_classes=None):
+                  include_unrated=False, time_classes=None, progress_detail=False):
     # An excluded class must not consume the requested sample quota. Older
     # callers retain their mixed live/correspondence collection contract.
     if time_classes is not None:
@@ -382,8 +382,8 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG,
         for year, month in ordered[:config.max_archives]:
             check_deadline(api.deadline)
             visited_months += 1
-            progress('Collecting rated and unrated games…' if include_unrated
-                     else 'Collecting rated games…')
+            stage='Collecting rated and unrated games…' if include_unrated else 'Collecting rated games…'
+            progress(stage + (f' {len(samples)}/{limit} games · {visited_months}/{min(len(ordered),config.max_archives)} archives' if progress_detail else ''))
             try:data = api.get(target, f'/games/{year:04d}/{month:02d}')
             except DeadlineReached:raise
             except ReviewError:data = None  # archive failure is explicit missing coverage, never suspicion
@@ -430,6 +430,8 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG,
                     recent_standard+=sample.time_class in ('blitz','rapid')
                 else:skipped['duplicate'] += 1
                 if len(samples) >= limit:break
+            if progress_detail:
+                progress(stage + f' {len(samples)}/{limit} games · {visited_months}/{min(len(ordered),config.max_archives)} archives')
             if len(samples) >= limit:
                 partial = bool(skipped.get('unavailable_archive'))
                 break
@@ -459,8 +461,9 @@ def collection_limit(config=CONFIG):
     import os
     if config == CONFIG and os.getenv("FAIRPLAY_V21") == "1" and os.getenv("FAIRPLAY_FULL_DEPTH18") == "1":
         return 1000  # v21-only cap; 500 fast-screened, older archives for peer backfill
-    # Method 3 explicitly opts into metadata-only 1,000-game collection.
-    if config.max_games == 1000 and config.history_games == 1000:return 1000
+    # Method 3 explicitly opts into larger metadata-only collections.
+    if config.max_games in (1000, 5000) and config.history_games == config.max_games:
+        return config.max_games
     # Older modes and synthetic override fixtures preserve their contracts.
     return max(1, min(500, config.history_games if config.max_games in (100, 200, 500) else config.max_games))
 

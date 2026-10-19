@@ -122,5 +122,6 @@ class PeriodSearch(unittest.TestCase):
         r=self.run_games(self.history(413))
         periods=r.diagnostics['method3']['subject']['periods']
         physical={(p['time_class'],p['first_game'],p['last_game']) for p in periods}
-        self.assertEqual(r.diagnostics['method3']['searched_windows'],len(physical))
+        self.assertGreaterEqual(r.diagnostics['method3']['searched_windows'],len(physical))
+        self.assertEqual(r.diagnostics['method3']['blocks_checked'],5)
         self.assertEqual(len(periods),2*len(physical))

@@ -20,7 +20,7 @@ def result_embed(result):
         'INSUFFICIENT DATA':'There are not enough usable games for a reliable comparison.'}
     e.add_field(name='Why this result?',value=explanations.get(result.priority,'See the detail buttons.'),inline=False)
     accuracy_games=sum(g.accuracy is not None for g in result.games)
-    e.add_field(name='Sample / coverage',value=f'{len(result.games)} live history games: {d.get("rated_games",len(result.games))} rated · {d.get("unrated_games",0)} unrated\nEqual priority rules · whole collected history searched · results confidence: {result.confidence}'+(' · incomplete collection' if result.partial else '')+f'\nPublished Accuracy: {accuracy_games}/{len(result.games)} games. Missing scores were not engine-reviewed.',inline=False)
+    e.add_field(name='Sample / coverage',value=f'{len(result.games)} live history games: {d.get("rated_games",len(result.games))} rated · {d.get("unrated_games",0)} unrated\nEqual priority rules · 200-game chronological blocks · across-block search correction · results confidence: {result.confidence}'+(' · incomplete collection' if result.partial else '')+f'\nPublished Accuracy: {accuracy_games}/{len(result.games)} games. Missing scores were not engine-reviewed.',inline=False)
     selected=d.get('selected')
     if selected:
         e.add_field(name='Selected chronological period',value=f"{selected['time_class'].title()} · {selected['games']} games · {period_dates(selected)}\nExpected points: **{fmt(r['expected_points'])}** · scored: **{fmt(r['actual_points'])}**\nWinrate: **{fmt(r['win_fraction'],True)}** · a draw counts as half a point.",inline=False)
@@ -57,7 +57,7 @@ def detail_embed(result,mode):
                 f"Median game think time: {fmt(a['think_median'])} → {fmt(b['think_median'])} sec\n"
                 + ('Comparable reference' if change['results_comparable'] else 'Limited reference'))
         e.add_field(name='Earlier → recent · same control',value=('\n\n'.join(rows) or 'Not enough comparable earlier/recent games.')[:1024],inline=False)
-        e.add_field(name='History scope',value=f"All {len(result.games)} collected live games are eligible, rated and unrated equally. {d.get('searched_windows',0)} distinct chronological windows were checked, including 5/10/20/50/100/200-game widths and available whole-class periods. Earlier references stay strictly earlier. History-change charts are descriptive context, not separate HIGH votes.",inline=False)
+        e.add_field(name='History scope',value=f"All {len(result.games)} collected live games are eligible, rated and unrated equally, divided into {d.get('blocks_checked',0)} blocks of at most 200 games. {d.get('searched_windows',0)} distinct chronological windows were checked, including 5/10/20/50/100/200-game widths within each block. Earlier references stay strictly earlier. History-change charts are descriptive context, not separate HIGH votes.",inline=False)
     if mode in ('Engine Analysis','Human Moves'):
         e.add_field(name='Not performed',value='This method does not run Stockfish or Maia. No engine ranks, human-move likelihoods or deep confirmation are claimed.',inline=False)
     elif mode=='Review Gates':

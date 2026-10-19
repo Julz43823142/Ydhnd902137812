@@ -73,7 +73,7 @@ class RecentHistory(unittest.TestCase):
         self.assertEqual(row['recent']['think_median'],5)
         self.assertFalse(row['results_increase'])
 
-    def test_real_collector_and_study_keep_latest_thousand_unique_live_standard(self):
+    def test_real_collector_collects_all_available_under_five_thousand_cap(self):
         from fairplay_method3 import review
         base=sample_row(1);rows=[]
         for i in range(1,1011):
@@ -83,19 +83,19 @@ class RecentHistory(unittest.TestCase):
         variant=copy.deepcopy(invalid);variant['uuid']='variant';variant['rated']=True;variant['rules']='chess960'
         API.rows=rows+[copy.deepcopy(rows[-1]),invalid,variant];API.status='basic'
         result=review(TARGET,lambda _:None,api_factory=API)
-        self.assertEqual(len(result.games),1000)
-        self.assertEqual(len({g.identity for g in result.games}),1000)
-        self.assertEqual(result.games[0].ended,1700000012)
-        self.assertEqual(result.diagnostics['method3']['subject']['rated_games'],999)
+        self.assertEqual(len(result.games),1011)
+        self.assertEqual(len({g.identity for g in result.games}),1011)
+        self.assertEqual(result.games[0].ended,1700000001)
+        self.assertEqual(result.diagnostics['method3']['subject']['rated_games'],1010)
         self.assertEqual(result.diagnostics['method3']['unrated_games'],1)
-        self.assertEqual(result.diagnostics['method3']['priority_games'],1000)
+        self.assertEqual(result.diagnostics['method3']['priority_games'],1011)
         self.assertEqual(result.coverage['fast_scanned'],0)
         from fairplay_method3 import observations
         from fairplay_method3_ui import result_embed,history_svg,mark_recent
         grouped=next(rows for rows in observations(result.games).values() if rows)
-        self.assertEqual(sum(r['priority_sample'] for r in grouped),1000)
-        self.assertIn('whole collected history',str(result_embed(result).to_dict()))
-        self.assertIn('Current priority sample',mark_recent('<svg></svg>',grouped,(150,)))
+        self.assertEqual(sum(r['priority_sample'] for r in grouped),200)
+        self.assertIn('200-game chronological blocks',str(result_embed(result).to_dict()))
+        self.assertIn('Recent priority sample',mark_recent('<svg></svg>',grouped,(150,)))
         self.assertIn('Earlier',history_svg(result))
 
     def test_moderate_report_selects_actual_accuracy_period(self):
