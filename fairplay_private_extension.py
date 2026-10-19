@@ -75,17 +75,28 @@ def install():
                         "Full evidence unavailable or expired. No partial audit was sent.",
                         ephemeral=True)
                     return
-                # One verified ZIP is much easier for the owner to share.
-                # Discord's historical 8 MB ceiling remains a safe default;
-                # only if the bundle exceeds it send the exact old parts.
+                # Never fan out hundreds of private followups. Export the full,
+                # checksum-verified archive as exactly one attachment or fail closed.
                 try:
-                    archive=owner_zip(files)
-                except (ValueError,KeyError,TypeError):
-                    archive=None
-                outgoing=(archive,) if archive else files
-                for name,payload in outgoing:
+                    archive = await asyncio.to_thread(owner_zip, files, max_bytes=25 * 1024 * 1024)
+                except (ValueError, KeyError, TypeError, OSError):
+                    archive = None
+                if archive is None:
+                    await ctx.followup.send(
+                        "The complete Owner Evidence archive exceeds the single-file upload limit "
+                        "or could not be verified. No partial audit was sent. "
+                        "The scan data was not truncated.",
+                        ephemeral=True, allowed_mentions=discord.AllowedMentions.none())
+                    return
+                name, payload = archive
+                try:
                     await ctx.followup.send(
                         file=discord.File(io.BytesIO(payload), filename=name),
+                        ephemeral=True, allowed_mentions=discord.AllowedMentions.none())
+                except discord.HTTPException:
+                    await ctx.followup.send(
+                        "Discord rejected the complete evidence archive (upload limit). "
+                        "No partial audit was sent.",
                         ephemeral=True, allowed_mentions=discord.AllowedMentions.none())
 
             button.callback = deliver
