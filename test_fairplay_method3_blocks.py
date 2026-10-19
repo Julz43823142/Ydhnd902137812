@@ -24,8 +24,8 @@ class BlockReviewTests(unittest.TestCase):
         ]
         def study(players, **kwargs):
             block = players[0]['games']
-            high = block[0]['identity'] == 'g0000'
-            length = len(block)
+            high = block[-kwargs['candidate_tail']]['identity'] == 'g0000'
+            length = kwargs['candidate_tail']
             period = {
                 'time_class': 'blitz', 'first_game': 1, 'last_game': length, 'games': length,
                 'reference_mode': 'personal_earlier',
