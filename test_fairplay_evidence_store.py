@@ -35,6 +35,29 @@ class EncryptedAuditPersistence(unittest.TestCase):
 
 
 class RestartedOwnerButton(unittest.IsolatedAsyncioTestCase):
+    async def test_oversized_audit_never_sends_individual_parts(self):
+        original_service = ui._service
+        ui._service = None
+        try:
+            with patch("fairplay_private_extension.OwnerEvidenceStore") as store, \
+                 patch("fairplay_private_extension.owner_zip", return_value=None):
+                store.return_value.get.return_value = [
+                    (f"fairplay-part-{i:03}.json.gz", b"test") for i in range(100)
+                ]
+                event = SimpleNamespace(
+                    user=SimpleNamespace(id=ADMIN_ID),
+                    message=SimpleNamespace(id=4321),
+                    response=SimpleNamespace(defer=AsyncMock(), send_message=AsyncMock()),
+                    followup=SimpleNamespace(send=AsyncMock()))
+                button = next(child for child in ui.ReportView().children
+                    if getattr(child, "custom_id", "") == "shark:fairplay:owner-evidence")
+                await button.callback(event)
+                event.followup.send.assert_awaited_once()
+                self.assertIn("No partial audit", event.followup.send.call_args.args[0])
+                self.assertNotIn("file", event.followup.send.call_args.kwargs)
+        finally:
+            ui._service = original_service
+
     async def test_owner_can_download_persisted_audit_without_live_result(self):
         original_service = ui._service
         ui._service = None
