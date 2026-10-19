@@ -1490,7 +1490,19 @@ class FairPlayService:
             if result.diagnostics.get('method3'):
                 try:
                     from fairplay_method3_ui import chart_pngs
-                    chart_files=await asyncio.to_thread(chart_pngs,result)
+                    job.stage='Method 3: rendering charts…'
+                    await self.safe_progress(job,job.stage)
+                    def chart_progress(done,total):
+                        progress(f'Method 3: rendering chart {done}/{total}…')
+                    chart_task=asyncio.create_task(asyncio.to_thread(chart_pngs,result,chart_progress))
+                    last_chart_stage=None
+                    while not chart_task.done():
+                        if (job.stage!=last_chart_stage or
+                                time.monotonic()-job.last_progress_edit>=15):
+                            if await self.safe_progress(job,job.stage):
+                                last_chart_stage=job.stage
+                        await asyncio.wait({chart_task},timeout=3)
+                    chart_files=await chart_task
                 except Exception:chart_files=[]
             elif result.diagnostics.get("v51_shadow"):
                 try:
