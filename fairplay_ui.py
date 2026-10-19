@@ -1503,9 +1503,9 @@ class FairPlayService:
             future = loop.run_in_executor(self.executor,run_review)
             while not future.done():
                 if (not job.cancel_requested and job.stage!='Fetching profile…' and
-                        (job.stage!=last or (job.message is not None and time.monotonic()-job.last_progress_edit>=(1.5 if os.getenv('FAIRPLAY_METHOD3')=='1' else 15)))):
+                        (job.stage!=last or (job.message is not None and time.monotonic()-job.last_progress_edit>=(1 if os.getenv('FAIRPLAY_METHOD3')=='1' else 15)))):
                     if await self.safe_progress(job,job.stage):last = job.stage
-                await asyncio.wait({future},timeout=1.5 if os.getenv('FAIRPLAY_METHOD3')=='1' else 3)
+                await asyncio.wait({future},timeout=1 if os.getenv('FAIRPLAY_METHOD3')=='1' else 3)
             result = await future
             if job.cancel_requested:return
             chart_files=[]
@@ -1520,10 +1520,10 @@ class FairPlayService:
                     last_chart_stage=None
                     while not chart_task.done():
                         if (job.stage!=last_chart_stage or
-                                time.monotonic()-job.last_progress_edit>=1.5):
+                                time.monotonic()-job.last_progress_edit>=1):
                             if await self.safe_progress(job,job.stage):
                                 last_chart_stage=job.stage
-                        await asyncio.wait({chart_task},timeout=1.5)
+                        await asyncio.wait({chart_task},timeout=1)
                     chart_files=await chart_task
                 except Exception:chart_files=[]
             elif result.diagnostics.get("v51_shadow"):
