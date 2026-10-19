@@ -95,7 +95,7 @@ class RecentHistory(unittest.TestCase):
         grouped=next(rows for rows in observations(result.games).values() if rows)
         self.assertEqual(sum(r['priority_sample'] for r in grouped),200)
         self.assertIn('200-game chronological blocks',str(result_embed(result).to_dict()))
-        self.assertIn('Current priority sample',mark_recent('<svg></svg>',grouped,(150,)))
+        self.assertIn('Recent priority sample',mark_recent('<svg></svg>',grouped,(150,)))
         self.assertIn('Earlier',history_svg(result))
 
     def test_moderate_report_selects_actual_accuracy_period(self):
