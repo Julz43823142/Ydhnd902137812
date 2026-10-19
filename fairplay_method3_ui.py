@@ -12,23 +12,21 @@ def result_embed(result):
     d=result.diagnostics['method3'];s=d['subject'];r=(d.get('selected') or {}).get('results',s['overall_results'])
     icon={'LOW':'🟢','MODERATE':'🟡','HIGH':'🟠','INSUFFICIENT DATA':'⚪'}.get(result.priority,'⚪')
     e=discord.Embed(title='🛡️ Fair Play Review — '+result.username,color=priority_color(result.priority),
-        description=f'{icon} **{result.priority} review priority**\n**Method 3 · experimental results/Accuracy screening.**')
-    explanations={
-        'HIGH':'A stretch of games scored well above the results expected from the ratings and passed the history-search checks. Review those games.',
-        'MODERATE':('Published Accuracy was higher than in comparable earlier games. Take a closer look.' if d.get('priority_basis')=='accuracy' else 'A stretch of results deserves a closer look but did not pass the stricter HIGH checks.'),
-        'LOW':'No strong results-based review flag was found. This does not prove fair play.',
-        'INSUFFICIENT DATA':'There are not enough usable games for a reliable comparison.'}
-    e.add_field(name='Why this result?',value=explanations.get(result.priority,'See the detail buttons.'),inline=False)
+        description=f'{icon} **{result.priority} review priority**')
     accuracy_games=sum(g.accuracy is not None for g in result.games)
-    e.add_field(name='Sample / coverage',value=f'{len(result.games)} live history games: {d.get("rated_games",len(result.games))} rated · {d.get("unrated_games",0)} unrated\nEqual priority rules · 200-game chronological blocks · across-block search correction · results confidence: {result.confidence}'+(' · incomplete collection' if result.partial else '')+f'\nPublished Accuracy: {accuracy_games}/{len(result.games)} games. Missing scores were not engine-reviewed.',inline=False)
+    e.add_field(name='Results confidence',value=f'**{result.confidence}**',inline=False)
+    e.add_field(name='Sample / coverage',value=(
+        f'{len(result.games)} live history games: '
+        f'{d.get("rated_games",len(result.games))} rated · {d.get("unrated_games",0)} unrated'
+        + (' · incomplete collection' if result.partial else '')
+        + f'\\nPublished Accuracy: {accuracy_games}/{len(result.games)} games.'),inline=False)
     selected=d.get('selected')
     if selected:
-        e.add_field(name='Selected chronological period',value=f"{selected['time_class'].title()} · {selected['games']} games · {period_dates(selected)}\nExpected points: **{fmt(r['expected_points'])}** · scored: **{fmt(r['actual_points'])}**\nWinrate: **{fmt(r['win_fraction'],True)}** · a draw counts as half a point.",inline=False)
-    e.add_field(name='Limits',value='Stockfish: not run · Maia: not run. Results-only screening can flag honest improving players. Technical details are available below.',inline=False)
+        e.add_field(name='Selected chronological period',value=f"{selected['time_class'].title()} · {selected['games']} games · {period_dates(selected)}\nExpected points: **{fmt(r['expected_points'])}** · scored: **{fmt(r['actual_points'])}**\nWinrate: **{fmt(r['win_fraction'],True)}**",inline=False)
     if any(row['results_increase'] for row in d.get('history_changes',[])):
         e.add_field(name='History comparison',value='Recent results rose against matched earlier games. This is supporting context, not a separate cheating signal.',inline=False)
     e.add_field(name='Important',value='Not proof of cheating. Human review is required before any action.',inline=False)
-    e.set_footer(text=f'Version: {result.version} · Method 3 · uncalibrated heuristic, not probability')
+    e.set_footer(text=f'Version: {result.version} · uncalibrated heuristic, not probability')
     return e
 
 
@@ -99,7 +97,7 @@ def chart_pngs(result):
         files.append((f'fairplay_{kind}_charts.png',cairosvg.svg2png(bytestring=svg.encode())))
     if live_games:
         files.append(('fairplay_opponent_elo_comparison.png',cairosvg.svg2png(bytestring=comparison_svg(grouped).encode())))
-        parts=['<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1120" viewBox="0 0 1440 1120"><rect width="1440" height="1120" fill="white"/>',text(45,45,'Method 3 — rolling 10-game expected / observed points',26)]
+        parts=['<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1120" viewBox="0 0 1440 1120"><rect width="1440" height="1120" fill="white"/>',text(45,45,'Rolling 10-game expected / observed points',26)]
         for index,kind in enumerate(('rapid','blitz','bullet')):
             games=[g for g in live_games if g.time_class==kind]
             predicted=[];actual=[]
