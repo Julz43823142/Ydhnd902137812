@@ -1385,9 +1385,13 @@ class FairPlayService:
                 now=time.monotonic()
                 if job.progress_display_at == 0:
                     job.progress_display_at=now
-                # At least five percentage points per second: any jump catches
-                # up within twenty seconds, without holding back analysis.
-                allowance=max(1,int((now-job.progress_display_at)*5))
+                # Adaptive catch-up: larger gaps animate faster, with no
+                # deliberate delay to completed reports. The 20-second bound
+                # applies to the animation schedule, not Discord delivery.
+                gap=max(0,target-job.progress_percent)
+                elapsed=max(0.0,now-job.progress_display_at)
+                speed=max(1.0, gap/8.0, gap/20.0)
+                allowance=max(1,int(elapsed*speed)) if gap else 0
                 job.progress_percent=min(target,job.progress_percent+allowance,99)
                 job.progress_display_at=now
             else:
