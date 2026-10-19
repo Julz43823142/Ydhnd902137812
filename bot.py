@@ -1795,6 +1795,79 @@ async def _twitch_refresh_access_token(reason="startup"):
         return access
 
 
+async def _twitch_reauthorize_device(owner):
+    """Owner-initiated Device Code grant; keep existing tokens until authorization succeeds."""
+    global _twitch_access_token, _twitch_refresh_token
+    scopes = "channel:read:redemptions user:read:chat user:write:chat"
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                "https://id.twitch.tv/oauth2/device",
+                data={"client_id": TWITCH_CLIENT_ID, "scopes": scopes},
+                timeout=aiohttp.ClientTimeout(total=20),
+            ) as response:
+                data = await response.json(content_type=None)
+                if response.status != 200:
+                    await owner.send(f"Twitch authorization could not start (HTTP {response.status}).")
+                    return
+            device_code = data["device_code"]
+            user_code = data["user_code"]
+            verify_url = data.get("verification_uri") or "https://www.twitch.tv/activate"
+            interval = max(5, int(data.get("interval", 5)))
+            expires = min(900, int(data.get("expires_in", 900)))
+            await owner.send(
+                f"Authorize Twitch chat for sh4rkmate: open {verify_url} and enter code "
+                f"**{user_code}**. Log in as sh4rkmate. This code expires in {expires // 60} minutes."
+            )
+            deadline = time.monotonic() + expires
+            while time.monotonic() < deadline:
+                await asyncio.sleep(interval)
+                async with session.post(
+                    "https://id.twitch.tv/oauth2/token",
+                    data={
+                        "client_id": TWITCH_CLIENT_ID,
+                        "client_secret": TWITCH_CLIENT_SECRET,
+                        "device_code": device_code,
+                        "grant_type": "urn:ietf:params:oauth:grant-type:device_code",
+                    },
+                    timeout=aiohttp.ClientTimeout(total=20),
+                ) as response:
+                    result = await response.json(content_type=None)
+                    if response.status != 200:
+                        error = result.get("message", result.get("error", ""))
+                        if "pending" in str(error).lower():
+                            continue
+                        if "slow_down" in str(error).lower():
+                            interval += 5
+                            continue
+                        await owner.send(f"Twitch authorization stopped (HTTP {response.status}).")
+                        return
+                access = result.get("access_token", "")
+                refresh = result.get("refresh_token", "")
+                validated = await asyncio.to_thread(_twitch_validate_access_token_sync, access)
+                if not validated or not {"user:read:chat", "user:write:chat"}.issubset(set(validated.get("scopes", []))):
+                    await owner.send("Twitch authorization did not include the required broadcaster/chat permissions.")
+                    return
+                oauth = _twitch_oauth_state()
+                oauth["refresh_token_enc"] = _twitch_encrypt(refresh)
+                oauth["updated_at"] = int(time.time())
+                oauth["reason"] = "owner-device-reauthorization"
+                if not await save_all_critical(attempts=5):
+                    await owner.send("Twitch authorization succeeded but secure state could not be saved. Contact support before restarting.")
+                    return
+                _twitch_access_token = access
+                _twitch_refresh_token = refresh
+                await owner.send(
+                    "Twitch chat permissions saved. Start a new Daily Puzzle run after the current worker rotates "
+                    "to activate !coins and !ai."
+                )
+                return
+            await owner.send("Twitch authorization timed out. Send !twitchreauth again for a new code.")
+    except Exception as error:
+        print(f"Twitch device authorization error: {type(error).__name__}", flush=True)
+        await owner.send("Twitch authorization failed. Check the workflow logs and try again.")
+
+
 async def _twitch_prepare_access_token():
     if not TWITCH_EVENTSUB_ENABLED:
         return ""
@@ -18755,6 +18828,14 @@ async def on_message(
 
 
         if message.author.bot:
+            return
+
+        if (message.guild is None and str(message.author.id) == SHARKMEISTER_DEFAULT_USER_ID
+                and message.content.strip().casefold() == "!twitchreauth"):
+            if not TWITCH_CLIENT_ID or not TWITCH_CLIENT_SECRET:
+                await message.channel.send("Twitch OAuth configuration is missing.")
+            else:
+                asyncio.create_task(_twitch_reauthorize_device(message.author))
             return
 
         # Fair Play allows mention-only chat, never game/economy actions.
