@@ -11,6 +11,21 @@ from fairplay_progress import LiveTiming, ReliableTiming, duration, estimate
 
 
 class ScanTimingTests(unittest.TestCase):
+    def test_review_progress_begins_at_zero_and_chart_labels_are_clean(self):
+        from fairplay_progress import label
+        self.assertEqual(estimate('Fetching profile…'),0)
+        self.assertEqual(estimate('Rendering chart 6/6…'),99)
+        self.assertEqual(label('Method 3: building graphs and report…'),'Preparing charts and report…')
+        self.assertEqual(label('Method 3: block 2/3'),'Reviewing history block 2/3')
+
+    def test_collection_eta_uses_observed_speed_only(self):
+        clock=LiveTiming(started=0)
+        clock.observe('Collecting rated games: 0/100 games',now=0)
+        clock.observe('Collecting rated games: 40/100 games',now=20)
+        self.assertIn('Estimated collection time left',clock.summary('Collecting rated games: 40/100 games',now=20))
+        self.assertIn('not total review ETA',clock.summary('Collecting rated games: 40/100 games',now=20))
+
+
     def test_method3_chart_render_progress_advances_before_completion(self):
         self.assertEqual(estimate('Method 3: building graphs and report…'),95)
         values=[estimate(f'Method 3: rendering chart {i}/6…') for i in range(7)]

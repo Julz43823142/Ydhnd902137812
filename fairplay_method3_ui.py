@@ -19,7 +19,7 @@ def result_embed(result):
         f'{len(result.games)} live history games: '
         f'{d.get("rated_games",len(result.games))} rated · {d.get("unrated_games",0)} unrated'
         + (' · incomplete collection' if result.partial else '')
-        + f'\\nPublished Accuracy: {accuracy_games}/{len(result.games)} games.'),inline=False)
+        + f'\nPublished Accuracy: {accuracy_games}/{len(result.games)} games.'),inline=False)
     selected=d.get('selected')
     if selected:
         e.add_field(name='Selected chronological period',value=f"{selected['time_class'].title()} · {selected['games']} games · {period_dates(selected)}\nExpected points: **{fmt(r['expected_points'])}** · scored: **{fmt(r['actual_points'])}**\nWinrate: **{fmt(r['win_fraction'],True)}**",inline=False)
@@ -33,7 +33,7 @@ def result_embed(result):
 def detail_embed(result,mode):
     from fairplay_ui import priority_color
     d=result.diagnostics['method3'];s=d['subject']
-    e=discord.Embed(title=f'{mode} — {result.username}',description='Method 3: experimental results and published Accuracy. No Stockfish/Maia screening.',color=priority_color(result.priority))
+    e=discord.Embed(title=f'{mode} — {result.username}',description='Results-based screening using game outcomes and published Accuracy; no engine analysis.',color=priority_color(result.priority))
     if mode in ('Performance', 'Report Details'):
         e.add_field(name='Explanation',value='\n'.join(result.reasons)[:1024],inline=False)
         e.add_field(name='Limits',value=d['limits'][:1024],inline=False)

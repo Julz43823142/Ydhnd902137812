@@ -7,14 +7,14 @@ def estimate(stage):
         match=re.search(r'(\d+)/(\d+) games',stage)
         if match:return 10+int(55*min(1,int(match[1])/max(1,int(match[2]))))
         return 10
-    if stage.startswith('Method 3: block'):
+    if stage.startswith(('Method 3: block','Reviewing history block')):
         match=re.search(r'(\d+)/(\d+)',stage)
         return 66+int(28*min(1,(int(match[1])-1)/max(1,int(match[2])))) if match else 66
-    if stage.startswith('Method 3: comparing'):return 75
-    if stage.startswith('Method 3: rendering chart'):
+    if stage.startswith(('Method 3: comparing','Comparing history')):return 75
+    if stage.startswith(('Rendering chart','Method 3: rendering chart')):
         match=re.search(r'(\d+)/(\d+)',stage)
         return 95+int(4*min(1,int(match[1])/max(1,int(match[2])))) if match else 95
-    if stage.startswith('Method 3: building'):return 95
+    if stage.startswith(('Method 3: building','Preparing charts','Rendering charts')):return 95
     if stage == 'Complete':
         return 100
     if stage.startswith('Fast engine scan:'):
@@ -28,7 +28,7 @@ def estimate(stage):
     if stage.startswith(('Deep confirmation:', 'Depth-18 rapid/blitz')):
         match = re.search(r'(\d+)\s*/\s*(\d+)', stage)
         return 80+int(17*min(1, int(match[1])/max(1, int(match[2])))) if match else 80
-    return {'Fetching profile…':3, 'Collecting rated games…':10, 'Collecting rated and unrated games…':10,
+    return {'Fetching profile…':0, 'Collecting rated games…':10, 'Collecting rated and unrated games…':10,
             'Comparing human alternatives…':78, 'Building human-move profile…':77, 'Analyzing sessions and repertoire…':79,
             'Comparing personal timing baselines…':98, 'Building report…':99}.get(stage, 0)
 
@@ -44,6 +44,11 @@ def label(stage):
         return 'Screening gameplay with Stockfish…'
     if stage.startswith('Deep confirmation:'):
         return 'Deep-confirming selected games…'
+    if stage.startswith('Method 3: block'):return stage.replace('Method 3: block','Reviewing history block',1)
+    if stage.startswith('Method 3: comparing'):return stage.replace('Method 3: comparing','Comparing history',1)
+    if stage.startswith('Method 3: building'):return 'Preparing charts and report…'
+    if stage.startswith('Method 3: rendering chart'):return stage.replace('Method 3: rendering chart','Rendering chart',1)
+    if stage.startswith('Method 3: rendering charts'):return 'Rendering charts…'
     return stage
 
 
@@ -72,6 +77,8 @@ class LiveTiming:
         self.phase_total=0
         self.phase_done=0
         self.last_eta=None
+        self.collection_first=None
+        self.collection_last=None
 
     def observe(self,stage,now=None):
         import time
@@ -79,6 +86,11 @@ class LiveTiming:
         match=re.search(r'(\d+)\s*/\s*(\d+)',stage)
         phase=('deep' if stage.startswith(('Deep confirmation:', 'Depth-18 rapid/blitz'))
                else 'fast' if stage.startswith('Fast engine scan:') else None)
+        if stage.startswith('Collecting rated') and match:
+            done,total=int(match[1]),int(match[2])
+            if self.collection_first is None or total!=self.collection_first[1] or done<self.collection_first[0]:
+                self.collection_first=(done,total,now)
+            self.collection_last=(done,total,now)
         if phase and match:
             done,total=int(match[1]),int(match[2])
             if phase!=self.stage or total!=self.phase_total or done<self.phase_done:
@@ -112,6 +124,18 @@ class LiveTiming:
             phase,remaining=self.last_eta
             line+=' · Estimated time left in '+('deep analysis' if phase=='deep' else 'fast analysis')+': **~'+duration(remaining)+'**'
             line+=' (variable; not a total scan ETA)'
+        elif stage.startswith('Collecting rated') and self.collection_first and self.collection_last:
+            first,total,start=self.collection_first
+            done,_,sampled=self.collection_last
+            advanced=done-first
+            measured=sampled-start
+            if advanced>=max(10,total//20) and measured>=5 and done<total:
+                remaining=(total-done)*measured/advanced
+                line+=' · Estimated collection time left: **~'+duration(remaining)+'** (not total review ETA)'
+            else:
+                line+=' · Estimating collection speed…'
+        elif stage.startswith(('Rendering chart','Rendering charts','Method 3: building')):
+            line+=' · Chart rendering in progress; remaining time varies by image complexity.'
         else:
             line+=' · Time remaining: **not yet reliably estimated**'
         return line
