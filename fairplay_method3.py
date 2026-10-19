@@ -11,10 +11,11 @@ from fairplay_config import CONFIG
 from fairplay_data import PubAPI, ReviewError, ScanDeadline, check_deadline, collect_games, username
 from fairplay_outcome_study import evaluate, SCENARIOS, DEVELOPMENT_SCENARIOS, CONFIG as STUDY_CONFIG
 
-VERSION='fairplay-v61-all-live-periods'
-LIMIT=1000
-PRIORITY_GAMES=LIMIT
-STUDY=replace(STUDY_CONFIG,history_limit=LIMIT,minimum_games=5,widths=(5,10,20,50,100,200))
+VERSION='fairplay-v62-history-blocks'
+LIMIT=5000
+BLOCK_SIZE=200
+PRIORITY_GAMES=200
+STUDY=replace(STUDY_CONFIG,history_limit=BLOCK_SIZE,minimum_games=5,widths=(5,10,20,50,100,200))
 
 
 def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
@@ -37,20 +38,78 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         games=sorted((g for g in games if type(g.rated) is bool),key=lambda g:(g.ended,g.identity))[-LIMIT:]
         if not games:raise ReviewError('No eligible live games were found.')
         progress('Method 3: comparing Elo expectations…')
-        # No cross-account private ledger, invented Accuracy or validation cohort.
-        player={'player_key':'subject','games':[{
-            'identity':g.identity,'ended':g.ended,'rated':g.rated,'time_class':g.time_class,
-            'time_control':g.time_control,'player_elo':g.rating,'opponent_elo':g.opponent_rating,
-            'score':g.score,'official_accuracy':g.accuracy,'estimated_accuracy':None} for g in games]}
-        study=evaluate([player],source='official_accuracy',config=STUDY,
-            scenarios=SCENARIOS+DEVELOPMENT_SCENARIOS,rated=None,protect_search=True)
-        subject=study['players'][0]
-        middle=subject['ablations']['results_only']['development_middle']
-        accuracy=subject['ablations']['accuracy_only']['balanced']
-        priority=('HIGH' if middle['priority']=='HIGH' else 'MODERATE' if
-                  middle['priority']=='MODERATE' or accuracy['priority']=='HIGH' else middle['priority'])
-        basis='accuracy' if priority=='MODERATE' and middle['priority']!='MODERATE' else 'results'
-        chosen=accuracy['selected'] if basis=='accuracy' else middle['selected']
+        # Evaluate disjoint chronological 200-game blocks independently, never
+        # dilute a qualifying period with older normal results. Apply an
+        # additional across-block search correction to avoid inflated flags.
+        from fairplay_outcome_study import _result
+        from math import ceil
+        blocks=[games[i:i+BLOCK_SIZE] for i in range(0,len(games),BLOCK_SIZE)]
+        block_count=len(blocks)
+        overall_rows=[]
+        candidate_rows=[]
+        window_count=0
+        for index,block in enumerate(blocks):
+            check_deadline(deadline)
+            progress(f'Method 3: block {index+1}/{block_count}')
+            player={'player_key':'subject','games':[{
+                'identity':g.identity,'ended':g.ended,'rated':g.rated,'time_class':g.time_class,
+                'time_control':g.time_control,'player_elo':g.rating,'opponent_elo':g.opponent_rating,
+                'score':g.score,'official_accuracy':g.accuracy,'estimated_accuracy':None} for g in block]}
+            overall_rows.extend(player['games'])
+            study=evaluate([player],source='official_accuracy',config=STUDY,
+                scenarios=SCENARIOS+DEVELOPMENT_SCENARIOS,rated=None,protect_search=True)
+            sub=study['players'][0]
+            periods=sub['periods']
+            window_count+=len({(p['time_class'],p['first_game'],p['last_game']) for p in periods})
+            candidate_rows.append((index,block,sub))
+        # The within-block guard already accounts for all windows in that block.
+        # Multiplying by the number of tested blocks is a conservative union
+        # bound across all blocks, including short or incomplete ones.
+        rank={'INSUFFICIENT DATA':0,'LOW':1,'MODERATE':2,'HIGH':3}
+        candidates=[]
+        for index,block,sub in candidate_rows:
+            for period in sub['periods']:
+                guard=period['search_guard']
+                guard['adjusted_model_bound']=min(1.0,guard['adjusted_model_bound']*block_count)
+                guard['searched_windows']=window_count
+                guard['high_pass']=guard['short_sample_complete'] and guard['adjusted_model_bound']<=.01
+                guard['moderate_pass']=guard['short_sample_complete'] and guard['adjusted_model_bound']<=.10
+                acc=period['accuracy_search_guard']
+                acc['adjusted_reference_model_bound']=min(1.0,acc['adjusted_reference_model_bound']*block_count)
+                acc['searched_windows']=window_count
+                acc['moderate_pass']=acc['adjusted_reference_model_bound']<=.10
+                for checks in period['scenarios'].values():
+                    checks['results_pass']=checks['results_pass'] and guard['high_pass']
+                    checks['results_review_pass']=checks.get('results_review_pass',False) and guard['moderate_pass']
+                    checks['accuracy_pass']=checks['accuracy_pass'] and acc['moderate_pass']
+                    checks['priority']=('HIGH' if checks['results_pass'] and checks['accuracy_pass'] else
+                        'MODERATE' if checks['results_review_pass'] or checks['accuracy_pass'] else
+                        'LOW' if checks['results_covered'] and checks['accuracy_covered'] else 'INSUFFICIENT DATA')
+                middle=period['scenarios']['development_middle']
+                accuracy_checks=period['scenarios']['balanced']
+                tier=('HIGH' if middle['results_pass'] else
+                      'MODERATE' if middle['results_review_pass'] or accuracy_checks['accuracy_pass'] else
+                      'LOW' if middle['results_covered'] or accuracy_checks['accuracy_covered'] else 'INSUFFICIENT DATA')
+                basis='accuracy' if tier=='MODERATE' and not middle['results_review_pass'] else 'results'
+                candidates.append((tier,basis,index,block,sub,period))
+        if candidates:
+            priority,basis,block_index,selected_block,subject,chosen=max(candidates,
+                key=lambda x:(rank[x[0]],x[5]['games'],
+                    -(x[5]['search_guard']['adjusted_model_bound'])))
+        else:
+            priority,basis,block_index,selected_block,subject,chosen=(
+                'INSUFFICIENT DATA','results',0,games,{'overall_results':_result(overall_rows),
+                'opponent_groups':[],'periods':[]},None)
+        subject=dict(subject)
+        subject['overall_results']=_result(overall_rows)
+        subject['periods']=[period for _,_,sub in candidate_rows for period in sub['periods']]
+        # Display the selected block and its local chronological window.
+        # Dates and class-relative indexing must use that same block.
+        if chosen:
+            members=[g for g in selected_block if g.time_class==chosen['time_class']][chosen['first_game']-1:chosen['last_game']]
+            chosen['first_ended']=members[0].ended;chosen['last_ended']=members[-1].ended
+            chosen['history_block']=block_index+1
+        progress('Method 3: building graphs and report…')
         rated_count=sum(g.rated is True for g in games)
         confidence=('LOW' if partial or len(games)<30 or (priority in ('HIGH','MODERATE') and chosen and chosen['games']<10)
                     else 'HIGH' if len(games)>=100 else 'MEDIUM')
@@ -60,17 +119,14 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                  'A chronological period exceeded the results review boundary but did not pass the stricter HIGH search guard.' if priority=='MODERATE' else
                  'No period passed the configured review boundaries; this does not establish fair play.' if priority=='LOW' else
                  'Not enough comparable chronological games with valid ratings/results to assign a tier.']
-        if chosen:
-            members=[g for g in games if g.time_class==chosen['time_class']][chosen['first_game']-1:chosen['last_game']]
-            chosen['first_ended']=members[0].ended;chosen['last_ended']=members[-1].ended
         from fairplay_method3_history import changes
         history_changes=changes(games,PRIORITY_GAMES)
-        record={'history_limit':LIMIT,'priority_games':len(games),
+        record={'history_limit':LIMIT,'priority_games':len(games),'block_size':BLOCK_SIZE,'blocks_checked':block_count,
                 'history_changes':history_changes,
                 'rated_games':rated_count,'unrated_games':len(games)-rated_count,
                 'priority_basis':basis,'production_enabled':True,
-                'period_scope':'All collected rated and unrated live games, equal priority rules',
-                'searched_windows':max((p['search_guard']['searched_windows'] for p in subject['periods']),default=0),
+                'period_scope':'Independent chronological 200-game blocks with across-block search correction',
+                'searched_windows':window_count,
                 'method':'Experimental Elo-results and published-Accuracy triage; not gameplay confirmation or misconduct probability',
                 'reference':'Development thresholds, not independent holdout calibration',
                 'result_residual_threshold':2.4,'score_excess_threshold':.20,
