@@ -23,6 +23,7 @@ from fairplay_analysis import (ReviewResult, review, review_interest,
 from fairplay_config import CHANNEL_ID, DISCLAIMER, NAMESPACE, CONFIG, VERSION, active_version
 from fairplay_data import AccountNotFound, ReviewError, username
 from fairplay_progress import estimate, bar, label, duration, LiveTiming, ReliableTiming
+from fairplay_eta import predict as predict_runtime, record as record_runtime, remaining as runtime_remaining
 from fairplay_checkpoint import CheckpointStore
 
 RESERVED = '🛡️ This channel is reserved for Fair Play reviews.'
@@ -1234,7 +1235,7 @@ class ReportView(SubmitView):
         method3 = os.getenv('FAIRPLAY_METHOD3') == '1'
         options = ([('Overview','📄','summary'),('Performance','📈','performance'),
                     ('History','🔬','clusters'),('Review Rules','🛡️','gates'),
-                    ('Re-scan','🔄','rescan'),('Copy Report','📋','copy')]
+                    ('Copy Report','📋','copy')]
                    if method3 else
                    [('Report Details','📄','summary'),('Highest-Signal Games','🎯','games'),('Timing','⏱️','timing'),
                     ('Performance','📈','performance'),('Clusters & History','🔬','clusters'),('Engine Analysis','♟️','engine'),
@@ -1391,7 +1392,8 @@ class FairPlayService:
                         job.report_tail_started=now
                     collection=getattr(job.timing,'collection_last',None)
                     games=collection[1] if collection else 200
-                    horizon=max(65.0,min(240.0,65.0+0.12*max(0,games-100)))
+                    learned=predict_runtime(games)
+                    horizon=max(65.0,min(360.0,learned*0.25 if learned else 65.0+0.12*max(0,games-100)))
                     elapsed=max(0.0,now-job.report_tail_started)
                     fraction=1.0-math.exp(-3.0*elapsed/horizon)
                     target=max(job.progress_percent,80+min(19,int(19*fraction)))
@@ -1426,8 +1428,21 @@ class FairPlayService:
             else:
                 job.progress_percent=target
             card = (embed.copy() if embed is not None else progress_embed(job.target,stage,job.progress_percent,job.timing))
-            if job.report_tail_started and stage!='Complete':
-                card.description=(card.description or '')+'\n*Report progress is estimated; completion depends on actual processing.*'
+            if os.getenv('FAIRPLAY_METHOD3')=='1' and stage!='Complete':
+                collection=getattr(job.timing,'collection_last',None)
+                games=collection[1] if collection else None
+                if games:
+                    remaining=runtime_remaining(games,job.timing_elapsed())
+                    if remaining is not None:
+                        card.description=(card.description or '')+(
+                            '\nEstimated remaining time: **~'+duration(remaining)+'**'
+                            ' (based on previous reviews; may change).')
+                    else:
+                        card.description=(card.description or '')+(
+                            '\nEstimating runtime from completed reviews…')
+                if job.report_tail_started:
+                    card.description=(card.description or '')+(
+                        '\n*Report progress is estimated; completion depends on actual processing.*')
             if embed is not None and stage=='Complete':
                 card.add_field(name='Total scan time',value=duration(job.timing_elapsed()),inline=False)
             card.set_footer(text=(card.footer.text or '')+f' · Review ID: {job.token}')
@@ -1615,6 +1630,9 @@ class FairPlayService:
                 self.results[job.message.id] = (time.time(),result)
                 self.cache[job.target] = (time.time(),result,job.message)
                 job.report_published=True
+                if result.diagnostics.get('method3'):
+                    try:record_runtime(len(result.games),job.timing_elapsed())
+                    except Exception:pass
                 self.expire_cache()
                 if getattr(self,'checkpoints',None) is not None:
                     await self.note_delivered_checkpoint(job, 'finish')
