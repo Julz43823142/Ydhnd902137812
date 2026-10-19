@@ -160,7 +160,7 @@ class IdentityTests(unittest.TestCase):
         import bot
         group=bot.command_tree.get_command('fairplay')
         self.assertIsInstance(group,discord.app_commands.Group)
-        self.assertEqual({c.name for c in group.commands},{'review','auto','sus'})
+        self.assertEqual({c.name for c in group.commands},{'review','auto'})
         self.assertEqual({c.name for c in group.get_command('auto').commands},{'start','stop'})
         from fairplay_routing import permitted
         from fairplay_config import CHANNEL_ID

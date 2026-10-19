@@ -4,4 +4,3 @@ python-chess
 cairosvg
 duckdb
 cryptography
-Pillow>=10.0,<13
