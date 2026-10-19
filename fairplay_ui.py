@@ -1395,7 +1395,10 @@ class FairPlayService:
                 # Target catch-up within ~8 seconds for large gaps, while
                 # never intentionally trailing the underlying work >20 s.
                 # Fractional credit carries over between Discord edits.
-                speed=max(1.0, gap/8.0)
+                # Smooth acceleration as the real progress pulls ahead.
+                # The internal position advances continuously; Discord edits
+                # are rate-limited, so intermediate numbers may be skipped.
+                speed=max(1.0, gap/3.0)
                 credit=getattr(job,'progress_credit',0.0)+elapsed*speed
                 allowance=min(gap,int(credit))
                 job.progress_credit=credit-allowance
