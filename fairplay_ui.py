@@ -5,6 +5,7 @@ gives the active review exclusive access to the shared Stockfish pool. No Discor
 token, ledger, wallet or punishments.
 """
 import asyncio
+import math
 import os
 import threading
 import time
@@ -1269,6 +1270,7 @@ class Job:
     last_progress_edit: float = 0.0
     progress_display_at: float = 0.0
     progress_credit: float = 0.0
+    report_tail_started: float = 0.0
 
     def timing_elapsed(self):
         return max(0,time.monotonic()-self.timing.started)
@@ -1380,6 +1382,21 @@ class FairPlayService:
                 if job.message is None:return False  # an uncertain ACK is not permission to repost
             job.timing.observe(stage)
             target=max(job.progress_percent,job.timing.percent(stage) if hasattr(job.timing,'percent') else estimate(stage))
+            if os.getenv('FAIRPLAY_METHOD3')=='1' and stage!='Complete':
+                tail=stage.startswith(('Method 3: building','Preparing charts',
+                                       'Rendering chart','Method 3: rendering'))
+                if tail:
+                    now=time.monotonic()
+                    if not job.report_tail_started:
+                        job.report_tail_started=now
+                    collection=getattr(job.timing,'collection_last',None)
+                    games=collection[1] if collection else 200
+                    horizon=max(65.0,min(240.0,65.0+0.12*max(0,games-100)))
+                    elapsed=max(0.0,now-job.report_tail_started)
+                    fraction=1.0-math.exp(-3.0*elapsed/horizon)
+                    target=max(job.progress_percent,80+min(19,int(19*fraction)))
+                elif not job.report_tail_started:
+                    target=min(80,target)
             if stage=='Complete':
                 job.progress_percent=100
                 job.progress_credit=0.0
@@ -1409,6 +1426,8 @@ class FairPlayService:
             else:
                 job.progress_percent=target
             card = (embed.copy() if embed is not None else progress_embed(job.target,stage,job.progress_percent,job.timing))
+            if job.report_tail_started and stage!='Complete':
+                card.description=(card.description or '')+'\n*Report progress is estimated; completion depends on actual processing.*'
             if embed is not None and stage=='Complete':
                 card.add_field(name='Total scan time',value=duration(job.timing_elapsed()),inline=False)
             card.set_footer(text=(card.footer.text or '')+f' · Review ID: {job.token}')
