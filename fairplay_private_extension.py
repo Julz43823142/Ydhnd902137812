@@ -3,7 +3,7 @@ import io
 import asyncio
 from fairplay_export_persistence import OwnerEvidenceStore
 import discord
-from fairplay_evidence_payload import evidence, owner_zip
+from fairplay_evidence_payload import evidence, owner_json
 from shark_admin import ADMIN_ID
 
 
@@ -75,18 +75,17 @@ def install():
                         "Full evidence unavailable or expired. No partial audit was sent.",
                         ephemeral=True)
                     return
-                # One verified ZIP is much easier for the owner to share.
-                # Discord's historical 8 MB ceiling remains a safe default;
-                # only if the bundle exceeds it send the exact old parts.
+                # Never fall back to hundreds of separate Discord messages.
                 try:
-                    archive=owner_zip(files)
-                except (ValueError,KeyError,TypeError):
-                    archive=None
-                outgoing=(archive,) if archive else files
-                for name,payload in outgoing:
+                    name, payload = await asyncio.to_thread(owner_json, files)
+                except (ValueError, KeyError, TypeError, OSError):
                     await ctx.followup.send(
-                        file=discord.File(io.BytesIO(payload), filename=name),
-                        ephemeral=True, allowed_mentions=discord.AllowedMentions.none())
+                        "Complete owner evidence could not fit in one verified file. "
+                        "No partial export was sent.", ephemeral=True)
+                    return
+                await ctx.followup.send(
+                    file=discord.File(io.BytesIO(payload), filename=name),
+                    ephemeral=True, allowed_mentions=discord.AllowedMentions.none())
 
             button.callback = deliver
             self.add_item(button)
