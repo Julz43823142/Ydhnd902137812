@@ -273,6 +273,7 @@ jobs:
           # Install these on a separately resourced worker before enabling.
           SHARKMEISTER_USER_ID: "362606514764251137"
           TWITCH_EVENTSUB_ENABLED: "1"
+          TWITCH_CHAT_ENABLED: ${{ vars.TWITCH_CHAT_ENABLED || '0' }}
           TWITCH_CLIENT_ID: ${{ vars.TWITCH_CLIENT_ID }}
           TWITCH_BROADCASTER_ID: ${{ vars.TWITCH_BROADCASTER_ID }}
           TWITCH_CLIENT_SECRET: ${{ secrets.TWITCH_CLIENT_SECRET }}
