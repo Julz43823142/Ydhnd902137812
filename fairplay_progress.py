@@ -3,6 +3,13 @@ import re
 
 
 def estimate(stage):
+    if stage.startswith('Collecting rated'):
+        match=re.search(r'(\d+)/(\d+) games',stage)
+        if match:return 10+int(55*min(1,int(match[1])/max(1,int(match[2]))))
+        return 10
+    if stage.startswith('Method 3: block'):
+        match=re.search(r'(\d+)/(\d+)',stage)
+        return 66+int(28*min(1,(int(match[1])-1)/max(1,int(match[2])))) if match else 66
     if stage.startswith('Method 3: comparing'):return 75
     if stage.startswith('Method 3: building'):return 95
     if stage == 'Complete':
