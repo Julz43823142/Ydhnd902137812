@@ -1400,8 +1400,10 @@ class FairPlayService:
                 # are rate-limited, so intermediate numbers may be skipped.
                 speed=max(1.0, gap/3.0)
                 credit=getattr(job,'progress_credit',0.0)+elapsed*speed
-                allowance=min(gap,int(credit))
-                job.progress_credit=credit-allowance
+                # One Discord edit equals exactly one visible percentage point.
+                # Excess credit is retained, never used to skip a number.
+                allowance=1 if gap>0 and credit>=1 else 0
+                job.progress_credit=min(credit-allowance,20.0)
                 job.progress_percent=min(target,job.progress_percent+allowance,99)
                 job.progress_display_at=now
             else:
@@ -1555,28 +1557,42 @@ class FairPlayService:
             # failure, permissions or message edits). Retry once with a tiny
             # valid result, then explicitly show delivery failure.
             job.stage='Posting final report…'
-            published=await self.safe_progress(
-                job,'Complete',view=ReportView(result.username),
-                embed=result_embed(result))
-            if not published and not job.cancel_requested and not job.message_deleted:
-                fallback=fallback_result_embed(result)
-                published=await self.safe_progress(
-                    job,'Complete',view=ReportView(result.username),
-                    embed=fallback)
+            # Publish the final report and its charts as one new message at
+            # the bottom of the channel. Only delete the progress card after
+            # Discord has acknowledged the replacement.
+            import io
+            attachments=[discord.File(io.BytesIO(data),filename=name)
+                         for name,data in chart_files]
+            final_card=result_embed(result)
+            final_card.add_field(name='Total scan time',
+                                 value=duration(job.timing_elapsed()),inline=False)
+            final_card.set_footer(text=(final_card.footer.text or '')+
+                                  f' · Review ID: {job.token}')
+            published=False
+            try:
+                final_message=await self.channel.send(
+                    embed=final_card,files=attachments,
+                    view=ReportView(result.username),
+                    allowed_mentions=discord.AllowedMentions.none())
+                published=True
+            except discord.HTTPException:
+                try:
+                    fallback=fallback_result_embed(result)
+                    fallback.set_footer(text=(fallback.footer.text or '')+
+                                        f' · Review ID: {job.token}')
+                    final_message=await self.channel.send(
+                        embed=fallback,view=ReportView(result.username),
+                        allowed_mentions=discord.AllowedMentions.none())
+                    published=True
+                except discord.HTTPException:
+                    pass
             if published and not job.cancel_requested:
-                if chart_files:
-                    try:
-                        import io
-                        # An image failure never invalidates the verified
-                        # depth analysis or causes a duplicate main report.
-                        attachments=[discord.File(io.BytesIO(data),filename=name)
-                                     for name,data in chart_files]
-                        await self.channel.send(
-                            content=f"**Fair Play — charts by time control** (game index, not calendar time) · {result.version}",
-                            files=attachments,reference=job.message,
-                            allowed_mentions=discord.AllowedMentions.none())
-                    except discord.HTTPException:
-                        pass
+                old_message=job.message
+                job.message=final_message
+                job.progress_percent=100
+                if old_message is not None and old_message.id!=final_message.id:
+                    try:await old_message.delete()
+                    except discord.HTTPException:pass
                 self.results[job.message.id] = (time.time(),result)
                 self.cache[job.target] = (time.time(),result,job.message)
                 job.report_published=True
