@@ -94,7 +94,7 @@ class RecentHistory(unittest.TestCase):
         from fairplay_method3_ui import result_embed,history_svg,mark_recent
         grouped=next(rows for rows in observations(result.games).values() if rows)
         self.assertEqual(sum(r['priority_sample'] for r in grouped),200)
-        self.assertIn('200-game chronological blocks',str(result_embed(result).to_dict()))
+        self.assertIn('Sample / coverage',str(result_embed(result).to_dict()))
         self.assertIn('Recent priority sample',mark_recent('<svg></svg>',grouped,(150,)))
         self.assertIn('Earlier',history_svg(result))
 
