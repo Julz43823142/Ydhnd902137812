@@ -102,7 +102,10 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 'opponent_groups':[],'periods':[]},None)
         subject=dict(subject)
         subject['overall_results']=_result(overall_rows)
-        subject['periods']=[period for _,_,sub in candidate_rows for period in sub['periods']]
+        # Keep only the selected block's evidence in the Discord payload.
+        # All blocks were scored above; serializing every candidate window
+        # would make a 5000-game result needlessly large.
+        subject['periods']=subject['periods'][:]
         # Display the selected block and its local chronological window.
         # Dates and class-relative indexing must use that same block.
         if chosen:
