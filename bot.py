@@ -733,6 +733,35 @@ async def fairplay_command(interaction: discord.Interaction, username: str):
     if await channel_check(interaction):await submit(interaction,username)
 
 
+@fairplay_group.command(name='sus', description='Owner-only fictional Fair Play parody (not a real analysis).')
+@discord.app_commands.default_permissions(administrator=True)
+async def fairplay_sus_command(interaction: discord.Interaction, username: str):
+    """A public joke report; real moderation and screening are never invoked."""
+    if str(interaction.user.id) != SHARKMEISTER_DEFAULT_USER_ID:
+        await interaction.response.send_message("Only Sharkmeister can use this command.", ephemeral=True)
+        return
+    from fairplay_sus_parody import build_sus_chart, sanitize_username
+    try:
+        name = sanitize_username(username)
+        chart = build_sus_chart(name)
+    except ValueError as error:
+        await interaction.response.send_message(str(error), ephemeral=True)
+        return
+    embed = discord.Embed(
+        title="Fair Play SUS - PARODY / JOKE",
+        description=(f"**Player:** {name}\\n"
+                     "**Suspicion:** VERY HIGH\\n"
+                     "**Result confidence:** HIGH\\n"
+                     "**Cheater probability:** 100% (FICTIONAL)\\n\\n"
+                     "**This is a joke, not a real Fair Play analysis or accusation.**"),
+        color=discord.Color.orange(),
+    )
+    embed.set_image(url="attachment://sus_parody.png")
+    await interaction.response.send_message(
+        embed=embed, file=discord.File(chart, filename="sus_parody.png")
+    )
+
+
 @fairplay_auto_group.command(name='start', description='Owner only: rescan older-version reports while the queue is idle.')
 async def fairplay_auto_start(interaction: discord.Interaction):
     from fairplay_auto import control
