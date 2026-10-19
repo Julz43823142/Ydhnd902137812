@@ -1369,8 +1369,9 @@ class FairPlayService:
         import feature_usage
         feature_usage.note('use:fairplay-scan',ctx.user.id)
         if waiting:
-            await self.channel.send(content='Your Fair Play review is queued. Public progress will appear when it starts.',
-                                    allowed_mentions=discord.AllowedMentions.none())
+            await ctx.followup.send(
+                'Your Fair Play review is queued. Public progress will appear when it starts.',
+                ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
 
     async def safe_progress(self,job,stage,*,view=None,embed=None):
         if job.message_deleted:return False
@@ -1385,7 +1386,8 @@ class FairPlayService:
             target=max(job.progress_percent,job.timing.percent(stage) if hasattr(job.timing,'percent') else estimate(stage))
             if os.getenv('FAIRPLAY_METHOD3')=='1' and stage!='Complete':
                 tail=stage.startswith(('Method 3: building','Preparing charts',
-                                       'Rendering chart','Method 3: rendering'))
+                                       'Rendering chart','Method 3: rendering',
+                                       'Posting final report'))
                 if tail:
                     now=time.monotonic()
                     if not job.report_tail_started:
@@ -1430,10 +1432,16 @@ class FairPlayService:
             card = (embed.copy() if embed is not None else progress_embed(job.target,stage,job.progress_percent,job.timing))
             if os.getenv('FAIRPLAY_METHOD3')=='1' and stage!='Complete':
                 collection=getattr(job.timing,'collection_last',None)
-                games=collection[1] if collection else None
+                games=(getattr(job,'total_games_hint',None) or
+                       (collection[1] if collection else None))
                 if games:
                     remaining=runtime_remaining(games,job.timing_elapsed())
                     if remaining is not None:
+                        # The prediction is for the entire review, including charts
+                        # and publication, not just the game collection phase.
+                        if job.report_tail_started:
+                            tail_elapsed=max(0.0,time.monotonic()-job.report_tail_started)
+                            remaining=max(remaining, max(15.0, 65.0-tail_elapsed))
                         card.description=(card.description or '')+(
                             '\nEstimated remaining time: **~'+duration(remaining)+'**'
                             ' (based on previous reviews; may change).')
@@ -1558,6 +1566,7 @@ class FairPlayService:
                 await asyncio.wait({future},timeout=1 if os.getenv('FAIRPLAY_METHOD3')=='1' else 3)
             result = await future
             if job.cancel_requested:return
+            job.total_games_hint=len(result.games)
             chart_files=[]
             if result.diagnostics.get('method3'):
                 try:
@@ -1591,6 +1600,7 @@ class FairPlayService:
             # failure, permissions or message edits). Retry once with a tiny
             # valid result, then explicitly show delivery failure.
             job.stage='Posting final report…'
+            await self.safe_progress(job,job.stage)
             # Publish the final report and its charts as one new message at
             # the bottom of the channel. Only delete the progress card after
             # Discord has acknowledged the replacement.
