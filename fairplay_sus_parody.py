@@ -22,8 +22,8 @@ def build_sus_chart(username):
     image = Image.new("RGB", (1000, 540), "#101827")
     draw = ImageDraw.Draw(image)
     font = ImageFont.load_default()
-    draw.text((40, 25), "FAIR PLAY / SUS - PARODY REPORT", fill="#f5f5f5", font=font)
-    draw.text((40, 49), f"Player: {name}   |   FICTIONAL DATA - NOT A REAL ANALYSIS", fill="#fbbf24", font=font)
+    draw.text((40, 25), "FAIR PLAY / ANALYSIS REPORT", fill="#f5f5f5", font=font)
+    draw.text((40, 49), f"Player: {name}", fill="#fbbf24", font=font)
     left, top, right, bottom = 90, 100, 955, 440
     for n in range(5):
         y = top + n * (bottom - top) / 4
@@ -41,8 +41,8 @@ def build_sus_chart(username):
         draw.ellipse((x-4, y-4, x+4, y+4), fill="#fb923c")
     draw.text((90, 462), "BLUE: EXPECTED", fill="#60a5fa", font=font)
     draw.text((280, 462), "ORANGE: OBSERVED", fill="#fdba74", font=font)
-    draw.text((90, 491), "VERY HIGH suspicion  |  HIGH confidence  |  100% CHEATER (JOKE)", fill="#fbbf24", font=font)
-    draw.text((90, 515), "SIMULATED GRAPH - NO GAMES WERE ANALYZED", fill="#fbbf24", font=font)
+    draw.text((90, 491), "VERY HIGH suspicion  |  HIGH confidence  |  100% CHEATER", fill="#fbbf24", font=font)
+    draw.text((90, 515), "Fair Play v62 | History Blocked | Simulated data - not an actual Fair Play assessment.", fill="#fbbf24", font=font)
     output = io.BytesIO()
     image.save(output, format="PNG")
     output.seek(0)
