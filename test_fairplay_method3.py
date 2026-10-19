@@ -57,7 +57,7 @@ class Method3(unittest.TestCase):
         result=self.run_review()
         from fairplay_ui import result_embed,detail_embed
         self.assertIn('review priority',result_embed(result).description)
-        self.assertIn('Stockfish: not run',str(result_embed(result).to_dict()))
+        self.assertNotIn('Stockfish: not run',str(result_embed(result).to_dict()))
         self.assertIn('Published Accuracy: 0/20',str(result_embed(result).to_dict()))
         self.assertIn('Missing scores were not engine-reviewed',str(result_embed(result).to_dict()))
         for mode in ('Engine Analysis','Human Moves','Timing','Performance','Review Gates'):
