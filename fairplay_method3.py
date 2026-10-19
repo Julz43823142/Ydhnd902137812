@@ -33,7 +33,8 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         collection=replace(config,max_games=LIMIT,history_games=LIMIT,primary_engine_games=LIMIT)
         games,skipped,partial=collect_games(api,target,progress,collection,
             include_unrated=True,include_latest_fifty_short=True,
-            include_recent_all_short_count=LIMIT,time_classes={'rapid','blitz','bullet'})
+            include_recent_all_short_count=LIMIT,time_classes={'rapid','blitz','bullet'},
+            progress_detail=True)
         check_deadline(deadline)
         games=sorted((g for g in games if type(g.rated) is bool),key=lambda g:(g.ended,g.identity))[-LIMIT:]
         if not games:raise ReviewError('No eligible live games were found.')
@@ -42,7 +43,6 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         # dilute a qualifying period with older normal results. Apply an
         # additional across-block search correction to avoid inflated flags.
         from fairplay_outcome_study import _result
-        from math import ceil
         blocks=[games[i:i+BLOCK_SIZE] for i in range(0,len(games),BLOCK_SIZE)]
         block_count=len(blocks)
         overall_rows=[]
@@ -109,7 +109,6 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
             members=[g for g in selected_block if g.time_class==chosen['time_class']][chosen['first_game']-1:chosen['last_game']]
             chosen['first_ended']=members[0].ended;chosen['last_ended']=members[-1].ended
             chosen['history_block']=block_index+1
-        progress('Method 3: building graphs and report…')
         rated_count=sum(g.rated is True for g in games)
         confidence=('LOW' if partial or len(games)<30 or (priority in ('HIGH','MODERATE') and chosen and chosen['games']<10)
                     else 'HIGH' if len(games)>=100 else 'MEDIUM')
