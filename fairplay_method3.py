@@ -38,7 +38,6 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         check_deadline(deadline)
         games=sorted((g for g in games if type(g.rated) is bool),key=lambda g:(g.ended,g.identity))[-LIMIT:]
         if not games:raise ReviewError('No eligible live games were found.')
-        progress('Method 3: comparing Elo expectations…')
         # Evaluate disjoint chronological 200-game blocks independently, never
         # dilute a qualifying period with older normal results. Apply an
         # additional across-block search correction to avoid inflated flags.
