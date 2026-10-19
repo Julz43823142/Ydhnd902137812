@@ -11,7 +11,7 @@ def estimate(stage):
         match=re.search(r'(\d+)/(\d+)',stage)
         return 66+int(28*min(1,(int(match[1])-1)/max(1,int(match[2])))) if match else 66
     if stage.startswith(('Method 3: comparing','Comparing history')):return 75
-    if stage.startswith('Rendering chart'):
+    if stage.startswith(('Rendering chart','Method 3: rendering chart')):
         match=re.search(r'(\d+)/(\d+)',stage)
         return 95+int(4*min(1,int(match[1])/max(1,int(match[2])))) if match else 95
     if stage.startswith(('Method 3: building','Preparing charts','Rendering charts')):return 95
