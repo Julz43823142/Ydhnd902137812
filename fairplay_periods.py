@@ -12,19 +12,23 @@ from fairplay_outcome_study import expected_points
 def points_bound(games):
     rows=[(g.get('score'),expected_points(g.get('player_elo'),g.get('opponent_elo'))) for g in games]
     rows=[(score,p) for score,p in rows if type(score) in (int,float) and score in (0,.5,1) and p is not None]
-    n=len(rows);actual=sum(score for score,p in rows);expected=sum(p for score,p in rows)
+    return _upper_bound([p for score,p in rows],sum(score for score,p in rows))
+
+
+def _upper_bound(probabilities,actual):
+    n=len(probabilities);expected=sum(probabilities)
     if not n or actual<=expected:return 1.0
-    if actual==n:return exp(sum(log(p) for score,p in rows))
+    if actual==n:return exp(sum(log(p) for p in probabilities))
     # Bounded [0,1] points, including draws. The Bernoulli MGF upper-bounds
     # the MGF for points with the same mean; it does not estimate winrate.
     lo,hi=0.0,64.0
     for _ in range(40):
         t=(lo+hi)/2;et=exp(t)
-        tilted=sum(p*et/(1+p*(et-1)) for score,p in rows)
+        tilted=sum(p*et/(1+p*(et-1)) for p in probabilities)
         if tilted<actual:lo=t
         else:hi=t
     t=(lo+hi)/2
-    return min(1.0,exp(sum(log1p(p*expm1(t)) for score,p in rows)-t*actual))
+    return min(1.0,exp(sum(log1p(p*expm1(t)) for p in probabilities)-t*actual))
 
 
 def protect_periods(periods,games):
@@ -46,7 +50,17 @@ def protect_periods(periods,games):
                         'moderate_pass':short_ok and adjusted<=.10,
                         'note':'Independent-game Elo model guard, not a cheating probability; ratings may be inaccurate in rated or unrated play.'}
         p['search_guard']=cache[key]
+        accuracy=p['accuracy'];matched=accuracy['matched_games']
+        # The earlier reference's upper-decile boundary supplies a stationary
+        # 10% exceedance model, NOT an empirically calibrated human norm.
+        # Finite references and correlated games can violate this assumption.
+        hits=round((accuracy['above_reference_fraction'] or 0)*matched)
+        accuracy_bound=min(1.0,_upper_bound([.10]*matched,hits)*count)
+        p['accuracy_search_guard']={'searched_windows':count,
+            'adjusted_reference_model_bound':accuracy_bound,'moderate_pass':accuracy_bound<=.10,
+            'note':'Independent, stationary upper-decile reference model; not a cheating probability or validated false-positive rate.'}
         for checks in p['scenarios'].values():
+            checks['accuracy_pass']=checks['accuracy_pass'] and p['accuracy_search_guard']['moderate_pass']
             raw=checks['results_pass']
             checks['results_review_pass']=raw and cache[key]['moderate_pass']
             checks['results_pass']=raw and cache[key]['high_pass']

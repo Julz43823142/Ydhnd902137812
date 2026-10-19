@@ -102,6 +102,22 @@ class PeriodSearch(unittest.TestCase):
         self.assertEqual(result.confidence,'MEDIUM')
         self.assertEqual(result.diagnostics['method3']['selected']['games'],60)
 
+    def test_three_accidental_high_accuracy_games_do_not_flag_thousand_game_history(self):
+        games=[profile_game(i,score=.5) for i in range(1000)]
+        for i,g in enumerate(games):g.accuracy=60+i%21
+        for g in games[413:416]:g.accuracy=99
+        self.assertEqual(self.run_games(games).priority,'LOW')
+
+    def test_five_replicated_accuracy_deviations_can_support_moderate(self):
+        games=[profile_game(i,score=.5) for i in range(1000)]
+        for i,g in enumerate(games):g.accuracy=60+i%21
+        for g in games[413:418]:g.accuracy=99
+        result=self.run_games(games)
+        self.assertEqual(result.priority,'MODERATE')
+        selected=result.diagnostics['method3']['selected']
+        self.assertTrue(selected['accuracy_search_guard']['moderate_pass'])
+        self.assertFalse(selected['search_guard']['high_pass'])
+
     def test_reference_modes_do_not_multiply_window_count(self):
         r=self.run_games(self.history(413))
         periods=r.diagnostics['method3']['subject']['periods']

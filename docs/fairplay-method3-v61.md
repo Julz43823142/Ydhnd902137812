@@ -26,7 +26,11 @@ Reference modes do not count the same physical window twice. Overlapping windows
 are not independent confirmations. Five–nine-game results routes require full
 result coverage and wins in every game; a HIGH selected from <10 games has LOW
 confidence. One game cannot produce HIGH. Accuracy can still support MODERATE
-with the existing >=8-point excess / >=60%-above-reference criteria. VERY HIGH
+with the existing >=8-point excess / >=60%-above-reference criteria, plus a
+search-adjusted <=0.10 bound for exceedance of the earlier upper-decile reference.
+This assumes a stationary reference and independent game scores; finite matched
+references and changing play can violate that model. It is not a calibrated
+false-positive rate. VERY HIGH
 is unavailable in this metadata-only method.
 
 This model guard assumes correct Elo expected points and independent games.
