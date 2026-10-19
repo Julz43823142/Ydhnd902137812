@@ -59,7 +59,8 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
             overall_rows.extend(player['games'][-len(block):])
             study=evaluate([player],source='official_accuracy',config=STUDY,
                 scenarios=SCENARIOS+DEVELOPMENT_SCENARIOS,rated=None,
-                candidate_tail=len(block),protect_search=True)
+                candidate_tail=len(block) if len(block)>=STUDY.minimum_games else None,
+                protect_search=True)
             sub=study['players'][0]
             periods=sub['periods']
             window_count+=len({(p['time_class'],p['first_game'],p['last_game']) for p in periods})
@@ -95,9 +96,17 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 basis='accuracy' if tier=='MODERATE' and not middle['results_review_pass'] else 'results'
                 candidates.append((tier,basis,index,block,context,sub,period))
         if candidates:
+            # Strong HIGH evidence wins; when nothing qualifies, display the
+            # widest covered LOW period rather than an arbitrary five-game slice.
+            def candidate_key(row):
+                tier, period = row[0], row[6]
+                bound=period['search_guard']['adjusted_model_bound']
+                accuracy_bound=period['accuracy_search_guard']['adjusted_reference_model_bound']
+                secondary=(period['games'] if tier in ('LOW','INSUFFICIENT DATA') else
+                           -bound if tier=='HIGH' else -min(bound,accuracy_bound))
+                return (rank[tier],secondary,period['games'])
             priority,basis,block_index,selected_block,selected_context,subject,chosen=max(candidates,
-                key=lambda x:(rank[x[0]],
-                    -(x[6]['search_guard']['adjusted_model_bound']),-x[6]['games']))
+                key=candidate_key)
         else:
             priority,basis,block_index,selected_block,selected_context,subject,chosen=(
                 'INSUFFICIENT DATA','results',0,games,games,{'overall_results':_result(overall_rows),
