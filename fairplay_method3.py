@@ -15,7 +15,7 @@ VERSION='fairplay-v62-history-blocks'
 LIMIT=5000
 BLOCK_SIZE=200
 PRIORITY_GAMES=200
-STUDY=replace(STUDY_CONFIG,history_limit=BLOCK_SIZE,minimum_games=5,widths=(5,10,20,50,100,200))
+STUDY=replace(STUDY_CONFIG,history_limit=2*BLOCK_SIZE,minimum_games=5,widths=(5,10,20,50,100,200))
 
 
 def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
@@ -50,23 +50,26 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         for index,block in enumerate(blocks):
             check_deadline(deadline)
             progress(f'Method 3: block {index+1}/{block_count}')
+            context_start=max(0,index*BLOCK_SIZE-BLOCK_SIZE)
+            context=games[context_start:(index+1)*BLOCK_SIZE]
             player={'player_key':'subject','games':[{
                 'identity':g.identity,'ended':g.ended,'rated':g.rated,'time_class':g.time_class,
                 'time_control':g.time_control,'player_elo':g.rating,'opponent_elo':g.opponent_rating,
-                'score':g.score,'official_accuracy':g.accuracy,'estimated_accuracy':None} for g in block]}
-            overall_rows.extend(player['games'])
+                'score':g.score,'official_accuracy':g.accuracy,'estimated_accuracy':None} for g in context]}
+            overall_rows.extend(player['games'][-len(block):])
             study=evaluate([player],source='official_accuracy',config=STUDY,
-                scenarios=SCENARIOS+DEVELOPMENT_SCENARIOS,rated=None,protect_search=True)
+                scenarios=SCENARIOS+DEVELOPMENT_SCENARIOS,rated=None,
+                candidate_tail=len(block),protect_search=True)
             sub=study['players'][0]
             periods=sub['periods']
             window_count+=len({(p['time_class'],p['first_game'],p['last_game']) for p in periods})
-            candidate_rows.append((index,block,sub))
+            candidate_rows.append((index,block,context,sub))
         # The within-block guard already accounts for all windows in that block.
         # Multiplying by the number of tested blocks is a conservative union
         # bound across all blocks, including short or incomplete ones.
         rank={'INSUFFICIENT DATA':0,'LOW':1,'MODERATE':2,'HIGH':3}
         candidates=[]
-        for index,block,sub in candidate_rows:
+        for index,block,context,sub in candidate_rows:
             for period in sub['periods']:
                 guard=period['search_guard']
                 guard['adjusted_model_bound']=min(1.0,guard['adjusted_model_bound']*block_count)
@@ -90,14 +93,14 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                       'MODERATE' if middle['results_review_pass'] or accuracy_checks['accuracy_pass'] else
                       'LOW' if middle['results_covered'] or accuracy_checks['accuracy_covered'] else 'INSUFFICIENT DATA')
                 basis='accuracy' if tier=='MODERATE' and not middle['results_review_pass'] else 'results'
-                candidates.append((tier,basis,index,block,sub,period))
+                candidates.append((tier,basis,index,block,context,sub,period))
         if candidates:
-            priority,basis,block_index,selected_block,subject,chosen=max(candidates,
-                key=lambda x:(rank[x[0]],x[5]['games'],
-                    -(x[5]['search_guard']['adjusted_model_bound'])))
+            priority,basis,block_index,selected_block,selected_context,subject,chosen=max(candidates,
+                key=lambda x:(rank[x[0]],
+                    -(x[6]['search_guard']['adjusted_model_bound']),-x[6]['games']))
         else:
-            priority,basis,block_index,selected_block,subject,chosen=(
-                'INSUFFICIENT DATA','results',0,games,{'overall_results':_result(overall_rows),
+            priority,basis,block_index,selected_block,selected_context,subject,chosen=(
+                'INSUFFICIENT DATA','results',0,games,games,{'overall_results':_result(overall_rows),
                 'opponent_groups':[],'periods':[]},None)
         subject=dict(subject)
         subject['overall_results']=_result(overall_rows)
@@ -108,10 +111,18 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         # Display the selected block and its local chronological window.
         # Dates and class-relative indexing must use that same block.
         if chosen:
-            members=[g for g in selected_block if g.time_class==chosen['time_class']][chosen['first_game']-1:chosen['last_game']]
+            members=[g for g in selected_context if g.time_class==chosen['time_class']][chosen['first_game']-1:chosen['last_game']]
             chosen['first_ended']=members[0].ended;chosen['last_ended']=members[-1].ended
+            # Class-relative indices in a single block need the offset of all
+            # older games of that time class for the whole-history display.
+            context_start=max(0,block_index*BLOCK_SIZE-BLOCK_SIZE)
+            class_offset=sum(g.time_class==chosen['time_class'] for g in games[:context_start])
+            chosen['first_game']+=class_offset
+            chosen['last_game']+=class_offset
             chosen['history_block']=block_index+1
         rated_count=sum(g.rated is True for g in games)
+        subject['rated_games']=rated_count
+        subject['unrated_games']=len(games)-rated_count
         confidence=('LOW' if partial or len(games)<30 or (priority in ('HIGH','MODERATE') and chosen and chosen['games']<10)
                     else 'HIGH' if len(games)>=100 else 'MEDIUM')
         reasons=[('A chronological period scored substantially above its Elo-point expectation and passed the history-search guard. '
