@@ -1833,7 +1833,7 @@ async def _twitch_send_chat(text, reply_to=None):
         ) as response:
             if response.status == 401:
                 await _twitch_refresh_access_token("chat-401")
-                return await _twitch_send_chat(text, reply_to)
+                raise RuntimeError("Twitch chat token refreshed; retry the next command.")
             if response.status != 200:
                 raise RuntimeError(f"Twitch chat reply failed (HTTP {response.status})")
             data = await response.json()
