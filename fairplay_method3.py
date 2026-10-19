@@ -68,7 +68,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         # The within-block guard already accounts for all windows in that block.
         # Multiplying by the number of tested blocks is a conservative union
         # bound across all blocks, including short or incomplete ones.
-        rank={'INSUFFICIENT DATA':0,'LOW':1,'MODERATE':2,'HIGH':3}
+        rank={'INSUFFICIENT DATA':0,'LOW':1,'MODERATE':2,'HIGH':3,'VERY HIGH':4}
         candidates=[]
         for index,block,context,sub in candidate_rows:
             for period in sub['periods']:
@@ -90,7 +90,12 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                         'LOW' if checks['results_covered'] and checks['accuracy_covered'] else 'INSUFFICIENT DATA')
                 middle=period['scenarios']['development_middle']
                 accuracy_checks=period['scenarios']['balanced']
-                tier=('HIGH' if middle['results_pass'] else
+                very_high=(middle['results_pass'] and accuracy_checks['accuracy_pass']
+                           and period['games']>=20
+                           and guard['adjusted_model_bound']<=.001
+                           and acc['adjusted_reference_model_bound']<=.01)
+                tier=('VERY HIGH' if very_high else
+                      'HIGH' if middle['results_pass'] else
                       'MODERATE' if middle['results_review_pass'] or accuracy_checks['accuracy_pass'] else
                       'LOW' if middle['results_covered'] or accuracy_checks['accuracy_covered'] else 'INSUFFICIENT DATA')
                 basis='accuracy' if tier=='MODERATE' and not middle['results_review_pass'] else 'results'
@@ -103,7 +108,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 bound=period['search_guard']['adjusted_model_bound']
                 accuracy_bound=period['accuracy_search_guard']['adjusted_reference_model_bound']
                 secondary=(period['games'] if tier in ('LOW','INSUFFICIENT DATA') else
-                           -bound if tier=='HIGH' else -min(bound,accuracy_bound))
+                           -bound if tier in ('HIGH','VERY HIGH') else -min(bound,accuracy_bound))
                 return (rank[tier],secondary,period['games'])
             priority,basis,block_index,selected_block,selected_context,subject,chosen=max(candidates,
                 key=candidate_key)
@@ -135,7 +140,8 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         subject['unrated_games']=len(games)-rated_count
         confidence=('LOW' if partial or len(games)<30 or (priority in ('HIGH','MODERATE') and chosen and chosen['games']<10)
                     else 'HIGH' if len(games)>=100 else 'MEDIUM')
-        reasons=[('A chronological period scored substantially above its Elo-point expectation and passed the history-search guard. '
+        reasons=[('An exceptional results period also passed a stricter matched historical Accuracy check. This is a review priority, not proof of misconduct.') if priority=='VERY HIGH' else
+                 ('A chronological period scored substantially above its Elo-point expectation and passed the history-search guard. '
                   'This experimental results flag is not engine or Maia confirmation.') if priority=='HIGH' else
                  'Official Accuracy exceeded a matched earlier personal reference. Manual review is needed.' if priority=='MODERATE' and basis=='accuracy' else
                  'A chronological period exceeded the results review boundary but did not pass the stricter HIGH search guard.' if priority=='MODERATE' else
@@ -156,7 +162,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 'selected':chosen,'subject':subject,'source':'official_accuracy',
                 'engine_used':False,'maia_used':False,'timing_scoring':False,
                 'accuracy_role':'Can support MODERATE; strictly earlier same-control/rating-matched personal reference only',
-                'limits':'Rated and unrated have identical priority rules and share chronological periods/references. All collected live history is searched. Daily is excluded. Ratings may be inaccurate in either mode. Underrating, legitimate improvement, smurfing, rating lag and selected hot streaks can qualify. Multiple windows are correlated. No VERY HIGH from results alone.'}
+                'limits':'Rated and unrated have identical priority rules and share chronological periods/references. All collected live history is searched. Daily is excluded. Ratings may be inaccurate in either mode. Underrating, legitimate improvement, smurfing, rating lag and selected hot streaks can qualify. Multiple windows are correlated. VERY HIGH requires both stringent results and matched earlier Accuracy checks; neither establishes misconduct.'}
         # Offline evaluate's cross-player groups have no other players here. Attach
         # the earlier personal references by period, never fabricate a group norm.
         progress('Method 3: building graphs and report…')

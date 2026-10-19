@@ -10,7 +10,7 @@ def fmt(value, percent=False):
 def result_embed(result):
     from fairplay_ui import priority_color
     d=result.diagnostics['method3'];s=d['subject'];r=(d.get('selected') or {}).get('results',s['overall_results'])
-    icon={'LOW':'🟢','MODERATE':'🟡','HIGH':'🟠','INSUFFICIENT DATA':'⚪'}.get(result.priority,'⚪')
+    icon={'LOW':'🟢','MODERATE':'🟡','HIGH':'🟠','VERY HIGH':'🔴','INSUFFICIENT DATA':'⚪'}.get(result.priority,'⚪')
     e=discord.Embed(title='🛡️ Fair Play Review — '+result.username,color=priority_color(result.priority),
         description=f'{icon} **{result.priority} review priority**')
     accuracy_games=sum(g.accuracy is not None for g in result.games)
@@ -59,7 +59,7 @@ def detail_embed(result,mode):
     if mode in ('Engine Analysis','Human Moves'):
         e.add_field(name='Not performed',value='This method does not run Stockfish or Maia. No engine ranks, human-move likelihoods or deep confirmation are claimed.',inline=False)
     elif mode=='Review Gates':
-        e.add_field(name='Configured boundaries',value='Rated and unrated have identical rules. HIGH: valid chronological results, Elo-points residual ≥2.4, score excess ≥20 percentage points and a search-adjusted Elo-model bound ≤0.01. Five–nine-game HIGH also requires every game to be a win with complete result coverage. MODERATE: results pass the looser 0.10 model guard, or adequately covered matched earlier Accuracy rises ≥8 points with ≥60% above its upper reference and a search-adjusted reference-model bound ≤0.10. No one-game HIGH. VERY HIGH is unavailable. Model assumptions are uncalibrated; these bounds are not cheating probabilities.',inline=False)
+        e.add_field(name='Configured boundaries',value='Rated and unrated have identical rules. HIGH: valid chronological results, Elo-points residual ≥2.4, score excess ≥20 percentage points and a search-adjusted Elo-model bound ≤0.01. Five–nine-game HIGH also requires every game to be a win with complete result coverage. MODERATE: results pass the looser 0.10 model guard, or adequately covered matched earlier Accuracy rises ≥8 points with ≥60% above its upper reference and a search-adjusted reference-model bound ≤0.10. No one-game HIGH. VERY HIGH requires HIGH results evidence, at least 20 games, a search-adjusted results bound ≤0.001, and a matched earlier Accuracy reference check passing its own bound ≤0.01. Model assumptions are uncalibrated; these bounds are not cheating probabilities.',inline=False)
         if d.get('selected') and d['selected'].get('search_guard'):
             g=d['selected']['search_guard']
             a=d['selected'].get('accuracy_search_guard',{})
