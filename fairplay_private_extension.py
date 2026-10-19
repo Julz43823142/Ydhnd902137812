@@ -77,15 +77,20 @@ def install():
                     return
                 # Never fall back to hundreds of separate Discord messages.
                 try:
-                    name, payload = await asyncio.to_thread(owner_json, files)
+                    name, payload = await asyncio.to_thread(owner_json, files, max_bytes=25 * 1024 * 1024)
                 except (ValueError, KeyError, TypeError, OSError):
                     await ctx.followup.send(
                         "Complete owner evidence could not fit in one verified file. "
                         "No partial export was sent.", ephemeral=True)
                     return
-                await ctx.followup.send(
-                    file=discord.File(io.BytesIO(payload), filename=name),
-                    ephemeral=True, allowed_mentions=discord.AllowedMentions.none())
+                try:
+                    await ctx.followup.send(
+                        file=discord.File(io.BytesIO(payload), filename=name),
+                        ephemeral=True, allowed_mentions=discord.AllowedMentions.none())
+                except discord.HTTPException:
+                    await ctx.followup.send(
+                        'Discord rejected the complete file. No partial evidence was sent.',
+                        ephemeral=True, allowed_mentions=discord.AllowedMentions.none())
 
             button.callback = deliver
             self.add_item(button)
