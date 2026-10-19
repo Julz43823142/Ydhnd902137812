@@ -749,11 +749,14 @@ async def fairplay_sus_command(interaction: discord.Interaction, username: str):
         return
     embed = discord.Embed(
         title="Fair Play | Analysis Report",
-        description=(f"**Player:** {name}\\n"
-                     "**Suspicion:** VERY HIGH\\n"
-                     "**Result confidence:** HIGH\\n"
-                     "**Cheater probability:** 100%\\n\\n"
-                     "**Fair Play v62 · History Blocked**\\nSimulated data — not an actual Fair Play assessment."),
+        description=(
+            f"**Player:** {name}" + chr(10)
+            + "**Suspicion:** VERY HIGH" + chr(10)
+            + "**Result confidence:** HIGH" + chr(10)
+            + "**Cheater probability:** 100%" + chr(10) + chr(10)
+            + "**Fair Play v62 · History Blocked**" + chr(10)
+            + "Simulated data — not an actual Fair Play assessment."
+        ),
         color=discord.Color.orange(),
     )
     embed.set_image(url="attachment://sus_parody.png")
