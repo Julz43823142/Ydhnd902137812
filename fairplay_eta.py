@@ -60,4 +60,4 @@ def remaining(games,elapsed):
     predicted=predict(games)
     if predicted is None:return None
     # Avoid misleading second-level precision and premature zero estimates.
-    return max(0,int(predicted-max(0,elapsed)))
+    return max(15,int(predicted-max(0,elapsed)))
