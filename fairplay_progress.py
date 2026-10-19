@@ -124,6 +124,18 @@ class LiveTiming:
             phase,remaining=self.last_eta
             line+=' · Estimated time left in '+('deep analysis' if phase=='deep' else 'fast analysis')+': **~'+duration(remaining)+'**'
             line+=' (variable; not a total scan ETA)'
+        elif stage.startswith('Collecting rated') and self.collection_first and self.collection_last:
+            first,total,start=self.collection_first
+            done,_,sampled=self.collection_last
+            advanced=done-first
+            measured=sampled-start
+            if advanced>=max(10,total//20) and measured>=5 and done<total:
+                remaining=(total-done)*measured/advanced
+                line+=' · Estimated collection time left: **~'+duration(remaining)+'** (not total review ETA)'
+            else:
+                line+=' · Estimating collection speed…'
+        elif stage.startswith(('Rendering chart','Rendering charts','Method 3: building')):
+            line+=' · Chart rendering in progress; remaining time varies by image complexity.'
         else:
             line+=' · Time remaining: **not yet reliably estimated**'
         return line
