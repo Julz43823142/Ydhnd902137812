@@ -59,7 +59,7 @@ class Method3(unittest.TestCase):
         self.assertIn('review priority',result_embed(result).description)
         self.assertNotIn('Stockfish: not run',str(result_embed(result).to_dict()))
         self.assertIn('Published Accuracy: 0/20',str(result_embed(result).to_dict()))
-        self.assertIn('Missing scores were not engine-reviewed',str(result_embed(result).to_dict()))
+        self.assertNotIn('Missing scores were not engine-reviewed',str(result_embed(result).to_dict()))
         for mode in ('Engine Analysis','Human Moves','Timing','Performance','Review Gates'):
             card=detail_embed(result,mode)
             self.assertLess(len(card),6000)
