@@ -111,6 +111,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         # Display the selected block and its local chronological window.
         # Dates and class-relative indexing must use that same block.
         if chosen:
+            chosen=dict(chosen)
             members=[g for g in selected_context if g.time_class==chosen['time_class']][chosen['first_game']-1:chosen['last_game']]
             chosen['first_ended']=members[0].ended;chosen['last_ended']=members[-1].ended
             # Class-relative indices in a single block need the offset of all
