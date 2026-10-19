@@ -20,7 +20,7 @@ def result_embed(result):
         'INSUFFICIENT DATA':'There are not enough usable games for a reliable comparison.'}
     e.add_field(name='Why this result?',value=explanations.get(result.priority,'See the detail buttons.'),inline=False)
     accuracy_games=sum(g.accuracy is not None for g in result.games)
-    e.add_field(name='Sample / coverage',value=f'{len(result.games)} live history games: {d.get("rated_games",len(result.games))} rated · {d.get("unrated_games",0)} unrated\n200-game chronological blocks · across-block search correction · results confidence: {result.confidence}'+(' · incomplete collection' if result.partial else '')+f'\nPublished Accuracy: {accuracy_games}/{len(result.games)} games. Missing scores were not engine-reviewed.',inline=False)
+    e.add_field(name='Sample / coverage',value=f'{len(result.games)} live history games: {d.get("rated_games",len(result.games))} rated · {d.get("unrated_games",0)} unrated\nEqual priority rules · 200-game chronological blocks · across-block search correction · results confidence: {result.confidence}'+(' · incomplete collection' if result.partial else '')+f'\nPublished Accuracy: {accuracy_games}/{len(result.games)} games. Missing scores were not engine-reviewed.',inline=False)
     selected=d.get('selected')
     if selected:
         e.add_field(name='Selected chronological period',value=f"{selected['time_class'].title()} · {selected['games']} games · {period_dates(selected)}\nExpected points: **{fmt(r['expected_points'])}** · scored: **{fmt(r['actual_points'])}**\nWinrate: **{fmt(r['win_fraction'],True)}** · a draw counts as half a point.",inline=False)
