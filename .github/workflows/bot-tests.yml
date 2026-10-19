@@ -54,8 +54,8 @@ jobs:
           # runner to reduce wall-clock time without skipping any tests.
           selected = [module for index,module in enumerate(modules) if index % 4 == ${{ matrix.shard }}]
           # Preload the root module before test imports can shadow it with scripts/.
-          import fairplay_outcome_study
-          raise SystemExit(subprocess.call([sys.executable, '-m', 'unittest', '-q', *selected]))
+          code = 'import fairplay_outcome_study, unittest, sys; unittest.main(module=None, argv=[sys.argv[0], "-q", *sys.argv[1:]])'
+          raise SystemExit(subprocess.call([sys.executable, '-c', code, *selected]))
           PY
       - name: Check specified synthetic selective-policy behavior
         if: matrix.shard == 0
