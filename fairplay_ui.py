@@ -49,7 +49,7 @@ def priority_color(priority):
 
 def panel_embed():
     if os.getenv('FAIRPLAY_METHOD3')=='1':
-        embed=discord.Embed(title=PANEL_TITLE,color=0x427CBA,description='Method 3 collects up to 1,000 rated live games for history; priority uses recent periods within the latest 200. Published Accuracy can add a review flag; clocks are descriptive. No Stockfish or Maia scan. Experimental screening, not proof of cheating.')
+        embed=discord.Embed(title=PANEL_TITLE,color=0x427CBA,description='Review a Chess.com account using its live-game history, published Accuracy and results. Rated and unrated games count equally. Automated screening; human review is required.')
         embed.set_footer(text=PANEL_MARKER+' · '+active_version())
         return embed
     if os.getenv("FAIRPLAY_V51")=="1":
@@ -1650,20 +1650,23 @@ class FairPlayService:
                     self.last_human = max(m.created_at.timestamp() for m in messages if not m.author.bot)
                     if time.time()-self.last_human<IDLE_SECONDS:return False
                 panels = [m for m in messages if self.is_panel(m)]
-                if messages and self.is_panel(messages[0]):
-                    self.panel_id = messages[0].id
-                    for old in panels[1:]:await old.delete()
+                current_message=panels[0] if panels else None
+                if current_message is None and self.panel_id:
+                    try:
+                        candidate=await self.channel.fetch_message(self.panel_id)
+                        if self.is_panel(candidate):current_message=candidate
+                    except discord.NotFound:
+                        self.panel_id=None
+                if current_message is not None:
+                    self.panel_id=current_message.id
+                    for old in panels:
+                        if old.id!=current_message.id:await old.delete()
                     current=panel_embed()
-                    if (messages[0].embeds[0].description!=current.description
-                            or messages[0].embeds[0].footer.text!=current.footer.text):
-                        await messages[0].edit(embed=current,view=SubmitView(),
-                                               allowed_mentions=discord.AllowedMentions.none())
+                    if (current_message.embeds[0].description!=current.description
+                            or current_message.embeds[0].footer.text!=current.footer.text):
+                        await current_message.edit(embed=current,view=SubmitView(),
+                                                   allowed_mentions=discord.AllowedMentions.none())
                     return False
-                # Refuse to add another panel if deleting an old one fails.
-                for old in panels:await old.delete()
-                if self.panel_id and not any(m.id==self.panel_id for m in panels):
-                    try:await self.channel.get_partial_message(self.panel_id).delete()
-                    except discord.NotFound:pass
                 if time.time()-self.last_human<IDLE_SECONDS:return False
                 message = await self.channel.send(embed=panel_embed(),view=SubmitView(),allowed_mentions=discord.AllowedMentions.none())
                 self.panel_id = message.id

@@ -84,7 +84,7 @@ def _games(player, config, rated=True):
     for game in player.get('games', []):
         if not isinstance(game, dict):
             raise ValueError('Games must be objects')
-        if (game.get('rated') is not rated or game.get('time_class') not in CLASSES
+        if ((type(game.get('rated')) is not bool or (rated is not None and game.get('rated') is not rated)) or game.get('time_class') not in CLASSES
                 or game.get('rules', 'chess') != 'chess'):
             continue
         key = game.get('identity')
@@ -133,6 +133,7 @@ def _index_reference(rows):
 
 
 def _reference(game, pool, source, config, minimum_players):
+    if callable(pool):return pool(game)
     if isinstance(pool, dict):
         pool = pool.get((game.get('time_class'), game.get('time_control')), ())
     matches = [(key,g) for key,g in pool if _accuracy(g,source) is not None and _matches(game,g,config)]
@@ -149,6 +150,29 @@ def _reference(game, pool, source, config, minimum_players):
     upper = [_quantile(values,.90) for values in by_player.values()]
     return {'median':median(centers), 'upper':median(upper),
             'games':physical_games, 'players':len(players)}
+
+
+class _PersonalReferences:
+    """Exact earlier-only references, reused across dense chronological windows."""
+    def __init__(self,group,source,config):
+        self.group,self.source,self.config=group,source,config
+        self.contexts={};self.prefixes={}
+
+    def at(self,game,start):
+        from bisect import bisect_left
+        context=(game['time_class'],game.get('time_control'),number(game.get('player_elo')),number(game.get('opponent_elo')))
+        if context not in self.contexts:
+            matches=[(i,_accuracy(g,self.source)) for i,g in enumerate(self.group)
+                     if _accuracy(g,self.source) is not None and _matches(game,g,self.config)]
+            self.contexts[context]=([i for i,a in matches],[a for i,a in matches])
+        indices,values=self.contexts[context]
+        n=bisect_left(indices,start)
+        if n<self.config.minimum_reference_games:return None
+        key=(context,n)
+        if key not in self.prefixes:
+            earlier=values[:n]
+            self.prefixes[key]={'median':median(earlier),'upper':_quantile(earlier,.90),'games':n,'players':1}
+        return self.prefixes[key]
 
 
 def _accuracy_summary(games, pool, source, config, minimum_players, cache, scope):
@@ -231,9 +255,11 @@ def _classify(games, accuracy, result, scenario, config):
             'results_covered':results_covered}
 
 
-def evaluate(players, *, source='official_accuracy', config=CONFIG, scenarios=SCENARIOS, candidate_tail=None, rated=True):
-    if type(rated) is not bool:
-        raise ValueError('Rated cohort must be an explicit boolean')
+def evaluate(players, *, source='official_accuracy', config=CONFIG, scenarios=SCENARIOS, candidate_tail=None, rated=True, protect_search=False):
+    if type(protect_search) is not bool:
+        raise ValueError('Search protection must be boolean')
+    if rated is not None and type(rated) is not bool:
+        raise ValueError('Rated cohort must be boolean or None for combined live games')
     if candidate_tail is not None and (type(candidate_tail) is not int or candidate_tail < config.minimum_games):
         raise ValueError('Candidate tail must contain at least the minimum games')
     if source not in ('official_accuracy','estimated_accuracy'):
@@ -263,11 +289,13 @@ def evaluate(players, *, source='official_accuracy', config=CONFIG, scenarios=SC
             group = [g for g in games if g['time_class']==kind]
             offset=next((i for i,g in enumerate(group) if g['identity'] in recent_ids),len(group)) if recent_ids is not None else 0
             eligible=len(group)-offset
+            personal=_PersonalReferences(group,source,config) if protect_search else None
             widths = sorted({w for w in config.widths if config.minimum_games<=w<=eligible}
                             | ({eligible} if eligible>=config.minimum_games else set()))
             seen = set()
             for width in widths:
-                for start in sorted(set(range(offset,len(group)-width+1,width))|{len(group)-width}):
+                stride=(1 if width<=20 else max(1,width//4)) if protect_search else width
+                for start in sorted(set(range(offset,len(group)-width+1,stride))|{len(group)-width}):
                     members=group[start:start+width]
                     ids=tuple(g['identity'] for g in members)
                     if ids in seen:continue
@@ -275,13 +303,16 @@ def evaluate(players, *, source='official_accuracy', config=CONFIG, scenarios=SC
                     result=_result(members)
                     for reference_mode,pool,minimum_players in (
                         ('other_players',others,config.minimum_reference_players),
-                        ('personal_earlier',[(key,g) for g in group[:start]],1)):
+                        ('personal_earlier',(lambda g,start=start:personal.at(g,start)) if personal is not None else [(key,g) for g in group[:start]],1)):
                         accuracy=_accuracy_summary(members,pool,source,config,minimum_players,
                             reference_cache,(reference_mode,start if reference_mode=='personal_earlier' else None))
                         periods.append({'time_class':kind,'first_game':start+1,'last_game':start+width,
                             'games':width,'reference_mode':reference_mode,
                             'accuracy':accuracy,'results':result,
                             'scenarios':{s.name:_classify(members,accuracy,result,s,config) for s in scenarios}})
+        if protect_search:
+            from fairplay_periods import protect_periods
+            protect_periods(periods,games)
         outcomes={}
         ablations={'results_only':{},'accuracy_only':{}}
         for scenario in scenarios:
@@ -295,12 +326,25 @@ def evaluate(players, *, source='official_accuracy', config=CONFIG, scenarios=SC
                                else ('accuracy_pass','accuracy_covered'))
                 def tier(period):
                     checks=period['scenarios'][scenario.name]
-                    return 'HIGH' if checks[flag] else 'LOW' if checks[coverage] else 'INSUFFICIENT DATA'
-                chosen=max(periods,key=lambda p:(rank[tier(p)],p['games']),default=None)
+                    return ('HIGH' if checks[flag] else
+                            'MODERATE' if mode=='results_only' and checks.get('results_review_pass') else
+                            'LOW' if checks[coverage] else 'INSUFFICIENT DATA')
+                def selection_key(period):
+                    base=(rank[tier(period)],)
+                    if not protect_search or tier(period) in ('LOW','INSUFFICIENT DATA'):
+                        return base+(period['games'],)
+                    if mode=='accuracy_only':
+                        a=period['accuracy']
+                        return base+(a['matched_games']/period['games'],
+                            a['median_excess'] if a['median_excess'] is not None else -1000,
+                            a['above_reference_fraction'] or 0,period['games'])
+                    return base+(-period['search_guard']['adjusted_model_bound'],
+                                 period['results']['score_excess'] or 0,period['games'])
+                chosen=max(periods,key=selection_key,default=None)
                 ablations[mode][scenario.name]={'priority':tier(chosen) if chosen else 'INSUFFICIENT DATA',
                                                'selected':chosen}
-        output['players'].append({'player_key':key,'rated_games':len(games) if rated else 0,
-                                  'unrated_games':len(games) if not rated else 0,
+        output['players'].append({'player_key':key,'rated_games':sum(g['rated'] is True for g in games),
+                                  'unrated_games':sum(g['rated'] is False for g in games),
                                   'overall_results':_result(games),
                                   'opponent_groups':_opponent_groups(games, others, source, config, reference_cache),
                                   'opponent_group_excluded_games':sum(number(g.get('opponent_elo')) is None or

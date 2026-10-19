@@ -11,10 +11,10 @@ from fairplay_config import CONFIG
 from fairplay_data import PubAPI, ReviewError, ScanDeadline, check_deadline, collect_games, username
 from fairplay_outcome_study import evaluate, SCENARIOS, DEVELOPMENT_SCENARIOS, CONFIG as STUDY_CONFIG
 
-VERSION='fairplay-v60-method3-unrated-context'
+VERSION='fairplay-v61-all-live-periods'
 LIMIT=1000
-PRIORITY_GAMES=200
-STUDY=replace(STUDY_CONFIG,history_limit=LIMIT,widths=(10,20,50,100,200))
+PRIORITY_GAMES=LIMIT
+STUDY=replace(STUDY_CONFIG,history_limit=LIMIT,minimum_games=5,widths=(5,10,20,50,100,200))
 
 
 def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
@@ -42,50 +42,43 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
             'identity':g.identity,'ended':g.ended,'rated':g.rated,'time_class':g.time_class,
             'time_control':g.time_control,'player_elo':g.rating,'opponent_elo':g.opponent_rating,
             'score':g.score,'official_accuracy':g.accuracy,'estimated_accuracy':None} for g in games]}
-        def cohort(rated):
-            study=evaluate([player],source='official_accuracy',config=STUDY,
-                scenarios=SCENARIOS+DEVELOPMENT_SCENARIOS,candidate_tail=PRIORITY_GAMES,rated=rated)
-            subject=study['players'][0]
-            middle=subject['ablations']['results_only']['development_middle']
-            accuracy=subject['ablations']['accuracy_only']['balanced']
-            priority=('HIGH' if middle['priority']=='HIGH' else 'MODERATE' if accuracy['priority']=='HIGH'
-                      else middle['priority'])
-            selected=accuracy['selected'] if priority=='MODERATE' else middle['selected']
-            return subject,priority,selected
-        subject,priority,chosen=cohort(True)
-        unrated_subject,unrated_priority,unrated_selected=cohort(False)
-        # Unrated ratings do not update with these games. An Elo discrepancy can
-        # justify a closer look, but cannot independently produce HIGH.
-        basis='rated_accuracy' if priority=='MODERATE' else 'rated_results'
-        if priority in ('LOW','INSUFFICIENT DATA') and unrated_priority in ('HIGH','MODERATE'):
-            priority='MODERATE';chosen=unrated_selected;basis='unrated_context'
-        elif priority=='INSUFFICIENT DATA' and unrated_priority=='LOW':
-            priority='LOW';chosen=unrated_selected;basis='unrated_context'
+        study=evaluate([player],source='official_accuracy',config=STUDY,
+            scenarios=SCENARIOS+DEVELOPMENT_SCENARIOS,rated=None,protect_search=True)
+        subject=study['players'][0]
+        middle=subject['ablations']['results_only']['development_middle']
+        accuracy=subject['ablations']['accuracy_only']['balanced']
+        priority=('HIGH' if middle['priority']=='HIGH' else 'MODERATE' if
+                  middle['priority']=='MODERATE' or accuracy['priority']=='HIGH' else middle['priority'])
+        basis='accuracy' if priority=='MODERATE' and middle['priority']!='MODERATE' else 'results'
+        chosen=accuracy['selected'] if basis=='accuracy' else middle['selected']
         rated_count=sum(g.rated is True for g in games)
-        confidence=('LOW' if partial or rated_count<30 or basis=='unrated_context'
-                    else 'HIGH' if rated_count>=100 else 'MEDIUM')
-        reasons=[('A chronological rated period scored substantially above its Elo-point expectation. '
-                  'This experimental results-only flag is not engine or Maia confirmation.') if priority=='HIGH' else
-                 'An unrated period exceeded a results or matched personal Accuracy boundary. Unrated ratings may be stale; this supports a closer look, not HIGH.' if priority=='MODERATE' and basis=='unrated_context' else
-                 'Official Accuracy exceeded the matched earlier personal reference; results did not pass HIGH. Manual review is needed.' if priority=='MODERATE' else
+        confidence=('LOW' if partial or len(games)<30 or (priority in ('HIGH','MODERATE') and chosen and chosen['games']<10)
+                    else 'HIGH' if len(games)>=100 else 'MEDIUM')
+        reasons=[('A chronological period scored substantially above its Elo-point expectation and passed the history-search guard. '
+                  'This experimental results flag is not engine or Maia confirmation.') if priority=='HIGH' else
+                 'Official Accuracy exceeded a matched earlier personal reference. Manual review is needed.' if priority=='MODERATE' and basis=='accuracy' else
+                 'A chronological period exceeded the results review boundary but did not pass the stricter HIGH search guard.' if priority=='MODERATE' else
                  'No period passed the configured review boundaries; this does not establish fair play.' if priority=='LOW' else
                  'Not enough comparable chronological games with valid ratings/results to assign a tier.']
+        if chosen:
+            members=[g for g in games if g.time_class==chosen['time_class']][chosen['first_game']-1:chosen['last_game']]
+            chosen['first_ended']=members[0].ended;chosen['last_ended']=members[-1].ended
         from fairplay_method3_history import changes
-        history_changes=changes([g for g in games if g.rated is True],PRIORITY_GAMES)
-        record={'history_limit':LIMIT,'priority_games':min(PRIORITY_GAMES,rated_count),
+        history_changes=changes(games,PRIORITY_GAMES)
+        record={'history_limit':LIMIT,'priority_games':len(games),
                 'history_changes':history_changes,
                 'rated_games':rated_count,'unrated_games':len(games)-rated_count,
-                'unrated_subject':unrated_subject,
-                'unrated_priority':'MODERATE' if unrated_priority=='HIGH' else unrated_priority,
-                'priority_basis':basis,'unrated_selected':unrated_selected,
-                'unrated_history_changes':changes([g for g in games if g.rated is False],PRIORITY_GAMES),'production_enabled':True,'method':'Experimental Elo-results and published-Accuracy triage; not gameplay confirmation or misconduct probability',
+                'priority_basis':basis,'production_enabled':True,
+                'period_scope':'All collected rated and unrated live games, equal priority rules',
+                'searched_windows':max((p['search_guard']['searched_windows'] for p in subject['periods']),default=0),
+                'method':'Experimental Elo-results and published-Accuracy triage; not gameplay confirmation or misconduct probability',
                 'reference':'Development thresholds, not independent holdout calibration',
                 'result_residual_threshold':2.4,'score_excess_threshold':.20,
                 'moderate_accuracy_excess':8,'moderate_above_reference_fraction':.60,
                 'selected':chosen,'subject':subject,'source':'official_accuracy',
                 'engine_used':False,'maia_used':False,'timing_scoring':False,
                 'accuracy_role':'Can support MODERATE; strictly earlier same-control/rating-matched personal reference only',
-                'limits':'Rated/unrated are compared separately. Unrated ratings may be stale and cannot independently produce HIGH. Daily is excluded. Underrating, legitimate improvement, smurfing, rating lag and selected hot streaks can qualify. Multiple windows are correlated. No VERY HIGH from results alone.'}
+                'limits':'Rated and unrated have identical priority rules and share chronological periods/references. All collected live history is searched. Daily is excluded. Ratings may be inaccurate in either mode. Underrating, legitimate improvement, smurfing, rating lag and selected hot streaks can qualify. Multiple windows are correlated. No VERY HIGH from results alone.'}
         # Offline evaluate's cross-player groups have no other players here. Attach
         # the earlier personal references by period, never fabricate a group norm.
         progress('Method 3: building graphs and report…')
