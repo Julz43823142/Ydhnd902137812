@@ -1933,7 +1933,7 @@ async def _twitch_handle_chat_message(event):
                 balance = shared_get_coins(link["user_id"])
                 response = f"@{login} You have {balance} SharkBot coins."
             await _twitch_send_chat(response, message_id)
-        elif command == "!ai" and argument.strip():
+        elif command == "!ai":
             now = time.monotonic()
             last = _twitch_ai_last_request.get(user_id, -float("inf"))
             if now - last < 5:
@@ -1944,6 +1944,12 @@ async def _twitch_handle_chat_message(event):
                 for key, value in list(_twitch_ai_last_request.items()):
                     if now - value > 60:
                         _twitch_ai_last_request.pop(key, None)
+            if not argument.strip():
+                await _twitch_send_chat(
+                    f"@{login} Hey! I\u2019m SharkBot, your chess chat assistant. Ask me anything with !ai followed by your question!",
+                    message_id,
+                )
+                return
             import shark_ai
             async with _twitch_chat_reply_lock:
                 result, error = await shark_ai._complete([
@@ -18830,8 +18836,8 @@ async def on_message(
         if message.author.bot:
             return
 
-        if (message.guild is None and str(message.author.id) == SHARKMEISTER_DEFAULT_USER_ID
-                and message.content.strip().casefold() == "!twitchreauth"):
+        if (getattr(message, "guild", None) is None and str(message.author.id) == SHARKMEISTER_DEFAULT_USER_ID
+                and str(getattr(message, "content", "")).strip().casefold() == "!twitchreauth"):
             if not TWITCH_CLIENT_ID or not TWITCH_CLIENT_SECRET:
                 await message.channel.send("Twitch OAuth configuration is missing.")
             else:
