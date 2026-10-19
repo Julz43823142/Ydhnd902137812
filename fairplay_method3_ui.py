@@ -81,7 +81,7 @@ def detail_embed(result,mode):
     return e
 
 
-def chart_pngs(result):
+def chart_pngs(result, progress=None):
     from fairplay_charts import class_svg, comparison_svg, plot, text
     from fairplay_method3 import observations
     import cairosvg
@@ -89,14 +89,18 @@ def chart_pngs(result):
     live_games=result.games
     grouped=observations(live_games)
     files=[]
+    total=sum(bool(rows) for rows in grouped.values())+(3 if live_games else 0)
+    def add_chart(name, data):
+        files.append((name,data))
+        if progress:progress(len(files),total)
     for kind,rows in grouped.items():
         if not rows:continue
         svg=class_svg(kind,rows).replace('blue: SharkBot estimate · orange dashed: official Chess.com',
             'orange dashed: official Chess.com · no engine estimate')
         svg=mark_selected(svg,result,kind,rows,(150,470,790))
-        files.append((f'fairplay_{kind}_charts.png',cairosvg.svg2png(bytestring=svg.encode())))
+        add_chart(f'fairplay_{kind}_charts.png',cairosvg.svg2png(bytestring=svg.encode()))
     if live_games:
-        files.append(('fairplay_opponent_elo_comparison.png',cairosvg.svg2png(bytestring=comparison_svg(grouped).encode())))
+        add_chart('fairplay_opponent_elo_comparison.png',cairosvg.svg2png(bytestring=comparison_svg(grouped).encode()))
         parts=['<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1120" viewBox="0 0 1440 1120"><rect width="1440" height="1120" fill="white"/>',text(45,45,'Rolling 10-game expected / observed points',26)]
         for index,kind in enumerate(('rapid','blitz','bullet')):
             games=[g for g in live_games if g.time_class==kind]
@@ -112,8 +116,8 @@ def chart_pngs(result):
         svg=''.join(parts)
         for index,kind in enumerate(('rapid','blitz','bullet')):
             if grouped[kind]:svg=mark_selected(svg,result,kind,grouped[kind],(105+index*325,))
-        files.append(('fairplay_method3_expected_points.png',cairosvg.svg2png(bytestring=svg.encode())))
-        files.append(('fairplay_method3_history_change.png',cairosvg.svg2png(bytestring=history_svg(result).encode())))
+        add_chart('fairplay_method3_expected_points.png',cairosvg.svg2png(bytestring=svg.encode()))
+        add_chart('fairplay_method3_history_change.png',cairosvg.svg2png(bytestring=history_svg(result).encode()))
     return files
 
 

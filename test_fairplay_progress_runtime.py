@@ -11,6 +11,15 @@ from fairplay_progress import LiveTiming, ReliableTiming, duration, estimate
 
 
 class ScanTimingTests(unittest.TestCase):
+    def test_method3_chart_render_progress_advances_before_completion(self):
+        self.assertEqual(estimate('Method 3: building graphs and report…'),95)
+        values=[estimate(f'Method 3: rendering chart {i}/6…') for i in range(7)]
+        self.assertEqual(values[0],95)
+        self.assertEqual(values[-1],99)
+        self.assertEqual(values,sorted(values))
+        self.assertEqual(estimate('Complete'),100)
+
+
     def test_scan_timing_detail_shows_measured_non_additive_stages(self):
         from fairplay_ui import ReportView, detail_embed
         result=SimpleNamespace(username='synthetic-player',diagnostics={'runtime':{
