@@ -1268,6 +1268,7 @@ class Job:
     timing: LiveTiming = field(default_factory=LiveTiming)
     last_progress_edit: float = 0.0
     progress_display_at: float = 0.0
+    progress_credit: float = 0.0
 
     def timing_elapsed(self):
         return max(0,time.monotonic()-self.timing.started)
@@ -1381,6 +1382,7 @@ class FairPlayService:
             target=max(job.progress_percent,job.timing.percent(stage) if hasattr(job.timing,'percent') else estimate(stage))
             if stage=='Complete':
                 job.progress_percent=100
+                job.progress_credit=0.0
             elif os.getenv('FAIRPLAY_METHOD3')=='1':
                 now=time.monotonic()
                 if job.progress_display_at == 0:
@@ -1390,8 +1392,13 @@ class FairPlayService:
                 # applies to the animation schedule, not Discord delivery.
                 gap=max(0,target-job.progress_percent)
                 elapsed=max(0.0,now-job.progress_display_at)
-                speed=max(1.0, gap/8.0, gap/20.0)
-                allowance=max(1,int(elapsed*speed)) if gap else 0
+                # Target catch-up within ~8 seconds for large gaps, while
+                # never intentionally trailing the underlying work >20 s.
+                # Fractional credit carries over between Discord edits.
+                speed=max(1.0, gap/8.0)
+                credit=getattr(job,'progress_credit',0.0)+elapsed*speed
+                allowance=min(gap,int(credit))
+                job.progress_credit=credit-allowance
                 job.progress_percent=min(target,job.progress_percent+allowance,99)
                 job.progress_display_at=now
             else:
