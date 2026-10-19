@@ -461,8 +461,9 @@ def collection_limit(config=CONFIG):
     import os
     if config == CONFIG and os.getenv("FAIRPLAY_V21") == "1" and os.getenv("FAIRPLAY_FULL_DEPTH18") == "1":
         return 1000  # v21-only cap; 500 fast-screened, older archives for peer backfill
-    # Method 3 explicitly opts into metadata-only 1,000-game collection.
-    if config.max_games == 1000 and config.history_games == 1000:return 1000
+    # Method 3 explicitly opts into larger metadata-only collections.
+    if config.max_games in (1000, 5000) and config.history_games == config.max_games:
+        return config.max_games
     # Older modes and synthetic override fixtures preserve their contracts.
     return max(1, min(500, config.history_games if config.max_games in (100, 200, 500) else config.max_games))
 
