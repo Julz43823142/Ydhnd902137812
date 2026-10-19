@@ -748,12 +748,12 @@ async def fairplay_sus_command(interaction: discord.Interaction, username: str):
         await interaction.response.send_message(str(error), ephemeral=True)
         return
     embed = discord.Embed(
-        title="Fair Play SUS - PARODY / JOKE",
+        title="Fair Play | Analysis Report",
         description=(f"**Player:** {name}\\n"
                      "**Suspicion:** VERY HIGH\\n"
                      "**Result confidence:** HIGH\\n"
-                     "**Cheater probability:** 100% (FICTIONAL)\\n\\n"
-                     "**This is a joke, not a real Fair Play analysis or accusation.**"),
+                     "**Cheater probability:** 100%\\n\\n"
+                     "**Fair Play v62 · History Blocked**\\nSimulated data — not an actual Fair Play assessment."),
         color=discord.Color.orange(),
     )
     embed.set_image(url="attachment://sus_parody.png")
