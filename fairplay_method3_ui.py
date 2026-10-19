@@ -33,7 +33,7 @@ def result_embed(result):
 def detail_embed(result,mode):
     from fairplay_ui import priority_color
     d=result.diagnostics['method3'];s=d['subject']
-    e=discord.Embed(title=f'{mode} — {result.username}',description='Method 3: experimental results and published Accuracy. No Stockfish/Maia screening.',color=priority_color(result.priority))
+    e=discord.Embed(title=f'{mode} — {result.username}',description='Results-based screening using game outcomes and published Accuracy; no engine analysis.',color=priority_color(result.priority))
     if mode in ('Performance', 'Report Details'):
         e.add_field(name='Explanation',value='\n'.join(result.reasons)[:1024],inline=False)
         e.add_field(name='Limits',value=d['limits'][:1024],inline=False)
