@@ -19,7 +19,7 @@ def result_embed(result):
         f'{len(result.games)} live history games: '
         f'{d.get("rated_games",len(result.games))} rated · {d.get("unrated_games",0)} unrated'
         + (' · incomplete collection' if result.partial else '')
-        + f'\\nPublished Accuracy: {accuracy_games}/{len(result.games)} games.'),inline=False)
+        + f'\nPublished Accuracy: {accuracy_games}/{len(result.games)} games.'),inline=False)
     selected=d.get('selected')
     if selected:
         e.add_field(name='Selected chronological period',value=f"{selected['time_class'].title()} · {selected['games']} games · {period_dates(selected)}\nExpected points: **{fmt(r['expected_points'])}** · scored: **{fmt(r['actual_points'])}**\nWinrate: **{fmt(r['win_fraction'],True)}**",inline=False)
