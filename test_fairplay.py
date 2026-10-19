@@ -848,7 +848,7 @@ class DiscordRules(unittest.IsolatedAsyncioTestCase):
         event.followup.send.assert_not_awaited()
         self.assertEqual(event.channel.sends,1)
 
-    async def test_immediate_submit_is_quiet_but_queue_and_duplicates_are_public(self):
+    async def test_immediate_submit_is_quiet_and_queue_is_private_but_duplicates_are_public(self):
         with patch('feature_usage.note'):
             first=ctx()
             await ui.submit(first,TARGET)
@@ -858,9 +858,14 @@ class DiscordRules(unittest.IsolatedAsyncioTestCase):
             await ui.submit(ctx(),TARGET)
             self.assertIn('queued or running',self.channel.messages[-1].content)
             self.channel.messages.clear();self.channel.sends=0
+            queued_events=[]
             for i in range(ui.MAX_CONCURRENT_SCANS):
-                await ui.submit(ctx(),f'synthetic-{i}')
-            self.assertIn('queued',self.channel.messages[-1].content)
+                event=ctx()
+                queued_events.append(event)
+                await ui.submit(event,f'synthetic-{i}')
+            self.assertEqual(self.channel.sends,0)
+            self.assertTrue(any('queued' in str(call.args) for event in queued_events for call in event.followup.send.call_args_list))
+            self.assertTrue(all(call.kwargs.get('ephemeral') is True for event in queued_events for call in event.followup.send.call_args_list))
             self.assertNotIn('Review accepted',str([m.content for m in self.channel.messages]))
 
     async def test_not_found_is_public_without_a_review_card(self):
