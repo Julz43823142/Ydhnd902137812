@@ -108,3 +108,19 @@ def verify(manifest_file, chunks):
     if count != meta["fully_reviewed_games"] or positions != meta["position_records"]:
         raise ValueError("Incomplete evidence")
     return count, positions
+
+
+def owner_json(files, *, max_bytes=MAX_BYTES):
+    """Export one complete, verified, gzip-compressed JSON document."""
+    if not files or files[0][0] != "fairplay-manifest.json.gz":
+        raise ValueError("Evidence manifest missing")
+    verify(files[0][1], files[1:])
+    manifest = json.loads(gzip.decompress(files[0][1]))
+    games = []
+    for _, blob in files[1:]:
+        games.extend(json.loads(gzip.decompress(blob))["games"])
+    manifest["games"] = games
+    raw = pack(manifest)
+    if len(raw) > max_bytes:
+        raise ValueError("Complete evidence exceeds Discord's configured upload limit")
+    return ("fairplay-owner-evidence.json.gz", raw)
