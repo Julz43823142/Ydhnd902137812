@@ -1372,6 +1372,44 @@ class FairPlayService:
                 'Your Fair Play review is queued. Public progress will appear when it starts.',
                 ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
 
+    async def enqueue_mention(self,message,target):
+        """Public Fair Play channel mention, using the normal bounded scan queue.
+
+        No slash-interaction token is available here. Report progress and
+        errors in the Fair Play Task Force; do not create a second engine path.
+        """
+        self.expire_cache()
+        if self.closed:
+            await message.reply('Fair Play is restarting. Please try again shortly.',
+                mention_author=False,allowed_mentions=discord.AllowedMentions.none())
+            return False
+        if target in self.jobs:
+            existing=self.jobs[target]
+            text='This account already has a queued or running Fair Play review.'
+            if existing.message:text+=f' [View progress]({existing.message.jump_url})'
+            await message.reply(text,mention_author=False,
+                allowed_mentions=discord.AllowedMentions.none())
+            return False
+        if len(self.jobs)>=MAX_JOBS:
+            await message.reply('The Fair Play review queue is full. Please try again later.',
+                mention_author=False,allowed_mentions=discord.AllowedMentions.none())
+            return False
+        waiting=len(self.jobs)>=MAX_CONCURRENT_SCANS
+        job=Job(target,None)
+        self.jobs[target]=job
+        self.queue.put_nowait(job)
+        if getattr(self,'checkpoints',None) is not None:
+            await asyncio.to_thread(self.checkpoints.note,target,token=job.token)
+        import feature_usage
+        feature_usage.note('use:fairplay-scan',message.author.id)
+        await message.reply(
+            f'🛡️ Fair Play screening for **{public_text(target)}** '
+            + ('has been queued.' if waiting else 'has been submitted.')
+            + ' Progress and the report will appear in this channel. '
+              'This is automated screening, not proof of cheating.',
+            mention_author=False,allowed_mentions=discord.AllowedMentions.none())
+        return True
+
     async def safe_progress(self,job,stage,*,view=None,embed=None):
         if job.message_deleted:return False
         attempted_send=False
