@@ -15,7 +15,7 @@ MIN_ELO_GAP = 400
 
 
 
-def _opening_rating_ramp(games, members, account_joined):
+def _opening_rating_ramp(games, members, account_joined, early_rated=None):
     """Retrospective new-account rating calibration warning, not exoneration.
 
     Only verified account creation and its actual early same-control rated
@@ -27,7 +27,9 @@ def _opening_rating_ramp(games, members, account_joined):
             isinstance(account_joined, bool) or account_joined <= 0):
         return None
     kind = members[0].time_class
-    rated = sorted(
+    # Live scoring passes a precomputed chronological first-150 cohort so
+    # the thousands of searched windows never re-sort the same game history.
+    rated = early_rated if early_rated is not None else sorted(
         (g for g in games if g.time_class == kind and g.rated is True
          and isinstance(g.rating, (int, float)) and not isinstance(g.rating, bool)
          and g.rating > 0),
@@ -62,7 +64,7 @@ def _opening_rating_ramp(games, members, account_joined):
                     'this is not proof of fair play.'}
 
 
-def rating_support(games, members, *, account_joined=None):
+def rating_support(games, members, *, account_joined=None, early_rated=None):
     """Use rating anchors available by the end of this exact period.
 
     A player with years of rated history but only a few recent games does not
@@ -92,7 +94,7 @@ def rating_support(games, members, *, account_joined=None):
     # Keep sparse-but-nonzero anchors descriptive until a real holdout study
     # calibrates a more aggressive reliability threshold.
     unverified = len(rated) == 0 and len(members) >= 5
-    opening_ramp = _opening_rating_ramp(games, members, account_joined)
+    opening_ramp = _opening_rating_ramp(games, members, account_joined, early_rated)
     anchor_status = ('unverified' if unverified else
                      'sparse' if len(rated) < MIN_RATED else 'supported')
     return {'time_class':kind, 'rated_anchor_games_365d':len(rated),
