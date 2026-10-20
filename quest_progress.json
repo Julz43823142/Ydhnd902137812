@@ -415,9 +415,9 @@
             "daily:2026-10-20:minigame:minigame-2"
           ],
           "progress": {
-            "daily:2026-10-20:minigame:minigame-2": 10
+            "daily:2026-10-20:minigame:minigame-2": 11
           },
-          "updated_at": 1792512731
+          "updated_at": 1792512856
         }
       }
     },
@@ -663,9 +663,9 @@
             "weekly:2026-10-19:minigame:minigame-8"
           ],
           "progress": {
-            "weekly:2026-10-19:minigame:minigame-8": 10
+            "weekly:2026-10-19:minigame:minigame-8": 11
           },
-          "updated_at": 1792512731
+          "updated_at": 1792512856
         }
       }
     }
