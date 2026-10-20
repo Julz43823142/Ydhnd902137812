@@ -23,6 +23,14 @@ NORMAL_LABELS = ('trusted_normal', 'holdout_normal')
 def analytical_priority(result):
     """Configured worklist promotion is not a detector validation success."""
     diagnostics=getattr(result,'diagnostics',{})
+    if isinstance(diagnostics,dict) and isinstance(diagnostics.get('method3'),dict):
+        method3=diagnostics['method3']
+        # Distinguish a separately promoted Accuracy-frequency WORKLIST from
+        # the actually chosen period's analytical evidence. This mirrors the
+        # depth route's separation of gameplay score vs worklist priority.
+        if method3.get('priority_basis')=='accuracy_frequency':
+            return str(method3.get('selected_period_priority','INSUFFICIENT DATA'))
+        return str(getattr(result,'priority',''))
     depth=(diagnostics.get('v51_shadow',{}).get('review_priority',{})
            if isinstance(diagnostics,dict) else {})
     return str(depth.get('gameplay_priority',getattr(result,'priority','')))
@@ -323,7 +331,12 @@ def main():
         cases=json.loads(args.cases.read_text())
         cases=validated_cases(cases,args.partition)
         with local_production_profile(args.profile):summary=evaluate_cases(cases,analyze)
-        summary['validation_profile']={'name':args.profile,'partition':args.partition,
+        if args.profile=='method3-local':
+        summary['priority_metric_basis']=(
+            'Method 3 analytical period priority (Elo results and matched historical '
+            'Accuracy); exploratory Accuracy-frequency worklist-only promotions are '
+            'reported separately. No Stockfish/Maia engine evidence.')
+    summary['validation_profile']={'name':args.profile,'partition':args.partition,
             'matches_deployed_selection_and_budgets':args.profile in ('production-local','method3-local'),
             'route_scope':('method3_results_accuracy_no_engine' if args.profile=='method3-local' else
                            'depth_engine_or_legacy'),
