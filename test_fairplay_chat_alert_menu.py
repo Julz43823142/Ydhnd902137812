@@ -41,7 +41,7 @@ class FairPlayChat(unittest.IsolatedAsyncioTestCase):
                 complete.assert_awaited_once()
                 confirmation.assert_not_called();planner.assert_not_awaited()
                 dispatch.assert_not_awaited();claim.assert_not_called()
-                self.assertIn('/fairplay username',str(complete.call_args))
+                self.assertIn('/fairplay check username',str(complete.call_args))
 
     async def test_explicit_fairplay_request_enqueues_without_groq(self):
         user=NS(id=1234,display_name='Requester')
