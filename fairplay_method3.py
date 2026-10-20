@@ -11,7 +11,7 @@ from fairplay_config import CONFIG
 from fairplay_data import PubAPI, ReviewError, ScanDeadline, check_deadline, collect_games, username
 from fairplay_outcome_study import evaluate, SCENARIOS, DEVELOPMENT_SCENARIOS, CONFIG as STUDY_CONFIG
 
-VERSION='fairplay-v63-method3-audit'
+VERSION='fairplay-v64-search-reliability'
 LIMIT=5000
 BLOCK_SIZE=200
 PRIORITY_GAMES=200
@@ -44,27 +44,51 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         from fairplay_outcome_study import _result
         blocks=[games[i:i+BLOCK_SIZE] for i in range(0,len(games),BLOCK_SIZE)]
         block_count=len(blocks)
+        # A streak split by an arbitrary 200-game boundary should not be
+        # invisible. Search a short, overlapping bridge around each boundary,
+        # with a full preceding block available as Accuracy reference.
+        BRIDGE_RADIUS=50
+        segments=[]
+        for index,block in enumerate(blocks):
+            start=index*BLOCK_SIZE
+            context_start=max(0,start-BLOCK_SIZE)
+            segments.append((index,block,games[context_start:start+len(block)],
+                             context_start,False))
+        for boundary in range(BLOCK_SIZE,len(games),BLOCK_SIZE):
+            start=boundary-BRIDGE_RADIUS
+            end=min(len(games),boundary+BRIDGE_RADIUS)
+            context_start=max(0,start-BLOCK_SIZE)
+            segments.append((boundary//BLOCK_SIZE-1,games[start:end],
+                             games[context_start:end],context_start,True))
         overall_rows=[]
         candidate_rows=[]
-        window_count=0
-        for index,block in enumerate(blocks):
+        physical_windows=set()
+        for segment_index,(index,block,context,context_start,is_bridge) in enumerate(segments):
             check_deadline(deadline)
-            progress(f'Method 3: block {index+1}/{block_count}')
-            context_start=max(0,index*BLOCK_SIZE-BLOCK_SIZE)
-            context=games[context_start:(index+1)*BLOCK_SIZE]
+            progress((f'Method 3: boundary {segment_index-block_count+1}/{len(segments)-block_count}'
+                      if is_bridge else f'Method 3: block {index+1}/{block_count}'))
             player={'player_key':'subject','games':[{
                 'identity':g.identity,'ended':g.ended,'rated':g.rated,'time_class':g.time_class,
                 'time_control':g.time_control,'player_elo':g.rating,'opponent_elo':g.opponent_rating,
                 'score':g.score,'official_accuracy':g.accuracy,'estimated_accuracy':None} for g in context]}
-            overall_rows.extend(player['games'][-len(block):])
+            if not is_bridge:
+                overall_rows.extend(player['games'][-len(block):])
             study=evaluate([player],source='official_accuracy',config=STUDY,
                 scenarios=SCENARIOS+DEVELOPMENT_SCENARIOS,rated=None,
                 candidate_tail=len(block) if len(block)>=STUDY.minimum_games else None,
                 protect_search=True)
             sub=study['players'][0]
-            periods=sub['periods']
-            window_count+=len({(p['time_class'],p['first_game'],p['last_game']) for p in periods})
-            candidate_rows.append((index,block,context,sub))
+            # Count unique PHYSICAL windows globally, not duplicated references
+            # or the same interval discovered in both a block and a bridge.
+            by_class={kind:[g for g in context if g.time_class==kind]
+                      for kind in ('rapid','blitz','bullet')}
+            for period in sub['periods']:
+                members=by_class[period['time_class']]
+                physical_windows.add((period['time_class'],
+                    members[period['first_game']-1].identity,
+                    members[period['last_game']-1].identity))
+            candidate_rows.append((index,block,context,sub,context_start,is_bridge,by_class))
+        window_count=len(physical_windows)
         # The within-block guard already accounts for all windows in that block.
         # Multiplying by the number of tested blocks is a conservative union
         # bound across all blocks, including short or incomplete ones.
