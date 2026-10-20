@@ -99,7 +99,7 @@ def chart_pngs(result, progress=None):
         add_chart(f'fairplay_{kind}_charts.png',cairosvg.svg2png(bytestring=svg.encode()))
     if live_games:
         add_chart('fairplay_opponent_elo_comparison.png',cairosvg.svg2png(bytestring=comparison_svg(grouped).encode()))
-        parts=['<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1120" viewBox="0 0 1440 1120"><rect width="1440" height="1120" fill="white"/>',text(45,45,'Rolling 10-game expected / observed points',26)]
+        parts=['<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1120" viewBox="0 0 1440 1120"><rect width="1440" height="1120" fill="white"/>',text(45,45,'Rolling 10-game expected / observed points',26),text(45,78,'Each point averages up to 10 games; nearby points overlap.',16,'#526477')]
         for index,kind in enumerate(('rapid','blitz','bullet')):
             games=[g for g in live_games if g.time_class==kind]
             predicted=[];actual=[]
@@ -191,7 +191,7 @@ def mark_selected(svg,result,kind,rows,positions):
                      f'height="200" fill="url(#{pattern_id})" stroke="#7f1d1d" '
                      'stroke-width="1.5" stroke-opacity=".7"/>')
         marks.append(text(1375,y+23,
-            f'Red hatch: strongest selected results period ({result.priority}); not proof · {period_dates(selected)}',
+            f'Selected {result.priority} period · not proof of cheating · {period_dates(selected)}',
             14,'#7f1d1d',anchor='end'))
     return svg.replace('</svg>',defs+''.join(marks)+'</svg>')
 
