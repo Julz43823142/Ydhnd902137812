@@ -68,6 +68,25 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         # The within-block guard already accounts for all windows in that block.
         # Multiplying by the number of tested blocks is a conservative union
         # bound across all blocks, including short or incomplete ones.
+        # Sparse, substantially underrated bullet histories are not reliable Elo
+        # baselines. Cross-control ratings are contextual only, never substituted.
+        from statistics import median
+        rated_by_class = {kind: [g.rating for g in games
+            if g.rated and g.time_class == kind and isinstance(g.rating, (int, float))
+            and g.rating > 0] for kind in ('rapid', 'blitz', 'bullet')}
+        bullet_ratings = rated_by_class['bullet']
+        other_ratings = rated_by_class['rapid'] + rated_by_class['blitz']
+        sparse_bullet_rating = (0 < len(bullet_ratings) < 20
+            and len(other_ratings) >= 10
+            and median(other_ratings) - median(bullet_ratings) >= 400)
+        rating_reliability = {
+            'sparse_bullet_rating': sparse_bullet_rating,
+            'bullet_rated_games': len(bullet_ratings),
+            'other_control_rated_games': len(other_ratings),
+            'bullet_median_elo': median(bullet_ratings) if bullet_ratings else None,
+            'other_control_median_elo': median(other_ratings) if other_ratings else None,
+            'rule': 'Fewer than 20 rated bullet games, at least 10 other-control rated games, and a median rating gap of at least 400 Elo. Only short result-only bullet warnings are downgraded; independent accuracy confirmation is preserved.',
+        }
         rank={'INSUFFICIENT DATA':0,'LOW':1,'MODERATE':2,'HIGH':3,'VERY HIGH':4}
         candidates=[]
         for index,block,context,sub in candidate_rows:
@@ -98,6 +117,14 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                       'HIGH' if middle['results_pass'] else
                       'MODERATE' if middle['results_review_pass'] or accuracy_checks['accuracy_pass'] else
                       'LOW' if middle['results_covered'] or accuracy_checks['accuracy_covered'] else 'INSUFFICIENT DATA')
+                # Do not treat an unreliable bullet Elo as independent evidence
+                # of misconduct. This suppresses short, results-only warnings;
+                # a matched Accuracy signal remains eligible for review.
+                if (sparse_bullet_rating and period['time_class']=='bullet'
+                        and period['games']<=20 and not accuracy_checks['accuracy_pass']
+                        and tier in ('HIGH','MODERATE')):
+                    tier='LOW'
+                    period['rating_reliability_downgrade']=True
                 basis='accuracy' if tier=='MODERATE' and not middle['results_review_pass'] else 'results'
                 candidates.append((tier,basis,index,block,context,sub,period))
         if candidates:
@@ -140,17 +167,18 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         subject['unrated_games']=len(games)-rated_count
         confidence=('LOW' if partial or len(games)<30 or (priority in ('HIGH','MODERATE') and chosen and chosen['games']<10)
                     else 'HIGH' if len(games)>=100 else 'MEDIUM')
-        reasons=[('An exceptional results period also passed a stricter matched historical Accuracy check. This is a review priority, not proof of misconduct.') if priority=='VERY HIGH' else
+        reasons=[('Short bullet results were downgraded because the bullet Elo is sparsely supported and substantially below the player's other time controls. This is not proof of fair play.' if chosen and chosen.get('rating_reliability_downgrade') else
+                 ('An exceptional results period also passed a stricter matched historical Accuracy check. This is a review priority, not proof of misconduct.') if priority=='VERY HIGH' else
                  ('A chronological period scored substantially above its Elo-point expectation and passed the history-search guard. '
                   'This experimental results flag is not engine or Maia confirmation.') if priority=='HIGH' else
                  'Official Accuracy exceeded a matched earlier personal reference. Manual review is needed.' if priority=='MODERATE' and basis=='accuracy' else
                  'A chronological period exceeded the results review boundary but did not pass the stricter HIGH search guard.' if priority=='MODERATE' else
                  'No period passed the configured review boundaries; this does not establish fair play.' if priority=='LOW' else
-                 'Not enough comparable chronological games with valid ratings/results to assign a tier.']
+                 'Not enough comparable chronological games with valid ratings/results to assign a tier.')]
         from fairplay_method3_history import changes
         history_changes=changes(games,PRIORITY_GAMES)
         record={'history_limit':LIMIT,'priority_games':len(games),'block_size':BLOCK_SIZE,'blocks_checked':block_count,
-                'history_changes':history_changes,
+                'history_changes':history_changes,'rating_reliability':rating_reliability,
                 'rated_games':rated_count,'unrated_games':len(games)-rated_count,
                 'priority_basis':basis,'production_enabled':True,
                 'period_scope':'Independent chronological 200-game blocks with across-block search correction',
