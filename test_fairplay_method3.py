@@ -90,8 +90,8 @@ class Method3(unittest.TestCase):
         result=self.run_review()
         field_values=[field.value for field in selected_period_embed(result).fields]
         for value in field_values:
-            self.assertNotIn(r'\\n',value)
-        self.assertTrue(any('\\n' in value for value in field_values))
+            self.assertNotIn(r'\n',value)
+        self.assertTrue(any('\n' in value for value in field_values))
 
     def test_opponent_is_retained_for_selected_period(self):
         result=self.run_review()
