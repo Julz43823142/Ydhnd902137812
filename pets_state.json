@@ -872,7 +872,8 @@
       {
         "activity_xp": 30,
         "born_at": 1792176270.9882581,
-        "fed_at": 1792176270.9882581,
+        "fed_at": 1792514367.6198528,
+        "feed_day": "2026-10-20",
         "happiness": 100,
         "happy_at": 1792176324.846002,
         "id": "1bf5d2f95cb84f5b9852fede16fc9fde",
@@ -913,7 +914,7 @@
         "puzzle_day": "2026-10-16",
         "rarity": "rare",
         "species": "Owl",
-        "xp": 50,
+        "xp": 55,
         "xp_day": "2026-10-16"
       }
     ]
