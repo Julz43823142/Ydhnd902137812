@@ -34,7 +34,11 @@ class Method3(unittest.TestCase):
               patch('fairplay_maia.annotate_history',side_effect=AssertionError('no model'))):
             result=entry(TARGET,lambda _:None,api_factory=API,engine_factory=Mock(side_effect=AssertionError()))
             self.assertEqual(active_version(),result.version)
-        self.assertEqual(result.priority,'HIGH')
+        # The 20 synthetic wins use a single opponent. Results-only HIGH is
+        # capped at MODERATE rather than treating repeat games as independent.
+        self.assertEqual(result.priority,'MODERATE')
+        self.assertIn('repeated_opponent_concentration',
+                      result.diagnostics['method3']['selected']['classification_guards'])
         self.assertFalse(result.deep_confirmed)
         self.assertEqual(result.coverage['deep_reviewed'],0)
         self.assertFalse(result.diagnostics['method3']['maia_used'])
