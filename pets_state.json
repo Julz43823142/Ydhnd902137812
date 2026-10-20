@@ -44,7 +44,7 @@
       "crown",
       "necklace"
     ],
-    "active": "d6c693ed2a80474da37f9b01929f7f6c",
+    "active": "adce8c91c9c94977b0aaedfc8d60b86c",
     "expedition": {
       "end": 1792367008.489063,
       "hours": 12,
@@ -729,6 +729,25 @@
         "rarity": "common",
         "species": "Cat",
         "xp": 20
+      },
+      {
+        "born_at": 1792514451.3104699,
+        "fed_at": 1792514451.3104699,
+        "happiness": 80,
+        "happy_at": 1792514451.3104699,
+        "id": "adce8c91c9c94977b0aaedfc8d60b86c",
+        "name": "",
+        "owner_history": [
+          {
+            "action": "Created",
+            "at": 1792514451,
+            "owner_id": "442597396195704832",
+            "owner_name": "Thice"
+          }
+        ],
+        "rarity": "common",
+        "species": "Rabbit",
+        "xp": 0
       }
     ]
   },
