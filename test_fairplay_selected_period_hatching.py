@@ -5,18 +5,39 @@ from fairplay_method3_ui import mark_selected, selected_period_embed, history_sv
 
 
 class SelectedPeriodHighlight(unittest.TestCase):
-    def test_only_matching_class_gets_red_hatched_window(self):
-        result = SimpleNamespace(priority='HIGH', diagnostics={'method3': {'selected': {
-            'time_class': 'bullet', 'first_game': 2, 'last_game': 4,
-            'first_ended': 1778760000, 'last_ended': 1778761000}}})
-        svg = '<svg xmlns="http://www.w3.org/2000/svg"></svg>'
-        rows = [{} for _ in range(10)]
-        self.assertEqual(mark_selected(svg, result, 'blitz', rows, (150,)), svg)
-        marked = mark_selected(svg, result, 'bullet', rows, (150,))
-        self.assertIn('patternTransform="rotate(45)"', marked)
-        self.assertIn('fill="url(#fairplay-selected-red-hatch)"', marked)
-        self.assertIn('Selected HIGH period · not proof of cheating', marked)
-        self.assertEqual(marked.count('<rect x='), 1)
+    def test_multiple_disjoint_periods_have_priority_colors(self):
+        games=[SimpleNamespace(time_class='bullet',ended=1000+i*100) for i in range(10)]
+        periods=[
+            {'time_class':'bullet','first_ended':1100,'last_ended':1200,'priority':'MODERATE'},
+            {'time_class':'bullet','first_ended':1400,'last_ended':1500,'priority':'HIGH'},
+            {'time_class':'bullet','first_ended':1700,'last_ended':1800,'priority':'VERY HIGH'},
+        ]
+        result=SimpleNamespace(priority='VERY HIGH',games=games,
+            diagnostics={'method3':{'marked_periods':periods}})
+        svg='<svg xmlns="http://www.w3.org/2000/svg"></svg>'
+        rows=[{} for _ in games]
+        self.assertEqual(mark_selected(svg,result,'blitz',rows,(150,)),svg)
+        marked=mark_selected(svg,result,'bullet',rows,(150,))
+        for color in ('#eab308','#f97316','#dc2626'):
+            self.assertIn(f'fill="{color}"',marked)
+        self.assertEqual(marked.count('<rect x='),3)
+        self.assertIn('not proof',marked)
+
+    def test_low_and_insufficient_data_are_not_shaded(self):
+        games=[SimpleNamespace(time_class='bullet',ended=1000+i*100) for i in range(5)]
+        svg='<svg xmlns="http://www.w3.org/2000/svg"></svg>'
+        rows=[{} for _ in games]
+        for priority in ('LOW','INSUFFICIENT DATA'):
+            result=SimpleNamespace(priority=priority,games=games,
+                diagnostics={'method3':{'selected':{'time_class':'bullet','first_game':1,'last_game':5},
+                    'marked_periods':[{'time_class':'bullet','first_ended':1000,
+                        'last_ended':1400,'priority':priority}]}})
+            self.assertEqual(mark_selected(svg,result,'bullet',rows,(150,)),svg)
+
+    def test_no_marked_periods_needs_no_game_list(self):
+        result=SimpleNamespace(priority='LOW',diagnostics={'method3':{'marked_periods':[]}})
+        svg='<svg xmlns="http://www.w3.org/2000/svg"></svg>'
+        self.assertEqual(mark_selected(svg,result,'bullet',[{}],(150,)),svg)
 
 
     def test_selected_period_shows_points_opponents_dates_and_game_links(self):
