@@ -191,6 +191,29 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 basis=('accuracy' if tier=='MODERATE' and not middle['results_review_pass']
                        and not limits else 'results')
                 candidates.append((tier,basis,index,block,context,sub,period,context_start,is_bridge))
+        # Show only disjoint, qualifying physical periods in the charts.
+        # Preserve all LOW/insufficient candidates for diagnostic selection,
+        # but never color them as suspicious. Deduplicate block/bridge views.
+        qualifying={}
+        for tier,_,_,_,context,_,period,_,_ in candidates:
+            if tier not in ('MODERATE','HIGH','VERY HIGH'):continue
+            members=[g for g in context if g.time_class==period['time_class']]
+            first,last=members[period['first_game']-1],members[period['last_game']-1]
+            key=(period['time_class'],first.identity,last.identity)
+            row={'time_class':period['time_class'],'first_ended':first.ended,
+                 'last_ended':last.ended,'priority':tier,'games':period['games']}
+            previous=qualifying.get(key)
+            if previous is None or rank[tier]>rank[previous['priority']]:
+                qualifying[key]=row
+        marked=[]
+        # Higher priority first; ties prefer larger windows. Never double-shade
+        # the same games even if many overlapping search windows qualified.
+        for item in sorted(qualifying.values(),key=lambda p:(-rank[p['priority']],-p['games'],p['first_ended'])):
+            if any(p['time_class']==item['time_class'] and
+                   p['first_ended']<=item['last_ended'] and item['first_ended']<=p['last_ended']
+                   for p in marked):continue
+            marked.append(item)
+        marked.sort(key=lambda p:(p['time_class'],p['first_ended']))
         if candidates:
             # Strong HIGH evidence wins; when nothing qualifies, display the
             # widest covered LOW period rather than an arbitrary five-game slice.
@@ -257,7 +280,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 'reference':'Development thresholds, not independent holdout calibration',
                 'result_residual_threshold':2.4,'score_excess_threshold':.20,
                 'moderate_accuracy_excess':8,'moderate_above_reference_fraction':.60,
-                'selected':chosen,'subject':subject,'source':'official_accuracy',
+                'selected':chosen,'marked_periods':marked,'subject':subject,'source':'official_accuracy',
                 'engine_used':False,'maia_used':False,'timing_scoring':False,
                 'accuracy_role':'Can support MODERATE; strictly earlier same-control/rating-matched personal reference only',
                 'limits':'Rated and unrated have identical priority rules and share chronological periods/references. All collected live history is searched. Daily is excluded. Ratings may be inaccurate in either mode. Underrating, legitimate improvement, smurfing, rating lag and selected hot streaks can qualify. Multiple windows are correlated. VERY HIGH requires both stringent results and matched earlier Accuracy checks; neither establishes misconduct.'}
