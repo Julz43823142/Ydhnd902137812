@@ -4,8 +4,8 @@ from types import SimpleNamespace
 from fairplay_method3_accuracy_frequency import summarize, historical_signal
 
 
-def game(kind, accuracy, own, opponent, moves=25):
-    return SimpleNamespace(time_class=kind,accuracy=accuracy,rating=own,
+def game(kind, accuracy, own, opponent, moves=25, control='300+0'):
+    return SimpleNamespace(time_class=kind,time_control=control,accuracy=accuracy,rating=own,
         opponent_rating=opponent,decisions=[None]*moves)
 
 
@@ -41,6 +41,48 @@ class AccuracyFrequencyTests(unittest.TestCase):
         self.assertEqual(len(signals),1)
         self.assertEqual(signals[0]['time_class'],'blitz')
         self.assertEqual(historical_signal(rows[:65]),[])
+
+    def test_3_plus_0_and_5_plus_0_are_not_false_history_matches(self):
+        rows=[]
+        for i in range(100):
+            # If both controls are blended, the change appears extreme;
+            # separately neither clock control has sufficient history.
+            control='180+0' if i<70 else '300+0'
+            g=game('blitz',95 if i>=70 else 80,1800,1800,30,control)
+            g.ended=i
+            g.identity=str(i)
+            g.opponent_username='opponent'+str(i%30)
+            rows.append(g)
+        self.assertEqual(historical_signal(rows),[])
+
+    def test_sparse_chesscom_accuracy_cannot_create_artificial_surge(self):
+        rows=[]
+        for i in range(100):
+            accuracy=(95 if i>=70 and i%3==0 else
+                      80 if i<70 else None)
+            g=game('blitz',accuracy,1800,1800,30)
+            g.ended=i
+            g.identity=str(i)
+            g.opponent_username='opponent'+str(i%30)
+            rows.append(g)
+        self.assertEqual(historical_signal(rows),[])
+
+    def test_multiple_exact_controls_count_in_search_penalty(self):
+        rows=[]
+        for i in range(100):
+            g=game('blitz',95 if i>=70 else 80,1800,1800,30)
+            g.ended=i
+            g.identity=str(i)
+            g.opponent_username='opponent'+str(i%30)
+            rows.append(g)
+        for i,ctrl in enumerate(('180+0','600+0','600+5','900+0')):
+            rows.append(game('blitz',80,1800,1800,30,ctrl))
+            rows[-1].ended=200+i
+            rows[-1].identity='noise-'+str(i)
+        signal=historical_signal(rows)[0]
+        self.assertEqual(signal['time_control'],'300+0')
+        self.assertEqual(signal['controls_searched'],5)
+        self.assertEqual(signal['recent_accuracy_covered'],30)
 
     def test_missing_ratings_and_empty_coverage(self):
         row=summarize([game('bullet',90,None,1700),game('bullet',None,1500,1500)])
