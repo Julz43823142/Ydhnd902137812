@@ -148,5 +148,23 @@ class BlockReviewTests(unittest.TestCase):
         self.assertGreater(result.diagnostics['method3']['searched_windows'],0)
 
 
+    def test_trailing_under_five_games_never_rescans_earlier_context(self):
+        from test_fairplay_method3_history import profile_game
+        from test_fairplay_method3 import API
+        from fairplay_outcome_study import evaluate
+        games=[profile_game(i,score=.5) for i in range(203)]
+        API.status='basic'
+        with (patch('fairplay_method3.collect_games',return_value=(games,{},False)),
+              patch('fairplay_method3.evaluate',wraps=evaluate) as spy):
+            result=review(TARGET,lambda _:None,api_factory=API)
+        self.assertEqual(result.priority,'LOW')
+        self.assertEqual(result.diagnostics['method3']['blocks_checked'],2)
+        self.assertEqual(result.diagnostics['method3']['boundary_bridges_checked'],1)
+        self.assertEqual(spy.call_count,2)  # complete block and real bridge only
+        self.assertTrue(all(call.kwargs['candidate_tail']>=5 for call in spy.call_args_list))
+        self.assertEqual(result.diagnostics['method3']['subject']['overall_results']['games'],203)
+
+
+
 if __name__ == '__main__':
     unittest.main()
