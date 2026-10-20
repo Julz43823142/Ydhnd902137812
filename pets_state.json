@@ -747,6 +747,17 @@
             "owner_name": "Thice"
           }
         ],
+        "puzzle": {
+          "day": "2026-10-20",
+          "fen": "3r2kb/rp2Qp1p/2p1bp2/7q/2P5/R3P2P/5PP1/1R4K1 w - - 0 33",
+          "id": "TTjtI",
+          "index": 0,
+          "moves": [
+            "e7d8",
+            "g8g7",
+            "a3a7"
+          ]
+        },
         "rarity": "common",
         "species": "Dog",
         "xp": 0
