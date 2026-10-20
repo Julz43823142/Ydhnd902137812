@@ -112,6 +112,12 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         from statistics import median
         from fairplay_method3_reliability import (
             rating_support, opponent_support, independent_results_tier)
+        # The review history is already chronological. Reuse the first
+        # 150 valid rated games per control for the account-opening guard.
+        opening_rated_by_class={kind:[g for g in games
+            if g.rated is True and g.time_class==kind
+            and isinstance(g.rating,(int,float)) and not isinstance(g.rating,bool)
+            and g.rating>0][:150] for kind in ('rapid','blitz','bullet')}
         rated_by_class={kind:[g.rating for g in games
             if g.rated is True and g.time_class==kind
             and isinstance(g.rating,(int,float)) and not isinstance(g.rating,bool)
@@ -119,7 +125,8 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         bullet_ratings=rated_by_class['bullet']
         other_ratings=rated_by_class['rapid']+rated_by_class['blitz']
         latest_bullet=next((g for g in reversed(games) if g.time_class=='bullet'),None)
-        bullet_support=(rating_support(games,[latest_bullet],account_joined=profile.get('joined'))
+        bullet_support=(rating_support(games,[latest_bullet],account_joined=profile.get('joined'),
+                                       early_rated=opening_rated_by_class['bullet'])
                         if latest_bullet is not None else None)
         rating_reliability={
             'sparse_bullet_rating':bool(bullet_support and bullet_support['unreliable']),
@@ -177,7 +184,8 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 members=by_class[period['time_class']][period['first_game']-1:period['last_game']]
                 rating_key=(period['time_class'],members[-1].identity)
                 if rating_key not in rating_cache:
-                    rating_cache[rating_key]=rating_support(games,members,account_joined=profile.get('joined'))
+                    rating_cache[rating_key]=rating_support(games,members,account_joined=profile.get('joined'),
+                        early_rated=opening_rated_by_class[period['time_class']])
                 opponent_key=(period['time_class'],members[0].identity,members[-1].identity)
                 if opponent_key not in opponent_cache:
                     opponent_cache[opponent_key]=opponent_support(members,history=games)
