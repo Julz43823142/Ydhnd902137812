@@ -22,10 +22,10 @@ class SelectedPeriodHighlight(unittest.TestCase):
     def test_selected_period_shows_points_opponents_dates_and_game_links(self):
         games=[
             SimpleNamespace(identity='a',ended=1778760000,time_class='bullet',
-                opponent_username='opponent_one',result='Loss',
+                opponent_username='opponentone',result='Loss',
                 url='https://www.chess.com/game/live/100'),
             SimpleNamespace(identity='b',ended=1778761000,time_class='bullet',
-                opponent_username='opponent_two',result='Win',
+                opponent_username='opponenttwo',result='Win',
                 url='https://www.chess.com/game/live/101'),
         ]
         selected={'time_class':'bullet','first_game':1,'last_game':2,
@@ -38,8 +38,8 @@ class SelectedPeriodHighlight(unittest.TestCase):
         self.assertIn('Scored: **1.0 points**',card.description)
         self.assertNotIn(r'\n',card.description)
         self.assertEqual(len(card.fields),2)
-        self.assertIn('opponent_one',card.fields[0].value)
-        self.assertIn('opponent_two',card.fields[1].value)
+        self.assertIn('opponentone',card.fields[0].value)
+        self.assertIn('opponenttwo',card.fields[1].value)
         self.assertIn('Open game',card.fields[0].value)
         self.assertIn('Loss',card.fields[0].value)
         self.assertIn('(UTC)',card.fields[0].value)
