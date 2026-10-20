@@ -107,5 +107,44 @@ class BlockReviewTests(unittest.TestCase):
             .006)
 
 
+    def test_period_split_by_200_game_boundary_is_still_detected(self):
+        from test_fairplay_method3_history import profile_game
+        from test_fairplay_method3 import API
+        # Neither regular 200-game block contains more than ten wins in a
+        # row; the 20-game winning period straddles their arbitrary boundary.
+        games=[profile_game(i,score=1 if 190<=i<210 else .5) for i in range(400)]
+        API.status='basic'
+        with patch('fairplay_method3.collect_games',return_value=(games,{},False)):
+            result=review('sharkmeister',lambda _:None,api_factory=API)
+        self.assertEqual(result.priority,'HIGH')
+        d=result.diagnostics['method3']
+        self.assertEqual(d['blocks_checked'],2)
+        self.assertEqual(d['boundary_bridges_checked'],1)
+        self.assertEqual(d['segments_checked'],3)
+        selected=d['selected']
+        self.assertEqual(selected['history_segment'],'boundary')
+        self.assertLessEqual(selected['first_game'],191)
+        self.assertGreaterEqual(selected['last_game'],210)
+        guard=selected['search_guard']
+        self.assertLess(guard['raw_model_bound'],1)
+        self.assertAlmostEqual(guard['adjusted_model_bound'],
+            min(1,guard['raw_model_bound']*d['searched_windows']))
+        accuracy=selected['accuracy_search_guard']
+        self.assertAlmostEqual(accuracy['adjusted_reference_model_bound'],
+            min(1,accuracy['raw_reference_model_bound']*d['searched_windows']))
+        self.assertEqual(selected['first_ended'],games[selected['first_game']-1].ended)
+        self.assertEqual(selected['last_ended'],games[selected['last_game']-1].ended)
+
+    def test_no_artificial_jump_when_crossing_a_block_boundary(self):
+        from test_fairplay_method3_history import profile_game
+        from test_fairplay_method3 import API
+        games=[profile_game(i,score=.5) for i in range(400)]
+        API.status='basic'
+        with patch('fairplay_method3.collect_games',return_value=(games,{},False)):
+            result=review('sharkmeister',lambda _:None,api_factory=API)
+        self.assertEqual(result.priority,'LOW')
+        self.assertGreater(result.diagnostics['method3']['searched_windows'],0)
+
+
 if __name__ == '__main__':
     unittest.main()
