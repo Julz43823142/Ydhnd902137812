@@ -41,7 +41,7 @@ class FairPlayChat(unittest.IsolatedAsyncioTestCase):
                 complete.assert_awaited_once()
                 confirmation.assert_not_called();planner.assert_not_awaited()
                 dispatch.assert_not_awaited();claim.assert_not_called()
-                self.assertIn('/fairplay check username',str(complete.call_args))
+                self.assertIn('/fairplay username',str(complete.call_args))
 
     async def test_explicit_fairplay_request_enqueues_without_groq(self):
         user=NS(id=1234,display_name='Requester')
@@ -167,14 +167,14 @@ class AlertMenu(unittest.IsolatedAsyncioTestCase):
         for name,allowed in (('alert',True),('ban',False),('profile',False)):
             self.assertEqual(permitted({'channel_id':str(CHANNEL_ID),'type':2,'data':{'name':name}}),allowed)
 
-    def test_fairplay_slash_group_uses_check_and_stop(self):
+    def test_fairplay_direct_and_stop_commands(self):
         import bot
-        group = bot.command_tree.get_command('fairplay')
-        self.assertIsNotNone(group)
-        self.assertIsNotNone(group.get_command('check'))
-        self.assertIsNotNone(group.get_command('stop'))
-        self.assertEqual(len(group.get_command('check').parameters), 1)
-        self.assertEqual(group.get_command('stop').parameters, [])
+        check=bot.command_tree.get_command('fairplay')
+        self.assertIsNotNone(check)
+        self.assertEqual([p.name for p in check.parameters], ['username'])
+        stop=bot.command_tree.get_command('fairplaystop')
+        self.assertIsNotNone(stop)
+        self.assertEqual(stop.parameters, [])
         self.assertIsNone(bot.command_tree.get_command('stopfairplay'))
 
     def test_slash_registration_has_no_options(self):
