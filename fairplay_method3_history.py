@@ -50,6 +50,8 @@ def changes(games,priority_games):
                  and after['result_games']>=.8*len(recent))
         delta=(after['score_excess']-before['score_excess'] if covered else None)
         output.append({'time_class':kind,'time_control':control,'baseline':before,'recent':after,
+            'earlier_range':(baseline[0].ended,baseline[-1].ended) if baseline else None,
+            'recent_range':(recent[0].ended,recent[-1].ended) if recent else None,
             'results_comparable':covered,'score_excess_change':delta,
             'results_increase':bool(delta is not None and delta>=.15 and after['score_excess']>=.20),
             'support_only':True})
