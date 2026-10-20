@@ -52,9 +52,12 @@ def rating_support(games, members):
             'class_median_elo_365d':own_median,
             'other_control_median_elo_365d':other_median,
             'rating_gap':gap, 'unreliable':unreliable,
+            'unverified':unverified,'anchor_status':anchor_status,
             'rule':'Fewer than 20 rated games in this control during the prior year, '
                    'at least 10 rated games in other controls, and a rating gap of '
-                   'at least 400 Elo. An untested rating cannot independently support HIGH.'}
+                   'at least 400 Elo. Also, zero rated anchors in a selected 5+-game '
+                   'period independently marks the Elo baseline unverified. '
+                   'Neither condition can independently support HIGH.'}
 
 
 def opponent_support(members, *, history=None):
