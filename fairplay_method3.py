@@ -133,16 +133,20 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 guard=period['search_guard']
                 if id(guard) not in corrected_result_guards:
                     local_count=max(1,guard.get('searched_windows',1))
+                    raw=guard.get('raw_model_bound')
                     guard['adjusted_model_bound']=min(
-                        1.0,guard['adjusted_model_bound']*window_count/local_count)
+                        1.0,raw*window_count if raw is not None else
+                        guard['adjusted_model_bound']*window_count/local_count)
                     corrected_result_guards.add(id(guard))
                 guard['searched_windows']=window_count
                 guard['high_pass']=guard['short_sample_complete'] and guard['adjusted_model_bound']<=.01
                 guard['moderate_pass']=guard['short_sample_complete'] and guard['adjusted_model_bound']<=.10
                 acc=period['accuracy_search_guard']
                 local_count=max(1,acc.get('searched_windows',1))
+                raw=acc.get('raw_reference_model_bound')
                 acc['adjusted_reference_model_bound']=min(
-                    1.0,acc['adjusted_reference_model_bound']*window_count/local_count)
+                    1.0,raw*window_count if raw is not None else
+                    acc['adjusted_reference_model_bound']*window_count/local_count)
                 acc['searched_windows']=window_count
                 acc['moderate_pass']=acc['adjusted_reference_model_bound']<=.10
                 for checks in period['scenarios'].values():
