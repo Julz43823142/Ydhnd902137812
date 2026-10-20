@@ -24,7 +24,15 @@ class API:
 class Method3(unittest.TestCase):
     def setUp(self):
         API.rows=[sample_row(i) for i in range(1,21)]
-        for row in API.rows:row['accuracies']={'white':85,'black':60}
+        # These are independent synthetic games, not twenty consecutive
+        # challenges to the same opponent. The separate reliability suite
+        # explicitly tests repeated head-to-head opposition.
+        for index,row in enumerate(API.rows,1):
+            name=f'synthetic-opponent-{index}'
+            row['black']['username']=name
+            row['pgn']=row['pgn'].replace('[Black "synthetic-opponent"]',
+                                          f'[Black "{name}"]')
+            row['accuracies']={'white':85,'black':60}
         API.status='basic'
     def run_review(self):return review(TARGET,lambda _:None,api_factory=API)
     def test_actual_production_entry_does_not_call_engine_or_maia(self):
@@ -34,11 +42,7 @@ class Method3(unittest.TestCase):
               patch('fairplay_maia.annotate_history',side_effect=AssertionError('no model'))):
             result=entry(TARGET,lambda _:None,api_factory=API,engine_factory=Mock(side_effect=AssertionError()))
             self.assertEqual(active_version(),result.version)
-        # The 20 synthetic wins use a single opponent. Results-only HIGH is
-        # capped at MODERATE rather than treating repeat games as independent.
-        self.assertEqual(result.priority,'MODERATE')
-        self.assertIn('repeated_opponent_concentration',
-                      result.diagnostics['method3']['selected']['classification_guards'])
+        self.assertEqual(result.priority,'HIGH')
         self.assertFalse(result.deep_confirmed)
         self.assertEqual(result.coverage['deep_reviewed'],0)
         self.assertFalse(result.diagnostics['method3']['maia_used'])
