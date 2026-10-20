@@ -62,6 +62,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                              games[context_start:end],context_start,True))
         overall_rows=[]
         candidate_rows=[]
+        positions={g.identity:i for i,g in enumerate(games)}
         physical_windows=set()
         for segment_index,(index,block,context,context_start,is_bridge) in enumerate(segments):
             check_deadline(deadline)
@@ -82,6 +83,12 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
             # or the same interval discovered in both a block and a bridge.
             by_class={kind:[g for g in context if g.time_class==kind]
                       for kind in ('rapid','blitz','bullet')}
+            if is_bridge:
+                boundary=(index+1)*BLOCK_SIZE
+                sub['periods']=[p for p in sub['periods']
+                    if positions[by_class[p['time_class']][p['first_game']-1].identity]
+                       < boundary <=
+                       positions[by_class[p['time_class']][p['last_game']-1].identity]]
             for period in sub['periods']:
                 members=by_class[period['time_class']]
                 physical_windows.add((period['time_class'],
