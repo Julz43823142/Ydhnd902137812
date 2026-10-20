@@ -66,6 +66,16 @@ def result_embed(result):
         e.add_field(name='Data reliability · observed coverage',value=details[:1024],inline=False)
     if selected and selected.get('classification_guards'):
         support=selected.get('rating_support') or {}
+        ramp=support.get('opening_rating_ramp_evidence')
+        if ramp:
+            e.add_field(
+                name='New-account rating calibration · Elo caveat',
+                value=(f"First {ramp['sample_rated_games']} rated {selected['time_class']} games: "
+                       f"first 10 median Elo {ramp['first_10_median_elo']:.0f} → "
+                       f"last 10 {ramp['last_10_median_elo']:.0f} "
+                       f"(+{ramp['rating_gain']:.0f}). "
+                       'An early rating ramp can mimic an Elo results anomaly. '
+                       'Results-only HIGH is capped at MODERATE, not cleared.'),inline=False)
         e.add_field(name='HIGH evidence safeguards',value=(
             'Applied: '+', '.join(selected['classification_guards']).replace('_',' ')
             +f"\nRated anchors in the previous year: {support.get('rated_anchor_games_365d','Unknown')}. "
