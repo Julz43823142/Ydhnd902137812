@@ -42,7 +42,7 @@ def result_embed(result):
         lines=[]
         for signal in signals:
             lines.append(
-                f"{signal['time_class'].title()}: recent {signal['recent_at_least_90']}/{signal['recent_games']} "
+                f"{signal['time_class'].title()} {signal.get('time_control','')}: recent {signal['recent_at_least_90']}/{signal['recent_games']} "
                 f"vs earlier {signal['baseline_at_least_90']}/{signal['baseline_games']} "
                 f"at ≥90% Accuracy · {signal['distinct_opponents']} recent opponents.")
         e.add_field(name='Earlier → recent Accuracy frequency · exploratory',
