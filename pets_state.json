@@ -900,9 +900,9 @@
         ],
         "puzzle": {
           "day": "2026-10-20",
-          "fen": "6k1/pr1b1p2/3P1p1p/1p1N4/2n5/6PP/6K1/R1R5 b - - 2 33",
+          "fen": "6k1/pr3p2/2bP1p1p/1p1N4/2n5/6PP/8/R1R3K1 b - - 4 34",
           "id": "fcJKy",
-          "index": 0,
+          "index": 2,
           "moves": [
             "d7c6",
             "g2g1",
