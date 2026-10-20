@@ -195,7 +195,9 @@
         "coins_earned": 55.0,
         "contribution": 0.023994,
         "minigame_win": 18,
-        "new_cosmetics": 4
+        "new_cosmetics": 4,
+        "pet_feed": 1,
+        "pet_levels_gained": 0
       }
     }
   }
