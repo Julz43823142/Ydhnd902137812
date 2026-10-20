@@ -119,7 +119,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         bullet_ratings=rated_by_class['bullet']
         other_ratings=rated_by_class['rapid']+rated_by_class['blitz']
         latest_bullet=next((g for g in reversed(games) if g.time_class=='bullet'),None)
-        bullet_support=(rating_support(games,[latest_bullet])
+        bullet_support=(rating_support(games,[latest_bullet],account_joined=profile.get('joined'))
                         if latest_bullet is not None else None)
         rating_reliability={
             'sparse_bullet_rating':bool(bullet_support and bullet_support['unreliable']),
@@ -177,7 +177,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 members=by_class[period['time_class']][period['first_game']-1:period['last_game']]
                 rating_key=(period['time_class'],members[-1].identity)
                 if rating_key not in rating_cache:
-                    rating_cache[rating_key]=rating_support(games,members)
+                    rating_cache[rating_key]=rating_support(games,members,account_joined=profile.get('joined'))
                 opponent_key=(period['time_class'],members[0].identity,members[-1].identity)
                 if opponent_key not in opponent_cache:
                     opponent_cache[opponent_key]=opponent_support(members,history=games)
@@ -287,6 +287,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                     else 'HIGH' if len(games)>=100 else 'MEDIUM')
         reasons=[('This time control has no rated-game anchors in the previous year. Its Elo expectation cannot independently justify HIGH or VERY HIGH.' if chosen and chosen.get('rating_unverified_downgrade') else
                  'The time-control Elo has too few recent rated anchors and differs substantially from other controls. Accuracy alone cannot repair the Elo expectation; HIGH/VERY HIGH is capped.' if chosen and chosen.get('rating_reliability_downgrade') else
+                 'The selected period falls in a verified new-account rating calibration ramp; the Elo expected-score baseline was moving rapidly. HIGH is capped at MODERATE without gameplay confirmation.' if chosen and 'new_account_rating_ramp' in chosen.get('classification_guards',()) else
                  'Most games in the period were played against one or two opponents. Even corroborating Accuracy cannot make these outcomes independent; HIGH/VERY HIGH is capped pending human review.' if chosen and 'repeated_opponent_concentration' in chosen.get('classification_guards',()) else
                  ('An exceptional results period also passed a stricter matched historical Accuracy check. This is a review priority, not proof of misconduct.') if priority=='VERY HIGH' else
                  ('A chronological period scored substantially above its Elo-point expectation and passed the history-search guard. '
@@ -321,7 +322,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 'selected':chosen,'marked_periods':marked,'subject':subject,'source':'official_accuracy',
                 'engine_used':False,'maia_used':False,'timing_scoring':False,
                 'accuracy_role':'High Accuracy frequency can promote LOW to MODERATE after conservative same-control earlier-history checks; never promotes HIGH',
-                'limits':'Rated and unrated share chronological periods/references, but their Elo reliability is separately audited. Zero rated anchors and cross-control discrepancies cap results-backed HIGH/VERY HIGH. Repeated opponents cap these tiers even if Accuracy corroborates. Daily is excluded; only collected live history is searched. Underrating, legitimate improvement, smurfing, rating lag, correlated games, missing archives and selected hot streaks can qualify. VERY HIGH requires both results and matched earlier Accuracy but never proves misconduct.'}
+                'limits':'Rated and unrated share chronological periods/references, but their Elo reliability is separately audited. Zero rated anchors, cross-control discrepancies and verified new-account rating ramps cap results-backed HIGH/VERY HIGH. Repeated opponents cap these tiers even if Accuracy corroborates. Daily is excluded; only collected live history is searched. Underrating, legitimate improvement, smurfing, rating lag, correlated games, missing archives and selected hot streaks can qualify. VERY HIGH requires both results and matched earlier Accuracy but never proves misconduct.'}
         # Offline evaluate's cross-player groups have no other players here. Attach
         # the earlier personal references by period, never fabricate a group norm.
         progress('Method 3: building graphs and report…')
