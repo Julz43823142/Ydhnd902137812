@@ -735,8 +735,8 @@
       {
         "born_at": 1792514156.4814432,
         "fed_at": 1792514156.4814432,
-        "happiness": 80,
-        "happy_at": 1792514156.4814432,
+        "happiness": 100,
+        "happy_at": 1792514236.2954974,
         "id": "d6c693ed2a80474da37f9b01929f7f6c",
         "name": "",
         "owner_history": [
@@ -745,13 +745,19 @@
             "at": 1792514156,
             "owner_id": "442597396195704832",
             "owner_name": "Thice"
+          },
+          {
+            "action": "Hatched",
+            "at": 1792514236,
+            "owner_id": "442597396195704832",
+            "owner_name": "Thice"
           }
         ],
         "puzzle": {
           "day": "2026-10-20",
-          "fen": "7k/pp3prp/5Q2/3q4/3p4/3P4/1PP3P1/4R1K1 w - - 2 31",
+          "fen": "4R2k/pp3prp/5Q2/3q4/3p4/3P4/1PP3P1/6K1 b - - 3 31",
           "id": "Ieuye",
-          "index": 4,
+          "index": 5,
           "moves": [
             "e8g8",
             "g7g8",
@@ -760,9 +766,10 @@
             "e1e8"
           ]
         },
+        "puzzle_day": "2026-10-20",
         "rarity": "common",
         "species": "Cat",
-        "xp": 0
+        "xp": 20
       }
     ]
   },
