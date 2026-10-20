@@ -55,8 +55,8 @@
     "url": "https://www.chess.com/daily/2026-10-20",
     "title": "Break It Up!",
     "fen": "8/bR3r1k/2p1p2p/p3p1p1/P3P1N1/5rP1/2P2PKP/4R3 w - - 0 29",
-    "current_fen": "8/bR3r1k/2p1p2p/p3p1p1/P3P1N1/5rP1/2P2PKP/4R3 w - - 0 29",
-    "last_move_uci": null,
+    "current_fen": "8/r6k/2p1p2p/p3p1p1/P3P1N1/5rP1/2P2PKP/4R3 w - - 0 30",
+    "last_move_uci": "f7a7",
     "pgn": {
       "__shark_answer_ciphertext_v1__": "gAAAAABq15XxNO8LsIskcX1kG1YKztiXfvDY_uD7SocbKxcLAtt22LrCnIeO6ylvn0DQNsY6i8l0OdhIYIqY1OxAbJe8AWgHjsJBZ-7K-7QfLse9WrIgCtOR-CL9ua_kXRwRDI2JtO-6mg7SLd5SQn9eODV_tBY8NBrDkCPhenhRI7YU3tYgMKHuh27B3-_vZGyMBmaJgOJRGG--DfYfzMUVCjgZvJ30L3cNOzRqDR1TlOF4gAbpsmaLhvNRHA3n6Me6-iTYTbuLQADnYJrcCevxHfOihkvO0-N4AWqCC_-oD-bJsMKU8cyHHSYGoRYHEjXFhnFMWYoZ"
     },
@@ -74,24 +74,52 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1792482070574",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
-    "message_id": 1562007760437121025,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "message_id": 1562144527173550300,
+    "attempted_users": {
+      "442597396195704832": {
+        "name": "Thice",
+        "move": "Rxa7",
+        "correct": true,
+        "timestamp": "2026-10-20T16:44:38.258837+00:00"
+      }
+    },
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1562007760437121025
+      "1468320170891022417": 1562144527173550300
     },
     "channel_id": 1468320170891022417,
     "board_attachment_filenames": {
-      "1468320170891022417": "daily_puzzle.png"
+      "1468320170891022417": "random_puzzle.png"
     },
-    "chat_since_refresh": 0
+    "chat_since_refresh": 0,
+    "last_card_activity_at": "2026-10-20T16:44:38.258662+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1792514678.2588427,
+        "fen_before": "8/bR3r1k/2p1p2p/p3p1p1/P3P1N1/5rP1/2P2PKP/4R3 w - - 0 29",
+        "expected": {
+          "color": "white",
+          "san": "Rxa7",
+          "uci": "b7a7"
+        },
+        "accepted_uci": "b7a7"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "Rxa7",
+        "uci": "b7a7",
+        "principal": true
+      }
+    ],
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Rxa7"
   },
   "lichess_rating_used": {
     "2000": [
