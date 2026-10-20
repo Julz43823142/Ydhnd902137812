@@ -35,11 +35,25 @@ def result_embed(result):
                 f"(near-Elo ±200: {near.get('at_least_90',0)}/{near.get('games',0)} ≥90%)")
         if lines:
             e.add_field(name='High Accuracy frequency · descriptive',
-                value='\\n'.join(lines)+'\\nNot calibrated for expected frequency; does not affect priority.',
+                value='\n'.join(lines)+'\nRaw frequencies alone are descriptive; a separate guarded historical change can support MODERATE.',
                 inline=False)
+    signals=d.get('accuracy_frequency_signals') or []
+    if signals:
+        lines=[]
+        for signal in signals:
+            lines.append(
+                f"{signal['time_class'].title()} {signal.get('time_control','')}: recent {signal['recent_at_least_90']}/{signal['recent_games']} "
+                f"vs earlier {signal['baseline_at_least_90']}/{signal['baseline_games']} "
+                f"at ≥90% Accuracy · {signal['distinct_opponents']} recent opponents.")
+        e.add_field(name='Earlier → recent Accuracy frequency · exploratory',
+            value='\n'.join(lines)+'\nThis change can support MODERATE, never HIGH. Not a cheating probability.',
+            inline=False)
     selected=d.get('selected')
     if selected:
-        e.add_field(name='Selected chronological period',value=f"{selected['time_class'].title()} · {selected['games']} games · {period_dates(selected)}\nExpected points: **{fmt(r['expected_points'])}** · scored: **{fmt(r['actual_points'])}**\nWinrate: **{fmt(r['win_fraction'],True)}**",inline=False)
+        label=('Selected results window · separate from Accuracy signal'
+               if d.get('priority_basis')=='accuracy_frequency'
+               else 'Selected chronological period')
+        e.add_field(name=label,value=f"{selected['time_class'].title()} · {selected['games']} games · {period_dates(selected)}\nExpected points: **{fmt(r['expected_points'])}** · scored: **{fmt(r['actual_points'])}**\nWinrate: **{fmt(r['win_fraction'],True)}**",inline=False)
     e.add_field(name='Important',value='Not proof of cheating. Human review is required before any action.',inline=False)
     e.set_footer(text=f'Version: {result.version} · uncalibrated heuristic, not probability')
     return e
@@ -148,7 +162,8 @@ def selected_period_embed(result):
     """Small, actionable description of the exact highlighted game window."""
     from datetime import datetime, timezone
     from fairplay_ui import priority_color
-    selected=(result.diagnostics.get('method3') or {}).get('selected')
+    diagnostic=result.diagnostics.get('method3') or {}
+    selected=diagnostic.get('selected')
     e=discord.Embed(title='Selected Period — '+result.username,
                     color=priority_color(result.priority))
     if not selected:
@@ -159,12 +174,20 @@ def selected_period_embed(result):
                  key=lambda g:(g.ended,g.identity))
     first,last=selected['first_game'],selected['last_game']
     points=selected.get('results') or {}
+    selected_tier=diagnostic.get('selected_period_priority',result.priority)
+    frequency_only=diagnostic.get('priority_basis')=='accuracy_frequency'
+    explanation=(
+        "This results window did not qualify on its own. Overall MODERATE "
+        "is based on a separate historical Accuracy-frequency signal."
+        if frequency_only else
+        "Chart shading marks the selected results period, not proof of cheating."
+    )
     e.description=(
         f"**{kind.title()} · {period_dates(selected)}**\n"
-        f"**{selected['games']} games · {result.priority}**\n"
+        f"**{selected['games']} games · {selected_tier} results window**\n"
         f"Expected: **{fmt(points.get('expected_points'))} points** · "
         f"Scored: **{fmt(points.get('actual_points'))} points**\n\n"
-        "Red shading marks the selected results period, not proof of cheating."
+        + explanation
     )
     additional=(result.diagnostics.get('method3') or {}).get('period_context') or {}
     classes=additional.get('by_class',{})
@@ -185,7 +208,7 @@ def selected_period_embed(result):
                          f"Accuracy {row['accuracy_games']}/{n}")
     if other:
         e.add_field(name='Other time controls · same dates',
-                    value='\\n'.join(other)+'\\nOnly supporting context; not a second cheating flag.',
+                    value='\n'.join(other)+'\nOnly supporting context; not a second cheating flag.',
                     inline=False)
     timing=additional.get('timing') or {}
     if timing:
@@ -199,7 +222,7 @@ def selected_period_embed(result):
                timing_part('during','Selected'),
                timing_part('after50','After')]
         e.add_field(name=f"Thinking time · {kind.title()} {timing['time_control']}",
-                    value='\\n'.join(parts)+'\\nSame time control · up to 50 games before/after.',
+                    value='\n'.join(parts)+'\nSame time control · up to 50 games before/after.',
                     inline=False)
         def accuracy_part(key,name):
             row=timing[key]
@@ -208,7 +231,7 @@ def selected_period_embed(result):
             return (f"{name}: **{value:.1f}** ({row['accuracy_games']}/{n})"
                     if value is not None else f"{name}: **Unknown** (0/{n})")
         e.add_field(name='Chess.com Accuracy · same time control',
-                    value='\\n'.join(accuracy_part(k,v) for k,v in
+                    value='\n'.join(accuracy_part(k,v) for k,v in
                           (('before50','Before'),('during','Selected'),('after50','After'))),
                     inline=False)
     for label,index in (('First game',first-1),('Last game',last-1)):

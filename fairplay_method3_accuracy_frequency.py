@@ -42,50 +42,79 @@ def summarize(games):
 
 
 def historical_signal(games, *, min_recent=30, min_baseline=60):
-    """Conservative exploratory LOW-to-MODERATE support from prior same-control games.
+    """Exploratory same-*exact-control* earlier-history LOW-to-MODERATE support.
 
-    Fixed latest-window comparison avoids searching for the most extreme window.
-    Requires many distinct opponents and a substantial near-Elo sample.
-    This is not a population-normalized misconduct probability.
+    Inspect the latest 30 actually played games in each time control, not the
+    latest 30 games *with published Accuracy*. Otherwise missing-score
+    selection could generate an artificial spike. A model-tail guard does not
+    imply independently calibrated misconduct probability.
     """
-    from math import comb
+    from math import comb, isfinite
+    buckets={}
+    for g in games:
+        kind=getattr(g,'time_class',None)
+        control=getattr(g,'time_control',None)
+        if kind in ('rapid','blitz','bullet') and isinstance(control,str) and control:
+            buckets.setdefault((kind,control),[]).append(g)
+    # Include all represented exact controls in the search penalty, not only
+    # whichever happened to produce a striking Accuracy increase.
+    comparisons=max(3,len(buckets))
     signals=[]
-    for kind in ('rapid','blitz','bullet'):
-        rows=sorted((g for g in games if g.time_class==kind and
-                     isinstance(g.accuracy,(int,float)) and
-                     not isinstance(g.accuracy,bool) and 0<=g.accuracy<=100),
-                    key=lambda g:(g.ended,getattr(g,'identity','')))
+    for (kind,control),unsorted in sorted(buckets.items()):
+        rows=sorted(unsorted,key=lambda g:(g.ended,getattr(g,'identity','')))
         if len(rows)<min_recent+min_baseline:continue
-        recent=rows[-min_recent:]
-        earlier=rows[:-min_recent]
+        recent_all=rows[-min_recent:]
+        earlier_all=rows[:-min_recent]
+        def accuracy_present(g):
+            value=getattr(g,'accuracy',None)
+            return (isinstance(value,(int,float)) and not isinstance(value,bool)
+                    and isfinite(value) and 0<=value<=100)
+        recent_covered=[g for g in recent_all if accuracy_present(g)]
+        earlier_covered=[g for g in earlier_all if accuracy_present(g)]
+        # Published Accuracy is not missing at random. Do not allow a
+        # handful of selectively analysed games to define the recent rate.
+        if len(recent_covered)<.80*len(recent_all):continue
+        if len(earlier_covered)<.60*len(earlier_all):continue
         def eligible(g):
             own,opp=g.rating,g.opponent_rating
-            return (isinstance(own,(int,float)) and not isinstance(own,bool) and own>0 and
-                    isinstance(opp,(int,float)) and not isinstance(opp,bool) and opp>0 and
-                    abs(own-opp)<=200 and len(getattr(g,'decisions',()) or ())>=20)
-        recent=[g for g in recent if eligible(g)]
-        earlier=[g for g in earlier if eligible(g)]
+            return (isinstance(own,(int,float)) and not isinstance(own,bool)
+                    and isfinite(own) and own>0
+                    and isinstance(opp,(int,float)) and not isinstance(opp,bool)
+                    and isfinite(opp) and opp>0
+                    and abs(own-opp)<=200
+                    and len(getattr(g,'decisions',()) or ())>=20)
+        recent=[g for g in recent_covered if eligible(g)]
+        earlier=[g for g in earlier_covered if eligible(g)]
         if len(recent)<20 or len(earlier)<40:continue
-        opponents={getattr(g,'opponent_username',None) for g in recent}
-        opponents.discard(None)
+        opponents={name.strip().casefold() for g in recent
+                   if isinstance((name := getattr(g,'opponent_username',None)),str)
+                   and name.strip()}
         if len(opponents)<10:continue
-        # Only compare periods with similar rating distributions.
         if abs(median(g.rating for g in recent)-median(g.rating for g in earlier))>150:continue
         if abs(median(g.opponent_rating for g in recent)-median(g.opponent_rating for g in earlier))>150:continue
-        # Baseline upper Wilson bound prevents small historical frequencies
-        # from becoming an unrealistically optimistic null model.
+        # Wilson ~99% upper bound for the historical >=90% frequency;
+        # a conservative modelling aid under unverified game independence.
         n=len(earlier)
         k=sum(g.accuracy>=90 for g in earlier)
-        z=2.576  # ~99% Wilson upper bound
+        z=2.576
         p=(k/n+z*z/(2*n)+z*((k/n*(1-k/n)+z*z/(4*n))/n)**.5)/(1+z*z/n)
         observed=sum(g.accuracy>=90 for g in recent)
         m=len(recent)
         if observed/m<=p+0.15:continue
-        # Exact one-sided binomial tail, conservative Bonferroni for 3 controls.
         tail=sum(comb(m,j)*p**j*(1-p)**(m-j) for j in range(observed,m+1))
-        if min(1.0,tail*3)<=0.01:
-            signals.append({'time_class':kind,'recent_games':m,
-                            'recent_at_least_90':observed,'baseline_games':n,
-                            'baseline_at_least_90':k,'adjusted_tail_bound':min(1.0,tail*3),
-                            'distinct_opponents':len(opponents)})
+        adjusted=min(1.0,tail*comparisons)
+        if adjusted<=0.01:
+            signals.append({'time_class':kind,'time_control':control,
+                            'recent_games':m,'recent_at_least_90':observed,
+                            'recent_accuracy_covered':len(recent_covered),
+                            'recent_total_games':len(recent_all),
+                            'baseline_accuracy_covered':len(earlier_covered),
+                            'baseline_total_games':len(earlier_all),
+                            'baseline_games':n,'baseline_at_least_90':k,
+                            'adjusted_tail_bound':adjusted,
+                            'controls_searched':comparisons,
+                            'distinct_opponents':len(opponents),
+                            'recent_first_ended':recent_all[0].ended,
+                            'recent_last_ended':recent_all[-1].ended,
+                            'note':'Uncalibrated independent-game model; never HIGH evidence.'})
     return signals

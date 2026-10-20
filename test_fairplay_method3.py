@@ -24,7 +24,15 @@ class API:
 class Method3(unittest.TestCase):
     def setUp(self):
         API.rows=[sample_row(i) for i in range(1,21)]
-        for row in API.rows:row['accuracies']={'white':85,'black':60}
+        # These are independent synthetic games, not twenty consecutive
+        # challenges to the same opponent. The separate reliability suite
+        # explicitly tests repeated head-to-head opposition.
+        for index,row in enumerate(API.rows,1):
+            name=f'synthetic-opponent-{index}'
+            row['black']['username']=name
+            row['pgn']=row['pgn'].replace('[Black "synthetic-opponent"]',
+                                          f'[Black "{name}"]')
+            row['accuracies']={'white':85,'black':60}
         API.status='basic'
     def run_review(self):return review(TARGET,lambda _:None,api_factory=API)
     def test_actual_production_entry_does_not_call_engine_or_maia(self):
@@ -64,6 +72,35 @@ class Method3(unittest.TestCase):
             card=detail_embed(result,mode)
             self.assertLess(len(card),6000)
         self.assertIn('Not enough earlier',str(detail_embed(result,'Performance').to_dict()))
+    def test_accuracy_frequency_priority_does_not_mislabel_results_window(self):
+        from fairplay_method3_ui import result_embed, selected_period_embed
+        result=self.run_review()
+        result.priority='MODERATE'
+        info=result.diagnostics['method3']
+        info['priority_basis']='accuracy_frequency'
+        info['selected_period_priority']='LOW'
+        info['accuracy_frequency_signals']=[{
+            'time_class':'blitz','recent_at_least_90':27,
+            'recent_games':30,'baseline_at_least_90':3,
+            'baseline_games':70,'distinct_opponents':21}]
+        main=result_embed(result).to_dict()
+        summary=str(main)
+        self.assertIn('Earlier → recent Accuracy frequency',summary)
+        self.assertIn('27/30',summary)
+        self.assertIn('separate from Accuracy signal',summary)
+        selected=selected_period_embed(result)
+        self.assertIn('LOW results window',selected.description)
+        self.assertIn('Overall MODERATE',selected.description)
+        self.assertNotIn('Red shading',selected.description)
+
+    def test_period_context_fields_use_real_linebreaks(self):
+        from fairplay_method3_ui import selected_period_embed
+        result=self.run_review()
+        field_values=[field.value for field in selected_period_embed(result).fields]
+        for value in field_values:
+            self.assertNotIn(r'\n',value)
+        self.assertTrue(any('\n' in value for value in field_values))
+
     def test_opponent_is_retained_for_selected_period(self):
         result=self.run_review()
         self.assertTrue(all(g.opponent_username for g in result.games))

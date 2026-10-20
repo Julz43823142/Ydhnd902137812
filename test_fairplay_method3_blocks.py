@@ -137,6 +137,49 @@ class BlockReviewTests(unittest.TestCase):
         self.assertEqual(selected['first_ended'],games[selected['first_game']-1].ended)
         self.assertEqual(selected['last_ended'],games[selected['last_game']-1].ended)
 
+    def test_off_center_streak_crossing_boundary_is_a_search_candidate(self):
+        # The original +/-50-game bridge missed a full 100-game run beginning
+        # 85 games before an arbitrary block boundary. The new +/-100-game
+        # bridge sees the complete run without changing the HIGH threshold.
+        from test_fairplay_method3_history import profile_game
+        from test_fairplay_method3 import API
+        games=[profile_game(i,score=1 if 115<=i<215 else .5)
+               for i in range(400)]
+        API.status='basic'
+        def study(players, **kwargs):
+            rows=players[0]['games']
+            tail=rows[-kwargs['candidate_tail']:]
+            names={g['identity'] for g in tail}
+            if not all(str(i) in names for i in range(115,215)):
+                return {'players':[{'periods':[],'opponent_groups':[]}]}
+            first=next(i for i,g in enumerate(rows) if g['identity']=='115')+1
+            last=next(i for i,g in enumerate(rows) if g['identity']=='214')+1
+            period={
+                'time_class':'blitz','first_game':first,'last_game':last,
+                'games':100,'reference_mode':'personal_earlier',
+                'results':{'expected_points':50,'actual_points':100,
+                    'score_excess':.5,'standardized_residual':10,'win_fraction':1},
+                'accuracy':{'matched_games':0},
+                'search_guard':{'adjusted_model_bound':.000001,
+                    'searched_windows':1,'short_sample_complete':True},
+                'accuracy_search_guard':{'adjusted_reference_model_bound':1,
+                    'searched_windows':1},
+                'scenarios':{scenario:{'results_pass':True,
+                    'results_review_pass':True,'accuracy_pass':False,
+                    'results_covered':True,'accuracy_covered':False}
+                    for scenario in ('balanced','development_middle')}
+            }
+            return {'players':[{'periods':[period],'opponent_groups':[]}]}
+        with (patch('fairplay_method3.collect_games',
+                    return_value=(games,{},False)),
+              patch('fairplay_method3.evaluate',side_effect=study)):
+            result=review(TARGET,lambda _:None,api_factory=API)
+        self.assertEqual(result.priority,'HIGH')
+        selection=result.diagnostics['method3']['selected']
+        self.assertEqual(selection['history_segment'],'boundary')
+        self.assertEqual((selection['first_game'],selection['last_game']),(116,215))
+        self.assertEqual(selection['games'],100)
+
     def test_no_artificial_jump_when_crossing_a_block_boundary(self):
         from test_fairplay_method3_history import profile_game
         from test_fairplay_method3 import API

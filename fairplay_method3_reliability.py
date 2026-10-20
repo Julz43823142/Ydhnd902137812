@@ -61,21 +61,48 @@ def opponent_support(members, *, history=None):
     end=max(g.ended for g in members) + 30 * 86400
     cohort=[g for g in (history if history is not None else members)
             if g.time_class==members[0].time_class and start <= g.ended <= end]
-    names=[getattr(g, 'opponent_username', None) for g in cohort]
-    known=[n.strip().casefold() for n in names if isinstance(n,str) and n.strip()]
-    counts=Counter(known)
+    def count_opponents(rows):
+        return Counter(n.strip().casefold() for g in rows
+            if isinstance((n := getattr(g, 'opponent_username', None)), str)
+            and n.strip())
+    counts=count_opponents(cohort)
+    local=count_opponents(members)
     total=len(cohort)
-    coverage=len(known)/total if total else 0
+    local_n=len(members)
+    known=sum(counts.values())
+    local_known=sum(local.values())
+    coverage=known/total if total else 0
+    local_coverage=local_known/local_n if local_n else 0
     largest=max(counts.values(),default=0)
-    concentrated=(total >= 25 and len(members)>=5 and coverage >= .80 and
-                  (len(counts) <= 2 or largest/total >= .75))
-    return {'opponent_names_covered':len(known), 'games':len(members),
+    local_largest=max(local.values(),default=0)
+    # n_eff is the number of equally frequent opponents producing the same
+    # concentration. It describes diversity, not independent games or a p-value.
+    effective=(local_known**2/sum(n*n for n in local.values())) if local_known else None
+    nearby_concentrated=(total >= 25 and local_n>=5 and coverage >= .80 and
+                         (len(counts) <= 2 or largest/total >= .75))
+    # The earlier cohort-only rule missed five to twenty games all played
+    # against one friend: that small slice can be selected as a HIGH streak.
+    # Require near-complete opponent identities; missing names are unknown.
+    local_concentrated=(local_n>=5 and local_coverage>=.80 and
+                        (len(local)<=2 or local_largest/local_n>=.75 or
+                         (local_n>=20 and effective is not None and effective<4)))
+    concentrated=nearby_concentrated or local_concentrated
+    return {'opponent_names_covered':known, 'games':local_n,
             'cohort_games':total,'distinct_opponents':len(counts),
             'largest_opponent_games':largest,
+            'period_named_games':local_known,
+            'period_distinct_opponents':len(local),
+            'period_effective_opponents':round(effective,2) if effective is not None else None,
+            'period_opponent_coverage':round(local_coverage,3),
+            'local_opponent_concentrated':local_concentrated,
+            'nearby_opponent_concentrated':nearby_concentrated,
             'opponent_concentrated':concentrated,
-            'rule':'At least 25 same-class games near the selected period, '
-                   'at least 80% identifiable opponents, and one or two '
-                   'opponents dominate. Results-only HIGH is capped at MODERATE.'}
+            'rule':'Results-only HIGH is capped at MODERATE when at least 80% '
+                   'of a selected window identifies opponents and 1-2 opponents '
+                   'dominate, one opponent supplies 75% of games, or (for 20+ '
+                   'games) the effective opponent count is below 4. '
+                   'The same limit applies to a nearby 25+-game concentrated cohort. '
+                   'Unknown opponent identities are not assumed independent.'}
 
 
 def independent_results_tier(tier, *, games, rating, opponents, accuracy_confirmed):

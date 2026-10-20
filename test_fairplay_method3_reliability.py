@@ -88,6 +88,41 @@ class RepeatOpponentTests(unittest.TestCase):
         ordinary=run_games(diverse)
         self.assertEqual(ordinary.priority,'HIGH')
 
+    def test_short_repeat_opponent_run_is_not_independent_high(self):
+        # Previous safeguard required a 25-game surrounding cohort and could
+        # treat a 20-game head-to-head match as 20 independent opponents.
+        repeated=[game(i,kind='blitz',score=1,rating=1400,opponent_elo=1400,
+                       opponent='  SAME-PLAYER  ',ended=1770000000+i)
+                  for i in range(20)]
+        summary=opponent_support(repeated,history=repeated)
+        self.assertTrue(summary['local_opponent_concentrated'])
+        self.assertFalse(summary['nearby_opponent_concentrated'])
+        self.assertEqual(summary['period_distinct_opponents'],1)
+        self.assertEqual(summary['period_effective_opponents'],1.0)
+        result=run_games(repeated)
+        self.assertNotEqual(result.priority,'HIGH')
+        self.assertIn('repeated_opponent_concentration',
+                      result.diagnostics['method3']['selected']['classification_guards'])
+
+    def test_effective_opponents_identifies_three_uneven_repeats(self):
+        # Three opponents with strongly repeated pairings should not count
+        # as 22 independent opposition draws even though none dominates 75%.
+        names=['alpha']*9+['beta']*7+['gamma']*6
+        games=[game(i,kind='blitz',score=1,rating=1400,opponent_elo=1400,
+                    opponent=name,ended=1770000000+i)
+               for i,name in enumerate(names)]
+        summary=opponent_support(games,history=games)
+        self.assertEqual(summary['period_distinct_opponents'],3)
+        self.assertLess(summary['period_effective_opponents'],4)
+        self.assertTrue(summary['local_opponent_concentrated'])
+
+    def test_sparse_opponent_identity_does_not_invent_concentration(self):
+        rows=[game(i,kind='blitz',opponent='same' if i<3 else None)
+              for i in range(20)]
+        summary=opponent_support(rows,history=rows)
+        self.assertFalse(summary['opponent_concentrated'])
+        self.assertLess(summary['period_opponent_coverage'],.8)
+
     def test_missing_opponent_names_do_not_invent_independence(self):
         matches=[game(i,kind='blitz',score=1,rating=1400,opponent_elo=1400,
                       ended=1770000000+i) for i in range(35)]
