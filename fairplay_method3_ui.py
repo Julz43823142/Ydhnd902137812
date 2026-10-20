@@ -211,34 +211,39 @@ def selected_period_embed(result):
 
 
 def mark_selected(svg,result,kind,rows,positions):
-    """Dark-red diagonal hatching for the selected class-relative window."""
+    """Shade only disjoint MODERATE/HIGH/VERY HIGH periods, never LOW."""
     from fairplay_charts import text
-    selected=result.diagnostics['method3'].get('selected')
-    if not selected or selected['time_class']!=kind or not rows:return svg
-    n=len(rows)
-    first=max(0,min(n-1,selected['first_game']-1))
-    last=max(first,min(n-1,selected['last_game']-1))
-    left=115+1260*first/max(1,n-1)
-    right=115+1260*last/max(1,n-1)
-    # A single-game period remains visible without extending into other games.
-    if right-left<3:
-        left=max(115,left-2)
-        right=min(1375,right+2)
-    pattern_id='fairplay-selected-red-hatch'
-    defs=(f'<defs><pattern id="{pattern_id}" patternUnits="userSpaceOnUse" '
-          'width="12" height="12" patternTransform="rotate(45)">'
-          '<rect width="12" height="12" fill="#991b1b" fill-opacity=".10"/>'
-          '<line x1="0" y1="0" x2="0" y2="12" stroke="#7f1d1d" '
-          'stroke-width="3" stroke-opacity=".55"/></pattern></defs>')
+    palette={'MODERATE':('#eab308','#854d0e'),
+             'HIGH':('#f97316','#9a3412'),
+             'VERY HIGH':('#dc2626','#991b1b')}
+    periods=result.diagnostics['method3'].get('marked_periods',[])
+    if not rows:return svg
+    # Class-relative game positions are global across all history blocks.
+    games=[g for g in result.games if g.time_class==kind]
+    if not games:return svg
+    times=[g.ended for g in games]
+    from bisect import bisect_left,bisect_right
     marks=[]
-    for y in positions:
-        marks.append(f'<rect x="{left:.1f}" y="{y+30}" width="{right-left:.1f}" '
-                     f'height="200" fill="url(#{pattern_id})" stroke="#7f1d1d" '
-                     'stroke-width="1.5" stroke-opacity=".7"/>')
-        marks.append(text(1375,y+23,
-            f'Selected {result.priority} period · not proof of cheating · {period_dates(selected)}',
-            14,'#7f1d1d',anchor='end'))
-    return svg.replace('</svg>',defs+''.join(marks)+'</svg>')
+    for period in periods:
+        if period['time_class']!=kind or period['priority'] not in palette:continue
+        first=bisect_left(times,period['first_ended'])
+        last=bisect_right(times,period['last_ended'])-1
+        if first>=len(rows) or last<0:continue
+        first=max(0,first);last=min(len(rows)-1,last)
+        left=115+1260*first/max(1,len(rows)-1)
+        right=115+1260*last/max(1,len(rows)-1)
+        if right-left<3:
+            left=max(115,left-2);right=min(1375,right+2)
+        fill,stroke=palette[period['priority']]
+        for y in positions:
+            marks.append(f'<rect x="{left:.1f}" y="{y+30}" width="{right-left:.1f}" '
+                         f'height="200" fill="{fill}" fill-opacity=".16" '
+                         f'stroke="{stroke}" stroke-width="1.5" stroke-opacity=".8"/>')
+    if marks:
+        for y in positions:
+            marks.append(text(1375,y+23,'Colored periods: moderate / high / very high · review priority, not proof',
+                              13,'#526477',anchor='end'))
+    return svg.replace('</svg>',''.join(marks)+'</svg>')
 
 
 def mark_recent(svg,rows,positions):
