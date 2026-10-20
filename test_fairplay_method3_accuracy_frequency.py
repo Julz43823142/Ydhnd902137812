@@ -1,7 +1,7 @@
 """Accuracy frequency is descriptive, opponent-aware, and never a priority override."""
 import unittest
 from types import SimpleNamespace
-from fairplay_method3_accuracy_frequency import summarize
+from fairplay_method3_accuracy_frequency import summarize, historical_signal
 
 
 def game(kind, accuracy, own, opponent, moves=25):
@@ -28,6 +28,19 @@ class AccuracyFrequencyTests(unittest.TestCase):
         self.assertEqual(result['by_time_class']['rapid']['at_least_95'],1)
         self.assertFalse(result['calibrated'])
         self.assertFalse(result['affects_priority'])
+
+    def test_historical_frequency_signal_needs_context_and_large_shift(self):
+        rows=[]
+        for i in range(100):
+            g=game('blitz',95 if i>=70 else 80,1800,1800,30)
+            g.ended=i
+            g.identity=str(i)
+            g.opponent_username='opponent'+str(i%30)
+            rows.append(g)
+        signals=historical_signal(rows)
+        self.assertEqual(len(signals),1)
+        self.assertEqual(signals[0]['time_class'],'blitz')
+        self.assertEqual(historical_signal(rows[:65]),[])
 
     def test_missing_ratings_and_empty_coverage(self):
         row=summarize([game('bullet',90,None,1700),game('bullet',None,1500,1500)])
