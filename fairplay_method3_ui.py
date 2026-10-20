@@ -129,17 +129,34 @@ def period_dates(selected):
 
 
 def mark_selected(svg,result,kind,rows,positions):
-    """Highlight the actual chosen period, wherever it lies in class history."""
+    """Purple diagonal hatching for the exact selected class-relative window."""
     from fairplay_charts import text
     selected=result.diagnostics['method3'].get('selected')
-    if not selected or selected['time_class']!=kind:return svg
+    if not selected or selected['time_class']!=kind or not rows:return svg
+    n=len(rows)
+    first=max(0,min(n-1,selected['first_game']-1))
+    last=max(first,min(n-1,selected['last_game']-1))
+    left=115+1260*first/max(1,n-1)
+    right=115+1260*last/max(1,n-1)
+    # A single-game period remains visible without extending into other games.
+    if right-left<3:
+        left=max(115,left-2)
+        right=min(1375,right+2)
+    pattern_id='fairplay-selected-purple-hatch'
+    defs=(f'<defs><pattern id="{pattern_id}" patternUnits="userSpaceOnUse" '
+          'width="12" height="12" patternTransform="rotate(45)">'
+          '<rect width="12" height="12" fill="#a855f7" fill-opacity=".10"/>'
+          '<line x1="0" y1="0" x2="0" y2="12" stroke="#7e22ce" '
+          'stroke-width="3" stroke-opacity=".55"/></pattern></defs>')
     marks=[]
     for y in positions:
-        for index in (selected['first_game']-1,selected['last_game']-1):
-            x=115+1260*index/max(1,len(rows)-1)
-            marks.append(f'<line x1="{x:.1f}" y1="{y+30}" x2="{x:.1f}" y2="{y+230}" stroke="#c2410c" stroke-dasharray="6 5"/>')
-        marks.append(text(1375,y+23,'Selected review period',14,'#9a3412',anchor='end'))
-    return svg.replace('</svg>',''.join(marks)+'</svg>')
+        marks.append(f'<rect x="{left:.1f}" y="{y+30}" width="{right-left:.1f}" '
+                     f'height="200" fill="url(#{pattern_id})" stroke="#7e22ce" '
+                     'stroke-width="1.5" stroke-opacity=".7"/>')
+        marks.append(text(1375,y+23,
+            f'Selected {result.priority} review period · {period_dates(selected)}',
+            14,'#7e22ce',anchor='end'))
+    return svg.replace('</svg>',defs+''.join(marks)+'</svg>')
 
 
 def mark_recent(svg,rows,positions):
