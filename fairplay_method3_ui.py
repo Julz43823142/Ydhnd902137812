@@ -149,6 +149,51 @@ def selected_period_embed(result):
         f"Scored: **{fmt(points.get('actual_points'))} points**\n\n"
         "Red shading marks the selected results period, not proof of cheating."
     )
+    additional=(result.diagnostics.get('method3') or {}).get('period_context') or {}
+    classes=additional.get('by_class',{})
+    other=[]
+    for other_kind in ('rapid','blitz','bullet'):
+        if other_kind==kind or other_kind not in classes:
+            continue
+        row=classes[other_kind]
+        n=row['games']
+        if n==0:
+            other.append(f"**{other_kind.title()}:** 0 games · no comparison")
+        elif n<10:
+            other.append(f"**{other_kind.title()}:** {n} games · too few for a reliable pattern")
+        else:
+            other.append(f"**{other_kind.title()}:** {n} games · "
+                         f"expected {fmt(row['expected_points'])}, "
+                         f"scored {fmt(row['scored_points'])} · "
+                         f"Accuracy {row['accuracy_games']}/{n}")
+    if other:
+        e.add_field(name='Other time controls · same dates',
+                    value='\\n'.join(other)+'\\nOnly supporting context; not a second cheating flag.',
+                    inline=False)
+    timing=additional.get('timing') or {}
+    if timing:
+        def timing_part(key,value):
+            row=timing[key]
+            total=row['games']
+            seconds=row['median_think_seconds']
+            return (f"{value}: **{seconds:.1f}s** ({row['clock_games']}/{total} games)"
+                    if seconds is not None else f"{value}: **Unknown** (0/{total} games)")
+        parts=[timing_part('before50','Before'),
+               timing_part('during','Selected'),
+               timing_part('after50','After')]
+        e.add_field(name=f"Thinking time · {kind.title()} {timing['time_control']}",
+                    value='\\n'.join(parts)+'\\nSame time control · up to 50 games before/after.',
+                    inline=False)
+        def accuracy_part(key,name):
+            row=timing[key]
+            n=row['games']
+            value=row['median_accuracy']
+            return (f"{name}: **{value:.1f}** ({row['accuracy_games']}/{n})"
+                    if value is not None else f"{name}: **Unknown** (0/{n})")
+        e.add_field(name='Chess.com Accuracy · same time control',
+                    value='\\n'.join(accuracy_part(k,v) for k,v in
+                          (('before50','Before'),('during','Selected'),('after50','After'))),
+                    inline=False)
     for label,index in (('First game',first-1),('Last game',last-1)):
         if 0<=index<len(games):
             game=games[index]

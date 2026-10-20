@@ -4,6 +4,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from fairplay_method3 import BLOCK_SIZE, LIMIT, review
+from test_fairplay import TARGET
 from fairplay_progress import estimate
 
 
@@ -59,7 +60,8 @@ class BlockReviewTests(unittest.TestCase):
 
     def test_shared_results_guard_is_adjusted_once_per_window(self):
         # protect_periods reuses one results guard for two reference modes.
-        # Three blocks should multiply .002 by 3, not by 3 twice.
+        # One physical period should be charged for all unique global search
+        # windows, including any eligible cross-boundary bridges, exactly once.
         games = [
             SimpleNamespace(identity=f'g{i:04}', ended=i + 1000, rated=True,
                 time_class='blitz', time_control='300+0', rating=1300,
@@ -104,7 +106,64 @@ class BlockReviewTests(unittest.TestCase):
         self.assertEqual(result.priority,'HIGH')
         self.assertAlmostEqual(
             result.diagnostics['method3']['selected']['search_guard']['adjusted_model_bound'],
-            .006)
+            .002*result.diagnostics['method3']['searched_windows'])
+
+
+    def test_period_split_by_200_game_boundary_is_still_detected(self):
+        from test_fairplay_method3_history import profile_game
+        from test_fairplay_method3 import API
+        # Neither regular 200-game block contains more than ten wins in a
+        # row; the 20-game winning period straddles their arbitrary boundary.
+        games=[profile_game(i,score=1 if 190<=i<210 else .5) for i in range(400)]
+        API.status='basic'
+        with patch('fairplay_method3.collect_games',return_value=(games,{},False)):
+            result=review(TARGET,lambda _:None,api_factory=API)
+        self.assertEqual(result.priority,'HIGH')
+        d=result.diagnostics['method3']
+        self.assertEqual(d['blocks_checked'],2)
+        self.assertEqual(d['boundary_bridges_checked'],1)
+        self.assertEqual(d['segments_checked'],3)
+        selected=d['selected']
+        self.assertEqual(selected['history_segment'],'boundary')
+        self.assertLessEqual(selected['first_game'],191)
+        self.assertGreaterEqual(selected['last_game'],210)
+        guard=selected['search_guard']
+        self.assertLess(guard['raw_model_bound'],1)
+        self.assertAlmostEqual(guard['adjusted_model_bound'],
+            min(1,guard['raw_model_bound']*d['searched_windows']))
+        accuracy=selected['accuracy_search_guard']
+        self.assertAlmostEqual(accuracy['adjusted_reference_model_bound'],
+            min(1,accuracy['raw_reference_model_bound']*d['searched_windows']))
+        self.assertEqual(selected['first_ended'],games[selected['first_game']-1].ended)
+        self.assertEqual(selected['last_ended'],games[selected['last_game']-1].ended)
+
+    def test_no_artificial_jump_when_crossing_a_block_boundary(self):
+        from test_fairplay_method3_history import profile_game
+        from test_fairplay_method3 import API
+        games=[profile_game(i,score=.5) for i in range(400)]
+        API.status='basic'
+        with patch('fairplay_method3.collect_games',return_value=(games,{},False)):
+            result=review(TARGET,lambda _:None,api_factory=API)
+        self.assertEqual(result.priority,'LOW')
+        self.assertGreater(result.diagnostics['method3']['searched_windows'],0)
+
+
+    def test_trailing_under_five_games_never_rescans_earlier_context(self):
+        from test_fairplay_method3_history import profile_game
+        from test_fairplay_method3 import API
+        from fairplay_outcome_study import evaluate
+        games=[profile_game(i,score=.5) for i in range(203)]
+        API.status='basic'
+        with (patch('fairplay_method3.collect_games',return_value=(games,{},False)),
+              patch('fairplay_method3.evaluate',wraps=evaluate) as spy):
+            result=review(TARGET,lambda _:None,api_factory=API)
+        self.assertEqual(result.priority,'LOW')
+        self.assertEqual(result.diagnostics['method3']['blocks_checked'],2)
+        self.assertEqual(result.diagnostics['method3']['boundary_bridges_checked'],1)
+        self.assertEqual(spy.call_count,2)  # complete block and real bridge only
+        self.assertTrue(all(call.kwargs['candidate_tail']>=5 for call in spy.call_args_list))
+        self.assertEqual(result.diagnostics['method3']['subject']['overall_results']['games'],203)
+
 
 
 if __name__ == '__main__':

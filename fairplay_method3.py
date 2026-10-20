@@ -11,7 +11,7 @@ from fairplay_config import CONFIG
 from fairplay_data import PubAPI, ReviewError, ScanDeadline, check_deadline, collect_games, username
 from fairplay_outcome_study import evaluate, SCENARIOS, DEVELOPMENT_SCENARIOS, CONFIG as STUDY_CONFIG
 
-VERSION='fairplay-v63-method3-audit'
+VERSION='fairplay-v64-search-reliability'
 LIMIT=5000
 BLOCK_SIZE=200
 PRIORITY_GAMES=200
@@ -44,67 +44,114 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         from fairplay_outcome_study import _result
         blocks=[games[i:i+BLOCK_SIZE] for i in range(0,len(games),BLOCK_SIZE)]
         block_count=len(blocks)
+        # A streak split by an arbitrary 200-game boundary should not be
+        # invisible. Search a short, overlapping bridge around each boundary,
+        # with a full preceding block available as Accuracy reference.
+        BRIDGE_RADIUS=50
+        segments=[]
+        for index,block in enumerate(blocks):
+            start=index*BLOCK_SIZE
+            context_start=max(0,start-BLOCK_SIZE)
+            segments.append((index,block,games[context_start:start+len(block)],
+                             context_start,False))
+        for boundary in range(BLOCK_SIZE,len(games),BLOCK_SIZE):
+            start=boundary-BRIDGE_RADIUS
+            end=min(len(games),boundary+BRIDGE_RADIUS)
+            context_start=max(0,start-BLOCK_SIZE)
+            segments.append((boundary//BLOCK_SIZE-1,games[start:end],
+                             games[context_start:end],context_start,True))
         overall_rows=[]
         candidate_rows=[]
-        window_count=0
-        for index,block in enumerate(blocks):
+        positions={g.identity:i for i,g in enumerate(games)}
+        physical_windows=set()
+        for segment_index,(index,block,context,context_start,is_bridge) in enumerate(segments):
             check_deadline(deadline)
-            progress(f'Method 3: block {index+1}/{block_count}')
-            context_start=max(0,index*BLOCK_SIZE-BLOCK_SIZE)
-            context=games[context_start:(index+1)*BLOCK_SIZE]
+            progress((f'Method 3: boundary {segment_index-block_count+1}/{len(segments)-block_count}'
+                      if is_bridge else f'Method 3: block {index+1}/{block_count}'))
             player={'player_key':'subject','games':[{
                 'identity':g.identity,'ended':g.ended,'rated':g.rated,'time_class':g.time_class,
                 'time_control':g.time_control,'player_elo':g.rating,'opponent_elo':g.opponent_rating,
                 'score':g.score,'official_accuracy':g.accuracy,'estimated_accuracy':None} for g in context]}
-            overall_rows.extend(player['games'][-len(block):])
+            if not is_bridge:
+                overall_rows.extend(player['games'][-len(block):])
+                # Fewer than five new games cannot define a standalone
+                # qualifying block. Without this check, candidate_tail=None
+                # silently re-scans the older context as if it were new data.
+                if len(block)<STUDY.minimum_games:
+                    continue
             study=evaluate([player],source='official_accuracy',config=STUDY,
                 scenarios=SCENARIOS+DEVELOPMENT_SCENARIOS,rated=None,
                 candidate_tail=len(block) if len(block)>=STUDY.minimum_games else None,
                 protect_search=True)
             sub=study['players'][0]
-            periods=sub['periods']
-            window_count+=len({(p['time_class'],p['first_game'],p['last_game']) for p in periods})
-            candidate_rows.append((index,block,context,sub))
-        # The within-block guard already accounts for all windows in that block.
-        # Multiplying by the number of tested blocks is a conservative union
-        # bound across all blocks, including short or incomplete ones.
-        # Sparse, substantially underrated bullet histories are not reliable Elo
-        # baselines. Cross-control ratings are contextual only, never substituted.
+            # Count unique PHYSICAL windows globally, not duplicated references
+            # or the same interval discovered in both a block and a bridge.
+            by_class={kind:[g for g in context if g.time_class==kind]
+                      for kind in ('rapid','blitz','bullet')}
+            if is_bridge:
+                boundary=(index+1)*BLOCK_SIZE
+                sub['periods']=[p for p in sub['periods']
+                    if positions[by_class[p['time_class']][p['first_game']-1].identity]
+                       < boundary <=
+                       positions[by_class[p['time_class']][p['last_game']-1].identity]]
+            for period in sub['periods']:
+                members=by_class[period['time_class']]
+                physical_windows.add((period['time_class'],
+                    members[period['first_game']-1].identity,
+                    members[period['last_game']-1].identity))
+            candidate_rows.append((index,block,context,sub,context_start,is_bridge,by_class))
+        window_count=len(physical_windows)
+        # Each within-segment Chernoff/reference guard has already been
+        # Bonferroni-adjusted for THAT segment's physical windows. Convert it
+        # to the exact, deduplicated TOTAL windows across all segments.
+        # Multiplication by the block count is not sufficient when mixed time
+        # controls make segments contain very different numbers of windows.
         from statistics import median
-        rated_by_class = {kind: [g.rating for g in games
-            if g.rated and g.time_class == kind and isinstance(g.rating, (int, float))
-            and g.rating > 0] for kind in ('rapid', 'blitz', 'bullet')}
-        bullet_ratings = rated_by_class['bullet']
-        other_ratings = rated_by_class['rapid'] + rated_by_class['blitz']
-        sparse_bullet_rating = (0 < len(bullet_ratings) < 20
-            and len(other_ratings) >= 10
-            and median(other_ratings) - median(bullet_ratings) >= 400)
-        rating_reliability = {
-            'sparse_bullet_rating': sparse_bullet_rating,
-            'bullet_rated_games': len(bullet_ratings),
-            'other_control_rated_games': len(other_ratings),
-            'bullet_median_elo': median(bullet_ratings) if bullet_ratings else None,
-            'other_control_median_elo': median(other_ratings) if other_ratings else None,
-            'rule': 'Fewer than 20 rated bullet games, at least 10 other-control rated games, and a median rating gap of at least 400 Elo. Only short result-only bullet warnings are downgraded; independent accuracy confirmation is preserved.',
-        }
+        from fairplay_method3_reliability import (
+            rating_support, opponent_support, independent_results_tier)
+        rated_by_class={kind:[g.rating for g in games
+            if g.rated is True and g.time_class==kind
+            and isinstance(g.rating,(int,float)) and not isinstance(g.rating,bool)
+            and g.rating>0] for kind in ('rapid','blitz','bullet')}
+        bullet_ratings=rated_by_class['bullet']
+        other_ratings=rated_by_class['rapid']+rated_by_class['blitz']
+        latest_bullet=next((g for g in reversed(games) if g.time_class=='bullet'),None)
+        bullet_support=(rating_support(games,[latest_bullet])
+                        if latest_bullet is not None else None)
+        rating_reliability={
+            'sparse_bullet_rating':bool(bullet_support and bullet_support['unreliable']),
+            'bullet_rated_games':len(bullet_ratings),
+            'other_control_rated_games':len(other_ratings),
+            'bullet_median_elo':median(bullet_ratings) if bullet_ratings else None,
+            'other_control_median_elo':median(other_ratings) if other_ratings else None,
+            'latest_bullet_support':bullet_support,
+            'rule':'Prior-year per-period rated-game support; never replace a time-control Elo '
+                   'with ratings from another control. Long sparse-rating streaks require '
+                   'manual review rather than a results-only HIGH.'}
         rank={'INSUFFICIENT DATA':0,'LOW':1,'MODERATE':2,'HIGH':3,'VERY HIGH':4}
         candidates=[]
-        # protect_periods shares a single results guard across the two
-        # reference modes for each physical window. Correct it only once:
-        # otherwise the across-block factor is accidentally squared.
         corrected_result_guards=set()
-        for index,block,context,sub in candidate_rows:
+        rating_cache={}
+        opponent_cache={}
+        for index,block,context,sub,context_start,is_bridge,by_class in candidate_rows:
             for period in sub['periods']:
                 guard=period['search_guard']
-                guard_key=(index,period['time_class'],period['first_game'],period['last_game'])
-                if guard_key not in corrected_result_guards:
-                    guard['adjusted_model_bound']=min(1.0,guard['adjusted_model_bound']*block_count)
-                    corrected_result_guards.add(guard_key)
+                if id(guard) not in corrected_result_guards:
+                    local_count=max(1,guard.get('searched_windows',1))
+                    raw=guard.get('raw_model_bound')
+                    guard['adjusted_model_bound']=min(
+                        1.0,raw*window_count if raw is not None else
+                        guard['adjusted_model_bound']*window_count/local_count)
+                    corrected_result_guards.add(id(guard))
                 guard['searched_windows']=window_count
                 guard['high_pass']=guard['short_sample_complete'] and guard['adjusted_model_bound']<=.01
                 guard['moderate_pass']=guard['short_sample_complete'] and guard['adjusted_model_bound']<=.10
                 acc=period['accuracy_search_guard']
-                acc['adjusted_reference_model_bound']=min(1.0,acc['adjusted_reference_model_bound']*block_count)
+                local_count=max(1,acc.get('searched_windows',1))
+                raw=acc.get('raw_reference_model_bound')
+                acc['adjusted_reference_model_bound']=min(
+                    1.0,raw*window_count if raw is not None else
+                    acc['adjusted_reference_model_bound']*window_count/local_count)
                 acc['searched_windows']=window_count
                 acc['moderate_pass']=acc['adjusted_reference_model_bound']<=.10
                 for checks in period['scenarios'].values():
@@ -124,16 +171,26 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                       'HIGH' if middle['results_pass'] else
                       'MODERATE' if middle['results_review_pass'] or accuracy_checks['accuracy_pass'] else
                       'LOW' if middle['results_covered'] or accuracy_checks['accuracy_covered'] else 'INSUFFICIENT DATA')
-                # Do not treat an unreliable bullet Elo as independent evidence
-                # of misconduct. This suppresses short, results-only warnings;
-                # a matched Accuracy signal remains eligible for review.
-                if (sparse_bullet_rating and period['time_class']=='bullet'
-                        and period['games']<=20 and not accuracy_checks['accuracy_pass']
-                        and tier in ('HIGH','MODERATE')):
-                    tier='LOW'
-                    period['rating_reliability_downgrade']=True
-                basis='accuracy' if tier=='MODERATE' and not middle['results_review_pass'] else 'results'
-                candidates.append((tier,basis,index,block,context,sub,period))
+                members=by_class[period['time_class']][period['first_game']-1:period['last_game']]
+                rating_key=(period['time_class'],members[-1].identity)
+                if rating_key not in rating_cache:
+                    rating_cache[rating_key]=rating_support(games,members)
+                opponent_key=(period['time_class'],members[0].identity,members[-1].identity)
+                if opponent_key not in opponent_cache:
+                    opponent_cache[opponent_key]=opponent_support(members,history=games)
+                rating=rating_cache[rating_key]
+                opponents=opponent_cache[opponent_key]
+                tier,limits=independent_results_tier(
+                    tier,games=period['games'],rating=rating,opponents=opponents,
+                    accuracy_confirmed=accuracy_checks['accuracy_pass'])
+                period['rating_support']=rating
+                period['opponent_support']=opponents
+                if limits:
+                    period['classification_guards']=limits
+                    period['rating_reliability_downgrade']='unreliable_time_control_rating' in limits
+                basis=('accuracy' if tier=='MODERATE' and not middle['results_review_pass']
+                       and not limits else 'results')
+                candidates.append((tier,basis,index,block,context,sub,period,context_start,is_bridge))
         if candidates:
             # Strong HIGH evidence wins; when nothing qualifies, display the
             # widest covered LOW period rather than an arbitrary five-game slice.
@@ -144,12 +201,12 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 secondary=(period['games'] if tier in ('LOW','INSUFFICIENT DATA') else
                            -bound if tier in ('HIGH','VERY HIGH') else -min(bound,accuracy_bound))
                 return (rank[tier],secondary,period['games'])
-            priority,basis,block_index,selected_block,selected_context,subject,chosen=max(candidates,
+            priority,basis,block_index,selected_block,selected_context,subject,chosen,selected_context_start,is_bridge=max(candidates,
                 key=candidate_key)
         else:
-            priority,basis,block_index,selected_block,selected_context,subject,chosen=(
+            priority,basis,block_index,selected_block,selected_context,subject,chosen,selected_context_start,is_bridge=(
                 'INSUFFICIENT DATA','results',0,games,games,{'overall_results':_result(overall_rows),
-                'opponent_groups':[],'periods':[]},None)
+                'opponent_groups':[],'periods':[]},None,0,False)
         subject=dict(subject)
         subject['overall_results']=_result(overall_rows)
         # Keep only the selected block's evidence in the Discord payload.
@@ -164,17 +221,19 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
             chosen['first_ended']=members[0].ended;chosen['last_ended']=members[-1].ended
             # Class-relative indices in a single block need the offset of all
             # older games of that time class for the whole-history display.
-            context_start=max(0,block_index*BLOCK_SIZE-BLOCK_SIZE)
-            class_offset=sum(g.time_class==chosen['time_class'] for g in games[:context_start])
+            class_offset=sum(g.time_class==chosen['time_class'] for g in games[:selected_context_start])
             chosen['first_game']+=class_offset
             chosen['last_game']+=class_offset
             chosen['history_block']=block_index+1
+            chosen['history_segment']='boundary' if is_bridge else 'block'
         rated_count=sum(g.rated is True for g in games)
         subject['rated_games']=rated_count
         subject['unrated_games']=len(games)-rated_count
-        confidence=('LOW' if partial or len(games)<30 or (priority in ('HIGH','MODERATE') and chosen and chosen['games']<10)
+        confidence=('LOW' if partial or len(games)<30 or (chosen and chosen.get('classification_guards'))
+                    or (priority in ('HIGH','MODERATE') and chosen and chosen['games']<10)
                     else 'HIGH' if len(games)>=100 else 'MEDIUM')
-        reasons=[('Short bullet results were downgraded because the bullet Elo is sparsely supported and substantially below the other time controls. This is not proof of fair play.' if chosen and chosen.get('rating_reliability_downgrade') else
+        reasons=[('The time-control Elo has too few recent rated anchors and differs substantially from other controls. Results alone cannot justify HIGH here.' if chosen and chosen.get('rating_reliability_downgrade') else
+                 'Most games in the period were played against one or two opponents. Their outcomes cannot justify independent-results HIGH without further review.' if chosen and 'repeated_opponent_concentration' in chosen.get('classification_guards',()) else
                  ('An exceptional results period also passed a stricter matched historical Accuracy check. This is a review priority, not proof of misconduct.') if priority=='VERY HIGH' else
                  ('A chronological period scored substantially above its Elo-point expectation and passed the history-search guard. '
                   'This experimental results flag is not engine or Maia confirmation.') if priority=='HIGH' else
@@ -183,12 +242,16 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                  'No period passed the configured review boundaries; this does not establish fair play.' if priority=='LOW' else
                  'Not enough comparable chronological games with valid ratings/results to assign a tier.')]
         from fairplay_method3_history import changes
+        from fairplay_method3_context import context as period_context
         history_changes=changes(games,PRIORITY_GAMES)
+        selected_context=period_context(games,chosen)
         record={'history_limit':LIMIT,'priority_games':len(games),'block_size':BLOCK_SIZE,'blocks_checked':block_count,
-                'history_changes':history_changes,'rating_reliability':rating_reliability,
+                'boundary_bridges_checked':len(segments)-block_count,'segments_checked':len(segments),
+                'history_changes':history_changes,'period_context':selected_context,
+                'rating_reliability':rating_reliability,
                 'rated_games':rated_count,'unrated_games':len(games)-rated_count,
                 'priority_basis':basis,'production_enabled':True,
-                'period_scope':'Independent chronological 200-game blocks with across-block search correction',
+                'period_scope':'Chronological 200-game blocks plus overlapping boundary bridges; globally deduplicated physical-window search correction',
                 'searched_windows':window_count,
                 'method':'Experimental Elo-results and published-Accuracy triage; not gameplay confirmation or misconduct probability',
                 'reference':'Development thresholds, not independent holdout calibration',

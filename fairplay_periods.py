@@ -40,11 +40,13 @@ def protect_periods(periods,games):
         key=(p['time_class'],p['first_game'],p['last_game'])
         if key not in cache:
             rows=groups[key[0]][key[1]-1:key[2]]
-            adjusted=min(1.0,points_bound(rows)*count)
+            raw_bound=points_bound(rows)
+            adjusted=min(1.0,raw_bound*count)
             short=p['games']<10
             short_ok=not short or (p['games']>=5 and p['results']['games']==p['games']
                                   and p['results']['wins']==p['games'])
-            cache[key]={'searched_windows':count,'adjusted_model_bound':adjusted,
+            cache[key]={'searched_windows':count,'raw_model_bound':raw_bound,
+                        'adjusted_model_bound':adjusted,
                         'short_sample':short,'short_sample_complete':short_ok,
                         'high_pass':short_ok and adjusted<=.01,
                         'moderate_pass':short_ok and adjusted<=.10,
@@ -55,8 +57,10 @@ def protect_periods(periods,games):
         # 10% exceedance model, NOT an empirically calibrated human norm.
         # Finite references and correlated games can violate this assumption.
         hits=round((accuracy['above_reference_fraction'] or 0)*matched)
-        accuracy_bound=min(1.0,_upper_bound([.10]*matched,hits)*count)
+        raw_accuracy_bound=_upper_bound([.10]*matched,hits)
+        accuracy_bound=min(1.0,raw_accuracy_bound*count)
         p['accuracy_search_guard']={'searched_windows':count,
+            'raw_reference_model_bound':raw_accuracy_bound,
             'adjusted_reference_model_bound':accuracy_bound,'moderate_pass':accuracy_bound<=.10,
             'note':'Independent, stationary upper-decile reference model; not a cheating probability or validated false-positive rate.'}
         for checks in p['scenarios'].values():
