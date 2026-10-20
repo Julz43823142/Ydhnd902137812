@@ -1,0 +1,33 @@
+# Fair Play Method 3 — targeted research and v65 evidence safeguards (October 2026)
+
+## Scope
+The deployed Method 3 route is **results/official-Accuracy screening**, not Stockfish-assisted cheating adjudication. It works on at most 5,000 fetched live games and evaluates 5/10/20/50/100/200-game windows within 200-game chronological blocks. Its priority labels allocate moderator review; they are neither calibrated cheating probabilities nor evidence sufficient for sanctions. Status/closure labels are not model features.
+
+## Research findings
+1. **Look-elsewhere bias and arbitrary batch edges:** Searching many correlated sequences increases extremes. Short bridges (+/-50 collected games) around 200-game boundaries did not fully represent a 100-game sequence offset to one side of a boundary. v65 widens a boundary bridge to 100 games on either side. Every physical window (including bridge duplicates) is deduplicated and included in the global search-size adjustment. It still does not guarantee coverage of every possible 200-game sequence across an arbitrary boundary. A fully sliding full-history study would require a measured runtime and a new validation plan.
+2. **Opposition dependence:** A selected five-to-24-game match with one or two opponents could previously evade the 25-game local-cohort guard. v65 separately checks the *selected* period's identifiable opponents; repeated opposition caps results-only HIGH at MODERATE even with fewer than 25 games. Count opponents, not games, and expose an effective opponent count `n_eff = (sum c)^2 / sum(c^2)`. This is a *diversity diagnostic*, **not** a corrected sample size, p-value, or a conviction. Never assume absent usernames identify different people.
+3. **Accuracy frequency versus the selected results period:** A strictly earlier, context-matched increase of >=90 Accuracy can promote a LOW results review to MODERATE, but it is a separate signal from the old LOW results window. v65 labels them separately and corrects literal `\\n` text in Discord fields. Raw >=90/>=95 percentages cannot by themselves imply engine assistance.
+4. **Game quality and complexity:** Chess.com's CAPS2 scores are useful context but Chess.com says ordinary Game Review Accuracy is *not* its cheat detector. A high average Accuracy or results streak must never become HIGH solely by adding arbitrary weights. For a later engine-assisted project, test whether strong moves occur specifically at independently measured difficult non-forced positions, excluding trivial, book and forced moves; do not count correlated top-move, Accuracy and score metrics as independent evidence.
+5. **Opponent Elo uncertainty:** Elo expected points are not a verified misconduct null when ratings lag, ratings are provisional, opponents are highly correlated, or rating improves quickly. The result Chernoff bound assumes an accurate expectation and independent trials; its numerical output is a model guard, not a validated empirical false-positive rate.
+6. **Clocks:** PGN clock differences contain premoves, increment handling, connection artifacts and missing clock coverage. Time-versus-difficulty interaction is an interesting *research* feature but must be controlled against verified honest cohorts. In Method 3 timing remains descriptive.
+
+## What is and is not changed in v65
+- **Changes:** +/-100-game boundary bridge rather than +/-50; selected-window opponent concentration detection for all five-or-more-game periods; readable Accuracy-frequency versus Elo-results attribution; real Discord newline characters; focused regression tests.
+- **Unchanged:** global deduplicated physical-window correction; HIGH/VERY HIGH mathematical thresholds; minimum result/Accuracy coverage; status/ban non-involvement; neither engines nor Maia invoked in Method 3; moderator review requirement.
+- **Expected result:** better *candidate coverage* for cross-boundary sequences and fewer HIGH false alerts for repeated head-to-head matches. **An improvement in true-positive recall or empirical precision has NOT been measured**. Treat such a claim as unproven until independent testing.
+- **Residual limitation:** the LOW-to-MODERATE Accuracy-frequency signal still compares selected Accuracy-covered games; game-to-game correlation and selection coverage can invalidate its nominal binomial-tail interpretation. Never present that value as a population p-value or use it for HIGH.
+
+## Validation required before merging
+1. Run offline CI, old regression suite, synthetic 200-game boundary/short-match/Accuracy-display tests and end-to-end Discord rendering.
+2. Measure runtime and memory at 1,000 and 5,000 collected games; additional boundary context raises work. Preserve the existing 300-second review deadline.
+3. Evaluate **player-disjoint, chronological holdout data** with genuine independently audited normal players; untouched/not-banned accounts are *not* reliable negative labels.
+4. Report alert rate per 1,000 independently labelled normal accounts with Wilson/binomial uncertainty; HIGH recall on adjudicated engine-use labels, distinct from generic Fair Play closures (which can include sandbagging and account sharing); subgroup results by time control, Elo, provisional rating, Accuracy coverage and opponent diversity. Compare v64 vs v65 on the *same* holdout.
+5. Pre-register any further thresholds before examining the holdout. Do not raise a severity tier from a new proxy until an independent false-positive budget has been established.
+
+## References
+- FIDE Anti-Cheating Guidelines, Annex C (screening is not primary statistical evidence): https://handbook.fide.com/files/handbook/Anti%20Cheating%20Guidelines.pdf
+- Chess.com Fair Play detection overview (many factors plus human review): https://support.chess.com/en/articles/8568369-what-do-i-need-to-know-about-fair-play-on-chess-com
+- Chess.com CAPSv2 Accuracy limits: https://support.chess.com/en/articles/8708970-how-is-accuracy-in-analysis-determined
+- Chess.com on CAPS not being its cheat detector: https://www.chess.com/blog/nioWabo/about-online-chess-cheating
+- "On the limits of engine analysis for cheating detection in chess" (2014): https://www.sciencedirect.com/science/article/pii/S0167404814001485
+- "Chess Signatures of Play" (June 2026 preprint; experimental, not production validation): https://arxiv.org/abs/2606.18544
