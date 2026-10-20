@@ -15,7 +15,7 @@ class SelectedPeriodHighlight(unittest.TestCase):
         marked = mark_selected(svg, result, 'bullet', rows, (150,))
         self.assertIn('patternTransform="rotate(45)"', marked)
         self.assertIn('fill="url(#fairplay-selected-red-hatch)"', marked)
-        self.assertIn('strongest selected results period (HIGH)', marked)
+        self.assertIn('Selected HIGH period · not proof of cheating', marked)
         self.assertEqual(marked.count('<rect x='), 1)
 
 
