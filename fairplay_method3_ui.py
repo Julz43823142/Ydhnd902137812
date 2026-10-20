@@ -248,7 +248,7 @@ def mark_selected(svg,result,kind,rows,positions):
     if marks:
         for y in positions:
             marks.append(text(1375,y+23,
-                'Priority color = detected control · purple = same dates elsewhere · numbers link periods',
+                'Priority color = detected control · purple = same dates elsewhere · numbers link periods · not proof',
                 12,'#526477',anchor='end'))
     return svg.replace('</svg>',''.join(marks)+'</svg>')
 
