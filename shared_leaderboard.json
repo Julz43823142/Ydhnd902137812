@@ -593,10 +593,11 @@
     "active_survival_heart_style": "classic",
     "arrows": [],
     "badges": [
-      "🍬"
+      "🍬",
+      "🧟"
     ],
     "boards": [],
-    "coins": 247.0,
+    "coins": 222.0,
     "colors": [],
     "donation_inbox": [],
     "guess_points_coined": 0.0,
