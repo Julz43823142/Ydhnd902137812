@@ -52,7 +52,7 @@
       "paid": [],
       "pool": 2000,
       "progress": {
-        "minigame_win": 21,
+        "minigame_win": 22,
         "puzzle_solve": 23,
         "rush_complete": 3
       },
@@ -66,7 +66,7 @@
           "rush_complete": 3
         },
         "550338389535227926": {
-          "minigame_win": 13
+          "minigame_win": 14
         }
       }
     },
@@ -191,8 +191,8 @@
       },
       "550338389535227926": {
         "coins_earned": 55.0,
-        "contribution": 0.017329,
-        "minigame_win": 13,
+        "contribution": 0.018662,
+        "minigame_win": 14,
         "new_cosmetics": 4
       }
     }
