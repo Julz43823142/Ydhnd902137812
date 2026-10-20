@@ -45,12 +45,14 @@ class UnratedCohorts(unittest.TestCase):
         self.assertEqual(result.priority,'HIGH')  # Existing rated route preserved.
         self.assertEqual(d['priority_basis'],'results')
 
-    def test_unrated_discrepancy_has_same_high_rules(self):
+    def test_unrated_discrepancy_is_not_high_without_rated_anchors(self):
         result=self.run_rows(self.rows())
-        self.assertEqual(result.priority,'HIGH')
+        self.assertEqual(result.priority,'MODERATE')
         self.assertEqual(result.confidence,'LOW')
         self.assertEqual(result.diagnostics['method3']['subject']['rated_games'],0)
         self.assertEqual(result.diagnostics['method3']['subject']['unrated_games'],20)
+        self.assertTrue(result.diagnostics['method3']['selected']['rating_support']['unverified'])
+        self.assertIn('unverified_time_control_rating',result.diagnostics['method3']['selected']['classification_guards'])
         self.assertFalse(result.deep_confirmed)
         from fairplay_method3_ui import result_embed,detail_embed,chart_pngs
         self.assertIn('Results confidence',str(result_embed(result).to_dict()))
@@ -85,12 +87,12 @@ class UnratedCohorts(unittest.TestCase):
         rows=self.rows(rated=True,kind='bullet')+self.rows(n=250,start=21,player=2500,opponent=500)
         self.assertEqual(self.run_rows(rows).priority,'HIGH')
 
-    def test_rated_losses_do_not_hide_unrated_discrepancy(self):
+    def test_other_time_control_rated_losses_do_not_authenticate_unrated_elo(self):
         rated=self.rows(rated=True,kind='bullet')
         for row in rated:
             row['white']['result']='resigned';row['black']['result']='win'
             row['pgn']=row['pgn'].replace('1-0','0-1')
-        self.assertEqual(self.run_rows(rated+self.rows(start=21)).priority,'HIGH')
+        self.assertEqual(self.run_rows(rated+self.rows(start=21)).priority,'MODERATE')
 
     def test_unrated_closure_status_does_not_change_analysis(self):
         API.rows=self.rows()
