@@ -4551,6 +4551,25 @@
       "buyer_id": "550338389535227926",
       "buyer_name": "Nairyaaa",
       "closed_at": 1792513866.1356113
+    },
+    "open-shop:1562141725714292766:442597396195704832": {
+      "trade_id": "open-shop:1562141725714292766:442597396195704832",
+      "seller_id": "442597396195704832",
+      "seller_name": "Thice",
+      "offer": {
+        "type": "pet",
+        "pet_id": "93f7026f2e0e4ae587bd180fef05031b",
+        "label": "Wolf · Wolf · Rare · Level 6"
+      },
+      "request": {
+        "type": "coins",
+        "amount": 10000.0
+      },
+      "status": "open",
+      "created_at": 1792514010.9948127,
+      "guild_id": 1298908892507410462,
+      "channel_id": 1546557493038284840,
+      "message_id": "1562141727383363700"
     }
   },
   "puzzle_rush_mistake_reviews_v1": {
