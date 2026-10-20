@@ -74,6 +74,11 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 'score':g.score,'official_accuracy':g.accuracy,'estimated_accuracy':None} for g in context]}
             if not is_bridge:
                 overall_rows.extend(player['games'][-len(block):])
+                # Fewer than five new games cannot define a standalone
+                # qualifying block. Without this check, candidate_tail=None
+                # silently re-scans the older context as if it were new data.
+                if len(block)<STUDY.minimum_games:
+                    continue
             study=evaluate([player],source='official_accuracy',config=STUDY,
                 scenarios=SCENARIOS+DEVELOPMENT_SCENARIOS,rated=None,
                 candidate_tail=len(block) if len(block)>=STUDY.minimum_games else None,
