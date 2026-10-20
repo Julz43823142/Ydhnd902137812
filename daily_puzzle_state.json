@@ -4525,11 +4525,32 @@
         "type": "coins",
         "amount": 1.0
       },
-      "status": "open",
+      "status": "completed",
       "created_at": 1792513850.0120668,
       "guild_id": 1298908892507410462,
       "channel_id": 1546557493038284840,
-      "message_id": "1562141052519976961"
+      "message_id": "1562141052519976961",
+      "receipt": {
+        "receipt_id": "open-trade-accept:open-shop:1562141049336635472:442597396195704832",
+        "completed_at": 1792513863,
+        "open_trade_id": "open-shop:1562141049336635472:442597396195704832",
+        "seller_user_id": "442597396195704832",
+        "seller_name": "Thice",
+        "buyer_user_id": "550338389535227926",
+        "buyer_name": "Nairyaaa",
+        "offer": {
+          "type": "pet",
+          "pet_id": "4b2d1c08acbc46e69f970710da7f2a39",
+          "label": "Dog · Dog · Common · Level 1"
+        },
+        "request": {
+          "type": "coins",
+          "amount": 1.0
+        }
+      },
+      "buyer_id": "550338389535227926",
+      "buyer_name": "Nairyaaa",
+      "closed_at": 1792513866.1356113
     }
   },
   "puzzle_rush_mistake_reviews_v1": {
