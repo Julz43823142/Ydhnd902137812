@@ -659,11 +659,13 @@
         },
         "550338389535227926": {
           "name": "Nairyaaa",
-          "paid": [],
+          "paid": [
+            "weekly:2026-10-19:minigame:minigame-8"
+          ],
           "progress": {
             "weekly:2026-10-19:minigame:minigame-8": 8
           },
-          "updated_at": 1792511964
+          "updated_at": 1792511967
         }
       }
     }
