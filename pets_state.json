@@ -735,8 +735,8 @@
       {
         "born_at": 1792513791.044791,
         "fed_at": 1792513791.044791,
-        "happiness": 80,
-        "happy_at": 1792513791.044791,
+        "happiness": 100,
+        "happy_at": 1792513834.9230723,
         "id": "4b2d1c08acbc46e69f970710da7f2a39",
         "name": "",
         "owner_history": [
@@ -745,22 +745,29 @@
             "at": 1792513791,
             "owner_id": "442597396195704832",
             "owner_name": "Thice"
+          },
+          {
+            "action": "Hatched",
+            "at": 1792513834,
+            "owner_id": "442597396195704832",
+            "owner_name": "Thice"
           }
         ],
         "puzzle": {
           "day": "2026-10-20",
-          "fen": "3Q3b/rp3pkp/2p1bp2/7q/2P5/R3P2P/5PP1/1R4K1 w - - 1 34",
+          "fen": "3Q3b/Rp3pkp/2p1bp2/7q/2P5/4P2P/5PP1/1R4K1 b - - 0 34",
           "id": "TTjtI",
-          "index": 2,
+          "index": 3,
           "moves": [
             "e7d8",
             "g8g7",
             "a3a7"
           ]
         },
+        "puzzle_day": "2026-10-20",
         "rarity": "common",
         "species": "Dog",
-        "xp": 0
+        "xp": 20
       }
     ]
   },
