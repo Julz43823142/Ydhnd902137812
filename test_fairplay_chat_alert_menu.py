@@ -167,6 +167,16 @@ class AlertMenu(unittest.IsolatedAsyncioTestCase):
         for name,allowed in (('alert',True),('ban',False),('profile',False)):
             self.assertEqual(permitted({'channel_id':str(CHANNEL_ID),'type':2,'data':{'name':name}}),allowed)
 
+    def test_fairplay_slash_group_uses_check_and_stop(self):
+        import bot
+        group = bot.command_tree.get_command('fairplay')
+        self.assertIsNotNone(group)
+        self.assertIsNotNone(group.get_command('check'))
+        self.assertIsNotNone(group.get_command('stop'))
+        self.assertEqual(len(group.get_command('check').parameters), 1)
+        self.assertEqual(group.get_command('stop').parameters, [])
+        self.assertIsNone(bot.command_tree.get_command('stopfairplay'))
+
     def test_slash_registration_has_no_options(self):
         import bot
         command=bot.command_tree.get_command('alert')
