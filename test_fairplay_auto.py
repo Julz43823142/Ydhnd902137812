@@ -156,12 +156,13 @@ class IdentityTests(unittest.TestCase):
         self.assertIsNone(report_identity(message(1,target='https://evil.invalid'),123))
         self.assertIsNone(report_identity(message(1,author=999),123))
 
-    def test_slash_fairplay_is_direct_username_command(self):
+    def test_slash_fairplay_groups_check_and_stop(self):
         import bot
         command=bot.command_tree.get_command('fairplay')
-        self.assertIsInstance(command,discord.app_commands.Command)
-        self.assertNotIsInstance(command,discord.app_commands.Group)
-        self.assertEqual([parameter.name for parameter in command.parameters],['username'])
+        self.assertIsInstance(command,discord.app_commands.Group)
+        self.assertEqual([parameter.name for parameter in
+                          command.get_command('check').parameters],['username'])
+        self.assertEqual(command.get_command('stop').parameters,[])
         self.assertIsNone(bot.command_tree.get_command('fairplay_auto'))
         from fairplay_routing import permitted
         from fairplay_config import CHANNEL_ID
