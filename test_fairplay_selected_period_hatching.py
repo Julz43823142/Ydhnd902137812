@@ -23,6 +23,23 @@ class SelectedPeriodHighlight(unittest.TestCase):
         self.assertEqual(marked.count('<rect x='),3)
         self.assertIn('not proof',marked)
 
+    def test_other_control_uses_purple_with_matching_period_number(self):
+        games=[
+            SimpleNamespace(time_class='blitz',ended=1000+i*100) for i in range(5)
+        ]+[
+            SimpleNamespace(time_class='bullet',ended=1000+i*100) for i in range(5)
+        ]
+        periods=[{'time_class':'blitz','first_ended':1100,'last_ended':1300,
+                  'priority':'HIGH'}]
+        result=SimpleNamespace(games=games,diagnostics={'method3':{'marked_periods':periods}})
+        svg='<svg xmlns="http://www.w3.org/2000/svg"></svg>'
+        blitz=mark_selected(svg,result,'blitz',[{}]*5,(150,))
+        bullet=mark_selected(svg,result,'bullet',[{}]*5,(150,))
+        self.assertIn('fill="#f97316"',blitz)
+        self.assertIn('fill="#a78bfa"',bullet)
+        self.assertIn('>1</text>',bullet)
+        self.assertNotIn('fill="#f97316"',bullet)
+
     def test_low_and_insufficient_data_are_not_shaded(self):
         games=[SimpleNamespace(time_class='bullet',ended=1000+i*100) for i in range(5)]
         svg='<svg xmlns="http://www.w3.org/2000/svg"></svg>'
