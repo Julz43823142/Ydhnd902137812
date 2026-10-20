@@ -167,7 +167,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         subject['unrated_games']=len(games)-rated_count
         confidence=('LOW' if partial or len(games)<30 or (priority in ('HIGH','MODERATE') and chosen and chosen['games']<10)
                     else 'HIGH' if len(games)>=100 else 'MEDIUM')
-        reasons=[('Short bullet results were downgraded because the bullet Elo is sparsely supported and substantially below the player's other time controls. This is not proof of fair play.' if chosen and chosen.get('rating_reliability_downgrade') else
+        reasons=[('Short bullet results were downgraded because the bullet Elo is sparsely supported and substantially below the other time controls. This is not proof of fair play.' if chosen and chosen.get('rating_reliability_downgrade') else
                  ('An exceptional results period also passed a stricter matched historical Accuracy check. This is a review priority, not proof of misconduct.') if priority=='VERY HIGH' else
                  ('A chronological period scored substantially above its Elo-point expectation and passed the history-search guard. '
                   'This experimental results flag is not engine or Maia confirmation.') if priority=='HIGH' else
