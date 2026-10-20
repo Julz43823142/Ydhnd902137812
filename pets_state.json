@@ -911,8 +911,8 @@
         "born_at": 1792176270.9882581,
         "fed_at": 1792514367.6198528,
         "feed_day": "2026-10-20",
-        "happiness": 100,
-        "happy_at": 1792176324.846002,
+        "happiness": 90,
+        "happy_at": 1792514504.4696794,
         "id": "1bf5d2f95cb84f5b9852fede16fc9fde",
         "name": "",
         "owner_history": [
@@ -937,19 +937,19 @@
         ],
         "puzzle": {
           "day": "2026-10-20",
-          "fen": "6k1/pr3p2/2bP1p1p/1p1N4/2n5/6PP/8/R1R3K1 b - - 4 34",
+          "fen": "6k1/pr3p2/3P1p1p/1p1b4/2n5/6PP/8/R1R3K1 w - - 0 35",
           "id": "fcJKy",
-          "index": 2,
+          "index": 3,
           "moves": [
             "d7c6",
             "g2g1",
             "c6d5"
           ]
         },
-        "puzzle_day": "2026-10-16",
+        "puzzle_day": "2026-10-20",
         "rarity": "rare",
         "species": "Owl",
-        "xp": 55,
+        "xp": 75,
         "xp_day": "2026-10-16"
       }
     ]

@@ -197,7 +197,8 @@
         "minigame_win": 18,
         "new_cosmetics": 4,
         "pet_feed": 2,
-        "pet_levels_gained": 1
+        "pet_levels_gained": 1,
+        "pet_puzzle": 1
       }
     }
   }
