@@ -217,7 +217,7 @@ def mark_selected(svg,result,kind,rows,positions):
              'HIGH':('#f97316','#9a3412'),
              'VERY HIGH':('#dc2626','#991b1b')}
     periods=result.diagnostics['method3'].get('marked_periods',[])
-    if not rows:return svg
+    if not rows or not any(p.get('time_class')==kind and p.get('priority') in palette for p in periods):return svg
     # Class-relative game positions are global across all history blocks.
     games=[g for g in result.games if g.time_class==kind]
     if not games:return svg
