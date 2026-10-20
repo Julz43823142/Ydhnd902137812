@@ -1,4 +1,4 @@
-"""Synthetic /stopfairplay command, queue and encrypted-checkpoint regressions.
+"""Synthetic /fairplay stop command, queue and encrypted-checkpoint regressions.
 
 The moderator command cancels exactly the running review, not the Actions
 worker, other game systems or queued Fair Play reviews.
