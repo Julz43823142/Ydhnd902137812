@@ -20,6 +20,23 @@ def result_embed(result):
         f'{d.get("rated_games",len(result.games))} rated · {d.get("unrated_games",0)} unrated'
         + (' · incomplete collection' if result.partial else '')
         + f'\nPublished Accuracy: {accuracy_games}/{len(result.games)} games.'),inline=False)
+    frequency=d.get('accuracy_frequency',{}).get('by_time_class',{})
+    if frequency:
+        lines=[]
+        for kind in ('blitz','rapid','bullet'):
+            row=frequency.get(kind,{})
+            n=row.get('accuracy_coverage',0)
+            if not n:continue
+            groups=row.get('opponent_context',{})
+            near=groups.get('near',{})
+            lines.append(
+                f"{kind.title()}: **{row['at_least_90']}/{n} ≥90%**, "
+                f"**{row['at_least_95']}/{n} ≥95%** "
+                f"(near-Elo ±200: {near.get('at_least_90',0)}/{near.get('games',0)} ≥90%)")
+        if lines:
+            e.add_field(name='High Accuracy frequency · descriptive',
+                value='\\n'.join(lines)+'\\nNot calibrated for expected frequency; does not affect priority.',
+                inline=False)
     selected=d.get('selected')
     if selected:
         e.add_field(name='Selected chronological period',value=f"{selected['time_class'].title()} · {selected['games']} games · {period_dates(selected)}\nExpected points: **{fmt(r['expected_points'])}** · scored: **{fmt(r['actual_points'])}**\nWinrate: **{fmt(r['win_fraction'],True)}**",inline=False)
@@ -211,40 +228,46 @@ def selected_period_embed(result):
 
 
 def mark_selected(svg,result,kind,rows,positions):
-    """Shade only disjoint MODERATE/HIGH/VERY HIGH periods, never LOW."""
+    """Number priority windows and show their calendar dates in other controls."""
+    from bisect import bisect_left,bisect_right
     from fairplay_charts import text
     palette={'MODERATE':('#eab308','#854d0e'),
              'HIGH':('#f97316','#9a3412'),
              'VERY HIGH':('#dc2626','#991b1b')}
     periods=result.diagnostics['method3'].get('marked_periods',[])
-    if not rows or not any(p.get('time_class')==kind and p.get('priority') in palette for p in periods):return svg
-    # Class-relative game positions are global across all history blocks.
-    games=[g for g in result.games if g.time_class==kind]
+    if not rows or not periods or not getattr(result,'games',None):return svg
+    # Observations and charts are chronological, independently per time class.
+    games=sorted((g for g in result.games if g.time_class==kind),
+                 key=lambda g:(g.ended,getattr(g,'identity','')))
     if not games:return svg
     times=[g.ended for g in games]
-    from bisect import bisect_left,bisect_right
     marks=[]
-    for period in periods:
-        if period['time_class']!=kind or period['priority'] not in palette:continue
+    # Stable numbering by start date, shared across every chart.
+    numbered=sorted((p for p in periods if p.get('priority') in palette),
+                    key=lambda p:(p['first_ended'],p['last_ended'],p['time_class']))
+    for number,period in enumerate(numbered,1):
         first=bisect_left(times,period['first_ended'])
         last=bisect_right(times,period['last_ended'])-1
-        if first>=len(rows) or last<0:continue
+        if first>last or first>=len(rows) or last<0:continue
         first=max(0,first);last=min(len(rows)-1,last)
         left=115+1260*first/max(1,len(rows)-1)
         right=115+1260*last/max(1,len(rows)-1)
         if right-left<3:
             left=max(115,left-2);right=min(1375,right+2)
-        fill,stroke=palette[period['priority']]
+        own=period['time_class']==kind
+        fill,stroke=palette[period['priority']] if own else ('#a78bfa','#7c3aed')
         for y in positions:
             marks.append(f'<rect x="{left:.1f}" y="{y+30}" width="{right-left:.1f}" '
                          f'height="200" fill="{fill}" fill-opacity=".16" '
                          f'stroke="{stroke}" stroke-width="1.5" stroke-opacity=".8"/>')
+            # Number beneath the panel, outside the plotted 200px area.
+            marks.append(text((left+right)/2,y+247,str(number),15,stroke,anchor='middle'))
     if marks:
         for y in positions:
-            marks.append(text(1375,y+23,'Colored periods: moderate / high / very high · review priority, not proof',
-                              13,'#526477',anchor='end'))
+            marks.append(text(1375,y+23,
+                'Priority color = detected control · purple = same dates elsewhere · numbers link periods · not proof',
+                12,'#526477',anchor='end'))
     return svg.replace('</svg>',''.join(marks)+'</svg>')
-
 
 def mark_recent(svg,rows,positions):
     """Mark the priority tail; keep original chronological game coordinates."""
