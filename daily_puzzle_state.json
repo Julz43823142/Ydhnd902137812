@@ -32,8 +32,10 @@
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_ids": {},
-    "message_id": null,
+    "message_ids": {
+      "1468320170891022417": 1562144575953436745
+    },
+    "message_id": 1562144575953436745,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {},
@@ -41,7 +43,10 @@
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "board_attachment_filenames": {
+      "1468320170891022417": "random_puzzle.png"
+    }
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
@@ -4298,9 +4303,9 @@
   "bot_ideas_ticket_counter_v1": 15,
   "bot_ideas_idle_v1": {
     "last_activity_at": 1792513113.0777993,
-    "reminder_sent": false,
-    "reminder_message_id": "1556379964805226517",
-    "tickets_since_prompt": 1
+    "reminder_sent": true,
+    "reminder_message_id": "1562145640966783007",
+    "tickets_since_prompt": 0
   },
   "bot_ideas_panel_message_id_v1": "1546854821351395401",
   "open_shop_trades_v1": {
