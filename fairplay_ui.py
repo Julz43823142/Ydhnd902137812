@@ -1233,7 +1233,7 @@ class ReportView(SubmitView):
         super().__init__()
         self.clear_items()
         method3 = os.getenv('FAIRPLAY_METHOD3') == '1'
-        options = ([('Selected Period','🎯','selected-period'),('Copy Report','📋','copy')]
+        options = ([('Selected Period','🎯','selected-period')]
                    if method3 else
                    [('Report Details','📄','summary'),('Highest-Signal Games','🎯','games'),('Timing','⏱️','timing'),
                     ('Performance','📈','performance'),('Clusters & History','🔬','clusters'),('Engine Analysis','♟️','engine'),
