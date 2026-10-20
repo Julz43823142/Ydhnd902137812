@@ -1,0 +1,16 @@
+{
+  "action": "minigame_win",
+  "amount": 1,
+  "created_at": 1792512996,
+  "created_at_ns": 1792512996140388985,
+  "daily_key": "daily:2026-10-20",
+  "display_name": "Nairyaaa",
+  "metadata": {
+    "kind": "blackjack"
+  },
+  "operation": "quest-progress",
+  "quest_build": "quests-v1-2026-09-08",
+  "transaction_id": "quest:minigame-win:1562136172669698110:1792512993908:550338389535227926",
+  "user_id": "550338389535227926",
+  "weekly_key": "weekly:2026-10-19"
+}
