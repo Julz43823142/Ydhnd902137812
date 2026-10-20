@@ -77,6 +77,71 @@ class RatingReliabilityTests(unittest.TestCase):
         self.assertEqual(support['anchor_status'],'unverified')
 
 
+
+class NewAccountRatingRampTests(unittest.TestCase):
+    def setUp(self):
+        # Strong player opening a new account: a fast Elo rise should not be
+        # treated as 100 IID games with a stationary ability parameter.
+        self.joined = 1649189000
+        self.rows = [game(i+1, kind='blitz', score=1, rated=True,
+                          rating=650+10*i, opponent_elo=1500,
+                          ended=self.joined+3600+36000*i,
+                          opponent=f'other-{i}') for i in range(100)]
+
+    def test_verified_opening_ramp_caps_results_only_high(self):
+        support = rating_support(self.rows, self.rows,
+                                 account_joined=self.joined)
+        self.assertTrue(support['opening_rating_ramp'])
+        self.assertGreaterEqual(
+            support['opening_rating_ramp_evidence']['rating_gain'], 500)
+        tier, guards = independent_results_tier(
+            'HIGH', games=100, rating=support,
+            opponents={'opponent_concentrated': False},
+            accuracy_confirmed=False)
+        self.assertEqual(tier, 'MODERATE')
+        self.assertIn('new_account_rating_ramp', guards)
+
+    def test_unverified_old_account_does_not_gain_opening_exemption(self):
+        for joined in (None, self.joined - 5*365*86400):
+            support = rating_support(self.rows, self.rows,
+                                     account_joined=joined)
+            self.assertFalse(support['opening_rating_ramp'])
+            tier, guards = independent_results_tier(
+                'HIGH', games=100, rating=support,
+                opponents={'opponent_concentrated': False},
+                accuracy_confirmed=False)
+            self.assertEqual((tier, guards), ('HIGH', ()))
+
+    def test_later_period_does_not_inherit_account_opening_guard(self):
+        later = [game(200+i, kind='blitz', score=1, rated=True,
+                      rating=2250, opponent_elo=2250,
+                      ended=self.joined+700*86400+i*86400,
+                      opponent=f'later-{i}') for i in range(40)]
+        support = rating_support(self.rows+later, later,
+                                 account_joined=self.joined)
+        self.assertFalse(support['opening_rating_ramp'])
+
+    def test_old_account_rating_progress_without_verified_join_is_not_assumed(self):
+        support = rating_support(self.rows, self.rows)
+        self.assertFalse(support['opening_rating_ramp'])
+
+    def test_live_review_uses_join_date_and_preserves_manual_review(self):
+        class JoinedAPI(API):
+            def get(self, target, suffix='', *, profile=False):
+                if profile:
+                    return {'username': TARGET, 'joined': 1649189000}
+                return super().get(target, suffix, profile=profile)
+        with patch('fairplay_method3.collect_games',
+                   return_value=(self.rows, {}, False)):
+            report = review(TARGET, lambda _: None, api_factory=JoinedAPI)
+        self.assertEqual(report.priority, 'MODERATE')
+        self.assertIn('new_account_rating_ramp',
+                      report.diagnostics['method3']['selected']['classification_guards'])
+        self.assertEqual(report.confidence, 'LOW')
+
+
+
+
 class RepeatOpponentTests(unittest.TestCase):
     def test_repeated_opponent_episode_caps_high_without_accuracy(self):
         matches=[game(i,kind='blitz',score=1,rating=1400,opponent_elo=1400,

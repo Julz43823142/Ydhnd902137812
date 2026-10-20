@@ -11,7 +11,7 @@ from fairplay_config import CONFIG
 from fairplay_data import PubAPI, ReviewError, ScanDeadline, check_deadline, collect_games, username
 from fairplay_outcome_study import evaluate, SCENARIOS, DEVELOPMENT_SCENARIOS, CONFIG as STUDY_CONFIG
 
-VERSION='fairplay-v66-rating-evidence-guards'
+VERSION='fairplay-v67-opening-rating-calibration'
 LIMIT=5000
 BLOCK_SIZE=200
 PRIORITY_GAMES=200
@@ -112,6 +112,12 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         from statistics import median
         from fairplay_method3_reliability import (
             rating_support, opponent_support, independent_results_tier)
+        # The review history is already chronological. Reuse the first
+        # 150 valid rated games per control for the account-opening guard.
+        opening_rated_by_class={kind:[g for g in games
+            if g.rated is True and g.time_class==kind
+            and isinstance(g.rating,(int,float)) and not isinstance(g.rating,bool)
+            and g.rating>0][:150] for kind in ('rapid','blitz','bullet')}
         rated_by_class={kind:[g.rating for g in games
             if g.rated is True and g.time_class==kind
             and isinstance(g.rating,(int,float)) and not isinstance(g.rating,bool)
@@ -119,7 +125,8 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         bullet_ratings=rated_by_class['bullet']
         other_ratings=rated_by_class['rapid']+rated_by_class['blitz']
         latest_bullet=next((g for g in reversed(games) if g.time_class=='bullet'),None)
-        bullet_support=(rating_support(games,[latest_bullet])
+        bullet_support=(rating_support(games,[latest_bullet],account_joined=profile.get('joined'),
+                                       early_rated=opening_rated_by_class['bullet'])
                         if latest_bullet is not None else None)
         rating_reliability={
             'sparse_bullet_rating':bool(bullet_support and bullet_support['unreliable']),
@@ -177,7 +184,8 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 members=by_class[period['time_class']][period['first_game']-1:period['last_game']]
                 rating_key=(period['time_class'],members[-1].identity)
                 if rating_key not in rating_cache:
-                    rating_cache[rating_key]=rating_support(games,members)
+                    rating_cache[rating_key]=rating_support(games,members,account_joined=profile.get('joined'),
+                        early_rated=opening_rated_by_class[period['time_class']])
                 opponent_key=(period['time_class'],members[0].identity,members[-1].identity)
                 if opponent_key not in opponent_cache:
                     opponent_cache[opponent_key]=opponent_support(members,history=games)
@@ -287,6 +295,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                     else 'HIGH' if len(games)>=100 else 'MEDIUM')
         reasons=[('This time control has no rated-game anchors in the previous year. Its Elo expectation cannot independently justify HIGH or VERY HIGH.' if chosen and chosen.get('rating_unverified_downgrade') else
                  'The time-control Elo has too few recent rated anchors and differs substantially from other controls. Accuracy alone cannot repair the Elo expectation; HIGH/VERY HIGH is capped.' if chosen and chosen.get('rating_reliability_downgrade') else
+                 'The selected period falls in a verified new-account rating calibration ramp; the Elo expected-score baseline was moving rapidly. HIGH is capped at MODERATE without gameplay confirmation.' if chosen and 'new_account_rating_ramp' in chosen.get('classification_guards',()) else
                  'Most games in the period were played against one or two opponents. Even corroborating Accuracy cannot make these outcomes independent; HIGH/VERY HIGH is capped pending human review.' if chosen and 'repeated_opponent_concentration' in chosen.get('classification_guards',()) else
                  ('An exceptional results period also passed a stricter matched historical Accuracy check. This is a review priority, not proof of misconduct.') if priority=='VERY HIGH' else
                  ('A chronological period scored substantially above its Elo-point expectation and passed the history-search guard. '
@@ -321,7 +330,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 'selected':chosen,'marked_periods':marked,'subject':subject,'source':'official_accuracy',
                 'engine_used':False,'maia_used':False,'timing_scoring':False,
                 'accuracy_role':'High Accuracy frequency can promote LOW to MODERATE after conservative same-control earlier-history checks; never promotes HIGH',
-                'limits':'Rated and unrated share chronological periods/references, but their Elo reliability is separately audited. Zero rated anchors and cross-control discrepancies cap results-backed HIGH/VERY HIGH. Repeated opponents cap these tiers even if Accuracy corroborates. Daily is excluded; only collected live history is searched. Underrating, legitimate improvement, smurfing, rating lag, correlated games, missing archives and selected hot streaks can qualify. VERY HIGH requires both results and matched earlier Accuracy but never proves misconduct.'}
+                'limits':'Rated and unrated share chronological periods/references, but their Elo reliability is separately audited. Zero rated anchors, cross-control discrepancies and verified new-account rating ramps cap results-backed HIGH/VERY HIGH. Repeated opponents cap these tiers even if Accuracy corroborates. Daily is excluded; only collected live history is searched. Underrating, legitimate improvement, smurfing, rating lag, correlated games, missing archives and selected hot streaks can qualify. VERY HIGH requires both results and matched earlier Accuracy but never proves misconduct.'}
         # Offline evaluate's cross-player groups have no other players here. Attach
         # the earlier personal references by period, never fabricate a group norm.
         progress('Method 3: building graphs and report…')

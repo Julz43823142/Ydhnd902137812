@@ -14,7 +14,57 @@ MIN_OTHER_RATED = 10
 MIN_ELO_GAP = 400
 
 
-def rating_support(games, members):
+
+def _opening_rating_ramp(games, members, account_joined, early_rated=None):
+    """Retrospective new-account rating calibration warning, not exoneration.
+
+    Only verified account creation and its actual early same-control rated
+    games count. No later 2600 rating is substituted for an old Elo, and no
+    account name/status is an input. A rising early Elo violates the stationary
+    skill assumption of the results-only search bound.
+    """
+    if (not isinstance(account_joined, (int, float)) or
+            isinstance(account_joined, bool) or account_joined <= 0):
+        return None
+    kind = members[0].time_class
+    # Live scoring passes a precomputed chronological first-150 cohort so
+    # the thousands of searched windows never re-sort the same game history.
+    rated = early_rated if early_rated is not None else sorted(
+        (g for g in games if g.time_class == kind and g.rated is True
+         and isinstance(g.rating, (int, float)) and not isinstance(g.rating, bool)
+         and g.rating > 0),
+        key=lambda g: (g.ended, g.identity))
+    if len(rated) < 40:
+        return None
+    first = rated[:100]
+    first_ended = first[0].ended
+    if not (account_joined <= first_ended <= account_joined + 90 * 86400):
+        return None
+    if first[-1].ended - first_ended > 400 * 86400:
+        return None
+    # Restrict the guard to the INITIAL phase only. A suspicious streak years
+    # later must still be evaluated by the normal Method 3 safeguards.
+    last_early = rated[min(150, len(rated)) - 1].ended
+    if (members[0].ended < first_ended or
+            members[-1].ended > min(last_early, first[-1].ended + YEAR_SECONDS)):
+        return None
+    starting_elo = median(g.rating for g in first[:10])
+    ending_elo = median(g.rating for g in first[-10:])
+    gain = ending_elo - starting_elo
+    if gain < 500:
+        return None
+    return {'first_10_median_elo': starting_elo,
+            'last_10_median_elo': ending_elo,
+            'rating_gain': gain, 'sample_rated_games': len(first),
+            'rule': 'Verified account joined within 90 days of the first observed '
+                    'rated game in this control; within 400 days the first '
+                    '40-100 rated games gained 500+ Elo (first/last 10 medians). '
+                    'Only a period in the first 150 rated games is affected. '
+                    'Results-only HIGH/VERY HIGH is capped at MODERATE; '
+                    'this is not proof of fair play.'}
+
+
+def rating_support(games, members, *, account_joined=None, early_rated=None):
     """Use rating anchors available by the end of this exact period.
 
     A player with years of rated history but only a few recent games does not
@@ -44,6 +94,7 @@ def rating_support(games, members):
     # Keep sparse-but-nonzero anchors descriptive until a real holdout study
     # calibrates a more aggressive reliability threshold.
     unverified = len(rated) == 0 and len(members) >= 5
+    opening_ramp = _opening_rating_ramp(games, members, account_joined, early_rated)
     anchor_status = ('unverified' if unverified else
                      'sparse' if len(rated) < MIN_RATED else 'supported')
     return {'time_class':kind, 'rated_anchor_games_365d':len(rated),
@@ -53,6 +104,8 @@ def rating_support(games, members):
             'other_control_median_elo_365d':other_median,
             'rating_gap':gap, 'unreliable':unreliable,
             'unverified':unverified,'anchor_status':anchor_status,
+            'opening_rating_ramp':bool(opening_ramp),
+            'opening_rating_ramp_evidence':opening_ramp,
             'rule':'Fewer than 20 rated games in this control during the prior year, '
                    'at least 10 rated games in other controls, and a rating gap of '
                    'at least 400 Elo. Also, zero rated anchors in a selected 5+-game '
@@ -137,6 +190,10 @@ def independent_results_tier(tier, *, games, rating, opponents, accuracy_confirm
         if rating.get('unreliable') and games <= 20 and not accuracy_confirmed:
             tier = 'LOW'
         elif tier in ('HIGH', 'VERY HIGH'):
+            tier = 'MODERATE'
+    if rating.get('opening_rating_ramp'):
+        reasons.append('new_account_rating_ramp')
+        if tier in ('HIGH', 'VERY HIGH'):
             tier = 'MODERATE'
     if opponents.get('opponent_concentrated'):
         reasons.append('repeated_opponent_concentration')

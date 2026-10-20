@@ -1279,7 +1279,7 @@ class Job:
         return max(0,time.monotonic()-self.timing.started)
     message: object = None
     stop: threading.Event = field(default_factory=threading.Event)
-    cancel_requested: bool = False  # explicit /stopfairplay; not a runner handoff
+    cancel_requested: bool = False  # explicit /fairplay stop; not a runner handoff
     report_published: bool = False  # do not retroactively cancel a delivered review
     message_deleted: bool = False
     delivery_unknown: bool = False
