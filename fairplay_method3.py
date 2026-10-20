@@ -11,7 +11,7 @@ from fairplay_config import CONFIG
 from fairplay_data import PubAPI, ReviewError, ScanDeadline, check_deadline, collect_games, username
 from fairplay_outcome_study import evaluate, SCENARIOS, DEVELOPMENT_SCENARIOS, CONFIG as STUDY_CONFIG
 
-VERSION='fairplay-v62-history-blocks'
+VERSION='fairplay-v63-method3-audit'
 LIMIT=5000
 BLOCK_SIZE=200
 PRIORITY_GAMES=200
@@ -89,10 +89,17 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         }
         rank={'INSUFFICIENT DATA':0,'LOW':1,'MODERATE':2,'HIGH':3,'VERY HIGH':4}
         candidates=[]
+        # protect_periods shares a single results guard across the two
+        # reference modes for each physical window. Correct it only once:
+        # otherwise the across-block factor is accidentally squared.
+        corrected_result_guards=set()
         for index,block,context,sub in candidate_rows:
             for period in sub['periods']:
                 guard=period['search_guard']
-                guard['adjusted_model_bound']=min(1.0,guard['adjusted_model_bound']*block_count)
+                guard_key=(index,period['time_class'],period['first_game'],period['last_game'])
+                if guard_key not in corrected_result_guards:
+                    guard['adjusted_model_bound']=min(1.0,guard['adjusted_model_bound']*block_count)
+                    corrected_result_guards.add(guard_key)
                 guard['searched_windows']=window_count
                 guard['high_pass']=guard['short_sample_complete'] and guard['adjusted_model_bound']<=.01
                 guard['moderate_pass']=guard['short_sample_complete'] and guard['adjusted_model_bound']<=.10
