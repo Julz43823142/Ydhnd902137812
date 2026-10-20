@@ -1,4 +1,4 @@
-"""Synthetic /fairplay stop command, queue and encrypted-checkpoint regressions.
+"""Synthetic /fairplaystop command, queue and encrypted-checkpoint regressions.
 
 The moderator command cancels exactly the running review, not the Actions
 worker, other game systems or queued Fair Play reviews.
@@ -44,15 +44,13 @@ class SlashPermissions(unittest.IsolatedAsyncioTestCase):
         ui._service=self.old_service
 
     async def test_registered_command_and_gateway_whitelist(self):
-        group=bot.command_tree.get_command('fairplay')
-        self.assertIsNotNone(group)
-        command=group.get_command('stop')
+        command=bot.command_tree.get_command('fairplaystop')
         self.assertIsNotNone(command)
-        self.assertEqual(command.name,'stop')
+        self.assertEqual(command.name,'fairplaystop')
         self.assertIsNone(bot.command_tree.get_command('stopfairplay'))
         for typ in (2,4):
             self.assertTrue(routing.permitted({'channel_id':str(CHANNEL_ID),
-                'type':typ,'data':{'name':'fairplay','options':[{'name':'stop','type':1}]}}))
+                'type':typ,'data':{'name':'fairplaystop'}}))
             self.assertFalse(routing.permitted({'channel_id':str(CHANNEL_ID),
                 'type':typ,'data':{'name':'stopfairplay'}}))
             self.assertFalse(routing.permitted({'channel_id':str(CHANNEL_ID),
