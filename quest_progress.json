@@ -415,9 +415,9 @@
             "daily:2026-10-20:minigame:minigame-2"
           ],
           "progress": {
-            "daily:2026-10-20:minigame:minigame-2": 2
+            "daily:2026-10-20:minigame:minigame-2": 3
           },
-          "updated_at": 1792511304
+          "updated_at": 1792511818
         }
       }
     },
@@ -661,9 +661,9 @@
           "name": "Nairyaaa",
           "paid": [],
           "progress": {
-            "weekly:2026-10-19:minigame:minigame-8": 2
+            "weekly:2026-10-19:minigame:minigame-8": 3
           },
-          "updated_at": 1792511301
+          "updated_at": 1792511818
         }
       }
     }
