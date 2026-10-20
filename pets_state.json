@@ -899,16 +899,14 @@
           }
         ],
         "puzzle": {
-          "day": "2026-10-16",
-          "fen": "4r1k1/pp6/2p3Qp/3p1Pp1/3P2P1/P1P5/4qP2/R5K1 b - - 2 33",
-          "id": "ri0Zl",
-          "index": 5,
+          "day": "2026-10-20",
+          "fen": "6k1/pr1b1p2/3P1p1p/1p1N4/2n5/6PP/6K1/R1R5 b - - 2 33",
+          "id": "fcJKy",
+          "index": 0,
           "moves": [
-            "h5g6",
-            "g7f8",
-            "g6f6",
-            "f8g8",
-            "f6g6"
+            "d7c6",
+            "g2g1",
+            "c6d5"
           ]
         },
         "puzzle_day": "2026-10-16",
