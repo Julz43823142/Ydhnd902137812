@@ -411,11 +411,13 @@
       "users": {
         "550338389535227926": {
           "name": "Nairyaaa",
-          "paid": [],
+          "paid": [
+            "daily:2026-10-20:minigame:minigame-2"
+          ],
           "progress": {
             "daily:2026-10-20:minigame:minigame-2": 2
           },
-          "updated_at": 1792511301
+          "updated_at": 1792511304
         }
       }
     },
