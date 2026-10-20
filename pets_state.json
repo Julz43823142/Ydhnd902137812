@@ -749,9 +749,9 @@
         ],
         "puzzle": {
           "day": "2026-10-20",
-          "fen": "6rk/pp3p1p/8/3q4/3p4/3P4/1PP3P1/4RQK1 w - - 0 30",
+          "fen": "7k/pp3prp/5Q2/3q4/3p4/3P4/1PP3P1/4R1K1 w - - 2 31",
           "id": "Ieuye",
-          "index": 2,
+          "index": 4,
           "moves": [
             "e8g8",
             "g7g8",
