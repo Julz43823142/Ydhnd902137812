@@ -332,11 +332,11 @@ def main():
         cases=validated_cases(cases,args.partition)
         with local_production_profile(args.profile):summary=evaluate_cases(cases,analyze)
         if args.profile=='method3-local':
-        summary['priority_metric_basis']=(
-            'Method 3 analytical period priority (Elo results and matched historical '
-            'Accuracy); exploratory Accuracy-frequency worklist-only promotions are '
-            'reported separately. No Stockfish/Maia engine evidence.')
-    summary['validation_profile']={'name':args.profile,'partition':args.partition,
+            summary['priority_metric_basis']=(
+                'Method 3 analytical period priority (Elo results and matched historical '
+                'Accuracy); exploratory Accuracy-frequency worklist-only promotions are '
+                'reported separately. No Stockfish/Maia engine evidence.')
+        summary['validation_profile']={'name':args.profile,'partition':args.partition,
             'matches_deployed_selection_and_budgets':args.profile in ('production-local','method3-local'),
             'route_scope':('method3_results_accuracy_no_engine' if args.profile=='method3-local' else
                            'depth_engine_or_legacy'),
