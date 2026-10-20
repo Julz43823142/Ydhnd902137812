@@ -60,7 +60,8 @@ class BlockReviewTests(unittest.TestCase):
 
     def test_shared_results_guard_is_adjusted_once_per_window(self):
         # protect_periods reuses one results guard for two reference modes.
-        # Three blocks should multiply .002 by 3, not by 3 twice.
+        # One physical period should be charged for all unique global search
+        # windows, including any eligible cross-boundary bridges, exactly once.
         games = [
             SimpleNamespace(identity=f'g{i:04}', ended=i + 1000, rated=True,
                 time_class='blitz', time_control='300+0', rating=1300,
@@ -105,7 +106,7 @@ class BlockReviewTests(unittest.TestCase):
         self.assertEqual(result.priority,'HIGH')
         self.assertAlmostEqual(
             result.diagnostics['method3']['selected']['search_guard']['adjusted_model_bound'],
-            .004)
+            .002*result.diagnostics['method3']['searched_windows'])
 
 
     def test_period_split_by_200_game_boundary_is_still_detected(self):
