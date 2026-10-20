@@ -241,57 +241,64 @@ def _asks_public_version(prompt: str) -> bool:
 
 
 def fairplay_review_target(prompt):
-    """Recognize an explicit review request with one Chess.com username.
-
-    Do not ask a language model to infer a target or take an action. Only
-    deterministic, narrow phrasing in the dedicated Fair Play channel qualifies.
-    """
-    if not re.search(r'(?i)\bfair[\s-]*play\b',prompt):
-        return None
+    """Extract one explicit account name from an actual review request."""
     if not re.search(r'(?i)\b(?:review|check|scan|screen|analyse|analyze|controleer|onderzoek)\b',prompt):
         return None
-    # Chess.com links are allowed, but only an actual public profile path.
-    profile=re.search(r'(?i)\b(?:https?://)?(?:www\.)?chess\.com/member/([A-Za-z0-9_-]{3,25})\b',prompt)
-    if profile:
-        return profile.group(1) if len(re.findall(
-            r'(?i)\b(?:https?://)?(?:www\.)?chess\.com/member/[A-Za-z0-9_-]{3,25}\b',prompt))==1 else None
-    # 'profile of NAME', 'account of NAME', 'user NAME', and their Dutch
-    # counterparts. The explicit anchor avoids choosing arbitrary prose words.
-    match=re.search(
-        r'(?i)\b(?:profile|profiel|account|username|gebruikersnaam|user)\s+'
-        r'(?:(?:of|for|van|voor|named|genaamd)\s+)?'
-        r'([A-Za-z0-9_-]{3,25})\b',prompt)
-    if not match:
-        match=re.search(
-            r'(?i)\bfair[\s-]*play\s+(?:review|check|scan)\s+'
-            r'(?:of|for|van|voor)?\s*([A-Za-z0-9_-]{3,25})\b',prompt)
-    if not match:return None
-    target=match.group(1)
-    if target.casefold() in {'please','chess','com','the','een','het','van','voor'}:
+    if not re.search(r'(?i)\b(?:fair[\s-]*play|chess\.com)\b',prompt):
         return None
-    return target
+    profile=re.findall(r'(?i)(?:https?://)?(?:www\.)?chess\.com/member/([A-Za-z0-9_-]{3,25})\b',prompt)
+    if len(profile)>1:return None
+    if profile:return profile[0]
+    patterns=(
+        r'(?i)\b(?:username|gebruikersnaam|profile|profiel|account|user)\s*(?:(?:of|for|van|voor|named|genaamd)\s+|:\s*|\s+)([A-Za-z0-9_-]{3,25})\b',
+        r'(?i)\b(?:fair[\s-]*play\s+)?(?:review|check|scan|screen|analyse|analyze|controleer|onderzoek)\s+(?:(?:of|for|on|van|voor)\s+)?([A-Za-z0-9_-]{3,25})\b',
+    )
+    ignored={'please','chess','com','the','een','het','van','voor','on','of','for','my','username','profile','account','user'}
+    for pattern in patterns:
+        match=re.search(pattern,prompt)
+        if match and match.group(1).casefold() not in ignored:return match.group(1)
+    return None
+
+
+def fairplay_username_followup(prompt):
+    match=re.search(r'(?i)^\s*(?:the\s+)?(?:chess\.com\s+)?(?:username|gebruikersnaam)\s*(?:is\s*)?:?\s*([A-Za-z0-9_-]{3,25})\s*[.!?]?\s*$',prompt)
+    return match.group(1) if match else None
+
+
+_FAIRPLAY_PENDING={}
+_FAIRPLAY_PENDING_TTL=180
 
 
 async def dispatch_fairplay_mention(message,prompt):
-    """Only the actual Task Force channel may initiate a review by mention."""
+    """Run explicit Task Force review requests without invoking the chat LLM."""
     from fairplay_config import CHANNEL_ID
     if message.channel.id!=CHANNEL_ID:return False
-    if not re.search(r'(?i)\bfair[\s-]*play\b',prompt):
-        return False
-    if not re.search(r'(?i)\b(?:review|check|scan|screen|analyse|analyze|controleer|onderzoek)\b',prompt):
-        return False
-    from fairplay_data import username, ReviewError
+    key=(message.channel.id,message.author.id)
+    now=time.monotonic()
+    pending=_FAIRPLAY_PENDING.get(key)
+    if pending is not None and now-pending>_FAIRPLAY_PENDING_TTL:
+        _FAIRPLAY_PENDING.pop(key,None)
+        pending=None
     target=fairplay_review_target(prompt)
+    if target is None and pending is not None:
+        target=fairplay_username_followup(prompt)
+    intent=bool(re.search(r'(?i)\b(?:fair[\s-]*play|review|check|scan|analyse|analyze|controleer|onderzoek)\b',prompt))
+    if not intent and target is None:return False
     if target is None:
+        if not re.search(r'(?i)\bfair[\s-]*play\b',prompt):
+            return False
+        _FAIRPLAY_PENDING[key]=now
         await _counted_reply(message,
-            'Please include one Chess.com username, for example: '
-            '`@SharkBot please do a fair play review of the profile of Naiiiraaa`.',
+            'Which Chess.com username should I review? Reply with '
+            'the username is: Sharkmeister (mention SharkBot again).',
             mention_author=False,allowed_mentions=discord.AllowedMentions.none())
         return True
+    from fairplay_data import username, ReviewError
     try:
         target=username(target)
     except ReviewError:
-        await _counted_reply(message,'That is not a valid Chess.com username.',
+        _FAIRPLAY_PENDING[key]=now
+        await _counted_reply(message,'Please provide a valid Chess.com username.',
             mention_author=False,allowed_mentions=discord.AllowedMentions.none())
         return True
     from fairplay_ui import _service
@@ -299,6 +306,7 @@ async def dispatch_fairplay_mention(message,prompt):
         await _counted_reply(message,'Fair Play is reconnecting. Please try again shortly.',
             mention_author=False,allowed_mentions=discord.AllowedMentions.none())
         return True
+    _FAIRPLAY_PENDING.pop(key,None)
     _service.note_human()
     await _service.enqueue_mention(message,target)
     return True
