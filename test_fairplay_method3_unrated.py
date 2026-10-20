@@ -20,7 +20,13 @@ class UnratedCohorts(unittest.TestCase):
 
     def rows(self,n=20,*,rated=False,kind='rapid',start=1,player=1400,opponent=1450):
         rows=[sample_row(i,time_class=kind) for i in range(start,start+n)]
-        for row in rows:
+        for i,row in enumerate(rows,start):
+            # Equal-rated synthetic wins are independent opponents. Explicit
+            # repeated-opposition behaviour is covered in the reliability tests.
+            name=f'synthetic-opponent-{i}'
+            row['black']['username']=name
+            row['pgn']=row['pgn'].replace('[Black "synthetic-opponent"]',
+                                          f'[Black "{name}"]')
             row['rated']=rated;row['white']['rating']=player;row['black']['rating']=opponent
             row['accuracies']={'white':97,'black':60}
         return rows
