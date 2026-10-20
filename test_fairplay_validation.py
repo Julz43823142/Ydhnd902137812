@@ -78,6 +78,21 @@ class ValidationMissBuckets(unittest.TestCase):
                 legacy.assert_called_once()
                 deployed.assert_not_called()
 
+    def test_method3_accuracy_frequency_is_a_worklist_not_an_evidence_tier(self):
+        from fairplay_validation import analytical_priority
+        promoted=SimpleNamespace(priority='MODERATE',diagnostics={'method3':{
+            'priority_basis':'accuracy_frequency',
+            'selected_period_priority':'LOW'}})
+        self.assertEqual(analytical_priority(promoted),'LOW')
+        rows=[{'username':'synthetic-check','label':'trusted_normal'}]
+        aggregate=evaluate_cases(rows,lambda _ : promoted)
+        self.assertEqual(aggregate['cases']['trusted_normal']['LOW'],1)
+        self.assertEqual(aggregate['cases']['trusted_normal']['MODERATE'],0)
+        self.assertEqual(aggregate['worklist_cases']['trusted_normal']['MODERATE'],1)
+        ordinary=SimpleNamespace(priority='MODERATE',diagnostics={'method3':{
+            'priority_basis':'accuracy','selected_period_priority':'MODERATE'}})
+        self.assertEqual(analytical_priority(ordinary),'MODERATE')
+
     def test_positive_low_bucket_distinguishes_near_miss_from_multi_blocked(self):
         near=result('LOW',blockers=('deep semantic-quality stability',),candidate_games=40)
         weak=result('LOW',blockers=('anomaly hit lower bound','raw quality separation'),candidate_games=40)
