@@ -168,7 +168,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                     rating_cache[rating_key]=rating_support(games,members)
                 opponent_key=(period['time_class'],members[0].identity,members[-1].identity)
                 if opponent_key not in opponent_cache:
-                    opponent_cache[opponent_key]=opponent_support(members)
+                    opponent_cache[opponent_key]=opponent_support(members,history=games)
                 rating=rating_cache[rating_key]
                 opponents=opponent_cache[opponent_key]
                 tier,limits=independent_results_tier(
