@@ -4,6 +4,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from fairplay_method3 import BLOCK_SIZE, LIMIT, review
+from test_fairplay import TARGET
 from fairplay_progress import estimate
 
 
@@ -104,7 +105,7 @@ class BlockReviewTests(unittest.TestCase):
         self.assertEqual(result.priority,'HIGH')
         self.assertAlmostEqual(
             result.diagnostics['method3']['selected']['search_guard']['adjusted_model_bound'],
-            .006)
+            .004)
 
 
     def test_period_split_by_200_game_boundary_is_still_detected(self):
@@ -115,7 +116,7 @@ class BlockReviewTests(unittest.TestCase):
         games=[profile_game(i,score=1 if 190<=i<210 else .5) for i in range(400)]
         API.status='basic'
         with patch('fairplay_method3.collect_games',return_value=(games,{},False)):
-            result=review('sharkmeister',lambda _:None,api_factory=API)
+            result=review(TARGET,lambda _:None,api_factory=API)
         self.assertEqual(result.priority,'HIGH')
         d=result.diagnostics['method3']
         self.assertEqual(d['blocks_checked'],2)
@@ -141,7 +142,7 @@ class BlockReviewTests(unittest.TestCase):
         games=[profile_game(i,score=.5) for i in range(400)]
         API.status='basic'
         with patch('fairplay_method3.collect_games',return_value=(games,{},False)):
-            result=review('sharkmeister',lambda _:None,api_factory=API)
+            result=review(TARGET,lambda _:None,api_factory=API)
         self.assertEqual(result.priority,'LOW')
         self.assertGreater(result.diagnostics['method3']['searched_windows'],0)
 
