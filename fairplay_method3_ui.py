@@ -54,6 +54,23 @@ def result_embed(result):
                if d.get('priority_basis')=='accuracy_frequency'
                else 'Selected chronological period')
         e.add_field(name=label,value=f"{selected['time_class'].title()} · {selected['games']} games · {period_dates(selected)}\nExpected points: **{fmt(r['expected_points'])}** · scored: **{fmt(r['actual_points'])}**\nWinrate: **{fmt(r['win_fraction'],True)}**",inline=False)
+    quality=d.get('data_quality') or {}
+    if quality:
+        n=quality.get('history_games',len(result.games))
+        archives=quality.get('archive_coverage') or {}
+        details=(f"Valid rating pairs: {quality.get('valid_rating_pairs',0)}/{n} · "
+                 f"opponents identified: {quality.get('identified_opponents',0)}/{n} · "
+                 f"published Accuracy: {quality.get('published_accuracy_games',0)}/{n}")
+        if quality.get('collection_partial') or archives.get('incomplete_archive_months'):
+            details+='\nArchive coverage incomplete; unobserved games are not evidence of misconduct.'
+        e.add_field(name='Data reliability · observed coverage',value=details[:1024],inline=False)
+    if selected and selected.get('classification_guards'):
+        support=selected.get('rating_support') or {}
+        e.add_field(name='HIGH evidence safeguards',value=(
+            'Applied: '+', '.join(selected['classification_guards']).replace('_',' ')
+            +f"\nRated anchors in the previous year: {support.get('rated_anchor_games_365d','Unknown')}. "
+            'Additional Accuracy cannot bypass an unreliable Elo or repeated-opponent safeguard.'
+        )[:1024],inline=False)
     e.add_field(name='Important',value='Not proof of cheating. Human review is required before any action.',inline=False)
     e.set_footer(text=f'Version: {result.version} · uncalibrated heuristic, not probability')
     return e
