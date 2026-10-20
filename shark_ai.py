@@ -246,25 +246,25 @@ def fairplay_review_target(prompt):
     Do not ask a language model to infer a target or take an action. Only
     deterministic, narrow phrasing in the dedicated Fair Play channel qualifies.
     """
-    if not re.search(r'(?i)\\bfair[\\s-]*play\\b',prompt):
+    if not re.search(r'(?i)\bfair[\s-]*play\b',prompt):
         return None
-    if not re.search(r'(?i)\\b(?:review|check|scan|screen|analyse|analyze|controleer|onderzoek)\\b',prompt):
+    if not re.search(r'(?i)\b(?:review|check|scan|screen|analyse|analyze|controleer|onderzoek)\b',prompt):
         return None
     # Chess.com links are allowed, but only an actual public profile path.
-    profile=re.search(r'(?i)\\b(?:https?://)?(?:www\\.)?chess\\.com/member/([A-Za-z0-9_-]{3,25})\\b',prompt)
+    profile=re.search(r'(?i)\b(?:https?://)?(?:www\.)?chess\.com/member/([A-Za-z0-9_-]{3,25})\b',prompt)
     if profile:
         return profile.group(1) if len(re.findall(
-            r'(?i)\\b(?:https?://)?(?:www\\.)?chess\\.com/member/[A-Za-z0-9_-]{3,25}\\b',prompt))==1 else None
+            r'(?i)\b(?:https?://)?(?:www\.)?chess\.com/member/[A-Za-z0-9_-]{3,25}\b',prompt))==1 else None
     # 'profile of NAME', 'account of NAME', 'user NAME', and their Dutch
     # counterparts. The explicit anchor avoids choosing arbitrary prose words.
     match=re.search(
-        r'(?i)\\b(?:profile|profiel|account|username|gebruikersnaam|user)\\s+'
-        r'(?:(?:of|for|van|voor|named|genaamd)\\s+)?'
-        r'([A-Za-z0-9_-]{3,25})\\b',prompt)
+        r'(?i)\b(?:profile|profiel|account|username|gebruikersnaam|user)\s+'
+        r'(?:(?:of|for|van|voor|named|genaamd)\s+)?'
+        r'([A-Za-z0-9_-]{3,25})\b',prompt)
     if not match:
         match=re.search(
-            r'(?i)\\bfair[\\s-]*play\\s+(?:review|check|scan)\\s+'
-            r'(?:of|for|van|voor)?\\s*([A-Za-z0-9_-]{3,25})\\b',prompt)
+            r'(?i)\bfair[\s-]*play\s+(?:review|check|scan)\s+'
+            r'(?:of|for|van|voor)?\s*([A-Za-z0-9_-]{3,25})\b',prompt)
     if not match:return None
     target=match.group(1)
     if target.casefold() in {'please','chess','com','the','een','het','van','voor'}:
@@ -276,9 +276,9 @@ async def dispatch_fairplay_mention(message,prompt):
     """Only the actual Task Force channel may initiate a review by mention."""
     from fairplay_config import CHANNEL_ID
     if message.channel.id!=CHANNEL_ID:return False
-    if not re.search(r'(?i)\\bfair[\\s-]*play\\b',prompt):
+    if not re.search(r'(?i)\bfair[\s-]*play\b',prompt):
         return False
-    if not re.search(r'(?i)\\b(?:review|check|scan|screen|analyse|analyze|controleer|onderzoek)\\b',prompt):
+    if not re.search(r'(?i)\b(?:review|check|scan|screen|analyse|analyze|controleer|onderzoek)\b',prompt):
         return False
     from fairplay_data import username, ReviewError
     target=fairplay_review_target(prompt)
