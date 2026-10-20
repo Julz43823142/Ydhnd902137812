@@ -241,22 +241,51 @@ def _asks_public_version(prompt: str) -> bool:
 
 
 def fairplay_review_target(prompt):
-    """Extract one explicit account name from an actual review request."""
-    if not re.search(r'(?i)\b(?:review|check|scan|screen|analyse|analyze|controleer|onderzoek)\b',prompt):
+    """Find an explicit target in a Task Force review request.
+
+    This deterministic parser is only called from the dedicated Fair Play
+    channel. It does not infer targets from display names or general chat.
+    """
+    action=r'(?:review|check|scan|screen|analyse|analyze|controleer|onderzoek)'
+    if not re.search(r'(?i)\b'+action+r'\b',prompt):
         return None
-    if not re.search(r'(?i)\b(?:fair[\s-]*play|chess\.com)\b',prompt):
-        return None
-    profile=re.findall(r'(?i)(?:https?://)?(?:www\.)?chess\.com/member/([A-Za-z0-9_-]{3,25})\b',prompt)
-    if len(profile)>1:return None
-    if profile:return profile[0]
+    profiles=re.findall(
+        r'(?i)(?:https?://)?(?:www\.)?chess\.com/member/([A-Za-z0-9_-]{3,25})\b',
+        prompt)
+    if len(profiles)>1:return None
+    if profiles:return profiles[0]
     patterns=(
-        r'(?i)\b(?:username|gebruikersnaam|profile|profiel|account|user)\s*(?:(?:of|for|van|voor|named|genaamd)\s+|:\s*|\s+)([A-Za-z0-9_-]{3,25})\b',
-        r'(?i)\b(?:fair[\s-]*play\s+)?(?:review|check|scan|screen|analyse|analyze|controleer|onderzoek)\s+(?:(?:of|for|on|van|voor)\s+)?([A-Za-z0-9_-]{3,25})\b',
+        # "review on Sharkmeister", "do a review of Sharkmeister"
+        r'(?i)\b'+action+r'\b\s+(?:(?:of|for|on|van|voor)\s+)?'
+        r'(?:the\s+)?(?:chess\.com\s+)?'
+        r'(?:username|gebruikersnaam|profile|profiel|account|user)?\s*:?\s*'
+        r'([A-Za-z0-9_-]{3,25})\b',
+        # "fairplay review on Sharkmeister": skip the intervening
+        # word "review" rather than treating it as a username.
+        r'(?i)\bfair[\s-]*play\s+'+action+
+        r'\s+(?:(?:of|for|on|van|voor)\s+)?'
+        r'(?:the\s+)?(?:chess\.com\s+)?'
+        r'(?:username|gebruikersnaam|profile|profiel|account|user)?\s*:?\s*'
+        r'([A-Za-z0-9_-]{3,25})\b',
+        # "review the chess.com username: Sharkmeister"
+        r'(?i)\b(?:username|gebruikersnaam|profile|profiel|account|user)'
+        r'\s*(?:(?:of|for|van|voor|named|genaamd|is)\s+|:\s*|\s+)'
+        r'([A-Za-z0-9_-]{3,25})\b',
     )
-    ignored={'please','chess','com','the','een','het','van','voor','on','of','for','my','username','profile','account','user'}
+    ignored={'please','chess','com','the','een','het','van','voor',
+             'on','of','for','my','username','profile','account','user',
+             'review','check','scan','screen','analyse','analyze','it',
+             'this','that','a','an','someone','player','me','you'}
+    # Prefer the explicit chess.com username label when present.
+    explicit=re.search(
+        r'(?i)\b(?:chess\.com\s+)?(?:username|gebruikersnaam)\s*'
+        r'(?::|is\s+)\s*([A-Za-z0-9_-]{3,25})\b',prompt)
+    if explicit and explicit.group(1).casefold() not in ignored:
+        return explicit.group(1)
     for pattern in patterns:
         match=re.search(pattern,prompt)
-        if match and match.group(1).casefold() not in ignored:return match.group(1)
+        if match and match.group(1).casefold() not in ignored:
+            return match.group(1)
     return None
 
 
@@ -285,7 +314,7 @@ async def dispatch_fairplay_mention(message,prompt):
     intent=bool(re.search(r'(?i)\b(?:fair[\s-]*play|review|check|scan|analyse|analyze|controleer|onderzoek)\b',prompt))
     if not intent and target is None:return False
     if target is None:
-        if not re.search(r'(?i)\bfair[\s-]*play\b',prompt):
+        if not re.search(r'(?i)\b(?:fair[\s-]*play|review|check|scan|analyse|analyze|controleer|onderzoek)\b',prompt):
             return False
         _FAIRPLAY_PENDING[key]=now
         await _counted_reply(message,
@@ -619,7 +648,7 @@ async def handle_mention(message, client):
                         ". This is roleplay only: do not assert pet ownership, inventory, rewards or game actions.")
         messages = [{"role": "system", "content": SYSTEM_RULES + "\\n" + persona}]
         if chat_only:
-            messages.append({"role": "system", "content": "In this channel you are text-only. You cannot perform actions, claim rewards or change subscriptions. Never claim to have reviewed games or verified misconduct. Explain screening limits; direct subscription requests to /alert."})
+            messages.append({"role": "system", "content": "In this channel, only the deterministic Fair Play review handler can start scans; you cannot start them through chat generation. Never claim to have reviewed games or verified misconduct. If someone requests a Chess.com review, tell them to use /fairplay username or mention SharkBot with a clear review request. Direct ban-alert subscription requests to /alert."})
         for _, role, text in _history[scope]:
             messages.append({"role": role, "content": text})
         speaker_prompt = f"Player {discord.utils.escape_markdown(message.author.display_name[:64])}: {prompt}"

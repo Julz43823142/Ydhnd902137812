@@ -41,7 +41,7 @@ class FairPlayChat(unittest.IsolatedAsyncioTestCase):
                 complete.assert_awaited_once()
                 confirmation.assert_not_called();planner.assert_not_awaited()
                 dispatch.assert_not_awaited();claim.assert_not_called()
-                self.assertIn('text-only',str(complete.call_args))
+                self.assertIn('/fairplay username',str(complete.call_args))
 
     async def test_explicit_fairplay_request_enqueues_without_groq(self):
         user=NS(id=1234,display_name='Requester')
@@ -79,12 +79,31 @@ class FairPlayChat(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(shark_ai.fairplay_review_target(
             'fair play check https://www.chess.com/member/Naiiiraaa'),'Naiiiraaa')
 
+    async def test_short_review_requests_enqueue_without_ai_fallback(self):
+        user=NS(id=1234,display_name='Sharkmeister')
+        bot_user=NS(id=42)
+        channel=NS(id=CHANNEL_ID,typing=Typing,
+            permissions_for=lambda _:NS(view_channel=True,send_messages=True))
+        service=NS(note_human=Mock(),enqueue_mention=AsyncMock(return_value=True))
+        for phrase in ('review sharkmeister','do a review on Sharkmeister'):
+            message=NS(guild=NS(id=123,me=NS()),author=user,
+                mentions=[bot_user],content='<@42> '+phrase,channel=channel)
+            with (patch('fairplay_ui._service',service),
+                  patch.object(shark_ai,'_start_periodic_cleanup'),
+                  patch.object(shark_ai,'_complete',new_callable=AsyncMock) as model):
+                self.assertTrue(await shark_ai.handle_mention(message,NS(user=bot_user)))
+                service.enqueue_mention.assert_awaited_with(message,'sharkmeister')
+                model.assert_not_awaited()
+        self.assertEqual(service.enqueue_mention.await_count,2)
+
     async def test_natural_fairplay_requests_extract_username(self):
         examples=(
             'hey, can u do a fairplay review on sharkmeister',
             'I want u to do a fairplay review on the chess.com username: Sharkmeister',
             'no, I want u to review the chess.com username: Sharkmeister',
             'fair play review of the profile of Sharkmeister',
+            'review sharkmeister',
+            'do a review on Sharkmeister',
         )
         for prompt in examples:
             with self.subTest(prompt=prompt):
