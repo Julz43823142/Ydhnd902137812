@@ -84,7 +84,7 @@ class OwnerOnly(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(interaction.followup.send.await_count,1)
             call=interaction.followup.send.call_args
             self.assertTrue(call.kwargs["ephemeral"])
-            self.assertEqual(call.kwargs["file"].filename,"fairplay-owner-evidence.zip")
+            self.assertEqual(call.kwargs["file"].filename,"fairplay-owner-evidence.json.gz")
         finally:
             ui._service = old
 
