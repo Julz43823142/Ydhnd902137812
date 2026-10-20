@@ -4254,7 +4254,7 @@
   },
   "bot_ideas_ticket_counter_v1": 15,
   "bot_ideas_idle_v1": {
-    "last_activity_at": 1792512084.5431225,
+    "last_activity_at": 1792513113.0777993,
     "reminder_sent": false,
     "reminder_message_id": "1556379964805226517",
     "tickets_since_prompt": 1
@@ -4431,6 +4431,25 @@
       "guild_id": 1298908892507410462,
       "channel_id": 1468320170891022417,
       "message_id": "1560780398143737878"
+    },
+    "open-shop:1562138887978229780:442597396195704832": {
+      "trade_id": "open-shop:1562138887978229780:442597396195704832",
+      "seller_id": "442597396195704832",
+      "seller_name": "Thice",
+      "offer": {
+        "type": "pet",
+        "pet_id": "e4f0217b1f5940c48ce5b067c2434911",
+        "label": "Penguin · Penguin · Uncommon · Level 1"
+      },
+      "request": {
+        "type": "coins",
+        "amount": 3.0
+      },
+      "status": "open",
+      "created_at": 1792513334.6068203,
+      "guild_id": 1298908892507410462,
+      "channel_id": 1546557493038284840,
+      "message_id": "1562138890771374201"
     }
   },
   "puzzle_rush_mistake_reviews_v1": {
