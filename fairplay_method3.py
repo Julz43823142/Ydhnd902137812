@@ -185,12 +185,12 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 secondary=(period['games'] if tier in ('LOW','INSUFFICIENT DATA') else
                            -bound if tier in ('HIGH','VERY HIGH') else -min(bound,accuracy_bound))
                 return (rank[tier],secondary,period['games'])
-            priority,basis,block_index,selected_block,selected_context,subject,chosen=max(candidates,
+            priority,basis,block_index,selected_block,selected_context,subject,chosen,selected_context_start,is_bridge=max(candidates,
                 key=candidate_key)
         else:
-            priority,basis,block_index,selected_block,selected_context,subject,chosen=(
+            priority,basis,block_index,selected_block,selected_context,subject,chosen,selected_context_start,is_bridge=(
                 'INSUFFICIENT DATA','results',0,games,games,{'overall_results':_result(overall_rows),
-                'opponent_groups':[],'periods':[]},None)
+                'opponent_groups':[],'periods':[]},None,0,False)
         subject=dict(subject)
         subject['overall_results']=_result(overall_rows)
         # Keep only the selected block's evidence in the Discord payload.
@@ -205,17 +205,19 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
             chosen['first_ended']=members[0].ended;chosen['last_ended']=members[-1].ended
             # Class-relative indices in a single block need the offset of all
             # older games of that time class for the whole-history display.
-            context_start=max(0,block_index*BLOCK_SIZE-BLOCK_SIZE)
-            class_offset=sum(g.time_class==chosen['time_class'] for g in games[:context_start])
+            class_offset=sum(g.time_class==chosen['time_class'] for g in games[:selected_context_start])
             chosen['first_game']+=class_offset
             chosen['last_game']+=class_offset
             chosen['history_block']=block_index+1
+            chosen['history_segment']='boundary' if is_bridge else 'block'
         rated_count=sum(g.rated is True for g in games)
         subject['rated_games']=rated_count
         subject['unrated_games']=len(games)-rated_count
-        confidence=('LOW' if partial or len(games)<30 or (priority in ('HIGH','MODERATE') and chosen and chosen['games']<10)
+        confidence=('LOW' if partial or len(games)<30 or (chosen and chosen.get('classification_guards'))
+                    or (priority in ('HIGH','MODERATE') and chosen and chosen['games']<10)
                     else 'HIGH' if len(games)>=100 else 'MEDIUM')
-        reasons=[('Short bullet results were downgraded because the bullet Elo is sparsely supported and substantially below the other time controls. This is not proof of fair play.' if chosen and chosen.get('rating_reliability_downgrade') else
+        reasons=[('The time-control Elo has too few recent rated anchors and differs substantially from other controls. Results alone cannot justify HIGH here.' if chosen and chosen.get('rating_reliability_downgrade') else
+                 'Most games in the period were played against one or two opponents. Their outcomes cannot justify independent-results HIGH without further review.' if chosen and 'repeated_opponent_concentration' in chosen.get('classification_guards',()) else
                  ('An exceptional results period also passed a stricter matched historical Accuracy check. This is a review priority, not proof of misconduct.') if priority=='VERY HIGH' else
                  ('A chronological period scored substantially above its Elo-point expectation and passed the history-search guard. '
                   'This experimental results flag is not engine or Maia confirmation.') if priority=='HIGH' else
@@ -226,10 +228,11 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         from fairplay_method3_history import changes
         history_changes=changes(games,PRIORITY_GAMES)
         record={'history_limit':LIMIT,'priority_games':len(games),'block_size':BLOCK_SIZE,'blocks_checked':block_count,
+                'boundary_bridges_checked':len(segments)-block_count,'segments_checked':len(segments),
                 'history_changes':history_changes,'rating_reliability':rating_reliability,
                 'rated_games':rated_count,'unrated_games':len(games)-rated_count,
                 'priority_basis':basis,'production_enabled':True,
-                'period_scope':'Independent chronological 200-game blocks with across-block search correction',
+                'period_scope':'Chronological 200-game blocks plus overlapping boundary bridges; globally deduplicated physical-window search correction',
                 'searched_windows':window_count,
                 'method':'Experimental Elo-results and published-Accuracy triage; not gameplay confirmation or misconduct probability',
                 'reference':'Development thresholds, not independent holdout calibration',
