@@ -44,7 +44,7 @@
       "crown",
       "necklace"
     ],
-    "active": "83101ee6f3104150ac91ea63c62fc35b",
+    "active": "d6c693ed2a80474da37f9b01929f7f6c",
     "expedition": {
       "end": 1792367008.489063,
       "hours": 12,
@@ -731,6 +731,25 @@
         "rarity": "uncommon",
         "species": "Penguin",
         "xp": 20
+      },
+      {
+        "born_at": 1792514156.4814432,
+        "fed_at": 1792514156.4814432,
+        "happiness": 80,
+        "happy_at": 1792514156.4814432,
+        "id": "d6c693ed2a80474da37f9b01929f7f6c",
+        "name": "",
+        "owner_history": [
+          {
+            "action": "Created",
+            "at": 1792514156,
+            "owner_id": "442597396195704832",
+            "owner_name": "Thice"
+          }
+        ],
+        "rarity": "common",
+        "species": "Cat",
+        "xp": 0
       }
     ]
   },
