@@ -1355,9 +1355,6 @@ class FairPlayService:
             text = 'This account already has a queued or running review. The existing scan is reused.'
             if job.message:text += f' [View progress]({job.message.jump_url})'
             await self.channel.send(content=text,allowed_mentions=discord.AllowedMentions.none());return
-        if target in self.cache:
-            _,result,message = self.cache[target]
-            await self.channel.send(content=f'A recent review is cached. [View review]({message.jump_url}). Re-scan becomes available after 30 minutes.',allowed_mentions=discord.AllowedMentions.none());return
         if len(self.jobs)>=MAX_JOBS:
             await self.channel.send(
                 content=f'The Fair Play queue is full ({MAX_CONCURRENT_SCANS} active + {MAX_WAITING_SCANS} waiting). Please try again later.',
