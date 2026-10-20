@@ -11,7 +11,7 @@ from fairplay_config import CONFIG
 from fairplay_data import PubAPI, ReviewError, ScanDeadline, check_deadline, collect_games, username
 from fairplay_outcome_study import evaluate, SCENARIOS, DEVELOPMENT_SCENARIOS, CONFIG as STUDY_CONFIG
 
-VERSION='fairplay-v65-bridge-opponent-evidence'
+VERSION='fairplay-v66-rating-evidence-guards'
 LIMIT=5000
 BLOCK_SIZE=200
 PRIORITY_GAMES=200
@@ -128,9 +128,9 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
             'bullet_median_elo':median(bullet_ratings) if bullet_ratings else None,
             'other_control_median_elo':median(other_ratings) if other_ratings else None,
             'latest_bullet_support':bullet_support,
-            'rule':'Prior-year per-period rated-game support; never replace a time-control Elo '
-                   'with ratings from another control. Long sparse-rating streaks require '
-                   'manual review rather than a results-only HIGH.'}
+            'rule':'Period-end rated-game support; zero rated anchors make the time-control '
+                   'Elo expectation unverified even if no alternate-control rating exists. '
+                   'Never replace a time-control Elo with ratings from another control.'}
         rank={'INSUFFICIENT DATA':0,'LOW':1,'MODERATE':2,'HIGH':3,'VERY HIGH':4}
         candidates=[]
         corrected_result_guards=set()
@@ -188,9 +188,14 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                     accuracy_confirmed=accuracy_checks['accuracy_pass'])
                 period['rating_support']=rating
                 period['opponent_support']=opponents
+                period['effective_priority']=tier
                 if limits:
                     period['classification_guards']=limits
-                    period['rating_reliability_downgrade']='unreliable_time_control_rating' in limits
+                    period['rating_reliability_downgrade']=any(
+                        reason in limits for reason in (
+                            'unreliable_time_control_rating',
+                            'unverified_time_control_rating'))
+                    period['rating_unverified_downgrade']='unverified_time_control_rating' in limits
                 basis=('accuracy' if tier=='MODERATE' and not middle['results_review_pass']
                        and not limits else 'results')
                 candidates.append((tier,basis,index,block,context,sub,period,context_start,is_bridge))
@@ -261,13 +266,28 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
             basis='accuracy_frequency'
         selected_period_priority=priority if basis!='accuracy_frequency' else 'LOW'
         rated_count=sum(g.rated is True for g in games)
+        collection_status=getattr(api,'fairplay_collection_coverage',None) or {}
+        valid_accuracy=sum(isinstance(g.accuracy,(int,float)) and not isinstance(g.accuracy,bool)
+                           and 0 <= g.accuracy <= 100 for g in games)
+        known_opponents=sum(bool(getattr(g,'opponent_username',None)) for g in games)
+        known_ratings=sum(isinstance(g.rating,(int,float)) and g.rating>0
+                          and isinstance(g.opponent_rating,(int,float)) and g.opponent_rating>0
+                          for g in games)
+        data_quality={'history_games':len(games),'valid_rating_pairs':known_ratings,
+                      'published_accuracy_games':valid_accuracy,
+                      'identified_opponents':known_opponents,
+                      'skipped_reasons':dict(skipped),
+                      'archive_coverage':dict(collection_status),
+                      'collection_partial':bool(partial),
+                      'note':'Observed-data denominators, not independent evidence.'}
         subject['rated_games']=rated_count
         subject['unrated_games']=len(games)-rated_count
         confidence=('LOW' if partial or len(games)<30 or (chosen and chosen.get('classification_guards'))
                     or (priority in ('HIGH','MODERATE') and chosen and chosen['games']<10)
                     else 'HIGH' if len(games)>=100 else 'MEDIUM')
-        reasons=[('The time-control Elo has too few recent rated anchors and differs substantially from other controls. Results alone cannot justify HIGH here.' if chosen and chosen.get('rating_reliability_downgrade') else
-                 'Most games in the period were played against one or two opponents. Their outcomes cannot justify independent-results HIGH without further review.' if chosen and 'repeated_opponent_concentration' in chosen.get('classification_guards',()) else
+        reasons=[('This time control has no rated-game anchors in the previous year. Its Elo expectation cannot independently justify HIGH or VERY HIGH.' if chosen and chosen.get('rating_unverified_downgrade') else
+                 'The time-control Elo has too few recent rated anchors and differs substantially from other controls. Accuracy alone cannot repair the Elo expectation; HIGH/VERY HIGH is capped.' if chosen and chosen.get('rating_reliability_downgrade') else
+                 'Most games in the period were played against one or two opponents. Even corroborating Accuracy cannot make these outcomes independent; HIGH/VERY HIGH is capped pending human review.' if chosen and 'repeated_opponent_concentration' in chosen.get('classification_guards',()) else
                  ('An exceptional results period also passed a stricter matched historical Accuracy check. This is a review priority, not proof of misconduct.') if priority=='VERY HIGH' else
                  ('A chronological period scored substantially above its Elo-point expectation and passed the history-search guard. '
                   'This experimental results flag is not engine or Maia confirmation.') if priority=='HIGH' else
@@ -289,6 +309,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 'accuracy_frequency':frequency_diagnostics,
                 'accuracy_frequency_signals':frequency_signals,
                 'rating_reliability':rating_reliability,
+                'data_quality':data_quality,
                 'rated_games':rated_count,'unrated_games':len(games)-rated_count,
                 'priority_basis':basis,'production_enabled':True,
                 'period_scope':'Chronological 200-game blocks plus 100-game-per-side boundary bridges; globally deduplicated physical-window search correction',
@@ -300,7 +321,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 'selected':chosen,'marked_periods':marked,'subject':subject,'source':'official_accuracy',
                 'engine_used':False,'maia_used':False,'timing_scoring':False,
                 'accuracy_role':'High Accuracy frequency can promote LOW to MODERATE after conservative same-control earlier-history checks; never promotes HIGH',
-                'limits':'Rated and unrated have identical priority rules and share chronological periods/references. All collected live history is searched. Daily is excluded. Ratings may be inaccurate in either mode. Underrating, legitimate improvement, smurfing, rating lag and selected hot streaks can qualify. Multiple windows are correlated. VERY HIGH requires both stringent results and matched earlier Accuracy checks; neither establishes misconduct.'}
+                'limits':'Rated and unrated share chronological periods/references, but their Elo reliability is separately audited. Zero rated anchors and cross-control discrepancies cap results-backed HIGH/VERY HIGH. Repeated opponents cap these tiers even if Accuracy corroborates. Daily is excluded; only collected live history is searched. Underrating, legitimate improvement, smurfing, rating lag, correlated games, missing archives and selected hot streaks can qualify. VERY HIGH requires both results and matched earlier Accuracy but never proves misconduct.'}
         # Offline evaluate's cross-player groups have no other players here. Attach
         # the earlier personal references by period, never fabricate a group norm.
         progress('Method 3: building graphs and report…')
