@@ -722,27 +722,11 @@ command_tree = discord.app_commands.CommandTree(client)
 SHARK_ADMIN_COMMAND_LIST = shark_admin.ADMIN_LIST
 
 
-fairplay_group = discord.app_commands.Group(name='fairplay', description='Fair Play reviews and owner automation.')
-fairplay_auto_group = discord.app_commands.Group(name='auto', description='Owner-only background rescans.', parent=fairplay_group)
-command_tree.add_command(fairplay_group)
-
-
-@fairplay_group.command(name='review', description='Submit a Chess.com account for moderator fair-play screening.')
+@command_tree.command(name='fairplay',description='Start a Fair Play screening for a Chess.com username.')
+@discord.app_commands.describe(username='Chess.com account to screen')
 async def fairplay_command(interaction: discord.Interaction, username: str):
     from fairplay_ui import channel_check,submit
     if await channel_check(interaction):await submit(interaction,username)
-
-
-@fairplay_auto_group.command(name='start', description='Owner only: rescan older-version reports while the queue is idle.')
-async def fairplay_auto_start(interaction: discord.Interaction):
-    from fairplay_auto import control
-    await control(interaction, True)
-
-
-@fairplay_auto_group.command(name='stop', description='Owner only: stop scheduling background rescans; the active review finishes.')
-async def fairplay_auto_stop(interaction: discord.Interaction):
-    from fairplay_auto import control
-    await control(interaction, False)
 
 
 @command_tree.command(name='alert',description='Manage Chess.com Fair Play ban alert subscriptions.')
