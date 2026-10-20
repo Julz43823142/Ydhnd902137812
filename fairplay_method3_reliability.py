@@ -130,7 +130,11 @@ def independent_results_tier(tier, *, games, rating, opponents, accuracy_confirm
     if rating.get('unverified'):
         reasons.append('unverified_time_control_rating')
     if reasons:
-        if games <= 20 and not accuracy_confirmed:
+        # Preserve the existing LOW safety rule for *demonstrably mismatched*
+        # sparse ratings in short periods. A wholly unverified control without
+        # corroborating alternate ratings still warrants MODERATE manual triage,
+        # not a confident HIGH and not an automatic clean bill of health.
+        if rating.get('unreliable') and games <= 20 and not accuracy_confirmed:
             tier = 'LOW'
         elif tier in ('HIGH', 'VERY HIGH'):
             tier = 'MODERATE'
