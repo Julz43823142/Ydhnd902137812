@@ -60,6 +60,25 @@ class Method3(unittest.TestCase):
         for row in API.rows:
             row['white']['rating']=2500;row['black']['rating']=500
         self.assertEqual(self.run_review().priority,'LOW')
+    def test_observed_data_coverage_is_reported_without_imputing_missing_values(self):
+        from fairplay_ui import result_embed, detail_embed
+        result=self.run_review()
+        quality=result.diagnostics['method3']['data_quality']
+        self.assertEqual(quality['history_games'],20)
+        self.assertEqual(quality['published_accuracy_games'],20)
+        self.assertEqual(quality['identified_opponents'],20)
+        self.assertEqual(quality['valid_rating_pairs'],20)
+        summary=str(result_embed(result).to_dict())
+        self.assertIn('Data reliability',summary)
+        self.assertIn('20/20',summary)
+        for row in API.rows[:10]:
+            row.pop('accuracies')
+        reduced=self.run_review()
+        quality=reduced.diagnostics['method3']['data_quality']
+        self.assertEqual(quality['published_accuracy_games'],10)
+        self.assertIn('10/20',str(result_embed(reduced).to_dict()))
+        self.assertLess(len(detail_embed(reduced,'Review Gates')),6000)
+
     def test_missing_accuracy_is_unknown_and_ui_is_truthful(self):
         for row in API.rows:row.pop('accuracies')
         result=self.run_review()

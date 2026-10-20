@@ -30,6 +30,34 @@ class ValidationMissBuckets(unittest.TestCase):
             self.assertNotIn('candidate',deployed.call_args.kwargs)
             legacy.assert_not_called()
 
+    def test_method3_validation_uses_actual_engine_free_production_route(self):
+        from unittest.mock import patch
+        from fairplay_validation import analyze_target, analysis_config, local_production_profile
+        from fairplay_config import CONFIG
+        import os
+        self.assertIs(analysis_config('method3-local'),CONFIG)
+        with self.assertRaises(ValueError):
+            analysis_config('method3-local',100)
+        expected=object()
+        with (patch('fairplay_method3.review',return_value=expected) as method3,
+              patch('fairplay_v51_shadow.review') as engine,
+              patch('fairplay_analysis.review') as legacy,
+              patch.dict(os.environ,{'FAIRPLAY_METHOD3':'0','GITHUB_TOKEN':'never-expose'})):
+            before=dict(os.environ)
+            with local_production_profile('method3-local'):
+                self.assertEqual(os.environ['FAIRPLAY_METHOD3'],'1')
+                self.assertEqual(os.environ['FAIRPLAY_V51'],'0')
+                self.assertEqual(os.environ['FAIRPLAY_DISTRIBUTED'],'0')
+                self.assertEqual(os.environ['FAIRPLAY_FULL_DEPTH18'],'0')
+                self.assertEqual(os.environ['GITHUB_ACTIONS'],'false')
+                self.assertNotIn('GITHUB_TOKEN',os.environ)
+                self.assertIs(analyze_target('synthetic-validation','method3-local',CONFIG),expected)
+            self.assertEqual(dict(os.environ),before)
+        method3.assert_called_once()
+        self.assertIs(method3.call_args.args[2],CONFIG)
+        engine.assert_not_called()
+        legacy.assert_not_called()
+
     def test_research_candidate_requires_an_explicit_local_profile(self):
         from unittest.mock import patch
         from fairplay_validation import analyze_target,analysis_config,local_production_profile
@@ -49,6 +77,21 @@ class ValidationMissBuckets(unittest.TestCase):
                 analyze_target('synthetic-validation',profile,analysis_config(profile))
                 legacy.assert_called_once()
                 deployed.assert_not_called()
+
+    def test_method3_accuracy_frequency_is_a_worklist_not_an_evidence_tier(self):
+        from fairplay_validation import analytical_priority
+        promoted=SimpleNamespace(priority='MODERATE',diagnostics={'method3':{
+            'priority_basis':'accuracy_frequency',
+            'selected_period_priority':'LOW'}})
+        self.assertEqual(analytical_priority(promoted),'LOW')
+        rows=[{'username':'synthetic-check','label':'trusted_normal'}]
+        aggregate=evaluate_cases(rows,lambda _ : promoted)
+        self.assertEqual(aggregate['cases']['trusted_normal']['LOW'],1)
+        self.assertEqual(aggregate['cases']['trusted_normal']['MODERATE'],0)
+        self.assertEqual(aggregate['worklist_cases']['trusted_normal']['MODERATE'],1)
+        ordinary=SimpleNamespace(priority='MODERATE',diagnostics={'method3':{
+            'priority_basis':'accuracy','selected_period_priority':'MODERATE'}})
+        self.assertEqual(analytical_priority(ordinary),'MODERATE')
 
     def test_positive_low_bucket_distinguishes_near_miss_from_multi_blocked(self):
         near=result('LOW',blockers=('deep semantic-quality stability',),candidate_games=40)
@@ -179,11 +222,13 @@ class PrivateCohortContracts(unittest.TestCase):
         from fairplay_validation import local_production_profile,analysis_config
         from fairplay_config import CONFIG
         hostile={'GITHUB_ACTIONS':'true','FAIRPLAY_DISTRIBUTED':'1',
-                 'FAIRPLAY_V21':'1','FAIRPLAY_FULL_DEPTH18':'1','GITHUB_TOKEN':'synthetic'}
+                 'FAIRPLAY_METHOD3':'1','FAIRPLAY_V21':'1',
+                 'FAIRPLAY_FULL_DEPTH18':'1','GITHUB_TOKEN':'synthetic'}
         with patch.dict(os.environ,hostile),local_production_profile('screening'):
             self.assertEqual(analysis_config('screening',CONFIG.history_games),CONFIG)
             self.assertEqual(os.environ['FAIRPLAY_FULL_DEPTH18'],'0')
             self.assertEqual(os.environ['FAIRPLAY_DISTRIBUTED'],'0')
+            self.assertEqual(os.environ['FAIRPLAY_METHOD3'],'0')
             self.assertNotIn('GITHUB_TOKEN',os.environ)
 
     def test_environment_is_restored_after_analysis_failure(self):

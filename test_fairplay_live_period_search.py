@@ -50,19 +50,25 @@ class PeriodSearch(unittest.TestCase):
         games=self.history(413,0);games[413].score=1;games[413].opponent_rating=2500
         self.assertNotEqual(self.run_games(games).priority,'HIGH')
 
-    def test_unrated_status_is_not_a_priority_or_confidence_feature(self):
+    def test_unrated_status_affects_only_elo_evidence_reliability(self):
         rated=self.history(413)
         a=self.run_games(rated)
         for g in rated:g.rated=False
         b=self.run_games(rated)
-        self.assertEqual(a.priority,b.priority)
-        self.assertEqual(a.confidence,b.confidence)
-        selected_a=a.diagnostics['method3']['selected']
-        selected_b=b.diagnostics['method3']['selected']
-        for key in ('time_class','first_game','last_game','results','search_guard'):
-            self.assertEqual(selected_a[key],selected_b[key])
-        # Rated/unrated metadata legitimately changes rating-anchor coverage;
-        # absent an unsupported-rating gap, it cannot itself change priority.
+        # Elo score calculations and searched windows remain identical. Only
+        # the evidence of a sufficiently tested time-control rating changes.
+        self.assertEqual(a.priority,'HIGH')
+        self.assertEqual(b.priority,'MODERATE')
+        self.assertEqual(b.confidence,'LOW')
+        self.assertEqual(
+            a.diagnostics['method3']['subject']['overall_results'],
+            b.diagnostics['method3']['subject']['overall_results'])
+        self.assertEqual(
+            a.diagnostics['method3']['searched_windows'],
+            b.diagnostics['method3']['searched_windows'])
+        self.assertIn('unverified_time_control_rating',
+            b.diagnostics['method3']['selected']['classification_guards'])
+        self.assertFalse(a.diagnostics['method3']['selected']['rating_support']['unverified'])
 
     def test_mixed_statuses_share_one_period_and_earlier_reference(self):
         games=[profile_game(i,score=.5) for i in range(60)]

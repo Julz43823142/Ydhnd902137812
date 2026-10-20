@@ -54,6 +54,23 @@ def result_embed(result):
                if d.get('priority_basis')=='accuracy_frequency'
                else 'Selected chronological period')
         e.add_field(name=label,value=f"{selected['time_class'].title()} · {selected['games']} games · {period_dates(selected)}\nExpected points: **{fmt(r['expected_points'])}** · scored: **{fmt(r['actual_points'])}**\nWinrate: **{fmt(r['win_fraction'],True)}**",inline=False)
+    quality=d.get('data_quality') or {}
+    if quality:
+        n=quality.get('history_games',len(result.games))
+        archives=quality.get('archive_coverage') or {}
+        details=(f"Valid rating pairs: {quality.get('valid_rating_pairs',0)}/{n} · "
+                 f"opponents identified: {quality.get('identified_opponents',0)}/{n} · "
+                 f"published Accuracy: {quality.get('published_accuracy_games',0)}/{n}")
+        if quality.get('collection_partial') or archives.get('incomplete_archive_months'):
+            details+='\nArchive coverage incomplete; unobserved games are not evidence of misconduct.'
+        e.add_field(name='Data reliability · observed coverage',value=details[:1024],inline=False)
+    if selected and selected.get('classification_guards'):
+        support=selected.get('rating_support') or {}
+        e.add_field(name='HIGH evidence safeguards',value=(
+            'Applied: '+', '.join(selected['classification_guards']).replace('_',' ')
+            +f"\nRated anchors in the previous year: {support.get('rated_anchor_games_365d','Unknown')}. "
+            'Additional Accuracy cannot bypass an unreliable Elo or repeated-opponent safeguard.'
+        )[:1024],inline=False)
     e.add_field(name='Important',value='Not proof of cheating. Human review is required before any action.',inline=False)
     e.set_footer(text=f'Version: {result.version} · uncalibrated heuristic, not probability')
     return e
@@ -88,7 +105,18 @@ def detail_embed(result,mode):
     if mode in ('Engine Analysis','Human Moves'):
         e.add_field(name='Not performed',value='This method does not run Stockfish or Maia. No engine ranks, human-move likelihoods or deep confirmation are claimed.',inline=False)
     elif mode=='Review Gates':
-        e.add_field(name='Configured boundaries',value='Rated and unrated have identical rules. HIGH: valid chronological results, Elo-points residual ≥2.4, score excess ≥20 percentage points and a search-adjusted Elo-model bound ≤0.01. Five–nine-game HIGH also requires every game to be a win with complete result coverage. MODERATE: results pass the looser 0.10 model guard, or adequately covered matched earlier Accuracy rises ≥8 points with ≥60% above its upper reference and a search-adjusted reference-model bound ≤0.10. No one-game HIGH. VERY HIGH requires HIGH results evidence, at least 20 games, a search-adjusted results bound ≤0.001, and a matched earlier Accuracy reference check passing its own bound ≤0.01. Model assumptions are uncalibrated; these bounds are not cheating probabilities.',inline=False)
+        chosen=d.get('selected') or {}
+        if chosen.get('classification_guards'):
+            rating=chosen.get('rating_support') or {}
+            opponents=chosen.get('opponent_support') or {}
+            e.add_field(name='Applied evidence safeguards',value=(
+                ' · '.join(chosen['classification_guards']).replace('_',' ')+'\n'
+                +f"Rated anchors (365d): {rating.get('rated_anchor_games_365d','?')} · "
+                +f"Rating baseline: {rating.get('anchor_status','unknown')}\n"
+                +f"Identified opponents in window: {opponents.get('period_named_games',0)}/{chosen.get('games',0)}. "
+                "These safeguards cap results-backed HIGH and VERY HIGH even when historical Accuracy supports the review."
+            )[:1024],inline=False)
+        e.add_field(name='Configured boundaries',value='Rated and unrated share outcome thresholds, but rated-game anchors affect Elo reliability. HIGH: valid chronological results, Elo-points residual ≥2.4, score excess ≥20 percentage points and a search-adjusted Elo-model bound ≤0.01. Five–nine-game HIGH also requires every game to be a win with complete result coverage. MODERATE: results pass the looser 0.10 model guard, or adequately covered matched earlier Accuracy rises ≥8 points with ≥60% above its upper reference and a search-adjusted reference-model bound ≤0.10. No one-game HIGH. VERY HIGH requires HIGH results evidence, at least 20 games, a search-adjusted results bound ≤0.001, and a matched earlier Accuracy reference check passing its own bound ≤0.01. Model assumptions are uncalibrated; these bounds are not cheating probabilities.',inline=False)
         if d.get('selected') and d['selected'].get('search_guard'):
             g=d['selected']['search_guard']
             a=d['selected'].get('accuracy_search_guard',{})

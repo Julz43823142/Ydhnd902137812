@@ -73,6 +73,8 @@ class RatingReliabilityTests(unittest.TestCase):
         self.assertFalse(support['unreliable'])
         self.assertIsNone(support['other_control_median_elo_365d'])
         self.assertIsNone(support['rating_gap'])
+        self.assertTrue(support['unverified'])
+        self.assertEqual(support['anchor_status'],'unverified')
 
 
 class RepeatOpponentTests(unittest.TestCase):
@@ -130,12 +132,53 @@ class RepeatOpponentTests(unittest.TestCase):
         self.assertFalse(support['opponent_concentrated'])
         self.assertEqual(support['opponent_names_covered'],0)
 
-    def test_accuracy_corrobation_is_not_downgraded_by_results_guard(self):
-        tier,reasons=independent_results_tier('HIGH',games=30,
-            rating={'unreliable':True},opponents={'opponent_concentrated':True},
-            accuracy_confirmed=True)
-        self.assertEqual(tier,'HIGH')
-        self.assertEqual(reasons,())
+    def test_accuracy_cannot_bypass_rating_or_opponent_guards(self):
+        for tier in ('HIGH','VERY HIGH'):
+            capped,reasons=independent_results_tier(tier,games=30,
+                rating={'unreliable':True,'unverified':False},
+                opponents={'opponent_concentrated':True},accuracy_confirmed=True)
+            self.assertEqual(capped,'MODERATE')
+            self.assertEqual(reasons,
+                ('unreliable_time_control_rating','repeated_opponent_concentration'))
+        tier,reasons=independent_results_tier('VERY HIGH',games=30,
+            rating={'unreliable':False,'unverified':False},
+            opponents={'opponent_concentrated':True},accuracy_confirmed=True)
+        self.assertEqual(tier,'MODERATE')
+        self.assertEqual(reasons,('repeated_opponent_concentration',))
+        tier,reasons=independent_results_tier('VERY HIGH',games=30,
+            rating={'unreliable':False,'unverified':False},
+            opponents={'opponent_concentrated':False},accuracy_confirmed=True)
+        self.assertEqual((tier,reasons),('VERY HIGH',()))
+
+    def test_missing_rated_anchors_cannot_authorize_high_even_without_other_controls(self):
+        rows=[game(i,kind='blitz',score=1,rated=False,
+                   rating=1400,opponent_elo=1400,
+                   opponent='other-'+str(i),ended=1770000000+i)
+              for i in range(35)]
+        support=rating_support(rows,rows)
+        self.assertTrue(support['unverified'])
+        self.assertFalse(support['unreliable'])
+        self.assertIsNone(support['rating_gap'])
+        report=run_games(rows)
+        self.assertEqual(report.priority,'MODERATE')
+        chosen=report.diagnostics['method3']['selected']
+        self.assertIn('unverified_time_control_rating',chosen['classification_guards'])
+        self.assertEqual(chosen['effective_priority'],'MODERATE')
+        self.assertEqual(report.confidence,'LOW')
+
+    def test_zero_rated_anchors_with_confirmed_accuracy_keeps_only_moderate(self):
+        for tier in ('HIGH','VERY HIGH'):
+            moderate,reasons=independent_results_tier(tier,games=15,
+                rating={'unverified':True,'unreliable':False},
+                opponents={'opponent_concentrated':False},
+                accuracy_confirmed=True)
+            self.assertEqual(moderate,'MODERATE')
+            self.assertIn('unverified_time_control_rating',reasons)
+            moderate_without_accuracy,_=independent_results_tier(tier,games=15,
+                rating={'unverified':True,'unreliable':False},
+                opponents={'opponent_concentrated':False},
+                accuracy_confirmed=False)
+            self.assertEqual(moderate_without_accuracy,'MODERATE')
 
 if __name__=='__main__':
     unittest.main()

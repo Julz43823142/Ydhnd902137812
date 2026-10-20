@@ -39,15 +39,25 @@ def rating_support(games, members):
     gap = other_median - own_median if own_median is not None and other_median is not None else None
     unreliable = (len(rated) < MIN_RATED and len(other) >= MIN_OTHER_RATED
                   and gap is not None and gap >= MIN_ELO_GAP)
+    # No *rated* anchors in the subject control cannot authenticate the Elo
+    # baseline even when there are no other time controls to reveal a mismatch.
+    # Keep sparse-but-nonzero anchors descriptive until a real holdout study
+    # calibrates a more aggressive reliability threshold.
+    unverified = len(rated) == 0 and len(members) >= 5
+    anchor_status = ('unverified' if unverified else
+                     'sparse' if len(rated) < MIN_RATED else 'supported')
     return {'time_class':kind, 'rated_anchor_games_365d':len(rated),
             'unrated_games_365d':sum(g.rated is False for g in same),
             'other_control_rated_games_365d':len(other),
             'class_median_elo_365d':own_median,
             'other_control_median_elo_365d':other_median,
             'rating_gap':gap, 'unreliable':unreliable,
+            'unverified':unverified,'anchor_status':anchor_status,
             'rule':'Fewer than 20 rated games in this control during the prior year, '
                    'at least 10 rated games in other controls, and a rating gap of '
-                   'at least 400 Elo. An untested rating cannot independently support HIGH.'}
+                   'at least 400 Elo. Also, zero rated anchors in a selected 5+-game '
+                   'period independently marks the Elo baseline unverified. '
+                   'Neither condition can independently support HIGH.'}
 
 
 def opponent_support(members, *, history=None):
@@ -106,18 +116,30 @@ def opponent_support(members, *, history=None):
 
 
 def independent_results_tier(tier, *, games, rating, opponents, accuracy_confirmed):
-    """Cap review priority when the Elo-only evidence lacks a sound baseline."""
-    if accuracy_confirmed or tier not in ('HIGH', 'MODERATE'):
+    """Enforce Elo and opposition reliability for EVERY result-backed tier.
+
+    A historical Accuracy comparison does not repair an unreliable Elo
+    expectation or establish independent opponents. It may preserve MODERATE
+    review priority, but cannot exempt HIGH/VERY HIGH from these safeguards.
+    """
+    if tier not in ('VERY HIGH', 'HIGH', 'MODERATE'):
         return tier, ()
     reasons = []
-    if rating['unreliable']:
+    if rating.get('unreliable'):
         reasons.append('unreliable_time_control_rating')
-        if games <= 20:
+    if rating.get('unverified'):
+        reasons.append('unverified_time_control_rating')
+    if reasons:
+        # Preserve the existing LOW safety rule for *demonstrably mismatched*
+        # sparse ratings in short periods. A wholly unverified control without
+        # corroborating alternate ratings still warrants MODERATE manual triage,
+        # not a confident HIGH and not an automatic clean bill of health.
+        if rating.get('unreliable') and games <= 20 and not accuracy_confirmed:
             tier = 'LOW'
-        elif tier == 'HIGH':
+        elif tier in ('HIGH', 'VERY HIGH'):
             tier = 'MODERATE'
-    if opponents['opponent_concentrated']:
+    if opponents.get('opponent_concentrated'):
         reasons.append('repeated_opponent_concentration')
-        if tier == 'HIGH':
+        if tier in ('HIGH', 'VERY HIGH'):
             tier = 'MODERATE'
     return tier, tuple(reasons)
