@@ -249,6 +249,13 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
             chosen['last_game']+=class_offset
             chosen['history_block']=block_index+1
             chosen['history_segment']='boundary' if is_bridge else 'block'
+        from fairplay_method3_accuracy_frequency import historical_signal
+        frequency_signals=historical_signal(games)
+        # The frequency signal is supporting review triage only: it can
+        # promote LOW to MODERATE, never HIGH or VERY HIGH.
+        if priority=='LOW' and frequency_signals:
+            priority='MODERATE'
+            basis='accuracy_frequency'
         rated_count=sum(g.rated is True for g in games)
         subject['rated_games']=rated_count
         subject['unrated_games']=len(games)-rated_count
@@ -264,6 +271,8 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                  'A chronological period exceeded the results review boundary but did not pass the stricter HIGH search guard.' if priority=='MODERATE' else
                  'No period passed the configured review boundaries; this does not establish fair play.' if priority=='LOW' else
                  'Not enough comparable chronological games with valid ratings/results to assign a tier.')]
+        if basis=='accuracy_frequency':
+            reasons=['A recent high-Accuracy frequency increase passed a conservative earlier-history comparison against similar-Elo opponents. Exploratory review signal, not proof of misconduct.']
         from fairplay_method3_history import changes
         from fairplay_method3_context import context as period_context
         from fairplay_method3_accuracy_frequency import summarize as accuracy_frequency
@@ -274,6 +283,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 'boundary_bridges_checked':len(segments)-block_count,'segments_checked':len(segments),
                 'history_changes':history_changes,'period_context':selected_context,
                 'accuracy_frequency':frequency_diagnostics,
+                'accuracy_frequency_signals':frequency_signals,
                 'rating_reliability':rating_reliability,
                 'rated_games':rated_count,'unrated_games':len(games)-rated_count,
                 'priority_basis':basis,'production_enabled':True,
@@ -285,7 +295,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 'moderate_accuracy_excess':8,'moderate_above_reference_fraction':.60,
                 'selected':chosen,'marked_periods':marked,'subject':subject,'source':'official_accuracy',
                 'engine_used':False,'maia_used':False,'timing_scoring':False,
-                'accuracy_role':'Can support MODERATE; strictly earlier same-control/rating-matched personal reference only',
+                'accuracy_role':'High Accuracy frequency can promote LOW to MODERATE after conservative same-control earlier-history checks; never promotes HIGH',
                 'limits':'Rated and unrated have identical priority rules and share chronological periods/references. All collected live history is searched. Daily is excluded. Ratings may be inaccurate in either mode. Underrating, legitimate improvement, smurfing, rating lag and selected hot streaks can qualify. Multiple windows are correlated. VERY HIGH requires both stringent results and matched earlier Accuracy checks; neither establishes misconduct.'}
         # Offline evaluate's cross-player groups have no other players here. Attach
         # the earlier personal references by period, never fabricate a group norm.
