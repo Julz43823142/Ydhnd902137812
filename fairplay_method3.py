@@ -266,11 +266,14 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                  'Not enough comparable chronological games with valid ratings/results to assign a tier.')]
         from fairplay_method3_history import changes
         from fairplay_method3_context import context as period_context
+        from fairplay_method3_accuracy_frequency import summarize as accuracy_frequency
+        frequency_diagnostics=accuracy_frequency(games)
         history_changes=changes(games,PRIORITY_GAMES)
         selected_context=period_context(games,chosen)
         record={'history_limit':LIMIT,'priority_games':len(games),'block_size':BLOCK_SIZE,'blocks_checked':block_count,
                 'boundary_bridges_checked':len(segments)-block_count,'segments_checked':len(segments),
                 'history_changes':history_changes,'period_context':selected_context,
+                'accuracy_frequency':frequency_diagnostics,
                 'rating_reliability':rating_reliability,
                 'rated_games':rated_count,'unrated_games':len(games)-rated_count,
                 'priority_basis':basis,'production_enabled':True,
