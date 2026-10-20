@@ -50,25 +50,32 @@ def rating_support(games, members):
                    'at least 400 Elo. An untested rating cannot independently support HIGH.'}
 
 
-def opponent_support(members):
-    """Flag heavy repeat-opponent concentration only when identities are known."""
-    names = [getattr(g, 'opponent_username', None) for g in members]
-    known = [n.strip().casefold() for n in names if isinstance(n, str) and n.strip()]
-    counts = Counter(known)
-    total = len(members)
-    coverage = len(known) / total if total else 0
-    largest = max(counts.values(), default=0)
-    # Small windows can be meaningful, even if played in a match. Larger,
-    # opponent-dominated windows warrant a manual tier rather than HIGH from
-    # the Elo-independent-games model alone.
-    concentrated = (total >= 25 and coverage >= .80 and
-                    (len(counts) <= 2 or largest / total >= .75))
-    return {'opponent_names_covered':len(known), 'games':total,
-            'distinct_opponents':len(counts), 'largest_opponent_games':largest,
+def opponent_support(members, *, history=None):
+    """Detect opponent-dominated stretches using the surrounding local cohort.
+
+    A five- or twenty-game slice of a long match cannot evade the safeguard by
+    choosing a narrow search window. The cohort uses only the same time class
+    in the 30 days surrounding the period, and requires actual identities.
+    """
+    start=min(g.ended for g in members) - 30 * 86400
+    end=max(g.ended for g in members) + 30 * 86400
+    cohort=[g for g in (history if history is not None else members)
+            if g.time_class==members[0].time_class and start <= g.ended <= end]
+    names=[getattr(g, 'opponent_username', None) for g in cohort]
+    known=[n.strip().casefold() for n in names if isinstance(n,str) and n.strip()]
+    counts=Counter(known)
+    total=len(cohort)
+    coverage=len(known)/total if total else 0
+    largest=max(counts.values(),default=0)
+    concentrated=(total >= 25 and len(members)>=5 and coverage >= .80 and
+                  (len(counts) <= 2 or largest/total >= .75))
+    return {'opponent_names_covered':len(known), 'games':len(members),
+            'cohort_games':total,'distinct_opponents':len(counts),
+            'largest_opponent_games':largest,
             'opponent_concentrated':concentrated,
-            'rule':'At least 25 games, at least 80% identifiable opponents, '
-                   'and either at most two opponents or one opponent in at '
-                   'least 75% of games. Results-only HIGH is capped at MODERATE.'}
+            'rule':'At least 25 same-class games near the selected period, '
+                   'at least 80% identifiable opponents, and one or two '
+                   'opponents dominate. Results-only HIGH is capped at MODERATE.'}
 
 
 def independent_results_tier(tier, *, games, rating, opponents, accuracy_confirmed):
