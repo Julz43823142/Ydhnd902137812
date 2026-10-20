@@ -747,9 +747,9 @@
         ],
         "puzzle": {
           "day": "2026-10-20",
-          "fen": "8/5R2/p2r2Rp/3pkPp1/8/1P5P/r4P2/6K1 w - - 0 43",
+          "fen": "8/4R3/p2r2Rp/3p1kp1/8/1P5P/r4P2/6K1 w - - 0 44",
           "id": "MSnZI",
-          "index": 0,
+          "index": 2,
           "moves": [
             "f7e7",
             "e5f5",
