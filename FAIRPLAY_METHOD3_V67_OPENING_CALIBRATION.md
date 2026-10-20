@@ -30,13 +30,11 @@ caveat remains.
 
 ## Commands
 
-Discord slash commands cannot combine `/fairplay username` with true nested
-`/fairplay stop` because the root cannot have both direct options and
-subcommands. Commands therefore become:
-- `/fairplay check username:<Chess.com name>` for screening.
-- `/fairplay stop` for a moderator-authorized cancellation.
+Two separate, flat Discord slash commands preserve the direct username input:
+- `/fairplay username:<Chess.com name>` for screening.
+- `/fairplaystop` (one word) for a moderator-authorized cancellation.
 
-The obsolete root `/stopfairplay` is removed after command sync. Discord's
+The obsolete `/stopfairplay` is removed after command sync. Discord's
 client-side command cache may take time to refresh after deploy.
 
 ## Validation and limitations
