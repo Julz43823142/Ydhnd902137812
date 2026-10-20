@@ -43,6 +43,42 @@ class FairPlayChat(unittest.IsolatedAsyncioTestCase):
                 dispatch.assert_not_awaited();claim.assert_not_called()
                 self.assertIn('text-only',str(complete.call_args))
 
+    async def test_explicit_fairplay_request_enqueues_without_groq(self):
+        user=NS(id=1234,display_name='Requester')
+        bot_user=NS(id=42)
+        message=NS(guild=NS(id=123,me=NS()),author=user,mentions=[bot_user],
+            content='<@42> hello could you do the fair play review of the chess com profile of Naiiiraaa please ?',
+            channel=NS(id=CHANNEL_ID,typing=Typing,
+                permissions_for=lambda _:NS(view_channel=True,send_messages=True)))
+        service=NS(note_human=Mock(),enqueue_mention=AsyncMock(return_value=True))
+        with (patch('fairplay_ui._service',service),
+              patch.object(shark_ai,'_start_periodic_cleanup'),
+              patch.object(shark_ai,'_complete',new_callable=AsyncMock) as model):
+            self.assertTrue(await shark_ai.handle_mention(message,NS(user=bot_user)))
+        service.note_human.assert_called_once()
+        service.enqueue_mention.assert_awaited_once_with(message,'naiiiraaa')
+        model.assert_not_awaited()
+
+    async def test_fairplay_mention_stays_in_task_force_and_requires_username(self):
+        user=NS(id=1234,display_name='Requester')
+        bot_user=NS(id=42)
+        for prompt in ('hello could you do the fair play review please?',
+                       'fair play review of the profile of please'):
+            message=NS(guild=NS(id=123,me=NS()),author=user,mentions=[bot_user],
+                content='<@42> '+prompt,channel=NS(id=CHANNEL_ID,typing=Typing,
+                    permissions_for=lambda _:NS(view_channel=True,send_messages=True)))
+            with (patch('fairplay_ui._service',NS(enqueue_mention=AsyncMock())) as service,
+                  patch.object(shark_ai,'_start_periodic_cleanup'),
+                  patch.object(shark_ai,'_counted_reply',new_callable=AsyncMock) as reply):
+                self.assertTrue(await shark_ai.handle_mention(message,NS(user=bot_user)))
+                reply.assert_awaited_once()
+                service.enqueue_mention.assert_not_awaited()
+        self.assertIsNone(shark_ai.fairplay_review_target('hello what is a pin?'))
+        self.assertEqual(shark_ai.fairplay_review_target(
+            'please fair play review of the profile of Naiiiraaa'),'Naiiiraaa')
+        self.assertEqual(shark_ai.fairplay_review_target(
+            'fair play check https://www.chess.com/member/Naiiiraaa'),'Naiiiraaa')
+
     async def test_unmentioned_message_ignores_pending_confirmation(self):
         message=NS(guild=NS(id=123),mentions=[],channel=NS(id=CHANNEL_ID))
         with patch('shark_commands.consume_confirmation') as confirmation:
