@@ -105,6 +105,17 @@ def detail_embed(result,mode):
     if mode in ('Engine Analysis','Human Moves'):
         e.add_field(name='Not performed',value='This method does not run Stockfish or Maia. No engine ranks, human-move likelihoods or deep confirmation are claimed.',inline=False)
     elif mode=='Review Gates':
+        chosen=d.get('selected') or {}
+        if chosen.get('classification_guards'):
+            rating=chosen.get('rating_support') or {}
+            opponents=chosen.get('opponent_support') or {}
+            e.add_field(name='Applied evidence safeguards',value=(
+                ' · '.join(chosen['classification_guards']).replace('_',' ')+'\n'
+                +f"Rated anchors (365d): {rating.get('rated_anchor_games_365d','?')} · "
+                +f"Rating baseline: {rating.get('anchor_status','unknown')}\n"
+                +f"Identified opponents in window: {opponents.get('period_named_games',0)}/{chosen.get('games',0)}. "
+                "These safeguards cap results-backed HIGH and VERY HIGH even when historical Accuracy supports the review."
+            )[:1024],inline=False)
         e.add_field(name='Configured boundaries',value='Rated and unrated have identical rules. HIGH: valid chronological results, Elo-points residual ≥2.4, score excess ≥20 percentage points and a search-adjusted Elo-model bound ≤0.01. Five–nine-game HIGH also requires every game to be a win with complete result coverage. MODERATE: results pass the looser 0.10 model guard, or adequately covered matched earlier Accuracy rises ≥8 points with ≥60% above its upper reference and a search-adjusted reference-model bound ≤0.10. No one-game HIGH. VERY HIGH requires HIGH results evidence, at least 20 games, a search-adjusted results bound ≤0.001, and a matched earlier Accuracy reference check passing its own bound ≤0.01. Model assumptions are uncalibrated; these bounds are not cheating probabilities.',inline=False)
         if d.get('selected') and d['selected'].get('search_guard'):
             g=d['selected']['search_guard']
