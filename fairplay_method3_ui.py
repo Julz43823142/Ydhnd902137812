@@ -23,8 +23,6 @@ def result_embed(result):
     selected=d.get('selected')
     if selected:
         e.add_field(name='Selected chronological period',value=f"{selected['time_class'].title()} · {selected['games']} games · {period_dates(selected)}\nExpected points: **{fmt(r['expected_points'])}** · scored: **{fmt(r['actual_points'])}**\nWinrate: **{fmt(r['win_fraction'],True)}**",inline=False)
-    if any(row['results_increase'] for row in d.get('history_changes',[])):
-        e.add_field(name='History comparison',value='Recent results rose against matched earlier games. This is supporting context, not a separate cheating signal.',inline=False)
     e.add_field(name='Important',value='Not proof of cheating. Human review is required before any action.',inline=False)
     e.set_footer(text=f'Version: {result.version} · uncalibrated heuristic, not probability')
     return e
@@ -101,7 +99,7 @@ def chart_pngs(result, progress=None):
         add_chart(f'fairplay_{kind}_charts.png',cairosvg.svg2png(bytestring=svg.encode()))
     if live_games:
         add_chart('fairplay_opponent_elo_comparison.png',cairosvg.svg2png(bytestring=comparison_svg(grouped).encode()))
-        parts=['<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1120" viewBox="0 0 1440 1120"><rect width="1440" height="1120" fill="white"/>',text(45,45,'Rolling 10-game expected / observed points',26)]
+        parts=['<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1120" viewBox="0 0 1440 1120"><rect width="1440" height="1120" fill="white"/>',text(45,45,'Rolling 10-game expected / observed points',26),text(45,78,'Each point averages up to 10 games; nearby points overlap.',16,'#526477')]
         for index,kind in enumerate(('rapid','blitz','bullet')):
             games=[g for g in live_games if g.time_class==kind]
             predicted=[];actual=[]
@@ -130,30 +128,40 @@ def period_dates(selected):
 
 
 def selected_period_embed(result):
-    """A short, actionable explanation of the chart's highlighted window."""
+    """Small, actionable description of the exact highlighted game window."""
+    from datetime import datetime, timezone
     from fairplay_ui import priority_color
     selected=(result.diagnostics.get('method3') or {}).get('selected')
     e=discord.Embed(title='Selected Period — '+result.username,
                     color=priority_color(result.priority))
     if not selected:
-        e.description='No chronological period was selected for this review.'
+        e.description='No period selected.'
         return e
     kind=selected['time_class']
     games=sorted((g for g in result.games if g.time_class==kind),
-                 key=lambda g:g.ended)
-    first=selected['first_game']
-    last=selected['last_game']
-    e.description=(f"**{kind.title()} · games {first}–{last} of {len(games)}**\\n"
-                   f"**Dates:** {period_dates(selected)}\\n"
-                   f"**Review priority:** {result.priority}\\n\\n"
-                   "The red hatched area marks the period with the strongest "
-                   "selected results signal. It is not proof of cheating; "
-                   "LOW means the evidence is insufficient for a higher priority.")
+                 key=lambda g:(g.ended,g.identity))
+    first,last=selected['first_game'],selected['last_game']
+    points=selected.get('results') or {}
+    e.description=(
+        f"**{kind.title()} · {period_dates(selected)}**\n"
+        f"**{selected['games']} games · {result.priority}**\n"
+        f"Expected: **{fmt(points.get('expected_points'))} points** · "
+        f"Scored: **{fmt(points.get('actual_points'))} points**\n\n"
+        "Red shading marks the selected results period, not proof of cheating."
+    )
     for label,index in (('First game',first-1),('Last game',last-1)):
         if 0<=index<len(games):
             game=games[index]
+            opponent=getattr(game,'opponent_username',None) or 'Unknown'
+            opponent=discord.utils.escape_markdown(opponent)
+            date=datetime.fromtimestamp(game.ended,timezone.utc).strftime('%d %b %Y')
             url=getattr(game,'url',None)
-            e.add_field(name=label,value=(f'[Open game]({url})' if url and url.startswith('https://') else f'Game {index+1}'),inline=True)
+            link=f'[Open game]({url})' if isinstance(url,str) and url.startswith('https://www.chess.com/game/') else 'Game link unavailable'
+            e.add_field(name=f'{label} · #{index+1}',value=(
+                f"Opponent: **{opponent}**\n"
+                f"Date: **{date}** (UTC)\n"
+                f"Result: **{game.result}**\n"
+                f"{link}"),inline=True)
     return e
 
 
@@ -183,7 +191,7 @@ def mark_selected(svg,result,kind,rows,positions):
                      f'height="200" fill="url(#{pattern_id})" stroke="#7f1d1d" '
                      'stroke-width="1.5" stroke-opacity=".7"/>')
         marks.append(text(1375,y+23,
-            f'Red hatch: strongest selected results period ({result.priority}); not proof · {period_dates(selected)}',
+            f'Selected {result.priority} period · not proof of cheating · {period_dates(selected)}',
             14,'#7f1d1d',anchor='end'))
     return svg.replace('</svg>',defs+''.join(marks)+'</svg>')
 
@@ -204,21 +212,45 @@ def mark_recent(svg,rows,positions):
 
 
 def history_svg(result):
+    """Short earlier-vs-recent chart with unambiguous sample sizes and dates."""
+    from datetime import datetime, timezone
     from fairplay_charts import text
     rows=result.diagnostics['method3'].get('history_changes',[])[:12]
-    height=max(280,175+len(rows)*100)
+    height=max(270,150+len(rows)*155)
     parts=[f'<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="{height}" viewBox="0 0 1440 {height}"><rect width="100%" height="100%" fill="white"/>',
-        text(35,40,'Earlier → recent behaviour · matched opponents, same time control',26),
-        text(35,75,'Descriptive context only. Missing scores/clocks stay unknown; improvement does not establish misconduct.',18)]
-    for x,label in ((35,'Control · earlier/recent games'),(390,'Points above Elo expectation'),(810,'Published Accuracy'),(1130,'Median game think time')):
-        parts.append(text(x,125,label,17))
+        text(35,42,'Earlier vs recent · same time control',27),
+        text(35,76,'Up to 200 older matched games vs 20 newer games per control; not the last 220 games overall.',17)]
+    for x,label in ((35,'Games / dates'),(430,'Points vs Elo'),(820,'Chess.com Accuracy'),(1160,'Move time')):
+        parts.append(text(x,119,label,18))
+    def span(value):
+        if not value:return 'dates unavailable'
+        a,b=value
+        return (datetime.fromtimestamp(a,timezone.utc).strftime('%d %b %y')+' – '+
+                datetime.fromtimestamp(b,timezone.utc).strftime('%d %b %y'))
+    def points(value):
+        return 'Unknown' if value is None else f'{value*100:+.1f}%'
+    def secs(value):
+        return 'Unknown' if value is None else f'{value:.1f}s'
+    def control_label(value):
+        try:
+            base,inc=map(int,str(value).split('+'))
+            return f'{base//60}+{inc}' if base%60==0 else f'{base}s+{inc}s'
+        except (ValueError,TypeError):
+            return str(value)
     for i,row in enumerate(rows):
-        a,b=row['baseline'],row['recent'];y=175+100*i
-        parts.extend((text(35,y,f"{row['time_class'].title()} {row['time_control']} · {a['games']}/{b['games']}",19),
-            text(390,y,f"{fmt(a['score_excess'],True)} → {fmt(b['score_excess'],True)}",20),
-            text(810,y,f"{fmt(a['accuracy_median'])} → {fmt(b['accuracy_median'])}",20),
-            text(1130,y,f"{fmt(a['think_median'])} → {fmt(b['think_median'])} sec",20),
-            text(35,y+30,'Comparable earlier reference' if row['results_comparable'] else 'Limited earlier reference',15,'#526477')))
-    if not rows:parts.append(text(35,190,'Not enough same-control earlier/recent games for a comparison.',20))
+        a,b=row['baseline'],row['recent']
+        y=155+155*i
+        if i:parts.append(f'<line x1="35" y1="{y-18}" x2="1405" y2="{y-18}" stroke="#d4d9df"/>')
+        parts.extend((
+            text(35,y,f"{row['time_class'].title()} · {control_label(row['time_control'])}",20),
+            text(35,y+28,f"Earlier {a['games']}: {span(row.get('earlier_range'))}",14,'#526477'),
+            text(35,y+53,f"Recent {b['games']}: {span(row.get('recent_range'))}",14,'#526477'),
+            text(430,y+12,f"{points(a['score_excess'])} → {points(b['score_excess'])}",22),
+            text(430,y+43,'Above/below expected score' if row['results_comparable'] else 'Limited comparison',14,'#526477'),
+            text(820,y+12,f"{fmt(a['accuracy_median'])} → {fmt(b['accuracy_median'])}",22),
+            text(820,y+43,f"Coverage: {a['accuracy_games']}/{a['games']} → {b['accuracy_games']}/{b['games']}",14,'#526477'),
+            text(1160,y+12,f"{secs(a['think_median'])} → {secs(b['think_median'])}",22),
+            text(1160,y+43,'Median time per move',14,'#526477')))
+    if not rows:parts.append(text(35,182,'Not enough earlier and recent games to compare.',20))
     parts.append('</svg>')
     return ''.join(parts)

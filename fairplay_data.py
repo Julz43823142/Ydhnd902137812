@@ -147,6 +147,7 @@ class GameSample:
     probe_only: bool = False
     moves: list[str] = field(default_factory=list)
     human_reference: dict = field(default_factory=dict)
+    opponent_username: str | None = None
 
 
 def assign_chronology_indices(history):
@@ -281,7 +282,11 @@ def parse_game(row: dict, target: str, config: ReviewConfig = CONFIG, *, exclusi
                       result, score, accuracy, color, decisions, moves=moves,
                       time_control=(daily_control if daily else
                                     f'{base}+{increment}' if base is not None else ''),
-                      rated=row.get('rated') if isinstance(row.get('rated'),bool) else None)
+                      rated=row.get('rated') if isinstance(row.get('rated'),bool) else None,
+                      opponent_username=(str(other.get('username')).strip()
+                          if isinstance(other.get('username'),str)
+                          and re.fullmatch(r'[A-Za-z0-9_-]{3,25}',other['username'].strip())
+                          else None))
 
 
 # Only archive response bodies are cached. Every reuse is revalidated with

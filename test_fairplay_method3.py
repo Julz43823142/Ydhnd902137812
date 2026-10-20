@@ -64,6 +64,10 @@ class Method3(unittest.TestCase):
             card=detail_embed(result,mode)
             self.assertLess(len(card),6000)
         self.assertIn('Not enough earlier',str(detail_embed(result,'Performance').to_dict()))
+    def test_opponent_is_retained_for_selected_period(self):
+        result=self.run_review()
+        self.assertTrue(all(g.opponent_username for g in result.games))
+
     def test_cancel_is_not_a_report(self):
         event=threading.Event();event.set()
         from fairplay_data import DeadlineReached

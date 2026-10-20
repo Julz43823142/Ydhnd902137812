@@ -53,6 +53,8 @@ class RecentHistory(unittest.TestCase):
         self.assertTrue(change['results_increase']);self.assertTrue(change['support_only'])
         self.assertEqual(change['recent']['games'],20)
         self.assertEqual(change['baseline']['games'],200)
+        self.assertEqual(change['earlier_range'],(780,979))
+        self.assertEqual(change['recent_range'],(980,999))
         self.assertIsNone(change['recent']['accuracy_median'])
         self.assertIsNone(change['recent']['think_median'])
         for g in rows[:980]:g.time_control='180+2'
