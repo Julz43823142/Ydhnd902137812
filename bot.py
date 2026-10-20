@@ -722,26 +722,17 @@ command_tree = discord.app_commands.CommandTree(client)
 SHARK_ADMIN_COMMAND_LIST = shark_admin.ADMIN_LIST
 
 
-# Slash command groups cannot mix a direct username option with subcommands.
-# /fairplay check username:<name> and /fairplay stop share one discoverable root.
-fairplay_group = discord.app_commands.Group(
-    name='fairplay', description='Check a Chess.com player or stop a running review.')
-
-
-@fairplay_group.command(name='check',description='Start a Fair Play screening for a Chess.com username.')
+@command_tree.command(name='fairplay',description='Start a Fair Play screening for a Chess.com username.')
 @discord.app_commands.describe(username='Chess.com account to screen')
 async def fairplay_command(interaction: discord.Interaction, username: str):
     from fairplay_ui import channel_check,submit
     if await channel_check(interaction):await submit(interaction,username)
 
 
-@fairplay_group.command(name='stop',description='Stop the running Fair Play review (server moderators only).')
+@command_tree.command(name='fairplaystop',description='Stop the running Fair Play review (server moderators only).')
 async def stopfairplay_command(interaction: discord.Interaction):
     from fairplay_ui import stop_current_review
     await stop_current_review(interaction)
-
-
-command_tree.add_command(fairplay_group)
 
 
 @command_tree.command(name='alert',description='Manage Chess.com Fair Play ban alert subscriptions.')
