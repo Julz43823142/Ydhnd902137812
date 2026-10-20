@@ -578,47 +578,6 @@
         "xp_day": "2026-10-16"
       },
       {
-        "activity_xp": 30,
-        "born_at": 1792176270.9882581,
-        "fed_at": 1792176270.9882581,
-        "happiness": 100,
-        "happy_at": 1792176324.846002,
-        "id": "1bf5d2f95cb84f5b9852fede16fc9fde",
-        "name": "",
-        "owner_history": [
-          {
-            "action": "Created",
-            "at": 1792176270,
-            "owner_id": "442597396195704832",
-            "owner_name": "Thice"
-          },
-          {
-            "action": "Hatched",
-            "at": 1792176324,
-            "owner_id": "442597396195704832",
-            "owner_name": "Thice"
-          }
-        ],
-        "puzzle": {
-          "day": "2026-10-16",
-          "fen": "4r1k1/pp6/2p3Qp/3p1Pp1/3P2P1/P1P5/4qP2/R5K1 b - - 2 33",
-          "id": "ri0Zl",
-          "index": 5,
-          "moves": [
-            "h5g6",
-            "g7f8",
-            "g6f6",
-            "f8g8",
-            "f6g6"
-          ]
-        },
-        "puzzle_day": "2026-10-16",
-        "rarity": "rare",
-        "species": "Owl",
-        "xp": 50,
-        "xp_day": "2026-10-16"
-      },
-      {
         "born_at": 1792184769.7699742,
         "fed_at": 1792184769.7699742,
         "happiness": 100,
@@ -909,6 +868,53 @@
         "rarity": "common",
         "species": "Dog",
         "xp": 20
+      },
+      {
+        "activity_xp": 30,
+        "born_at": 1792176270.9882581,
+        "fed_at": 1792176270.9882581,
+        "happiness": 100,
+        "happy_at": 1792176324.846002,
+        "id": "1bf5d2f95cb84f5b9852fede16fc9fde",
+        "name": "",
+        "owner_history": [
+          {
+            "action": "Created",
+            "at": 1792176270,
+            "owner_id": "442597396195704832",
+            "owner_name": "Thice"
+          },
+          {
+            "action": "Hatched",
+            "at": 1792176324,
+            "owner_id": "442597396195704832",
+            "owner_name": "Thice"
+          },
+          {
+            "action": "Traded",
+            "at": 1792514336,
+            "owner_id": "550338389535227926",
+            "owner_name": "Nairyaaa"
+          }
+        ],
+        "puzzle": {
+          "day": "2026-10-16",
+          "fen": "4r1k1/pp6/2p3Qp/3p1Pp1/3P2P1/P1P5/4qP2/R5K1 b - - 2 33",
+          "id": "ri0Zl",
+          "index": 5,
+          "moves": [
+            "h5g6",
+            "g7f8",
+            "g6f6",
+            "f8g8",
+            "f6g6"
+          ]
+        },
+        "puzzle_day": "2026-10-16",
+        "rarity": "rare",
+        "species": "Owl",
+        "xp": 50,
+        "xp_day": "2026-10-16"
       }
     ]
   }
