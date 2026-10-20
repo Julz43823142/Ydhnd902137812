@@ -174,11 +174,11 @@ class RepeatOpponentTests(unittest.TestCase):
                 accuracy_confirmed=True)
             self.assertEqual(moderate,'MODERATE')
             self.assertIn('unverified_time_control_rating',reasons)
-            low,_=independent_results_tier(tier,games=15,
+            moderate_without_accuracy,_=independent_results_tier(tier,games=15,
                 rating={'unverified':True,'unreliable':False},
                 opponents={'opponent_concentrated':False},
                 accuracy_confirmed=False)
-            self.assertEqual(low,'LOW')
+            self.assertEqual(moderate_without_accuracy,'MODERATE')
 
 if __name__=='__main__':
     unittest.main()
