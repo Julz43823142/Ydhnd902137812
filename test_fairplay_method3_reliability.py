@@ -63,7 +63,9 @@ class RatingReliabilityTests(unittest.TestCase):
                     ended=1770000000+i) for i in range(30)]
         result=run_games(other+recent)
         self.assertEqual(result.priority,'LOW')
-        self.assertTrue(result.diagnostics['method3']['selected'].get('rating_reliability_downgrade'))
+        periods=result.diagnostics['method3']['subject']['periods']
+        self.assertTrue(any(p.get('rating_reliability_downgrade') for p in periods
+                            if p['time_class']=='bullet' and p['games']<=20))
 
     def test_other_controls_are_not_substituted_as_expected_elo(self):
         g=[game(i,rated=False,ended=1770000000+i) for i in range(35)]
