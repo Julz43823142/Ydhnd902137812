@@ -53,7 +53,7 @@
       "pool": 2000,
       "progress": {
         "minigame_win": 26,
-        "puzzle_solve": 23,
+        "puzzle_solve": 24,
         "rush_complete": 3
       },
       "start": 1792015200,
@@ -62,7 +62,7 @@
       "users": {
         "442597396195704832": {
           "minigame_win": 8,
-          "puzzle_solve": 23,
+          "puzzle_solve": 24,
           "rush_complete": 3
         },
         "550338389535227926": {
@@ -183,13 +183,13 @@
     },
     "2026-W43": {
       "442597396195704832": {
-        "coins_earned": 67.0,
-        "contribution": 0.000125,
+        "coins_earned": 78.0,
+        "contribution": 0.00025,
         "new_cosmetics": 2,
         "pet_feed": 5,
         "pet_levels_gained": 6,
         "pet_puzzle": 5,
-        "puzzle_solve": 1
+        "puzzle_solve": 2
       },
       "550338389535227926": {
         "coins_earned": 55.0,
