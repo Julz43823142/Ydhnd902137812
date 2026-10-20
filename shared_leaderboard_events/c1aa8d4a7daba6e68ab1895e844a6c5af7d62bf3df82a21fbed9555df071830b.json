@@ -1,0 +1,24 @@
+{
+  "created_at": 1792510465,
+  "details": {
+    "activity": [
+      {
+        "action": "feature_played",
+        "kind": "math",
+        "session_id": "1562126772513013870"
+      },
+      {
+        "action": "minigame_started",
+        "kind": "math",
+        "name": "Nairyaaa",
+        "record_kind": "math:60",
+        "uid": "550338389535227926"
+      }
+    ],
+    "escrow_change": 0,
+    "wallets": {}
+  },
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "minigames",
+  "transaction_id": "minigames:1562126853265694741"
+}
