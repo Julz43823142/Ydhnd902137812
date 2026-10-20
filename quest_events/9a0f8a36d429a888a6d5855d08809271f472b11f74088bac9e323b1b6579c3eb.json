@@ -1,0 +1,16 @@
+{
+  "action": "minigame_win",
+  "amount": 1,
+  "created_at": 1792511301,
+  "created_at_ns": 1792511301216575868,
+  "daily_key": "daily:2026-10-20",
+  "display_name": "Nairyaaa",
+  "metadata": {
+    "kind": "mines"
+  },
+  "operation": "quest-progress",
+  "quest_build": "quests-v1-2026-09-08",
+  "transaction_id": "quest:minigame-win:1562127444708827238:1792511298841:550338389535227926",
+  "user_id": "550338389535227926",
+  "weekly_key": "weekly:2026-10-19"
+}
