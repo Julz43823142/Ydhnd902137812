@@ -11,7 +11,7 @@ from fairplay_config import CONFIG
 from fairplay_data import PubAPI, ReviewError, ScanDeadline, check_deadline, collect_games, username
 from fairplay_outcome_study import evaluate, SCENARIOS, DEVELOPMENT_SCENARIOS, CONFIG as STUDY_CONFIG
 
-VERSION='fairplay-v64-search-reliability'
+VERSION='fairplay-v65-bridge-opponent-evidence'
 LIMIT=5000
 BLOCK_SIZE=200
 PRIORITY_GAMES=200
@@ -45,9 +45,12 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         blocks=[games[i:i+BLOCK_SIZE] for i in range(0,len(games),BLOCK_SIZE)]
         block_count=len(blocks)
         # A streak split by an arbitrary 200-game boundary should not be
-        # invisible. Search a short, overlapping bridge around each boundary,
-        # with a full preceding block available as Accuracy reference.
-        BRIDGE_RADIUS=50
+        # invisible. A 200-game candidate bridge (100 games on each side)
+        # covers every cross-boundary run of at most 100 games; it can also
+        # examine symmetric 200-game runs. Bonferroni-adjust all newly
+        # searched physical windows globally, including overlapping blocks.
+        # Retain a strictly earlier reference block for Accuracy.
+        BRIDGE_RADIUS=100
         segments=[]
         for index,block in enumerate(blocks):
             start=index*BLOCK_SIZE
@@ -256,6 +259,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         if priority=='LOW' and frequency_signals:
             priority='MODERATE'
             basis='accuracy_frequency'
+        selected_period_priority=priority if basis!='accuracy_frequency' else 'LOW'
         rated_count=sum(g.rated is True for g in games)
         subject['rated_games']=rated_count
         subject['unrated_games']=len(games)-rated_count
@@ -287,7 +291,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 'rating_reliability':rating_reliability,
                 'rated_games':rated_count,'unrated_games':len(games)-rated_count,
                 'priority_basis':basis,'production_enabled':True,
-                'period_scope':'Chronological 200-game blocks plus overlapping boundary bridges; globally deduplicated physical-window search correction',
+                'period_scope':'Chronological 200-game blocks plus 100-game-per-side boundary bridges; globally deduplicated physical-window search correction',
                 'searched_windows':window_count,
                 'method':'Experimental Elo-results and published-Accuracy triage; not gameplay confirmation or misconduct probability',
                 'reference':'Development thresholds, not independent holdout calibration',
