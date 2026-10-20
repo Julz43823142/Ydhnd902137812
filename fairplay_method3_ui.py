@@ -20,6 +20,23 @@ def result_embed(result):
         f'{d.get("rated_games",len(result.games))} rated · {d.get("unrated_games",0)} unrated'
         + (' · incomplete collection' if result.partial else '')
         + f'\nPublished Accuracy: {accuracy_games}/{len(result.games)} games.'),inline=False)
+    frequency=d.get('accuracy_frequency',{}).get('by_time_class',{})
+    if frequency:
+        lines=[]
+        for kind in ('blitz','rapid','bullet'):
+            row=frequency.get(kind,{})
+            n=row.get('accuracy_coverage',0)
+            if not n:continue
+            groups=row.get('opponent_context',{})
+            near=groups.get('near',{})
+            lines.append(
+                f"{kind.title()}: **{row['at_least_90']}/{n} ≥90%**, "
+                f"**{row['at_least_95']}/{n} ≥95%** "
+                f"(near-Elo ±200: {near.get('at_least_90',0)}/{near.get('games',0)} ≥90%)")
+        if lines:
+            e.add_field(name='High Accuracy frequency · descriptive',
+                value='\\n'.join(lines)+'\\nNot calibrated for expected frequency; does not affect priority.',
+                inline=False)
     selected=d.get('selected')
     if selected:
         e.add_field(name='Selected chronological period',value=f"{selected['time_class'].title()} · {selected['games']} games · {period_dates(selected)}\nExpected points: **{fmt(r['expected_points'])}** · scored: **{fmt(r['actual_points'])}**\nWinrate: **{fmt(r['win_fraction'],True)}**",inline=False)
