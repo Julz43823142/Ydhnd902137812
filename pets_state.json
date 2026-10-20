@@ -44,7 +44,7 @@
       "crown",
       "necklace"
     ],
-    "active": "83cace046ced470eb39b1e86e498795c",
+    "active": "83101ee6f3104150ac91ea63c62fc35b",
     "expedition": {
       "end": 1792367008.489063,
       "hours": 12,
@@ -731,45 +731,6 @@
         "rarity": "uncommon",
         "species": "Penguin",
         "xp": 20
-      },
-      {
-        "born_at": 1792513374.3763227,
-        "fed_at": 1792513374.3763227,
-        "happiness": 100,
-        "happy_at": 1792513443.939134,
-        "id": "83cace046ced470eb39b1e86e498795c",
-        "name": "",
-        "owner_history": [
-          {
-            "action": "Created",
-            "at": 1792513374,
-            "owner_id": "442597396195704832",
-            "owner_name": "Thice"
-          },
-          {
-            "action": "Hatched",
-            "at": 1792513443,
-            "owner_id": "442597396195704832",
-            "owner_name": "Thice"
-          }
-        ],
-        "puzzle": {
-          "day": "2026-10-20",
-          "fen": "rn3Nk1/p5pp/2pp4/4p3/4P1n1/2N4P/PPP3P1/R1B2q1K w - - 0 21",
-          "id": "Wz3HO",
-          "index": 5,
-          "moves": [
-            "f7f2",
-            "g1h1",
-            "f2e1",
-            "d3f1",
-            "e1f1"
-          ]
-        },
-        "puzzle_day": "2026-10-20",
-        "rarity": "common",
-        "species": "Cat",
-        "xp": 20
       }
     ]
   },
@@ -820,6 +781,51 @@
         "species": "Penguin",
         "xp": 30,
         "xp_day": "2026-10-19"
+      },
+      {
+        "born_at": 1792513374.3763227,
+        "fed_at": 1792513374.3763227,
+        "happiness": 100,
+        "happy_at": 1792513443.939134,
+        "id": "83cace046ced470eb39b1e86e498795c",
+        "name": "",
+        "owner_history": [
+          {
+            "action": "Created",
+            "at": 1792513374,
+            "owner_id": "442597396195704832",
+            "owner_name": "Thice"
+          },
+          {
+            "action": "Hatched",
+            "at": 1792513443,
+            "owner_id": "442597396195704832",
+            "owner_name": "Thice"
+          },
+          {
+            "action": "Traded",
+            "at": 1792513742,
+            "owner_id": "550338389535227926",
+            "owner_name": "Nairyaaa"
+          }
+        ],
+        "puzzle": {
+          "day": "2026-10-20",
+          "fen": "rn3Nk1/p5pp/2pp4/4p3/4P1n1/2N4P/PPP3P1/R1B2q1K w - - 0 21",
+          "id": "Wz3HO",
+          "index": 5,
+          "moves": [
+            "f7f2",
+            "g1h1",
+            "f2e1",
+            "d3f1",
+            "e1f1"
+          ]
+        },
+        "puzzle_day": "2026-10-20",
+        "rarity": "common",
+        "species": "Cat",
+        "xp": 20
       }
     ]
   }
