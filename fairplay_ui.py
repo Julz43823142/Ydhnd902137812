@@ -1233,9 +1233,7 @@ class ReportView(SubmitView):
         super().__init__()
         self.clear_items()
         method3 = os.getenv('FAIRPLAY_METHOD3') == '1'
-        options = ([('Overview','📄','summary'),('Performance','📈','performance'),
-                    ('History','🔬','clusters'),('Review Rules','🛡️','gates'),
-                    ('Copy Report','📋','copy')]
+        options = ([('Selected Period','🎯','selected-period'),('Copy Report','📋','copy')]
                    if method3 else
                    [('Report Details','📄','summary'),('Highest-Signal Games','🎯','games'),('Timing','⏱️','timing'),
                     ('Performance','📈','performance'),('Clusters & History','🔬','clusters'),('Engine Analysis','♟️','engine'),
@@ -1256,9 +1254,13 @@ class ReportView(SubmitView):
                 result = _service.result_for(ctx.message.id)
                 if result is None:
                     await ctx.response.send_message('Detailed data expired or was cleared after a restart. Re-scan to rebuild it. The public review remains in Discord.',ephemeral=True);return
+                if action=='selected-period':
+                    from fairplay_method3_ui import selected_period_embed
+                    await ctx.response.send_message(embed=selected_period_embed(result),ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
+                    return
                 await ctx.response.send_message(embed=detail_embed(result,{'Overview':'Report Details','History':'Clusters & History','Review Rules':'Review Gates'}.get(label,label)),ephemeral=True,view=CopyTextView(),allowed_mentions=discord.AllowedMentions.none())
             button.callback = show;self.add_item(button)
-        if target:self.add_item(discord.ui.Button(label='Chess.com Profile',emoji='🔗',url=f'https://www.chess.com/member/{username(target)}'))
+        if target and not method3:self.add_item(discord.ui.Button(label='Chess.com Profile',emoji='🔗',url=f'https://www.chess.com/member/{username(target)}'))
 
 
 @dataclass

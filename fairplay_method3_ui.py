@@ -128,8 +128,37 @@ def period_dates(selected):
     return datetime.fromtimestamp(a,timezone.utc).strftime('%d %b %Y')+' → '+datetime.fromtimestamp(b,timezone.utc).strftime('%d %b %Y')
 
 
+
+def selected_period_embed(result):
+    """A short, actionable explanation of the chart's highlighted window."""
+    from fairplay_ui import priority_color
+    selected=(result.diagnostics.get('method3') or {}).get('selected')
+    e=discord.Embed(title='Selected Period — '+result.username,
+                    color=priority_color(result.priority))
+    if not selected:
+        e.description='No chronological period was selected for this review.'
+        return e
+    kind=selected['time_class']
+    games=sorted((g for g in result.games if g.time_class==kind),
+                 key=lambda g:g.ended)
+    first=selected['first_game']
+    last=selected['last_game']
+    e.description=(f"**{kind.title()} · games {first}–{last} of {len(games)}**\\n"
+                   f"**Dates:** {period_dates(selected)}\\n"
+                   f"**Review priority:** {result.priority}\\n\\n"
+                   "The red hatched area marks the period with the strongest "
+                   "selected results signal. It is not proof of cheating; "
+                   "LOW means the evidence is insufficient for a higher priority.")
+    for label,index in (('First game',first-1),('Last game',last-1)):
+        if 0<=index<len(games):
+            game=games[index]
+            url=getattr(game,'url',None)
+            e.add_field(name=label,value=(f'[Open game]({url})' if url and url.startswith('https://') else f'Game {index+1}'),inline=True)
+    return e
+
+
 def mark_selected(svg,result,kind,rows,positions):
-    """Purple diagonal hatching for the exact selected class-relative window."""
+    """Dark-red diagonal hatching for the selected class-relative window."""
     from fairplay_charts import text
     selected=result.diagnostics['method3'].get('selected')
     if not selected or selected['time_class']!=kind or not rows:return svg
@@ -142,20 +171,20 @@ def mark_selected(svg,result,kind,rows,positions):
     if right-left<3:
         left=max(115,left-2)
         right=min(1375,right+2)
-    pattern_id='fairplay-selected-purple-hatch'
+    pattern_id='fairplay-selected-red-hatch'
     defs=(f'<defs><pattern id="{pattern_id}" patternUnits="userSpaceOnUse" '
           'width="12" height="12" patternTransform="rotate(45)">'
-          '<rect width="12" height="12" fill="#a855f7" fill-opacity=".10"/>'
-          '<line x1="0" y1="0" x2="0" y2="12" stroke="#7e22ce" '
+          '<rect width="12" height="12" fill="#991b1b" fill-opacity=".10"/>'
+          '<line x1="0" y1="0" x2="0" y2="12" stroke="#7f1d1d" '
           'stroke-width="3" stroke-opacity=".55"/></pattern></defs>')
     marks=[]
     for y in positions:
         marks.append(f'<rect x="{left:.1f}" y="{y+30}" width="{right-left:.1f}" '
-                     f'height="200" fill="url(#{pattern_id})" stroke="#7e22ce" '
+                     f'height="200" fill="url(#{pattern_id})" stroke="#7f1d1d" '
                      'stroke-width="1.5" stroke-opacity=".7"/>')
         marks.append(text(1375,y+23,
-            f'Selected {result.priority} review period · {period_dates(selected)}',
-            14,'#7e22ce',anchor='end'))
+            f'Red hatch: strongest selected results period ({result.priority}); not proof · {period_dates(selected)}',
+            14,'#7f1d1d',anchor='end'))
     return svg.replace('</svg>',defs+''.join(marks)+'</svg>')
 
 
