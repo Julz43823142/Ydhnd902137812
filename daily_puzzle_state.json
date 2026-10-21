@@ -55,8 +55,8 @@
     "url": "https://www.chess.com/daily/2026-10-21",
     "title": "Drop It Like It’s Hot 🔥",
     "fen": "r1b2r1k/5Bpp/pq6/1p2p3/4P2Q/P3b3/1PP1n1PP/R4R1K w - - 0 19",
-    "current_fen": "r1b2r1k/5Bpp/pq6/1p2p3/4P2Q/P3b3/1PP1n1PP/R4R1K w - - 0 19",
-    "last_move_uci": null,
+    "current_fen": "r1b2r1k/6pp/p5q1/1p2p3/4P2Q/P3b3/1PP1n1PP/R4R1K w - - 0 20",
+    "last_move_uci": "b6g6",
     "pgn": {
       "__shark_answer_ciphertext_v1__": "gAAAAABq2IkkWMoGBk8Cyf8SaNVxdhcSeiUd9WxahJ-FLVeEXxYS_7fEWRDRqmnX5_fbuccU7lVknNqmOfv2H71sT933QRuD5q837tYJPV9thtebrWFWdgJnWQiFMvgCC0yQBhVQ5VHEl5oA50WxBEUOII2fhizygwz2B9Pk8kwNikIrEcIhharzSZsvwFOJn8j1quOVQHMlvBOvJ3SWpZuhr0loSkF5aSOg75b4pnXX3PhPJJJJn0DnqYjIy3KOcs2DK05f70ULISdheLHVLXfkT216AtnJDp5e9o9zXo2EwJSDo3MW2xJO52MlR4RWhbTdp6Ck4BU5"
     },
@@ -74,24 +74,52 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1792568499243",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
-    "message_id": 1562370268788162594,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "message_id": 1562423612114346108,
+    "attempted_users": {
+      "442597396195704832": {
+        "name": "Thice",
+        "move": "Bg6",
+        "correct": true,
+        "timestamp": "2026-10-21T11:13:36.878761+00:00"
+      }
+    },
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1562370268788162594
+      "1468320170891022417": 1562423612114346108
     },
     "channel_id": 1468320170891022417,
     "board_attachment_filenames": {
-      "1468320170891022417": "daily_puzzle.png"
+      "1468320170891022417": "random_puzzle.png"
     },
-    "chat_since_refresh": 0
+    "chat_since_refresh": 0,
+    "last_card_activity_at": "2026-10-21T11:13:36.878407+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1792581216.8787687,
+        "fen_before": "r1b2r1k/5Bpp/pq6/1p2p3/4P2Q/P3b3/1PP1n1PP/R4R1K w - - 0 19",
+        "expected": {
+          "color": "white",
+          "san": "Bg6",
+          "uci": "f7g6"
+        },
+        "accepted_uci": "f7g6"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "Bg6",
+        "uci": "f7g6",
+        "principal": true
+      }
+    ],
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Qxg6"
   },
   "lichess_rating_used": {
     "2000": [
@@ -9907,6 +9935,6 @@
   },
   "puzzle_auto_next": {
     "1546557493038284840": true,
-    "1468320170891022417": true
+    "1468320170891022417": false
   }
 }
