@@ -4381,8 +4381,8 @@
   "bot_ideas_ticket_counter_v1": 17,
   "bot_ideas_idle_v1": {
     "last_activity_at": 1792593491.481501,
-    "reminder_sent": false,
-    "reminder_message_id": "1562457874142339166",
+    "reminder_sent": true,
+    "reminder_message_id": "1562482860797984800",
     "tickets_since_prompt": 0
   },
   "bot_ideas_panel_message_id_v1": "1546854821351395401",
