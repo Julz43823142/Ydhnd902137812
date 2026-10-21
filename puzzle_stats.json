@@ -326,7 +326,8 @@
     "550338389535227926": {
       "achievements": [
         "first_steps",
-        "first_blood"
+        "first_blood",
+        "first_to_strike"
       ],
       "admin_rated": false,
       "best_hard_streak_2600": 0,
@@ -346,14 +347,14 @@
       "current_wrong_streak": 0,
       "elo": 1528.3293976337304,
       "elo_games": 1,
-      "first_solves": 0,
+      "first_solves": 1,
       "max_rating_solved": 1855,
       "name": "Nairyaaa",
       "peak_elo": 1528.3293976337304,
       "rated_correct_count": 1,
       "rated_correct_rating_sum": 1855,
       "total": 1,
-      "updated_at": 1792585279,
+      "updated_at": 1792585346,
       "wrong": 0
     },
     "601406103712170014": {
