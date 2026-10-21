@@ -382,8 +382,8 @@
         "born_at": 1791108685.6424184,
         "fed_at": 1792581333.4005432,
         "feed_day": "2026-10-21",
-        "happiness": 80,
-        "happy_at": 1792323890.866953,
+        "happiness": 85,
+        "happy_at": 1792581374.5088503,
         "id": "a694b65e5fd547a48c21a63fe10808a2",
         "name": "",
         "owner_history": [
@@ -396,9 +396,9 @@
         ],
         "puzzle": {
           "day": "2026-10-21",
-          "fen": "8/8/8/6p1/3N2P1/pk6/5KP1/8 b - - 1 59",
+          "fen": "8/8/8/6p1/3N2P1/p7/1k3KP1/8 w - - 2 60",
           "id": "u7NmE",
-          "index": 4,
+          "index": 5,
           "moves": [
             "b4b3",
             "a2b3",
@@ -407,10 +407,10 @@
             "b3b2"
           ]
         },
-        "puzzle_day": "2026-10-18",
+        "puzzle_day": "2026-10-21",
         "rarity": "uncommon",
         "species": "Penguin",
-        "xp": 910,
+        "xp": 930,
         "xp_day": "2026-10-11"
       },
       {
