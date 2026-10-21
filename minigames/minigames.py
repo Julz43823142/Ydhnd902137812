@@ -3,6 +3,7 @@
 Run with the dedicated minigames workflow. No slash-command tree sync is used.
 """
 import asyncio
+from collections import OrderedDict
 import io
 import json
 import logging
@@ -18,6 +19,9 @@ import minigames_render as art
 import shared_leaderboard as ledger
 import quests as quest_tracker
 from minigames_content import CATEGORIES, fetch_questions
+from minigames_chess_trivia import chess_questions
+from minigames_shortcuts import ALIASES, STAKE_CHOICES, MODE_CHOICES, INSTANT_SOLO, parse_shortcut
+from minigames_game_guides import GAME_GUIDES
 
 CHANNEL_ID = 1546155761405788230
 LOG = logging.getLogger('minigames')
@@ -336,7 +340,7 @@ def menu_embed():
         ),
         color=0x4dd6b6,
     )
-    embed.set_footer(text='Quick menu: !m / !menu • Stats: !stats • Full rules: !i / !info • Balance: !coins')
+    embed.set_footer(text='Direct play: !trivia, !chessle, !blackjack, !poker • Browse: !menu • Balance: !coins')
     return embed
 
 
@@ -349,8 +353,8 @@ def game_view(g):
         if g.get('kind')=='blackjack':
             stake=float(g.get('stake',0) or 0)
             same_label=(f'Again · {stake:g} coins' if stake else 'Again · Free')
-            add(same_label,'replay',discord.ButtonStyle.success)
-            add('Change Stake','replay_stake',discord.ButtonStyle.primary)
+            add('New Hand · '+same_label,'replay',discord.ButtonStyle.success)
+            add('Change Stake · Next Hand','replay_stake',discord.ButtonStyle.primary)
         return v
     if g['status']=='lobby':
         if g.get('invited'):add('Decline Rematch','decline_rematch',discord.ButtonStyle.danger)
@@ -495,7 +499,7 @@ def game_embed(g):
                 desc+=f'\n\nPlay together on the **{int(d.get("width",engine.MINEFIELD_WIDTH))} × {int(d.get("height",engine.MINEFIELD_HEIGHT))} buttons below**. **Reveal / Flag mode is personal for each player.** Choose **My Reveal Mode** or **My Flag Mode**; the bot privately confirms your mode.'
         elif kind=='trivia':
             q=d['questions'][d['round']]
-            desc+=f'**Question {d["round"]+1}/15 · {q["difficulty"].title()}**\n{safe(q["category"])}\n\n**{safe(q["question"])}**\n'
+            desc+=f'**Question {d["round"]+1}/15**\n{safe(q["category"])}\n\n**{safe(q["question"])}**\n'
             desc+='\n'.join(f'**{"ABCD"[i]}.** {safe(x)}' for i,x in enumerate(q['options']))
             desc+=f'\n\nAnswers locked: **{len(d["answers"])}/{len(g["players"])}**'
             if d['reveal']:
@@ -599,6 +603,8 @@ def game_embed(g):
             desc+='\n'+'\n'.join(f'{player_text(p)} — **+{g["paid"][p["id"]]:g} coins**'+(' (no reward earned)' if g['paid'][p['id']]==0 else '') for p in g['players'] if p['id'] in g['paid'])
     else:desc+=f'\n\nDeadline: <t:{int(g["deadline"])}:R>'
     if g.get('left'):desc+='\n\nLeft the game: '+', '.join(player_text(p) for p in g['players'] if p['id'] in g['left'])
+    guide=GAME_GUIDES.get(g.get('kind'))
+    if guide and g['status']!='finished':desc+='\n\n**How to play:** '+safe(guide)
     e.description=desc[:4096]
     if g['kind']!='mines':e.set_image(url='attachment://minigame.png')
     e.set_footer(text=('Trivia: Open Trivia DB · CC BY-SA 4.0 | ' if g['kind']=='trivia' else '')+'Shark Minigames • '+g['id'][-6:])
@@ -635,9 +641,31 @@ class Arcade(discord.Client):
         self.lock=asyncio.Lock();self.state=None;self.channel=None;self.booted=False;self.tasks=[]
         self.ready_event=asyncio.Event();self.views={};self.sent={};self.last_click={};self.dirty=set();self.bank=[]
         self.last_human_activity=time.monotonic();self.idle_tip_sent=False
+        # Safe public-image cache keyed by game revision; never cache private cards.
+        self.image_cache=OrderedDict();self.image_cache_bytes=0
+        self.mine_panel_cache={}
+
+    async def public_png(self, g):
+        key=(str(g['id']),int(g['rev']))
+        cached=self.image_cache.get(key)
+        if cached is not None:
+            self.image_cache.move_to_end(key)
+            return cached
+        start=time.perf_counter()
+        result=await asyncio.to_thread(art.png,g)
+        LOG.info('minigames.render_png kind=%s ms=%.1f',g['kind'],(time.perf_counter()-start)*1000)
+        if len(result)<=4*1024*1024:
+            self.image_cache[key]=result;self.image_cache_bytes+=len(result)
+            # No secret/private variants: art.png(g, uid) is never cached here.
+            while self.image_cache and (len(self.image_cache)>32 or self.image_cache_bytes>16*1024*1024):
+                _,old=self.image_cache.popitem(last=False)
+                self.image_cache_bytes-=len(old)
+        return result
 
     async def save(self,tx,callback):
+        start=time.perf_counter()
         self.state=await asyncio.to_thread(store.transact,tx,callback)
+        LOG.info('minigames.transaction ms=%.1f', (time.perf_counter()-start)*1000)
 
     async def award_activity_for_game(self, gid):
         """Apply and visibly announce the one global daily activity bonus."""
@@ -728,6 +756,18 @@ class Arcade(discord.Client):
         panel_count=max(1,(height+3)//4)
         for panel in range(panel_count):
             message_id=old_ids[panel] if panel<len(old_ids) else None
+            lo,hi=panel*20,(panel+1)*20
+            # Discord controls accept stale revisions for Minefield clicks;
+            # untouched panels need not be edited on every unrelated move.
+            signature=(g.get('status'),
+                tuple(sorted(x for x in d.get('open',[]) if lo<=x<hi)),
+                tuple(sorted(x for x in d.get('flags',[]) if lo<=x<hi)))
+            cache_key=(g['id'],panel)
+            previous=self.mine_panel_cache.get(cache_key)
+            if (message_id and previous and previous[0]==message_id
+                    and previous[1]==signature and time.monotonic()-previous[2]<60):
+                ids.append(message_id)
+                continue
             view=mine_panel_view(g,panel)
             if message_id:
                 try:
@@ -738,6 +778,9 @@ class Arcade(discord.Client):
                 message=await self.channel.send(view=view)
                 message_id=message.id;changed=True
             ids.append(message_id)
+            self.mine_panel_cache[cache_key]=(message_id,signature,time.monotonic())
+        # Bound cached metadata; a restarted process always refreshes panels.
+        if len(self.mine_panel_cache)>256:self.mine_panel_cache.clear()
         for stale_id in old_ids[panel_count:]:
             try:await self.channel.get_partial_message(int(stale_id)).delete()
             except (discord.NotFound,discord.HTTPException):pass
@@ -764,7 +807,7 @@ class Arcade(discord.Client):
                 await self.save('message:'+g['id'],lambda s,w:s['games'][g['id']].update(message_id=message.id))
             await self.render_mine_panels(g)
             return message
-        image=await asyncio.to_thread(art.png,g)
+        image=await self.public_png(g)
         file=discord.File(io.BytesIO(image),filename='minigame.png')
         if g.get('message_id'):
             message=self.channel.get_partial_message(int(g['message_id']))
@@ -806,6 +849,7 @@ class Arcade(discord.Client):
                     await self.save('retire-racer-to-chessbot-v1',lambda s,w:engine.retire_legacy_racer_games(s,w,time.time()))
                     await self.save('retire-escape:'+engine.ESCAPE_BUILD,lambda s,w:engine.retire_legacy_escape_games(s,w,time.time()))
                     self.bank=json.loads(Path(__file__).with_name('minigames_trivia.json').read_text(encoding='utf-8'))['questions']
+                    self.bank.extend(chess_questions())  # Expert chess in every round of the trivia ladder.
                     await self.ensure_menu()
                     for gid,g in list(self.state['games'].items()):
                         if g['status']=='finished':
@@ -985,7 +1029,7 @@ class Arcade(discord.Client):
         self.last_human_activity=time.monotonic();self.idle_tip_sent=False
         raw_command=message.content.strip();command=raw_command.lower();token=command.split(' ',1)[0]
         allowed=('!i','!info','!help','!games','!minigames','!m','!menu','!blackjack','!bj','!stats','!mstats','!minigamestats','!coins','!bank','!balance','!bal','!balans','!quests','!quest','!q')
-        if token not in allowed:return
+        if token not in allowed and token not in ALIASES:return
         if not self.ready_event.is_set():return
         if token in ('!stats','!mstats','!minigamestats'):
             try:
@@ -1027,21 +1071,54 @@ class Arcade(discord.Client):
                 await message.reply('That coin balance could not be loaded. Please try again shortly.',
                                     mention_author=False, allowed_mentions=discord.AllowedMentions.none())
             return
-        # Text shortcut for the existing blackjack UI. Never auto-charge a stake:
-        # the user must choose 0-50 coins in the normal confirmation modal.
-        if command in ('!blackjack', '!bj'):
-            view = discord.ui.View(timeout=300)
-            button(view, 'Play Blackjack', 'mg:pick:blackjack', discord.ButtonStyle.primary)
-            await message.reply(
-                embed=discord.Embed(
-                    title='🃏 Blackjack',
-                    description='Select **Play Blackjack** to choose your stake (0 coins = free).',
-                    color=0x4dd6b6,
-                ),
-                view=view,
-                mention_author=False,
-                allowed_mentions=discord.AllowedMentions.none(),
-            )
+        # Ticket #016: every minigame has an exact text shortcut.
+        # Paid games still go through the existing 0-50 coin stake modal.
+        kind=parse_shortcut(raw_command)
+        if kind:
+            if kind in STAKE_CHOICES:
+                view=discord.ui.View(timeout=300)
+                button(view,'Play '+engine.KINDS[kind],'mg:pick:'+kind,discord.ButtonStyle.primary)
+                await message.reply(embed=discord.Embed(
+                    title=engine.KINDS[kind],
+                    description='Choose **Play** to confirm 0 coins (free) or a 1–50 coin stake. '
+                                'This command never charges your wallet.',
+                    color=0x4dd6b6),view=view,mention_author=False,
+                    allowed_mentions=discord.AllowedMentions.none())
+                return
+            if kind in MODE_CHOICES:
+                choices={
+                    'chessle':(chessle_mode_embed,chessle_mode_view),
+                    'math':(math_mode_embed,math_mode_view),
+                    'codebreaker':(codebreaker_mode_embed,codebreaker_mode_view),
+                }
+                embed,view=choices[kind]
+                await message.reply(embed=embed(),view=view(),mention_author=False,
+                                    allowed_mentions=discord.AllowedMentions.none())
+                return
+            # Free play: create the existing engine game without menu navigation.
+            # Multiplayer-friendly games still open a lobby; solo-only games start now.
+            gid=str(message.id);uid=str(message.author.id);name=message.author.display_name
+            seed=secrets.randbits(256)
+            try:
+                async with self.lock:
+                    now=time.time()
+                    def open_game(state,wallets):
+                        game=engine.create(state,wallets,gid,uid,name,kind,0,now)
+                        if kind in INSTANT_SOLO:
+                            engine.start(state,wallets,game,now,random.Random(seed),self.bank)
+                    await self.save('direct:'+gid,open_game)
+                    await self.refresh_one(gid)
+            except ValueError as exc:
+                await message.reply(str(exc),mention_author=False,
+                                    allowed_mentions=discord.AllowedMentions.none())
+            except Exception:
+                LOG.exception('Failed to open direct minigame %s',kind)
+                await message.reply('That game could not open. Please try again shortly.',
+                                    mention_author=False,allowed_mentions=discord.AllowedMentions.none())
+            return
+        if token in ALIASES:
+            await message.reply('Use the game command without arguments; choose stakes and modes through the normal buttons.',
+                                mention_author=False,allowed_mentions=discord.AllowedMentions.none())
             return
         # `!m` / `!menu` is deliberately tiny: game buttons without the rule wall.
         if command in ('!m','!menu'):
