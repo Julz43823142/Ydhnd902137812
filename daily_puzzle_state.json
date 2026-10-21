@@ -1,30 +1,30 @@
 {
   "latest_random_puzzle": {
-    "url": "https://lichess.org/training/U67Je",
-    "title": "Lichess • 2792",
-    "fen": "1n3rk1/7p/2p2np1/q1PpQ3/2r1pP1P/4Pb1B/p1P1N3/B1KR3R w - - 6 29",
-    "current_fen": "1n3rk1/7p/2p2np1/q1PpQ3/2r1pP1P/4Pb1B/p1P1N3/B1KR3R w - - 6 29",
-    "last_move_uci": "g4f3",
+    "url": "https://lichess.org/training/QdCH4",
+    "title": "Lichess • 1501",
+    "fen": "4r1k1/1p4pp/2p5/3p2q1/1P6/P2QB2P/4rPP1/5RKR b - - 2 28",
+    "current_fen": "4r1k1/1p4pp/2p5/3p2q1/1P6/P2QB2P/4rPP1/5RKR b - - 2 28",
+    "last_move_uci": "a7e3",
     "pgn": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq2SzCvGx-vVEPbwzM2so9MUF8p_qwTPGmHTPD7nHsBluqe9IR4I3Nx52Ld8S2_f9maH_PoX6sKw6MO-xuRosFju2VUrJ0oI_mPJNy-Lur8PpkFzc="
+      "__shark_answer_ciphertext_v1__": "gAAAAABq2SzJkBmB3JzXg6m-PATtqpZQMRksAytabRuIXo_cPFjU1flRWbv3q0TiKEhhDbMe1S7n3S2dGYDx2mDcLCNzJBm09CLT9WgHIiVOjUdAHTEO8p8="
     },
     "all_moves": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq2SzCS0HzHYwhULPzD5WifjT55g5_Lvwjkig4Ci4ujogXCV6508mfzcRG4oZdyzZBj0DDnWIFV2ZGnIWDGIqqY2IfC1KwLAi7lihC6VcMwPQgrY8PK7Vapkwb1apB3kW5IJTHf7H1kiQ53YZBLm8lQ5bRC3MbCHccZawx14sd64yZpoBWqtoOYkavnlE7IjD-AlA_7tJIT_EVDj2gGPylMvDoNEqCYKGMaSBn84hROkafbPklV8617O-5SvymqWXmPqrwsu3EpxWc47-nEJNN7aU5c2w-mTMkIe3aHJzkJB9Jk0IzvYuCumBnmSrtDZMzwbGbkH0ArZGyM45V9KejyNpLqp3VFi49TVpa5d4uqjRWWeU="
+      "__shark_answer_ciphertext_v1__": "gAAAAABq2SzJbFtxlcau3gH0rcIxM0q8FNYtYXCf0K7aluq7XDzqR2ZDXwdUX6-HrD_nOJuChvSnEwvE7p-lDqMSK-vSMZ7cEtMQs3DdaN3dwU9UX5N3pbEVxeqqDITxaasPEWq2y9kSxHI1ZFvzYKsCGMy9-5gpbKM8jJ5MtEHdgaZuYCFlww8WfA3iI1Km_cpSrfJtnSagNCqzzg5fzYrrTaWVVKYs7o3zFg_wiYUIwsUOzd-3qN5I_ckXbuGVH5Gqj9TcEd4d"
     },
     "player_moves": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq2SzCeJ--cgBRZsymGCK9By-OoPo2ZOvPtFd4pM-B2Qh0t12erRbKZH8VsCOQjkQu9Vj14aHEXotOhmCERRlwLupAL8w0x2DK7cJ2UytKfIcsnyAhgbjyBhawhzRkT6Y15wNKYkjy3Am1S4Gllxx-8ictHxaT9GCt7jpvzOHP7nhRlGN3W_8E__CMs0SwUP3TjV09HwH7Br1EEI26ZnI9phoCBGrZJcAC08Uu4W82MT2DzXAdMgRkeodEXOvc5-O9qUTT"
+      "__shark_answer_ciphertext_v1__": "gAAAAABq2SzJZMjyfiLVlo9o2yRcupCOdOV39FFj9UTAWdIC_rHxjjECJs7wlFFfmPJm0jjqz9Y6a3lbpz-N5PzvTceGhE8TJ_NWa3g9D3oC3VffwL_J9rtJW3-EH-_NkyCvPM-J3q5ZeYbB_Dp81CRBxqq2YJbdZAyGH0-DPd_w7CE3It5ZnhdTcQEFR9VXsyWiY85tQYWg"
     },
-    "player_color": "white",
-    "player_move_count": 3,
-    "posted_at": "2026-10-21T21:21:04.669976+00:00",
-    "answer_posted": true,
+    "player_color": "black",
+    "player_move_count": 2,
+    "posted_at": "2026-10-21T21:21:11.168027+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "random_U67Je_1792617664669",
-    "last_activity_at": "2026-10-21T21:21:04.669976+00:00",
-    "rating": 2792,
-    "rp_band": 5,
+    "puzzle_id": "random_QdCH4_1792617671168",
+    "last_activity_at": "2026-10-21T21:21:11.168027+00:00",
+    "rating": 1501,
+    "rp_band": 1,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
@@ -32,10 +32,8 @@
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_ids": {
-      "1468320170891022417": 1562576489986269345
-    },
-    "message_id": 1562576489986269345,
+    "message_ids": {},
+    "message_id": null,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {},
@@ -43,13 +41,9 @@
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "board_attachment_filenames": {
-      "1468320170891022417": "random_puzzle.png"
-    },
-    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Qe7 Kd2 Bc3"
+    "helper_candidate_users": []
   },
-  "latest_puzzle_type": "daily",
+  "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-21",
