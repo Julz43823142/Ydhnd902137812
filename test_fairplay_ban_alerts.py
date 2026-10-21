@@ -142,6 +142,34 @@ class Alerts(unittest.IsolatedAsyncioTestCase):
         channel.send.assert_not_called()
         self.assertEqual(self.store.snapshot()['outbox'][key]['message_id'],789)
 
+    def test_alert_embed_has_short_copy_order_and_readable_utc_date(self):
+        from fairplay_ban_alerts_ui import alert_embed
+        event={'target':'synthetic-player','opponent':'synthetic-opponent',
+               'url':'https://www.chess.com/game/live/123','games':2,
+               'detected':1792542419}
+        card=alert_embed(event,'synthetic-key')
+        self.assertEqual([field.name for field in card.fields],[
+            'Followed Chess.com account','Opponent','Official status',
+            'Public links','Times played','Detected by SharkBot','Get your own alerts'])
+        self.assertEqual(card.fields[4].value,'2 games')
+        self.assertEqual(card.fields[5].value,'October 21, 2026')
+        self.assertNotIn('Recorded meetings',str(card.to_dict()))
+        self.assertNotIn('Alert ID',str(card.to_dict()))
+        self.assertTrue(card.url.endswith('#sharkbot-alert-synthetic-key'))
+        event['games']=1
+        self.assertEqual(alert_embed(event,'synthetic-key').fields[4].value,'1 game')
+
+    async def test_old_footer_marker_still_reconciles(self):
+        key=self.event();reserve(self.store,key)
+        card=discord.Embed(title='Legacy alert')
+        card.set_footer(text='Alert ID: '+key)
+        async def history(**kwargs):
+            yield SimpleNamespace(id=790,author=SimpleNamespace(id=5),embeds=[card])
+        service=AlertService(SimpleNamespace(user=SimpleNamespace(id=5)),
+            SimpleNamespace(send=AsyncMock(),history=history),self.store,Settings())
+        await service.deliver()
+        self.assertEqual(self.store.snapshot()['outbox'][key]['message_id'],790)
+
     def test_independent_git_writers_cannot_both_claim_a_delivery(self):
         import subprocess
         import os
