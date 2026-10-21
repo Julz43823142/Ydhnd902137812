@@ -1,0 +1,35 @@
+{
+  "created_at": 1792597046,
+  "details": {
+    "activity": [
+      {
+        "action": "feature_played",
+        "kind": "blackjack",
+        "session_id": "1562489971557011507"
+      },
+      {
+        "action": "minigame_started",
+        "kind": "blackjack",
+        "name": "Thice",
+        "record_kind": "blackjack:standard",
+        "uid": "442597396195704832"
+      },
+      {
+        "action": "coins_spent",
+        "amount": 25.0,
+        "name": "Thice",
+        "uid": "442597396195704832"
+      }
+    ],
+    "escrow_change": 25.0,
+    "wallets": {
+      "442597396195704832": {
+        "after_coins": 73.45,
+        "before_coins": 98.45
+      }
+    }
+  },
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "minigames",
+  "transaction_id": "minigames:1562489999272968353"
+}
