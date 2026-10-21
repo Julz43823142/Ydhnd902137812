@@ -11,6 +11,7 @@ from zoneinfo import ZoneInfo
 
 from shark_version import SHARKBOT_VERSION
 from shark_ai_version import SHARKBOT_AI_VERSION
+from shark_public_help import public_help_reply, PUBLIC_FEATURE_KNOWLEDGE, CHESS_PUZZLE_HELP
 
 import aiohttp
 import discord
@@ -407,6 +408,13 @@ async def handle_mention(message, client):
             mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
         )
         return True
+    # Answer how-to requests before action intent is considered. This never
+    # executes a command or assumes permissions beyond this user's channel.
+    navigation_reply = public_help_reply(prompt)
+    if navigation_reply is not None:
+        await _counted_reply(message, navigation_reply, mention_author=False,
+                             allowed_mentions=discord.AllowedMentions.none())
+        return True
     # Deterministic chess-puzzle routing: never let the language model
     # fabricate an ASCII puzzle. Follow-ups use only this channel's context.
     from shark_puzzle_intent import puzzle_request
@@ -417,7 +425,7 @@ async def handle_mention(message, client):
         if await dispatch_puzzle_request(message, client, puzzle_kind):
             return True
         await _counted_reply(message,
-            "Please start puzzles in a SharkBot chess channel.",
+            CHESS_PUZZLE_HELP,
             mention_author=False, allowed_mentions=discord.AllowedMentions.none())
         return True
     if _asks_public_version(prompt):
@@ -647,6 +655,7 @@ async def handle_mention(message, client):
                         ". Speak AS that pet, with this consistent character: " + repr(profile) +
                         ". This is roleplay only: do not assert pet ownership, inventory, rewards or game actions.")
         messages = [{"role": "system", "content": SYSTEM_RULES + "\\n" + persona}]
+        messages.append({"role": "system", "content": PUBLIC_FEATURE_KNOWLEDGE})
         if chat_only:
             messages.append({"role": "system", "content": "In this channel, only the deterministic Fair Play review handler can start scans; you cannot start them through chat generation. Never claim to have reviewed games or verified misconduct. If someone requests a Chess.com review, tell them to use /fairplay username or mention SharkBot with a clear review request. Direct ban-alert subscription requests to /alert."})
         for _, role, text in _history[scope]:
@@ -677,6 +686,10 @@ async def handle_mention(message, client):
         try:
             await asyncio.wait_for(_slots.acquire(), timeout=MAX_WAIT_SECONDS)
         except asyncio.TimeoutError:
+            await _counted_reply(message,
+                "I am handling other requests right now. Please try again in a moment. "
+                "For games, type `!menu` in the relevant bot channel.",
+                mention_author=False, allowed_mentions=discord.AllowedMentions.none())
             return True
         try:
             async with message.channel.typing():
