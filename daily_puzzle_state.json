@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/Yqgut",
     "title": "Lichess • 2468",
     "fen": "1r2r2k/p1pbq1pp/3b4/4np2/8/1BP2NB1/PP3PPP/R2QR1K1 b - - 4 17",
-    "current_fen": "1r2r2k/p1pbq1pp/3b4/4np2/8/1BP2NB1/PP3PPP/R2QR1K1 b - - 4 17",
-    "last_move_uci": "d5b3",
+    "current_fen": "1r2r2k/p1pbq1pp/3b4/5p2/8/1BP2PB1/PP3P1P/R2QR1K1 b - - 0 18",
+    "last_move_uci": "g2f3",
     "pgn": {
       "__shark_answer_ciphertext_v1__": "gAAAAABq2OFQaTuQPIyEEJHmmKC19emxhcG6wyMDxyxIUpg0aEq6ljBTBhnxWT6EfFN0SOTFLxeaELRF8UBl8LZnpiQXOjrgeOAYxSB8nL8ucUGhUp6XSGnc24Tlf6bcYYaTsDfyY33R"
     },
@@ -22,32 +22,60 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_Yqgut_1792598352439",
-    "last_activity_at": "2026-10-21T15:59:12.439412+00:00",
+    "last_activity_at": "2026-10-21T15:59:42.666540+00:00",
     "rating": 2468,
     "rp_band": 4,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1562495538434281483
+      "1468320170891022417": 1562495608491614359
     },
-    "message_id": 1562495538434281483,
+    "message_id": 1562495608491614359,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "attempted_users": {
+      "442597396195704832": {
+        "name": "Thice",
+        "move": "Nxf3",
+        "correct": true,
+        "timestamp": "2026-10-21T15:59:42.666824+00:00"
+      }
+    },
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
-    "last_manual_bump": 1792598365.8612761
+    "last_manual_bump": 1792598365.8612761,
+    "last_card_activity_at": "2026-10-21T15:59:42.666540+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1792598382.6668296,
+        "fen_before": "1r2r2k/p1pbq1pp/3b4/4np2/8/1BP2NB1/PP3PPP/R2QR1K1 b - - 4 17",
+        "expected": {
+          "uci": "e5f3",
+          "san": "Nxf3+",
+          "color": "black"
+        },
+        "accepted_uci": "e5f3"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "Nxf3+",
+        "uci": "e5f3",
+        "principal": true
+      }
+    ],
+    "last_feedback": "**✅ Correct! 3 moves remaining.**\n↩️ **Opponent replies:** gxf3"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
