@@ -39,6 +39,7 @@ jobs:
           python -m py_compile quests.py shared_leaderboard.py minigames/*.py
           python -m unittest test_quests.py
           python -m unittest discover -s minigames -p test_minigames.py
+          python minigames/benchmark_minigames.py --samples 2
 
   minigames:
     permissions:
