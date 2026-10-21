@@ -424,6 +424,14 @@
             "daily:2026-10-21:puzzle:solve-8": 1
           },
           "updated_at": 1792581225
+        },
+        "550338389535227926": {
+          "name": "Nairyaaa",
+          "paid": [],
+          "progress": {
+            "daily:2026-10-21:minigame:minigame-1": 1
+          },
+          "updated_at": 1792584645
         }
       }
     },
@@ -669,9 +677,9 @@
             "weekly:2026-10-19:minigame:minigame-8"
           ],
           "progress": {
-            "weekly:2026-10-19:minigame:minigame-8": 18
+            "weekly:2026-10-19:minigame:minigame-8": 19
           },
-          "updated_at": 1792513336
+          "updated_at": 1792584645
         }
       }
     }
