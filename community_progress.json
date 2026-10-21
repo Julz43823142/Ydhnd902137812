@@ -190,7 +190,8 @@
         "coins_earned": 6.0,
         "contribution": 0.001333,
         "minigame_win": 1,
-        "new_cosmetics": 0
+        "new_cosmetics": 0,
+        "pet_levels_gained": 0
       },
       "442597396195704832": {
         "coins_earned": 93.0,
