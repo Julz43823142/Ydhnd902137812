@@ -1118,3 +1118,46 @@ class IntegratedTicketUITests(unittest.IsolatedAsyncioTestCase):
         app.refresh_one.assert_awaited_once_with('31337')
         msg.reply.assert_not_awaited()
         await app.close()
+
+
+
+class MathRushDurabilityTests(unittest.IsolatedAsyncioTestCase):
+    """Never delete a chat answer until the authoritative transaction succeeds."""
+
+    async def test_git_failure_keeps_unsaved_math_answer(self):
+        import minigames as ui
+        from types import SimpleNamespace
+        from unittest.mock import AsyncMock
+
+        state,wallets=setup('math',n=1)
+        start(state,wallets)
+        app=ui.Arcade();app.state=state;app.bank=bank()
+        app.save=AsyncMock(side_effect=RuntimeError('simulated Git outage'))
+        app._delete_math_answer=AsyncMock()
+        app.refresh_one=AsyncMock()
+        channel=SimpleNamespace(id=ui.CHANNEL_ID,send=AsyncMock())
+        message=SimpleNamespace(id=9001,content='42',channel=channel,
+                                author=SimpleNamespace(id=0,display_name='P0'))
+        self.assertTrue(await app.handle_math_message(message))
+        app._delete_math_answer.assert_not_awaited()
+        channel.send.assert_awaited_once()
+        await app.close()
+
+    async def test_successful_commit_removes_math_answer(self):
+        import minigames as ui
+        from types import SimpleNamespace
+        from unittest.mock import AsyncMock
+        state,wallets=setup('math',n=1)
+        start(state,wallets)
+        app=ui.Arcade();app.state=state;app.bank=bank()
+        app.save=AsyncMock();app.refresh_one=AsyncMock()
+        app.award_activity_for_game=AsyncMock()
+        app.award_quests_for_game=AsyncMock()
+        app._delete_math_answer=AsyncMock(return_value=True)
+        channel=SimpleNamespace(id=ui.CHANNEL_ID,send=AsyncMock())
+        message=SimpleNamespace(id=9002,content='42',channel=channel,
+                                author=SimpleNamespace(id=0,display_name='P0'))
+        self.assertTrue(await app.handle_math_message(message))
+        app.save.assert_awaited_once()
+        app._delete_math_answer.assert_awaited_once_with(message)
+        await app.close()
