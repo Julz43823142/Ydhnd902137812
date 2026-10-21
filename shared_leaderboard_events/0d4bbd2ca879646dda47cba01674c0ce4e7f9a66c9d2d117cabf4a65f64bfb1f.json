@@ -1,0 +1,24 @@
+{
+  "created_at": 1792598597,
+  "details": {
+    "activity": [
+      {
+        "action": "feature_played",
+        "kind": "chessle",
+        "session_id": "1562496463706001449"
+      },
+      {
+        "action": "minigame_started",
+        "kind": "chessle",
+        "name": "Thice",
+        "record_kind": "chessle:normal",
+        "uid": "442597396195704832"
+      }
+    ],
+    "escrow_change": 0,
+    "wallets": {}
+  },
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "minigames",
+  "transaction_id": "minigames:1562496500297244714"
+}
