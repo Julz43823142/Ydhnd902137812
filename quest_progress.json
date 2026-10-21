@@ -419,11 +419,13 @@
       "users": {
         "362606514764251137": {
           "name": "Sharkmeister",
-          "paid": [],
+          "paid": [
+            "daily:2026-10-21:minigame:minigame-1"
+          ],
           "progress": {
             "daily:2026-10-21:minigame:minigame-1": 1
           },
-          "updated_at": 1792588016
+          "updated_at": 1792588023
         },
         "442597396195704832": {
           "name": "Thice",
