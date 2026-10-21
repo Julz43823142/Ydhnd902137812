@@ -1,0 +1,35 @@
+{
+  "created_at": 1792586611,
+  "details": {
+    "activity": [
+      {
+        "action": "feature_played",
+        "kind": "blackjack",
+        "session_id": "1562446181588803654"
+      },
+      {
+        "action": "minigame_started",
+        "kind": "blackjack",
+        "name": "Nairyaaa",
+        "record_kind": "blackjack:standard",
+        "uid": "550338389535227926"
+      },
+      {
+        "action": "coins_spent",
+        "amount": 10.0,
+        "name": "Nairyaaa",
+        "uid": "550338389535227926"
+      }
+    ],
+    "escrow_change": 10.0,
+    "wallets": {
+      "550338389535227926": {
+        "after_coins": 32.0,
+        "before_coins": 42.0
+      }
+    }
+  },
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "minigames",
+  "transaction_id": "minigames:1562446231890960424"
+}
