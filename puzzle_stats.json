@@ -329,9 +329,11 @@
         "first_blood",
         "learning_experience",
         "first_to_strike",
+        "quick_draw",
         "giant_killer",
         "boss_encounter",
-        "boss_slayer"
+        "boss_slayer",
+        "boss_first_blood"
       ],
       "admin_rated": false,
       "best_hard_streak_2600": 1,
@@ -339,7 +341,7 @@
       "best_wrong_streak": 1,
       "boss_attempts": 1,
       "boss_correct": 1,
-      "boss_first_solves": 0,
+      "boss_first_solves": 1,
       "comeback_count": 2,
       "correct": 3,
       "correct_2000": 1,
@@ -351,14 +353,14 @@
       "current_wrong_streak": 0,
       "elo": 1572.7895868088056,
       "elo_games": 5,
-      "first_solves": 4,
+      "first_solves": 5,
       "max_rating_solved": 2704,
       "name": "Nairyaaa",
       "peak_elo": 1572.7895868088056,
       "rated_correct_count": 3,
       "rated_correct_rating_sum": 6021,
       "total": 5,
-      "updated_at": 1792585768,
+      "updated_at": 1792585844,
       "wrong": 2
     },
     "601406103712170014": {
