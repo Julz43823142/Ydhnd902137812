@@ -1009,3 +1009,112 @@ class Rematches(unittest.TestCase):
         e.action(state,wallets,new['id'],'2','Player 2','join','',1008,random.Random(2),bank())
         e.action(state,wallets,new['id'],'0','Player 0','start','',1009,random.Random(2),bank())
         self.assertEqual(new['status'],'playing')
+
+
+
+class IntegratedTicketsTests(unittest.TestCase):
+    """Tickets #015/#016/#017: immutable money rules and all-command coverage."""
+
+    def test_ticket_015_dealer_natural_loss_is_paid_before_stake_change(self):
+        import minigames_blackjack as bj
+        state,wallets=setup('blackjack',10,1)
+        player=['9c','8d'];dealer=['As','Kh']
+        natural={'player':player,'dealer':dealer,'deck':['2c','3d','4s'],
+                 'hands':[bj._hand(player)],'active_hand':0,'phase':'player',
+                 'notice':'Opening hand','phase_rev':0}
+        with patch.object(bj,'new',return_value=natural):
+            game=start(state,wallets)
+        self.assertEqual(game['status'],'finished')
+        self.assertEqual(wallets['0']['coins'],90)
+        self.assertEqual(game['stats_net']['0'],-10)
+        self.assertFalse(game['reserved'])
+        self.assertEqual(game['data']['dealer'],dealer)
+        # Player may start ANOTHER hand, but pays for it and retains the earlier loss.
+        fresh={'player':['9d','8c'],'dealer':['7s','6h'],'deck':['2c','3d','4s'],
+               'hands':[bj._hand(['9d','8c'])],'active_hand':0,'phase':'player',
+               'notice':'Another hand','phase_rev':0}
+        with patch.object(bj,'new',return_value=fresh):
+            e.action(state,wallets,'g','0','Player 0','replay_stake','25',
+                     1004,random.Random(9),bank(),game['rev'])
+        self.assertEqual(game['status'],'playing')
+        self.assertEqual(game['stake'],25)
+        self.assertEqual(wallets['0']['coins'],65)
+        self.assertEqual(e.stats_for_user(state,'0')['games']['blackjack']['coin_net'],-10)
+        with self.assertRaisesRegex(ValueError,'not ready for a replay'):
+            e.action(state,wallets,'g','0','Player 0','replay_stake','0',
+                     1005,random.Random(10),bank(),game['rev'])
+        self.assertEqual(wallets['0']['coins'],65)
+        with self.assertRaisesRegex(ValueError,'board changed'):
+            e.action(state,wallets,'g','0','Player 0','stand','',
+                     1005,random.Random(11),bank(),game['rev']-2)
+
+    def test_ticket_016_every_game_direct_alias_and_no_paid_arguments(self):
+        from minigames_shortcuts import ALIASES, parse_shortcut, STAKE_CHOICES
+        self.assertEqual(set(ALIASES.values()),set(e.KINDS))
+        self.assertEqual(parse_shortcut('!CHESS'),'chessle')
+        self.assertEqual(parse_shortcut('!blackjack'),'blackjack')
+        self.assertIsNone(parse_shortcut('!blackjack 50'))
+        self.assertIsNone(parse_shortcut('!trivia anything'))
+        self.assertEqual(STAKE_CHOICES,{'connect','ships','rps','blackjack'})
+
+    def test_ticket_017_expert_chess_questions_six_in_fifteen(self):
+        from minigames_chess_trivia import chess_questions
+        questions=chess_questions()
+        self.assertEqual(len(questions),12)
+        self.assertEqual(len(set(q['id'] for q in questions)),12)
+        for q in questions:
+            self.assertEqual(len(set(q['options'])),4)
+            self.assertIn(q['answer'],q['options'])
+            self.assertEqual(q['category'],'Chess')
+        selected=select_ladder(bank()+questions,set(),random.Random(123))
+        self.assertEqual(len(selected),15)
+        self.assertEqual(sum(q['category']=='Chess' for q in selected),6)
+        self.assertEqual(len(set(q['id'] for q in selected)),15)
+        self.assertIn('17...Be6!!',[q['answer'] for q in questions])
+
+    def test_all_fifteen_games_have_clear_onboarding(self):
+        from minigames_game_guides import GAME_GUIDES
+        self.assertEqual(set(GAME_GUIDES),set(e.KINDS))
+        self.assertTrue(all(len(s)>45 for s in GAME_GUIDES.values()))
+
+    def test_codebreaker_immutable_universe_is_cached(self):
+        a=e.codebreaker_universe(5)
+        self.assertEqual(len(a),100000)
+        self.assertIs(a,e.codebreaker_universe(5))
+        with self.assertRaises(ValueError):e.codebreaker_universe(7)
+
+
+class IntegratedTicketUITests(unittest.IsolatedAsyncioTestCase):
+    async def test_public_art_cache_is_reused_only_for_exact_revision(self):
+        import minigames as ui
+        from unittest.mock import patch
+        app=ui.Arcade()
+        g={'id':'g','rev':2,'kind':'lingo'}
+        with patch.object(ui.art,'png',side_effect=[b'first',b'second']) as painter:
+            self.assertEqual(await app.public_png(g),b'first')
+            self.assertEqual(await app.public_png(g),b'first')
+            self.assertEqual(painter.call_count,1)
+            g['rev']=3
+            self.assertEqual(await app.public_png(g),b'second')
+            self.assertEqual(painter.call_count,2)
+        await app.close()
+
+    async def test_direct_free_lingo_opens_and_starts_without_menu(self):
+        import minigames as ui
+        from types import SimpleNamespace
+        from unittest.mock import AsyncMock
+        app=ui.Arcade();app.ready_event.set();app.handle_math_message=AsyncMock(return_value=False)
+        app.bank=bank();app.state={'games':{},'seen':{},'daily':{}}
+        wallet={'123':{'name':'Thice','coins':100.,'points':0.,'active_badge':''}}
+        async def saved(tx,callback):callback(app.state,wallet)
+        app.save=saved;app.refresh_one=AsyncMock()
+        msg=SimpleNamespace(
+            id=31337, author=SimpleNamespace(id=123,bot=False,display_name='Thice'),
+            channel=SimpleNamespace(id=ui.CHANNEL_ID),content='!lingo',reply=AsyncMock())
+        await app.on_message(msg)
+        self.assertEqual(app.state['games']['31337']['kind'],'lingo')
+        self.assertEqual(app.state['games']['31337']['status'],'playing')
+        self.assertEqual(wallet['123']['coins'],100.)
+        app.refresh_one.assert_awaited_once_with('31337')
+        msg.reply.assert_not_awaited()
+        await app.close()
