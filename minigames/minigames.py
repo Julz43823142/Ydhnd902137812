@@ -992,12 +992,13 @@ class Arcade(discord.Client):
         gid=self._math_for_user(str(message.author.id))
         if not gid:return False
         uid=str(message.author.id);name=message.author.display_name
-        await self._delete_math_answer(message)
+        saved=False
         try:
             async with self.lock:
                 now=time.time();seed=secrets.randbits(256)
                 def mutate(s,w):engine.action(s,w,gid,uid,name,'math_answer',value,now,random.Random(seed),self.bank,None)
                 await self.save('math-msg:'+str(message.id),mutate)
+                saved=True  # Only remove a submitted answer after durable state has committed.
                 g=self.state['games'][gid];d=g.get('data',{})
                 await self.award_activity_for_game(gid)
                 await self.award_quests_for_game(gid)
@@ -1014,6 +1015,10 @@ class Arcade(discord.Client):
             text=str(exc) if isinstance(exc,ValueError) else 'That Math Rush answer could not be confirmed.'
             try:await message.channel.send(text,delete_after=3.0,allowed_mentions=discord.AllowedMentions.none())
             except Exception:pass
+        finally:
+            # If persistence failed, retain the player's input for a retry.
+            if saved:
+                await self._delete_math_answer(message)
         return True
 
     async def send_stats(self, target, user, *, ephemeral=False):
