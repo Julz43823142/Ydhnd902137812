@@ -1,0 +1,23 @@
+{
+  "created_at": 1792598461,
+  "details": {
+    "activity": [
+      {
+        "action": "coins_spent",
+        "amount": 1.0,
+        "name": "Nairyaaa",
+        "uid": "550338389535227926"
+      }
+    ],
+    "escrow_change": 1.0,
+    "wallets": {
+      "550338389535227926": {
+        "after_coins": 8.0,
+        "before_coins": 9.0
+      }
+    }
+  },
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "minigames",
+  "transaction_id": "minigames:1562495927908831254"
+}
