@@ -1284,7 +1284,7 @@ def trivia_end_round(state,wallets,g,now):
     g['deadline']=now+7
     if d['round']==len(d['questions'])-1:
         # Five questions: easy=0, medium=0.5, hard=1; maximum 3 coins.
-        rewards={uid:(trivia_coins(d['blocks'][uid]) if 'blocks' in d else (0 if n==0 else 0)) for uid,n in d['correct'].items() if uid not in g.get('left',[])}
+        rewards={uid:(trivia_coins(d['blocks'][uid]) if 'blocks' in d else 0) for uid,n in d['correct'].items() if uid not in g.get('left',[])}
         winners=[uid for uid,n in rewards.items() if n>0]
         finish(state,wallets,g,winners,now,'Knowledge ladder complete.',rewards)
 
