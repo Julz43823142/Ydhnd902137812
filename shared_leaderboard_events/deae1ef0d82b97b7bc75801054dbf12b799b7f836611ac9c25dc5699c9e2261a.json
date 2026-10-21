@@ -1,0 +1,69 @@
+{
+  "created_at": 1792588014,
+  "details": {
+    "activity": [
+      {
+        "action": "games_completed",
+        "name": "Server",
+        "uid": "server"
+      },
+      {
+        "action": "minigame_completed",
+        "kind": "poker",
+        "name": "Jesse2011",
+        "record_kind": "poker:standard",
+        "score": null,
+        "uid": "1455217865249652799"
+      },
+      {
+        "action": "game:poker",
+        "kind": "poker",
+        "name": "Jesse2011",
+        "record_kind": "poker:standard",
+        "uid": "1455217865249652799"
+      },
+      {
+        "action": "minigame_completed",
+        "kind": "poker",
+        "name": "Sharkmeister",
+        "record_kind": "poker:standard",
+        "score": null,
+        "uid": "362606514764251137"
+      },
+      {
+        "action": "game:poker",
+        "kind": "poker",
+        "name": "Sharkmeister",
+        "record_kind": "poker:standard",
+        "uid": "362606514764251137"
+      },
+      {
+        "action": "minigame_win",
+        "kind": "poker",
+        "name": "Sharkmeister",
+        "record_kind": "poker:standard",
+        "uid": "362606514764251137"
+      },
+      {
+        "action": "minigame_completed",
+        "kind": "poker",
+        "name": "Thice",
+        "record_kind": "poker:standard",
+        "score": null,
+        "uid": "442597396195704832"
+      },
+      {
+        "action": "game:poker",
+        "kind": "poker",
+        "name": "Thice",
+        "record_kind": "poker:standard",
+        "uid": "442597396195704832"
+      }
+    ],
+    "escrow_change": 0,
+    "wallets": {}
+  },
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "minigames",
+  "transaction_id": "minigames:1562452116016992256"
+}
