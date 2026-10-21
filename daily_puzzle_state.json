@@ -22,7 +22,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_KJgqn_1792586191452",
-    "last_activity_at": "2026-10-21T12:40:12.716904+00:00",
+    "last_activity_at": "2026-10-21T12:40:15.326267+00:00",
     "rating": 1551,
     "rp_band": 1,
     "boss": false,
@@ -33,17 +33,17 @@
     "next_player_index": 0,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1562445402647560255
+      "1468320170891022417": 1562445413523525653
     },
-    "message_id": 1562445402647560255,
+    "message_id": 1562445413523525653,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "550338389535227926": {
         "name": "Nairyaaa",
-        "move": "Kg5",
+        "move": "Kg4",
         "correct": false,
-        "timestamp": "2026-10-21T12:40:12.717138+00:00"
+        "timestamp": "2026-10-21T12:40:15.326472+00:00"
       }
     },
     "first_move_user_id": null,
@@ -54,12 +54,12 @@
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
-    "last_card_activity_at": "2026-10-21T12:40:12.716904+00:00",
+    "last_card_activity_at": "2026-10-21T12:40:15.326267+00:00",
     "recent_accepted_moves": [],
     "wrong_attempt_counts": {
-      "550338389535227926": 10
+      "550338389535227926": 11
     },
-    "last_feedback": "❌ **Almost, Nairyaaa. you were closer than the evaluation bar makes it look.**\n↪️ **Move played:** `Kg5`"
+    "last_feedback": "❌ **Not quite, Nairyaaa — that was close, but the puzzle is picky.**\n↪️ **Move played:** `Kg4`"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
