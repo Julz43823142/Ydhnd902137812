@@ -22,7 +22,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_KJgqn_1792586191452",
-    "last_activity_at": "2026-10-21T12:37:14.206349+00:00",
+    "last_activity_at": "2026-10-21T12:37:49.030078+00:00",
     "rating": 1551,
     "rp_band": 1,
     "boss": false,
@@ -33,17 +33,17 @@
     "next_player_index": 0,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1562444654450966569
+      "1468320170891022417": 1562444800093855875
     },
-    "message_id": 1562444654450966569,
+    "message_id": 1562444800093855875,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "550338389535227926": {
         "name": "Nairyaaa",
-        "move": "Ke6",
+        "move": "Nc4",
         "correct": false,
-        "timestamp": "2026-10-21T12:37:14.206567+00:00"
+        "timestamp": "2026-10-21T12:37:49.030347+00:00"
       }
     },
     "first_move_user_id": null,
@@ -54,12 +54,12 @@
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
-    "last_card_activity_at": "2026-10-21T12:37:14.206349+00:00",
+    "last_card_activity_at": "2026-10-21T12:37:49.030078+00:00",
     "recent_accepted_moves": [],
     "wrong_attempt_counts": {
-      "550338389535227926": 1
+      "550338389535227926": 2
     },
-    "last_feedback": "❌ **Nice try, Nairyaaa — you found a good-looking move, just not the best one.**\n↪️ **Move played:** `Ke6`"
+    "last_feedback": "❌ **The board says no, Nairyaaa: the solution needs a bit more patience.**\n↪️ **Move played:** `Nc4`"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
