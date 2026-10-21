@@ -2,21 +2,21 @@
 import re
 CHESS_PUZZLE_HELP = (
     "To start chess puzzles, visit <#1468320170891022417> or <#1546557493038284840>. "
-    "Type \`r\` or \`rp\` for a random puzzle, \`p\` or \`!practice\` for "
-    "rated practice, and answer with a move such as \`Re4\`. "
-    "Type \`!menu\` for the chess menu. These are text commands, not slash commands."
+    "Type `r` or `rp` for a random puzzle, `p` or `!practice` for "
+    "rated practice, and answer with a move such as `Re4`. "
+    "Type `!menu` for the chess menu. These are text commands, not slash commands."
 )
 MINIGAMES_HELP = (
-    "Play in <#1546155761405788230>. Browse with \`!menu\`, or go directly "
-    "to a game with \`!blackjack\`, \`!trivia\`, \`!chessle\`, \`!poker\`, "
-    "\`!minefield\`, \`!lingo\` and more. A lobby, mode choice or stake "
+    "Play in <#1546155761405788230>. Browse with `!menu`, or go directly "
+    "to a game with `!blackjack`, `!trivia`, `!chessle`, `!poker`, "
+    "`!minefield`, `!lingo` and more. A lobby, mode choice or stake "
     "confirmation may still be needed. Chessle is opening guessing, not normal chess."
 )
 CHESSLE_HELP = (
     "Chessle is a chess-opening guessing minigame, not an interactive chessboard. "
-    "In <#1546155761405788230>, type \`!chessle\` (or \`!chess\`) and pick "
+    "In <#1546155761405788230>, type `!chessle` (or `!chess`) and pick "
     "Normal or Expert. For chess puzzles instead, visit <#1468320170891022417> "
-    "or <#1546557493038284840> and type \`r\`."
+    "or <#1546557493038284840> and type `r`."
 )
 PUBLIC_FEATURE_KNOWLEDGE = (
     "Verified public game navigation: \n" + CHESS_PUZZLE_HELP + "\n"
