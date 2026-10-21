@@ -323,6 +323,39 @@
       "updated_at": 1792581225,
       "wrong": 74
     },
+    "550338389535227926": {
+      "achievements": [
+        "first_steps",
+        "first_blood"
+      ],
+      "admin_rated": false,
+      "best_hard_streak_2600": 0,
+      "best_streak": 1,
+      "best_wrong_streak": 0,
+      "boss_attempts": 0,
+      "boss_correct": 0,
+      "boss_first_solves": 0,
+      "comeback_count": 0,
+      "correct": 1,
+      "correct_2000": 0,
+      "correct_2400": 0,
+      "correct_2600": 0,
+      "correct_2800": 0,
+      "current_hard_streak_2600": 0,
+      "current_streak": 1,
+      "current_wrong_streak": 0,
+      "elo": 1528.3293976337304,
+      "elo_games": 1,
+      "first_solves": 0,
+      "max_rating_solved": 1855,
+      "name": "Nairyaaa",
+      "peak_elo": 1528.3293976337304,
+      "rated_correct_count": 1,
+      "rated_correct_rating_sum": 1855,
+      "total": 1,
+      "updated_at": 1792585279,
+      "wrong": 0
+    },
     "601406103712170014": {
       "achievements": [
         "first_steps",
