@@ -52,95 +52,38 @@
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
-    "url": "https://www.chess.com/daily/2026-10-20",
-    "title": "Break It Up!",
-    "fen": "8/bR3r1k/2p1p2p/p3p1p1/P3P1N1/5rP1/2P2PKP/4R3 w - - 0 29",
-    "current_fen": "8/r6k/2p1p2p/p3p1p1/P3P1N1/5KP1/2P2P1P/4R3 b - - 0 30",
-    "last_move_uci": "g2f3",
+    "url": "https://www.chess.com/daily/2026-10-21",
+    "title": "Drop It Like It’s Hot 🔥",
+    "fen": "r1b2r1k/5Bpp/pq6/1p2p3/4P2Q/P3b3/1PP1n1PP/R4R1K w - - 0 19",
+    "current_fen": "r1b2r1k/5Bpp/pq6/1p2p3/4P2Q/P3b3/1PP1n1PP/R4R1K w - - 0 19",
+    "last_move_uci": null,
     "pgn": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq2Euxeprqo1ZKjOvJpEsJO5fVgcUr9xG3pbSRhYhwiHTXL0JEsy20VtrKyNI-ehmvo2qA_kdk8zqmumxgSyyVPin9zHvux9BNu92SqLcJtk548C7K1cN1EEgWR-p34V2nYEHlMeLpxrRXWDHofadjE8eyHA6dVhq9JVW3PgMaQxGV2mVHaAonckAhOO5HdkXaQo31fRZ9b_6HX0W4FYgDJizh7hyBcXWuO4trSqgooJkhTik5JZKZ2W3AiJv_skra44bhN60nK4GKSnfpRFetvrZ-Rs562VgyqlMp1ynd2Ui-dT_Qp5I7zyLekzPQOZIYtZlv"
+      "__shark_answer_ciphertext_v1__": "gAAAAABq2GyzsHqXfQbsTQLskt2fM7mLLzaQyVVOGNdFxbnNGVYDa6nnIcvlqOdTnYcVCs2v4E6YyBRWCLthoFF41xjbNguT24623cm8ZPcLZm-cj5pkT4Y5tctTyuIhqHi3IRcM7tcfx7AdgAGYp8J2ZhPYFZeb-yeWfLrs41iH339fff1yCdNw9uL9SIeOWPJpmo1z8oxYevJVa417CmVxqsDZwmwK2IKvjshmMHDUWFdpvVkl6mHoEtnmJKIjp8Iv7WYeYnpgO7-6-QSBLr9vocCUh5-k7j2jN1oPcpAj5C9ShE1mFyAxotYf60xegsY79ko-ZJxY"
     },
     "all_moves": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq2EuxCi1C4vxAejubzVPpk0qERijxK9lkjZVOSDz3ATxGVvUG5TuIoKTSfcSdbz4S16EQG-h3JSlHmnSiml7UfBXQlzzOl9W8ssFnypvrkZgAoeKi0Urkb6udReoEGiBf1EDYlWmwUGQkCnfyqwRX1Xn21TvUE8Os-3AcnITZMz7hLGMSh0Y2muhzmpMC67MyETMFBnT701_Uh7Umatx_ZO8tfOFI--FoCrJdOaGw-cSAKd_wblip60XAjE8dTsQ5gUlc"
+      "__shark_answer_ciphertext_v1__": "gAAAAABq2GyzBVzKc7WTp9B2JB6PoSOQ__7mSG8VxrioI4bvloU8vih9sefdFRRB85MOUZxgUHg3YpD04_IDIbFW3QHg5ErBTXJhOEVX0TN0ZUOmAHBsaDVR5QjNk0SBfyDjccMp2BBt_RsDVENyFX3VtPb0H3OriAqVY5LXcZNm7uDDM10VaafRcFGsvzPu6rMnPa_QUCKFk1wVoFE4HleZZkdLNXjE0wlCfJz3wUK9B-HT4goQsU2KOYsR2YBd2RukdkSrlMBS"
     },
     "player_moves": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq2EuxaSYbUGUF6BVTdXhXRzFVpJX37frLgz3ZyahbnqFmoZSTGmdXZPdk70_qkUm1wDib88b6Ld7HgZvVRPI71YwZnoKRwMPCqpohluwVC1dAcunqKCLdyRQFJhnwX2ohWMb4g6Or2SYYvpAM0TyhKVxbtgUdFEknvONxfgnPR6O4O6AoVtoRiCmUNAK70SJRfGdZ"
+      "__shark_answer_ciphertext_v1__": "gAAAAABq2GyzeqKMK2Nctt2Vdp25t1rg52PKnl3pUNetIhVsrlc8sfUwBcZ3o3Mf3_86WsjZ_mU80GaW9cp3-ddV_EVyRxsto4W0ElRMOlcoNm61N8L9odD07CNvUwKM-0zdMQv_oBTNGL_G1HLN98YTxaI8XjEcJwhrY59mpeOHzvZIt4CuJ6QgdRJW_FMbqoc__rdU39KE"
     },
     "player_color": "white",
     "player_move_count": 2,
-    "posted_at": "2026-10-20T07:41:10.574486+00:00",
-    "answer_posted": true,
+    "posted_at": "2026-10-21T07:41:39.243365+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "daily_1792482070574",
-    "next_solution_index": 3,
-    "next_player_index": 2,
-    "solved": true,
-    "message_id": 1562144553694142595,
-    "attempted_users": {
-      "442597396195704832": {
-        "name": "Thice",
-        "move": "Kxf3",
-        "correct": true,
-        "timestamp": "2026-10-20T16:44:44.709656+00:00"
-      }
-    },
-    "first_move_user_id": "442597396195704832",
-    "first_move_user_name": "Thice",
-    "first_move_awarded": true,
+    "puzzle_id": "daily_1792568499243",
+    "next_solution_index": 0,
+    "next_player_index": 0,
+    "solved": false,
+    "message_id": null,
+    "attempted_users": {},
+    "first_move_user_id": null,
+    "first_move_user_name": null,
+    "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "message_ids": {
-      "1468320170891022417": 1562144553694142595
-    },
-    "channel_id": 1468320170891022417,
-    "board_attachment_filenames": {
-      "1468320170891022417": "random_puzzle.png"
-    },
-    "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-10-20T16:44:44.709472+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1792514678.2588427,
-        "fen_before": "8/bR3r1k/2p1p2p/p3p1p1/P3P1N1/5rP1/2P2PKP/4R3 w - - 0 29",
-        "expected": {
-          "color": "white",
-          "san": "Rxa7",
-          "uci": "b7a7"
-        },
-        "accepted_uci": "b7a7"
-      },
-      {
-        "accepted_at": 1792514684.7096627,
-        "fen_before": "8/r6k/2p1p2p/p3p1p1/P3P1N1/5rP1/2P2PKP/4R3 w - - 0 30",
-        "expected": {
-          "color": "white",
-          "san": "Kxf3",
-          "uci": "g2f3"
-        },
-        "accepted_uci": "g2f3"
-      }
-    ],
-    "accepted_solution_moves": [
-      {
-        "san": "Rxa7",
-        "uci": "b7a7",
-        "principal": true
-      },
-      {
-        "san": "Kxf3",
-        "uci": "g2f3",
-        "principal": true
-      }
-    ],
-    "last_feedback": "✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1813 points.**\n🔥 **Daily Activity Bonus: +10 coins**\n\nPuzzle Elo: **2472**\n\n💡 **Solution:** Rxa7 Kxf3\n\n🏆 **Your ranking**\n**#1 🧛 Thice — 1813 points ← you**\n**#2 🍅 TheMakina — 1557 points**",
-    "completion_solver_id": "442597396195704832",
-    "completion_solver_name": "Thice",
-    "activity_bonus_users": [
-      "442597396195704832"
-    ],
-    "auto_next_started": true
+    "helper_candidate_users": []
   },
   "lichess_rating_used": {
     "2000": [
