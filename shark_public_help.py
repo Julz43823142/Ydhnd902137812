@@ -25,7 +25,7 @@ PUBLIC_FEATURE_KNOWLEDGE = (
 _HOW = re.compile(r"(?i)\b(?:how|where|which channel|start|begin|launch|play|"
                   r"hoe|waar|welk kanaal|beginnen|starten|speel|help|uitleg|"
                   r"can i|could i|kan ik)\b")
-_PUZZLES = re.compile(r"(?i)\b(?:puzzles?|puzzels?|tactics?|tactiek)\b")
+_PUZZLES = re.compile(r"(?i)\b(?:schaakpuzzels?|chess\s+puzzles?|puzzles?|puzzels?|tactics?|tactiek)\b")
 _MINIGAMES = re.compile(r"(?i)\b(?:minigames?|blackjack|black\s*jack|trivia|"
                        r"minefield|minesweeper|poker|battleships?|connect\s*four|"
                        r"lingo|bomb\s*defusal|escape\s*room|math\s*rush|"
