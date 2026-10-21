@@ -1,0 +1,32 @@
+{
+  "created_at": 1792586756,
+  "details": {
+    "activity": [
+      {
+        "action": "games_completed",
+        "name": "Server",
+        "uid": "server"
+      },
+      {
+        "action": "minigame_completed",
+        "kind": "blackjack",
+        "name": "Jesse2011",
+        "record_kind": "blackjack:standard",
+        "score": null,
+        "uid": "1455217865249652799"
+      },
+      {
+        "action": "game:blackjack",
+        "kind": "blackjack",
+        "name": "Jesse2011",
+        "record_kind": "blackjack:standard",
+        "uid": "1455217865249652799"
+      }
+    ],
+    "escrow_change": 0,
+    "wallets": {}
+  },
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "minigames",
+  "transaction_id": "minigames:timer:1562446248731082762:1"
+}
