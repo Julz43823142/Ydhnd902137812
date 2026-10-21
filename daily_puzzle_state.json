@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/1LEZn",
     "title": "Lichess • 1441",
     "fen": "5rk1/4p1bp/Qp1p2p1/1b1q1p2/5B2/7P/PP3PP1/R2R2K1 b - - 1 23",
-    "current_fen": "5rk1/4p1bp/Qp1p2p1/1b1q1p2/5B2/7P/PP3PP1/R2R2K1 b - - 1 23",
-    "last_move_uci": "f1d1",
+    "current_fen": "5rk1/4p1bp/Qp1p2p1/1b3p2/5B2/7P/PP3PP1/3R2K1 b - - 0 24",
+    "last_move_uci": "a1d1",
     "pgn": {
       "__shark_answer_ciphertext_v1__": "gAAAAABq2S0WaUw4hn3XFsxW2HxHGavxNx8LWuf1hsok9wE0HV9xyBGJi6axaT0YyX79IpW6g-PtrWySFoRLMD2wL8vTlL7OIR9gTdKaaBOz9h-1RSDqRgc="
     },
@@ -22,26 +22,59 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_1LEZn_1792617750880",
-    "last_activity_at": "2026-10-21T21:22:30.880612+00:00",
+    "last_activity_at": "2026-10-21T21:22:40.162183+00:00",
     "rating": 1441,
     "rp_band": 0,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
-    "message_ids": {},
-    "message_id": null,
+    "message_ids": {
+      "1468320170891022417": 1562576883940597762
+    },
+    "message_id": 1562576883940597762,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "attempted_users": {
+      "442597396195704832": {
+        "name": "Thice",
+        "move": "Qxd1",
+        "correct": true,
+        "timestamp": "2026-10-21T21:22:40.162369+00:00"
+      }
+    },
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "board_attachment_filenames": {
+      "1468320170891022417": "random_puzzle.png"
+    },
+    "last_card_activity_at": "2026-10-21T21:22:40.162183+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1792617760.1623743,
+        "fen_before": "5rk1/4p1bp/Qp1p2p1/1b1q1p2/5B2/7P/PP3PP1/R2R2K1 b - - 1 23",
+        "expected": {
+          "uci": "d5d1",
+          "san": "Qxd1+",
+          "color": "black"
+        },
+        "accepted_uci": "d5d1"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "Qxd1+",
+        "uci": "d5d1",
+        "principal": true
+      }
+    ],
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Rxd1"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
