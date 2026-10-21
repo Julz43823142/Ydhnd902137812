@@ -4338,11 +4338,14 @@
       "title": "Black Jack",
       "reporter_id": "550338389535227926",
       "reporter_name": "Nairyaaa",
-      "status": "submitted",
+      "status": "completed",
       "created_at": 1792512082.8132684,
       "channel_id": 1546831642193170472,
       "message_id": "1562133640643616881",
-      "thread_id": "1562133640643616881"
+      "thread_id": "1562133640643616881",
+      "updated_at": 1792593490.7746475,
+      "updated_by_id": "362606514764251137",
+      "updated_by_name": "Sharkmeister"
     },
     "ticket-016": {
       "ticket_id": "ticket-016",
@@ -4377,7 +4380,7 @@
   },
   "bot_ideas_ticket_counter_v1": 17,
   "bot_ideas_idle_v1": {
-    "last_activity_at": 1792593487.2285082,
+    "last_activity_at": 1792593491.481501,
     "reminder_sent": false,
     "reminder_message_id": "1562457874142339166",
     "tickets_since_prompt": 0
