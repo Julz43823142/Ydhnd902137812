@@ -16,7 +16,12 @@ import sys
 
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 import minigames_engine as engine
+import minigames_chessle as chessle
 from minigames_chess_trivia import chess_questions
+
+# Force built-in opening catalogue for this standalone benchmark. Never fetch
+# remote Lichess TSVs, even during the first Chessle game.
+chessle._REMOTE_LOAD_ATTEMPTED = True
 
 
 def local_bank():
