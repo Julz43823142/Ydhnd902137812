@@ -1,0 +1,24 @@
+{
+  "created_at": 1792598655,
+  "details": {
+    "activity": [
+      {
+        "action": "feature_played",
+        "kind": "chessle",
+        "session_id": "1562496726407979148"
+      },
+      {
+        "action": "minigame_started",
+        "kind": "chessle",
+        "name": "Nairyaaa",
+        "record_kind": "chessle:normal",
+        "uid": "550338389535227926"
+      }
+    ],
+    "escrow_change": 0,
+    "wallets": {}
+  },
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "minigames",
+  "transaction_id": "minigames:1562496751770800188"
+}
