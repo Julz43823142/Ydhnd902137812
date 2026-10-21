@@ -1,91 +1,49 @@
 {
   "latest_random_puzzle": {
-    "url": "https://lichess.org/training/a0rsn",
-    "title": "Lichess • 2168",
-    "fen": "8/1p6/p4k2/Pr1R1p2/5P2/4PK2/8/8 w - - 1 47",
-    "current_fen": "8/1p6/5k2/Pp3p2/4PP2/5K2/8/8 b - - 0 48",
-    "last_move_uci": "e3e4",
+    "url": "https://lichess.org/training/QRIGS",
+    "title": "Lichess • 2493",
+    "fen": "r5rk/pR2Np2/3p1P2/2b1p2q/2B1Q3/3P4/P1n2PP1/5RK1 b - - 2 24",
+    "current_fen": "r5rk/pR2Np2/3p1P2/2b1p2q/2B1Q3/3P4/P1n2PP1/5RK1 b - - 2 24",
+    "last_move_uci": "d5e7",
     "pgn": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq2SxKcVuk0MZxyA6d6lV0l2UOEYcFjpfEQ8mbuyyBzggBYabBE3BNJbiAXNDC90gMQzK-M_8mZG38EvSFtWRQPNEzOA=="
+      "__shark_answer_ciphertext_v1__": "gAAAAABq2SxzPFQ6sB1b9xYC2A_b-nWwkasxXs5Nx1eCAerK2RPEPH3lYxy9emJMT35vkV4m2hXK_6ISZjynSUuRoXcWoml_Dg=="
     },
     "all_moves": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq2SxKmsywDoMbvWmezyFmLKShL1-KIOf1n8ja3_xkCGGLQeA7DcEtldzI713cGEq8XEUVTfK0E9-fiJj1xI9hDLHLqYr3HT_qZvc1P0KTAwwFIyviHYl5F4_eVxtGQSjEFcBJAuPn-dp8-9a-jWpDJGwiIWs5U_mtl5ABakbXtUpAeNvnt41QOmrZfS5J8239SdsOyeST04xEacjIWL8Ynv2Huu3PYU3Aod1raHhCzAnoX0uWW0OW8VismQ7R-lGgIiks"
+      "__shark_answer_ciphertext_v1__": "gAAAAABq2SxzKF9EiU48leTNFxGDlsAtr8E-39XWroq217AvQIjKSa11-SEcKtpXmeUy_RqlgA1Be292iwoNPdOutI_94X2Xn8RwVbmVGd4i0ZXkdRiXwiDd8EAOU9P6YMD8HJ7RgcoRv2wDwY_kjf3h4QY1AYTOEGD5rqSSYftw2uEnHPScoNE_oulkTUsuY7gSGWRh1RjYNIVU5a_HtiZ47LFbMQ1C7q3FZU2zaU0_bbjeP8nicY_G5Ecmceux9ncaPAcrvKvu"
     },
     "player_moves": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq2SxKws5qlFRlsc7_oLbBvxqImizGoOHJvRpE-aM48Pf-w6ReRTveT4ia6i7x2OKA1FG6BZPjMYwbgHTQba5BBdmNpMb8OpDre0u1pvzGBePiNPajngXs84xBAsDMSCftigrc1tiK4oklnX-0Du_o_9h6fi1aT8IpvTeYJRRNaMZ1cVjRrVJWxQKit5Wexhrhn6gC"
+      "__shark_answer_ciphertext_v1__": "gAAAAABq2SxzETG-9cRk_amlCkaP9rkvejzcCyHdKOoTiOQG0fZvNcxEx428abwAlcMdnjm5WQjZlHwgg02q6FJo_UxgVJcgb6lszYtlKNs3XBehSUF4IQ-JrAyWJPSaQjuzKWbV3zV9JZF5CWfzkZtl3Ln_muS6yIokMSCtIlMTgwxP4p3sJJhkh33pnygsexiQCh5DjggK"
     },
-    "player_color": "white",
+    "player_color": "black",
     "player_move_count": 2,
-    "posted_at": "2026-10-21T21:19:06.167518+00:00",
-    "answer_posted": true,
+    "posted_at": "2026-10-21T21:19:45.422314+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "random_a0rsn_1792617546167",
-    "last_activity_at": "2026-10-21T21:19:41.363465+00:00",
-    "rating": 2168,
-    "rp_band": 3,
+    "puzzle_id": "random_QRIGS_1792617585422",
+    "last_activity_at": "2026-10-21T21:19:45.422314+00:00",
+    "rating": 2493,
+    "rp_band": 4,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 3,
-    "next_player_index": 2,
-    "solved": true,
-    "message_ids": {
-      "1468320170891022417": 1562576133462036582
-    },
-    "message_id": 1562576133462036582,
+    "next_solution_index": 0,
+    "next_player_index": 0,
+    "solved": false,
+    "message_ids": {},
+    "message_id": null,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {
-      "442597396195704832": {
-        "name": "Thice",
-        "move": "E4",
-        "correct": true,
-        "timestamp": "2026-10-21T21:19:41.363730+00:00"
-      }
-    },
-    "first_move_user_id": "442597396195704832",
-    "first_move_user_name": "Thice",
-    "first_move_awarded": true,
+    "attempted_users": {},
+    "first_move_user_id": null,
+    "first_move_user_name": null,
+    "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "board_attachment_filenames": {
-      "1468320170891022417": "random_puzzle.png"
-    },
-    "last_card_activity_at": "2026-10-21T21:19:41.363465+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1792617581.3637347,
-        "fen_before": "8/1p6/5k2/Pp3p2/5P2/4PK2/8/8 w - - 0 48",
-        "expected": {
-          "uci": "e3e4",
-          "san": "e4",
-          "color": "white"
-        },
-        "accepted_uci": "e3e4"
-      }
-    ],
-    "accepted_solution_moves": [
-      {
-        "san": "Rxb5",
-        "uci": "d5b5",
-        "principal": true
-      },
-      {
-        "san": "e4",
-        "uci": "e3e4",
-        "principal": true
-      }
-    ],
-    "last_feedback": "✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1817 points.**\n\nPuzzle Elo: **2495**\n\n💡 **Solution:** Rxb5 e4\n\n🏆 **Your ranking**\n**#1 🧛 Thice — 1817 points ← you**\n**#2 🍅 TheMakina — 1557 points**",
-    "completion_solver_id": "442597396195704832",
-    "completion_solver_name": "Thice",
-    "activity_bonus_users": [],
-    "auto_next_started": true
+    "helper_candidate_users": []
   },
-  "latest_puzzle_type": "daily",
+  "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-21",
