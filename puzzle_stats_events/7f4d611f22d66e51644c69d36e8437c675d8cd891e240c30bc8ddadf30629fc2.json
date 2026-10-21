@@ -1,0 +1,19 @@
+{
+  "boss": false,
+  "correct": false,
+  "created_at": 1792585416,
+  "display_name": "Nairyaaa",
+  "elo_after": 1527.851,
+  "elo_change": -0.478,
+  "new_achievements": [
+    "learning_experience"
+  ],
+  "puzzle_id": "random_5CsmS_1792585349931",
+  "puzzle_rating": 2256,
+  "source": "random",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 0,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:random_5CsmS_1792585349931:550338389535227926",
+  "user_id": "550338389535227926"
+}
