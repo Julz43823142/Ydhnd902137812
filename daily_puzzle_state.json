@@ -1,115 +1,49 @@
 {
   "latest_random_puzzle": {
-    "url": "https://lichess.org/training/gQ4LG",
-    "title": "Lichess • 1855",
-    "fen": "8/6p1/8/5kPP/4pB1K/8/8/8 b - - 0 52",
-    "current_fen": "6Q1/8/7p/7K/5k2/8/8/7q w - - 2 58",
-    "last_move_uci": "e1h1",
+    "url": "https://lichess.org/training/5CsmS",
+    "title": "Lichess • 2256",
+    "fen": "r2k4/2R2p2/1pp3Pp/p1p1n3/7N/2P3PP/P3PK2/8 w - - 1 27",
+    "current_fen": "r2k4/2R2p2/1pp3Pp/p1p1n3/7N/2P3PP/P3PK2/8 w - - 1 27",
+    "last_move_uci": "e8d8",
     "pgn": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq2K4CJ_ikpGQ_MfwTcgaYweAj35SYZK-l9sSUNAXwqbth5Qg5hcxqcScW0-00GDoTHJkW74o0g1TcTUxjGmQxESMvGe71z_B54dBz-qXUpDu4TVHkezOKJimUwKzq2NbgGzv0"
+      "__shark_answer_ciphertext_v1__": "gAAAAABq2K6Iz--pv0ovGvFJPhIUWMDrXKX69QkeaqD5XQd1M0dCHCdERFsogFAhumPKEq61AxXShN5RNE6wyxEAmPzzCLruzg=="
     },
     "all_moves": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq2K4CGJ84J3cRR2-nOP4L5109Tn-gbk1k13Z8hYkc84ZKDHpuR2Iby8BTOzPAQwH8NoJL-0nej-vupCoFK3q3l3oqajhzo0HIum5XqBT3EdNyDcMC83-iYxmqeqFEARmftxZZGtTVdMNKTwgS3EQpLlwKvxbduuQEFP50ZE5kWsaBNpPt4TaiJw7fdbKtvp8fPKPKCC9x3Sf1fwcH9rF8BPfgnKIw99-RB6ayVNfNfjxn_N79hdRUldqXMz9f-68Qlz-17x-iwAJeQUlkeQL4T_a-8CtodfhnpjOWk3swLCsL0lCh9IzmQSGCOP_dVElMRtmWHGhqMrYMQosTelvfPyiat9Xbq0THTN6guG6CUD90IQMNl52MHEXK2OeMgmlCo5bpe8hMcSaCUd7y6qhPX7LpSAb0_dLAdfbARNDOATrzCHEesLTmcKIhyDwt73dEU8Sv0brhFVLBmuJt8aC6I11XEn7wKq6ue5UbLqAemlRi-w3kVCb1YRToCSQvUcc__wLQMHeP0kvKlORPL116oM9RaOvYYhwQl-EdM3HwjfJwi6fRu0VfsxTsnJLPK8-5yCF48n0awKX1cLqVKgufQPEud6ccpAqR0LpHEkS-hobd_iwJ5SDzmVmV0EhyTqYdm6GZuGPuPEp8sH3HTb9ZBASqbnLuNf3tDHHOGsES3H3NJda5hE_sCxh_iZsB-v94-HU9"
+      "__shark_answer_ciphertext_v1__": "gAAAAABq2K6IIXq1e-dSzqYutqTD0qxWOXubeqPk0SReadoBeICvHhydUhUov1GYx5E1pXV34WQ7Q5bRD6oy80M4Dq0ab6HJAzj0usUJPnf9_6_vx13faiqpKupl3nCVkpAb989_XUyBtJp-DOGdDqHLMrKwDcJonD5rkKtThPFdbbjU72ob8O1Bdr3OxuIqa8yOkqZfWUrDbCYeAKn-YQ4_YdwjO2UtTb5K-MKI6VKGm9aOlCw_daFrMTTqMW5YjyeQzDA8XgmC"
     },
     "player_moves": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq2K4CM0NmnXFUVR6maK6HZ4pDf2QS1XOpPhTapeGTKStVCKrSBm64FO2UuYysHl0z8QlGZtgKOG1m5L0PUOTPldAoFZ5K_cmFirSCZxnYAGpEIJTMkxscS_qfSKBBAOAPicSwvlAw1kCy9L_b_GQjYa-CzH8onjsd4plxo4V_9Ek2DPwUdtfLcDwmmISi6b3DpAL0NfTAhgYqMNPcnk8iEqGFJ1vAnwtGclKb3T3yb57kXgppocQc5rpOy5rIIQpkvcg9n3XUHem89uJW4g7qjx1t6i5TLDpnZLPxjWRAEyT-8S9QfOZE7jFKaMtcgCjimjaLbuTFw02o1ODAjg4eAUOpPsUSVjGHgj9sHadNaqn_iaSSzrmqz_coOjp8ddxkwFBBjvDJjmyMobJsienw6iv4T4cayy-WOL2NdofdLem9ZJg="
+      "__shark_answer_ciphertext_v1__": "gAAAAABq2K6IxX6Cg5yfe26Kl3_2rWb_6Ie8nbuqe0buPA5oqsNSPKBEUb3fkfG3MrTQ0f-DSgWj_igRM9Kd8opm04G_kmi5a8GSpND4hjdhiLAC7l1by4CM0iojjqZK-w4PgaVmS3TkUfzdbBpi25AEi61l6ixhHgZJ_h1VqzmqqaoUICT0-gA0q6yaUxfTwhlvoHVMVU9R"
     },
-    "player_color": "black",
-    "player_move_count": 6,
-    "posted_at": "2026-10-21T12:20:18.864335+00:00",
-    "answer_posted": true,
+    "player_color": "white",
+    "player_move_count": 2,
+    "posted_at": "2026-10-21T12:22:29.931714+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "random_gQ4LG_1792585218864",
-    "last_activity_at": "2026-10-21T12:22:25.877338+00:00",
-    "rating": 1855,
-    "rp_band": 2,
+    "puzzle_id": "random_5CsmS_1792585349931",
+    "last_activity_at": "2026-10-21T12:22:29.931714+00:00",
+    "rating": 2256,
+    "rp_band": 3,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 11,
-    "next_player_index": 6,
-    "solved": true,
-    "message_ids": {
-      "1468320170891022417": 1562440928084627477
-    },
-    "message_id": 1562440928084627477,
+    "next_solution_index": 0,
+    "next_player_index": 0,
+    "solved": false,
+    "message_ids": {},
+    "message_id": null,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {
-      "550338389535227926": {
-        "name": "Nairyaaa",
-        "move": "Qh1",
-        "correct": true,
-        "timestamp": "2026-10-21T12:22:25.877553+00:00"
-      }
-    },
-    "first_move_user_id": "550338389535227926",
-    "first_move_user_name": "Nairyaaa",
-    "first_move_awarded": true,
+    "attempted_users": {},
+    "first_move_user_id": null,
+    "first_move_user_name": null,
+    "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "board_attachment_filenames": {
-      "1468320170891022417": "random_puzzle.png"
-    },
-    "last_manual_bump": 1792585250.1800244,
-    "last_card_activity_at": "2026-10-21T12:22:25.877338+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1792585345.8775618,
-        "fen_before": "6Q1/8/7p/7K/5k2/8/8/4q3 b - - 1 57",
-        "expected": {
-          "uci": "e1h1",
-          "san": "Qh1+",
-          "color": "black"
-        },
-        "accepted_uci": "e1h1"
-      }
-    ],
-    "accepted_solution_moves": [
-      {
-        "san": "Kxf4",
-        "uci": "f5f4",
-        "principal": true
-      },
-      {
-        "san": "gxh6",
-        "uci": "g7h6",
-        "principal": true
-      },
-      {
-        "san": "e3",
-        "uci": "e4e3",
-        "principal": true
-      },
-      {
-        "san": "e2",
-        "uci": "e3e2",
-        "principal": true
-      },
-      {
-        "san": "e1=Q+",
-        "uci": "e2e1q",
-        "principal": true
-      },
-      {
-        "san": "Qh1+",
-        "uci": "e1h1",
-        "principal": true
-      }
-    ],
-    "last_feedback": "✅ **Correct, Nairyaaa!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **20 points.**\n\nPuzzle Elo: **1528**\n\n💡 **Solution:** Kxf4 gxh6 e3 e2 e1=Q+ Qh1+\n\n🏆 **Your ranking**\n**#5 👑 mh — 22.5 points**\n**#6 Nairyaaa — 20 points ← you**\n**#7 WetisJas — 20 points**",
-    "wrong_attempt_counts": {
-      "550338389535227926": 1
-    },
-    "completion_solver_id": "550338389535227926",
-    "completion_solver_name": "Nairyaaa",
-    "activity_bonus_users": [],
-    "auto_next_started": true
+    "helper_candidate_users": []
   },
-  "latest_puzzle_type": "daily",
+  "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-21",
