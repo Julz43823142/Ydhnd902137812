@@ -282,36 +282,8 @@
     "donation_inbox": [],
     "guess_points_coined": 138.0,
     "name": "Sharkmeister",
-    "pending_trade": {
-      "created_at": 1792598279,
-      "from_name": "Thice",
-      "from_user_id": "442597396195704832",
-      "offer": {
-        "amount": 1.0,
-        "type": "coins"
-      },
-      "request": {
-        "amount": 2.0,
-        "type": "coins"
-      },
-      "trade_id": "trade-propose:1562495138507260025:442597396195704832:362606514764251137"
-    },
-    "pending_trades": [
-      {
-        "created_at": 1792598279,
-        "from_name": "Thice",
-        "from_user_id": "442597396195704832",
-        "offer": {
-          "amount": 1.0,
-          "type": "coins"
-        },
-        "request": {
-          "amount": 2.0,
-          "type": "coins"
-        },
-        "trade_id": "trade-propose:1562495138507260025:442597396195704832:362606514764251137"
-      }
-    ],
+    "pending_trade": null,
+    "pending_trades": [],
     "pieces": [
       "purple"
     ],
@@ -545,12 +517,12 @@
           "amount": 2.0,
           "type": "coins"
         },
-        "status": "pending",
-        "status_unread": false,
+        "status": "declined",
+        "status_unread": true,
         "to_name": "Sharkmeister",
         "to_user_id": "362606514764251137",
         "trade_id": "trade-propose:1562495138507260025:442597396195704832:362606514764251137",
-        "updated_at": 1792598279
+        "updated_at": 1792598324
       },
       {
         "created_at": 1792598179,
