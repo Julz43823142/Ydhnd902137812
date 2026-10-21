@@ -445,10 +445,10 @@
             "daily:2026-10-21:puzzle:solve-8"
           ],
           "progress": {
-            "daily:2026-10-21:minigame:minigame-1": 3,
+            "daily:2026-10-21:minigame:minigame-1": 4,
             "daily:2026-10-21:puzzle:solve-8": 8
           },
-          "updated_at": 1792593239
+          "updated_at": 1792595924
         }
       }
     },
@@ -703,10 +703,10 @@
             "weekly:2026-10-19:minigame:minigame-8"
           ],
           "progress": {
-            "weekly:2026-10-19:minigame:minigame-8": 21,
+            "weekly:2026-10-19:minigame:minigame-8": 22,
             "weekly:2026-10-19:puzzle:solve-40": 8
           },
-          "updated_at": 1792593239
+          "updated_at": 1792595924
         }
       }
     }
