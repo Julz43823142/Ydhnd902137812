@@ -1,0 +1,24 @@
+{
+  "created_at": 1792595971,
+  "details": {
+    "activity": [
+      {
+        "action": "feature_played",
+        "kind": "codebreaker",
+        "session_id": "1562485370858250330"
+      },
+      {
+        "action": "minigame_started",
+        "kind": "codebreaker",
+        "name": "Nairyaaa",
+        "record_kind": "codebreaker:hard",
+        "uid": "550338389535227926"
+      }
+    ],
+    "escrow_change": 0,
+    "wallets": {}
+  },
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "minigames",
+  "transaction_id": "minigames:1562485489859166299"
+}
