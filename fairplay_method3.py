@@ -12,7 +12,7 @@ from fairplay_data import PubAPI, ReviewError, ScanDeadline, check_deadline, col
 from fairplay_outcome_study import evaluate, SCENARIOS, DEVELOPMENT_SCENARIOS, CONFIG as STUDY_CONFIG
 
 VERSION='fairplay-v67-opening-rating-calibration'
-LIMIT=10000
+LIMIT=5000
 BLOCK_SIZE=200
 PRIORITY_GAMES=200
 STUDY=replace(STUDY_CONFIG,history_limit=2*BLOCK_SIZE,minimum_games=5,widths=(5,10,20,50,100,200))
@@ -250,7 +250,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         subject['overall_results']=_result(overall_rows)
         # Keep only the selected block's evidence in the Discord payload.
         # All blocks were scored above; serializing every candidate window
-        # would make a 10000-game result needlessly large.
+        # would make a 5000-game result needlessly large.
         subject['periods']=subject['periods'][:]
         # Display the selected block and its local chronological window.
         # Dates and class-relative indexing must use that same block.
