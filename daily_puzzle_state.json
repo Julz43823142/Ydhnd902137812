@@ -4355,14 +4355,26 @@
       "channel_id": 1546831642193170472,
       "message_id": "1562446863691685978",
       "thread_id": "1562446863691685978"
+    },
+    "ticket-017": {
+      "ticket_id": "ticket-017",
+      "number": 17,
+      "title": "Make trivia in minigames like #guess-the-chatter, so 1 question a time, and add chess questions",
+      "reporter_id": "442597396195704832",
+      "reporter_name": "Thice",
+      "status": "submitted",
+      "created_at": 1792587573.578938,
+      "channel_id": 1546831642193170472,
+      "message_id": "1562450272943341663",
+      "thread_id": "1562450272943341663"
     }
   },
-  "bot_ideas_ticket_counter_v1": 16,
+  "bot_ideas_ticket_counter_v1": 17,
   "bot_ideas_idle_v1": {
-    "last_activity_at": 1792586762.3253665,
+    "last_activity_at": 1792587576.0219169,
     "reminder_sent": false,
     "reminder_message_id": "1562145640966783007",
-    "tickets_since_prompt": 1
+    "tickets_since_prompt": 2
   },
   "bot_ideas_panel_message_id_v1": "1546854821351395401",
   "open_shop_trades_v1": {
