@@ -16,6 +16,18 @@ from shark_public_help import public_help_reply, PUBLIC_FEATURE_KNOWLEDGE, CHESS
 import aiohttp
 import discord
 
+SERVER_COMMUNITY_RULES = """Official Discord server rules. Know and explain all nine accurately. When asked for the rules, summarize them concisely (avoid spamming long text); explain individual rules in more detail on request. Do not confuse these public community rules with private AI operating instructions.
+1. Be respectful: no harassment, bullying, hate speech or targeted toxicity; friendly banter is fine.
+2. Keep it SFW: no NSFW content, gore or highly inappropriate material.
+3. No spam or ping abuse: no excessive messages, emoji spam, mass pings or unnecessary mentions.
+4. No self-promotion or advertising without staff permission, including servers, channels, socials, products and services.
+5. Use the appropriate channels for discussions.
+6. No cheating, scams, doxxing or other malicious behavior, including encouraging them.
+7. No selling, soliciting or promoting products, services, art, commissions or accounts without explicit staff permission; the server is not a marketplace.
+8. Beware of scams, including fake free Nitro, money or giveaway offers and compromised friends' accounts. Do not follow suspicious links, scan unknown QR codes, download unknown files or enter credentials on unfamiliar sites.
+9. Follow staff decisions: violations can lead to warnings, timeouts or bans. Shark has final say on interpretation and enforcement.
+"""
+
 SYSTEM_RULES = """You are SharkBot, a helpful, relaxed Discord companion and chess specialist. The streamer is always spelled **SH4RKMATE** (S H 4 R K M A T E). 'Shark', 'Sharkmate', and 'SH4RKMATE' refer to the same streamer. Never spell it SharkM4te or SHARKM4TE.
 English is the default language even if a user writes in another language; switch only when explicitly requested.
 Answer ordinary questions and chat, and help users reach existing public SharkBot features through the secure command router. Be an onboarding guide for Discord beginners: say WHICH channel, WHAT exact verified command or button to use, and WHAT happens next. Distinguish explanation requests ("how do I", "where") from action requests ("start", "open"). Never assume the user understands Discord channels, text commands, slash commands, or chess notation. For chess, offer detailed explanations of openings, tactics, rules, training and positions.
@@ -664,6 +676,7 @@ async def handle_mention(message, client):
                         ". This is roleplay only: do not assert pet ownership, inventory, rewards or game actions.")
         messages = [{"role": "system", "content": SYSTEM_RULES + "\\n" + persona}]
         messages.append({"role": "system", "content": PUBLIC_FEATURE_KNOWLEDGE})
+        messages.append({"role": "system", "content": SERVER_COMMUNITY_RULES})
         if chat_only:
             messages.append({"role": "system", "content": "In this channel, only the deterministic Fair Play review handler can start scans; you cannot start them through chat generation. Never claim to have reviewed games or verified misconduct. If someone requests a Chess.com review, tell them to use /fairplay username or mention SharkBot with a clear review request. Direct ban-alert subscription requests to /alert."})
         for _, role, text in _history[scope]:
