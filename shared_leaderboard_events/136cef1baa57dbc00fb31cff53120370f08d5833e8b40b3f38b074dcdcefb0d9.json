@@ -1,0 +1,14 @@
+{
+  "after_points": 22.0,
+  "amount": 1.0,
+  "before_points": 21.0,
+  "created_at": 1792585563,
+  "created_at_ns": 1792585563460376328,
+  "display_name": "Nairyaaa",
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "add",
+  "pet_coin_bonus": 0.0,
+  "source": "puzzle-first",
+  "transaction_id": "puzzle:random_Jl936_1792585512268:first:550338389535227926",
+  "user_id": "550338389535227926"
+}
