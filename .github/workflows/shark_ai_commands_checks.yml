@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - "shark_ai.py"
+      - "shark_public_help.py"
+      - "test_shark_public_help.py"
       - "shark_puzzle_intent.py"
       - "shark_discord_knowledge.py"
       - "shark_stats_query.py"
@@ -23,6 +25,8 @@ on:
     branches: [main]
     paths:
       - "shark_ai.py"
+      - "shark_public_help.py"
+      - "test_shark_public_help.py"
       - "shark_puzzle_intent.py"
       - "shark_discord_knowledge.py"
       - "shark_stats_query.py"
@@ -55,6 +59,6 @@ jobs:
       - name: Install runtime library
         run: python -m pip install "discord.py==2.7.1" cryptography "python-chess==1.999"
       - name: Check Python syntax
-        run: python -m py_compile shark_ai.py shark_puzzle_intent.py shark_discord_knowledge.py shark_commands.py shark_dispatch.py shark_state_privacy.py
+        run: python -m py_compile shark_ai.py shark_puzzle_intent.py shark_discord_knowledge.py shark_commands.py shark_dispatch.py shark_state_privacy.py shark_public_help.py test_shark_public_help.py
       - name: Run isolated AI command tests
-        run: python -m unittest -v test_shark_ai_safety test_shark_commands test_shark_dispatch test_shark_state_privacy test_shark_stats_query test_shark_215 test_shark_217
+        run: python -m unittest -v test_shark_ai_safety test_shark_commands test_shark_dispatch test_shark_state_privacy test_shark_stats_query test_shark_215 test_shark_217 test_shark_public_help
