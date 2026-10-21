@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/d0i1h",
     "title": "Lichess • 2420",
     "fen": "6k1/5p2/8/1P4p1/3b1qP1/5B1P/3r1PQ1/5RK1 b - - 2 42",
-    "current_fen": "6k1/5p2/8/1P4p1/5qP1/3r1B1P/5Q2/3R2K1 b - - 0 44",
-    "last_move_uci": "g2f2",
+    "current_fen": "6k1/5p2/8/1P4p1/5qP1/5r1P/5Q2/3R2K1 w - - 0 45",
+    "last_move_uci": "d3f3",
     "pgn": {
       "__shark_answer_ciphertext_v1__": "gAAAAABq2LB6NZ3QAWZHWbqiERdM6k0IzzWNZuarIPXnnXZwJYIpx5nfjFpD50WAMFvcMXqXsuHPfNnQ_yZBxP-SndBg_HYHAoW3MWieCeNmi5UdQ3uweJ0="
     },
@@ -17,60 +17,60 @@
     "player_color": "black",
     "player_move_count": 3,
     "posted_at": "2026-10-21T12:30:47.921799+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_d0i1h_1792585847921",
-    "last_activity_at": "2026-10-21T12:35:24.313522+00:00",
+    "last_activity_at": "2026-10-21T12:35:40.724879+00:00",
     "rating": 2420,
     "rp_band": 4,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 4,
-    "next_player_index": 2,
-    "solved": false,
+    "next_solution_index": 5,
+    "next_player_index": 3,
+    "solved": true,
     "message_ids": {
-      "1468320170891022417": 1562444193580712066
+      "1468320170891022417": 1562444262879137967
     },
-    "message_id": 1562444193580712066,
+    "message_id": 1562444262879137967,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "550338389535227926": {
         "name": "Nairyaaa",
-        "move": "Bxf2",
+        "move": "Rxf3",
         "correct": true,
-        "timestamp": "2026-10-21T12:35:24.313760+00:00"
+        "timestamp": "2026-10-21T12:35:40.725061+00:00"
       }
     },
     "first_move_user_id": "550338389535227926",
     "first_move_user_name": "Nairyaaa",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
-    "last_card_activity_at": "2026-10-21T12:35:24.313522+00:00",
+    "last_card_activity_at": "2026-10-21T12:35:40.724879+00:00",
     "recent_accepted_moves": [
       {
-        "accepted_at": 1792586124.3137674,
-        "fen_before": "6k1/5p2/8/1P4p1/3b1qP1/3r1B1P/5PQ1/3R2K1 b - - 4 43",
+        "accepted_at": 1792586140.7250686,
+        "fen_before": "6k1/5p2/8/1P4p1/5qP1/3r1B1P/5Q2/3R2K1 b - - 0 44",
         "expected": {
-          "uci": "d4f2",
-          "san": "Bxf2+",
+          "uci": "d3f3",
+          "san": "Rxf3",
           "color": "black"
         },
-        "accepted_uci": "d4f2"
+        "accepted_uci": "d3f3"
       }
     ],
     "wrong_attempt_counts": {
       "550338389535227926": 3
     },
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Qxf2",
+    "last_feedback": "✅ **Correct, Nairyaaa!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **26 points.**\n\nPuzzle Elo: **1573**\n\n💡 **Solution:** Rd3 Bxf2+ Rxf3\n\n🏆 **Your ranking**\n**#4 🦞 Chessmass — 30 points**\n**#5 Nairyaaa — 26 points ← you**\n**#6 👑 mh — 22.5 points**",
     "accepted_solution_moves": [
       {
         "san": "Rd3",
@@ -81,10 +81,18 @@
         "san": "Bxf2+",
         "uci": "d4f2",
         "principal": true
+      },
+      {
+        "san": "Rxf3",
+        "uci": "d3f3",
+        "principal": true
       }
-    ]
+    ],
+    "completion_solver_id": "550338389535227926",
+    "completion_solver_name": "Nairyaaa",
+    "activity_bonus_users": []
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-21",
