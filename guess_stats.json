@@ -647,7 +647,7 @@
       "best_streak": 0,
       "correct": 0,
       "current_streak": 0,
-      "name": "Naira",
+      "name": "Nairyaaa",
       "targets": {
         "chatter": {
           "Mohammad": {
@@ -656,11 +656,17 @@
             "wrong": 1
           }
         },
-        "chess": {}
+        "chess": {
+          "Pandarou": {
+            "correct": 0,
+            "total": 1,
+            "wrong": 1
+          }
+        }
       },
-      "total": 1,
-      "updated_at": 1788559686,
-      "wrong": 1
+      "total": 2,
+      "updated_at": 1792585321,
+      "wrong": 2
     },
     "601406103712170014": {
       "best_streak": 5,
