@@ -1,0 +1,38 @@
+{
+  "created_at": 1792586975,
+  "details": {
+    "activity": [
+      {
+        "action": "feature_played",
+        "kind": "poker",
+        "session_id": "1562447653453959168"
+      },
+      {
+        "action": "minigame_started",
+        "kind": "poker",
+        "name": "Jesse2011",
+        "record_kind": "poker:standard",
+        "uid": "1455217865249652799"
+      },
+      {
+        "action": "minigame_started",
+        "kind": "poker",
+        "name": "Sharkmeister",
+        "record_kind": "poker:standard",
+        "uid": "362606514764251137"
+      },
+      {
+        "action": "minigame_started",
+        "kind": "poker",
+        "name": "Thice",
+        "record_kind": "poker:standard",
+        "uid": "442597396195704832"
+      }
+    ],
+    "escrow_change": 0,
+    "wallets": {}
+  },
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "minigames",
+  "transaction_id": "minigames:1562447756382048316"
+}
