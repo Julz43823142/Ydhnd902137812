@@ -739,7 +739,8 @@
       },
       {
         "born_at": 1792514451.3104699,
-        "fed_at": 1792514451.3104699,
+        "fed_at": 1792581413.491081,
+        "feed_day": "2026-10-21",
         "happiness": 100,
         "happy_at": 1792514484.3708162,
         "id": "adce8c91c9c94977b0aaedfc8d60b86c",
@@ -772,7 +773,7 @@
         "puzzle_day": "2026-10-20",
         "rarity": "common",
         "species": "Rabbit",
-        "xp": 20
+        "xp": 25
       },
       {
         "activity_xp": 30,
