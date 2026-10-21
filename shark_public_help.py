@@ -38,6 +38,10 @@ def public_help_reply(prompt):
     if not isinstance(prompt, str) or not _HOW.search(prompt):
         return None
     if _PUZZLES.search(prompt):
+        # Imperative requests belong to the trusted interactive puzzle dispatcher,
+        # never to informational onboarding. "How do I start..." remains help.
+        if re.match(r"(?i)^\s*(?:start|play|begin|launch|give|geef|speel|laat|doe)\b",prompt):
+            return None
         return CHESS_PUZZLE_HELP
     if _CHESSLE.search(prompt):
         return CHESSLE_HELP
