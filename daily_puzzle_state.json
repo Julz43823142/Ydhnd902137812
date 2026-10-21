@@ -22,7 +22,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_47G5L_1792585566631",
-    "last_activity_at": "2026-10-21T12:28:43.683553+00:00",
+    "last_activity_at": "2026-10-21T12:29:01.742500+00:00",
     "rating": 2780,
     "rp_band": 5,
     "boss": false,
@@ -33,17 +33,17 @@
     "next_player_index": 2,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1562442512616914996
+      "1468320170891022417": 1562442588575899721
     },
-    "message_id": 1562442512616914996,
+    "message_id": 1562442588575899721,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "550338389535227926": {
         "name": "Nairyaaa",
-        "move": "Kd3",
-        "correct": true,
-        "timestamp": "2026-10-21T12:28:43.683780+00:00"
+        "move": "H3",
+        "correct": false,
+        "timestamp": "2026-10-21T12:29:01.742988+00:00"
       }
     },
     "first_move_user_id": "550338389535227926",
@@ -54,23 +54,12 @@
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
-    "last_card_activity_at": "2026-10-21T12:28:43.683553+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1792585723.683789,
-        "fen_before": "8/8/5p2/8/2p1kP1p/4p3/2R3K1/8 b - - 1 59",
-        "expected": {
-          "uci": "e4d3",
-          "san": "Kd3",
-          "color": "black"
-        },
-        "accepted_uci": "e4d3"
-      }
-    ],
+    "last_card_activity_at": "2026-10-21T12:29:01.742500+00:00",
+    "recent_accepted_moves": [],
     "wrong_attempt_counts": {
-      "550338389535227926": 5
+      "550338389535227926": 6
     },
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Ra2",
+    "last_feedback": "❌ **Nope, Nairyaaa — the winning move is one step further.**\n↪️ **Move played:** `H3`",
     "accepted_solution_moves": [
       {
         "san": "h4+",
