@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/Jl936",
     "title": "Lichess • 1462",
     "fen": "5r2/1p5k/2p3Rp/5q2/p4Q1P/P7/1P5K/8 w - - 0 46",
-    "current_fen": "5r2/1p5k/2p3Rp/5q2/p4Q1P/P7/1P5K/8 w - - 0 46",
-    "last_move_uci": "f6f5",
+    "current_fen": "5r2/1p5k/2p3RQ/5q2/p6P/P7/1P5K/8 b - - 0 46",
+    "last_move_uci": "f4h6",
     "pgn": {
       "__shark_answer_ciphertext_v1__": "gAAAAABq2K8qwiW5MKuCp0exiAQAu6YSnAoob3SAq1HC2c5nJI-X4FUSa7mXhawEAoFwsVkoWwsI5TUZ9R4aeKLP7UEOb_X4qA=="
     },
@@ -17,33 +17,70 @@
     "player_color": "white",
     "player_move_count": 1,
     "posted_at": "2026-10-21T12:25:12.268415+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_Jl936_1792585512268",
-    "last_activity_at": "2026-10-21T12:25:12.268415+00:00",
+    "last_activity_at": "2026-10-21T12:26:02.273122+00:00",
     "rating": 1462,
     "rp_band": 0,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 0,
-    "next_player_index": 0,
-    "solved": false,
-    "message_ids": {},
-    "message_id": null,
+    "next_solution_index": 1,
+    "next_player_index": 1,
+    "solved": true,
+    "message_ids": {
+      "1468320170891022417": 1562441835824025741
+    },
+    "message_id": 1562441835824025741,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
-    "first_move_awarded": false,
+    "attempted_users": {
+      "550338389535227926": {
+        "name": "Nairyaaa",
+        "move": "Qxh6#",
+        "correct": true,
+        "timestamp": "2026-10-21T12:26:02.273434+00:00"
+      }
+    },
+    "first_move_user_id": "550338389535227926",
+    "first_move_user_name": "Nairyaaa",
+    "first_move_awarded": true,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "board_attachment_filenames": {
+      "1468320170891022417": "random_puzzle.png"
+    },
+    "last_card_activity_at": "2026-10-21T12:26:02.273122+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1792585562.273442,
+        "fen_before": "5r2/1p5k/2p3Rp/5q2/p4Q1P/P7/1P5K/8 w - - 0 46",
+        "expected": {
+          "uci": "f4h6",
+          "san": "Qxh6#",
+          "color": "white"
+        },
+        "accepted_uci": "f4h6"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "Qxh6#",
+        "uci": "f4h6",
+        "principal": true
+      }
+    ],
+    "last_feedback": "✅ **Correct, Nairyaaa!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **22 points.**\n\nPuzzle Elo: **1541**\n\n💡 **Solution:** Qxh6#\n\n🏆 **Your ranking**\n**#5 👑 mh — 22.5 points**\n**#6 Nairyaaa — 22 points ← you**\n**#7 WetisJas — 20 points**",
+    "completion_solver_id": "550338389535227926",
+    "completion_solver_name": "Nairyaaa",
+    "activity_bonus_users": [],
+    "auto_next_started": true
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-21",
