@@ -1,0 +1,32 @@
+{
+  "created_at": 1792589895,
+  "details": {
+    "activity": [
+      {
+        "action": "games_completed",
+        "name": "Server",
+        "uid": "server"
+      },
+      {
+        "action": "minigame_completed",
+        "kind": "codebreaker",
+        "name": "Nairyaaa",
+        "record_kind": "codebreaker:easy",
+        "score": null,
+        "uid": "550338389535227926"
+      },
+      {
+        "action": "game:codebreaker",
+        "kind": "codebreaker",
+        "name": "Nairyaaa",
+        "record_kind": "codebreaker:easy",
+        "uid": "550338389535227926"
+      }
+    ],
+    "escrow_change": 0,
+    "wallets": {}
+  },
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "minigames",
+  "transaction_id": "minigames:timer:1562454938049847336:3"
+}
