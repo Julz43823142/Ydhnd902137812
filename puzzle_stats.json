@@ -309,19 +309,19 @@
       "correct_2600": 23,
       "correct_2800": 4,
       "current_hard_streak_2600": 0,
-      "current_streak": 9,
-      "current_wrong_streak": 0,
-      "elo": 2511.376131927611,
-      "elo_games": 446,
+      "current_streak": 0,
+      "current_wrong_streak": 1,
+      "elo": 2489.0076722818485,
+      "elo_games": 447,
       "first_solves": 330,
       "max_rating_solved": 2894,
       "name": "Thice",
       "peak_elo": 2595.0716629479043,
       "rated_correct_count": 352,
       "rated_correct_rating_sum": 639876,
-      "total": 467,
-      "updated_at": 1792617691,
-      "wrong": 74
+      "total": 468,
+      "updated_at": 1792617706,
+      "wrong": 75
     },
     "550338389535227926": {
       "achievements": [
