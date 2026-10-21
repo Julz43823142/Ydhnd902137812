@@ -22,7 +22,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_47G5L_1792585566631",
-    "last_activity_at": "2026-10-21T12:27:06.828938+00:00",
+    "last_activity_at": "2026-10-21T12:27:18.512928+00:00",
     "rating": 2780,
     "rp_band": 5,
     "boss": false,
@@ -33,17 +33,17 @@
     "next_player_index": 0,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1562442107514527808
+      "1468320170891022417": 1562442156155867217
     },
-    "message_id": 1562442107514527808,
+    "message_id": 1562442156155867217,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "550338389535227926": {
         "name": "Nairyaaa",
-        "move": "F3",
+        "move": "Rxc4",
         "correct": false,
-        "timestamp": "2026-10-21T12:27:06.829351+00:00"
+        "timestamp": "2026-10-21T12:27:18.513373+00:00"
       }
     },
     "first_move_user_id": null,
@@ -54,12 +54,12 @@
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
-    "last_card_activity_at": "2026-10-21T12:27:06.828938+00:00",
+    "last_card_activity_at": "2026-10-21T12:27:18.512928+00:00",
     "recent_accepted_moves": [],
     "wrong_attempt_counts": {
-      "550338389535227926": 2
+      "550338389535227926": 3
     },
-    "last_feedback": "❌ **Almost, Nairyaaa. the position had one small trick left.**\n↪️ **Move played:** `F3`"
+    "last_feedback": "❌ **One more try, Nairyaaa: you spotted something useful, but there is more.**\n↪️ **Move played:** `Rxc4`"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
