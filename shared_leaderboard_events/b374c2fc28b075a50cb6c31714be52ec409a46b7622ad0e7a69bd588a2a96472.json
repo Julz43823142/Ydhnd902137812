@@ -1,0 +1,16 @@
+{
+  "after_coins": 21.0,
+  "before_coins": 20.0,
+  "created_at": 1792585294,
+  "created_at_ns": 1792585294846896013,
+  "details": {
+    "credited": 1.0,
+    "pet_bonus": 0.0,
+    "source": "puzzle-achievement"
+  },
+  "display_name": "Nairyaaa",
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "coin-credit",
+  "transaction_id": "puzzle-achievement:550338389535227926:first_blood",
+  "user_id": "550338389535227926"
+}
