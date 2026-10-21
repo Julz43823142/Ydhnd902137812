@@ -201,13 +201,13 @@ class Rules(unittest.TestCase):
         self.assertEqual(g['data']['modes'],{'0':'reveal'});self.assertEqual(g['data']['contributors'],[])
         self.assertIsNone(g['data']['layout_rev'])
         self.assertGreater(g['rev'],before)
-    def test_trivia_fifteen_correct_ten_coins_and_seen(self):
+    def test_trivia_five_correct_three_coins_and_seen(self):
         s,w=setup('trivia',0,1);g=start(s,w);now=1004
-        for j in range(15):
+        for j in range(5):
             q=g['data']['questions'][j];act(s,w,0,'answer',q['options'].index(q['answer']),now)
-            if j<14:now+=8;e.tick(s,w,'g',now,random.Random(1));now+=1
-        self.assertEqual(w['0']['coins'],110);self.assertEqual(w['0']['points'],123.5)
-        self.assertEqual(len(set(s['seen']['0'])),15)
+            if j<4:now+=8;e.tick(s,w,'g',now,random.Random(1));now+=1
+        self.assertEqual(w['0']['coins'],103);self.assertEqual(w['0']['points'],123.5)
+        self.assertEqual(len(set(s['seen']['0'])),5)
     def test_trivia_avoids_recent_and_mixed_categories(self):
         first=select_ladder(bank(),[],random.Random(1));second=select_ladder(bank(),[q['id'] for q in first],random.Random(2))
         self.assertFalse({q['id'] for q in first}&{q['id'] for q in second})
@@ -897,17 +897,17 @@ class RewardUpdate(unittest.TestCase):
         with self.assertRaises(ValueError):start(s,w)
         self.assertEqual(w['0']['coins'],100)
     def test_trivia_block_rewards(self):
-        self.assertEqual(e.trivia_coins([5,0,0]),1)
-        self.assertEqual(e.trivia_coins([4,4,4]),4)
-        self.assertEqual(e.trivia_coins([5,5,5]),10)
-        self.assertEqual(e.trivia_coins([2,2,2]),0)
-    def test_easy_block_only_earns_one_coin(self):
+        self.assertEqual(e.trivia_coins([1,0,0]),0)
+        self.assertEqual(e.trivia_coins([1,1,0]),0.5)
+        self.assertEqual(e.trivia_coins([1,2,2]),3)
+        self.assertEqual(e.trivia_coins([0,0,0]),0)
+    def test_easy_question_earns_no_coins(self):
         s,w=setup('trivia',0,1);g=start(s,w);now=1004
-        for j in range(15):
+        for j in range(5):
             q=g['data']['questions'][j];correct=q['options'].index(q['answer'])
-            act(s,w,0,'answer',correct if j<5 else (correct+1)%4,now)
+            act(s,w,0,'answer',correct if j==0 else (correct+1)%4,now)
             if j<14:now+=8;e.tick(s,w,'g',now,random.Random(1));now+=1
-        self.assertEqual(w['0']['coins'],101)
+        self.assertEqual(w['0']['coins'],100)
         self.assertEqual(w['0']['points'],123.5)
 
 
@@ -1057,7 +1057,7 @@ class IntegratedTicketsTests(unittest.TestCase):
         self.assertIsNone(parse_shortcut('!trivia anything'))
         self.assertEqual(STAKE_CHOICES,{'connect','ships','rps','blackjack'})
 
-    def test_ticket_017_expert_chess_questions_six_in_fifteen(self):
+    def test_ticket_017_chess_questions_two_in_five(self):
         from minigames_chess_trivia import chess_questions
         questions=chess_questions()
         self.assertEqual(len(questions),12)
@@ -1067,9 +1067,10 @@ class IntegratedTicketsTests(unittest.TestCase):
             self.assertIn(q['answer'],q['options'])
             self.assertEqual(q['category'],'Chess')
         selected=select_ladder(bank()+questions,set(),random.Random(123))
-        self.assertEqual(len(selected),15)
-        self.assertEqual(sum(q['category']=='Chess' for q in selected),6)
-        self.assertEqual(len(set(q['id'] for q in selected)),15)
+        self.assertEqual(len(selected),5)
+        self.assertEqual([q['difficulty'] for q in selected],['easy','medium','medium','hard','hard'])
+        self.assertEqual(sum(q['category']=='Chess' for q in selected),2)
+        self.assertEqual(len(set(q['id'] for q in selected)),5)
         self.assertIn('17...Be6!!',[q['answer'] for q in questions])
 
     def test_all_fifteen_games_have_clear_onboarding(self):

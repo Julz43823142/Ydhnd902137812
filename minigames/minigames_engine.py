@@ -1264,7 +1264,7 @@ def migrate_minefield_multiplayer(state,wallets,now):
 
 def trivia_coins(blocks):
     easy,medium,hard=blocks
-    return (1 if easy==5 else 0)+(3 if medium==5 else 1 if medium>=3 else 0)+(6 if hard==5 else 3 if hard>=3 else 0)
+    return medium * 0.5 + hard * 1.0
 
 
 def retire_mine_stakes(state,wallets,now):
@@ -1279,12 +1279,12 @@ def trivia_end_round(state,wallets,g,now):
     for uid,choice in d['answers'].items():
         if q['options'][choice]==q['answer']:
             d['correct'][uid]+=1
-            if 'blocks' in d:d['blocks'][uid][min(d['round']//5,2)]+=1
+            if 'blocks' in d:d['blocks'][uid][{'easy':0,'medium':1,'hard':2}[q['difficulty']]]+=1
     d['last']='Correct answer: '+q['answer'];d['reveal']=True
     g['deadline']=now+7
-    if d['round']==14:
-        # Participation earns no points; rewards are coins only, up to 10.
-        rewards={uid:(trivia_coins(d['blocks'][uid]) if 'blocks' in d else (10 if n==15 else n*10//15)) for uid,n in d['correct'].items() if uid not in g.get('left',[])}
+    if d['round']==len(d['questions'])-1:
+        # Five questions: easy=0, medium=0.5, hard=1; maximum 3 coins.
+        rewards={uid:(trivia_coins(d['blocks'][uid]) if 'blocks' in d else 0) for uid,n in d['correct'].items() if uid not in g.get('left',[])}
         winners=[uid for uid,n in rewards.items() if n>0]
         finish(state,wallets,g,winners,now,'Knowledge ladder complete.',rewards)
 

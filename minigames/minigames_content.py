@@ -29,16 +29,15 @@ def fetch_questions(category, difficulty):
 
 
 def select_ladder(bank, seen, rng):
-    """15 questions; broad categories, no repeats in a match, recent avoidance."""
+    """Five questions: easy, medium, medium, hard, hard; no match repeats."""
     chosen=[];used=set();recent=set(seen);last_category=None
-    for level in range(15):
-        difficulty=['easy','medium','hard'][min(2,level//5)]
+    for level, difficulty in enumerate(('easy', 'medium', 'medium', 'hard', 'hard')):
         candidates=[q for q in bank if q['difficulty']==difficulty and q['id'] not in used]
         if not candidates:raise ValueError('Trivia is still collecting questions. Please try again shortly.')
         # Ticket #017: two genuinely advanced chess questions in every five-question
         # block, mixed with normal trivia. Legacy scoring bands do not imply
         # beginner-level chess content or expose any additional difficulty mode.
-        chess_turn=(level % 5) in (1,3)
+        chess_turn=level in (1,3)
         preferred=[q for q in candidates if (q.get('category')=='Chess')==chess_turn]
         candidates=preferred or candidates
         fresh=[q for q in candidates if q['id'] not in recent]

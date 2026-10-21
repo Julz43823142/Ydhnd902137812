@@ -512,7 +512,7 @@ def game_embed(g):
                 desc+=f'\n\nPlay together on the **{int(d.get("width",engine.MINEFIELD_WIDTH))} × {int(d.get("height",engine.MINEFIELD_HEIGHT))} buttons below**. **Reveal / Flag mode is personal for each player.** Choose **My Reveal Mode** or **My Flag Mode**; the bot privately confirms your mode.'
         elif kind=='trivia':
             q=d['questions'][d['round']]
-            desc+=f'**Question {d["round"]+1}/15**\n{safe(q["category"])}\n\n**{safe(q["question"])}**\n'
+            desc+=f'**Question {d["round"]+1}/{len(d["questions"])} · {q["difficulty"].title()}**\n{safe(q["category"])}\n\n**{safe(q["question"])}**\n'
             desc+='\n'.join(f'**{"ABCD"[i]}.** {safe(x)}' for i,x in enumerate(q['options']))
             desc+=f'\n\nAnswers locked: **{len(d["answers"])}/{len(g["players"])}**'
             if d['reveal']:
@@ -533,7 +533,7 @@ def game_embed(g):
                 e.add_field(name='Who has answered?', value='\n'.join(
                     ('🔒 Answer locked · ' if p['id'] in d['answers'] else '⌛ Thinking · ')+player_text(p)
                     for p in g['players'])[:1024], inline=False)
-            e.add_field(name='Correct answers this game',value='\n'.join(f'{player_text(p)} — {d["correct"][p["id"]]}/15' for p in g['players']),inline=False)
+            e.add_field(name='Correct answers this game',value='\n'.join(f'{player_text(p)} — {d["correct"][p["id"]]}/{len(d["questions"])}' for p in g['players']),inline=False)
         elif kind=='escape':
             room=d['rooms'][min(d['room'],7)]
             current=[p for p in g['players'] if p['id'] not in g.get('left',[])]
