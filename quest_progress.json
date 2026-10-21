@@ -429,12 +429,14 @@
         },
         "442597396195704832": {
           "name": "Thice",
-          "paid": [],
+          "paid": [
+            "daily:2026-10-21:minigame:minigame-1"
+          ],
           "progress": {
             "daily:2026-10-21:minigame:minigame-1": 1,
             "daily:2026-10-21:puzzle:solve-8": 1
           },
-          "updated_at": 1792590371
+          "updated_at": 1792590379
         },
         "550338389535227926": {
           "name": "Nairyaaa",
