@@ -1,4 +1,4 @@
-"""Regression checks for the Method 3 10000-game / 200-game block route."""
+"""Regression checks for the Method 3 5000-game / 200-game block route."""
 import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -10,10 +10,10 @@ from fairplay_progress import estimate
 
 class BlockReviewTests(unittest.TestCase):
     def test_limits_and_progress(self):
-        self.assertEqual((LIMIT, BLOCK_SIZE), (10000, 200))
-        self.assertLess(estimate('Collecting rated and unrated games… 100/10000 games · 1/20 archives'),
-                        estimate('Collecting rated and unrated games… 3000/10000 games · 12/20 archives'))
-        self.assertLess(estimate('Method 3: block 1/50'), estimate('Method 3: block 49/50'))
+        self.assertEqual((LIMIT, BLOCK_SIZE), (5000, 200))
+        self.assertLess(estimate('Collecting rated and unrated games… 100/5000 games · 1/20 archives'),
+                        estimate('Collecting rated and unrated games… 3000/5000 games · 12/20 archives'))
+        self.assertLess(estimate('Method 3: block 1/25'), estimate('Method 3: block 24/25'))
         self.assertLess(estimate('Method 3: block 24/25'), 95)
 
     def test_early_high_is_not_diluted_by_later_normal_blocks(self):
@@ -55,7 +55,7 @@ class BlockReviewTests(unittest.TestCase):
         self.assertEqual(result.diagnostics['method3']['blocks_checked'], 3)
         self.assertEqual(result.diagnostics['method3']['selected']['history_block'], 1)
         self.assertIn('Method 3: block 3/3', stages)
-        self.assertEqual(result.coverage['requested_primary_limit'], 10000)
+        self.assertEqual(result.coverage['requested_primary_limit'], 5000)
 
 
     def test_shared_results_guard_is_adjusted_once_per_window(self):
