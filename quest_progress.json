@@ -417,6 +417,14 @@
     },
     "daily:2026-10-21": {
       "users": {
+        "362606514764251137": {
+          "name": "Sharkmeister",
+          "paid": [],
+          "progress": {
+            "daily:2026-10-21:minigame:minigame-1": 1
+          },
+          "updated_at": 1792588016
+        },
         "442597396195704832": {
           "name": "Thice",
           "paid": [],
@@ -667,6 +675,14 @@
     },
     "weekly:2026-10-19": {
       "users": {
+        "362606514764251137": {
+          "name": "Sharkmeister",
+          "paid": [],
+          "progress": {
+            "weekly:2026-10-19:minigame:minigame-8": 1
+          },
+          "updated_at": 1792588016
+        },
         "442597396195704832": {
           "name": "Thice",
           "paid": [],
