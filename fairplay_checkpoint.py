@@ -223,14 +223,15 @@ class CheckpointStore:
         with self.lock:
             return [
                 {"target": target, "message_id": item.get("message_id"),
-                 "token": item.get("token"), "stage": item.get("stage", "Restoring scan…"),
+                 "token": item.get("token"), "channel_id": item.get("channel_id"),
+                  "stage": item.get("stage", "Restoring scan…"),
                  "timing": item.get("timing") if isinstance(item.get("timing"),dict) else None}
                 for target, item in sorted(self.state["jobs"].items(),
                                            key=lambda pair: pair[1].get("updated", 0))
                 if item.get("status") == "running"
             ]
 
-    def note(self, target, *, message_id=None, token=None, stage=None, force=True, timing=None):
+    def note(self, target, *, message_id=None, token=None, stage=None, force=True, timing=None, channel_id=None):
         if not self.enabled:
             return False
         with self.lock:
@@ -242,6 +243,8 @@ class CheckpointStore:
             job["status"] = "running"
             if message_id is not None:
                 job["message_id"] = int(message_id)
+            if channel_id is not None:
+                job["channel_id"] = int(channel_id)
             if token:
                 job["token"] = str(token)[:32]
             if stage:

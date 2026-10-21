@@ -1267,6 +1267,7 @@ class ReportView(SubmitView):
 class Job:
     target: str
     ctx: object
+    output_channel: object = None
     stage: str = 'Fetching profile…'
     progress_percent: int = 0
     timing: LiveTiming = field(default_factory=LiveTiming)
@@ -1348,23 +1349,24 @@ class FairPlayService:
 
     async def enqueue(self,ctx,target):
         self.expire_cache()
+        output_channel = ctx.channel if ctx.channel_id in FAIRPLAY_ALLOWED_CHANNEL_IDS else self.channel
         if self.closed:
-            await self.channel.send(content='Fair Play is restarting. Please try again shortly.',allowed_mentions=discord.AllowedMentions.none());return
+            await output_channel.send(content='Fair Play is restarting. Please try again shortly.',allowed_mentions=discord.AllowedMentions.none());return
         if target in self.jobs:
             job = self.jobs[target]
             text = 'This account already has a queued or running review. The existing scan is reused.'
             if job.message:text += f' [View progress]({job.message.jump_url})'
-            await self.channel.send(content=text,allowed_mentions=discord.AllowedMentions.none());return
+            await output_channel.send(content=text,allowed_mentions=discord.AllowedMentions.none());return
         if len(self.jobs)>=MAX_JOBS:
-            await self.channel.send(
+            await output_channel.send(
                 content=f'The Fair Play queue is full ({MAX_CONCURRENT_SCANS} active + {MAX_WAITING_SCANS} waiting). Please try again later.',
                 allowed_mentions=discord.AllowedMentions.none());return
         waiting=len(self.jobs)>=MAX_CONCURRENT_SCANS
-        job = Job(target,ctx)
+        job = Job(target,ctx,output_channel=output_channel)
         self.jobs[target] = job
         self.queue.put_nowait(job)
         if getattr(self,'checkpoints',None) is not None:
-            await asyncio.to_thread(self.checkpoints.note,target,token=job.token)
+            await asyncio.to_thread(self.checkpoints.note,target,token=job.token,channel_id=output_channel.id)
         import feature_usage
         feature_usage.note('use:fairplay-scan',ctx.user.id)
         if waiting:
@@ -1395,7 +1397,7 @@ class FairPlayService:
                 mention_author=False,allowed_mentions=discord.AllowedMentions.none())
             return False
         waiting=len(self.jobs)>=MAX_CONCURRENT_SCANS
-        job=Job(target,None)
+        job=Job(target,None,output_channel=self.channel)
         self.jobs[target]=job
         self.queue.put_nowait(job)
         if getattr(self,'checkpoints',None) is not None:
@@ -1494,7 +1496,7 @@ class FairPlayService:
             if job.message is None:
                 job.delivery_unknown = True
                 attempted_send=True
-                job.message = await self.channel.send(embed=card,view=view,nonce=job.token,
+                job.message = await (job.output_channel or self.channel).send(embed=card,view=view,nonce=job.token,
                                                       allowed_mentions=discord.AllowedMentions.none())
                 job.delivery_unknown = False
             else:await job.message.edit(embed=card,view=view)
@@ -1505,7 +1507,7 @@ class FairPlayService:
                 metadata=({"timing":job.timing.snapshot()}
                           if isinstance(job.timing,ReliableTiming) else {})
                 await self.note_delivered_checkpoint(job, 'note',
-                    message_id=job.message.id,token=job.token,stage=stage,
+                    message_id=job.message.id,channel_id=job.message.channel.id,token=job.token,stage=stage,
                     force=False,**metadata)
             return True
         except discord.NotFound:job.message_deleted = True
@@ -1651,7 +1653,7 @@ class FairPlayService:
                                   f' · Review ID: {job.token}')
             published=False
             try:
-                final_message=await self.channel.send(
+                final_message=await (job.output_channel or self.channel).send(
                     embed=final_card,files=attachments,
                     view=ReportView(result.username),
                     allowed_mentions=discord.AllowedMentions.none())
@@ -1661,7 +1663,7 @@ class FairPlayService:
                     fallback=fallback_result_embed(result)
                     fallback.set_footer(text=(fallback.footer.text or '')+
                                         f' · Review ID: {job.token}')
-                    final_message=await self.channel.send(
+                    final_message=await (job.output_channel or self.channel).send(
                         embed=fallback,view=ReportView(result.username),
                         allowed_mentions=discord.AllowedMentions.none())
                     published=True
@@ -1702,7 +1704,7 @@ class FairPlayService:
                 await asyncio.to_thread(self.checkpoints.suspend,job.target)
             try:
                 if job.ctx is not None:
-                    await self.channel.send(content='❌ **Chess.com account not found**\nCheck the username and try again.',allowed_mentions=discord.AllowedMentions.none())
+                    await (job.output_channel or self.channel).send(content='❌ **Chess.com account not found**\nCheck the username and try again.',allowed_mentions=discord.AllowedMentions.none())
             except discord.HTTPException:pass
         except ReviewError as error:
             if job.cancel_requested:return
@@ -1713,7 +1715,7 @@ class FairPlayService:
             else:
                 try:
                     if job.ctx is not None:
-                        await self.channel.send(content='❌ '+str(error),allowed_mentions=discord.AllowedMentions.none())
+                        await (job.output_channel or self.channel).send(content='❌ '+str(error),allowed_mentions=discord.AllowedMentions.none())
                 except discord.HTTPException:pass
         except asyncio.CancelledError:
             job.stop.set()
@@ -1733,7 +1735,7 @@ class FairPlayService:
             else:
                 try:
                     if job.ctx is not None:
-                        await self.channel.send(content='Analysis could not finish safely. Please try again later.',allowed_mentions=discord.AllowedMentions.none())
+                        await (job.output_channel or self.channel).send(content='Analysis could not finish safely. Please try again later.',allowed_mentions=discord.AllowedMentions.none())
                 except discord.HTTPException:pass
         finally:
             if job.cancel_requested:

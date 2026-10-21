@@ -576,10 +576,10 @@ class Pipeline(unittest.TestCase):
         self.assertEqual(result.confidence,'LOW');engine.quit.assert_called_once()
 
 
-def ctx():
+def ctx(channel=None):
     return SimpleNamespace(channel_id=CHANNEL_ID,user=SimpleNamespace(id=42,bot=False),
         response=SimpleNamespace(defer=AsyncMock(),send_message=AsyncMock(),send_modal=AsyncMock(),is_done=Mock(return_value=False)),
-        followup=SimpleNamespace(send=AsyncMock()),delete_original_response=AsyncMock(),channel=FakeChannel(),data={})
+        followup=SimpleNamespace(send=AsyncMock()),delete_original_response=AsyncMock(),channel=channel if channel is not None else FakeChannel(),data={})
 
 
 class FakeMessage:
@@ -708,7 +708,7 @@ class DiscordRules(unittest.IsolatedAsyncioTestCase):
     async def test_queue_limit_duplicates_and_no_target_in_analytics(self):
         names=(TARGET,TARGET,'synthetic-two','synthetic-three','synthetic-four',
                'synthetic-five','synthetic-six','synthetic-seven')
-        events=[ctx() for _ in names]
+        events=[ctx(self.channel) for _ in names]
         with patch('feature_usage.note') as note:
             for event,name in zip(events,names):
                 await self.service.enqueue(event,name)
@@ -850,17 +850,17 @@ class DiscordRules(unittest.IsolatedAsyncioTestCase):
 
     async def test_immediate_submit_is_quiet_and_queue_is_private_but_duplicates_are_public(self):
         with patch('feature_usage.note'):
-            first=ctx()
+            first=ctx(self.channel)
             await ui.submit(first,TARGET)
             first.delete_original_response.assert_awaited_once()
             first.followup.send.assert_not_awaited()
             self.assertEqual(self.channel.sends,0)
-            await ui.submit(ctx(),TARGET)
+            await ui.submit(ctx(self.channel),TARGET)
             self.assertIn('queued or running',self.channel.messages[-1].content)
             self.channel.messages.clear();self.channel.sends=0
             queued_events=[]
             for i in range(ui.MAX_CONCURRENT_SCANS):
-                event=ctx()
+                event=ctx(self.channel)
                 queued_events.append(event)
                 await ui.submit(event,f'synthetic-{i}')
             self.assertEqual(self.channel.sends,0)
