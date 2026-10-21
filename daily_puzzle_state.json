@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/MShmM",
     "title": "Lichess • 1752",
     "fen": "8/4k1p1/2p2p2/p1PB4/P4P2/6KP/8/8 b - - 0 31",
-    "current_fen": "8/3k2p1/5p2/p1Pp4/P4P2/4K2P/8/8 b - - 3 33",
-    "last_move_uci": "f3e3",
+    "current_fen": "8/6p1/2k2p2/p1Pp4/P4P2/3K3P/8/8 b - - 5 34",
+    "last_move_uci": "e3d3",
     "pgn": {
       "__shark_answer_ciphertext_v1__": "gAAAAABq2LLV1z2-eetdveksuSemvyRMl2XXzhLl5ZGEKItFalGFIgx_8DzgrVdc6ZbeMUnPQp7AEfiBdj9U74f1mOS0xpPUTQ5G_Jm0ZxKnvuT-eWfycFA="
     },
@@ -22,28 +22,28 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_MShmM_1792586453387",
-    "last_activity_at": "2026-10-21T12:41:21.388702+00:00",
+    "last_activity_at": "2026-10-21T12:41:39.527646+00:00",
     "rating": 1752,
     "rp_band": 1,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 4,
-    "next_player_index": 2,
+    "next_solution_index": 6,
+    "next_player_index": 3,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1562445690930597979
+      "1468320170891022417": 1562445766859948114
     },
-    "message_id": 1562445690930597979,
+    "message_id": 1562445766859948114,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "550338389535227926": {
         "name": "Nairyaaa",
-        "move": "Kd7",
+        "move": "Kc6",
         "correct": true,
-        "timestamp": "2026-10-21T12:41:21.388908+00:00"
+        "timestamp": "2026-10-21T12:41:39.527855+00:00"
       }
     },
     "first_move_user_id": "550338389535227926",
@@ -54,17 +54,17 @@
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
-    "last_card_activity_at": "2026-10-21T12:41:21.388702+00:00",
+    "last_card_activity_at": "2026-10-21T12:41:39.527646+00:00",
     "recent_accepted_moves": [
       {
-        "accepted_at": 1792586481.388916,
-        "fen_before": "8/4k1p1/5p2/p1Pp4/P4P2/5K1P/8/8 b - - 1 32",
+        "accepted_at": 1792586499.5278633,
+        "fen_before": "8/3k2p1/5p2/p1Pp4/P4P2/4K2P/8/8 b - - 3 33",
         "expected": {
-          "uci": "e7d7",
-          "san": "Kd7",
+          "uci": "d7c6",
+          "san": "Kc6",
           "color": "black"
         },
-        "accepted_uci": "e7d7"
+        "accepted_uci": "d7c6"
       }
     ],
     "accepted_solution_moves": [
@@ -77,9 +77,14 @@
         "san": "Kd7",
         "uci": "e7d7",
         "principal": true
+      },
+      {
+        "san": "Kc6",
+        "uci": "d7c6",
+        "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Ke3"
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kd3"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
