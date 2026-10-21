@@ -240,6 +240,27 @@ def _asks_public_version(prompt: str) -> bool:
     return True
 
 
+def puzzle_help_reply(prompt, primary_channel_id, secondary_channel_id):
+    """Give actionable puzzle instructions for how-to questions, not a dispatch."""
+    if not re.search(r"(?i)\\b(?:puzzles?|puzzels?)\\b", prompt):
+        return None
+    if not re.search(
+        r"(?i)\\b(?:how|where|which|what|hoe|waar|welk|welke|"
+        r"commands?|commando|instructions?|instructies|help|"
+        r"can i|could i|kan ik)\\b", prompt
+    ):
+        return None
+    return (
+        "To solve a chess puzzle, go to <#" + str(primary_channel_id) +
+        "> or <#" + str(secondary_channel_id) + ">. "
+        "Type \`r\` (or \`rp\`) for a Random Puzzle, or \`p\` "
+        "(or \`!practice\`) for a rated Practice Puzzle near your Puzzle Elo. "
+        "You can also type \`!menu\` to open the puzzle buttons. "
+        "When the board appears, send your move in chess notation, e.g. \`Re4\`. "
+        "These are text commands, not slash commands."
+    )
+
+
 def fairplay_review_target(prompt):
     """Find an explicit target in a Task Force review request.
 
@@ -407,6 +428,14 @@ async def handle_mention(message, client):
             mention_author=False, allowed_mentions=discord.AllowedMentions.none(),
         )
         return True
+    # How-to questions need a usable channel link and exact text commands,
+    # rather than attempting to start a puzzle in an unrelated channel.
+    from shark_commands import PRIMARY_CHESS_CHANNEL_ID, SECONDARY_CHESS_CHANNEL_ID
+    puzzle_help=puzzle_help_reply(prompt,PRIMARY_CHESS_CHANNEL_ID,SECONDARY_CHESS_CHANNEL_ID)
+    if puzzle_help:
+        await _counted_reply(message,puzzle_help,mention_author=False,
+            allowed_mentions=discord.AllowedMentions.none())
+        return True
     # Deterministic chess-puzzle routing: never let the language model
     # fabricate an ASCII puzzle. Follow-ups use only this channel's context.
     from shark_puzzle_intent import puzzle_request
@@ -417,7 +446,7 @@ async def handle_mention(message, client):
         if await dispatch_puzzle_request(message, client, puzzle_kind):
             return True
         await _counted_reply(message,
-            "Please start puzzles in a SharkBot chess channel.",
+            "To start a puzzle, go to <#" + str(PRIMARY_CHESS_CHANNEL_ID) + "> or <#" + str(SECONDARY_CHESS_CHANNEL_ID) + ">. Type `r` for Random Puzzle or `p` for Practice.",
             mention_author=False, allowed_mentions=discord.AllowedMentions.none())
         return True
     if _asks_public_version(prompt):
