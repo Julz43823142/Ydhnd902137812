@@ -5,6 +5,8 @@ import random
 import time
 import re
 from fractions import Fraction
+from functools import lru_cache
+from itertools import product
 from datetime import datetime, timezone
 
 import minigames_poker as poker
@@ -372,11 +374,17 @@ def codebreaker_normalize_mode(mode):
     return value if value in CODEBREAKER_MODES else 'easy'
 
 
+@lru_cache(maxsize=3)
+def codebreaker_universe(length):
+    """Reuse immutable 1,000/10,000/100,000-code tables between games."""
+    if length not in (3,4,5):raise ValueError('Unsupported code length.')
+    return tuple(product(range(10),repeat=length))
+
+
 def codebreaker_new(rng, mode='easy'):
     """Build a uniquely solvable transcript Codebreaker for 3, 4 or 5 digits."""
-    from itertools import product
     mode=codebreaker_normalize_mode(mode);length=CODEBREAKER_MODES[mode]
-    universe=list(product(range(10),repeat=length))
+    universe=codebreaker_universe(length)
     secret=tuple(rng.randrange(10) for _ in range(length))
     candidates=list(universe);clues=[];used=set()
     minimum_rows={'easy':3,'normal':4,'hard':5}[mode]
@@ -819,7 +827,17 @@ def _detective_minutes(value):
 
 
 def detective_new(rng):
-    """Build a denser eight-suspect case that requires several clues together."""
+    """Build an unambiguous case with bounded retries, never unbounded recursion."""
+    for _ in range(8):
+        try:
+            return _detective_candidate(rng)
+        except ValueError:
+            continue
+    raise ValueError('Could not generate a unique Detective Case. Try again.')
+
+
+def _detective_candidate(rng):
+    """Build one candidate with six logically independent clue reductions."""
     scenarios=[
         ('The Museum Blackout','a prototype vanished during a 90-second blackout'),
         ('The Observatory Sabotage','the tracking array was deliberately disabled'),
@@ -947,7 +965,7 @@ def detective_new(rng):
     if not evidence:
         # The attribute construction above normally produces a chain. Retry
         # cleanly rather than shipping an ambiguous case if a rare shuffle does not.
-        return detective_new(rng)
+        raise ValueError('Case generator found no uniquely identifying clue chain.')
     for clue in evidence:clue.pop('_mask',None)
     title,incident=rng.choice(scenarios)
     return {
