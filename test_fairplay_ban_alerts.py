@@ -70,6 +70,7 @@ class Alerts(unittest.IsolatedAsyncioTestCase):
     def test_exact_closure_transition_deduplicates_games_and_restart(self):
         key=self.event();event=self.store.snapshot()['outbox'][key]
         self.assertEqual(event['games'],2)
+        self.assertEqual(event['most_recent_game'],1700000002)
         self.assertEqual(event['url'],'https://www.chess.com/game/live/2')
         self.assertIsNotNone(reserve(self.store,key));mark(self.store,key,'sent',123)
         self.store=AlertStore(self.path,remote='',secret='synthetic-test-key')
@@ -152,11 +153,17 @@ class Alerts(unittest.IsolatedAsyncioTestCase):
             'Followed Chess.com account','Opponent','Official status',
             'Public links','Times played','Detected by SharkBot','Get your own alerts'])
         self.assertEqual(card.fields[4].value,'2 games')
+        event['most_recent_game']=1700000002
+        self.assertEqual(alert_embed(event,'synthetic-key').fields[4].value,
+                         '2 games\\nMost recent game: 14 November 2023'.replace('\\n','\n'))
         self.assertEqual(card.fields[5].value,'October 21, 2026')
         self.assertNotIn('Recorded meetings',str(card.to_dict()))
         self.assertNotIn('Alert ID',str(card.to_dict()))
         self.assertTrue(card.url.endswith('#sharkbot-alert-synthetic-key'))
         event['games']=1
+        self.assertEqual(alert_embed(event,'synthetic-key').fields[4].value,
+                         '1 game\\nMost recent game: 14 November 2023'.replace('\\n','\n'))
+        del event['most_recent_game']
         self.assertEqual(alert_embed(event,'synthetic-key').fields[4].value,'1 game')
 
     async def test_old_footer_marker_still_reconciles(self):
