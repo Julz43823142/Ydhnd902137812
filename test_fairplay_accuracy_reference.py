@@ -3,6 +3,7 @@ from dataclasses import replace
 from fractions import Fraction
 from math import comb, prod
 import itertools
+import random
 import unittest
 
 from fairplay_accuracy_reference import accuracy_reference_bound, _beta_binomial_tail
@@ -86,6 +87,29 @@ class FiniteReferenceTests(unittest.TestCase):
         self.assertEqual(accuracy_reference_bound(missing),(1.0,'unavailable'))
         unmodelled={**summary(100,20,20),'unmodelled_reference_games':1}
         self.assertEqual(accuracy_reference_bound(unmodelled),(1.0,'unavailable'))
+
+    def test_candidate_only_guard_preserves_exhaustive_scenario_decisions(self):
+        # Compare the cheap screen with calculating the finite-reference
+        # bound for EVERY window on normal, mixed and sustained-jump histories.
+        from fairplay_outcome_study import SCENARIOS, DEVELOPMENT_SCENARIOS
+        scenarios=SCENARIOS+DEVELOPMENT_SCENARIOS
+        for seed in range(3):
+            rng=random.Random(seed)
+            rows=[game(i,accuracy=50+rng.random()*30) for i in range(80)]
+            for row in rows[60:]:
+                row['official_accuracy']=95 if seed else row['official_accuracy']
+            periods=evaluate([{'player_key':'subject','games':rows}],
+                config=replace(STUDY,widths=(5,10,20)),scenarios=scenarios,
+                protect_search=True)['players'][0]['periods']
+            count=periods[0]['search_guard']['searched_windows']
+            for period in periods:
+                a=period['accuracy'];bound,_=accuracy_reference_bound(a)
+                for scenario in scenarios:
+                    raw=(a['matched_games']>=STUDY.coverage*period['games']
+                         and a['median_excess']>=scenario.accuracy_delta
+                         and a['above_reference_fraction']>=scenario.above_reference_fraction)
+                    self.assertEqual(period['scenarios'][scenario.name]['accuracy_pass'],
+                                     raw and min(1,bound*count)<=.10)
 
 
 if __name__ == '__main__':

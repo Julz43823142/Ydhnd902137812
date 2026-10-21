@@ -53,7 +53,15 @@ def protect_periods(periods,games):
                         'moderate_pass':short_ok and adjusted<=.10,
                         'note':'Independent-game Elo model guard, not a cheating probability; ratings may be inaccurate in rated or unrated play.'}
         p['search_guard']=cache[key]
-        raw_accuracy_bound,reference_model=accuracy_reference_bound(p['accuracy'])
+        # The finite-reference guard can only reject an existing Accuracy
+        # candidate, never promote a failed coverage/effect-size screen. Do
+        # not solve its tail repeatedly for thousands of non-candidates.
+        # One is a valid conservative bound; all games and raw summaries are
+        # still included, and every configured scenario is considered.
+        if any(checks['accuracy_pass'] for checks in p['scenarios'].values()):
+            raw_accuracy_bound,reference_model=accuracy_reference_bound(p['accuracy'])
+        else:
+            raw_accuracy_bound,reference_model=1.0,'effect_screen_not_met'
         accuracy_bound=min(1.0,raw_accuracy_bound*count)
         p['accuracy_search_guard']={'searched_windows':count,
             'raw_reference_model_bound':raw_accuracy_bound,
