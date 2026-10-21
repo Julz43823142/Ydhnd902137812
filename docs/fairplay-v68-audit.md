@@ -119,7 +119,18 @@ XDG_CACHE_HOME=/tmp/sharkbot-render-cache python scripts/benchmark_fairplay_meth
 XDG_CACHE_HOME=/tmp/sharkbot-render-cache python scripts/benchmark_fairplay_method3_audit.py --games 5000
 ```
 
-Final measured values and complete test counts are recorded below after verification. The reference-size caches are bounded, collection remains capped, heavy work stays off the Discord event loop, and the additional zoom is bounded to 240 observations. No fewer games or weaker evidence are substituted to claim speed gains.
+Three fresh-process repetitions per size/version, alternating baseline and proposed code, run sequentially in the same cloud environment without concurrent local test workloads. Values below are medians, not production end-to-end estimates. The total column is the median of each run's scoring + chart time, so rounded component medians need not sum to it.
+
+| Games | Version | Scoring | Charts | Combined median (range) | Peak RSS median | Charts / candidate windows |
+|---:|---|---:|---:|---:|---:|---:|
+| 1,000 | v67 | 1.753 s | 0.742 s | 2.495 s (2.331–2.804) | 96.7 MiB | 6 / 3,012 |
+| 1,000 | v68 | 2.875 s | 0.997 s | 3.764 s (3.756–3.892) | 116.3 MiB | 7 / 3,024 |
+| 5,000 | v67 | 20.452 s | 1.100 s | 21.552 s (21.165–23.616) | 183.2 MiB | 6 / 15,492 |
+| 5,000 | v68 | 33.844 s | 1.251 s | 35.095 s (32.288–36.786) | 236.3 MiB | 7 / 15,588 |
+
+At 5,000 games this workload takes **13.54 seconds more, approximately 63% longer** for the measured portion. The changes prioritize corrected coverage and uncertainty over speed; there is no demonstrated production speedup. All twelve synthetic benchmark runs remained LOW. These measurements say nothing about detection accuracy, network latency or queue time. [Raw measurements and scope](fairplay-v68-benchmark.json) are committed for review.
+
+Finite-reference tail solves are skipped when no configured scenario even passes its raw Accuracy coverage/effect screen; the resulting conservative bound is 1. This cannot promote a rejected screen. A regression compares every scenario's decision to exhaustive tail calculation on normal, mixed and jump histories. This preserves priority decisions, not necessarily which tied MODERATE period is displayed: its old unused Accuracy bound no longer influences tie-breaking. Bounded caches reuse repeated reference-size calculations. Collection remains capped, heavy work stays off the Discord event loop, and the additional zoom is bounded to 240 observations. No fewer games or weaker evidence are substituted to claim speed gains.
 
 ## I. Ranked next improvements
 
@@ -144,7 +155,30 @@ The patch keeps production flags, credentials, subscriptions, ban alerts, puzzle
 
 New test modules cover finite-reference math, class-first windows, chronology coverage, collection gaps and report presentation. Existing routing, cancellation, result, status, legacy and persistence tests are retained. Tests that previously assumed missing opponents were independent now supply distinct anonymous opponents when testing an unrelated HIGH path. The old assertion of `partial=False` after a malformed eligible PGN is intentionally corrected to the truthful partial-data contract.
 
-See the PR and final verification subsection for the exact command/results. All synthetic fixtures are anonymous; private account samples and labels are not committed.
+Verification in the isolated audit checkout:
+
+- The first full local Fair Play run executed 1,385 tests. It identified two old collector-fixture assumptions: malformed eligible PGNs were previously reported complete, and a latest-game fixture used an unknown completion timestamp of zero. Both fixtures were updated to the explicit coverage contract and rerun successfully. No other failure occurred in that run.
+- Focused runs passed: 70 collection tests; 66 routing/cancellation/delivery tests; 7 finite-reference math/parity tests; 34 coverage/reference tests; and 14 final Method 3 presentation tests. These groups overlap and must not be added as distinct tests. The final math-parity regression was added after the first full local run.
+- A bounded **real API fetch** obtained 10 public games, parsed 324 decisions and reported no collection gaps. No game in that fetch supplied published Accuracy; the missing values remained missing. This verifies collection, not a real-player classification.
+- The existing [Offline Bot Tests workflow](https://github.com/Julz43823142/Ydhnd902137812/actions/workflows/bot-tests.yml) runs every root test module across four shards, minigame regressions, repository data/compile checks, legacy gates, and actual Stockfish/Maia/Lc0 smoke checks. Final run links and results are recorded on [draft PR #250](https://github.com/Julz43823142/Ydhnd902137812/pull/250). Engine/model smoke checks protect shared legacy functionality; they do not imply those models are active in Method 3.
+- `git diff --check` passed; added lines were checked for private calibration-account names (none). No private evidence, input PGNs or case labels are committed.
+
+Reproduce the targeted new tests with:
+
+```bash
+python -m unittest -q test_fairplay_accuracy_reference test_fairplay_collection_gaps test_fairplay_method3_class_windows test_fairplay_method3_coverage test_fairplay_method3_ui_audit
+```
+
+For the full root suite, preload the root module as the existing CI does, so test imports cannot shadow it with `scripts/fairplay_outcome_study.py`:
+
+```bash
+python - <<'PY'
+import glob, sys, unittest
+import fairplay_outcome_study
+modules = sorted(path[:-3] for path in glob.glob('test_*.py'))
+unittest.main(module=None, argv=[sys.argv[0], '-q', *modules])
+PY
+```
 
 ## K. Open uncertainties and external sources
 
