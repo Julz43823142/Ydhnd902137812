@@ -20,7 +20,7 @@ class BlockReviewTests(unittest.TestCase):
         games = [
             SimpleNamespace(identity=f'g{i:04}', ended=i + 1000, rated=True, time_class='blitz',
                 time_control='300', rating=1300, opponent_rating=1300, score=1 if i < 200 else .5,
-                accuracy=85, decisions=[])
+                accuracy=85, decisions=[], opponent_username=f'anonymous-opponent-{i}')
             for i in range(450)
         ]
         def study(players, **kwargs):
@@ -66,7 +66,7 @@ class BlockReviewTests(unittest.TestCase):
             SimpleNamespace(identity=f'g{i:04}', ended=i + 1000, rated=True,
                 time_class='blitz', time_control='300+0', rating=1300,
                 opponent_rating=1300, score=1 if i < 200 else .5,
-                accuracy=None, decisions=[])
+                accuracy=None, decisions=[], opponent_username=f'anonymous-opponent-{i}')
             for i in range(450)
         ]
         def study(players, **kwargs):

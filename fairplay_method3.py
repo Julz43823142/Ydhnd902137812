@@ -11,7 +11,7 @@ from fairplay_config import CONFIG
 from fairplay_data import PubAPI, ReviewError, ScanDeadline, check_deadline, collect_games, username
 from fairplay_outcome_study import evaluate, SCENARIOS, DEVELOPMENT_SCENARIOS, CONFIG as STUDY_CONFIG
 
-VERSION='fairplay-v67-opening-rating-calibration'
+VERSION='fairplay-v68-evidence-integrity'
 LIMIT=5000
 BLOCK_SIZE=200
 PRIORITY_GAMES=200
@@ -38,36 +38,25 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         check_deadline(deadline)
         games=sorted((g for g in games if type(g.rated) is bool),key=lambda g:(g.ended,g.identity))[-LIMIT:]
         if not games:raise ReviewError('No eligible live games were found.')
-        # Evaluate disjoint chronological 200-game blocks independently, never
+        from fairplay_method3_coverage import ChronologyCoverage
+        collection_status=getattr(api,'fairplay_collection_coverage',None) or {}
+        chronology=ChronologyCoverage(collection_status)
+        # Evaluate class-local chronological 200-game blocks independently, never
         # dilute a qualifying period with older normal results. Apply an
         # additional across-block search correction to avoid inflated flags.
         from fairplay_outcome_study import _result
-        blocks=[games[i:i+BLOCK_SIZE] for i in range(0,len(games),BLOCK_SIZE)]
-        block_count=len(blocks)
-        # A streak split by an arbitrary 200-game boundary should not be
-        # invisible. A 200-game candidate bridge (100 games on each side)
-        # covers every cross-boundary run of at most 100 games; it can also
-        # examine symmetric 200-game runs. Bonferroni-adjust all newly
-        # searched physical windows globally, including overlapping blocks.
-        # Retain a strictly earlier reference block for Accuracy.
-        BRIDGE_RADIUS=100
-        segments=[]
-        for index,block in enumerate(blocks):
-            start=index*BLOCK_SIZE
-            context_start=max(0,start-BLOCK_SIZE)
-            segments.append((index,block,games[context_start:start+len(block)],
-                             context_start,False))
-        for boundary in range(BLOCK_SIZE,len(games),BLOCK_SIZE):
-            start=boundary-BRIDGE_RADIUS
-            end=min(len(games),boundary+BRIDGE_RADIUS)
-            context_start=max(0,start-BLOCK_SIZE)
-            segments.append((boundary//BLOCK_SIZE-1,games[start:end],
-                             games[context_start:end],context_start,True))
+        # Split by time class BEFORE batching. Otherwise intervening Blitz
+        # games can hide even a twenty-game Rapid run from every batch.
+        from fairplay_method3_windows import segments as build_segments
+        segments,block_count=build_segments(games,BLOCK_SIZE)
         overall_rows=[]
         candidate_rows=[]
         positions={g.identity:i for i,g in enumerate(games)}
         physical_windows=set()
-        for segment_index,(index,block,context,context_start,is_bridge) in enumerate(segments):
+        for segment_index,segment in enumerate(segments):
+            index,block,context,context_start=(segment.block_index,segment.candidates,
+                                              segment.context,segment.context_start)
+            is_bridge=segment.boundary is not None
             check_deadline(deadline)
             progress((f'Method 3: boundary {segment_index-block_count+1}/{len(segments)-block_count}'
                       if is_bridge else f'Method 3: block {index+1}/{block_count}'))
@@ -92,7 +81,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
             by_class={kind:[g for g in context if g.time_class==kind]
                       for kind in ('rapid','blitz','bullet')}
             if is_bridge:
-                boundary=(index+1)*BLOCK_SIZE
+                boundary=segment.boundary
                 sub['periods']=[p for p in sub['periods']
                     if positions[by_class[p['time_class']][p['first_game']-1].identity]
                        < boundary <=
@@ -140,6 +129,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                    'Never replace a time-control Elo with ratings from another control.'}
         rank={'INSUFFICIENT DATA':0,'LOW':1,'MODERATE':2,'HIGH':3,'VERY HIGH':4}
         candidates=[]
+        guarded_periods={}
         corrected_result_guards=set()
         rating_cache={}
         opponent_cache={}
@@ -194,10 +184,16 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 tier,limits=independent_results_tier(
                     tier,games=period['games'],rating=rating,opponents=opponents,
                     accuracy_confirmed=accuracy_checks['accuracy_pass'])
+                period['chronology_coverage']=chronology.period(members)
+                if not period['chronology_coverage']['complete']:
+                    limits=tuple(limits)+('incomplete_period_chronology',)
+                    if tier in ('HIGH','VERY HIGH'):tier='MODERATE'
                 period['rating_support']=rating
                 period['opponent_support']=opponents
                 period['effective_priority']=tier
                 if limits:
+                    key=(period['time_class'],members[0].identity,members[-1].identity)
+                    guarded_periods.setdefault(key,set()).update(limits)
                     period['classification_guards']=limits
                     period['rating_reliability_downgrade']=any(
                         reason in limits for reason in (
@@ -248,6 +244,12 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 'opponent_groups':[],'periods':[]},None,0,False)
         subject=dict(subject)
         subject['overall_results']=_result(overall_rows)
+        # Displayed class/opponent totals cover the WHOLE collected sample,
+        # not just the context of the strongest class-local execution batch.
+        from fairplay_outcome_study import _opponent_groups
+        subject['class_results']={kind:_result([g for g in overall_rows if g['time_class']==kind])
+                                 for kind in ('rapid','blitz','bullet')}
+        subject['opponent_groups']=_opponent_groups(overall_rows,{},'official_accuracy',STUDY,{})
         # Keep only the selected block's evidence in the Discord payload.
         # All blocks were scored above; serializing every candidate window
         # would make a 5000-game result needlessly large.
@@ -274,7 +276,6 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
             basis='accuracy_frequency'
         selected_period_priority=priority if basis!='accuracy_frequency' else 'LOW'
         rated_count=sum(g.rated is True for g in games)
-        collection_status=getattr(api,'fairplay_collection_coverage',None) or {}
         valid_accuracy=sum(isinstance(g.accuracy,(int,float)) and not isinstance(g.accuracy,bool)
                            and 0 <= g.accuracy <= 100 for g in games)
         known_opponents=sum(bool(getattr(g,'opponent_username',None)) for g in games)
@@ -294,6 +295,8 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                     or (priority in ('HIGH','MODERATE') and chosen and chosen['games']<10)
                     else 'HIGH' if len(games)>=100 else 'MEDIUM')
         reasons=[('This time control has no rated-game anchors in the previous year. Its Elo expectation cannot independently justify HIGH or VERY HIGH.' if chosen and chosen.get('rating_unverified_downgrade') else
+                 'Some eligible games inside this period could not be read. The remaining games cannot establish an uninterrupted results sequence; HIGH is capped at MODERATE.' if chosen and 'incomplete_period_chronology' in chosen.get('classification_guards',()) else
+                 'Opponent identities are missing in too much of this period to verify diverse opposition. HIGH is capped at MODERATE until that coverage is resolved.' if chosen and 'unverified_opponent_identities' in chosen.get('classification_guards',()) else
                  'The time-control Elo has too few recent rated anchors and differs substantially from other controls. Accuracy alone cannot repair the Elo expectation; HIGH/VERY HIGH is capped.' if chosen and chosen.get('rating_reliability_downgrade') else
                  'The selected period falls in a verified new-account rating calibration ramp; the Elo expected-score baseline was moving rapidly. HIGH is capped at MODERATE without gameplay confirmation.' if chosen and 'new_account_rating_ramp' in chosen.get('classification_guards',()) else
                  'Most games in the period were played against one or two opponents. Even corroborating Accuracy cannot make these outcomes independent; HIGH/VERY HIGH is capped pending human review.' if chosen and 'repeated_opponent_concentration' in chosen.get('classification_guards',()) else
@@ -312,7 +315,10 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         frequency_diagnostics=accuracy_frequency(games)
         history_changes=changes(games,PRIORITY_GAMES)
         selected_context=period_context(games,chosen)
+        from collections import Counter
+        guard_counts=Counter(reason for reasons in guarded_periods.values() for reason in reasons)
         record={'history_limit':LIMIT,'priority_games':len(games),'block_size':BLOCK_SIZE,'blocks_checked':block_count,
+                'period_guard_counts':dict(guard_counts),
                 'boundary_bridges_checked':len(segments)-block_count,'segments_checked':len(segments),
                 'history_changes':history_changes,'period_context':selected_context,
                 'accuracy_frequency':frequency_diagnostics,
@@ -321,13 +327,14 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 'data_quality':data_quality,
                 'rated_games':rated_count,'unrated_games':len(games)-rated_count,
                 'priority_basis':basis,'production_enabled':True,
-                'period_scope':'Chronological 200-game blocks plus 100-game-per-side boundary bridges; globally deduplicated physical-window search correction',
+                'period_scope':'Per-time-class chronological 200-game blocks plus 100-game-per-side boundary bridges; globally deduplicated physical-window search correction',
                 'searched_windows':window_count,
                 'method':'Experimental Elo-results and published-Accuracy triage; not gameplay confirmation or misconduct probability',
                 'reference':'Development thresholds, not independent holdout calibration',
                 'result_residual_threshold':2.4,'score_excess_threshold':.20,
                 'moderate_accuracy_excess':8,'moderate_above_reference_fraction':.60,
-                'selected':chosen,'marked_periods':marked,'subject':subject,'source':'official_accuracy',
+                'selected':chosen,'selected_period_priority':selected_period_priority,
+                'marked_periods':marked,'subject':subject,'source':'official_accuracy',
                 'engine_used':False,'maia_used':False,'timing_scoring':False,
                 'accuracy_role':'High Accuracy frequency can promote LOW to MODERATE after conservative same-control earlier-history checks; never promotes HIGH',
                 'limits':'Rated and unrated share chronological periods/references, but their Elo reliability is separately audited. Zero rated anchors, cross-control discrepancies and verified new-account rating ramps cap results-backed HIGH/VERY HIGH. Repeated opponents cap these tiers even if Accuracy corroborates. Daily is excluded; only collected live history is searched. Underrating, legitimate improvement, smurfing, rating lag, correlated games, missing archives and selected hot streaks can qualify. VERY HIGH requires both results and matched earlier Accuracy but never proves misconduct.'}

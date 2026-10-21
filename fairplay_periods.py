@@ -7,6 +7,7 @@ against searching many windows, never a misconduct probability or a verdict.
 from math import exp, expm1, log, log1p
 
 from fairplay_outcome_study import expected_points
+from fairplay_accuracy_reference import accuracy_reference_bound
 
 
 def points_bound(games):
@@ -52,17 +53,13 @@ def protect_periods(periods,games):
                         'moderate_pass':short_ok and adjusted<=.10,
                         'note':'Independent-game Elo model guard, not a cheating probability; ratings may be inaccurate in rated or unrated play.'}
         p['search_guard']=cache[key]
-        accuracy=p['accuracy'];matched=accuracy['matched_games']
-        # The earlier reference's upper-decile boundary supplies a stationary
-        # 10% exceedance model, NOT an empirically calibrated human norm.
-        # Finite references and correlated games can violate this assumption.
-        hits=round((accuracy['above_reference_fraction'] or 0)*matched)
-        raw_accuracy_bound=_upper_bound([.10]*matched,hits)
+        raw_accuracy_bound,reference_model=accuracy_reference_bound(p['accuracy'])
         accuracy_bound=min(1.0,raw_accuracy_bound*count)
         p['accuracy_search_guard']={'searched_windows':count,
             'raw_reference_model_bound':raw_accuracy_bound,
+            'reference_model':reference_model,
             'adjusted_reference_model_bound':accuracy_bound,'moderate_pass':accuracy_bound<=.10,
-            'note':'Independent, stationary upper-decile reference model; not a cheating probability or validated false-positive rate.'}
+            'note':'Finite earlier-reference uncertainty is included. Independent stationary scores within matched contexts remain an assumption; not a cheating probability or validated false-positive rate.'}
         for checks in p['scenarios'].values():
             checks['accuracy_pass']=checks['accuracy_pass'] and p['accuracy_search_guard']['moderate_pass']
             raw=checks['results_pass']

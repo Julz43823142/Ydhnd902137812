@@ -150,6 +150,7 @@ def opponent_support(members, *, history=None):
                         (len(local)<=2 or local_largest/local_n>=.75 or
                          (local_n>=20 and effective is not None and effective<4)))
     concentrated=nearby_concentrated or local_concentrated
+    unverified=local_n>=5 and local_coverage<.80
     return {'opponent_names_covered':known, 'games':local_n,
             'cohort_games':total,'distinct_opponents':len(counts),
             'largest_opponent_games':largest,
@@ -160,12 +161,15 @@ def opponent_support(members, *, history=None):
             'local_opponent_concentrated':local_concentrated,
             'nearby_opponent_concentrated':nearby_concentrated,
             'opponent_concentrated':concentrated,
+            'opponent_identity_unverified':unverified,
             'rule':'Results-only HIGH is capped at MODERATE when at least 80% '
                    'of a selected window identifies opponents and 1-2 opponents '
                    'dominate, one opponent supplies 75% of games, or (for 20+ '
                    'games) the effective opponent count is below 4. '
                    'The same limit applies to a nearby 25+-game concentrated cohort. '
-                   'Unknown opponent identities are not assumed independent.'}
+                   'Below 80% identified opponents in the selected period, '
+                   'HIGH/VERY HIGH is capped at MODERATE because opposition '
+                   'independence cannot be checked.'}
 
 
 def independent_results_tier(tier, *, games, rating, opponents, accuracy_confirmed):
@@ -197,6 +201,10 @@ def independent_results_tier(tier, *, games, rating, opponents, accuracy_confirm
             tier = 'MODERATE'
     if opponents.get('opponent_concentrated'):
         reasons.append('repeated_opponent_concentration')
+        if tier in ('HIGH', 'VERY HIGH'):
+            tier = 'MODERATE'
+    if opponents.get('opponent_identity_unverified'):
+        reasons.append('unverified_opponent_identities')
         if tier in ('HIGH', 'VERY HIGH'):
             tier = 'MODERATE'
     return tier, tuple(reasons)

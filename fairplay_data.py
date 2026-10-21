@@ -7,6 +7,7 @@ import json
 import math
 import re
 import time
+from calendar import monthrange
 from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -285,7 +286,7 @@ def parse_game(row: dict, target: str, config: ReviewConfig = CONFIG, *, exclusi
                       rated=row.get('rated') if isinstance(row.get('rated'),bool) else None,
                       opponent_username=(str(other.get('username')).strip()
                           if isinstance(other.get('username'),str)
-                          and re.fullmatch(r'[A-Za-z0-9_-]{3,25}',other['username'].strip())
+                          and re.fullmatch(r'[A-Za-z0-9_-]{2,25}',other['username'].strip())
                           else None))
 
 
@@ -374,7 +375,7 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG,
     months = set()
     for value in payload.get('archives', []):
         match = re.fullmatch(r'https://api\.chess\.com/pub/player/'+re.escape(target)+r'/games/([0-9]{4})/(0[1-9]|1[0-2])', str(value), re.I)
-        if match:months.add((int(match[1]), int(match[2])))
+        if match and int(match[1])>0:months.add((int(match[1]), int(match[2])))
     ordered = sorted(months, reverse=True)
     samples, seen, skipped = [], set(), Counter()
     limit = collection_limit(config)
@@ -383,6 +384,52 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG,
     visited_months = 0
     recent_standard=0
     incomplete_months=set()
+    chronology_gaps=[]
+    coarse_gaps={}
+    gap_reasons=Counter()
+    gaps_coarsened=False
+    classes={'rapid','blitz','bullet','daily'}
+    uncertain_reasons=('invalid_pgn','other_invalid','rated_status_unknown',
+                       'missing_player_identity')
+
+    def month_bounds(year,month):
+        return (int(datetime(year,month,1,tzinfo=timezone.utc).timestamp()),
+                int(datetime(year,month,monthrange(year,month)[1],23,59,59,
+                             tzinfo=timezone.utc).timestamp()))
+
+    def note_gap(reason,row=None):
+        """Retain uncertain omissions without player names or fabricated games.
+
+        A valid completion time identifies one missing observation. Unknown or
+        inconsistent timestamps leave the whole archive month uncertain. The
+        bounded fallback merges by month/class only after 5,000 omissions.
+        """
+        nonlocal partial,primary_archive_partial,gaps_coarsened
+        partial=True
+        primary_archive_partial |= len(samples)<primary_limit(config)
+        incomplete_months.add(f'{year:04d}-{month:02d}')
+        gap_reasons[reason]+=1
+        first,last=month_bounds(year,month)
+        kind=row.get('time_class') if isinstance(row,dict) else None
+        kind=kind if isinstance(kind,str) and kind in classes else None
+        ended=finite_number(row.get('end_time')) if isinstance(row,dict) else None
+        gap={'first_ended':int(ended) if ended is not None and first<=ended<=last else first,
+             'last_ended':int(ended) if ended is not None and first<=ended<=last else last,
+             'time_class':kind,'reason':reason}
+        if not gaps_coarsened and len(chronology_gaps)<5000:
+            chronology_gaps.append(((year,month),gap))
+            return
+        if not gaps_coarsened:
+            for (gap_year,gap_month),old in chronology_gaps:
+                lo,hi=month_bounds(gap_year,gap_month)
+                coarse_gaps[(gap_year,gap_month,old['time_class'])]={
+                    'first_ended':lo,'last_ended':hi,
+                    'time_class':old['time_class'],'reason':'multiple_omissions'}
+            chronology_gaps.clear()
+            gaps_coarsened=True
+        coarse_gaps[(year,month,kind)]={
+            'first_ended':first,'last_ended':last,
+            'time_class':kind,'reason':'multiple_omissions'}
     try:
         for year, month in ordered[:config.max_archives]:
             check_deadline(api.deadline)
@@ -393,23 +440,43 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG,
             except DeadlineReached:raise
             except ReviewError:data = None  # archive failure is explicit missing coverage, never suspicion
             if data is None:
-                skipped['unavailable_archive'] += 1;partial = True
-                incomplete_months.add(f'{year:04d}-{month:02d}')
-                primary_archive_partial |= len(samples)<primary_limit(config)
+                skipped['unavailable_archive'] += 1
+                note_gap('unavailable_archive')
                 continue
             rows = data.get('games')
             if not isinstance(rows, list):
-                skipped['unavailable_archive'] += 1;partial = True
-                incomplete_months.add(f'{year:04d}-{month:02d}')
-                primary_archive_partial |= len(samples)<primary_limit(config)
+                skipped['unavailable_archive'] += 1
+                note_gap('unavailable_archive')
                 continue
-            rows = sorted(rows, key=lambda r: finite_number(r.get('end_time')) or 0 if isinstance(r, dict) else 0, reverse=True)
+            # Unlocated omissions cannot be sorted behind the quota and then
+            # silently ignored: their completion time could fall inside it.
+            located=[]
             for row in rows:
                 check_deadline(api.deadline)
                 if not isinstance(row,dict):
-                    skipped['other_invalid']+=1;incomplete_months.add(f'{year:04d}-{month:02d}');continue
-                if time_classes is not None and row.get('time_class') not in time_classes:
+                    skipped['other_invalid']+=1;note_gap('other_invalid');continue
+                kind=row.get('time_class')
+                intentionally_excluded=(row.get('rules','chess')!='chess'
+                    or row.get('rated') is False and not include_unrated
+                    or isinstance(kind,str) and bool(kind) and
+                       (kind not in classes or time_classes is not None and kind not in time_classes))
+                ended=finite_number(row.get('end_time'))
+                if not intentionally_excluded and (ended is None or ended<=0):
+                    skipped['other_invalid']+=1;note_gap('other_invalid',row);continue
+                located.append(row)
+            rows = sorted(located, key=lambda r: finite_number(r.get('end_time')) or 0, reverse=True)
+            for row in rows:
+                check_deadline(api.deadline)
+                row_class=row.get('time_class')
+                if time_classes is not None and (not isinstance(row_class,str) or row_class not in time_classes):
                     skipped['out_of_scope_time_class'] += 1
+                    # Explicitly unsupported classes/variants are intentional
+                    # omissions. A missing class could conceal an in-scope
+                    # result and must not silently join neighbouring games.
+                    if ((not isinstance(row_class,str) or not row_class)
+                            and row.get('rules','chess')=='chess'
+                            and (include_unrated or row.get('rated') is not False)):
+                        note_gap('unsupported_time_class',row)
                     continue
                 # The extended ten-window scope needs *all* rated blitz and
                 # rapid games, including short finished games which cannot
@@ -421,14 +488,16 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG,
                     or (include_recent_nonbullet_short_count>0
                         and row.get('time_class') in ('blitz','rapid')
                         and recent_standard<include_recent_nonbullet_short_count))
-                uncertain_before=sum(skipped[key] for key in ('invalid_pgn','other_invalid','rated_status_unknown','missing_player_identity'))
+                uncertain_before={key:skipped[key] for key in uncertain_reasons}
                 try:sample = parse_game(
                     row,target,config,exclusions=skipped,allow_short=allow_short,
                     include_unrated=include_unrated)
                 except (ValueError, TypeError, KeyError, IndexError, RecursionError):
                     skipped['invalid_pgn'] += 1;sample = None
-                uncertain_after=sum(skipped[key] for key in ('invalid_pgn','other_invalid','rated_status_unknown','missing_player_identity'))
-                if uncertain_after>uncertain_before:incomplete_months.add(f'{year:04d}-{month:02d}')
+                for reason in uncertain_reasons:
+                    if skipped[reason]>uncertain_before[reason]:
+                        note_gap(reason,row)
+                        break
                 if sample is None:continue
                 if sample.identity not in seen:
                     samples.append(sample);seen.add(sample.identity)
@@ -438,7 +507,7 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG,
             if progress_detail:
                 progress(stage + f' {len(samples)}/{limit} games · {visited_months}/{min(len(ordered),config.max_archives)} archives')
             if len(samples) >= limit:
-                partial = bool(skipped.get('unavailable_archive'))
+                partial = bool(gap_reasons)
                 break
     except DeadlineReached:
         partial = True
@@ -447,6 +516,10 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG,
     if partial and len(samples)<primary_limit(config):primary_archive_partial=True
     api.fairplay_collection_coverage = {
         'incomplete_archive_months':sorted(incomplete_months),
+        'chronology_gaps':(list(coarse_gaps.values()) if gaps_coarsened else
+                           [gap for _,gap in chronology_gaps]),
+        'chronology_gap_reasons':dict(gap_reasons),
+        'chronology_gaps_coarsened':gaps_coarsened,
         'primary_archive_partial':primary_archive_partial,
         'context_history_complete':not partial,
         'available_archive_months':len(ordered),

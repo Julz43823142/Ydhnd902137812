@@ -12,6 +12,7 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import AsyncMock, Mock, patch
 
+import discord
 import bot
 import fairplay_data as data
 import fairplay_routing as routing
@@ -204,6 +205,77 @@ class CancellationLifecycle(unittest.IsolatedAsyncioTestCase):
         await self.service.close()
         self.assertTrue(job.stop.is_set())
         self.assertFalse(job.cancel_requested)
+
+    async def test_stop_during_method3_charts_never_publishes_result(self):
+        entered, release = threading.Event(), threading.Event()
+        result = SimpleNamespace(username=TARGET, games=[], diagnostics={'method3':True})
+        self.service.analyzer = lambda *a, **k:result
+        active = ui.Job(TARGET, ctx(self.channel))
+        self.service.active_job = active
+        def charts(*args):
+            entered.set()
+            if not release.wait(5):raise AssertionError('Synthetic chart renderer was not released')
+            return []
+        with patch('fairplay_method3_ui.chart_pngs', side_effect=charts), \
+                patch.object(ui, 'result_embed') as render:
+            task = asyncio.create_task(self.service.process(active))
+            try:
+                for _ in range(100):
+                    if entered.is_set():break
+                    await asyncio.sleep(.01)
+                self.assertTrue(entered.is_set())
+                self.assertEqual(await self.service.stop_current(), 'stopping')
+            finally:
+                release.set()
+                await asyncio.wait_for(task, 5)
+        render.assert_not_called()
+        self.assertFalse(active.report_published)
+        self.assertFalse(self.service.results)
+        self.assertTrue(all('Stopped by moderator' in m.embeds[0].description for m in self.channel.messages))
+
+    async def test_stop_during_final_progress_prevents_final_send(self):
+        result = SimpleNamespace(username=TARGET, games=[], diagnostics={})
+        self.service.analyzer = lambda *a, **k:result
+        active = ui.Job(TARGET, ctx(self.channel))
+        self.service.active_job = active
+        async def stop_before_delivery(job, stage, **kwargs):
+            if stage == 'Posting final report…':
+                self.assertEqual(await self.service.stop_current(), 'stopping')
+            return True
+        with patch.object(self.service, 'safe_progress', side_effect=stop_before_delivery), \
+                patch.object(ui, 'result_embed', return_value=discord.Embed(title='Synthetic report')):
+            await self.service.process(active)
+        self.assertEqual(self.channel.sends, 0)
+        self.assertFalse(active.report_published)
+
+    async def test_stop_waiting_for_final_ack_cannot_cancel_delivered_report(self):
+        sending, release = asyncio.Event(), asyncio.Event()
+        result = SimpleNamespace(username=TARGET, games=[], diagnostics={})
+        self.service.analyzer = lambda *a, **k:result
+        active = ui.Job(TARGET, ctx(self.channel))
+        self.service.active_job = active
+        original_send = self.channel.send
+        async def delayed_send(**kwargs):
+            sending.set()
+            await release.wait()
+            return await original_send(**kwargs)
+        self.channel.send = delayed_send
+        with patch.object(self.service, 'safe_progress', new_callable=AsyncMock, return_value=True), \
+                patch.object(ui, 'result_embed', return_value=discord.Embed(title='Synthetic report')):
+            task = asyncio.create_task(self.service.process(active))
+            await asyncio.wait_for(sending.wait(), 5)
+            stop = asyncio.create_task(self.service.stop_current())
+            try:
+                await asyncio.sleep(0)
+                self.assertFalse(stop.done())
+                self.assertFalse(active.cancel_requested)
+            finally:
+                release.set()
+                await asyncio.wait_for(task, 5)
+            self.assertEqual(await asyncio.wait_for(stop, 5), 'idle')
+        self.assertTrue(active.report_published)
+        self.assertFalse(active.cancel_requested)
+        self.assertEqual(self.channel.sends, 1)
 
 
 class CancelledCheckpoints(unittest.TestCase):

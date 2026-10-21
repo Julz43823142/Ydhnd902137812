@@ -102,7 +102,7 @@ class UnratedCohorts(unittest.TestCase):
         self.assertEqual(a.priority,b.priority)
         self.assertEqual(a.diagnostics,b.diagnostics)
 
-    def test_six_cohort_class_charts_and_detail_cards_fit_discord(self):
+    def test_cohort_class_and_selected_charts_and_detail_cards_fit_discord(self):
         from test_fairplay_method3_history import profile_game
         from fairplay_method3_ui import chart_pngs,detail_embed
         rows=[]
@@ -115,7 +115,8 @@ class UnratedCohorts(unittest.TestCase):
         with patch('fairplay_method3.collect_games',return_value=(rows,{},False)):
             r=review(TARGET,lambda _:None,api_factory=API)
         files=chart_pngs(r)
-        self.assertEqual(len(files),6)
+        self.assertEqual(len(files),7)
+        self.assertIn('fairplay_method3_selected_period.png',[name for name,data in files])
         self.assertTrue(all(data.startswith(b'\x89PNG') for name,data in files))
         for mode in ('Performance','Report Details','Review Gates','Timing','Human Moves'):
             self.assertLessEqual(len(detail_embed(r,mode)),6000)

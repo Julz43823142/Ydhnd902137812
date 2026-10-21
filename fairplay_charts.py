@@ -46,7 +46,7 @@ def start(width, height):
             f'viewBox="0 0 {width} {height}">', '<rect width="100%" height="100%" fill="white"/>']
 
 
-def plot(parts, rows, y, title, values, unit, color, *, second=None):
+def plot(parts, rows, y, title, values, unit, color, *, second=None, first_game=1):
     all_values = values + (second or [])
     lo, hi = axis_range(all_values, minimum_span=10 if unit == "%" else 200 if not unit else 1,
                         ceiling=100 if unit == "%" else None)
@@ -60,7 +60,7 @@ def plot(parts, rows, y, title, values, unit, color, *, second=None):
         label = f"{value:.1f}" if hi - lo <= 10 else f"{value:.0f}"
         parts.append(text(left - 12, yy + 6, label + unit, 18, anchor="end"))
         xx = left + fraction * (right - left)
-        number = 1 + round(fraction * max(0, len(rows) - 1))
+        number = first_game + round(fraction * max(0, len(rows) - 1))
         parts.append(text(xx, top + height + 26, number, 17, anchor="middle"))
     parts.append(text((left + right) / 2, top + height + 52, "Game number (chronological)",
                       17, "#526477", "middle"))
