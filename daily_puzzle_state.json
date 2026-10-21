@@ -4350,11 +4350,14 @@
       "title": "Start minigames with for example !chess !blackjack without using menu",
       "reporter_id": "442597396195704832",
       "reporter_name": "Thice",
-      "status": "submitted",
+      "status": "completed",
       "created_at": 1792586760.8375683,
       "channel_id": 1546831642193170472,
       "message_id": "1562446863691685978",
-      "thread_id": "1562446863691685978"
+      "thread_id": "1562446863691685978",
+      "updated_at": 1792593486.5197623,
+      "updated_by_id": "362606514764251137",
+      "updated_by_name": "Sharkmeister"
     },
     "ticket-017": {
       "ticket_id": "ticket-017",
@@ -4374,7 +4377,7 @@
   },
   "bot_ideas_ticket_counter_v1": 17,
   "bot_ideas_idle_v1": {
-    "last_activity_at": 1792593480.8188632,
+    "last_activity_at": 1792593487.2285082,
     "reminder_sent": false,
     "reminder_message_id": "1562457874142339166",
     "tickets_since_prompt": 0
