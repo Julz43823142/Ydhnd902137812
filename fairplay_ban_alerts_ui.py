@@ -31,7 +31,13 @@ def alert_embed(event,key):
     e.add_field(name='Public links',inline=False,
         value=f"[View Game]({game_url}) · [Opponent profile](https://www.chess.com/member/{event['opponent']})")
     games=int(event['games'])
-    e.add_field(name='Times played',value=f"{games} {'game' if games==1 else 'games'}",inline=False)
+    latest=event.get('most_recent_game')
+    latest_date=(datetime.fromtimestamp(float(latest),timezone.utc).strftime('%d %B %Y').lstrip('0')
+                 if isinstance(latest,(int,float)) and 0<float(latest)<10**12 else None)
+    times_played=f"{games} {'game' if games==1 else 'games'}"
+    if latest_date:
+        times_played+=f"\nMost recent game: {latest_date}"
+    e.add_field(name='Times played',value=times_played,inline=False)
     detected=datetime.fromtimestamp(event['detected'],timezone.utc).strftime('%B %d, %Y').replace(' 0',' ')
     e.add_field(name='Detected by SharkBot',value=detected,inline=False)
     e.add_field(name='Get your own alerts',inline=False,
