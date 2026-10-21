@@ -355,6 +355,7 @@ def game_view(g):
             same_label=(f'Again · {stake:g} coins' if stake else 'Again · Free')
             add('New Hand · '+same_label,'replay',discord.ButtonStyle.success)
             add('Change Stake · Next Hand','replay_stake',discord.ButtonStyle.primary)
+        add('How to Play','help')
         return v
     if g['status']=='lobby':
         if g.get('invited'):add('Decline Rematch','decline_rematch',discord.ButtonStyle.danger)
@@ -411,6 +412,7 @@ def game_view(g):
                 if d['stack'][i]<=owed or __import__('minigames_poker').can_raise(d,i):add('All-in','allin',discord.ButtonStyle.danger)
         add('Leave Table' if kind=='poker' else 'Leave Game','confirm_leave',discord.ButtonStyle.danger)
     add('Refresh','refresh');add('Move to Bottom','bump')
+    add('How to Play','help')
     return v
 
 
@@ -476,8 +478,19 @@ def game_embed(g):
         if g['kind']=='codebreaker':desc+=f'\nCodebreaker difficulty: **{engine.CODEBREAKER_LABELS.get(g.get("mode","easy"),"Easy · 3 digits")}**.'
     else:
         d=g['data'];kind=g['kind']
-        if kind=='connect':desc+='Drop a disc using columns **1–7**. Four in a row wins.'
-        elif kind=='ships':desc+=safe(d['notice'])+'\nUse **My Fleet / Targets** to see your ships privately. Target example: **B7**.'
+        if kind=='connect':
+            desc+='Drop a disc using columns **1–7**. Four in a row wins.'
+            if d.get('last_drop') is not None:
+                last=int(d['last_drop']);desc+=f'\n**Last move:** column {last%7+1}, row {last//7+1}.'
+            if d.get('winning'):desc+='\n**Winning line:** four connected discs.'
+        elif kind=='ships':
+            desc+=safe(d['notice'])+'\nUse **My Fleet / Targets** to see your ships privately. Target example: **B7**.'
+            locked=set(d.get('ready',[]))
+            desc+=f'\n**Fleets ready:** {len(locked)}/2. '
+            if len(locked)<2:
+                desc+='Both players must privately check their fleets and press **Ready** before any shot.'
+            else:
+                desc+='Both fleets locked; target selection is available for the current player.'
         elif kind=='rps':
             if g['status']=='finished':
                 desc+='\n'.join(f'{player_text(p)} — **{d["choices"].get(p["id"],"No choice").title()}**' for p in g['players'])
@@ -547,11 +560,12 @@ def game_embed(g):
                 rows.append(''.join(legend.get(x,'⬛') for x in guess['marks'])+'  `'+safe(' '.join(guess['word']))+'`')
             desc+='**5 letters · 6 attempts**\n'+safe(d.get('notice',''))
             if rows:e.add_field(name='Board',value='\n'.join(rows),inline=False)
+            desc+='\n**Feedback:** 🟩 exact letter + position · 🟨 in word, elsewhere · ⬛ not in word.'
         elif kind=='bomb':
             idx=min(d.get('module',0),len(d.get('modules',[]))-1);module=d['modules'][idx]
             current=[p for p in g['players'] if p['id'] not in g.get('left',[])]
             operator=current[idx%len(current)] if current else None
-            desc+=f'**Module {min(idx+1,3)}/3 · {safe(module["title"])}**\nStrikes: **{d.get("strikes",0)}/3**\n'
+            desc+=f'**Module {min(idx+1,3)}/3 · {safe(module["title"])}**\n**Completed modules: {idx}/3** · Strikes: **{d.get("strikes",0)}/3**\n'
             if operator:
                 op=next((p for p in g['players'] if p['id']==operator),None)
                 if op:desc+='Device operator: '+player_text(op)+'\n'
@@ -591,9 +605,19 @@ def game_embed(g):
                 bet_note=f' · bet **{int(g.get("stake",0))*int(hand.get("bet_mult",1))}**' if g.get('stake') else ''
                 hand_lines.append(f'{marker}**Hand {idx+1}:** {value} · '+', '.join(hand['cards'])+bet_note)
             desc+='\n'.join(hand_lines)+'\n'+dealer_line+'\n\n'+safe(d.get('notice','Choose Hit, Stand, Double or Split.'))
+            if g.get('status')=='finished':
+                desc+='\nA stake change starts a **new hand**; it does not cancel or refund this settled one.'
+            elif g.get('stake'):
+                desc+='\n**Double/Split:** require one additional original stake per added or doubled hand.'
         elif kind=='poker':
             desc+=f'**Hand {d["hand"]} · {d["phase"].title()}**\nPot: **{sum(d["total"])} chips** · Blinds: **{d["bb"]//2}/{d["bb"]}**\n'
             desc+='Temporary chips are not shared coins. Use **My Cards** for your private hand.\n'
+            if d.get('pending') and d.get('phase')!='between':
+                turn=int(d['pending'][0])
+                if 0<=turn<len(g['players']):
+                    owed=max(0,int(d.get('target',0))-int(d['bet'][turn]))
+                    chips=int(d['stack'][turn])
+                    desc+=f'**Current action:** {min(owed,chips)} chips to call · {chips} chips in stack.\n'
             if d.get('pending'):desc+='To act: '+player_text(g['players'][d['pending'][0]])+'\n'
             desc+=d.get('log','')
         if kind in ('connect','ships') and g['status']=='playing':desc+='\nTurn: '+player_text(g['players'][d['turn']])
@@ -1296,6 +1320,14 @@ class Arcade(discord.Client):
             if command=='casefile':
                 if uid not in players or uid in g.get('left',[]):raise ValueError('This case file is only for current detectives.')
                 await interaction.response.send_message(engine.detective_case_text(g),ephemeral=True)
+                return
+            if command=='help':
+                await interaction.response.send_message(
+                    '**'+safe(engine.KINDS[g['kind']])+' — How to Play**\n'
+                    +safe(GAME_GUIDES.get(g['kind'],'Use the game controls to play.'))
+                    +'\n\nUse **Refresh** if a displayed game is out of date. '
+                     'The bot never reveals private cards, fleets or manuals here.',
+                    ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
                 return
             if command=='cluest_board':
                 if uid not in players or uid in g.get('left',[]):raise ValueError('This Cluest board is only for the current player.')
