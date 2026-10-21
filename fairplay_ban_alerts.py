@@ -157,7 +157,7 @@ def poll(store,settings=Settings(),api_factory=PubAPI,now=None,cancel=None):
                     if previous is not False or not closed:continue
                     key=hashlib.sha256(f'{uid}:{target}:{other}:{FAIRPLAY_CLOSED}'.encode()).hexdigest()[:24]
                     s['outbox'].setdefault(key,{'user':uid,'target':target,'opponent':other,'url':game['url'],
-                        'games':len(game['games']),'detected':profile['checked'],'state':'pending','attempts':0})
+                        'games':len(game['games']),'most_recent_game':game['ended'],'detected':profile['checked'],'state':'pending','attempts':0})
     store.update(change)
     return {'profiles':requests,'targets':len(targets)}
 
