@@ -70,6 +70,7 @@ class Alerts(unittest.IsolatedAsyncioTestCase):
     def test_exact_closure_transition_deduplicates_games_and_restart(self):
         key=self.event();event=self.store.snapshot()['outbox'][key]
         self.assertEqual(event['games'],2)
+        self.assertEqual(event['most_recent_game'],1700000002)
         self.assertEqual(event['url'],'https://www.chess.com/game/live/2')
         self.assertIsNotNone(reserve(self.store,key));mark(self.store,key,'sent',123)
         self.store=AlertStore(self.path,remote='',secret='synthetic-test-key')
@@ -141,6 +142,40 @@ class Alerts(unittest.IsolatedAsyncioTestCase):
         await service.deliver()
         channel.send.assert_not_called()
         self.assertEqual(self.store.snapshot()['outbox'][key]['message_id'],789)
+
+    def test_alert_embed_has_short_copy_order_and_readable_utc_date(self):
+        from fairplay_ban_alerts_ui import alert_embed
+        event={'target':'synthetic-player','opponent':'synthetic-opponent',
+               'url':'https://www.chess.com/game/live/123','games':2,
+               'detected':1792542419}
+        card=alert_embed(event,'synthetic-key')
+        self.assertEqual([field.name for field in card.fields],[
+            'Followed Chess.com account','Opponent','Official status',
+            'Public links','Times played','Detected by SharkBot','Get your own alerts'])
+        self.assertEqual(card.fields[4].value,'2 games')
+        event['most_recent_game']=1700000002
+        self.assertEqual(alert_embed(event,'synthetic-key').fields[4].value,
+                         '2 games\\nMost recent game: 14 November 2023'.replace('\\n','\n'))
+        self.assertEqual(card.fields[5].value,'October 21, 2026')
+        self.assertNotIn('Recorded meetings',str(card.to_dict()))
+        self.assertNotIn('Alert ID',str(card.to_dict()))
+        self.assertTrue(card.url.endswith('#sharkbot-alert-synthetic-key'))
+        event['games']=1
+        self.assertEqual(alert_embed(event,'synthetic-key').fields[4].value,
+                         '1 game\\nMost recent game: 14 November 2023'.replace('\\n','\n'))
+        del event['most_recent_game']
+        self.assertEqual(alert_embed(event,'synthetic-key').fields[4].value,'1 game')
+
+    async def test_old_footer_marker_still_reconciles(self):
+        key=self.event();reserve(self.store,key)
+        card=discord.Embed(title='Legacy alert')
+        card.set_footer(text='Alert ID: '+key)
+        async def history(**kwargs):
+            yield SimpleNamespace(id=790,author=SimpleNamespace(id=5),embeds=[card])
+        service=AlertService(SimpleNamespace(user=SimpleNamespace(id=5)),
+            SimpleNamespace(send=AsyncMock(),history=history),self.store,Settings())
+        await service.deliver()
+        self.assertEqual(self.store.snapshot()['outbox'][key]['message_id'],790)
 
     def test_independent_git_writers_cannot_both_claim_a_delivery(self):
         import subprocess

@@ -16,15 +16,32 @@ _service=None
 
 
 def alert_embed(event,key):
-    e=discord.Embed(title='SharkBot — Fair Play Ban Alert',color=0xe89b35,
-        description='SharkBot observed Chess.com’s Fair Play closure status for an opponent of the followed account. This does not identify which game involved misconduct.')
-    e.add_field(name='Followed Chess.com account',value=event['target'])
-    e.add_field(name='Opponent',value=event['opponent'])
-    e.add_field(name='Official status',value='Closed — Fair Play')
-    e.add_field(name='Public links',inline=False,value=f"[View Game]({event['url']}) · [Opponent profile](https://www.chess.com/member/{event['opponent']})\nRecorded meetings: {event['games']}")
-    e.add_field(name='Get your own alerts',value='Use Subscribe below and enter your Chess.com username to follow your opponents. Manage subscriptions with `/alert`.',inline=False)
-    e.add_field(name='Detected by SharkBot',inline=False,value=datetime.fromtimestamp(event['detected'],timezone.utc).isoformat()+'\nThis closure was newly detected, not necessarily newly imposed.')
-    e.set_footer(text='Alert ID: '+key)
+    # Preserve the durable reconciliation key without exposing a technical ID
+    # in the visible footer. Discord embeds retain the URL fragment.
+    game_url=event['url']
+    e=discord.Embed(
+        title='SharkBot — Fair Play Ban Alert',
+        url=game_url+'#sharkbot-alert-'+key,
+        color=0xe89b35,
+        description="Chess.com has closed an opponent's account for Fair Play violations.",
+    )
+    e.add_field(name='Followed Chess.com account',value=event['target'],inline=False)
+    e.add_field(name='Opponent',value=event['opponent'],inline=False)
+    e.add_field(name='Official status',value='Closed — Fair Play',inline=False)
+    e.add_field(name='Public links',inline=False,
+        value=f"[View Game]({game_url}) · [Opponent profile](https://www.chess.com/member/{event['opponent']})")
+    games=int(event['games'])
+    latest=event.get('most_recent_game')
+    latest_date=(datetime.fromtimestamp(float(latest),timezone.utc).strftime('%d %B %Y').lstrip('0')
+                 if isinstance(latest,(int,float)) and 0<float(latest)<10**12 else None)
+    times_played=f"{games} {'game' if games==1 else 'games'}"
+    if latest_date:
+        times_played+=f"\nMost recent game: {latest_date}"
+    e.add_field(name='Times played',value=times_played,inline=False)
+    detected=datetime.fromtimestamp(event['detected'],timezone.utc).strftime('%B %d, %Y').replace(' 0',' ')
+    e.add_field(name='Detected by SharkBot',value=detected,inline=False)
+    e.add_field(name='Get your own alerts',inline=False,
+        value='Subscribe below to receive alerts when your Chess.com opponents are banned. Manage subscriptions with `/alert`.')
     return e
 
 
@@ -115,8 +132,13 @@ class AlertService:
             if message.author.id!=self.client.user.id:continue
             for card in message.embeds:
                 footer=str(card.footer.text or '')
-                if footer.startswith('Alert ID: ') and footer[10:] in uncertain:
-                    await asyncio.to_thread(mark,self.store,footer[10:],'sent',message.id)
+                # Support both old footer markers and the new invisible URL fragment.
+                marker='Alert ID: '
+                url=str(card.url or '')
+                key=(footer[len(marker):] if footer.startswith(marker) else
+                     url.rsplit('#sharkbot-alert-',1)[-1] if '#sharkbot-alert-' in url else '')
+                if key in uncertain:
+                    await asyncio.to_thread(mark,self.store,key,'sent',message.id)
     async def deliver(self):
         async with self.lock:
             await self.reconcile()
