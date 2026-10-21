@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/gQ4LG",
     "title": "Lichess • 1855",
     "fen": "8/6p1/8/5kPP/4pB1K/8/8/8 b - - 0 52",
-    "current_fen": "6Q1/8/7p/8/5k1K/8/4p3/8 b - - 0 56",
-    "last_move_uci": "g7g8q",
+    "current_fen": "6Q1/8/7p/7K/5k2/8/8/4q3 b - - 1 57",
+    "last_move_uci": "h4h5",
     "pgn": {
       "__shark_answer_ciphertext_v1__": "gAAAAABq2K4CJ_ikpGQ_MfwTcgaYweAj35SYZK-l9sSUNAXwqbth5Qg5hcxqcScW0-00GDoTHJkW74o0g1TcTUxjGmQxESMvGe71z_B54dBz-qXUpDu4TVHkezOKJimUwKzq2NbgGzv0"
     },
@@ -22,28 +22,28 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_gQ4LG_1792585218864",
-    "last_activity_at": "2026-10-21T12:22:00.053203+00:00",
+    "last_activity_at": "2026-10-21T12:22:13.180251+00:00",
     "rating": 1855,
     "rp_band": 2,
     "boss": false,
     "board_theme": "classic",
     "piece_theme": "classic",
     "arrow_theme": "green",
-    "next_solution_index": 8,
-    "next_player_index": 4,
+    "next_solution_index": 10,
+    "next_player_index": 5,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1562440819632504886
+      "1468320170891022417": 1562440875190124734
     },
-    "message_id": 1562440819632504886,
+    "message_id": 1562440875190124734,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "550338389535227926": {
         "name": "Nairyaaa",
-        "move": "E1",
-        "correct": false,
-        "timestamp": "2026-10-21T12:22:00.053833+00:00"
+        "move": "E1=q",
+        "correct": true,
+        "timestamp": "2026-10-21T12:22:13.180662+00:00"
       }
     },
     "first_move_user_id": "550338389535227926",
@@ -55,17 +55,17 @@
       "1468320170891022417": "random_puzzle.png"
     },
     "last_manual_bump": 1792585250.1800244,
-    "last_card_activity_at": "2026-10-21T12:22:00.053203+00:00",
+    "last_card_activity_at": "2026-10-21T12:22:13.180251+00:00",
     "recent_accepted_moves": [
       {
-        "accepted_at": 1792585312.957948,
-        "fen_before": "8/6P1/7p/8/5k1K/4p3/8/8 b - - 0 55",
+        "accepted_at": 1792585333.1806684,
+        "fen_before": "6Q1/8/7p/8/5k1K/8/4p3/8 b - - 0 56",
         "expected": {
-          "uci": "e3e2",
-          "san": "e2",
+          "uci": "e2e1q",
+          "san": "e1=Q+",
           "color": "black"
         },
-        "accepted_uci": "e3e2"
+        "accepted_uci": "e2e1q"
       }
     ],
     "accepted_solution_moves": [
@@ -88,9 +88,14 @@
         "san": "e2",
         "uci": "e3e2",
         "principal": true
+      },
+      {
+        "san": "e1=Q+",
+        "uci": "e2e1q",
+        "principal": true
       }
     ],
-    "last_feedback": "❌ **Wrong move, Nairyaaa, but the position rewards a different first move.**\n↪️ **Move played:** `E1`",
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Kh5",
     "wrong_attempt_counts": {
       "550338389535227926": 1
     }
