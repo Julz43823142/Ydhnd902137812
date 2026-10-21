@@ -718,6 +718,9 @@ client = FairPlayClient(intents=intents)
 # puzzle solutions or other hidden game information.
 command_tree = discord.app_commands.CommandTree(client)
 
+from shark_editmessage import register_editmessage
+register_editmessage(command_tree)
+
 
 SHARK_ADMIN_COMMAND_LIST = shark_admin.ADMIN_LIST
 
