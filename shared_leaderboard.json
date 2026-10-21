@@ -508,6 +508,23 @@
     ],
     "sent_trades": [
       {
+        "created_at": 1792598179,
+        "offer": {
+          "amount": 1.0,
+          "type": "coins"
+        },
+        "request": {
+          "amount": 2.0,
+          "type": "coins"
+        },
+        "status": "pending",
+        "status_unread": false,
+        "to_name": "Nairyaaa",
+        "to_user_id": "550338389535227926",
+        "trade_id": "trade-propose:1562494738479714425:442597396195704832:550338389535227926",
+        "updated_at": 1792598179
+      },
+      {
         "created_at": 1791051267,
         "offer": {
           "badge": "🍅",
@@ -608,8 +625,36 @@
     "donation_inbox": [],
     "guess_points_coined": 0.0,
     "name": "Nairyaaa",
-    "pending_trade": null,
-    "pending_trades": [],
+    "pending_trade": {
+      "created_at": 1792598179,
+      "from_name": "Thice",
+      "from_user_id": "442597396195704832",
+      "offer": {
+        "amount": 1.0,
+        "type": "coins"
+      },
+      "request": {
+        "amount": 2.0,
+        "type": "coins"
+      },
+      "trade_id": "trade-propose:1562494738479714425:442597396195704832:550338389535227926"
+    },
+    "pending_trades": [
+      {
+        "created_at": 1792598179,
+        "from_name": "Thice",
+        "from_user_id": "442597396195704832",
+        "offer": {
+          "amount": 1.0,
+          "type": "coins"
+        },
+        "request": {
+          "amount": 2.0,
+          "type": "coins"
+        },
+        "trade_id": "trade-propose:1562494738479714425:442597396195704832:550338389535227926"
+      }
+    ],
     "pieces": [],
     "points": 28.0,
     "profile_themes": [],

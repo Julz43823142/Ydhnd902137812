@@ -1,0 +1,23 @@
+{
+  "created_at": 1792598179,
+  "created_at_ns": 1792598179284836288,
+  "details": {
+    "created_at": 1792598179,
+    "from_name": "Thice",
+    "from_user_id": "442597396195704832",
+    "offer": {
+      "amount": 1.0,
+      "type": "coins"
+    },
+    "request": {
+      "amount": 2.0,
+      "type": "coins"
+    },
+    "trade_id": "trade-propose:1562494738479714425:442597396195704832:550338389535227926"
+  },
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "trade-propose",
+  "recipient_user_id": "550338389535227926",
+  "transaction_id": "trade-propose:1562494738479714425:442597396195704832:550338389535227926",
+  "user_id": "442597396195704832"
+}
