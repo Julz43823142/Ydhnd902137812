@@ -22,7 +22,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_KJgqn_1792586191452",
-    "last_activity_at": "2026-10-21T12:39:53.562090+00:00",
+    "last_activity_at": "2026-10-21T12:40:00.149271+00:00",
     "rating": 1551,
     "rp_band": 1,
     "boss": false,
@@ -33,17 +33,17 @@
     "next_player_index": 0,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1562445322247213169
+      "1468320170891022417": 1562445349904195685
     },
-    "message_id": 1562445322247213169,
+    "message_id": 1562445349904195685,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "550338389535227926": {
         "name": "Nairyaaa",
-        "move": "Kf6",
+        "move": "H4",
         "correct": false,
-        "timestamp": "2026-10-21T12:39:53.562365+00:00"
+        "timestamp": "2026-10-21T12:40:00.149829+00:00"
       }
     },
     "first_move_user_id": null,
@@ -54,12 +54,12 @@
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
-    "last_card_activity_at": "2026-10-21T12:39:53.562090+00:00",
+    "last_card_activity_at": "2026-10-21T12:40:00.149271+00:00",
     "recent_accepted_moves": [],
     "wrong_attempt_counts": {
-      "550338389535227926": 7
+      "550338389535227926": 8
     },
-    "last_feedback": "❌ **Wrong move, Nairyaaa, but the position still has a surprise left.**\n↪️ **Move played:** `Kf6`"
+    "last_feedback": "❌ **Not quite, Nairyaaa — the position rewards a different first move.**\n↪️ **Move played:** `H4`"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
