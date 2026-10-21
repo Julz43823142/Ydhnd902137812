@@ -1,0 +1,32 @@
+{
+  "created_at": 1792590960,
+  "details": {
+    "activity": [
+      {
+        "action": "games_completed",
+        "name": "Server",
+        "uid": "server"
+      },
+      {
+        "action": "minigame_completed",
+        "kind": "trivia",
+        "name": "Thice",
+        "record_kind": "trivia:standard",
+        "score": null,
+        "uid": "442597396195704832"
+      },
+      {
+        "action": "game:trivia",
+        "kind": "trivia",
+        "name": "Thice",
+        "record_kind": "trivia:standard",
+        "uid": "442597396195704832"
+      }
+    ],
+    "escrow_change": 0,
+    "wallets": {}
+  },
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "minigames",
+  "transaction_id": "minigames:1562464475129454785"
+}
