@@ -1,0 +1,21 @@
+{
+  "boss": true,
+  "correct": true,
+  "created_at": 1792585768,
+  "display_name": "Nairyaaa",
+  "elo_after": 1572.79,
+  "elo_change": 31.96,
+  "new_achievements": [
+    "giant_killer",
+    "boss_encounter",
+    "boss_slayer"
+  ],
+  "puzzle_id": "random_fXHN9_1792585752060",
+  "puzzle_rating": 2704,
+  "source": "random",
+  "stats_build": "puzzle-stats-v1-elo-streak-achievements-2026-09-04",
+  "streak_after": 1,
+  "streak_bonus": false,
+  "transaction_id": "puzzle-attempt:random_fXHN9_1792585752060:550338389535227926",
+  "user_id": "550338389535227926"
+}
