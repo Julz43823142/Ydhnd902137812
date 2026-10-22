@@ -75,7 +75,7 @@ class SelectedWindowPresentation(unittest.TestCase):
         self.assertIn('History games #2501–#2505',svg)
         self.assertIn('>2401</text>',svg)
         self.assertIn('>2605</text>',svg)
-        self.assertIn('fill="#f97316"',svg)
+        self.assertIn('fill="#3478d4"',svg)
 
     def test_no_candidate_does_not_invent_selected_chart(self):
         result=SimpleNamespace(games=[],diagnostics={'method3':{'selected':None}})
