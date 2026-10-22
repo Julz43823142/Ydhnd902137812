@@ -345,6 +345,10 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                     'score_excess_change':change.get('score_excess_change'),
                     'results_increase_confirmed':bool(change.get('results_increase')),
                     'caution':'Exploratory historical summary; a high recent excess without a validated increase is not search-adjusted HIGH evidence.'})
+        from fairplay_method3_review_triage import corroboration
+        combined_review=corroboration(chosen,limited_accuracy_flags)
+        if combined_review is not None:
+            follow_up.append(combined_review)
         selected_context=period_context(games,chosen)
         from fairplay_method3_opening_shift import temporary_switch
         opening_shift=temporary_switch(games,chosen)
@@ -370,6 +374,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 'limited_accuracy_review_flags':limited_accuracy_flags,
                 'manual_review_observations':follow_up,
                 'manual_review_recommended':bool(follow_up),
+                'corroborating_review_signal':combined_review,
                 'selected_high_effect_screen':selected_high_gap,
                 'absolute_accuracy_frequency_signals':absolute_signals,
                 'rating_reliability':rating_reliability,
