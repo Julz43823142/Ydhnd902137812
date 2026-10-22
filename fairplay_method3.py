@@ -315,12 +315,15 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         frequency_diagnostics=accuracy_frequency(games)
         history_changes=changes(games,PRIORITY_GAMES)
         selected_context=period_context(games,chosen)
+        from fairplay_method3_opening_shift import temporary_switch
+        opening_shift=temporary_switch(games,chosen)
         from collections import Counter
         guard_counts=Counter(reason for reasons in guarded_periods.values() for reason in reasons)
         record={'history_limit':LIMIT,'priority_games':len(games),'block_size':BLOCK_SIZE,'blocks_checked':block_count,
                 'period_guard_counts':dict(guard_counts),
                 'boundary_bridges_checked':len(segments)-block_count,'segments_checked':len(segments),
                 'history_changes':history_changes,'period_context':selected_context,
+                'opening_shift':opening_shift,
                 'accuracy_frequency':frequency_diagnostics,
                 'accuracy_frequency_signals':frequency_signals,
                 'rating_reliability':rating_reliability,
