@@ -111,7 +111,8 @@ def collect_history(api,target,old,now,settings):
             entry=_opponent(row,target)
             if entry and entry[2]>=cutoff:
                 other,link,ended=entry
-                result['games'][link]={'opponent':other,'url':link,'ended':ended,\n                    **_game_details(row,target)}
+                result['games'][link]={'opponent':other,'url':link,'ended':ended,
+                    **_game_details(row,target)}
     # Estimate Elo change only from a known preceding game in the same control.
     # Missing history or unrated games must never produce an invented delta.
     chronological=sorted(result['games'].values(),key=lambda g:g['ended'])
@@ -131,7 +132,9 @@ def collect_history(api,target,old,now,settings):
         o=opponents.setdefault(row['opponent'],{'url':row['url'],'ended':row['ended'],'games':[]})
         if row['url'] not in o['games']:o['games'].append(row['url'])
         o['games']=o['games'][-settings.max_games:]
-        if row['ended']>=o['ended']:\n            o.update(url=row['url'],ended=row['ended'],rated=row.get('rated'),\n                result=row.get('result','Unknown'),rating_delta=row.get('rating_delta'))
+        if row['ended']>=o['ended']:
+            o.update(url=row['url'],ended=row['ended'],rated=row.get('rated'),
+                result=row.get('result','Unknown'),rating_delta=row.get('rating_delta'))
     result['opponents']={o:g for o,g in opponents.items() if g['ended']>=now-settings.watch_days*86400}
     result['games']=dict(sorted(result['games'].items(),key=lambda kv:kv[1]['ended'],reverse=True)[:settings.max_games])
     if complete:result['last_success']=now
@@ -188,7 +191,9 @@ def poll(store,settings=Settings(),api_factory=PubAPI,now=None,cancel=None):
                     if previous is not False or not closed:continue
                     key=hashlib.sha256(f'{uid}:{target}:{other}:{FAIRPLAY_CLOSED}'.encode()).hexdigest()[:24]
                     s['outbox'].setdefault(key,{'user':uid,'target':target,'opponent':other,'url':game['url'],
-                        'games':len(game['games']),'most_recent_game':game['ended'],\n                        'rated':game.get('rated'),'result':game.get('result','Unknown'),\n                        'rating_delta':game.get('rating_delta'),'detected':profile['checked'],'state':'pending','attempts':0})
+                        'games':len(game['games']),'most_recent_game':game['ended'],
+                        'rated':game.get('rated'),'result':game.get('result','Unknown'),
+                        'rating_delta':game.get('rating_delta'),'detected':profile['checked'],'state':'pending','attempts':0})
     store.update(change)
     return {'profiles':requests,'targets':len(targets)}
 
