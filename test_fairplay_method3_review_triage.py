@@ -17,14 +17,15 @@ def selected():
 
 def sparse():
     return [{'time_class':'rapid','accuracy_covered':123,'total_games':385,
-             'at_least_90':30,'at_least_95':14}]
+             'at_least_90':30,'at_least_95':14,
+             'distinct_observed_opponents':116}]
 
 
 class CorroboratedReview(unittest.TestCase):
     def test_evidence_shaped_fixture_recommends_manual_review_not_high(self):
         result=corroboration(selected(),sparse())
         self.assertEqual(result['kind'],'combined_uncalibrated_review')
-        self.assertFalse(result['priority_effect'])
+        self.assertEqual(result['priority_effect'],'LOW_to_MODERATE_only')
         self.assertEqual(result['searched_windows'],2718)
         self.assertEqual(result['adjusted_model_bound'],1.0)
 
@@ -32,6 +33,14 @@ class CorroboratedReview(unittest.TestCase):
         subject=selected()
         subject['results']['standardized_residual']=1.5
         self.assertIsNone(corroboration(subject,sparse()))
+
+    def test_weak_coverage_or_opponent_diversity_not_qualified(self):
+        flags=sparse()
+        flags[0]['accuracy_covered']=49
+        self.assertIsNone(corroboration(selected(),flags))
+        flags=sparse()
+        flags[0]['distinct_observed_opponents']=5
+        self.assertIsNone(corroboration(selected(),flags))
 
     def test_no_sparse_accuracy_signal(self):
         self.assertIsNone(corroboration(selected(),[]))
