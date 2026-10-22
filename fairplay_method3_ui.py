@@ -50,7 +50,7 @@ def result_embed(result):
     selected=d.get('selected')
     if selected:
         label=('Selected results window · separate from Accuracy signal'
-               if d.get('priority_basis')=='accuracy_frequency'
+               if d.get('priority_basis') in ('accuracy_frequency','absolute_accuracy_frequency')
                else 'Selected chronological period')
         e.add_field(name=label,value=f"{selected['time_class'].title()} · {selected['games']} games · {period_dates(selected)}\nExpected points: **{fmt(r['expected_points'])}** · scored: **{fmt(r['actual_points'])}**\nWinrate: **{fmt(r['win_fraction'],True)}**",inline=False)
     if selected and selected.get('classification_guards'):

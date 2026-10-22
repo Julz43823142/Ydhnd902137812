@@ -5,40 +5,83 @@ No population calibration is available. A conservative within-player historical\
 from statistics import median
 
 
+def _valid_accuracy(g):
+    from math import isfinite
+    value=getattr(g,'accuracy',None)
+    return isinstance(value,(int,float)) and not isinstance(value,bool) and isfinite(value) and 0<=value<=100
+
+
+def _context(g):
+    from math import isfinite
+    own,opp=g.rating,g.opponent_rating
+    if any(not isinstance(v,(int,float)) or isinstance(v,bool) or not isfinite(v) or v<=0
+           for v in (own,opp)):
+        return 'unknown'
+    delta=own-opp
+    return 'near' if abs(delta)<=200 else 'weaker' if delta>200 else 'stronger'
+
+
 def summarize(games):
+    """One-pass grouping avoids rescanning the history for each Elo bucket."""
+    buckets={kind:{'rows':0,'observed':[],'groups':{name:[] for name in
+             ('near','weaker','stronger','unknown')}} for kind in ('rapid','blitz','bullet')}
+    for g in games:
+        bucket=buckets.get(g.time_class)
+        if bucket is None:continue
+        bucket['rows']+=1
+        if _valid_accuracy(g):
+            bucket['observed'].append(g)
+            bucket['groups'][_context(g)].append(g)
     output={}
-    for kind in ('rapid','blitz','bullet'):
-        rows=[g for g in games if g.time_class==kind]
-        observed=[g for g in rows if isinstance(g.accuracy,(int,float))
-                  and not isinstance(g.accuracy,bool) and 0<=g.accuracy<=100]
-        def bucket(g):
-            own,opp=g.rating,g.opponent_rating
-            if any(not isinstance(v,(int,float)) or isinstance(v,bool) or v<=0
-                   for v in (own,opp)):
-                return 'unknown'
-            delta=own-opp
-            return 'near' if abs(delta)<=200 else 'weaker' if delta>200 else 'stronger'
+    for kind,bucket in buckets.items():
+        observed=bucket['observed']
         groups={}
-        for name in ('near','weaker','stronger','unknown'):
-            subset=[g for g in observed if bucket(g)==name]
-            differences=[g.rating-g.opponent_rating for g in subset
-                         if bucket(g)!='unknown']
+        for name,subset in bucket['groups'].items():
+            differences=[g.rating-g.opponent_rating for g in subset if name!='unknown']
             lengths=[len(g.decisions) for g in subset if getattr(g,'decisions',None) is not None]
-            groups[name]={
-                'games':len(subset),
-                'at_least_90':sum(g.accuracy>=90 for g in subset),
-                'at_least_95':sum(g.accuracy>=95 for g in subset),
-                'median_elo_difference':median(differences) if differences else None,
-                'median_recorded_moves':median(lengths) if lengths else None}
-        output[kind]={
-            'games':len(rows),'accuracy_coverage':len(observed),
-            'at_least_90':sum(g.accuracy>=90 for g in observed),
-            'at_least_95':sum(g.accuracy>=95 for g in observed),
-            'opponent_context':groups}
-    return {'by_time_class':output,
-            'calibrated':False,'affects_priority':False,
-            'note':'Descriptive only. Elo/opponent mix and game length are reported, not population-adjusted. '
-                   'A calibrated expected frequency and multiple-testing correction are required before using these counts for priority.'}
+            groups[name]={'games':len(subset),'at_least_90':sum(g.accuracy>=90 for g in subset),
+                          'at_least_95':sum(g.accuracy>=95 for g in subset),
+                          'median_elo_difference':median(differences) if differences else None,
+                          'median_recorded_moves':median(lengths) if lengths else None}
+        output[kind]={'games':bucket['rows'],'accuracy_coverage':len(observed),
+                      'at_least_90':sum(g.accuracy>=90 for g in observed),
+                      'at_least_95':sum(g.accuracy>=95 for g in observed),
+                      'opponent_context':groups}
+    return {'by_time_class':output,'calibrated':False,'affects_priority':False,
+            'note':'Descriptive only; absolute Accuracy rates are not population-calibrated.'}
+
+
+def absolute_frequency_signal(games):
+    """Uncalibrated manual-review flag, not a misconduct probability.
+
+    Require broad published coverage, comparable Elo, game length and opponent
+    diversity. Missing Accuracy is never interpreted as a low score.
+    """
+    buckets={}
+    for g in games:
+        kind=getattr(g,'time_class',None)
+        control=getattr(g,'time_control',None)
+        if kind in ('rapid','blitz','bullet') and isinstance(control,str) and control:
+            buckets.setdefault((kind,control),[]).append(g)
+    signals=[]
+    for (kind,control),rows in sorted(buckets.items()):
+        if len(rows)<40:continue
+        covered=[g for g in rows if _valid_accuracy(g)]
+        if len(covered)<30 or len(covered)/len(rows)<0.60:continue
+        near=[g for g in covered if _context(g)=='near' and len(getattr(g,'decisions',()) or ())>=20]
+        if len(near)<25:continue
+        opponents={g.opponent_username.strip().casefold() for g in near
+                   if isinstance(getattr(g,'opponent_username',None),str) and g.opponent_username.strip()}
+        if len(opponents)<15:continue
+        high90=sum(g.accuracy>=90 for g in near)
+        high95=sum(g.accuracy>=95 for g in near)
+        if high90/len(near)<0.40 or high95/len(near)<0.15:continue
+        signals.append({'time_class':kind,'time_control':control,'eligible_games':len(near),
+                        'at_least_90':high90,'at_least_95':high95,
+                        'accuracy_covered':len(covered),'total_games':len(rows),
+                        'distinct_opponents':len(opponents),
+                        'note':'Uncalibrated absolute-frequency review flag; no population reference or cheating probability.'})
+    return signals
 
 
 def historical_signal(games, *, min_recent=30, min_baseline=60):

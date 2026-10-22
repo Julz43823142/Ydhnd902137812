@@ -267,14 +267,18 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
             chosen['last_game']+=class_offset
             chosen['history_block']=block_index+1
             chosen['history_segment']='boundary' if is_bridge else 'block'
-        from fairplay_method3_accuracy_frequency import historical_signal
+        from fairplay_method3_accuracy_frequency import historical_signal, absolute_frequency_signal
         frequency_signals=historical_signal(games)
+        absolute_signals=absolute_frequency_signal(games)
         # The frequency signal is supporting review triage only: it can
         # promote LOW to MODERATE, never HIGH or VERY HIGH.
         if priority=='LOW' and frequency_signals:
             priority='MODERATE'
             basis='accuracy_frequency'
-        selected_period_priority=priority if basis!='accuracy_frequency' else 'LOW'
+        elif priority=='LOW' and absolute_signals:
+            priority='MODERATE'
+            basis='absolute_accuracy_frequency'
+        selected_period_priority=priority if basis not in ('accuracy_frequency','absolute_accuracy_frequency') else 'LOW'
         rated_count=sum(g.rated is True for g in games)
         valid_accuracy=sum(isinstance(g.accuracy,(int,float)) and not isinstance(g.accuracy,bool)
                            and 0 <= g.accuracy <= 100 for g in games)
@@ -307,6 +311,8 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                  'A chronological period exceeded the results review boundary but did not pass the stricter HIGH search guard.' if priority=='MODERATE' else
                  'No period passed the configured review boundaries; this does not establish fair play.' if priority=='LOW' else
                  'Not enough comparable chronological games with valid ratings/results to assign a tier.')]
+        if basis=='absolute_accuracy_frequency':
+            reasons=['High published Accuracy frequency in well-covered, comparable-Elo games merits manual review. This is an uncalibrated heuristic, not evidence of cheating.']
         if basis=='accuracy_frequency':
             reasons=['A recent high-Accuracy frequency increase passed a conservative earlier-history comparison against similar-Elo opponents. Exploratory review signal, not proof of misconduct.']
         from fairplay_method3_history import changes
@@ -326,6 +332,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 'opening_shift':opening_shift,
                 'accuracy_frequency':frequency_diagnostics,
                 'accuracy_frequency_signals':frequency_signals,
+                'absolute_accuracy_frequency_signals':absolute_signals,
                 'rating_reliability':rating_reliability,
                 'data_quality':data_quality,
                 'rated_games':rated_count,'unrated_games':len(games)-rated_count,
