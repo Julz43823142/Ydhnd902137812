@@ -47,6 +47,18 @@ def result_embed(result):
         '🟠 **Notable Performance** — Orange\n'
         '⚫ **Very Strong Statistical Deviation** — Black'
     ),inline=False)
+    combined=d.get('corroborating_review_signal')
+    if combined:
+        e.add_field(
+            name='Manual review recommended · combined observations',
+            value=(f"{combined['time_class'].title()}: "
+                   f"{combined['uncorrected_standardized_residual']:.2f} standardized results residual "
+                   f"across {combined['results_games']} games; "
+                   f"{combined['at_least_90']} published Accuracy scores ≥90% "
+                   f"({combined['accuracy_covered']}/{combined['total_games']} covered). "
+                   "This is exploratory and not corrected for selecting the strongest period. "
+                   "Priority remains based on the existing statistical safeguards."),
+            inline=False)
     sparse_flags=d.get('limited_accuracy_review_flags') or []
     if sparse_flags:
         lines=[]
