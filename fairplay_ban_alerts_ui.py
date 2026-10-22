@@ -38,6 +38,15 @@ def alert_embed(event,key):
     if latest_date:
         times_played+=f"\nMost recent game: {latest_date}"
     e.add_field(name='Times played',value=times_played,inline=False)
+    rated=event.get('rated')
+    rating_label='Rated' if rated is True else 'Unrated' if rated is False else 'Rating status unknown'
+    result=event.get('result') or 'Unknown'
+    delta=event.get('rating_delta')
+    elo=(f'{delta:+d} Elo' if rated is True and isinstance(delta,int) and not isinstance(delta,bool)
+         else 'Elo change unavailable')
+    e.add_field(name='Latest game' if games!=1 else 'Game played',
+        value=f'{rating_label} · {result} · {elo}',inline=False)
+
     detected=datetime.fromtimestamp(event['detected'],timezone.utc).strftime('%B %d, %Y').replace(' 0',' ')
     e.add_field(name='Detected by SharkBot',value=detected,inline=False)
     e.add_field(name='Get your own alerts',inline=False,
