@@ -47,48 +47,6 @@ def result_embed(result):
         '🟠 **Notable Performance** — Orange\n'
         '⚫ **Very Strong Statistical Deviation** — Black'
     ),inline=False)
-    combined=d.get('corroborating_review_signal')
-    if combined:
-        e.add_field(
-            name='MODERATE review basis · combined observations',
-            value=(f"{combined['time_class'].title()}: "
-                   f"{combined['uncorrected_standardized_residual']:.2f} standardized results residual "
-                   f"across {combined['results_games']} games; "
-                   f"{combined['at_least_90']} published Accuracy scores ≥90% "
-                   f"({combined['accuracy_covered']}/{combined['total_games']} covered). "
-                   "This is exploratory and not corrected for selecting the strongest period. "
-                   "This exploratory combination can set MODERATE, never HIGH; it is not proof of misconduct."),
-            inline=False)
-    sparse_flags=d.get('limited_accuracy_review_flags') or []
-    if sparse_flags:
-        lines=[]
-        for flag in sparse_flags:
-            lines.append(
-                f"{flag['time_class'].title()}: {flag['at_least_90']}/{flag['accuracy_covered']} "
-                f"published scores ≥90%, {flag['at_least_95']}/{flag['accuracy_covered']} ≥95% "
-                f"({flag['accuracy_covered']}/{flag['total_games']} games with Accuracy).")
-        e.add_field(name='Accuracy review note · limited coverage',
-                    value=('\n'.join(lines) +
-                           '\nDescriptive only. Published Accuracy may be selectively available; '
-                           'this note does not change the statistical priority or establish cheating.')[:1024],
-                    inline=False)
-    follow_up=d.get('manual_review_observations') or []
-    result_observations=[x for x in follow_up if x.get('kind')=='recent_result_excess']
-    if result_observations:
-        lines=[]
-        for observation in result_observations[:3]:
-            lines.append(
-                f"{observation['time_class'].title()} {observation['time_control']}: "
-                f"{observation['games']} recent games, "
-                f"{observation['score_excess']*100:.1f} pp above Elo expectation"
-                + (f" (earlier {observation['baseline_score_excess']*100:.1f} pp)"
-                   if isinstance(observation.get('baseline_score_excess'),(int,float)) else "")
-                + ("; increase not confirmed." if not observation.get('results_increase_confirmed') else "."))
-        e.add_field(name='Additional observations · manual review',
-                    value=('\n'.join(lines) +
-                           '\nExploratory, not search-adjusted HIGH evidence. '
-                           'Combined observations do not change the priority.')[:1024],
-                    inline=False)
     high_gap=d.get('selected_high_effect_screen')
     if high_gap and result.priority=='LOW' and not high_gap['passes_excess_threshold']:
         e.add_field(name='Why HIGH was not reached',
