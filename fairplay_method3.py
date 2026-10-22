@@ -11,7 +11,7 @@ from fairplay_config import CONFIG
 from fairplay_data import PubAPI, ReviewError, ScanDeadline, check_deadline, collect_games, username
 from fairplay_outcome_study import evaluate, SCENARIOS, DEVELOPMENT_SCENARIOS, CONFIG as STUDY_CONFIG
 
-VERSION='fairplay-v69-history-context'
+VERSION='fairplay-v70-game-index-recent-low'
 LIMIT=5000
 BLOCK_SIZE=200
 PRIORITY_GAMES=200

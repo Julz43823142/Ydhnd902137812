@@ -95,7 +95,7 @@ def accuracy_frequency_svg(result):
     parts=start(1200,height)
     parts.extend((text(35,42,'Official Chess.com Accuracy · frequency',30),
         text(35,77,'Counts and percentages use available scores; missing scores never count as zero.',21),
-        text(35,108,'Cumulative thresholds · descriptive, not evidence of misconduct · calendar dates use UTC.',19,'#526477')))
+        text(35,108,'Cumulative thresholds · descriptive, not evidence of misconduct · chronological game numbers.',19,'#526477')))
     selected_tier=diagnostic.get('selected_period_priority',result.priority)
     neutral=selected_tier in ('LOW','INSUFFICIENT DATA')
     for class_index,kind in enumerate(CLASSES):
@@ -107,41 +107,55 @@ def accuracy_frequency_svg(result):
         for index,threshold in enumerate(THRESHOLDS):
             parts.append(text(35+index*385,y+34,
                 f'≥{threshold}%: {frequency_label(summary,threshold)}',23,COLORS[index]))
-        buckets=calendar_buckets(rows,kind,selected,limit=12)
-        if not buckets:
-            parts.append(text(35,y+125,'No collected games in this time class.',23,'#526477'))
-            continue
-        parts.append(text(35,y+66,'Historical trend · percentage of published scores at or above each threshold.',18,'#526477'))
+        rows=sorted(rows,key=lambda g:(g.ended,g.identity))
+        parts.append(text(35,y+66,'Rolling 100 played games · X-axis is game number, not calendar time.',18,'#526477'))
         left,right,top,bottom=70,1140,y+100,y+310
         for level in (0,25,50,75,100):
             yy=bottom-(bottom-top)*level/100
             parts.append(f'<line x1="{left}" x2="{right}" y1="{yy:.1f}" y2="{yy:.1f}" stroke="#d6e1ea"/>')
             parts.append(text(55,yy+5,f'{level}%',15,anchor='end'))
-        for index,bucket in enumerate(buckets):
-            x=left+(right-left)*index/max(1,len(buckets)-1)
-            if bucket['selected_dates']:
-                parts.append(f'<rect x="{x-14:.1f}" y="{top}" width="28" height="{bottom-top}" fill="#e2e8f0" fill-opacity=".55"/>')
-            if index%max(1,len(buckets)//6)==0 or index==len(buckets)-1:
-                parts.append(text(x,bottom+28,bucket['label'],15,anchor='middle'))
+        n=len(rows)
+        for tick in range(5):
+            game_no=1+round((n-1)*tick/4)
+            xx=left+(right-left)*(game_no-1)/max(1,n-1)
+            parts.append(text(xx,bottom+28,str(game_no),15,anchor='middle'))
+        if selected and selected.get('time_class')==kind:
+            first=max(1,selected.get('first_game',1))
+            last=min(n,selected.get('last_game',0))
+            if first<=last:
+                x1=left+(right-left)*(first-1)/max(1,n-1)
+                x2=left+(right-left)*(last-1)/max(1,n-1)
+                parts.append(f'<rect x="{x1:.1f}" y="{top}" width="{max(2,x2-x1):.1f}" height="{bottom-top}" fill="#e2e8f0" fill-opacity=".45"/>')
+        window=100
+        # Every plotted value covers the previous 100 played games; unavailable
+        # official scores are excluded from the denominator, never treated as zero.
+        valid=[g.accuracy if isinstance(g.accuracy,(int,float)) and not isinstance(g.accuracy,bool)
+               and 0<=g.accuracy<=100 else None for g in rows]
         for offset,threshold in enumerate(THRESHOLDS):
-            segment=[]
-            def flush():
-                if len(segment)>1:
-                    pts=' '.join(f'{x:.1f},{yy:.1f}' for x,yy in segment)
-                    parts.append(f'<polyline points="{pts}" fill="none" stroke="{COLORS[offset]}" stroke-width="4"/>')
-                elif segment:
-                    x,yy=segment[0]
-                    parts.append(f'<circle cx="{x:.1f}" cy="{yy:.1f}" r="4" fill="{COLORS[offset]}"/>')
-                segment.clear()
-            for index,bucket in enumerate(buckets):
-                if not bucket['available']:
-                    flush()
+            segments=[]
+            current=[]
+            for end_index in range(window-1,n):
+                if (end_index+1-window)%10 and end_index!=n-1:
                     continue
-                rate=bucket['counts'][threshold]/bucket['available']
-                x=left+(right-left)*index/max(1,len(buckets)-1)
-                yy=bottom-(bottom-top)*rate
-                segment.append((x,yy))
-            flush()
+                sample=valid[end_index+1-window:end_index+1]
+                known=[value for value in sample if value is not None]
+                if not known:
+                    if current:segments.append(current);current=[]
+                    continue
+                fraction=sum(value>=threshold for value in known)/len(known)
+                xx=left+(right-left)*end_index/max(1,n-1)
+                yy=bottom-(bottom-top)*fraction
+                current.append((xx,yy))
+            if current:segments.append(current)
+            for segment in segments:
+                if len(segment)>1:
+                    pts=' '.join(f'{xx:.1f},{yy:.1f}' for xx,yy in segment)
+                    parts.append(f'<polyline points="{pts}" fill="none" stroke="{COLORS[offset]}" stroke-width="4"/>')
+                else:
+                    xx,yy=segment[0]
+                    parts.append(f'<circle cx="{xx:.1f}" cy="{yy:.1f}" r="4" fill="{COLORS[offset]}"/>')
+        if n<window:
+            parts.append(text(450,top+105,'Fewer than 100 games; rolling trend unavailable.',19,'#526477'))
         parts.append(text(35,y+365,'Blue ≥80% · green ≥90% · purple ≥95% · missing published scores excluded',17,'#526477'))
     y=1445
     if comparisons:

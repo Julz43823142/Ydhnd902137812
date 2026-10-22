@@ -13,7 +13,9 @@ def active_version(env=None):
     """One source for the deployed route, progress card and automatic rescans."""
     import os
     env = os.environ if env is None else env
-    if env.get('FAIRPLAY_METHOD3') == '1':return 'fairplay-v68-evidence-integrity'
+    if env.get('FAIRPLAY_METHOD3') == '1':
+        from fairplay_method3 import VERSION as method3_version
+        return method3_version
     return DEPTH_VERSION if env.get('FAIRPLAY_V51') == '1' else VERSION
 
 
