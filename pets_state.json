@@ -624,7 +624,7 @@
         "fed_at": 1792644421.581885,
         "feed_day": "2026-10-22",
         "happiness": 100,
-        "happy_at": 1792581315.1813717,
+        "happy_at": 1792644508.7273831,
         "id": "93f7026f2e0e4ae587bd180fef05031b",
         "name": "",
         "owner_history": [
@@ -643,19 +643,19 @@
         ],
         "puzzle": {
           "day": "2026-10-22",
-          "fen": "8/8/3k4/1p6/4n1P1/4K2P/Bp6/8 b - - 1 51",
+          "fen": "8/8/3k4/1p6/6P1/2n1K2P/Bp6/8 w - - 2 52",
           "id": "rWHZV",
-          "index": 2,
+          "index": 3,
           "moves": [
             "b3b2",
             "g8a2",
             "e4c3"
           ]
         },
-        "puzzle_day": "2026-10-21",
+        "puzzle_day": "2026-10-22",
         "rarity": "rare",
         "species": "Wolf",
-        "xp": 395.1,
+        "xp": 415.1,
         "xp_day": "2026-10-21"
       },
       {
