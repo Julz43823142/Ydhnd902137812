@@ -53,7 +53,7 @@
       "pool": 2000,
       "progress": {
         "minigame_win": 51,
-        "puzzle_solve": 42,
+        "puzzle_solve": 43,
         "rush_complete": 3
       },
       "start": 1792015200,
@@ -71,6 +71,9 @@
         "550338389535227926": {
           "minigame_win": 34,
           "puzzle_solve": 8
+        },
+        "601406103712170014": {
+          "puzzle_solve": 1
         }
       }
     },
@@ -212,6 +215,12 @@
         "pet_levels_gained": 2,
         "pet_puzzle": 1,
         "puzzle_solve": 8
+      },
+      "601406103712170014": {
+        "coins_earned": 11.0,
+        "contribution": 0.000125,
+        "new_cosmetics": 0,
+        "puzzle_solve": 1
       }
     }
   }
