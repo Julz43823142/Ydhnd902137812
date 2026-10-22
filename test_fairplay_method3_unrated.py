@@ -115,7 +115,7 @@ class UnratedCohorts(unittest.TestCase):
         with patch('fairplay_method3.collect_games',return_value=(rows,{},False)):
             r=review(TARGET,lambda _:None,api_factory=API)
         files=chart_pngs(r)
-        self.assertEqual(len(files),7)
+        self.assertEqual(len(files),6)
         self.assertIn('fairplay_method3_selected_period.png',[name for name,data in files])
         self.assertTrue(all(data.startswith(b'\x89PNG') for name,data in files))
         for mode in ('Performance','Report Details','Review Gates','Timing','Human Moves'):

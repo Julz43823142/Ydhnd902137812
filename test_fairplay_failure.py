@@ -10,15 +10,91 @@ from unittest.mock import AsyncMock, Mock, patch
 import discord
 
 from fairplay_checkpoint import CheckpointStore
+from fairplay_config import VERSION, DEPTH_VERSION, active_version
 from fairplay_data import ReviewError
 from fairplay_failure import (FailureView, _embed, classify, failure_record,
-                              owner_diagnostics, send_report, version_metadata)
+                              owner_diagnostics, send_report, stage_code, version_metadata)
 from fairplay_progress import LiveTiming
 from fairplay_routing import permitted
 from shark_admin import ADMIN_ID
 
 
 class SanitizationTests(unittest.TestCase):
+    def job(self, **overrides):
+        return SimpleNamespace(**dict(token="a"*12, stage="Posting final report…",
+            progress_percent=99, timing_elapsed=lambda:20.0, **overrides))
+
+    def test_explicit_environment_controls_version_and_empty_means_legacy(self):
+        from fairplay_method3 import VERSION as method3_version
+        with patch.dict(os.environ, {"FAIRPLAY_METHOD3":"1", "FAIRPLAY_V51":"1",
+                                    "FAIRPLAY_FULL_DEPTH18":"1"}):
+            self.assertEqual(version_metadata()["screening_version"], active_version())
+            self.assertEqual(version_metadata({})["screening_version"], VERSION)
+            self.assertEqual(version_metadata({"FAIRPLAY_V51":"1"})["screening_version"], DEPTH_VERSION)
+            self.assertEqual(version_metadata({"FAIRPLAY_METHOD3":"1", "FAIRPLAY_V51":"1"})["screening_version"], method3_version)
+            legacy=failure_record(self.job(), ReviewError("Synthetic"), env={})
+        self.assertEqual(legacy["analysis_route"], "legacy")
+        self.assertFalse(legacy["search_contract"]["full_depth_mode"])
+
+    def test_method3_delivery_failure_has_no_legacy_engine_claims(self):
+        job=self.job(report_delivery_status="rejected", report_delivery_http_status=403)
+        record=failure_record(job, ReviewError("Discord report delivery failed after full analysis."),
+            pool=SimpleNamespace(last_failure={"category":"stale engine failure"}),
+            env={"FAIRPLAY_METHOD3":"1", "FAIRPLAY_V51":"1", "FAIRPLAY_FULL_DEPTH18":"1"})
+        self.assertEqual(record["analysis_route"], "method3")
+        self.assertEqual(record["reason_code"], "report_delivery_failed")
+        self.assertEqual(record["stage"], "delivery")
+        self.assertIsNone(record["search_contract"])
+        self.assertIsNone(record["engine_last_failure"])
+        self.assertNotIn("Stockfish", record["model"])
+        self.assertEqual(record["report_delivery_status"], "rejected")
+        self.assertEqual(record["report_delivery_http_status"], 403)
+
+    def test_delivery_metadata_accepts_only_known_statuses_and_http_codes(self):
+        for status,code in (("secret-account",403),(["secret-account"],500),("uncertain",True),("uncertain",700)):
+            with self.subTest(status_type=type(status).__name__, code=code):
+                record=failure_record(self.job(report_delivery_status=status, report_delivery_http_status=code),
+                                      ReviewError("private raw text"), env={"FAIRPLAY_METHOD3":"1"})
+                self.assertNotIn("secret-account", str(record))
+                self.assertNotIn("private raw text", str(record))
+                if status != "uncertain":self.assertIsNone(record["report_delivery_status"])
+                if type(code) is not int or code>599:self.assertIsNone(record["report_delivery_http_status"])
+
+    def test_method3_and_report_stages_are_identified_without_payloads(self):
+        for stage,code in (("Method 3: block 1/2", "method3"),
+                           ("Method 3: boundary 1/1", "method3"),
+                           ("Method 3: building graphs and report…", "report"),
+                           ("Rendering charts…", "charts"),
+                           ("Rendering chart 2/4…", "charts"),
+                           ("Posting final report…", "delivery")):
+            self.assertEqual(stage_code(stage), code)
+
+    def test_progress_delivery_failure_has_validated_http_status(self):
+        error=ReviewError("Discord could not display review progress in the original channel. Check channel permissions and try again.")
+        record=failure_record(self.job(progress_delivery_http_status=403, progress_rejected=True),
+                              error, env={"FAIRPLAY_METHOD3":"1"})
+        self.assertEqual(record["reason_code"], "progress_delivery_failed")
+        self.assertEqual(record["progress_http_status"], 403)
+        self.assertTrue(record["progress_rejected"])
+        for http_status,rejected in ((True,"private text"),(700,1),("403",[])):
+            invalid=failure_record(self.job(progress_delivery_http_status=http_status,
+                                            progress_rejected=rejected), error, env={})
+            self.assertIsNone(invalid["progress_http_status"])
+            self.assertFalse(invalid["progress_rejected"])
+            self.assertNotIn("private text", str(invalid))
+
+    def test_known_data_failures_and_method3_runtime_errors_have_safe_categories(self):
+        for text,code in (("The public profile cannot be verified.", "profile_verification_failed"),
+                          ("No eligible live games were found.", "no_eligible_live_games"),
+                          ("No public game archives are available for this account.", "public_archives_unavailable")):
+            self.assertEqual(classify(ReviewError(text), method3=True), code)
+        for cause,code in ((TimeoutError("private"), "runtime_timeout"),
+                           (OSError("private"), "runtime_io_failure")):
+            error=ReviewError("private")
+            error.__cause__=cause
+            self.assertEqual(classify(error, method3=True), code)
+        self.assertEqual(classify(ReviewError("private"), method3=True), "review_coverage_or_data_gate")
+
     def test_reason_and_runtime_never_expose_exception_text_or_private_player(self):
         job=SimpleNamespace(token="a"*12,stage="Depth-18 rapid/blitz 12/50",
                             progress_percent=83,timing_elapsed=lambda:3700.0)

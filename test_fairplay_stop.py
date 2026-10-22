@@ -167,11 +167,11 @@ class CancellationLifecycle(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(started,[TARGET,'synthetic-next'])
         self.assertFalse(self.service.results)
         self.assertFalse(self.service.cache)
-        # Only the next review's public failure is published; the stopped
-        # analyzer's late apparent success must never produce a report.
-        self.assertEqual(self.channel.sends,1)
-        self.assertEqual(self.channel.messages[0].content,'❌ Synthetic later review ended')
-        self.assertFalse(self.channel.messages[0].embeds)
+        # Each review starts visibly. Its existing card becomes stopped or
+        # failed; the cancelled analyzer never produces a result report.
+        self.assertEqual(self.channel.sends,2)
+        self.assertIn('Stopped by moderator',self.channel.messages[0].embeds[0].description)
+        self.assertIn('Synthetic later review ended',self.channel.messages[1].embeds[0].description)
         self.assertIsNone(self.service.active_job)
 
     async def test_cancelled_error_updates_existing_card_without_false_failure(self):
