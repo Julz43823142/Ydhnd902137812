@@ -45,3 +45,10 @@ def corroboration(selected, sparse_flags):
         'priority_effect':'LOW_to_MODERATE_only',
         'caution':'MODERATE is an exploratory manual-review tier based on combined observations, not a multiple-testing-corrected finding, gameplay proof, or a cheating probability. High is never assigned by this rule.'
     }
+
+
+def apply_combined_review(priority, basis, combined_review):
+    """Keep the manual-review promotion auditable and capped at MODERATE."""
+    if priority=='LOW' and combined_review is not None:
+        return 'MODERATE','combined_manual_review'
+    return priority,basis
