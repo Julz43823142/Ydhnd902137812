@@ -157,6 +157,15 @@ def detail_embed(result,mode):
     else:e.add_field(name='Accuracy reference',value='Not enough earlier, same-control and rating-matched official scores. Reference unknown; missing does not mean LOW.',inline=False)
     if len(s['opponent_groups'])>9:e.add_field(name='Display limit',value='Additional opponent groups omitted from this card.',inline=False)
     e.add_field(name='Automated screening only',value=DISCLAIMER,inline=False)
+    shift=d.get('opening_shift')
+    if shift:
+        counts=shift['counts']
+        e.add_field(name='Temporary opening switch · context',value=(
+            f"{shift['time_class'].title()} {shift['time_control']} · {shift['color']} {shift['opponent_opening']}\\n"
+            f"Before: {shift['before']} ({counts['before']} games) → "
+            f"During: {shift['during']} ({counts['during']} games) → "
+            f"After: {shift['after']} ({counts['after']} games). "
+            "Context only; not proof of cheating."),inline=False)
     e.set_footer(text=result.version)
     return e
 
