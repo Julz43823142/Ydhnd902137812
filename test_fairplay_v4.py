@@ -230,7 +230,11 @@ class ExtendedHistory(unittest.TestCase):
         self.assertEqual(len(found),100);self.assertEqual(skipped['variant'],3)
         self.assertEqual(sum(g.time_class=='daily' for g in found),1)
         self.assertEqual(skipped.get('daily',0),0);self.assertEqual(skipped['invalid_pgn'],1)
-        self.assertFalse(partial)
+        self.assertTrue(partial)
+        self.assertEqual(api.fairplay_collection_coverage['chronology_gap_reasons'],
+                         {'invalid_pgn':1})
+        self.assertEqual(api.fairplay_collection_coverage['chronology_gaps'][0]['time_class'],
+                         'blitz')
 
     def test_configurable_collection_limit_and_primary_limit(self):
         self.assertEqual(data.collection_limit(CONFIG),500);self.assertEqual(data.primary_limit(CONFIG),500)

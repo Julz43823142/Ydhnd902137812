@@ -43,7 +43,8 @@ class RatingReliabilityTests(unittest.TestCase):
         self.assertTrue(support['unreliable'])
 
     def test_reliable_recent_anchors_restore_result_priority(self):
-        recent=[game(100+i,rated=False,ended=1770000100+i) for i in range(35)]
+        recent=[game(100+i,rated=False,ended=1770000100+i,
+                     opponent=f'anonymous-opponent-{i}') for i in range(35)]
         other=[game(200+i,kind='rapid',score=.5,rating=1700,opponent_elo=1700,
                     ended=1770000000+i) for i in range(30)]
         weak=run_games(other+recent)
@@ -63,9 +64,10 @@ class RatingReliabilityTests(unittest.TestCase):
                     ended=1770000000+i) for i in range(30)]
         result=run_games(other+recent)
         self.assertEqual(result.priority,'LOW')
-        periods=result.diagnostics['method3']['subject']['periods']
-        self.assertTrue(any(p.get('rating_reliability_downgrade') for p in periods
-                            if p['time_class']=='bullet' and p['games']<=20))
+        # The displayed LOW period can belong to Rapid. Global diagnostics
+        # retain applied guards for the nonselected Bullet candidates too.
+        self.assertGreater(result.diagnostics['method3']['period_guard_counts']
+                           .get('unreliable_time_control_rating',0),0)
 
     def test_other_controls_are_not_substituted_as_expected_elo(self):
         g=[game(i,rated=False,ended=1770000000+i) for i in range(35)]
@@ -75,6 +77,44 @@ class RatingReliabilityTests(unittest.TestCase):
         self.assertIsNone(support['rating_gap'])
         self.assertTrue(support['unverified'])
         self.assertEqual(support['anchor_status'],'unverified')
+
+
+class OpponentIdentityCoverageTests(unittest.TestCase):
+    def test_missing_identities_cannot_increase_results_priority(self):
+        rows=[game(i,kind='blitz',rating=1400,opponent_elo=1400,
+                   opponent='one-opponent') for i in range(35)]
+        self.assertEqual(run_games(rows).priority,'MODERATE')
+        for row in rows:
+            row.opponent_username=None
+        unknown=run_games(rows)
+        self.assertEqual(unknown.priority,'MODERATE')
+        self.assertIn('unverified_opponent_identities',
+                      unknown.diagnostics['method3']['selected']['classification_guards'])
+        for i,row in enumerate(rows):
+            row.opponent_username=f'anonymous-opponent-{i}'
+        self.assertEqual(run_games(rows).priority,'HIGH')
+
+    def test_unknown_opponents_cap_both_statuses_and_accuracy_cannot_bypass(self):
+        for rated in (True,False):
+            rows=[game(i,rated=rated) for i in range(20)]
+            support=opponent_support(rows,history=rows)
+            self.assertTrue(support['opponent_identity_unverified'])
+            for accuracy in (True,False):
+                for tier in ('HIGH','VERY HIGH'):
+                    result,reasons=independent_results_tier(tier,games=20,
+                        rating={},opponents=support,accuracy_confirmed=accuracy)
+                    self.assertEqual(result,'MODERATE')
+                    self.assertIn('unverified_opponent_identities',reasons)
+
+    def test_coverage_uses_selected_period_not_names_outside_it(self):
+        unknown=[game(i) for i in range(20)]
+        named=[game(20+i,opponent=f'anonymous-{i}') for i in range(200)]
+        support=opponent_support(unknown,history=unknown+named)
+        self.assertGreater(support['opponent_names_covered']/support['cohort_games'],.8)
+        self.assertTrue(support['opponent_identity_unverified'])
+        for i,row in enumerate(unknown[:16]):
+            row.opponent_username=f'period-anonymous-{i}'
+        self.assertFalse(opponent_support(unknown,history=unknown+named)['opponent_identity_unverified'])
 
 
 

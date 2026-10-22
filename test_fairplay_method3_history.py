@@ -19,7 +19,8 @@ def study(rows):
 
 def profile_game(i,score=.5,control='300+0',kind='blitz',rating=500,opponent=500):
     return NS(identity=str(i),ended=i,rated=True,time_class=kind,time_control=control,
-        rating=rating,opponent_rating=opponent,score=score,accuracy=None,decisions=[])
+        rating=rating,opponent_rating=opponent,score=score,accuracy=None,decisions=[],
+        opponent_username=f'anonymous-opponent-{i}')
 
 
 class RecentHistory(unittest.TestCase):

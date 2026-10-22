@@ -15,6 +15,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 
+import aiohttp
 import discord
 
 from fairplay_analysis import (ReviewResult, review, review_interest,
@@ -1282,6 +1283,7 @@ class Job:
     stop: threading.Event = field(default_factory=threading.Event)
     cancel_requested: bool = False  # explicit /fairplaystop; not a runner handoff
     report_published: bool = False  # do not retroactively cancel a delivered review
+    report_delivery_lock: asyncio.Lock = field(default_factory=asyncio.Lock)
     message_deleted: bool = False
     delivery_unknown: bool = False
     checkpoint_warning: bool = False
@@ -1321,10 +1323,14 @@ class FairPlayService:
         """
         if self.closed:return 'unavailable'
         job=self.active_job
-        if job is None or job.report_published:return 'idle'
-        if job.cancel_requested:return 'already'
-        job.cancel_requested=True
-        job.stop.set()
+        if job is None:return 'idle'
+        # Serialize an explicit stop with the final Discord acknowledgement.
+        # A stop accepted before delivery must never produce a late report.
+        async with job.report_delivery_lock:
+            if job.report_published:return 'idle'
+            if job.cancel_requested:return 'already'
+            job.cancel_requested=True
+            job.stop.set()
         if self.checkpoints is not None and self.checkpoints.enabled:
             try:
                 persisted=await asyncio.to_thread(self.checkpoints.cancel,job.target)
@@ -1417,7 +1423,7 @@ class FairPlayService:
         attempted_send=False
         try:
             if job.delivery_unknown and job.message is None:
-                async for candidate in self.channel.history(limit=100):
+                async for candidate in (job.output_channel or self.channel).history(limit=100):
                     if candidate.author.id==self.client.user.id and candidate.embeds and f'Review ID: {job.token}' in str(candidate.embeds[0].footer.text):
                         job.message = candidate;job.delivery_unknown = False;break
                 if job.message is None:return False  # an uncertain ACK is not permission to repost
@@ -1534,6 +1540,21 @@ class FairPlayService:
                 job.checkpoint_warning=True
             return False
 
+    async def reconcile_final_report(self,job,card):
+        """A lost acknowledgement is not permission to send another report."""
+        try:
+            async for message in (job.output_channel or self.channel).history(limit=100):
+                if message.author.id!=self.client.user.id or not message.embeds:continue
+                candidate=message.embeds[0]
+                # Progress cards share the Review ID. Match the final card
+                # too, so an existing progress message cannot certify delivery.
+                if (candidate.title==card.title and candidate.description==card.description
+                        and candidate.footer.text==card.footer.text):
+                    return message
+        except (discord.HTTPException,aiohttp.ClientError,asyncio.TimeoutError):
+            pass
+        return None
+
     async def save_failure(self, job, error):
         """Best-effort owner-only audit; a reporting error must never mask failure."""
         try:
@@ -1612,6 +1633,7 @@ class FairPlayService:
                     from fairplay_method3_ui import chart_pngs
                     job.stage='Rendering charts…'
                     await self.safe_progress(job,job.stage)
+                    if job.cancel_requested:return
                     def chart_progress(done,total):
                         progress(f'Rendering chart {done}/{total}…')
                     chart_task=asyncio.create_task(asyncio.to_thread(chart_pngs,result,chart_progress))
@@ -1631,6 +1653,7 @@ class FairPlayService:
                         chart_pngs,observations(result.games))
                 except Exception:
                     chart_files=[]  # Report still publishes if image rendering fails.  # A late completed scan is NOT a report.
+            if job.cancel_requested:return
             # All detailed position caches remain bounded in the engine worker.
             # Discord detail pages need game summaries, not thousands of FENs.
             for game in result.games:game.decisions.clear()
@@ -1652,23 +1675,32 @@ class FairPlayService:
             final_card.set_footer(text=(final_card.footer.text or '')+
                                   f' · Review ID: {job.token}')
             published=False
-            try:
-                final_message=await (job.output_channel or self.channel).send(
-                    embed=final_card,files=attachments,
-                    view=ReportView(result.username),
-                    allowed_mentions=discord.AllowedMentions.none())
-                published=True
-            except discord.HTTPException:
+            async with job.report_delivery_lock:
+                if job.cancel_requested or self.closed:return
                 try:
-                    fallback=fallback_result_embed(result)
-                    fallback.set_footer(text=(fallback.footer.text or '')+
-                                        f' · Review ID: {job.token}')
                     final_message=await (job.output_channel or self.channel).send(
-                        embed=fallback,view=ReportView(result.username),
+                        embed=final_card,files=attachments,
+                        view=ReportView(result.username),
                         allowed_mentions=discord.AllowedMentions.none())
                     published=True
-                except discord.HTTPException:
-                    pass
+                except (discord.HTTPException,aiohttp.ClientError,asyncio.TimeoutError) as error:
+                    if isinstance(error,discord.HTTPException) and error.status==400:
+                        fallback=fallback_result_embed(result)
+                        fallback.set_footer(text=(fallback.footer.text or '')+
+                                            f' · Review ID: {job.token}')
+                        try:
+                            final_message=await (job.output_channel or self.channel).send(
+                                embed=fallback,view=ReportView(result.username),
+                                allowed_mentions=discord.AllowedMentions.none())
+                            published=True
+                        except (discord.HTTPException,aiohttp.ClientError,asyncio.TimeoutError) as fallback_error:
+                            if not isinstance(fallback_error,discord.HTTPException) or fallback_error.status>=500:
+                                final_message=await self.reconcile_final_report(job,fallback)
+                                published=final_message is not None
+                    elif not isinstance(error,discord.HTTPException) or error.status>=500:
+                        final_message=await self.reconcile_final_report(job,final_card)
+                        published=final_message is not None
+                if published:job.report_published=True
             if published and not job.cancel_requested:
                 old_message=job.message
                 job.message=final_message
@@ -1919,13 +1951,28 @@ async def startup(client):
             try:target=username(target)
             except ReviewError:continue
             if target in _service.jobs:continue
+            # Preserve the original channel across handoffs. In particular,
+            # an unavailable staff channel is never permission to post its
+            # private review in the Task Force channel.
+            try:
+                output_id=int(item.get('channel_id') if item.get('channel_id') is not None else CHANNEL_ID)
+            except (TypeError,ValueError):continue
+            if output_id not in FAIRPLAY_ALLOWED_CHANNEL_IDS:continue
+            try:
+                output_channel=(channel if output_id==CHANNEL_ID else
+                    client.get_channel(output_id) or await client.fetch_channel(output_id))
+            except discord.HTTPException:
+                print('Fair Play: checkpoint channel unavailable; review remains pending.',flush=True)
+                continue
+            if output_channel is None or output_channel.id!=output_id:continue
             timing=(ReliableTiming.from_checkpoint(item.get('timing'))
                     if os.getenv('FAIRPLAY_V21')=='1' and os.getenv('FAIRPLAY_FULL_DEPTH18')=='1'
                     else LiveTiming())
-            job = Job(target,None,stage='Resuming interrupted scan…',timing=timing,
+            job = Job(target,None,output_channel=output_channel,
+                      stage='Resuming interrupted scan…',timing=timing,
                       token=item.get('token') or uuid.uuid4().hex[:12])
             if item.get('message_id'):
-                job.message = channel.get_partial_message(int(item['message_id']))
+                job.message = output_channel.get_partial_message(int(item['message_id']))
             _service.jobs[target]=job
             _service.queue.put_nowait(job)
         # No account names or case details in the deployment logs.

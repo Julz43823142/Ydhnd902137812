@@ -96,14 +96,14 @@ class BoundedCollection(unittest.TestCase):
         target='synthetic-scope'
         months=[f'https://api.chess.com/pub/player/{target}/games/2026/0{i}' for i in (8,9)]
         rows=[{'end_time':i,'time_class':'daily'} for i in range(1000,1500)]
-        rows += [{'end_time':i,'time_class':'bullet'} for i in range(250)]
+        rows += [{'end_time':i,'time_class':'bullet'} for i in range(1,251)]
         api=SimpleNamespace(deadline=time.monotonic()+60,
             get=Mock(side_effect=[{'archives':months},{'games':list(reversed(rows))}]))
         def parse(row,*args,**kwargs):return game(row['end_time'])
         with patch('fairplay_data.parse_game',side_effect=parse),patch.dict('os.environ',{'FAIRPLAY_V21':'1','FAIRPLAY_FULL_DEPTH18':'1'}):
             games,skipped,partial=collect_games(api,target,lambda stage:None,cfg,
                 include_recent_all_short_count=200,time_classes=('bullet','blitz','rapid'))
-        self.assertEqual([g.ended for g in games],list(range(50,250)))
+        self.assertEqual([g.ended for g in games],list(range(51,251)))
         self.assertEqual(api.get.call_count,2)
         self.assertEqual(skipped['out_of_scope_time_class'],500)
         self.assertFalse(partial)

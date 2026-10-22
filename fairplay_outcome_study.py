@@ -7,6 +7,7 @@ not population norms. Status/ban/validation labels are intentionally unused.
 from dataclasses import dataclass, asdict
 from math import isfinite, sqrt
 from statistics import median
+from hashlib import sha256
 import re
 
 SCHEMA = 'fairplay-accuracy-results-study-v1'
@@ -148,8 +149,23 @@ def _reference(game, pool, source, config, minimum_players):
         by_player.setdefault(key, []).append(_accuracy(game, source))
     centers = [median(values) for values in by_player.values()]
     upper = [_quantile(values,.90) for values in by_player.values()]
-    return {'median':median(centers), 'upper':median(upper),
-            'games':physical_games, 'players':len(players)}
+    reference = {'median':median(centers), 'upper':median(upper),
+                 'games':physical_games, 'players':len(players)}
+    if len(players) == 1:
+        reference.update(_reference_pool([g for _,g in matches]))
+    return reference
+
+
+def _reference_pool(games):
+    # The digest is only an internal deduplication key. Public summaries retain
+    # pool sizes and memberships, never the identities or digest itself.
+    digest = sha256()
+    for identity in sorted(g['identity'] for g in games):
+        encoded = identity.encode()
+        digest.update(len(encoded).to_bytes(8, 'big'))
+        digest.update(encoded)
+    n = len(games)
+    return {'pool_key':digest.digest(), 'upper_order':(9*(n-1))//10+1}
 
 
 class _PersonalReferences:
@@ -171,7 +187,8 @@ class _PersonalReferences:
         key=(context,n)
         if key not in self.prefixes:
             earlier=values[:n]
-            self.prefixes[key]={'median':median(earlier),'upper':_quantile(earlier,.90),'games':n,'players':1}
+            self.prefixes[key]={'median':median(earlier),'upper':_quantile(earlier,.90),'games':n,'players':1,
+                                **_reference_pool([self.group[i] for i in indices[:n]])}
         return self.prefixes[key]
 
 
@@ -179,6 +196,8 @@ def _accuracy_summary(games, pool, source, config, minimum_players, cache, scope
     rows = []
     published = 0
     available_scores = []
+    reference_pools = {}
+    unmodelled = 0
     for game in games:
         observed = _accuracy(game,source)
         published += observed is not None
@@ -190,6 +209,12 @@ def _accuracy_summary(games, pool, source, config, minimum_players, cache, scope
             cache[cache_key]=_reference(game,pool,source,config,minimum_players)
         reference=cache[cache_key] if observed is not None else None
         if reference:
+            if 'pool_key' in reference:
+                group=reference_pools.setdefault(reference['pool_key'],
+                    {'games':reference['games'],'upper_order':reference['upper_order'],'matched_games':0})
+                group['matched_games'] += 1
+            else:
+                unmodelled += 1
             rows.append({'observed':observed, 'expected':reference['median'],
                          'excess':observed-reference['median'],
                          'above_upper':observed>reference['upper'],
@@ -200,6 +225,8 @@ def _accuracy_summary(games, pool, source, config, minimum_players, cache, scope
             'matched_reference_median':median(row['expected'] for row in rows) if rows else None,
             'median_excess':median(row['excess'] for row in rows) if rows else None,
             'above_reference_fraction':sum(row['above_upper'] for row in rows)/len(rows) if rows else None,
+            'reference_pools':sorted(reference_pools.values(),key=lambda p:(p['games'],p['upper_order'],p['matched_games'])),
+            'unmodelled_reference_games':unmodelled,
             'minimum_reference_games':min((row['reference_games'] for row in rows),default=0),
             'minimum_reference_players':min((row['reference_players'] for row in rows),default=0)}
 

@@ -41,10 +41,14 @@ def result_embed(result):
     if signals:
         lines=[]
         for signal in signals:
-            lines.append(
+            line=(
                 f"{signal['time_class'].title()} {signal.get('time_control','')}: recent {signal['recent_at_least_90']}/{signal['recent_games']} "
                 f"vs earlier {signal['baseline_at_least_90']}/{signal['baseline_games']} "
                 f"at ≥90% Accuracy · {signal['distinct_opponents']} recent opponents.")
+            if len('\n'.join(lines+[line]))>850:break
+            lines.append(line)
+        if len(lines)<len(signals):
+            lines.append(f'{len(signals)-len(lines)} additional time controls omitted from this card.')
         e.add_field(name='Earlier → recent Accuracy frequency · exploratory',
             value='\n'.join(lines)+'\nThis change can support MODERATE, never HIGH. Not a cheating probability.',
             inline=False)
@@ -111,7 +115,7 @@ def detail_embed(result,mode):
                 f"Median game think time: {fmt(a['think_median'])} → {fmt(b['think_median'])} sec\n"
                 + ('Comparable reference' if change['results_comparable'] else 'Limited reference'))
         e.add_field(name='Earlier → recent · same control',value=('\n\n'.join(rows) or 'Not enough comparable earlier/recent games.')[:1024],inline=False)
-        e.add_field(name='History scope',value=f"All {len(result.games)} collected live games are eligible, rated and unrated equally, divided into {d.get('blocks_checked',0)} blocks of at most 200 games. {d.get('searched_windows',0)} distinct chronological windows were checked, including 5/10/20/50/100/200-game widths within each block. Earlier references stay strictly earlier. History-change charts are descriptive context, not separate HIGH votes.",inline=False)
+        e.add_field(name='History scope',value=f"All {len(result.games)} collected live games are eligible, rated and unrated, searched in {d.get('blocks_checked',0)} chronological blocks of at most 200 games per time class, plus bridges across block boundaries. {d.get('searched_windows',0)} distinct windows were checked with 5/10/20/50/100/200-game widths. Earlier references stay strictly earlier. History-change charts are descriptive context, not separate HIGH votes.",inline=False)
     if mode in ('Engine Analysis','Human Moves'):
         e.add_field(name='Not performed',value='This method does not run Stockfish or Maia. No engine ranks, human-move likelihoods or deep confirmation are claimed.',inline=False)
     elif mode=='Review Gates':
@@ -131,16 +135,25 @@ def detail_embed(result,mode):
             g=d['selected']['search_guard']
             a=d['selected'].get('accuracy_search_guard',{})
             e.add_field(name='History-search guard',value=f"{g['searched_windows']} distinct windows · HIGH guard: {'PASS' if g['high_pass'] else 'FAIL'} · short-sample coverage: {'PASS' if g['short_sample_complete'] else 'FAIL'} · Accuracy review guard: {'PASS' if a.get('moderate_pass') else 'FAIL'}. Ratings may be inaccurate in either rated or unrated games; game independence is a model assumption.",inline=False)
+            model=a.get('reference_model','unavailable').replace('_',' ')
+            e.add_field(name='Accuracy reference uncertainty',value=(
+                f'Model: {model}. Earlier sample size and reused reference pools are accounted for. '
+                'Comparable, stationary scores remain an assumption; this is not a cheating probability.'),inline=False)
+        counts=d.get('period_guard_counts') or {}
+        if counts:
+            e.add_field(name='Evidence limits across searched periods',value='\n'.join(
+                f"{reason.replace('_',' ')}: {count} periods" for reason,count in sorted(counts.items())
+            )[:1024]+'\nOverlapping periods are not independent evidence.',inline=False)
     elif mode=='Timing':
         e.add_field(name='Descriptive clocks only',value='PGN clocks supply the think-time charts. Timing does not change this method’s priority.',inline=False)
     for group in s['opponent_groups'][:9]:
         r=group['results'];a=group['accuracy']
         e.add_field(name=f"{group['time_class'].title()} {group['time_control']} · opponent {group['opponent_elo_min']}–{group['opponent_elo_max']}",
             value=f"n={group['games']} · {'limited sample' if group['limited_sample'] else 'descriptive group'}\nPoints expected / actual: {fmt(r['expected_points'])} / {fmt(r['actual_points'])} · winrate {fmt(r['win_fraction'],True)}\nPublished Accuracy median: {fmt(a['observed_median'])} · cross-player norm unavailable.",inline=False)
-    personal=[p for p in s['periods'] if p['reference_mode']=='personal_earlier' and p['accuracy']['matched_games']]
-    if personal:
-        p=max(personal,key=lambda p:p['last_game']);a=p['accuracy']
-        e.add_field(name='Earlier personal Accuracy comparison',value=f"{p['time_class'].title()} · {a['matched_games']}/{p['games']} matched subject games\nObserved / reference median: {fmt(a['matched_observed_median'])} / {fmt(a['matched_reference_median'])}\nPartial matching is not a complete-period norm; reference games are earlier, not labelled honest.",inline=False)
+    selected=d.get('selected') or {}
+    if selected.get('reference_mode')=='personal_earlier' and (selected.get('accuracy') or {}).get('matched_games'):
+        e.add_field(name='Selected period · earlier personal Accuracy',
+                    value=selected_accuracy_reference(selected),inline=False)
     else:e.add_field(name='Accuracy reference',value='Not enough earlier, same-control and rating-matched official scores. Reference unknown; missing does not mean LOW.',inline=False)
     if len(s['opponent_groups'])>9:e.add_field(name='Display limit',value='Additional opponent groups omitted from this card.',inline=False)
     e.add_field(name='Automated screening only',value=DISCLAIMER,inline=False)
@@ -156,7 +169,8 @@ def chart_pngs(result, progress=None):
     live_games=result.games
     grouped=observations(live_games)
     files=[]
-    total=sum(bool(rows) for rows in grouped.values())+(3 if live_games else 0)
+    zoom=selected_window_svg(result)
+    total=sum(bool(rows) for rows in grouped.values())+(3 if live_games else 0)+bool(zoom)
     def add_chart(name, data):
         files.append((name,data))
         if progress:progress(len(files),total)
@@ -185,6 +199,8 @@ def chart_pngs(result, progress=None):
             if grouped[kind]:svg=mark_selected(svg,result,kind,grouped[kind],(105+index*325,))
         add_chart('fairplay_method3_expected_points.png',cairosvg.svg2png(bytestring=svg.encode()))
         add_chart('fairplay_method3_history_change.png',cairosvg.svg2png(bytestring=history_svg(result).encode()))
+    if zoom:
+        add_chart('fairplay_method3_selected_period.png',cairosvg.svg2png(bytestring=zoom.encode()))
     return files
 
 
@@ -193,6 +209,80 @@ def period_dates(selected):
     a,b=selected.get('first_ended'),selected.get('last_ended')
     if a is None or b is None:return 'Dates unavailable'
     return datetime.fromtimestamp(a,timezone.utc).strftime('%d %b %Y')+' → '+datetime.fromtimestamp(b,timezone.utc).strftime('%d %b %Y')
+
+
+def selected_accuracy_reference(selected):
+    """Describe only the Accuracy reference belonging to this exact candidate."""
+    accuracy=selected.get('accuracy') or {}
+    matched=accuracy.get('matched_games',0)
+    if selected.get('reference_mode')!='personal_earlier' or not matched:
+        return 'Not enough earlier, same-control and rating-matched official scores for this selected period. Reference unknown.'
+    return (f"{matched}/{selected['games']} selected games matched\n"
+            f"Observed / earlier reference median: {fmt(accuracy.get('matched_observed_median'))} / "
+            f"{fmt(accuracy.get('matched_reference_median'))}\n"
+            'Partial matching is not a complete-period norm; earlier games are not labelled honest.')
+
+
+def selected_window_svg(result):
+    """Keep a short candidate readable within a history of up to 5000 games."""
+    from fairplay_charts import plot, start, text
+    from fairplay_method3 import observations
+    from fairplay_outcome_study import expected_points
+    diagnostic=result.diagnostics['method3']
+    selected=diagnostic.get('selected')
+    if not selected or not result.games:return None
+    kind=selected['time_class']
+    games=sorted((g for g in result.games if g.time_class==kind),
+                 key=lambda g:(g.ended,g.identity))
+    first,last=selected['first_game']-1,selected['last_game']
+    if not 0<=first<last<=len(games):return None
+    start_index=max(0,first-20)
+    end_index=min(len(games),last+20)
+    window=games[start_index:end_index]
+    rows=observations(window)[kind]
+    tier=diagnostic.get('selected_period_priority',result.priority)
+    frequency_only=diagnostic.get('priority_basis')=='accuracy_frequency'
+    label='Context only · LOW results window' if frequency_only else f'{tier} results window'
+    parts=start(1440,1480)
+    points=selected.get('results') or {}
+    parts.extend((
+        text(45,42,f'Selected period · {kind.title()} · {label}',28),
+        text(45,76,f"History games #{first+1}–#{last} · {period_dates(selected)} · up to 20 surrounding games on each side",18),
+        text(45,106,f"Selected window: expected {fmt(points.get('expected_points'))} / scored {fmt(points.get('actual_points'))} points · valid results {points.get('games','Unknown')}/{selected['games']}",18),
+        text(45,134,'Overall MODERATE comes from a separate Accuracy-frequency change; this results window did not qualify.'
+             if frequency_only else 'Shading identifies the selected window. Raw observations and missing-data gaps are preserved; not proof of cheating.',15,'#526477')))
+    positions=(180,500,820,1140)
+    plot(parts,rows,positions[0],'Official Chess.com Accuracy by game',
+         [r['official_accuracy'] for r in rows],'%','#e87519',first_game=start_index+1)
+    selected_rows=rows[first-start_index:last-start_index]
+    published=sum(r['official_accuracy'] is not None for r in selected_rows)
+    accuracy=selected.get('accuracy') or {}
+    matched=accuracy.get('matched_games',0) if selected.get('reference_mode')=='personal_earlier' else 0
+    reference=(f"matched earlier {matched}/{selected['games']} · median observed / reference "
+               f"{fmt(accuracy.get('matched_observed_median'))} / {fmt(accuracy.get('matched_reference_median'))}"
+               if matched else 'earlier matched reference unknown')
+    parts.append(text(1375,positions[0]+23,
+                      f"Selected published scores {published}/{selected['games']} · {reference}",
+                      13,'#526477',anchor='end'))
+    plot(parts,rows,positions[1],'Rating by game · blue player / orange opponent',
+         [g.rating for g in window],'','#2563eb',second=[g.opponent_rating for g in window],first_game=start_index+1)
+    expected=[expected_points(g.rating,g.opponent_rating) for g in window]
+    plot(parts,rows,positions[2],'Points per game · blue Elo expectation / orange observed',
+         [p*100 if p is not None else None for p in expected],'%','#2563eb',
+         second=[g.score*100 if g.score in (0,.5,1) else None for g in window],first_game=start_index+1)
+    plot(parts,rows,positions[3],'Median think time by game · valid PGN clocks only',
+         [r['median_think_seconds'] for r in rows],'s','#7c3aed',first_game=start_index+1)
+    colors={'MODERATE':('#eab308','#854d0e'),'HIGH':('#f97316','#9a3412'),
+            'VERY HIGH':('#dc2626','#991b1b')}
+    fill,stroke=colors.get(tier,('#94a3b8','#475569'))
+    left=115+1260*(first-start_index)/max(1,len(window)-1)
+    right=115+1260*(last-1-start_index)/max(1,len(window)-1)
+    for y in positions:
+        parts.append(f'<rect x="{left:.1f}" y="{y+30}" width="{max(3,right-left):.1f}" height="200" '
+                     f'fill="{fill}" fill-opacity=".12" stroke="{stroke}" stroke-width="1.5"/>')
+    parts.append(text(45,1452,'Axes zoom to observed data. Timing is descriptive and does not change priority. Missing values remain gaps.',15,'#526477'))
+    parts.append('</svg>')
+    return ''.join(parts)
 
 
 
@@ -227,6 +317,11 @@ def selected_period_embed(result):
         f"Scored: **{fmt(points.get('actual_points'))} points**\n\n"
         + explanation
     )
+    if 'games' in points:
+        e.description+=f"\nValid result/rating pairs: **{points['games']}/{selected['games']}**."
+    if selected.get('accuracy') is not None:
+        e.add_field(name='Selected period · earlier personal Accuracy',
+                    value=selected_accuracy_reference(selected),inline=False)
     additional=(result.diagnostics.get('method3') or {}).get('period_context') or {}
     classes=additional.get('by_class',{})
     other=[]
