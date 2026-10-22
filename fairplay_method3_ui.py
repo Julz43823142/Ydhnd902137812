@@ -60,6 +60,20 @@ def result_embed(result):
                            '\nDescriptive only. Published Accuracy may be selectively available; '
                            'this note does not change the statistical priority or establish cheating.')[:1024],
                     inline=False)
+    follow_up=d.get('manual_review_observations') or []
+    result_observations=[x for x in follow_up if x.get('kind')=='recent_result_excess']
+    if result_observations:
+        lines=[]
+        for observation in result_observations[:3]:
+            lines.append(
+                f"{observation['time_class'].title()} {observation['time_control']}: "
+                f"{observation['games']} recent games, "
+                f"{observation['score_excess']*100:.1f} percentage points above Elo expectation.")
+        e.add_field(name='Additional observations · manual review',
+                    value=('\n'.join(lines) +
+                           '\nExploratory, not search-adjusted HIGH evidence. '
+                           'Combined observations do not change the priority.')[:1024],
+                    inline=False)
     selected=d.get('selected')
     if selected:
         label=('Selected results window · separate from Accuracy signal'
