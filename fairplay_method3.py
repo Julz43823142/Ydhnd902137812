@@ -282,12 +282,10 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         # reliable results period AND sufficiently broad published Accuracy.
         # Never promotes HIGH and must not be treated as a cheating verdict.
         from fairplay_method3_accuracy_frequency import limited_coverage_review_flags
-        from fairplay_method3_review_triage import corroboration
+        from fairplay_method3_review_triage import corroboration, apply_combined_review
         limited_accuracy_flags=limited_coverage_review_flags(games)
         combined_review=corroboration(chosen,limited_accuracy_flags)
-        if priority=='LOW' and combined_review is not None:
-            priority='MODERATE'
-            basis='combined_manual_review'
+        priority,basis=apply_combined_review(priority,basis,combined_review)
         selected_period_priority=priority if basis not in (
             'accuracy_frequency','absolute_accuracy_frequency','combined_manual_review') else 'LOW'
         rated_count=sum(g.rated is True for g in games)
