@@ -32,8 +32,10 @@
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_ids": {},
-    "message_id": null,
+    "message_ids": {
+      "1468320170891022417": 1562907521369383002
+    },
+    "message_id": 1562907521369383002,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {},
@@ -41,7 +43,10 @@
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "board_attachment_filenames": {
+      "1468320170891022417": "random_puzzle.png"
+    }
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
@@ -9935,6 +9940,6 @@
   },
   "puzzle_auto_next": {
     "1546557493038284840": true,
-    "1468320170891022417": false
+    "1468320170891022417": true
   }
 }
