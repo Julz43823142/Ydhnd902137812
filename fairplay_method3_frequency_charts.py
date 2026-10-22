@@ -115,8 +115,8 @@ def accuracy_frequency_svg(result):
             parts.append(f'<line x1="{left}" x2="{right}" y1="{yy:.1f}" y2="{yy:.1f}" stroke="#d6e1ea"/>')
             parts.append(text(55,yy+5,f'{level}%',15,anchor='end'))
         n=len(rows)
-        for tick in range(5):
-            game_no=1+round((n-1)*tick/4)
+        for tick in range(5 if n>=5 else max(1,n)):
+            game_no=1+round((n-1)*tick/max(1,(5 if n>=5 else max(1,n))-1))
             xx=left+(right-left)*(game_no-1)/max(1,n-1)
             parts.append(text(xx,bottom+28,str(game_no),15,anchor='middle'))
         # Show only genuinely qualifying review windows; LOW periods are not shaded.
