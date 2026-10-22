@@ -1,7 +1,7 @@
-"""Non-punitive combined review triage for Method 3.
+"""Conservative combined manual-review triage for Method 3.
 
 Uses already calculated statistics: no engine calls or additional searches.
-This is a workflow cue, never a statistical priority upgrade.
+A qualifying combination can yield MODERATE triage, never HIGH, and is not a calibrated misconduct estimate.
 """
 from math import isfinite
 
@@ -27,7 +27,9 @@ def corroboration(selected, sparse_flags):
         return None
     match=next((flag for flag in sparse_flags
                 if flag.get('time_class')==selected.get('time_class')),None)
-    if match is None:
+    if (match is None or match.get('accuracy_covered',0)<100
+            or match.get('at_least_90',0)<20 or match.get('at_least_95',0)<10
+            or match.get('distinct_observed_opponents',0)<40):
         return None
     return {
         'kind':'combined_uncalibrated_review',
@@ -40,6 +42,6 @@ def corroboration(selected, sparse_flags):
         'total_games':match['total_games'],
         'at_least_90':match['at_least_90'],
         'at_least_95':match['at_least_95'],
-        'priority_effect':False,
-        'caution':'Exploratory signals may be correlated and selected from many periods. Not a multiple-testing-corrected finding, gameplay proof, or a cheating probability.'
+        'priority_effect':'LOW_to_MODERATE_only',
+        'caution':'MODERATE is an exploratory manual-review tier based on combined observations, not a multiple-testing-corrected finding, gameplay proof, or a cheating probability. High is never assigned by this rule.'
     }
