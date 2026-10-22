@@ -341,12 +341,25 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                     'time_control':change.get('time_control'),
                     'games':recent['games'],
                     'score_excess':recent['score_excess'],
-                    'caution':'Exploratory historical summary; not search-adjusted HIGH evidence.'})
+                    'baseline_score_excess':(change.get('baseline') or {}).get('score_excess'),
+                    'score_excess_change':change.get('score_excess_change'),
+                    'results_increase_confirmed':bool(change.get('results_increase')),
+                    'caution':'Exploratory historical summary; a high recent excess without a validated increase is not search-adjusted HIGH evidence.'})
         selected_context=period_context(games,chosen)
         from fairplay_method3_opening_shift import temporary_switch
         opening_shift=temporary_switch(games,chosen)
         from collections import Counter
         guard_counts=Counter(reason for reasons in guarded_periods.values() for reason in reasons)
+        selected_high_gap=None
+        if chosen and isinstance(chosen.get('results'),dict):
+            score_excess=chosen['results'].get('score_excess')
+            if isinstance(score_excess,(int,float)):
+                selected_high_gap={
+                    'observed_excess':score_excess,
+                    'required_excess':0.20,
+                    'additional_percentage_points_needed':max(0.0,(0.20-score_excess)*100),
+                    'passes_excess_threshold':score_excess>=0.20,
+                    'note':'Passing the effect threshold alone is insufficient; search-adjusted and reliability guards also apply.'}
         record={'history_limit':LIMIT,'priority_games':len(games),'block_size':BLOCK_SIZE,'blocks_checked':block_count,
                 'period_guard_counts':dict(guard_counts),
                 'boundary_bridges_checked':len(segments)-block_count,'segments_checked':len(segments),
@@ -357,6 +370,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 'limited_accuracy_review_flags':limited_accuracy_flags,
                 'manual_review_observations':follow_up,
                 'manual_review_recommended':bool(follow_up),
+                'selected_high_effect_screen':selected_high_gap,
                 'absolute_accuracy_frequency_signals':absolute_signals,
                 'rating_reliability':rating_reliability,
                 'data_quality':data_quality,
