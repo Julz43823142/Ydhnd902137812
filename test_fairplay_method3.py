@@ -46,6 +46,16 @@ class Method3(unittest.TestCase):
         self.assertFalse(result.deep_confirmed)
         self.assertEqual(result.coverage['deep_reviewed'],0)
         self.assertFalse(result.diagnostics['method3']['maia_used'])
+    def test_v73_exposes_review_observations_without_forcing_tier(self):
+        result=self.run_review()
+        diagnostic=result.diagnostics['method3']
+        self.assertEqual(result.version,'fairplay-v73-evidence-triage')
+        self.assertIn('manual_review_observations',diagnostic)
+        self.assertEqual(diagnostic['manual_review_recommended'],
+                         bool(diagnostic['manual_review_observations']))
+        for observation in diagnostic['manual_review_observations']:
+            self.assertIn('caution',observation)
+
     def test_status_and_accuracy_do_not_force_results_tier(self):
         first=self.run_review()
         API.status='closed:fair_play_violations'
