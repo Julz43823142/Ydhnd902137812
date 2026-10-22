@@ -51,6 +51,13 @@ class Method3(unittest.TestCase):
         diagnostic=result.diagnostics['method3']
         self.assertEqual(result.version,'fairplay-v73-evidence-triage')
         self.assertIn('manual_review_observations',diagnostic)
+        self.assertIn('selected_high_effect_screen',diagnostic)
+        gap=diagnostic['selected_high_effect_screen']
+        if gap is not None:
+            self.assertEqual(gap['passes_excess_threshold'],
+                             gap['observed_excess']>=gap['required_excess_threshold']
+                             if 'required_excess_threshold' in gap
+                             else gap['observed_excess']>=gap['required_excess'])
         self.assertEqual(diagnostic['manual_review_recommended'],
                          bool(diagnostic['manual_review_observations']))
         for observation in diagnostic['manual_review_observations']:
