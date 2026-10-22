@@ -317,8 +317,9 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
             reasons=['A recent high-Accuracy frequency increase passed a conservative earlier-history comparison against similar-Elo opponents. Exploratory review signal, not proof of misconduct.']
         from fairplay_method3_history import changes
         from fairplay_method3_context import context as period_context
-        from fairplay_method3_accuracy_frequency import summarize as accuracy_frequency
+        from fairplay_method3_accuracy_frequency import summarize as accuracy_frequency, limited_coverage_review_flags
         frequency_diagnostics=accuracy_frequency(games)
+        limited_accuracy_flags=limited_coverage_review_flags(games)
         history_changes=changes(games,PRIORITY_GAMES)
         selected_context=period_context(games,chosen)
         from fairplay_method3_opening_shift import temporary_switch
@@ -332,6 +333,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 'opening_shift':opening_shift,
                 'accuracy_frequency':frequency_diagnostics,
                 'accuracy_frequency_signals':frequency_signals,
+                'limited_accuracy_review_flags':limited_accuracy_flags,
                 'absolute_accuracy_frequency_signals':absolute_signals,
                 'rating_reliability':rating_reliability,
                 'data_quality':data_quality,

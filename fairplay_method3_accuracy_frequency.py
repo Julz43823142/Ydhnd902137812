@@ -51,6 +51,44 @@ def summarize(games):
             'note':'Descriptive only; absolute Accuracy rates are not population-calibrated.'}
 
 
+
+def limited_coverage_review_flags(games):
+    """Visible descriptive review cues; never alter misconduct priority.
+
+    Sparse published Accuracy can be user-selected, so counts are displayed
+    against both observed and total games, never treated as a calibrated rate.
+    Work is linear in history size and grouped by time class.
+    """
+    grouped={kind:{'total':0,'covered':0,'high90':0,'high95':0,'opponents':set()}
+             for kind in ('rapid','blitz','bullet')}
+    for g in games:
+        stats=grouped.get(getattr(g,'time_class',None))
+        if stats is None:continue
+        stats['total']+=1
+        if not _valid_accuracy(g):continue
+        stats['covered']+=1
+        stats['high90']+=g.accuracy>=90
+        stats['high95']+=g.accuracy>=95
+        name=getattr(g,'opponent_username',None)
+        if isinstance(name,str) and name.strip():
+            stats['opponents'].add(name.strip().casefold())
+    flags=[]
+    for kind,stats in grouped.items():
+        total=stats['total']
+        covered=stats['covered']
+        if (total<50 or covered<50 or covered/total>=0.60
+                or stats['high90']<10 or stats['high95']<5
+                or len(stats['opponents'])<10):
+            continue
+        flags.append({'time_class':kind,'total_games':total,'accuracy_covered':covered,
+                      'at_least_90':stats['high90'],'at_least_95':stats['high95'],
+                      'distinct_observed_opponents':len(stats['opponents']),
+                      'coverage_fraction':covered/total,
+                      'priority_effect':False,
+                      'note':'Descriptive review cue only; missing Accuracy is not random, and published scores do not establish misconduct.'})
+    return flags
+
+
 def absolute_frequency_signal(games):
     """Uncalibrated manual-review flag, not a misconduct probability.
 
