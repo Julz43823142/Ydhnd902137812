@@ -278,7 +278,18 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         elif priority=='LOW' and absolute_signals:
             priority='MODERATE'
             basis='absolute_accuracy_frequency'
-        selected_period_priority=priority if basis not in ('accuracy_frequency','absolute_accuracy_frequency') else 'LOW'
+        # Separate exploratory MODERATE manual-review route. Requires a large,
+        # reliable results period AND sufficiently broad published Accuracy.
+        # Never promotes HIGH and must not be treated as a cheating verdict.
+        from fairplay_method3_accuracy_frequency import limited_coverage_review_flags
+        from fairplay_method3_review_triage import corroboration
+        limited_accuracy_flags=limited_coverage_review_flags(games)
+        combined_review=corroboration(chosen,limited_accuracy_flags)
+        if priority=='LOW' and combined_review is not None:
+            priority='MODERATE'
+            basis='combined_manual_review'
+        selected_period_priority=priority if basis not in (
+            'accuracy_frequency','absolute_accuracy_frequency','combined_manual_review') else 'LOW'
         rated_count=sum(g.rated is True for g in games)
         valid_accuracy=sum(isinstance(g.accuracy,(int,float)) and not isinstance(g.accuracy,bool)
                            and 0 <= g.accuracy <= 100 for g in games)
@@ -311,15 +322,16 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                  'A chronological period exceeded the results review boundary but did not pass the stricter HIGH search guard.' if priority=='MODERATE' else
                  'No period passed the configured review boundaries; this does not establish fair play.' if priority=='LOW' else
                  'Not enough comparable chronological games with valid ratings/results to assign a tier.')]
+        if basis=='combined_manual_review':
+            reasons=['Combined substantial Elo-results deviation and published Accuracy observations warrant MODERATE manual-review priority. This is exploratory, uncalibrated, and not evidence of cheating.']
         if basis=='absolute_accuracy_frequency':
             reasons=['High published Accuracy frequency in well-covered, comparable-Elo games merits manual review. This is an uncalibrated heuristic, not evidence of cheating.']
         if basis=='accuracy_frequency':
             reasons=['A recent high-Accuracy frequency increase passed a conservative earlier-history comparison against similar-Elo opponents. Exploratory review signal, not proof of misconduct.']
         from fairplay_method3_history import changes
         from fairplay_method3_context import context as period_context
-        from fairplay_method3_accuracy_frequency import summarize as accuracy_frequency, limited_coverage_review_flags
+        from fairplay_method3_accuracy_frequency import summarize as accuracy_frequency
         frequency_diagnostics=accuracy_frequency(games)
-        limited_accuracy_flags=limited_coverage_review_flags(games)
         history_changes=changes(games,PRIORITY_GAMES)
         # Keep separate, independently interpretable review observations. They
         # support an investigation even when calibrated HIGH criteria are not met.
@@ -345,8 +357,6 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                     'score_excess_change':change.get('score_excess_change'),
                     'results_increase_confirmed':bool(change.get('results_increase')),
                     'caution':'Exploratory historical summary; a high recent excess without a validated increase is not search-adjusted HIGH evidence.'})
-        from fairplay_method3_review_triage import corroboration
-        combined_review=corroboration(chosen,limited_accuracy_flags)
         if combined_review is not None:
             follow_up.append(combined_review)
         selected_context=period_context(games,chosen)
@@ -390,7 +400,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 'selected':chosen,'selected_period_priority':selected_period_priority,
                 'marked_periods':marked,'subject':subject,'source':'official_accuracy',
                 'engine_used':False,'maia_used':False,'timing_scoring':False,
-                'accuracy_role':'Conservative historical/absolute Accuracy signals can promote LOW to MODERATE; sparse Accuracy and recent result observations remain descriptive and never promote HIGH',
+                'accuracy_role':'Conservative historical/absolute and safeguarded combined review signals can promote LOW to MODERATE; HIGH requires independent strict results guards and no Accuracy-only promotion',
                 'limits':'Rated and unrated share chronological periods/references, but their Elo reliability is separately audited. Zero rated anchors, cross-control discrepancies and verified new-account rating ramps cap results-backed HIGH/VERY HIGH. Repeated opponents cap these tiers even if Accuracy corroborates. Daily is excluded; only collected live history is searched. Underrating, legitimate improvement, smurfing, rating lag, correlated games, missing archives and selected hot streaks can qualify. VERY HIGH requires both results and matched earlier Accuracy but never proves misconduct.'}
         # Offline evaluate's cross-player groups have no other players here. Attach
         # the earlier personal references by period, never fabricate a group norm.
