@@ -120,10 +120,10 @@ class AlertView(discord.ui.View):
                             lines.append((member.display_name if member else f'User {uid}')+f' ({uid})')
                         header=f'Ban Alert-leden: {len(subscribers)} unieke abonnees'
                         # Discord messages have a 2000-character limit.
-                        listing='\\n'.join(lines)
+                        listing='\n'.join(lines)
                         if len(header)+len(listing)>1850:
-                            listing=listing[:1750]+'\\n… (lijst ingekort)'
-                        await ctx.followup.send(header+'\\n'+(listing or 'Geen leden.'),ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
+                            listing=listing[:1750]+'\n… (lijst ingekort)'
+                        await ctx.followup.send(header+'\n'+(listing or 'Geen leden.'),ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
                         return
                     user=state['users'].get(str(ctx.user.id),{'muted':False,'subscriptions':{}})
                     text='Subscriptions: '+(', '.join(sorted(user['subscriptions'])) or 'none')+'\nPings: '+('muted' if user['muted'] else 'enabled')
@@ -186,10 +186,10 @@ class AlertService:
                 keys=[key for key,_,_ in recipients]
                 await asyncio.to_thread(self.store.update,lambda data:[
                     data['outbox'][key].update(group_key=primary_key) for key in keys])
-                pings=sorted({int(event['user']) for _,event,user in recipients if not user.get('muted',False)})
+                pings=sorted({int(event['user']) for _,event,user in recipients if not user.get('muted',False)})[:80]
                 mentions=' '.join(f'<@{uid}>' for uid in pings)
                 card=alert_embed(primary,primary_key)
-                card.add_field(name='Subscribers notified',value=str(len(recipients)),inline=False)
+                card.add_field(name='Subscribers notified',value=str(len({event['user'] for _,event,_ in recipients})),inline=False)
                 try:
                     message=await self.channel.send(
                         content=mentions[:1900] or None,embed=card,view=AlertView(),nonce=primary_key,
