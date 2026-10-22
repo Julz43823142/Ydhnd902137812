@@ -1,0 +1,45 @@
+"""Non-punitive combined review triage for Method 3.
+
+Uses already calculated statistics: no engine calls or additional searches.
+This is a workflow cue, never a statistical priority upgrade.
+"""
+from math import isfinite
+
+
+def corroboration(selected, sparse_flags):
+    if not isinstance(selected,dict) or not sparse_flags:
+        return None
+    results=selected.get('results') or {}
+    guard=selected.get('search_guard') or {}
+    rating=selected.get('rating_support') or {}
+    opponent=selected.get('opponent_support') or {}
+    chronology=selected.get('chronology_coverage') or {}
+    z=results.get('standardized_residual')
+    n=results.get('games')
+    if (not isinstance(z,(int,float)) or isinstance(z,bool) or not isfinite(z)
+            or not isinstance(n,int) or isinstance(n,bool) or n<100
+            or z<3.0 or rating.get('unreliable') or rating.get('unverified')
+            or rating.get('anchor_status')!='supported'
+            or opponent.get('opponent_concentrated')
+            or opponent.get('opponent_identity_unverified')
+            or opponent.get('period_distinct_opponents',0)<30
+            or chronology.get('complete') is not True):
+        return None
+    match=next((flag for flag in sparse_flags
+                if flag.get('time_class')==selected.get('time_class')),None)
+    if match is None:
+        return None
+    return {
+        'kind':'combined_uncalibrated_review',
+        'time_class':selected['time_class'],
+        'results_games':n,
+        'uncorrected_standardized_residual':z,
+        'adjusted_model_bound':guard.get('adjusted_model_bound'),
+        'searched_windows':guard.get('searched_windows'),
+        'accuracy_covered':match['accuracy_covered'],
+        'total_games':match['total_games'],
+        'at_least_90':match['at_least_90'],
+        'at_least_95':match['at_least_95'],
+        'priority_effect':False,
+        'caution':'Exploratory signals may be correlated and selected from many periods. Not a multiple-testing-corrected finding, gameplay proof, or a cheating probability.'
+    }
