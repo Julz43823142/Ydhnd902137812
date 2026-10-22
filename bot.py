@@ -16442,7 +16442,7 @@ async def _update_random_puzzle_message(
     elif puzzle.get("boss"):
         card_title = f"☠️ BOSS PUZZLE — {puzzle.get('rating', puzzle.get('title', '?'))}"
     else:
-        card_title = f"🎲 Random Puzzle — {puzzle.get('title', 'Puzzle')}"
+        card_title = f"🎲 Random Puzzle — {puzzle.get('rating') or puzzle.get('title', 'Puzzle')}"
 
     embed = discord.Embed(
         title=card_title,
