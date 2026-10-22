@@ -38,6 +38,15 @@ def alert_embed(event,key):
     if latest_date:
         times_played+=f"\nMost recent game: {latest_date}"
     e.add_field(name='Times played',value=times_played,inline=False)
+    rated=event.get('rated')
+    rating_label='Rated' if rated is True else 'Unrated' if rated is False else 'Rating status unknown'
+    result=event.get('result') or 'Unknown'
+    delta=event.get('rating_delta')
+    elo=(f'{delta:+d} Elo' if rated is True and isinstance(delta,int) and not isinstance(delta,bool)
+         else 'Elo change unavailable')
+    e.add_field(name='Latest game' if games!=1 else 'Game played',
+        value=f'{rating_label} · {result} · {elo}',inline=False)
+
     detected=datetime.fromtimestamp(event['detected'],timezone.utc).strftime('%B %d, %Y').replace(' 0',' ')
     e.add_field(name='Detected by SharkBot',value=detected,inline=False)
     e.add_field(name='Get your own alerts',inline=False,
@@ -98,7 +107,7 @@ class AlertModal(discord.ui.Modal):
 class AlertView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
-        for label,action in [('Subscribe','add'),('Unsubscribe','remove'),('Mute Pings','mute'),('Unmute Pings','unmute'),('My Subscriptions','mine'),('Leden','members')]:
+        for label,action in [('Subscribe','add'),('Unsubscribe','remove'),('Mute Pings','mute'),('Unmute Pings','unmute'),('Members','members')]:
             button=discord.ui.Button(label=label,custom_id=PREFIX+action,row=1 if action=='members' else 0)
             async def callback(ctx,action=action):
                 if ctx.channel_id!=CHANNEL_ID or ctx.user.bot:return
@@ -118,12 +127,12 @@ class AlertView(discord.ui.View):
                         for uid in subscribers:
                             member=guild.get_member(uid) if guild else None
                             lines.append((member.display_name if member else f'User {uid}')+f' ({uid})')
-                        header=f'Ban Alert-leden: {len(subscribers)} unieke abonnees'
+                        header=f'Ban Alert members: {len(subscribers)} subscribers'
                         # Discord messages have a 2000-character limit.
                         listing='\n'.join(lines)
                         if len(header)+len(listing)>1850:
-                            listing=listing[:1750]+'\n… (lijst ingekort)'
-                        await ctx.followup.send(header+'\n'+(listing or 'Geen leden.'),ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
+                            listing=listing[:1750]+'\n… (list truncated)'
+                        await ctx.followup.send(header+'\n'+(listing or 'No members.'),ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
                         return
                     user=state['users'].get(str(ctx.user.id),{'muted':False,'subscriptions':{}})
                     text='Subscriptions: '+(', '.join(sorted(user['subscriptions'])) or 'none')+'\nPings: '+('muted' if user['muted'] else 'enabled')

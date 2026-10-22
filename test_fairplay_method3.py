@@ -69,7 +69,8 @@ class Method3(unittest.TestCase):
         self.assertEqual(quality['identified_opponents'],20)
         self.assertEqual(quality['valid_rating_pairs'],20)
         summary=str(result_embed(result).to_dict())
-        self.assertIn('Data reliability',summary)
+        self.assertIn('Sample / coverage',summary)
+        self.assertNotIn('Data reliability',summary)
         self.assertIn('20/20',summary)
         for row in API.rows[:10]:
             row.pop('accuracies')
@@ -104,8 +105,9 @@ class Method3(unittest.TestCase):
             'baseline_games':70,'distinct_opponents':21}]
         main=result_embed(result).to_dict()
         summary=str(main)
-        self.assertIn('Earlier → recent Accuracy frequency',summary)
-        self.assertIn('27/30',summary)
+        self.assertIn('Performance levels',summary)
+        self.assertNotIn('Earlier → recent Accuracy frequency',summary)
+        self.assertNotIn('27/30',summary)
         self.assertIn('separate from Accuracy signal',summary)
         selected=selected_period_embed(result)
         self.assertIn('LOW results window',selected.description)

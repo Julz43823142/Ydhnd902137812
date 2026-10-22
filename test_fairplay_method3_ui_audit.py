@@ -75,7 +75,7 @@ class SelectedWindowPresentation(unittest.TestCase):
         self.assertIn('History games #2501–#2505',svg)
         self.assertIn('>2401</text>',svg)
         self.assertIn('>2605</text>',svg)
-        self.assertIn('fill="#3478d4"',svg)
+        self.assertIn('fill="#f97316"',svg)
 
     def test_no_candidate_does_not_invent_selected_chart(self):
         result=SimpleNamespace(games=[],diagnostics={'method3':{'selected':None}})
@@ -91,7 +91,8 @@ class SelectedWindowPresentation(unittest.TestCase):
         card=result_embed(result)
         self.assertTrue(all(len(field.value)<=1024 for field in card.fields))
         self.assertLessEqual(len(card),6000)
-        self.assertIn('additional time controls omitted',str(card.to_dict()))
+        self.assertIn('Performance levels',str(card.to_dict()))
+        self.assertNotIn('additional time controls omitted',str(card.to_dict()))
         self.assertEqual(len(info['accuracy_frequency_signals']),50)
 
 

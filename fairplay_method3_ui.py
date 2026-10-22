@@ -15,8 +15,8 @@ METHOD3_LABELS = {
     'INSUFFICIENT DATA': 'Insufficient Data',
 }
 METHOD3_COLORS = {
-    'LOW': 0x788491, 'MODERATE': 0x808080, 'HIGH': 0x3478D4,
-    'VERY HIGH': 0x8754C9, 'INSUFFICIENT DATA': 0x788491,
+    'LOW': 0x808080, 'MODERATE': 0xEAB308, 'HIGH': 0xF97316,
+    'VERY HIGH': 0x111111, 'INSUFFICIENT DATA': 0x788491,
 }
 
 
@@ -30,7 +30,7 @@ def priority_label(priority):
 
 def result_embed(result):
     d=result.diagnostics['method3'];s=d['subject'];r=(d.get('selected') or {}).get('results',s['overall_results'])
-    icon={'LOW':'','MODERATE':'⚪','HIGH':'🔵','VERY HIGH':'🟣','INSUFFICIENT DATA':'⚪'}.get(result.priority,'⚪')
+    icon={'LOW':'','MODERATE':'🟡','HIGH':'🟠','VERY HIGH':'⚫','INSUFFICIENT DATA':'⚪'}.get(result.priority,'⚪')
     e=discord.Embed(title='🛡️ Fair Play Review — '+result.username,color=priority_color(result.priority),
         description=f'{icon + " " if icon else ""}**{priority_label(result.priority)}**')
     accuracy_games=sum(g.accuracy is not None for g in result.games)
@@ -40,54 +40,19 @@ def result_embed(result):
         f'{d.get("rated_games",len(result.games))} rated · {d.get("unrated_games",0)} unrated'
         + (' · incomplete collection' if result.partial else '')
         + f'\nPublished Accuracy: {accuracy_games}/{len(result.games)} games.'),inline=False)
-    frequency=d.get('accuracy_frequency',{}).get('by_time_class',{})
-    if frequency:
-        lines=[]
-        for kind in ('blitz','rapid','bullet'):
-            row=frequency.get(kind,{})
-            n=row.get('accuracy_coverage',0)
-            if not n:continue
-            groups=row.get('opponent_context',{})
-            near=groups.get('near',{})
-            lines.append(
-                f"{kind.title()}: **{row['at_least_90']}/{n} ≥90%**, "
-                f"**{row['at_least_95']}/{n} ≥95%** "
-                f"(near-Elo ±200: {near.get('at_least_90',0)}/{near.get('games',0)} ≥90%)")
-        if lines:
-            e.add_field(name='High Accuracy frequency · descriptive',
-                value='\n'.join(lines)+'\nRaw frequencies alone are descriptive; a separate guarded historical change can support MODERATE.',
-                inline=False)
-    signals=d.get('accuracy_frequency_signals') or []
-    if signals:
-        lines=[]
-        for signal in signals:
-            line=(
-                f"{signal['time_class'].title()} {signal.get('time_control','')}: recent {signal['recent_at_least_90']}/{signal['recent_games']} "
-                f"vs earlier {signal['baseline_at_least_90']}/{signal['baseline_games']} "
-                f"at ≥90% Accuracy · {signal['distinct_opponents']} recent opponents.")
-            if len('\n'.join(lines+[line]))>850:break
-            lines.append(line)
-        if len(lines)<len(signals):
-            lines.append(f'{len(signals)-len(lines)} additional time controls omitted from this card.')
-        e.add_field(name='Earlier → recent Accuracy frequency · exploratory',
-            value='\n'.join(lines)+'\nThis change can support MODERATE, never HIGH. Not a cheating probability.',
-            inline=False)
+    e.add_field(name='Performance levels',value=(
+        '⚪ **Insufficient Data** — Neutral gray\n'
+        '**Within Typical Performance Range** — Gray\n'
+        '🟡 **Moderate Performance Variation** — Yellow\n'
+        '🟠 **Notable Performance** — Orange\n'
+        '⚫ **Very Strong Statistical Deviation** — Black'
+    ),inline=False)
     selected=d.get('selected')
     if selected:
         label=('Selected results window · separate from Accuracy signal'
                if d.get('priority_basis')=='accuracy_frequency'
                else 'Selected chronological period')
         e.add_field(name=label,value=f"{selected['time_class'].title()} · {selected['games']} games · {period_dates(selected)}\nExpected points: **{fmt(r['expected_points'])}** · scored: **{fmt(r['actual_points'])}**\nWinrate: **{fmt(r['win_fraction'],True)}**",inline=False)
-    quality=d.get('data_quality') or {}
-    if quality:
-        n=quality.get('history_games',len(result.games))
-        archives=quality.get('archive_coverage') or {}
-        details=(f"Valid rating pairs: {quality.get('valid_rating_pairs',0)}/{n} · "
-                 f"opponents identified: {quality.get('identified_opponents',0)}/{n} · "
-                 f"published Accuracy: {quality.get('published_accuracy_games',0)}/{n}")
-        if quality.get('collection_partial') or archives.get('incomplete_archive_months'):
-            details+='\nArchive coverage incomplete; unobserved games are not evidence of misconduct.'
-        e.add_field(name='Data reliability · observed coverage',value=details[:1024],inline=False)
     if selected and selected.get('classification_guards'):
         support=selected.get('rating_support') or {}
         ramp=support.get('opening_rating_ramp_evidence')
@@ -295,8 +260,8 @@ def selected_window_svg(result):
          second=[g.score*100 if g.score in (0,.5,1) else None for g in window],first_game=start_index+1)
     plot(parts,rows,positions[3],'Median think time by game · valid PGN clocks only',
          [r['median_think_seconds'] for r in rows],'s','#7c3aed',first_game=start_index+1)
-    colors={'MODERATE':('#808080','#555555'),'HIGH':('#3478d4','#22549a'),
-            'VERY HIGH':('#8754c9','#59318c')}
+    colors={'MODERATE':('#eab308','#a16207'),'HIGH':('#f97316','#c2410c'),
+            'VERY HIGH':('#111111','#000000')}
     fill,stroke=colors.get(tier,('#94a3b8','#475569'))
     left=115+1260*(first-start_index)/max(1,len(window)-1)
     right=115+1260*(last-1-start_index)/max(1,len(window)-1)
@@ -410,9 +375,9 @@ def mark_selected(svg,result,kind,rows,positions):
     """Number priority windows and show their calendar dates in other controls."""
     from bisect import bisect_left,bisect_right
     from fairplay_charts import text
-    palette={'MODERATE':('#808080','#555555'),
-             'HIGH':('#3478d4','#22549a'),
-             'VERY HIGH':('#8754c9','#59318c')}
+    palette={'MODERATE':('#eab308','#a16207'),
+             'HIGH':('#f97316','#c2410c'),
+             'VERY HIGH':('#111111','#000000')}
     periods=result.diagnostics['method3'].get('marked_periods',[])
     if not rows or not periods or not getattr(result,'games',None):return svg
     # Observations and charts are chronological, independently per time class.
