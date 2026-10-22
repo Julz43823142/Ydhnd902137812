@@ -68,11 +68,22 @@ def result_embed(result):
             lines.append(
                 f"{observation['time_class'].title()} {observation['time_control']}: "
                 f"{observation['games']} recent games, "
-                f"{observation['score_excess']*100:.1f} percentage points above Elo expectation.")
+                f"{observation['score_excess']*100:.1f} pp above Elo expectation"
+                + (f" (earlier {observation['baseline_score_excess']*100:.1f} pp)"
+                   if isinstance(observation.get('baseline_score_excess'),(int,float)) else "")
+                + ("; increase not confirmed." if not observation.get('results_increase_confirmed') else "."))
         e.add_field(name='Additional observations · manual review',
                     value=('\n'.join(lines) +
                            '\nExploratory, not search-adjusted HIGH evidence. '
                            'Combined observations do not change the priority.')[:1024],
+                    inline=False)
+    high_gap=d.get('selected_high_effect_screen')
+    if high_gap and result.priority=='LOW' and not high_gap['passes_excess_threshold']:
+        e.add_field(name='Why HIGH was not reached',
+                    value=(f"Selected results window: {high_gap['observed_excess']*100:.1f} "
+                           f"percentage points above Elo expectation; "
+                           f"{high_gap['required_excess']*100:.0f} required for the HIGH effect screen. "
+                           "Additional search and reliability checks also apply."),
                     inline=False)
     selected=d.get('selected')
     if selected:
