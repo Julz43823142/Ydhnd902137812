@@ -58,6 +58,16 @@ def result_embed(result):
                if d.get('priority_basis')=='accuracy_frequency'
                else 'Selected chronological period')
         e.add_field(name=label,value=f"{selected['time_class'].title()} · {selected['games']} games · {period_dates(selected)}\nExpected points: **{fmt(r['expected_points'])}** · scored: **{fmt(r['actual_points'])}**\nWinrate: **{fmt(r['win_fraction'],True)}**",inline=False)
+    shift=d.get('opening_shift')
+    if shift:
+        counts=shift['counts']
+        e.add_field(name='Temporary opening switch · context',value=(
+            f"{shift['time_class'].title()} {shift['time_control']} · {shift['color']} {shift['opponent_opening']}\\n"
+            f"Before: {shift['before']} ({counts['before']} games) → "
+            f"selected: {shift['during']} ({counts['during']} games) → "
+            f"after: {shift['after']} ({counts['after']} games).\\n"
+            'Descriptive only; opening changes are not evidence of cheating.'
+        )[:1024],inline=False)
     quality=d.get('data_quality') or {}
     if quality:
         n=quality.get('history_games',len(result.games))
