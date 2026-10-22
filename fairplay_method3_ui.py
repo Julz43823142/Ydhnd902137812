@@ -225,7 +225,16 @@ def selected_window_svg(result):
     from fairplay_outcome_study import expected_points
     diagnostic=result.diagnostics['method3']
     selected=diagnostic.get('selected')
-    if not selected or not result.games:return None
+    if not result.games:return None
+    recent_low=diagnostic.get('selected_period_priority',result.priority)=='LOW'
+    if recent_low:
+        latest=max(result.games,key=lambda g:(g.ended,g.identity))
+        class_games=sorted((g for g in result.games if g.time_class==latest.time_class),key=lambda g:(g.ended,g.identity))
+        count=min(200,len(class_games))
+        selected={'time_class':latest.time_class,'first_game':len(class_games)-count+1,
+                  'last_game':len(class_games),'games':count,
+                  'first_ended':class_games[-count].ended,'last_ended':class_games[-1].ended}
+    if not selected:return None
     kind=selected['time_class']
     games=sorted((g for g in result.games if g.time_class==kind),
                  key=lambda g:(g.ended,g.identity))
@@ -237,13 +246,13 @@ def selected_window_svg(result):
     rows=observations(window)[kind]
     tier=diagnostic.get('selected_period_priority',result.priority)
     frequency_only=diagnostic.get('priority_basis')=='accuracy_frequency'
-    label='Context only · LOW results window' if frequency_only else f'{tier} results window'
+    label='Latest 200 games · personal review · LOW' if recent_low else ('Context only · LOW results window' if frequency_only else f'{tier} results window')
     parts=start(1440,1480)
     points=selected.get('results') or {}
     parts.extend((
         text(45,42,f'Selected period · {kind.title()} · {label}',28),
         text(45,76,f"History games #{first+1}–#{last} · {period_dates(selected)} · up to 100 surrounding games on each side",18),
-        text(45,106,f"Selected window: expected {fmt(points.get('expected_points'))} / scored {fmt(points.get('actual_points'))} points · valid results {points.get('games','Unknown')}/{selected['games']}",18),
+        text(45,106,'Latest played games; no noteworthy period qualified.' if recent_low else f"Selected window: expected {fmt(points.get('expected_points'))} / scored {fmt(points.get('actual_points'))} points · valid results {points.get('games','Unknown')}/{selected['games']}",18),
         text(45,134,'Overall MODERATE comes from a separate Accuracy-frequency change; this results window did not qualify.'
              if frequency_only else 'Shading identifies the selected window. Raw observations and missing-data gaps are preserved; not proof of cheating.',15,'#526477')))
     positions=(180,500,820,1140)
