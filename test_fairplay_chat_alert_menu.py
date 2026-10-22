@@ -146,14 +146,14 @@ class AlertMenu(unittest.IsolatedAsyncioTestCase):
     def ctx(self,channel=CHANNEL_ID):
         return NS(channel_id=channel,user=NS(bot=False),response=NS(send_message=AsyncMock()))
 
-    async def test_command_opens_private_menu_with_all_five_controls(self):
+    async def test_command_opens_private_menu_with_all_six_controls(self):
         ctx=self.ctx()
         with patch.object(alerts,'_service',NS(closed=False)):
             await alerts.open_menu(ctx)
         kwargs=ctx.response.send_message.call_args.kwargs
         self.assertTrue(kwargs['ephemeral'])
         self.assertEqual([b.label for b in kwargs['view'].children],
-            ['Subscribe','Unsubscribe','Mute Pings','Unmute Pings','My Subscriptions'])
+            ['Subscribe','Unsubscribe','Mute Pings','Unmute Pings','My Subscriptions','Leden'])
         self.assertIn('own username',kwargs['embed'].description)
 
     async def test_unavailable_or_wrong_channel_replies_without_menu(self):
