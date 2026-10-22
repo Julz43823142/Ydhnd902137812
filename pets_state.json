@@ -57,7 +57,7 @@
         "xp": 50
       },
       "start": 1792644400.910851,
-      "status": "running"
+      "status": "claimed"
     },
     "pets": [
       {
@@ -655,7 +655,7 @@
         "puzzle_day": "2026-10-22",
         "rarity": "rare",
         "species": "Wolf",
-        "xp": 415.1,
+        "xp": 465.1,
         "xp_day": "2026-10-21"
       },
       {
