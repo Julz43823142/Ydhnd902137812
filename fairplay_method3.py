@@ -11,7 +11,7 @@ from fairplay_config import CONFIG
 from fairplay_data import PubAPI, ReviewError, ScanDeadline, check_deadline, collect_games, username
 from fairplay_outcome_study import evaluate, SCENARIOS, DEVELOPMENT_SCENARIOS, CONFIG as STUDY_CONFIG
 
-VERSION='fairplay-v72-shared-period-overlays'
+VERSION='fairplay-v73-evidence-triage'
 LIMIT=5000
 BLOCK_SIZE=200
 PRIORITY_GAMES=200
@@ -321,6 +321,27 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         frequency_diagnostics=accuracy_frequency(games)
         limited_accuracy_flags=limited_coverage_review_flags(games)
         history_changes=changes(games,PRIORITY_GAMES)
+        # Keep separate, independently interpretable review observations. They
+        # support an investigation even when calibrated HIGH criteria are not met.
+        follow_up=[]
+        for flag in limited_accuracy_flags:
+            follow_up.append({
+                'kind':'sparse_published_accuracy','time_class':flag['time_class'],
+                'accuracy_covered':flag['accuracy_covered'],
+                'total_games':flag['total_games'],
+                'at_least_90':flag['at_least_90'],
+                'at_least_95':flag['at_least_95'],
+                'caution':'Descriptive selection-sensitive subset; not a cheat likelihood.'})
+        for change in history_changes:
+            recent=change.get('recent') or {}
+            if recent.get('games',0)>=20 and recent.get('score_excess',0)>=0.20:
+                follow_up.append({
+                    'kind':'recent_result_excess',
+                    'time_class':change.get('time_class'),
+                    'time_control':change.get('time_control'),
+                    'games':recent['games'],
+                    'score_excess':recent['score_excess'],
+                    'caution':'Exploratory historical summary; not search-adjusted HIGH evidence.'})
         selected_context=period_context(games,chosen)
         from fairplay_method3_opening_shift import temporary_switch
         opening_shift=temporary_switch(games,chosen)
@@ -334,6 +355,8 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 'accuracy_frequency':frequency_diagnostics,
                 'accuracy_frequency_signals':frequency_signals,
                 'limited_accuracy_review_flags':limited_accuracy_flags,
+                'manual_review_observations':follow_up,
+                'manual_review_recommended':bool(follow_up),
                 'absolute_accuracy_frequency_signals':absolute_signals,
                 'rating_reliability':rating_reliability,
                 'data_quality':data_quality,
@@ -348,7 +371,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 'selected':chosen,'selected_period_priority':selected_period_priority,
                 'marked_periods':marked,'subject':subject,'source':'official_accuracy',
                 'engine_used':False,'maia_used':False,'timing_scoring':False,
-                'accuracy_role':'High Accuracy frequency can promote LOW to MODERATE after conservative same-control earlier-history checks; never promotes HIGH',
+                'accuracy_role':'Conservative historical/absolute Accuracy signals can promote LOW to MODERATE; sparse Accuracy and recent result observations remain descriptive and never promote HIGH',
                 'limits':'Rated and unrated share chronological periods/references, but their Elo reliability is separately audited. Zero rated anchors, cross-control discrepancies and verified new-account rating ramps cap results-backed HIGH/VERY HIGH. Repeated opponents cap these tiers even if Accuracy corroborates. Daily is excluded; only collected live history is searched. Underrating, legitimate improvement, smurfing, rating lag, correlated games, missing archives and selected hot streaks can qualify. VERY HIGH requires both results and matched earlier Accuracy but never proves misconduct.'}
         # Offline evaluate's cross-player groups have no other players here. Attach
         # the earlier personal references by period, never fabricate a group norm.
