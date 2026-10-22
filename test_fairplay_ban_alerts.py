@@ -113,8 +113,25 @@ class Alerts(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(channel.send.call_args.kwargs['allowed_mentions'].users)
         self.assertEqual(self.store.snapshot()['outbox'][key]['state'],'sent')
         view=channel.send.call_args.kwargs['view']
-        self.assertEqual(len(view.children),5)
+        self.assertEqual(len(view.children),6)
+        self.assertEqual(view.children[-1].label,'Leden')
         self.assertEqual(view.children[0].label,'Subscribe')
+    async def test_shared_opponent_one_alert_mentions_all_subscribers(self):
+        self.subscribe(user=1,target='synthetic-player')
+        self.subscribe(user=2,target='synthetic-second')
+        self.tick()
+        API.status=FAIRPLAY_CLOSED
+        self.tick(NOW+3601)
+        self.assertEqual(len(self.store.snapshot()['outbox']),2)
+        channel=SimpleNamespace(send=AsyncMock(return_value=SimpleNamespace(id=123)))
+        service=AlertService(SimpleNamespace(user=SimpleNamespace(id=5)),channel,self.store,Settings())
+        await service.deliver()
+        self.assertEqual(channel.send.await_count,1)
+        self.assertIn('<@1>',channel.send.call_args.kwargs['content'])
+        self.assertIn('<@2>',channel.send.call_args.kwargs['content'])
+        self.assertEqual({v['state'] for v in self.store.snapshot()['outbox'].values()},{'sent'})
+        self.assertEqual({v['message_id'] for v in self.store.snapshot()['outbox'].values()},{123})
+
     async def test_unknown_discord_ack_not_blindly_retried(self):
         key=self.event()
         async def history(**kwargs):
