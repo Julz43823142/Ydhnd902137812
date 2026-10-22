@@ -107,34 +107,42 @@ def accuracy_frequency_svg(result):
         for index,threshold in enumerate(THRESHOLDS):
             parts.append(text(35+index*385,y+34,
                 f'≥{threshold}%: {frequency_label(summary,threshold)}',23,COLORS[index]))
-        buckets=calendar_buckets(rows,kind,selected)
+        buckets=calendar_buckets(rows,kind,selected,limit=12)
         if not buckets:
             parts.append(text(35,y+125,'No collected games in this time class.',23,'#526477'))
             continue
-        parts.append(text(35,y+66,'0–100% bars · all exact controls in this class · outlined buckets overlap selected dates.',18,'#526477'))
-        width=1120/len(buckets)
+        parts.append(text(35,y+66,'Historical trend · percentage of published scores at or above each threshold.',18,'#526477'))
+        left,right,top,bottom=70,1140,y+100,y+310
+        for level in (0,25,50,75,100):
+            yy=bottom-(bottom-top)*level/100
+            parts.append(f'<line x1="{left}" x2="{right}" y1="{yy:.1f}" y2="{yy:.1f}" stroke="#d6e1ea"/>')
+            parts.append(text(55,yy+5,f'{level}%',15,anchor='end'))
         for index,bucket in enumerate(buckets):
-            left=40+index*width
-            center=left+width/2
+            x=left+(right-left)*index/max(1,len(buckets)-1)
             if bucket['selected_dates']:
-                own=selected['time_class']==kind
-                color='#64748b' if neutral else '#c2410c' if own else '#7c3aed'
-                parts.append(f'<rect x="{left+5:.1f}" y="{y+78}" width="{width-10:.1f}" height="316" fill="#f8fafc" stroke="{color}" stroke-width="2"/>')
-            for level in (0,50,100):
-                yy=y+205-level
-                parts.append(f'<line x1="{center-88:.1f}" x2="{center+88:.1f}" y1="{yy}" y2="{yy}" stroke="#d6e1ea"/>')
-            for offset,threshold in enumerate(THRESHOLDS):
-                available=bucket['available']
-                rate=100*bucket['counts'][threshold]/available if available else None
-                if rate is not None:
-                    parts.append(f'<rect x="{center-70+offset*48:.1f}" y="{y+205-rate:.1f}" width="35" height="{rate:.1f}" fill="{COLORS[offset]}"/>')
-                parts.append(text(center,y+272+offset*25,
-                    f'≥{threshold}%: {frequency_label(bucket,threshold)}',20,COLORS[offset],'middle'))
-            parts.append(text(center,y+237,bucket['label'],21,anchor='middle'))
-            parts.append(text(center,y+354,
-                f"{bucket['available']} available · {bucket['missing']} missing",19,'#526477','middle'))
-            if bucket['selected_dates']:
-                parts.append(text(center,y+382,'Overlaps selected dates',18,'#526477','middle'))
+                parts.append(f'<rect x="{x-14:.1f}" y="{top}" width="28" height="{bottom-top}" fill="#e2e8f0" fill-opacity=".55"/>')
+            if index%max(1,len(buckets)//6)==0 or index==len(buckets)-1:
+                parts.append(text(x,bottom+28,bucket['label'],15,anchor='middle'))
+        for offset,threshold in enumerate(THRESHOLDS):
+            segment=[]
+            def flush():
+                if len(segment)>1:
+                    pts=' '.join(f'{x:.1f},{yy:.1f}' for x,yy in segment)
+                    parts.append(f'<polyline points="{pts}" fill="none" stroke="{COLORS[offset]}" stroke-width="4"/>')
+                elif segment:
+                    x,yy=segment[0]
+                    parts.append(f'<circle cx="{x:.1f}" cy="{yy:.1f}" r="4" fill="{COLORS[offset]}"/>')
+                segment.clear()
+            for index,bucket in enumerate(buckets):
+                if not bucket['available']:
+                    flush()
+                    continue
+                rate=bucket['counts'][threshold]/bucket['available']
+                x=left+(right-left)*index/max(1,len(buckets)-1)
+                yy=bottom-(bottom-top)*rate
+                segment.append((x,yy))
+            flush()
+        parts.append(text(35,y+365,'Blue ≥80% · green ≥90% · purple ≥95% · missing published scores excluded',17,'#526477'))
     y=1445
     if comparisons:
         label=f'Context only · {selected_tier} results window' if neutral else 'Selected Method 3 period'

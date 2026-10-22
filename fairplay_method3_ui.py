@@ -157,6 +157,15 @@ def detail_embed(result,mode):
     else:e.add_field(name='Accuracy reference',value='Not enough earlier, same-control and rating-matched official scores. Reference unknown; missing does not mean LOW.',inline=False)
     if len(s['opponent_groups'])>9:e.add_field(name='Display limit',value='Additional opponent groups omitted from this card.',inline=False)
     e.add_field(name='Automated screening only',value=DISCLAIMER,inline=False)
+    shift=d.get('opening_shift')
+    if shift:
+        counts=shift['counts']
+        e.add_field(name='Temporary opening switch · context',value=(
+            f"{shift['time_class'].title()} {shift['time_control']} · {shift['color']} {shift['opponent_opening']}\\n"
+            f"Before: {shift['before']} ({counts['before']} games) → "
+            f"During: {shift['during']} ({counts['during']} games) → "
+            f"After: {shift['after']} ({counts['after']} games). "
+            "Context only; not proof of cheating."),inline=False)
     e.set_footer(text=result.version)
     return e
 
@@ -164,6 +173,7 @@ def detail_embed(result,mode):
 def chart_pngs(result, progress=None):
     from fairplay_charts import class_svg
     from fairplay_method3_frequency_charts import accuracy_frequency_svg
+    from fairplay_method3_rolling_chart import rolling_history_svg
     from fairplay_method3 import observations
     import cairosvg
     live_games=result.games
@@ -183,7 +193,7 @@ def chart_pngs(result, progress=None):
     if live_games:
         add_chart('fairplay_method3_accuracy_frequency.png',
                   cairosvg.svg2png(bytestring=accuracy_frequency_svg(result).encode()))
-        add_chart('fairplay_method3_history_change.png',cairosvg.svg2png(bytestring=history_svg(result).encode()))
+        add_chart('fairplay_method3_rolling_history.png',cairosvg.svg2png(bytestring=rolling_history_svg(result).encode()))
     if zoom:
         add_chart('fairplay_method3_selected_period.png',cairosvg.svg2png(bytestring=zoom.encode()))
     return files
@@ -221,8 +231,8 @@ def selected_window_svg(result):
                  key=lambda g:(g.ended,g.identity))
     first,last=selected['first_game']-1,selected['last_game']
     if not 0<=first<last<=len(games):return None
-    start_index=max(0,first-20)
-    end_index=min(len(games),last+20)
+    start_index=max(0,first-100)
+    end_index=min(len(games),last+100)
     window=games[start_index:end_index]
     rows=observations(window)[kind]
     tier=diagnostic.get('selected_period_priority',result.priority)
@@ -232,7 +242,7 @@ def selected_window_svg(result):
     points=selected.get('results') or {}
     parts.extend((
         text(45,42,f'Selected period · {kind.title()} · {label}',28),
-        text(45,76,f"History games #{first+1}–#{last} · {period_dates(selected)} · up to 20 surrounding games on each side",18),
+        text(45,76,f"History games #{first+1}–#{last} · {period_dates(selected)} · up to 100 surrounding games on each side",18),
         text(45,106,f"Selected window: expected {fmt(points.get('expected_points'))} / scored {fmt(points.get('actual_points'))} points · valid results {points.get('games','Unknown')}/{selected['games']}",18),
         text(45,134,'Overall MODERATE comes from a separate Accuracy-frequency change; this results window did not qualify.'
              if frequency_only else 'Shading identifies the selected window. Raw observations and missing-data gaps are preserved; not proof of cheating.',15,'#526477')))
