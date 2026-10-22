@@ -98,8 +98,8 @@ class AlertModal(discord.ui.Modal):
 class AlertView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
-        for label,action in [('Subscribe','add'),('Unsubscribe','remove'),('Mute Pings','mute'),('Unmute Pings','unmute'),('My Subscriptions','mine')]:
-            button=discord.ui.Button(label=label,custom_id=PREFIX+action)
+        for label,action in [('Subscribe','add'),('Unsubscribe','remove'),('Mute Pings','mute'),('Unmute Pings','unmute'),('My Subscriptions','mine'),('Leden','members')]:
+            button=discord.ui.Button(label=label,custom_id=PREFIX+action,row=1 if action=='members' else 0)
             async def callback(ctx,action=action):
                 if ctx.channel_id!=CHANNEL_ID or ctx.user.bot:return
                 if action in ('add','remove'):
@@ -111,6 +111,20 @@ class AlertView(discord.ui.View):
                         async with _service.lock:
                             await asyncio.to_thread(mute,_service.store,ctx.user.id,action=='mute')
                     state=await asyncio.to_thread(_service.store.snapshot)
+                    if action=='members':
+                        subscribers=sorted((int(uid) for uid,row in state['users'].items() if row.get('subscriptions')))
+                        guild=ctx.guild
+                        lines=[]
+                        for uid in subscribers:
+                            member=guild.get_member(uid) if guild else None
+                            lines.append((member.display_name if member else f'User {uid}')+f' ({uid})')
+                        header=f'Ban Alert-leden: {len(subscribers)} unieke abonnees'
+                        # Discord messages have a 2000-character limit.
+                        listing='\\n'.join(lines)
+                        if len(header)+len(listing)>1850:
+                            listing=listing[:1750]+'\\n… (lijst ingekort)'
+                        await ctx.followup.send(header+'\\n'+(listing or 'Geen leden.'),ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
+                        return
                     user=state['users'].get(str(ctx.user.id),{'muted':False,'subscriptions':{}})
                     text='Subscriptions: '+(', '.join(sorted(user['subscriptions'])) or 'none')+'\nPings: '+('muted' if user['muted'] else 'enabled')
                     await ctx.followup.send(text,ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
@@ -138,32 +152,54 @@ class AlertService:
                 key=(footer[len(marker):] if footer.startswith(marker) else
                      url.rsplit('#sharkbot-alert-',1)[-1] if '#sharkbot-alert-' in url else '')
                 if key in uncertain:
-                    await asyncio.to_thread(mark,self.store,key,'sent',message.id)
+                    for pending_key in uncertain:
+                        if pending_key==key or state['outbox'][pending_key].get('group_key')==key:
+                            await asyncio.to_thread(mark,self.store,pending_key,'sent',message.id)
     async def deliver(self):
         async with self.lock:
             await self.reconcile()
             state=await asyncio.to_thread(self.store.snapshot)
+            # A single ban may affect multiple subscribers. Reserve all pending
+            # recipients first, then send one public message with their mentions.
+            groups={}
             for key,event in state['outbox'].items():
-                if event['state']!='pending':continue
-                event=await asyncio.to_thread(reserve,self.store,key)
-                if event is None:continue
-                state=await asyncio.to_thread(self.store.snapshot)
-                user=state['users'].get(event['user'],{})
-                if event['target'] not in user.get('subscriptions',{}):
-                    await asyncio.to_thread(mark,self.store,key,'cancelled');continue
-                ping=not user.get('muted',False)
+                if event['state']=='pending':
+                    groups.setdefault(event['opponent'],[]).append((key,event))
+            for opponent,items in groups.items():
+                reserved=[]
+                for key,event in items:
+                    current=await asyncio.to_thread(reserve,self.store,key)
+                    if current is not None:
+                        reserved.append((key,current))
+                if not reserved:continue
+                fresh=await asyncio.to_thread(self.store.snapshot)
+                recipients=[]
+                for key,event in reserved:
+                    user=fresh['users'].get(event['user'],{})
+                    if event['target'] not in user.get('subscriptions',{}):
+                        await asyncio.to_thread(mark,self.store,key,'cancelled')
+                        continue
+                    recipients.append((key,event,user))
+                if not recipients:continue
+                primary_key,primary,unused=recipients[0]
+                # Reconciliation can recover all recipients after a lost ACK.
+                keys=[key for key,_,_ in recipients]
+                await asyncio.to_thread(self.store.update,lambda data:[
+                    data['outbox'][key].update(group_key=primary_key) for key in keys])
+                pings=sorted({int(event['user']) for _,event,user in recipients if not user.get('muted',False)})
+                mentions=' '.join(f'<@{uid}>' for uid in pings)
+                card=alert_embed(primary,primary_key)
+                card.add_field(name='Subscribers notified',value=str(len(recipients)),inline=False)
                 try:
-                    message=await self.channel.send(content=f"<@{event['user']}>" if ping else None,
-                        embed=alert_embed(event,key),view=AlertView(),nonce=key,
-                        allowed_mentions=discord.AllowedMentions(users=[discord.Object(id=int(event['user']))] if ping else [],roles=False,everyone=False,replied_user=False))
+                    message=await self.channel.send(
+                        content=mentions[:1900] or None,embed=card,view=AlertView(),nonce=primary_key,
+                        allowed_mentions=discord.AllowedMentions(users=[discord.Object(id=uid) for uid in pings],roles=False,everyone=False,replied_user=False))
                 except discord.HTTPException as error:
-                    # An explicit 4xx rejection has no published message.
-                    # Timeouts/5xx remain 'sending' and must be reconciled.
                     if 400<=error.status<500 and error.status!=429:
-                        await asyncio.to_thread(mark,self.store,key,'pending')
+                        for key in keys:await asyncio.to_thread(mark,self.store,key,'pending')
                     continue
                 except (OSError,TimeoutError):continue
-                await asyncio.to_thread(mark,self.store,key,'sent',message.id)
+                for key in keys:await asyncio.to_thread(mark,self.store,key,'sent',message.id)
     async def run(self):
         while not self.closed:
             began=time.monotonic()
