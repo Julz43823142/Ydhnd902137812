@@ -47,6 +47,19 @@ def result_embed(result):
         '🟠 **Notable Performance** — Orange\n'
         '⚫ **Very Strong Statistical Deviation** — Black'
     ),inline=False)
+    sparse_flags=d.get('limited_accuracy_review_flags') or []
+    if sparse_flags:
+        lines=[]
+        for flag in sparse_flags:
+            lines.append(
+                f"{flag['time_class'].title()}: {flag['at_least_90']}/{flag['accuracy_covered']} "
+                f"published scores ≥90%, {flag['at_least_95']}/{flag['accuracy_covered']} ≥95% "
+                f"({flag['accuracy_covered']}/{flag['total_games']} games with Accuracy).")
+        e.add_field(name='Accuracy review note · limited coverage',
+                    value=('\n'.join(lines) +
+                           '\nDescriptive only. Published Accuracy may be selectively available; '
+                           'this note does not change the statistical priority or establish cheating.')[:1024],
+                    inline=False)
     selected=d.get('selected')
     if selected:
         label=('Selected results window · separate from Accuracy signal'
