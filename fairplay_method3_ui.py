@@ -47,6 +47,18 @@ def result_embed(result):
         '🟠 **Notable Performance** — Orange\n'
         '⚫ **Very Strong Statistical Deviation** — Black'
     ),inline=False)
+    combined=d.get('corroborating_review_signal')
+    if combined:
+        e.add_field(
+            name='MODERATE review basis · combined observations',
+            value=(f"{combined['time_class'].title()}: "
+                   f"{combined['uncorrected_standardized_residual']:.2f} standardized results residual "
+                   f"across {combined['results_games']} games; "
+                   f"{combined['at_least_90']} published Accuracy scores ≥90% "
+                   f"({combined['accuracy_covered']}/{combined['total_games']} covered). "
+                   "This is exploratory and not corrected for selecting the strongest period. "
+                   "This exploratory combination can set MODERATE, never HIGH; it is not proof of misconduct."),
+            inline=False)
     sparse_flags=d.get('limited_accuracy_review_flags') or []
     if sparse_flags:
         lines=[]
@@ -60,10 +72,35 @@ def result_embed(result):
                            '\nDescriptive only. Published Accuracy may be selectively available; '
                            'this note does not change the statistical priority or establish cheating.')[:1024],
                     inline=False)
+    follow_up=d.get('manual_review_observations') or []
+    result_observations=[x for x in follow_up if x.get('kind')=='recent_result_excess']
+    if result_observations:
+        lines=[]
+        for observation in result_observations[:3]:
+            lines.append(
+                f"{observation['time_class'].title()} {observation['time_control']}: "
+                f"{observation['games']} recent games, "
+                f"{observation['score_excess']*100:.1f} pp above Elo expectation"
+                + (f" (earlier {observation['baseline_score_excess']*100:.1f} pp)"
+                   if isinstance(observation.get('baseline_score_excess'),(int,float)) else "")
+                + ("; increase not confirmed." if not observation.get('results_increase_confirmed') else "."))
+        e.add_field(name='Additional observations · manual review',
+                    value=('\n'.join(lines) +
+                           '\nExploratory, not search-adjusted HIGH evidence. '
+                           'Combined observations do not change the priority.')[:1024],
+                    inline=False)
+    high_gap=d.get('selected_high_effect_screen')
+    if high_gap and result.priority=='LOW' and not high_gap['passes_excess_threshold']:
+        e.add_field(name='Why HIGH was not reached',
+                    value=(f"Selected results window: {high_gap['observed_excess']*100:.1f} "
+                           f"percentage points above Elo expectation; "
+                           f"{high_gap['required_excess']*100:.0f} required for the HIGH effect screen. "
+                           "Additional search and reliability checks also apply."),
+                    inline=False)
     selected=d.get('selected')
     if selected:
         label=('Selected results window · separate from Accuracy signal'
-               if d.get('priority_basis') in ('accuracy_frequency','absolute_accuracy_frequency')
+               if d.get('priority_basis') in ('accuracy_frequency','absolute_accuracy_frequency','combined_manual_review')
                else 'Selected chronological period')
         e.add_field(name=label,value=f"{selected['time_class'].title()} · {selected['games']} games · {period_dates(selected)}\nExpected points: **{fmt(r['expected_points'])}** · scored: **{fmt(r['actual_points'])}**\nWinrate: **{fmt(r['win_fraction'],True)}**",inline=False)
     if selected and selected.get('classification_guards'):
