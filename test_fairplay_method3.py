@@ -83,7 +83,7 @@ class Method3(unittest.TestCase):
         for row in API.rows:row.pop('accuracies')
         result=self.run_review()
         from fairplay_ui import result_embed,detail_embed
-        self.assertIn('review priority',result_embed(result).description)
+        self.assertIn('Notable Performance',result_embed(result).description)
         self.assertNotIn('Stockfish: not run',str(result_embed(result).to_dict()))
         self.assertIn('Published Accuracy: 0/20',str(result_embed(result).to_dict()))
         self.assertNotIn('Missing scores were not engine-reviewed',str(result_embed(result).to_dict()))
