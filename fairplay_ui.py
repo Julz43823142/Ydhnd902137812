@@ -1675,7 +1675,7 @@ class FairPlayService:
             starting_card=await self.safe_progress(job,job.stage)
             if job.cancel_requested or self.closed:return
             if not starting_card and job.progress_rejected:
-                raise ReviewError(f'Discord could not display review progress in the original channel (HTTP {job.progress_delivery_http_status or "unknown"}). Check Send Messages, Embed Links and channel overrides.')
+                raise ReviewError(f'Discord could not display review progress in the original channel (HTTP {job.progress_delivery_http_status or "unknown"}). Check channel permissions (Send Messages, Embed Links and channel overrides).')
             future = loop.run_in_executor(self.executor,run_review)
             while not future.done():
                 if (not job.cancel_requested and job.stage!='Fetching profile…' and
