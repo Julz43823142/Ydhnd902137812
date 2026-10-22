@@ -3954,41 +3954,39 @@
     "1546557493038284840": {
       "latest_puzzle_type": "random",
       "latest_random_puzzle": {
-        "url": "https://lichess.org/training/81XcK",
-        "title": "Lichess • 2772",
-        "fen": "4r1k1/Qp1b3p/3p2p1/4b3/5nPK/P1N1rP2/1P3N2/R4B1R b - - 5 26",
-        "current_fen": "4r1k1/Qp1b3p/3p2p1/4b3/5nPK/P1N1rP2/1P3N2/R4B1R b - - 5 26",
-        "last_move_uci": "g3h4",
+        "url": "https://lichess.org/training/auIZK",
+        "title": "Puzzle • 1998",
+        "fen": "8/2b5/2P4p/8/4K1P1/7k/5P2/8 w - - 0 56",
+        "current_fen": "8/2b5/2P4p/8/4K1P1/7k/5P2/8 w - - 0 56",
+        "last_move_uci": "h4h3",
         "pgn": {
-          "__shark_answer_ciphertext_v1__": "gAAAAABq2gCehg42JSbWgMphldAfGNrUfgQMo7wFtFr6ZX4T6C-cqDXYsZCHNM9DYv7l8fEUIZY8Bh-Did2SogSJ6jCMi2q35zE-TSWJD5OTKasXl3M5LWicG2Mjkhmi2C3xDUk5NEUg"
+          "__shark_answer_ciphertext_v1__": "gAAAAABq2gEHEYIZ0fQWIg50KXwzbReGA8hadLSXcq1cTitKhHz4JR7Yej_eElhxv0OyeVqZtq6xU15MyiMG4ibiypIjnMP-4g=="
         },
         "all_moves": {
-          "__shark_answer_ciphertext_v1__": "gAAAAABq2gCe8EDly7hrodSJ5w26nyF4YGCpuMYihynVP4ecT9yMsP7MdBKTxCUHmsYOD_qjzlvs9jPybSK332iNnmJEgZIOASfsR6ptyDHs1wKeKYrU4x9c-dmz7j4zLWXP4Gq7jEkXE_roTpPDIXUZslLAkcuEJjqG7B3Idf9NwBeR2GFn4tojeDpMvNkfSGJvHqePWY7nAamfOYh-j-4fW-um1B5MHDdmvNEIOwjSnp2l6fnB3Gqx1WBEktF66_7UHcTFqMgEDNu0KdgftaXOAY13Ah5aoXq_9cAppVDAKZqWWpVXBelVmylwW32WXirAoHC7ycNMSXEazcmWltnoSAbN9s7Dtaqnae93UcfpsbxS5TsxrAyomHIpNX6ZV_wsha8_QvPHjQ9ctywStPSmevyBLOCZJQNvkybyvInVo-j0PfmXgmbWe1uAzgMcRI_o-uhS3_lk60lNdmJR-uDGzL0V-TAKM8q3YmF0DoZmF-uVjzat5wz7ga2GTeDanm5dl-3ahAB2csecln1PxZ7OjhXmxvHh9txiBglhoaQ_IWeC5TKrLOU6uQG_SCxEjCgs4uRstExoRPlSsesCUqpmh6e9CLdQ9w=="
+          "__shark_answer_ciphertext_v1__": "gAAAAABq2gEHQDdIioD2Rg-kt8jF3EudL7XWE0U2WQX_PkzjJ9_GZ54I5b0npyuVapwLqED74WAI8Joq3fUKTD2qMRdZXH1uo0590bjSju8n1RAGoIMyLewLDuLcw0YA9YShXXTgz10RvyGtOG9vwreaggNED4lWLjC0gvC1h85t49at2_Yw_oFgkpLT1ygQOGicgH6VlSx4r1aNzudJNnTYF2ns0Bi9vJFRh7YtWnKyU3R-YlmC4aMcJ68AzQdbs2ciYfeZ_ttv"
         },
         "player_moves": {
-          "__shark_answer_ciphertext_v1__": "gAAAAABq2gCetAMxjJLIGoD9LW11VFsYdTLSbQ5uJmqNyzU4u70b_XoR8OkWq6mIoeh3pIOgAYDJPRpFJM4NPYk9PP3f9CaCOL1yry8w_iSut_lJNqQ4V2zyFfl505RBGPe5hMgCQhQRwvXICPHD7GV7THCEhzsCLc2XhTai86PqZ9w0O-PwyL6RFXf_wvy8fIsKji4dKzkQR26EwDhRmuPPQrYrOuMNxGYXHruVl2OutYAsQjgrWaAzO2urjfshrbzAGPfXDufe6zxYbNWhEBhyWnsttlWk1ITyBpIshI8N1Sp9OSQHUb86YxzXvu9-c0p-kv_HoJ-HzgmDQ63wdkpsVoG9UlZWOzYLWUQpFTZLO61OmuxDuKs="
+          "__shark_answer_ciphertext_v1__": "gAAAAABq2gEH7aYatKcuIKa2RssIpmRTLQ_R68pHG2TPJkHbBLVRHJOXLcrsGqkJSnKy7SPJ7WxkU1w9K9jUOIvRQjH4xkSOtQg14-QzsjlUSpalCULtbUnUJ2mSXbF3WT72YnhkGD31u-BimjgqIMyoYJn_U8DY7jLwwcB0mloqRcDJoRJuyqS55ZRTi1p9Dbbco5pj2xQw"
         },
-        "player_color": "black",
-        "player_move_count": 5,
-        "posted_at": "2026-10-07T05:09:04.595335+00:00",
-        "answer_posted": true,
+        "player_color": "white",
+        "player_move_count": 2,
+        "posted_at": "2026-10-22T12:26:47.268387+00:00",
+        "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "random_81XcK_1791349744595",
-        "last_activity_at": "2026-10-07T05:09:04.595335+00:00",
-        "rating": 2772,
-        "rp_band": 5,
-        "boss": true,
-        "board_theme": "blue",
+        "puzzle_id": "random_auIZK_1792672007268",
+        "last_activity_at": "2026-10-22T12:26:47.268387+00:00",
+        "rating": 1998,
+        "rp_band": 2,
+        "boss": false,
+        "board_theme": "classic",
         "piece_theme": "classic",
-        "arrow_theme": "pink",
+        "arrow_theme": "purple",
         "next_solution_index": 0,
         "next_player_index": 0,
         "solved": false,
-        "message_ids": {
-          "1546557493038284840": 1557258447739953192
-        },
+        "message_ids": {},
         "chat_since_refresh": 0,
         "attempted_users": {},
         "first_move_user_id": null,
@@ -3996,11 +3994,7 @@
         "first_move_awarded": false,
         "helper_awarded_users": [],
         "helper_candidate_users": [],
-        "channel_id": 1546557493038284840,
-        "board_attachment_filenames": {
-          "1546557493038284840": "random_puzzle.png"
-        },
-        "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Rxf3 h6 Rf8 Kg7 Kxh6"
+        "channel_id": 1546557493038284840
       }
     }
   },
