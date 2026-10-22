@@ -7,12 +7,32 @@ def fmt(value, percent=False):
     return 'Unknown' if value is None else f'{value*100:.1f}%' if percent else f'{value:.1f}'
 
 
+METHOD3_LABELS = {
+    'LOW': 'Within Typical Performance Range',
+    'MODERATE': 'Moderate Performance Variation',
+    'HIGH': 'Notable Performance',
+    'VERY HIGH': 'Very Strong Statistical Deviation',
+    'INSUFFICIENT DATA': 'Insufficient Data',
+}
+METHOD3_COLORS = {
+    'LOW': 0x788491, 'MODERATE': 0x808080, 'HIGH': 0x3478D4,
+    'VERY HIGH': 0x8754C9, 'INSUFFICIENT DATA': 0x788491,
+}
+
+
+def priority_color(priority):
+    return METHOD3_COLORS.get(priority, METHOD3_COLORS['INSUFFICIENT DATA'])
+
+
+def priority_label(priority):
+    return METHOD3_LABELS.get(priority, METHOD3_LABELS['INSUFFICIENT DATA'])
+
+
 def result_embed(result):
-    from fairplay_ui import priority_color
     d=result.diagnostics['method3'];s=d['subject'];r=(d.get('selected') or {}).get('results',s['overall_results'])
-    icon={'LOW':'🟢','MODERATE':'🟡','HIGH':'🟠','VERY HIGH':'🔴','INSUFFICIENT DATA':'⚪'}.get(result.priority,'⚪')
+    icon={'LOW':'','MODERATE':'⚪','HIGH':'🔵','VERY HIGH':'🟣','INSUFFICIENT DATA':'⚪'}.get(result.priority,'⚪')
     e=discord.Embed(title='🛡️ Fair Play Review — '+result.username,color=priority_color(result.priority),
-        description=f'{icon} **{result.priority} review priority**')
+        description=f'{icon + " " if icon else ""}**{priority_label(result.priority)}**')
     accuracy_games=sum(g.accuracy is not None for g in result.games)
     e.add_field(name='Results confidence',value=f'**{result.confidence}**',inline=False)
     e.add_field(name='Sample / coverage',value=(
@@ -91,7 +111,6 @@ def result_embed(result):
 
 
 def detail_embed(result,mode):
-    from fairplay_ui import priority_color
     d=result.diagnostics['method3'];s=d['subject']
     e=discord.Embed(title=f'{mode} — {result.username}',description='Results-based screening using game outcomes and published Accuracy; no engine analysis.',color=priority_color(result.priority))
     if mode in ('Performance', 'Report Details'):
@@ -276,8 +295,8 @@ def selected_window_svg(result):
          second=[g.score*100 if g.score in (0,.5,1) else None for g in window],first_game=start_index+1)
     plot(parts,rows,positions[3],'Median think time by game · valid PGN clocks only',
          [r['median_think_seconds'] for r in rows],'s','#7c3aed',first_game=start_index+1)
-    colors={'MODERATE':('#eab308','#854d0e'),'HIGH':('#f97316','#9a3412'),
-            'VERY HIGH':('#dc2626','#991b1b')}
+    colors={'MODERATE':('#808080','#555555'),'HIGH':('#3478d4','#22549a'),
+            'VERY HIGH':('#8754c9','#59318c')}
     fill,stroke=colors.get(tier,('#94a3b8','#475569'))
     left=115+1260*(first-start_index)/max(1,len(window)-1)
     right=115+1260*(last-1-start_index)/max(1,len(window)-1)
@@ -391,9 +410,9 @@ def mark_selected(svg,result,kind,rows,positions):
     """Number priority windows and show their calendar dates in other controls."""
     from bisect import bisect_left,bisect_right
     from fairplay_charts import text
-    palette={'MODERATE':('#eab308','#854d0e'),
-             'HIGH':('#f97316','#9a3412'),
-             'VERY HIGH':('#dc2626','#991b1b')}
+    palette={'MODERATE':('#808080','#555555'),
+             'HIGH':('#3478d4','#22549a'),
+             'VERY HIGH':('#8754c9','#59318c')}
     periods=result.diagnostics['method3'].get('marked_periods',[])
     if not rows or not periods or not getattr(result,'games',None):return svg
     # Observations and charts are chronological, independently per time class.
