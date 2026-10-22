@@ -334,7 +334,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 'caution':'Descriptive selection-sensitive subset; not a cheat likelihood.'})
         for change in history_changes:
             recent=change.get('recent') or {}
-            if recent.get('games',0)>=20 and recent.get('score_excess',0)>=0.20:
+            if recent.get('games',0)>=20 and isinstance(recent.get('score_excess'),(int,float)) and recent['score_excess']>=0.20:
                 follow_up.append({
                     'kind':'recent_result_excess',
                     'time_class':change.get('time_class'),
