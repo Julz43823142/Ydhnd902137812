@@ -70,11 +70,12 @@ class AccuracyFrequencyCharts(unittest.TestCase):
     def test_frequency_chart_context_labels_and_selected_dates(self):
         result=self.result([fixture(i,accuracy=90) for i in range(10)])
         svg=accuracy_frequency_svg(result)
-        for label in ('Bullet','Blitz','Rapid','≥80','≥90','≥95','available','missing',
-                      'Context only · LOW results window','Overlaps selected dates',
+        for label in ('Bullet','Blitz','Rapid','≥80','≥90','available','missing',
+                      'Context only · LOW results window','Rolling 100 played games',
                       'Before:','During:','After:','3+0'):
             self.assertIn(label,svg)
-        self.assertIn('stroke="#64748b"',svg)
+        self.assertNotIn('≥95%',svg)
+        self.assertNotIn('Overlaps selected dates',svg)
 
     def test_complete_report_has_six_images_and_preserves_review(self):
         from fairplay_method3_ui import chart_pngs
