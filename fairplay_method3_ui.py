@@ -260,8 +260,8 @@ def selected_window_svg(result):
          second=[g.score*100 if g.score in (0,.5,1) else None for g in window],first_game=start_index+1)
     plot(parts,rows,positions[3],'Median think time by game · valid PGN clocks only',
          [r['median_think_seconds'] for r in rows],'s','#7c3aed',first_game=start_index+1)
-    colors={'MODERATE':('#808080','#555555'),'HIGH':('#3478d4','#22549a'),
-            'VERY HIGH':('#8754c9','#59318c')}
+    colors={'MODERATE':('#eab308','#a16207'),'HIGH':('#f97316','#c2410c'),
+            'VERY HIGH':('#111111','#000000')}
     fill,stroke=colors.get(tier,('#94a3b8','#475569'))
     left=115+1260*(first-start_index)/max(1,len(window)-1)
     right=115+1260*(last-1-start_index)/max(1,len(window)-1)
@@ -375,9 +375,9 @@ def mark_selected(svg,result,kind,rows,positions):
     """Number priority windows and show their calendar dates in other controls."""
     from bisect import bisect_left,bisect_right
     from fairplay_charts import text
-    palette={'MODERATE':('#808080','#555555'),
-             'HIGH':('#3478d4','#22549a'),
-             'VERY HIGH':('#8754c9','#59318c')}
+    palette={'MODERATE':('#eab308','#a16207'),
+             'HIGH':('#f97316','#c2410c'),
+             'VERY HIGH':('#111111','#000000')}
     periods=result.diagnostics['method3'].get('marked_periods',[])
     if not rows or not periods or not getattr(result,'games',None):return svg
     # Observations and charts are chronological, independently per time class.
