@@ -1,6 +1,6 @@
 """Tests for non-punitive corroborated Method 3 review workflow."""
 import unittest
-from fairplay_method3_review_triage import corroboration
+from fairplay_method3_review_triage import corroboration, apply_combined_review
 
 
 def selected():
@@ -28,6 +28,21 @@ class CorroboratedReview(unittest.TestCase):
         self.assertEqual(result['priority_effect'],'LOW_to_MODERATE_only')
         self.assertEqual(result['searched_windows'],2718)
         self.assertEqual(result['adjusted_model_bound'],1.0)
+
+    def test_evidence_snapshot_routes_low_to_moderate_not_high(self):
+        # Snapshot of the last supplied evidence: 200 selected Rapid games,
+        # z=3.205..., 123/385 observed Accuracy, 30 >=90, 14 >=95.
+        period=selected()
+        period['results']['standardized_residual']=3.2053658978952164
+        period['search_guard']['adjusted_model_bound']=1.0
+        observation=corroboration(period,sparse())
+        self.assertIsNotNone(observation)
+        self.assertEqual(apply_combined_review('LOW','results',observation),
+                         ('MODERATE','combined_manual_review'))
+        self.assertEqual(apply_combined_review('HIGH','results',observation),
+                         ('HIGH','results'))
+        self.assertEqual(apply_combined_review('LOW','results',None),
+                         ('LOW','results'))
 
     def test_weak_results_not_qualified(self):
         subject=selected()
