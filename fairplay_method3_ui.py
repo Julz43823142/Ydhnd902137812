@@ -50,14 +50,14 @@ def result_embed(result):
     combined=d.get('corroborating_review_signal')
     if combined:
         e.add_field(
-            name='Manual review recommended · combined observations',
+            name='MODERATE review basis · combined observations',
             value=(f"{combined['time_class'].title()}: "
                    f"{combined['uncorrected_standardized_residual']:.2f} standardized results residual "
                    f"across {combined['results_games']} games; "
                    f"{combined['at_least_90']} published Accuracy scores ≥90% "
                    f"({combined['accuracy_covered']}/{combined['total_games']} covered). "
                    "This is exploratory and not corrected for selecting the strongest period. "
-                   "Priority remains based on the existing statistical safeguards."),
+                   "This exploratory combination can set MODERATE, never HIGH; it is not proof of misconduct."),
             inline=False)
     sparse_flags=d.get('limited_accuracy_review_flags') or []
     if sparse_flags:
@@ -100,7 +100,7 @@ def result_embed(result):
     selected=d.get('selected')
     if selected:
         label=('Selected results window · separate from Accuracy signal'
-               if d.get('priority_basis') in ('accuracy_frequency','absolute_accuracy_frequency')
+               if d.get('priority_basis') in ('accuracy_frequency','absolute_accuracy_frequency','combined_manual_review')
                else 'Selected chronological period')
         e.add_field(name=label,value=f"{selected['time_class'].title()} · {selected['games']} games · {period_dates(selected)}\nExpected points: **{fmt(r['expected_points'])}** · scored: **{fmt(r['actual_points'])}**\nWinrate: **{fmt(r['win_fraction'],True)}**",inline=False)
     if selected and selected.get('classification_guards'):
