@@ -60,7 +60,7 @@ def _opening_rating_ramp(games, members, account_joined, early_rated=None):
                     'rated game in this control; within 400 days the first '
                     '40-100 rated games gained 500+ Elo (first/last 10 medians). '
                     'Only a period in the first 150 rated games is affected. '
-                    'Results-only HIGH/VERY HIGH is capped at MODERATE; '
+                    'Rating movement is diagnostic only and does not cap review priority; '
                     'this is not proof of fair play.'}
 
 
@@ -194,10 +194,6 @@ def independent_results_tier(tier, *, games, rating, opponents, accuracy_confirm
         if rating.get('unreliable') and games <= 20 and not accuracy_confirmed:
             tier = 'LOW'
         elif tier in ('HIGH', 'VERY HIGH'):
-            tier = 'MODERATE'
-    if rating.get('opening_rating_ramp'):
-        reasons.append('new_account_rating_ramp')
-        if tier in ('HIGH', 'VERY HIGH'):
             tier = 'MODERATE'
     if opponents.get('opponent_concentrated'):
         reasons.append('repeated_opponent_concentration')
