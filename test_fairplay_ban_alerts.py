@@ -79,6 +79,28 @@ class Alerts(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(reserve(self.store,key))
         self.assertNotIn(b'synthetic-opponent',self.path.read_bytes())
         self.assertEqual(self.path.stat().st_mode & 0o777,0o600)
+    def test_game_details_and_elo_delta_follow_subscribed_player(self):
+        from fairplay_ban_alerts import _game_details,collect_history
+        first={'white':{'username':'synthetic-player','rating':1000,'result':'win'},
+               'black':{'username':'opponent','rating':900,'result':'resigned'},
+               'rated':True,'time_class':'blitz','time_control':'180',
+               'url':'https://www.chess.com/game/live/1','end_time':NOW-100}
+        second={'white':{'username':'opponent','rating':900,'result':'win'},
+                'black':{'username':'synthetic-player','rating':992,'result':'resigned'},
+                'rated':True,'time_class':'blitz','time_control':'180',
+                'url':'https://www.chess.com/game/live/2','end_time':NOW-50}
+        self.assertEqual(_game_details(second,'synthetic-player')['result'],'Loss')
+        class HistoryAPI:
+            def get(self,target,suffix):
+                if suffix=='/games/archives':
+                    return {'archives':['https://api.chess.com/pub/player/synthetic-player/games/2023/11']}
+                return {'games':[first,second]}
+        history=collect_history(HistoryAPI(),'synthetic-player',None,NOW,Settings())
+        latest=history['opponents']['opponent']
+        self.assertEqual(latest['result'],'Loss')
+        self.assertTrue(latest['rated'])
+        self.assertEqual(latest['rating_delta'],-8)
+
     def test_other_closures_and_api_errors_are_not_fairplay(self):
         self.subscribe();self.tick();API.status='closed:abuse';self.tick(NOW+3601)
         self.assertFalse(self.store.snapshot()['outbox'])
