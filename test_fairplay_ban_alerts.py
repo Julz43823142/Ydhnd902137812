@@ -135,8 +135,8 @@ class Alerts(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(channel.send.call_args.kwargs['allowed_mentions'].users)
         self.assertEqual(self.store.snapshot()['outbox'][key]['state'],'sent')
         view=channel.send.call_args.kwargs['view']
-        self.assertEqual(len(view.children),6)
-        self.assertEqual(view.children[-1].label,'Leden')
+        self.assertEqual(len(view.children),5)
+        self.assertEqual(view.children[-1].label,'Members')
         self.assertEqual(view.children[0].label,'Subscribe')
     async def test_shared_opponent_one_alert_mentions_all_subscribers(self):
         self.subscribe(user=1,target='synthetic-player')
@@ -190,12 +190,13 @@ class Alerts(unittest.IsolatedAsyncioTestCase):
         card=alert_embed(event,'synthetic-key')
         self.assertEqual([field.name for field in card.fields],[
             'Followed Chess.com account','Opponent','Official status',
-            'Public links','Times played','Detected by SharkBot','Get your own alerts'])
+            'Public links','Times played','Latest game','Detected by SharkBot','Get your own alerts'])
         self.assertEqual(card.fields[4].value,'2 games')
         event['most_recent_game']=1700000002
         self.assertEqual(alert_embed(event,'synthetic-key').fields[4].value,
                          '2 games\\nMost recent game: 14 November 2023'.replace('\\n','\n'))
-        self.assertEqual(card.fields[5].value,'October 21, 2026')
+        self.assertEqual(card.fields[5].value,'Rating status unknown · Unknown · Elo change unavailable')
+        self.assertEqual(card.fields[6].value,'October 21, 2026')
         self.assertNotIn('Recorded meetings',str(card.to_dict()))
         self.assertNotIn('Alert ID',str(card.to_dict()))
         self.assertTrue(card.url.endswith('#sharkbot-alert-synthetic-key'))
