@@ -30,7 +30,7 @@ class SelectedWindowPresentation(unittest.TestCase):
         self.assertIn('LOW results window',selected_period_embed(result).description)
         self.assertNotIn('MODERATE results window',selected_period_embed(result).description)
         svg=selected_window_svg(result)
-        self.assertIn('Context only · LOW results window',svg)
+        self.assertIn('Latest 200 games · personal review · LOW',svg)
         self.assertIn('fill="#94a3b8"',svg)
         self.assertNotIn('fill="#eab308"',svg)
 
@@ -69,12 +69,12 @@ class SelectedWindowPresentation(unittest.TestCase):
             svg=selected_window_svg(result)
         self.assertEqual(drawing.call_count,4)
         accuracy=drawing.call_args_list[0]
-        self.assertEqual(accuracy.args[4],[g.accuracy for g in games[2480:2525]])
-        self.assertEqual(accuracy.kwargs['first_game'],2481)
-        self.assertIsNone(accuracy.args[4][22])
+        self.assertEqual(accuracy.args[4],[g.accuracy for g in games[2400:2605]])
+        self.assertEqual(accuracy.kwargs['first_game'],2401)
+        self.assertIsNone(accuracy.args[4][102])
         self.assertIn('History games #2501–#2505',svg)
-        self.assertIn('>2481</text>',svg)
-        self.assertIn('>2525</text>',svg)
+        self.assertIn('>2401</text>',svg)
+        self.assertIn('>2605</text>',svg)
         self.assertIn('fill="#f97316"',svg)
 
     def test_no_candidate_does_not_invent_selected_chart(self):
