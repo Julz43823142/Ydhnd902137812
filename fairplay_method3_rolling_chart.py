@@ -1,12 +1,14 @@
 """Historical 10-game rolling Elo expectation versus observed results, by class."""
 from fairplay_charts import start, text, plot
 from fairplay_outcome_study import expected_points
+from fairplay_method3_period_overlays import periods, draw
 
 def rolling_history_svg(result):
     parts=start(1440,1110)
     parts.extend((text(45,45,'Rolling 10-game expected / observed points',30),
         text(45,80,'Blue: Elo expected · orange dashed: actual points · each point averages up to 10 played games.',18),
         text(45,109,'Full collected class history; percentages are points per game, not Chess.com Accuracy.',17,'#526477')))
+    marked=periods(result)
     for index,kind in enumerate(('rapid','blitz','bullet')):
         games=sorted((g for g in result.games if g.time_class==kind),
                      key=lambda g:(g.ended,g.identity))
@@ -26,5 +28,6 @@ def rolling_history_svg(result):
             return out
         plot(parts,games,155+index*310,kind.title()+' · blue expected / orange observed',
              rolling(expected),'%','#2563eb',second=rolling(observed))
+        draw(parts,games,kind,marked,185+index*310,385+index*310,115,1375)
     parts.append('</svg>')
     return ''.join(parts)
