@@ -128,7 +128,7 @@ class NewAccountRatingRampTests(unittest.TestCase):
                           ended=self.joined+3600+36000*i,
                           opponent=f'other-{i}') for i in range(100)]
 
-    def test_verified_opening_ramp_caps_results_only_high(self):
+    def test_verified_opening_ramp_is_diagnostic_not_a_priority_cap(self):
         support = rating_support(self.rows, self.rows,
                                  account_joined=self.joined)
         self.assertTrue(support['opening_rating_ramp'])
@@ -138,8 +138,7 @@ class NewAccountRatingRampTests(unittest.TestCase):
             'HIGH', games=100, rating=support,
             opponents={'opponent_concentrated': False},
             accuracy_confirmed=False)
-        self.assertEqual(tier, 'MODERATE')
-        self.assertIn('new_account_rating_ramp', guards)
+        self.assertEqual((tier, guards), ('HIGH', ()))
 
     def test_unverified_old_account_does_not_gain_opening_exemption(self):
         for joined in (None, self.joined - 5*365*86400):
@@ -174,10 +173,9 @@ class NewAccountRatingRampTests(unittest.TestCase):
         with patch('fairplay_method3.collect_games',
                    return_value=(self.rows, {}, False)):
             report = review(TARGET, lambda _: None, api_factory=JoinedAPI)
-        self.assertEqual(report.priority, 'MODERATE')
-        self.assertIn('new_account_rating_ramp',
-                      report.diagnostics['method3']['selected']['classification_guards'])
-        self.assertEqual(report.confidence, 'LOW')
+        self.assertEqual(report.priority, 'HIGH')
+        self.assertTrue(report.diagnostics['method3']['selected']['rating_support']['opening_rating_ramp'])
+        self.assertEqual(report.confidence, 'HIGH')
 
 
 
