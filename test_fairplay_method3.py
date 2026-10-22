@@ -131,7 +131,9 @@ class Method3(unittest.TestCase):
     def test_charts_render_without_engine_or_estimated_accuracy(self):
         from fairplay_method3_ui import chart_pngs
         result=self.run_review();files=chart_pngs(result)
-        self.assertTrue(any('expected_points' in name for name,data in files))
+        self.assertTrue(any('accuracy_frequency' in name for name,data in files))
+        self.assertTrue(any('selected_period' in name for name,data in files))
+        self.assertLessEqual(len(files),6)
         self.assertTrue(all(data.startswith(b'\x89PNG') for name,data in files))
 
 if __name__=='__main__':unittest.main()

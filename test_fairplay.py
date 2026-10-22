@@ -788,7 +788,7 @@ class DiscordRules(unittest.IsolatedAsyncioTestCase):
             finish=Mock(side_effect=OSError('synthetic cleanup failure')),flush=Mock())
         original=self.channel.send
         async def reject_full(**kwargs):
-            if 'Short report' not in (kwargs['embed'].footer.text or ''):
+            if 'files' in kwargs:
                 raise discord.HTTPException(SimpleNamespace(status=400,reason='Bad Request'),'synthetic rejection')
             return await original(**kwargs)
         self.channel.send=reject_full
@@ -798,7 +798,8 @@ class DiscordRules(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(job.report_published)
         self.assertTrue(job.checkpoint_warning)
         self.assertIs(self.service.result_for(job.message.id),result)
-        self.assertEqual(self.channel.sends,1)
+        self.assertEqual(self.channel.sends,2)
+        self.assertEqual(len(self.channel.messages),1)
         card=job.message.embeds[0]
         self.assertEqual(card.colour.value,0xEA8537)
         self.assertIn('gameplay assessment: LOW',card.description)
@@ -868,13 +869,13 @@ class DiscordRules(unittest.IsolatedAsyncioTestCase):
             self.assertTrue(all(call.kwargs.get('ephemeral') is True for event in queued_events for call in event.followup.send.call_args_list))
             self.assertNotIn('Review accepted',str([m.content for m in self.channel.messages]))
 
-    async def test_not_found_is_public_without_a_review_card(self):
+    async def test_not_found_replaces_starting_card_with_failure(self):
         event = ctx()
         self.service.analyzer = Mock(side_effect=data.AccountNotFound())
         await self.service.process(ui.Job(TARGET,event))
         self.assertEqual(self.channel.sends,1)
-        self.assertIn('account not found',self.channel.messages[-1].content)
-        self.assertFalse(self.channel.messages[-1].embeds)
+        self.assertIn('account not found',self.channel.messages[-1].embeds[0].description)
+        self.assertIn('no result',self.channel.messages[-1].embeds[0].description)
         event.followup.send.assert_not_awaited()
 
     async def test_worker_start_failure_is_public_and_does_not_escape_queue(self):
@@ -883,7 +884,7 @@ class DiscordRules(unittest.IsolatedAsyncioTestCase):
             await self.service.process(ui.Job(TARGET,event))
         self.assertEqual(self.channel.sends,1)
         self.assertNotIn('Synthetic thread limit',self.channel.messages[-1].content)
-        self.assertIn('could not finish safely',self.channel.messages[-1].content)
+        self.assertIn('could not finish safely',self.channel.messages[-1].embeds[0].description)
         event.followup.send.assert_not_awaited()
 
     async def test_other_channels_refuse_submission_without_changing_jobs(self):

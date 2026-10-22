@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 
 import discord
 
-from fairplay_config import CONFIG, VERSION
+from fairplay_config import CONFIG, active_version
 from fairplay_data import AccountNotFound, DeadlineReached, ReviewError
 from shark_admin import ADMIN_ID
 
@@ -25,11 +25,15 @@ STAGES = (("Deep Maia alternatives", "maia_deep"),
           ("Building human-move", "human"), ("Collecting rated games", "collect"),
           ("Collecting rated and unrated games", "collect"),
           ("Fetching profile", "profile"), ("Building report", "report"),
+          ("Method 3: building", "report"), ("Method 3:", "method3"),
+          ("Rendering chart", "charts"), ("Preparing charts", "charts"),
+          ("Posting final report", "delivery"),
           ("Comparing personal timing", "timing"),
           ("Analyzing sessions", "sessions"), ("Resuming", "resume"))
 
 
 def version_metadata(env=None):
+    screening_version = active_version(env)
     env = os.environ if env is None else env
     sha = str(env.get("GITHUB_SHA", "")).lower()
     if not re.fullmatch(r"[0-9a-f]{40}", sha):
@@ -40,7 +44,7 @@ def version_metadata(env=None):
     url = (f"https://github.com/{repo}/actions/runs/{run}"
            if re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repo)
            and re.fullmatch(r"[0-9]{1,20}", run) else None)
-    return {"screening_version":VERSION, "git_commit":sha,
+    return {"screening_version":screening_version, "git_commit":sha,
             "github_actions_run":run if run.isdigit() else None,
             "github_run_attempt":attempt if attempt.isdigit() else None,
             "github_run_url":url, "merged_pr_number":None,
@@ -51,19 +55,30 @@ def stage_code(stage):
     return next((label for prefix,label in STAGES if str(stage).startswith(prefix)), "unknown")
 
 
-def classify(error):
+def classify(error, *, method3=False):
     """Stable, privacy-safe categories; raw exception text is never reported."""
     cause = getattr(error, "__cause__", None)
     if isinstance(error, AccountNotFound):
         return "profile_not_found"
     if isinstance(cause, TimeoutError) or isinstance(error, TimeoutError):
-        return "stockfish_search_timeout"
+        return "runtime_timeout" if method3 else "stockfish_search_timeout"
     if isinstance(cause, OSError):
-        return "engine_transport_or_process_failure"
+        return "runtime_io_failure" if method3 else "engine_transport_or_process_failure"
     if isinstance(error, DeadlineReached):
         return "scan_deadline"
     if isinstance(error, ReviewError):
         message = str(error)
+        known = {
+            "Discord report delivery failed after full analysis.": "report_delivery_failed",
+            "Discord could not display review progress in the original channel. Check channel permissions and try again.": "progress_delivery_failed",
+            "The public profile cannot be verified.": "profile_verification_failed",
+            "No eligible live games were found.": "no_eligible_live_games",
+            "No public game archives are available for this account.": "public_archives_unavailable",
+        }
+        if message in known:
+            return known[message]
+        if method3:
+            return "scan_deadline" if "runtime limit" in message else "review_coverage_or_data_gate"
         if message.startswith("A Stockfish search timed out"):
             return "stockfish_search_timeout"
         if message.startswith("Stockfish failed"):
@@ -88,34 +103,53 @@ def classify(error):
 
 def failure_record(job, error, *, pool=None, checkpoints=None, env=None):
     """Only whitelisted engine metrics enter the encrypted report."""
+    mode_env = os.environ if env is None else env
+    method3 = mode_env.get("FAIRPLAY_METHOD3") == "1"
+    route = "method3" if method3 else "v51" if mode_env.get("FAIRPLAY_V51") == "1" else "legacy"
     engine = getattr(pool, "last_failure", None)
     safe = None
-    if isinstance(engine, dict):
+    if not method3 and isinstance(engine, dict):
         keys = ("category","phase","attempt","budget","multipv",
                 "elapsed_seconds","timeout_seconds","worker_restarted","terminal")
         safe = {k:engine[k] for k in keys if k in engine
                 and isinstance(engine[k], (str,int,float,bool))}
     from fairplay_progress import duration
     elapsed = round(job.timing_elapsed(), 2)
+    delivery = getattr(job, "report_delivery_status", None)
+    if delivery not in ("rejected", "uncertain", "acknowledged", "reconciled"):
+        delivery = None
+    http_status = getattr(job, "report_delivery_http_status", None)
+    if type(http_status) is not int or not 100 <= http_status <= 599:
+        http_status = None
+    progress_http_status = getattr(job, "progress_delivery_http_status", None)
+    if type(progress_http_status) is not int or not 100 <= progress_http_status <= 599:
+        progress_http_status = None
     record = {
         "schema":"sharkbot-fairplay-owner-failure-v1",
         "review_id":job.token if TOKEN_RE.fullmatch(job.token) else "invalid",
         "failed_at_utc":datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "reason_code":classify(error),
+        "reason_code":classify(error, method3=method3),
         "stage":stage_code(job.stage),
         "progress_indicator_percent":int(max(0,min(100,job.progress_percent))),
         "elapsed_seconds":elapsed,
         "elapsed_text":duration(elapsed),
-        "model":"Stockfish 19 + Maia-3 (if installed)",
-        "search_contract":{"fast_multipv":CONFIG.fast_multipv,
+        "analysis_route":route,
+        "model":("Method 3: Elo results and published Accuracy; no engine or Maia execution"
+                 if method3 else "Stockfish 19 + Maia-3 (if installed)"),
+        "search_contract":None if method3 else {"fast_multipv":CONFIG.fast_multipv,
                            "deep_multipv":CONFIG.deep_multipv,
                            "depth18_rapid_blitz":18,
                            "bullet_depth":CONFIG.bullet_deep_depth,
-                           "full_depth_mode":str((env or os.environ).get("FAIRPLAY_FULL_DEPTH18", ""))=="1"},
+                           "full_depth_mode":str(mode_env.get("FAIRPLAY_FULL_DEPTH18", ""))=="1"},
         "engine_last_failure":safe,
+        "report_delivery_status":delivery,
+        "report_delivery_http_status":http_status,
+        "progress_http_status":progress_http_status,
+        "progress_rejected":getattr(job, "progress_rejected", False) is True,
         "checkpoint_enabled":bool(getattr(checkpoints, "enabled", False)),
         "checkpoint_remote_ok":bool(getattr(checkpoints, "remote_ok", False)) if checkpoints else None,
-        "checkpoint_note":"Completed exact work may resume; a failed review never issues a verdict.",
+        "checkpoint_note":("Interrupted Method 3 reviews restart public-data analysis; a failed review never issues a verdict."
+                           if method3 else "Completed exact work may resume; a failed review never issues a verdict."),
         "warning":"Categories only. No raw exception messages, username, PGN, FEN or private player data.",
     }
     record.update(version_metadata(env))

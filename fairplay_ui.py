@@ -1286,6 +1286,11 @@ class Job:
     report_delivery_lock: asyncio.Lock = field(default_factory=asyncio.Lock)
     message_deleted: bool = False
     delivery_unknown: bool = False
+    progress_rejected: bool = False
+    progress_delivery_http_status: int | None = None
+    report_delivery_status: str | None = None
+    report_delivery_http_status: int | None = None
+    failure_requester_notified: bool = False
     checkpoint_warning: bool = False
     token: str = field(default_factory=lambda:uuid.uuid4().hex[:12])
 
@@ -1419,7 +1424,11 @@ class FairPlayService:
         return True
 
     async def safe_progress(self,job,stage,*,view=None,embed=None):
-        if job.message_deleted:return False
+        job.progress_rejected=False
+        job.progress_delivery_http_status=None
+        if job.message_deleted:
+            job.progress_rejected=True
+            return False
         attempted_send=False
         try:
             if job.delivery_unknown and job.message is None:
@@ -1516,13 +1525,56 @@ class FairPlayService:
                     message_id=job.message.id,channel_id=job.message.channel.id,token=job.token,stage=stage,
                     force=False,**metadata)
             return True
-        except discord.NotFound:job.message_deleted = True
+        except discord.NotFound as error:
+            job.message_deleted=True
+            job.progress_rejected=True
+            job.progress_delivery_http_status=error.status
         except discord.HTTPException as error:
             # An explicit client-error response rejected the initial send.
             # Unlike a lost/5xx ACK, it is safe to try the smaller fallback.
-            if attempted_send and job.message is None and 400 <= error.status < 500:
+            job.progress_rejected=400 <= error.status < 500
+            job.progress_delivery_http_status=error.status
+            if attempted_send and job.message is None and job.progress_rejected:
                 job.delivery_unknown = False
+        except (aiohttp.ClientError,asyncio.TimeoutError):
+            pass  # A lost acknowledgement never permits an automatic repost.
         return False
+
+    async def notify_failure(self,job,text):
+        """Show terminal status in the original channel, with one safe fallback."""
+        if job.cancel_requested:return False
+        if job.report_delivery_status=='uncertain' and job.message is None:
+            await self.notify_requester_failure(job,text)
+            return False
+        if job.message is not None or job.delivery_unknown:
+            if await self.safe_progress(job,text):return True
+            if job.delivery_unknown or not job.progress_rejected:
+                await self.notify_requester_failure(job,text)
+                return False
+        try:
+            await (job.output_channel or self.channel).send(
+                content=text,allowed_mentions=discord.AllowedMentions.none())
+            return True
+        except (discord.HTTPException,aiohttp.ClientError,asyncio.TimeoutError):
+            await self.notify_requester_failure(job,text)
+            return False
+
+    async def notify_requester_failure(self,job,text):
+        """One private fallback for a slash requester; never another channel."""
+        if job.ctx is None or job.cancel_requested or job.failure_requester_notified:return
+        job.failure_requester_notified=True
+        try:
+            await job.ctx.followup.send(
+                content=('The channel notification could not be confirmed.\n'+text)[:1900],
+                ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
+        except (discord.HTTPException,aiohttp.ClientError,asyncio.TimeoutError):
+            pass
+
+    async def suspend_failed_job(self,job):
+        if self.checkpoints is None:return
+        try:await asyncio.to_thread(self.checkpoints.suspend,job.target)
+        except Exception:
+            print('Fair Play failure checkpoint update unavailable.',flush=True)
 
     async def note_delivered_checkpoint(self,job,operation,**kwargs):
         """Storage trouble cannot undo an acknowledged Discord delivery.
@@ -1618,6 +1670,12 @@ class FairPlayService:
                     job.timing=ReliableTiming()
             else:
                 job.timing=LiveTiming()
+            # The private slash acknowledgement is removed after enqueueing.
+            # Keep a visible starting card while the first API request runs.
+            starting_card=await self.safe_progress(job,job.stage)
+            if job.cancel_requested or self.closed:return
+            if not starting_card and job.progress_rejected:
+                raise ReviewError('Discord could not display review progress in the original channel. Check channel permissions and try again.')
             future = loop.run_in_executor(self.executor,run_review)
             while not future.done():
                 if (not job.cancel_requested and job.stage!='Fetching profile…' and
@@ -1683,7 +1741,10 @@ class FairPlayService:
                         view=ReportView(result.username),
                         allowed_mentions=discord.AllowedMentions.none())
                     published=True
+                    job.report_delivery_status='acknowledged'
                 except (discord.HTTPException,aiohttp.ClientError,asyncio.TimeoutError) as error:
+                    job.report_delivery_http_status=(error.status if isinstance(error,discord.HTTPException) else None)
+                    job.report_delivery_status=('rejected' if isinstance(error,discord.HTTPException) and error.status<500 else 'uncertain')
                     if isinstance(error,discord.HTTPException) and error.status==400:
                         fallback=fallback_result_embed(result)
                         fallback.set_footer(text=(fallback.footer.text or '')+
@@ -1693,13 +1754,18 @@ class FairPlayService:
                                 embed=fallback,view=ReportView(result.username),
                                 allowed_mentions=discord.AllowedMentions.none())
                             published=True
+                            job.report_delivery_status='acknowledged'
                         except (discord.HTTPException,aiohttp.ClientError,asyncio.TimeoutError) as fallback_error:
+                            job.report_delivery_http_status=(fallback_error.status if isinstance(fallback_error,discord.HTTPException) else None)
+                            job.report_delivery_status=('rejected' if isinstance(fallback_error,discord.HTTPException) and fallback_error.status<500 else 'uncertain')
                             if not isinstance(fallback_error,discord.HTTPException) or fallback_error.status>=500:
                                 final_message=await self.reconcile_final_report(job,fallback)
                                 published=final_message is not None
+                                if published:job.report_delivery_status='reconciled'
                     elif not isinstance(error,discord.HTTPException) or error.status>=500:
                         final_message=await self.reconcile_final_report(job,final_card)
                         published=final_message is not None
+                        if published:job.report_delivery_status='reconciled'
                 if published:job.report_published=True
             if published and not job.cancel_requested:
                 old_message=job.message
@@ -1721,34 +1787,21 @@ class FairPlayService:
                     try:await self.auto.completed(job.target)
                     except Exception:pass  # report delivery remains successful
             elif not job.cancel_requested:
+                await self.notify_failure(job,
+                    '❌ Analysis completed, but Discord report delivery could not be confirmed. Please try again.')
                 await self.save_failure(job,ReviewError(
                     'Discord report delivery failed after full analysis.'))
-                if getattr(self,'checkpoints',None) is not None:
-                    await asyncio.to_thread(self.checkpoints.suspend,job.target)
-                if job.message is not None:
-                    await self.safe_progress(
-                        job,'❌ Analysis completed, but Discord could not '
-                        'display the report. Please try again.')
+                await self.suspend_failed_job(job)
         except AccountNotFound as error:
             if job.cancel_requested:return
+            await self.notify_failure(job,'❌ **Chess.com account not found**\nCheck the username and try again.')
             await self.save_failure(job,error)
-            if getattr(self,'checkpoints',None) is not None:
-                await asyncio.to_thread(self.checkpoints.suspend,job.target)
-            try:
-                if job.ctx is not None:
-                    await (job.output_channel or self.channel).send(content='❌ **Chess.com account not found**\nCheck the username and try again.',allowed_mentions=discord.AllowedMentions.none())
-            except discord.HTTPException:pass
+            await self.suspend_failed_job(job)
         except ReviewError as error:
             if job.cancel_requested:return
+            await self.notify_failure(job,'❌ '+str(error))
             await self.save_failure(job,error)
-            if getattr(self,'checkpoints',None) is not None:
-                await asyncio.to_thread(self.checkpoints.suspend,job.target)
-            if job.message is not None:await self.safe_progress(job,'❌ '+str(error))
-            else:
-                try:
-                    if job.ctx is not None:
-                        await (job.output_channel or self.channel).send(content='❌ '+str(error),allowed_mentions=discord.AllowedMentions.none())
-                except discord.HTTPException:pass
+            await self.suspend_failed_job(job)
         except asyncio.CancelledError:
             job.stop.set()
             # Await bounded cleanup so a replacement task cannot launch a second
@@ -1759,16 +1812,9 @@ class FairPlayService:
             raise
         except Exception as error:
             if job.cancel_requested:return
+            await self.notify_failure(job,'❌ Analysis could not finish safely. Please try again later.')
             await self.save_failure(job,error)
-            if getattr(self,'checkpoints',None) is not None:
-                await asyncio.to_thread(self.checkpoints.suspend,job.target)
-            # Deliberately do not log exception values/targets/reports.
-            if job.message is not None:await self.safe_progress(job,'❌ Analysis could not finish safely. Please try again later.')
-            else:
-                try:
-                    if job.ctx is not None:
-                        await (job.output_channel or self.channel).send(content='Analysis could not finish safely. Please try again later.',allowed_mentions=discord.AllowedMentions.none())
-                except discord.HTTPException:pass
+            await self.suspend_failed_job(job)
         finally:
             if job.cancel_requested:
                 try:

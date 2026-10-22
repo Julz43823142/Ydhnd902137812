@@ -7,6 +7,7 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 import aiohttp
 import discord
 import fairplay_ui as ui
+from fairplay_data import ReviewError
 from test_fairplay import FakeChannel, FakeMessage, TARGET, ctx
 
 from fairplay_ui import FairPlayService, Job, CHANNEL_ID, STAFF_TEST_CHANNEL_ID
@@ -225,8 +226,108 @@ class FinalReportDeliveryTests(unittest.IsolatedAsyncioTestCase):
         self.staff.send = AsyncMock(side_effect=discord.Forbidden(
             SimpleNamespace(status=403,reason='Forbidden'),'synthetic'))
         await self.process()
-        self.staff.send.assert_awaited_once()
+        self.assertEqual(self.staff.send.await_count, 2)
+        self.assertIn('embed', self.staff.send.await_args_list[0].kwargs)
+        self.assertIn('content', self.staff.send.await_args_list[1].kwargs)
         self.assertFalse(self.job.report_published)
+
+
+class StaffFailureVisibilityTests(unittest.IsolatedAsyncioTestCase):
+    async def asyncSetUp(self):
+        self.taskforce, self.staff = FakeChannel(), FakeChannel()
+        self.staff.id = STAFF_TEST_CHANNEL_ID
+        self.service = FairPlayService(SimpleNamespace(user=SimpleNamespace(id=99)),self.taskforce)
+        self.job = Job(TARGET,None,output_channel=self.staff)
+        self.addCleanup(self.service.executor.shutdown,wait=True,cancel_futures=True)
+
+    async def test_starting_card_exists_before_analyzer_fetches_profile(self):
+        observed=[]
+        def analyzer(*args,**kwargs):
+            observed.extend(self.staff.messages)
+            raise ReviewError('Synthetic data unavailable.')
+        self.service.analyzer=analyzer
+        with patch.object(self.service,'save_failure',new_callable=AsyncMock):
+            await self.service.process(self.job)
+        self.assertEqual(len(observed),1)
+        self.assertEqual(self.staff.sends,1)
+        self.assertIn('Synthetic data unavailable',self.staff.messages[0].embeds[0].description)
+        self.assertEqual(self.taskforce.sends,0)
+
+    async def test_initial_embed_denied_sends_plain_error_and_skips_analysis(self):
+        send=self.staff.send
+        async def denied_embeds(**kwargs):
+            if 'embed' in kwargs:
+                raise discord.Forbidden(SimpleNamespace(status=403,reason='Forbidden'),'synthetic')
+            return await send(**kwargs)
+        self.staff.send=denied_embeds
+        self.service.analyzer=Mock()
+        with patch.object(self.service,'save_failure',new_callable=AsyncMock):
+            await self.service.process(self.job)
+        self.service.analyzer.assert_not_called()
+        self.assertEqual(self.staff.sends,1)
+        self.assertIn('Check channel permissions',self.staff.messages[0].content)
+        self.assertEqual(self.job.progress_delivery_http_status,403)
+        self.assertEqual(self.taskforce.sends,0)
+
+    async def test_terminal_edit_rejected_or_deleted_falls_back_once_in_staff(self):
+        for status in (400,403,404):
+            with self.subTest(status=status):
+                self.job.message_deleted=False
+                self.job.message=SimpleNamespace(edit=AsyncMock(side_effect=(
+                    discord.NotFound if status==404 else discord.HTTPException)(
+                    SimpleNamespace(status=status,reason='Rejected'),'synthetic')))
+                before=self.staff.sends
+                self.assertTrue(await self.service.notify_failure(self.job,'❌ Synthetic failure'))
+                self.assertEqual(self.staff.sends,before+1)
+                self.assertEqual(self.staff.messages[-1].content,'❌ Synthetic failure')
+        self.assertEqual(self.taskforce.sends,0)
+
+    async def test_terminal_edit_uncertain_never_sends_another_message(self):
+        self.job.message=SimpleNamespace(edit=AsyncMock(side_effect=discord.HTTPException(
+            SimpleNamespace(status=503,reason='Unavailable'),'synthetic')))
+        self.assertFalse(await self.service.notify_failure(self.job,'❌ Synthetic failure'))
+        self.assertEqual(self.staff.sends,0)
+        self.assertEqual(self.taskforce.sends,0)
+
+    async def test_uncertain_ack_notifies_slash_requester_once_privately(self):
+        self.job.ctx=ctx(self.staff)
+        self.job.report_delivery_status='uncertain'
+        for _ in range(2):
+            self.assertFalse(await self.service.notify_failure(self.job,'❌ Synthetic failure'))
+        self.job.ctx.followup.send.assert_awaited_once()
+        sent=self.job.ctx.followup.send.await_args.kwargs
+        self.assertTrue(sent['ephemeral'])
+        self.assertIn('could not be confirmed',sent['content'])
+        self.assertEqual(self.staff.sends,0)
+        self.assertEqual(self.taskforce.sends,0)
+
+    async def test_channel_permission_denied_notifies_requester_without_public_redirect(self):
+        self.job.ctx=ctx(self.staff)
+        self.staff.send=AsyncMock(side_effect=discord.Forbidden(
+            SimpleNamespace(status=403,reason='Forbidden'),'synthetic'))
+        self.assertFalse(await self.service.notify_failure(self.job,'❌ Synthetic failure'))
+        self.staff.send.assert_awaited_once()
+        self.job.ctx.followup.send.assert_awaited_once()
+        self.assertTrue(self.job.ctx.followup.send.await_args.kwargs['ephemeral'])
+        self.assertEqual(self.taskforce.sends,0)
+        cancelled=Job(TARGET,ctx(self.staff),output_channel=self.staff,cancel_requested=True)
+        self.assertFalse(await self.service.notify_failure(cancelled,'❌ Synthetic failure'))
+        cancelled.ctx.followup.send.assert_not_awaited()
+        self.staff.send.assert_awaited_once()
+
+    async def test_restored_job_without_interaction_gets_plain_failure(self):
+        self.assertTrue(await self.service.notify_failure(self.job,'❌ Synthetic failure'))
+        self.assertEqual(self.staff.messages[0].content,'❌ Synthetic failure')
+        self.assertEqual(self.taskforce.sends,0)
+
+    async def test_checkpoint_failure_cannot_hide_terminal_error_or_escape(self):
+        self.service.analyzer=Mock(side_effect=ReviewError('Synthetic data unavailable.'))
+        self.service.checkpoints=SimpleNamespace(note=Mock(return_value=True),
+            suspend=Mock(side_effect=OSError('synthetic persistence failure')))
+        with patch.object(self.service,'save_failure',new_callable=AsyncMock),patch('builtins.print'):
+            await self.service.process(self.job)
+        self.assertIn('Synthetic data unavailable',self.staff.messages[0].embeds[0].description)
+        self.service.checkpoints.suspend.assert_called_once()
 
 
 if __name__ == "__main__":

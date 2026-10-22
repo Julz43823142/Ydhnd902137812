@@ -9,11 +9,12 @@ VERSION = 'fairplay-v50-selective-policy'
 DEPTH_VERSION = 'fairplay-v57-runtime-throughput'
 
 
-def active_version():
+def active_version(env=None):
     """One source for the deployed route, progress card and automatic rescans."""
     import os
-    if os.getenv('FAIRPLAY_METHOD3') == '1':return 'fairplay-v68-evidence-integrity'
-    return DEPTH_VERSION if os.getenv('FAIRPLAY_V51') == '1' else VERSION
+    env = os.environ if env is None else env
+    if env.get('FAIRPLAY_METHOD3') == '1':return 'fairplay-v68-evidence-integrity'
+    return DEPTH_VERSION if env.get('FAIRPLAY_V51') == '1' else VERSION
 
 
 @dataclass(frozen=True)

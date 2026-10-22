@@ -162,15 +162,15 @@ def detail_embed(result,mode):
 
 
 def chart_pngs(result, progress=None):
-    from fairplay_charts import class_svg, comparison_svg, plot, text
+    from fairplay_charts import class_svg
+    from fairplay_method3_frequency_charts import accuracy_frequency_svg
     from fairplay_method3 import observations
     import cairosvg
-    from fairplay_outcome_study import expected_points
     live_games=result.games
     grouped=observations(live_games)
     files=[]
     zoom=selected_window_svg(result)
-    total=sum(bool(rows) for rows in grouped.values())+(3 if live_games else 0)+bool(zoom)
+    total=sum(bool(rows) for rows in grouped.values())+(2 if live_games else 0)+bool(zoom)
     def add_chart(name, data):
         files.append((name,data))
         if progress:progress(len(files),total)
@@ -181,23 +181,8 @@ def chart_pngs(result, progress=None):
         svg=mark_selected(svg,result,kind,rows,(150,470,790))
         add_chart(f'fairplay_{kind}_charts.png',cairosvg.svg2png(bytestring=svg.encode()))
     if live_games:
-        add_chart('fairplay_opponent_elo_comparison.png',cairosvg.svg2png(bytestring=comparison_svg(grouped).encode()))
-        parts=['<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1120" viewBox="0 0 1440 1120"><rect width="1440" height="1120" fill="white"/>',text(45,45,'Rolling 10-game expected / observed points',26),text(45,78,'Each point averages up to 10 games; nearby points overlap.',16,'#526477')]
-        for index,kind in enumerate(('rapid','blitz','bullet')):
-            games=[g for g in live_games if g.time_class==kind]
-            predicted=[];actual=[]
-            for i in range(len(games)):
-                window=games[max(0,i-9):i+1]
-                valid=[(g,expected_points(g.rating,g.opponent_rating)) for g in window]
-                valid=[(g,p) for g,p in valid if p is not None and g.score in (0,.5,1)]
-                predicted.append(sum(p for g,p in valid)/len(valid)*100 if valid else None)
-                actual.append(sum(g.score for g,p in valid)/len(valid)*100 if valid else None)
-            if games:plot(parts,games,105+index*325,kind.title()+' · blue expected / orange observed points',predicted,'%', '#2563eb',second=actual)
-        parts.append('</svg>')
-        svg=''.join(parts)
-        for index,kind in enumerate(('rapid','blitz','bullet')):
-            if grouped[kind]:svg=mark_selected(svg,result,kind,grouped[kind],(105+index*325,))
-        add_chart('fairplay_method3_expected_points.png',cairosvg.svg2png(bytestring=svg.encode()))
+        add_chart('fairplay_method3_accuracy_frequency.png',
+                  cairosvg.svg2png(bytestring=accuracy_frequency_svg(result).encode()))
         add_chart('fairplay_method3_history_change.png',cairosvg.svg2png(bytestring=history_svg(result).encode()))
     if zoom:
         add_chart('fairplay_method3_selected_period.png',cairosvg.svg2png(bytestring=zoom.encode()))
