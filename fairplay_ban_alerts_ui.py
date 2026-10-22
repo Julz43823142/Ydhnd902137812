@@ -98,7 +98,7 @@ class AlertModal(discord.ui.Modal):
 class AlertView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
-        for label,action in [('Subscribe','add'),('Unsubscribe','remove'),('Mute Pings','mute'),('Unmute Pings','unmute'),('My Subscriptions','mine'),('Leden','members')]:
+        for label,action in [('Subscribe','add'),('Unsubscribe','remove'),('Mute Pings','mute'),('Unmute Pings','unmute'),('Members','members')]:
             button=discord.ui.Button(label=label,custom_id=PREFIX+action,row=1 if action=='members' else 0)
             async def callback(ctx,action=action):
                 if ctx.channel_id!=CHANNEL_ID or ctx.user.bot:return
@@ -118,12 +118,12 @@ class AlertView(discord.ui.View):
                         for uid in subscribers:
                             member=guild.get_member(uid) if guild else None
                             lines.append((member.display_name if member else f'User {uid}')+f' ({uid})')
-                        header=f'Ban Alert-leden: {len(subscribers)} unieke abonnees'
+                        header=f'Ban Alert members: {len(subscribers)} subscribers'
                         # Discord messages have a 2000-character limit.
                         listing='\n'.join(lines)
                         if len(header)+len(listing)>1850:
-                            listing=listing[:1750]+'\n… (lijst ingekort)'
-                        await ctx.followup.send(header+'\n'+(listing or 'Geen leden.'),ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
+                            listing=listing[:1750]+'\n… (list truncated)'
+                        await ctx.followup.send(header+'\n'+(listing or 'No members.'),ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
                         return
                     user=state['users'].get(str(ctx.user.id),{'muted':False,'subscriptions':{}})
                     text='Subscriptions: '+(', '.join(sorted(user['subscriptions'])) or 'none')+'\nPings: '+('muted' if user['muted'] else 'enabled')
