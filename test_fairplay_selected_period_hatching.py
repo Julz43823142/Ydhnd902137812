@@ -18,7 +18,7 @@ class SelectedPeriodHighlight(unittest.TestCase):
         rows=[{} for _ in games]
         self.assertEqual(mark_selected(svg,result,'blitz',rows,(150,)),svg)
         marked=mark_selected(svg,result,'bullet',rows,(150,))
-        for color in ('#eab308','#f97316','#dc2626'):
+        for color in ('#808080','#3478d4','#8754c9'):
             self.assertIn(f'fill="{color}"',marked)
         self.assertEqual(marked.count('<rect x='),3)
         self.assertIn('not proof',marked)
@@ -35,10 +35,10 @@ class SelectedPeriodHighlight(unittest.TestCase):
         svg='<svg xmlns="http://www.w3.org/2000/svg"></svg>'
         blitz=mark_selected(svg,result,'blitz',[{}]*5,(150,))
         bullet=mark_selected(svg,result,'bullet',[{}]*5,(150,))
-        self.assertIn('fill="#f97316"',blitz)
+        self.assertIn('fill="#3478d4"',blitz)
         self.assertIn('fill="#a78bfa"',bullet)
         self.assertIn('>1</text>',bullet)
-        self.assertNotIn('fill="#f97316"',bullet)
+        self.assertNotIn('fill="#3478d4"',bullet)
 
     def test_low_and_insufficient_data_are_not_shaded(self):
         games=[SimpleNamespace(time_class='bullet',ended=1000+i*100) for i in range(5)]
