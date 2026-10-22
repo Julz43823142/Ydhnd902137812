@@ -151,10 +151,9 @@ class AlertService:
                 url=str(card.url or '')
                 key=(footer[len(marker):] if footer.startswith(marker) else
                      url.rsplit('#sharkbot-alert-',1)[-1] if '#sharkbot-alert-' in url else '')
-                if key in uncertain:
-                    for pending_key in uncertain:
-                        if pending_key==key or state['outbox'][pending_key].get('group_key')==key:
-                            await asyncio.to_thread(mark,self.store,pending_key,'sent',message.id)
+                for pending_key in uncertain:
+                    if pending_key==key or state['outbox'][pending_key].get('group_key')==key:
+                        await asyncio.to_thread(mark,self.store,pending_key,'sent',message.id)
     async def deliver(self):
         async with self.lock:
             await self.reconcile()
