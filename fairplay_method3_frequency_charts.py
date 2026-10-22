@@ -7,8 +7,8 @@ from fairplay_charts import start, text
 from fairplay_method3_accuracy_frequency import summarize
 
 CLASSES=('bullet','blitz','rapid')
-THRESHOLDS=(80,90,95)
-COLORS=('#2563eb','#0f766e','#9333ea')
+THRESHOLDS=(80,90)
+COLORS=('#2563eb','#0f766e')
 
 
 def frequency_summary(games,kind):
@@ -119,13 +119,25 @@ def accuracy_frequency_svg(result):
             game_no=1+round((n-1)*tick/4)
             xx=left+(right-left)*(game_no-1)/max(1,n-1)
             parts.append(text(xx,bottom+28,str(game_no),15,anchor='middle'))
-        if selected and selected.get('time_class')==kind:
-            first=max(1,selected.get('first_game',1))
-            last=min(n,selected.get('last_game',0))
-            if first<=last:
-                x1=left+(right-left)*(first-1)/max(1,n-1)
-                x2=left+(right-left)*(last-1)/max(1,n-1)
-                parts.append(f'<rect x="{x1:.1f}" y="{top}" width="{max(2,x2-x1):.1f}" height="{bottom-top}" fill="#e2e8f0" fill-opacity=".45"/>')
+        # Show only genuinely qualifying review windows; LOW periods are not shaded.
+        from bisect import bisect_left, bisect_right
+        times=[g.ended for g in rows]
+        palette={'MODERATE':('#facc15','#854d0e'),
+                 'HIGH':('#fb923c','#9a3412'),
+                 'VERY HIGH':('#f87171','#991b1b')}
+        marked=sorted((p for p in diagnostic.get('marked_periods',[])
+                       if p.get('time_class')==kind and p.get('priority') in palette),
+                      key=lambda p:(p['first_ended'],p['last_ended']))
+        for number,period in enumerate(marked,1):
+            first=bisect_left(times,period['first_ended'])
+            last=bisect_right(times,period['last_ended'])-1
+            if first>last or first>=n or last<0:continue
+            x1=left+(right-left)*first/max(1,n-1)
+            x2=left+(right-left)*last/max(1,n-1)
+            fill,stroke=palette[period['priority']]
+            parts.append(f'<rect x="{x1:.1f}" y="{top}" width="{max(2,x2-x1):.1f}" height="{bottom-top}" fill="{fill}" fill-opacity=".22" stroke="{stroke}" stroke-width="2"/>')
+            parts.append(text(max(left+28,min(right-28,(x1+x2)/2)),top+19,
+                              f"{period['priority']} {number}",15,stroke,anchor='middle'))
         window=100
         # Every plotted value covers the previous 100 played games; unavailable
         # official scores are excluded from the denominator, never treated as zero.
@@ -156,7 +168,7 @@ def accuracy_frequency_svg(result):
                     parts.append(f'<circle cx="{xx:.1f}" cy="{yy:.1f}" r="4" fill="{COLORS[offset]}"/>')
         if n<window:
             parts.append(text(450,top+105,'Fewer than 100 games; rolling trend unavailable.',19,'#526477'))
-        parts.append(text(35,y+365,'Blue ≥80% · green ≥90% · purple ≥95% · missing published scores excluded',17,'#526477'))
+        parts.append(text(35,y+365,'Blue ≥80% · green ≥90% · yellow MODERATE / orange HIGH / red VERY HIGH windows',17,'#526477'))
     y=1445
     if comparisons:
         label=f'Context only · {selected_tier} results window' if neutral else 'Selected Method 3 period'
