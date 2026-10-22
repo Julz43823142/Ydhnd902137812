@@ -2733,7 +2733,7 @@ def fetch_random_puzzle(force_band=None):
             "fen": puzzle_fen,
             "pgn": " ".join(solution_san),
             "url": f"https://lichess.org/training/{puzzle_id}",
-            "title": f"Lichess • {rating}",
+            "title": f"Puzzle • {rating}",
             "lichess_id": str(puzzle_id),
             "rating": rating,
             "rp_band": band,
@@ -2795,7 +2795,7 @@ def fetch_en_passant_puzzle():
                                 "fen": initial_fen,
                                 "pgn": " ".join(solution),
                                 "url": f"https://lichess.org/training/{puzzle_id}",
-                                "title": f"Lichess • {rating}",
+                                "title": f"Puzzle • {rating}",
                                 "lichess_id": str(puzzle_id),
                                 "rating": int(rating),
                                 "rp_band": int(stored_band),
@@ -2889,7 +2889,7 @@ def fetch_practice_puzzle(target_rating, window=100):
             "fen": puzzle_fen,
             "pgn": " ".join(solution_san),
             "url": f"https://lichess.org/training/{puzzle_id}",
-            "title": f"Lichess • {rating}",
+            "title": f"Puzzle • {rating}",
             "lichess_id": str(puzzle_id),
             "rating": rating,
             "rp_band": int(stored_band),
@@ -3672,7 +3672,7 @@ async def post_exact_lichess_puzzle(
     rating,
     owner=None,
 ):
-    if not await prepare_interactive_puzzle_start(channel, owner, f"Lichess {rating} Practice"):
+    if not await prepare_interactive_puzzle_start(channel, owner, f"Puzzle {rating} Practice"):
         return False
     channel_rp_lock = _rp_command_lock_for_channel(channel.id)
     if channel_rp_lock.locked():
@@ -3708,7 +3708,7 @@ async def _post_exact_lichess_puzzle_unlocked(
 
         if raw is None:
             await channel.send(
-                f"❌ No Lichess puzzle with **exact rating {rating}** was found."
+                f"❌ No puzzle with **exact rating {rating}** was found."
             )
             return
 
@@ -3808,7 +3808,7 @@ async def _post_exact_lichess_puzzle_unlocked(
 
         embed = discord.Embed(
             title=(
-                f"♟️ Lichess Puzzle — {rating}"
+                f"♟️ Puzzle — {rating}"
             ),
             description=(
                 f"**{side} to move.**\n"
@@ -3847,7 +3847,7 @@ async def _post_exact_lichess_puzzle_unlocked(
             )
 
         await channel.send(
-            f"❌ **Could not load Lichess rating {rating}.**\n"
+            f"❌ **Could not load puzzle rating {rating}.**\n"
             f"`{error_text}`"
         )
 
@@ -16442,7 +16442,7 @@ async def _update_random_puzzle_message(
     elif puzzle.get("boss"):
         card_title = f"☠️ BOSS PUZZLE — {puzzle.get('rating', puzzle.get('title', '?'))}"
     else:
-        card_title = f"🎲 Random Puzzle — {puzzle.get('title', 'Lichess')}"
+        card_title = f"🎲 Random Puzzle — {puzzle.get('rating') or puzzle.get('title', 'Puzzle')}"
 
     embed = discord.Embed(
         title=card_title,
@@ -20282,7 +20282,7 @@ async def on_message(
                 100 <= rating <= 4000
             ):
                 await message.channel.send(
-                    "❌ Lichess puzzle rating must be between **100 and 4000**."
+                    "❌ Puzzle rating must be between **100 and 4000**."
                 )
                 return
 
@@ -20291,7 +20291,7 @@ async def on_message(
                 team = survival_team or "another team"
                 await message.channel.send(
                     f"⚠️ **Survival Mode is active for {team}.** "
-                    "Lichess rating puzzles are unavailable until Survival is paused."
+                    "Rating puzzles are unavailable until Survival is paused."
                 )
                 return
 
