@@ -15,8 +15,8 @@ METHOD3_LABELS = {
     'INSUFFICIENT DATA': 'Insufficient Data',
 }
 METHOD3_COLORS = {
-    'LOW': 0x788491, 'MODERATE': 0x808080, 'HIGH': 0x3478D4,
-    'VERY HIGH': 0x8754C9, 'INSUFFICIENT DATA': 0x788491,
+    'LOW': 0x808080, 'MODERATE': 0xEAB308, 'HIGH': 0xF97316,
+    'VERY HIGH': 0x111111, 'INSUFFICIENT DATA': 0x788491,
 }
 
 
@@ -30,7 +30,7 @@ def priority_label(priority):
 
 def result_embed(result):
     d=result.diagnostics['method3'];s=d['subject'];r=(d.get('selected') or {}).get('results',s['overall_results'])
-    icon={'LOW':'','MODERATE':'⚪','HIGH':'🔵','VERY HIGH':'🟣','INSUFFICIENT DATA':'⚪'}.get(result.priority,'⚪')
+    icon={'LOW':'','MODERATE':'🟡','HIGH':'🟠','VERY HIGH':'⚫','INSUFFICIENT DATA':'⚪'}.get(result.priority,'⚪')
     e=discord.Embed(title='🛡️ Fair Play Review — '+result.username,color=priority_color(result.priority),
         description=f'{icon + " " if icon else ""}**{priority_label(result.priority)}**')
     accuracy_games=sum(g.accuracy is not None for g in result.games)
@@ -42,10 +42,10 @@ def result_embed(result):
         + f'\nPublished Accuracy: {accuracy_games}/{len(result.games)} games.'),inline=False)
     e.add_field(name='Performance levels',value=(
         '⚪ **Insufficient Data** — Neutral gray\n'
-        '▫️ **Within Typical Performance Range** — Neutral gray\n'
-        '⚪ **Moderate Performance Variation** — Gray\n'
-        '🔵 **Notable Performance** — Blue\n'
-        '🟣 **Very Strong Statistical Deviation** — Purple'
+        '**Within Typical Performance Range** — Gray\n'
+        '🟡 **Moderate Performance Variation** — Yellow\n'
+        '🟠 **Notable Performance** — Orange\n'
+        '⚫ **Very Strong Statistical Deviation** — Black'
     ),inline=False)
     selected=d.get('selected')
     if selected:
