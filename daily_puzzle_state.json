@@ -52,47 +52,38 @@
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
-    "url": "https://www.chess.com/daily/2026-10-22",
-    "title": "Double Feature",
-    "fen": "1r6/k6r/p3b3/NpPQ2p1/1Pn5/5QP1/1q3P2/5K2 w - - 0 1",
-    "current_fen": "1r6/k6r/p3b3/NpPQ2p1/1Pn5/5QP1/1q3P2/5K2 w - - 0 1",
+    "url": "https://www.chess.com/daily/2026-10-23",
+    "title": "Get Off Your High Horse🤠",
+    "fen": "8/5p2/p1p1p3/2PpP3/1P1P4/3K3k/7P/1n2B3 w - - 0 1",
+    "current_fen": "8/5p2/p1p1p3/2PpP3/1P1P4/3K3k/7P/1n2B3 w - - 0 1",
     "last_move_uci": null,
     "pgn": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq2uO_9j6_8tcwEtwbY5XA_sdOQLLFrrFdLGpZltEEYdkSK-pTmwPMUN0Rg8iCdWcYHvnJpycQ4kLwhDVtUDm3XULCyV1glerF_C9Ygt_gQS_KD69dOErwTemrha-CHEY3k6q0QHR8qgKmOfbodXB-NvsRSnwQ-8L1WbVexF9G33GBeEUQbKysupOkydzeJBhVNZYAIrwo8wEyyGxbMkNMl0NBPepco5o6PcXMTvT1fj5rHlbwsJS7sV1KR5OFkufNljl4TDKDhs6quCEpkzBtBoO2If-ot3XeRODhCtdHi8A7h_IyZsQURBDDeCVUG4x2-alQ"
+      "__shark_answer_ciphertext_v1__": "gAAAAABq2xGtLK5kRWMTBXasK1tMt7VrrCHNHZp5eraU_iJSxCp_4fEkubVW75VO-Ocs-kQXIc8ryBrPuRnnnRtTvU6mgle-ld8rRJVEzuoUd12M0iB6f4O3h2nIqa-VFHuBEmjJMISIvHL9ya9IIbjOlIPolOv_mbzmfMZGMWh9Y9F75_xtqoGYMVKlvhLiT6d5SW6u8yd233gODQ9VCAVUbqkH7Tpu6J8urjAbBi0clBPkM0IWOVlvwxxGmwwmB1_Y1wvhXdZxqP0KCd_ZjmZiaXBh55Bd7dOfPSOC9_fCIGlQNDAOU77Ixm3wIvqMpoQfO_1EWOE3iQAib3b8iyYjhltpkDS_yQ=="
     },
     "all_moves": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq2uO_8kN5k-ese9cj0fh6K_iOxg_aEm3Q6V9046xj1jGdPqnxe_lsUdIH72sKsTayaJ7dkKo1SHlziAR69CDgBtTwOKhoR5A7ZGHTWUGVr2aQZrTCl8RWjTt_IY7RvTj5KRcx2kd8eG2y1GEYtvQXwS7M--ufU0ZCYKBywIaQN4UUK84rhObpIK6un3cZm6MmNW63Asd4cg4A8CxDk-MQDgd9jkB6XmGpUrNEL4WchB4ByD9HHjn2IIoP-0HkkEFI8sgLas3bBuc1TtGt6-3jbUGvjuIV88-CGE7lL2Lvw8kPzO540uoiKxJ2-MdUNPbJliICXj0mz3U_oqjrnXBTiT5GyfPLvUX-ntnjRHmXv5lRGHM="
+      "__shark_answer_ciphertext_v1__": "gAAAAABq2xGt-IIHZUBf7VI-WYMTmWLtKW4G2QX8eRKLpcYt0uhkmtGjXZcnvFYl1DlQFW1XDFQDuVo50bbD74f_USiSHoIZ7X51LrI8yHOJdhOlcq4ojJko94kiJ7ouTNUT9cbEqiWei-C9X6Na3ANh9TNm18e-e3h9xh6L6d56RvDD5gDJUuZPv-X8m17vvOOCPlIR8HGyZbUpxGsN4FM_05WCLDPP5Q9F9MHxNmgPoMn1feRJLz92D3T-FYHbhBzEpyBtUdcjlD_lXvo_X9aPwsjzumQK9Zp6W9wrPqAAU9Rc41lNdvRUwmtQ1rM_zYs6Nd1ejvmHWd8dvre6xDIiUz3CWJ0KjGokAMGUpL4p8JM-Ku6eFEoTcy70mxJy7wRBOAn3STxs4h2KpzKr-CfU0w3Lgt7YtE9-BlTyqLkqnNugUru14tSeNKKn-yq9BWiOEJOMvzpQD9OmszPlKT7Fi3__ux7ogJ8yxHBFiRZyNMcaJHSt-7o="
     },
     "player_moves": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq2uO_I1z4zGymf4C4rQAk2o75Qvp2f_cF_iYPVwcGEMyYCoQYQT3x9SNVLAF2gec4DTA32Y76zMWqoGQNM3gh0nFL75z8_7RXlk_xK-qqjiQSNzYIXnuvRZM7HiAF8PDM3kmLXLIWsv0YFS2VGb4ZUI78WHV8aUYl-QWQzjeE3Uml0VAxEOeC5MPtOb0SR0JAnUbsj9b79RerUKWQ_peXWu9EJ7_36yjLwz8G7E8rUxA2eIL3EG5Bni65KgjqE2KhMN1B"
+      "__shark_answer_ciphertext_v1__": "gAAAAABq2xGtRc99FIed1jyRDnTRXgbZD_0WIuDsBjaRnwG18bfm728djHgp8t9qgbO8foecRtg_soe6aV3dL5WE8v9bk8-wE9XnEoo5VIN0mT1kANq8wVcRu7gtpm9fw93HcILEcAk80YamylElYJMnJn9uERd5oyPCuxhH239bbKmQyzzCUVcF6HR--3XJ0r-1dWXdFROUcY9xfLTn799toLDwGoJkknTf6N16RA8iX2zDM0lxIxB8PREvTgOLxpb8tdIxsncNcpT8C5AMyF7ChB88yadacCSMRKN_DbMie11Ip2POF-I="
     },
     "player_color": "white",
-    "player_move_count": 3,
-    "posted_at": "2026-10-22T07:49:22.971889+00:00",
-    "answer_posted": true,
+    "player_move_count": 4,
+    "posted_at": "2026-10-23T07:50:05.002926+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "daily_1792655362971",
+    "puzzle_id": "daily_1792741805002",
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_id": 1562734601514782751,
+    "message_id": null,
     "attempted_users": {},
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "message_ids": {
-      "1468320170891022417": 1562734601514782751
-    },
-    "channel_id": 1468320170891022417,
-    "board_attachment_filenames": {
-      "1468320170891022417": "daily_puzzle.png"
-    },
-    "chat_since_refresh": 0,
-    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Qa8+ Qb7+ Nc6#"
+    "helper_candidate_users": []
   },
   "lichess_rating_used": {
     "2000": [
