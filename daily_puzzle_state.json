@@ -55,8 +55,8 @@
     "url": "https://www.chess.com/daily/2026-10-23",
     "title": "Get Off Your High Horse🤠",
     "fen": "8/5p2/p1p1p3/2PpP3/1P1P4/3K3k/7P/1n2B3 w - - 0 1",
-    "current_fen": "8/5p2/2p1p3/1pPpP3/1B1P4/3K4/7k/1n6 w - - 0 3",
-    "last_move_uci": "h3h2",
+    "current_fen": "8/5p2/2p1p3/1pPpP3/1B1P4/n7/2K4k/8 w - - 2 4",
+    "last_move_uci": "b1a3",
     "pgn": {
       "__shark_answer_ciphertext_v1__": "gAAAAABq2yEtJ9eCHmM3hsFTZc_IQhJgV53LwDwzkJDc3HmqYUwhJFkNtsv1lTu9imObL2f_VGq5-qr9GqQrk2R-PYtkaucES4wlK1kEznp-JMHqXEDsJdbFkDGNxIivvEWbZVP3kHCYuevXAr4l0rwnqjmQ1-5nIkN7XBL7AwHTC8LeuWD5p-Ln_RXatr7NFKauYJ7-D1FniyJxKwn3TfopuSnLb9EY5OwjOTygv8nGcR0mr1BW4NmaGTYuoCGCSgiLy6W2L-SQxhETLvIXRMWjgs8-WPwtz8OShzds3uDAKFrbKbeulsXEEWiYfiVWfFeUxd1WpCEYFVvBgpFA-iZi2ARoHl7apA=="
     },
@@ -74,16 +74,16 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1792741805002",
-    "next_solution_index": 4,
-    "next_player_index": 2,
+    "next_solution_index": 6,
+    "next_player_index": 3,
     "solved": false,
-    "message_id": 1563166677573705789,
+    "message_id": 1563166703741829140,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Bb4",
+        "move": "Kc2",
         "correct": true,
-        "timestamp": "2026-10-23T12:26:18.014100+00:00"
+        "timestamp": "2026-10-23T12:26:24.094211+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
@@ -92,25 +92,15 @@
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1563166677573705789
+      "1468320170891022417": 1563166703741829140
     },
     "channel_id": 1468320170891022417,
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
     "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-10-23T12:26:18.013904+00:00",
+    "last_card_activity_at": "2026-10-23T12:26:24.094013+00:00",
     "recent_accepted_moves": [
-      {
-        "accepted_at": 1792758373.7889495,
-        "fen_before": "8/5p2/p1p1p3/2PpP3/1P1P4/3K3k/7P/1n2B3 w - - 0 1",
-        "expected": {
-          "color": "white",
-          "san": "b5",
-          "uci": "b4b5"
-        },
-        "accepted_uci": "b4b5"
-      },
       {
         "accepted_at": 1792758378.0141091,
         "fen_before": "8/5p2/2p1p3/1pPpP3/3P4/3K3k/7P/1n2B3 w - - 0 2",
@@ -120,6 +110,16 @@
           "uci": "e1b4"
         },
         "accepted_uci": "e1b4"
+      },
+      {
+        "accepted_at": 1792758384.0942183,
+        "fen_before": "8/5p2/2p1p3/1pPpP3/1B1P4/3K4/7k/1n6 w - - 0 3",
+        "expected": {
+          "color": "white",
+          "san": "Kc2",
+          "uci": "d3c2"
+        },
+        "accepted_uci": "d3c2"
       }
     ],
     "accepted_solution_moves": [
@@ -132,9 +132,14 @@
         "san": "Bb4",
         "uci": "e1b4",
         "principal": true
+      },
+      {
+        "san": "Kc2",
+        "uci": "d3c2",
+        "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Kxh2"
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Na3+"
   },
   "lichess_rating_used": {
     "2000": [
