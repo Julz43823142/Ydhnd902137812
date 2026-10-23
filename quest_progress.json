@@ -398,9 +398,10 @@
           "name": "Thice",
           "paid": [],
           "progress": {
+            "daily:2026-10-23:minigame:minigame-1": 1,
             "daily:2026-10-23:puzzle:solve-10": 1
           },
-          "updated_at": 1792758390
+          "updated_at": 1792764982
         }
       }
     },
@@ -646,10 +647,10 @@
             "weekly:2026-10-19:minigame:minigame-8"
           ],
           "progress": {
-            "weekly:2026-10-19:minigame:minigame-8": 8,
+            "weekly:2026-10-19:minigame:minigame-8": 9,
             "weekly:2026-10-19:puzzle:solve-40": 13
           },
-          "updated_at": 1792758390
+          "updated_at": 1792764982
         },
         "550338389535227926": {
           "name": "Nairyaaa",
