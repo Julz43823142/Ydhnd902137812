@@ -22,7 +22,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_tWlOb_1792769739554",
-    "last_activity_at": "2026-10-23T15:35:39.554846+00:00",
+    "last_activity_at": "2026-10-23T15:36:04.930482+00:00",
     "rating": 2700,
     "rp_band": 5,
     "boss": false,
@@ -32,16 +32,34 @@
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_ids": {},
-    "message_id": null,
+    "message_ids": {
+      "1468320170891022417": 1563214437702311979
+    },
+    "message_id": 1563214437702311979,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {},
+    "attempted_users": {
+      "601406103712170014": {
+        "name": "TheMakina",
+        "move": "Nb5",
+        "correct": false,
+        "timestamp": "2026-10-23T15:36:04.930756+00:00"
+      }
+    },
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "board_attachment_filenames": {
+      "1468320170891022417": "random_puzzle.png"
+    },
+    "last_card_activity_at": "2026-10-23T15:36:04.930482+00:00",
+    "recent_accepted_moves": [],
+    "wrong_attempt_counts": {
+      "601406103712170014": 1
+    },
+    "last_feedback": "❌ **Bro wanted to prove how smart he is. Mission failed.**\n↪️ **Move played:** `Nb5`"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
