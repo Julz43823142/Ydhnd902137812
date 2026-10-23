@@ -47,17 +47,17 @@
     ],
     "active": "93f7026f2e0e4ae587bd180fef05031b",
     "expedition": {
-      "end": 1792756541.6917758,
+      "end": 1792808238.0249698,
       "hours": 12,
-      "id": "pet-tools:1562977779237126224:442597396195704832",
+      "id": "pet-tools:1563194608744144958:442597396195704832",
       "pet_id": "93f7026f2e0e4ae587bd180fef05031b",
       "reward": {
-        "accessory": null,
+        "accessory": "bow",
         "coins": 6,
         "xp": 50
       },
-      "start": 1792713341.6917758,
-      "status": "claimed"
+      "start": 1792765038.0249698,
+      "status": "running"
     },
     "pets": [
       {
