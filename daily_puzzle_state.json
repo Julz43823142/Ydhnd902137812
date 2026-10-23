@@ -17,7 +17,7 @@
     "player_color": "white",
     "player_move_count": 3,
     "posted_at": "2026-10-23T15:35:39.554846+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -59,9 +59,9 @@
     "wrong_attempt_counts": {
       "601406103712170014": 1
     },
-    "last_feedback": "❌ **Bro wanted to prove how smart he is. Mission failed.**\n↪️ **Move played:** `Nb5`"
+    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Nxf7 Nb5 Nxd6+"
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-23",
