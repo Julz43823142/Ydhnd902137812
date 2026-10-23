@@ -55,8 +55,8 @@
     "url": "https://www.chess.com/daily/2026-10-23",
     "title": "Get Off Your High Horse🤠",
     "fen": "8/5p2/p1p1p3/2PpP3/1P1P4/3K3k/7P/1n2B3 w - - 0 1",
-    "current_fen": "8/5p2/p1p1p3/2PpP3/1P1P4/3K3k/7P/1n2B3 w - - 0 1",
-    "last_move_uci": null,
+    "current_fen": "8/5p2/2p1p3/1pPpP3/3P4/3K3k/7P/1n2B3 w - - 0 2",
+    "last_move_uci": "a6b5",
     "pgn": {
       "__shark_answer_ciphertext_v1__": "gAAAAABq2yEtJ9eCHmM3hsFTZc_IQhJgV53LwDwzkJDc3HmqYUwhJFkNtsv1lTu9imObL2f_VGq5-qr9GqQrk2R-PYtkaucES4wlK1kEznp-JMHqXEDsJdbFkDGNxIivvEWbZVP3kHCYuevXAr4l0rwnqjmQ1-5nIkN7XBL7AwHTC8LeuWD5p-Ln_RXatr7NFKauYJ7-D1FniyJxKwn3TfopuSnLb9EY5OwjOTygv8nGcR0mr1BW4NmaGTYuoCGCSgiLy6W2L-SQxhETLvIXRMWjgs8-WPwtz8OShzds3uDAKFrbKbeulsXEEWiYfiVWfFeUxd1WpCEYFVvBgpFA-iZi2ARoHl7apA=="
     },
@@ -74,24 +74,52 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1792741805002",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
-    "message_id": 1563097165369450497,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "message_id": 1563166659865215008,
+    "attempted_users": {
+      "442597396195704832": {
+        "name": "Thice",
+        "move": "B5",
+        "correct": true,
+        "timestamp": "2026-10-23T12:26:13.788942+00:00"
+      }
+    },
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1563097165369450497
+      "1468320170891022417": 1563166659865215008
     },
     "channel_id": 1468320170891022417,
     "board_attachment_filenames": {
-      "1468320170891022417": "daily_puzzle.png"
+      "1468320170891022417": "random_puzzle.png"
     },
-    "chat_since_refresh": 0
+    "chat_since_refresh": 0,
+    "last_card_activity_at": "2026-10-23T12:26:13.788306+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1792758373.7889495,
+        "fen_before": "8/5p2/p1p1p3/2PpP3/1P1P4/3K3k/7P/1n2B3 w - - 0 1",
+        "expected": {
+          "color": "white",
+          "san": "b5",
+          "uci": "b4b5"
+        },
+        "accepted_uci": "b4b5"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "b5",
+        "uci": "b4b5",
+        "principal": true
+      }
+    ],
+    "last_feedback": "**✅ Correct! 3 moves remaining.**\n↩️ **Opponent replies:** axb5"
   },
   "lichess_rating_used": {
     "2000": [
