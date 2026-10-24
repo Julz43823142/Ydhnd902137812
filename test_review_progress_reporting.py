@@ -105,7 +105,7 @@ class MetadataTests(unittest.TestCase):
             "engine_source": chess_play.STOCKFISH_SOURCE_REVISION,
             "analysis_version": remote.ENGINE_VERSION,
             "depth": chess_play.STOCKFISH_GAME_REVIEW_DEPTH,
-            "threads": chess_play.STOCKFISH_THREADS,
+            "threads": remote.REMOTE_WORKER_THREADS,
             "hash_mb": chess_play.STOCKFISH_HASH_MB,
             "created": __import__("time").time(), "sections": sections,
         })
@@ -115,8 +115,9 @@ class MetadataTests(unittest.TestCase):
                 clock[0] += 8
                 interrupt_check()
             return review_fixture(sections[0])
-        with patch.object(remote, "_git", return_value=SimpleNamespace(
-            returncode=0, stdout=(REVISION + "\n").encode())):
+        with (patch.object(remote, "_git", return_value=SimpleNamespace(
+                returncode=0, stdout=(REVISION + "\n").encode())),
+              patch.object(chess_play, "STOCKFISH_THREADS", remote.REMOTE_WORKER_THREADS)):
             remote.compute_worker(
                 TICKET, 0, env={**ENV, "INPUT_REVISION": REVISION},
                 store=store, idle=lambda *args: True, analyser=worker,
