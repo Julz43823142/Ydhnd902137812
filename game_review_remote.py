@@ -261,6 +261,49 @@ def _dispatch(ticket, revision, repo, token, *, http=requests):
         raise RemoteReviewError("Remote review dispatch failed.") from exc
 
 
+def _balanced_cuts(moves, initial_board, workers=MAX_WORKERS):
+    """Deterministically balance the 14 independent depth-18 worker workloads.
+
+    Raw ply counts do not predict Stockfish's critical path. Legal branching,
+    available captures, and check are bounded, cheap indicators of search
+    complexity. All boundaries remain contiguous and nonempty. This is a
+    planning heuristic only: it never substitutes for an actual engine search.
+    """
+    n = len(moves)
+    if n < workers or workers < 1:
+        raise RemoteReviewError("Remote review needs one legal ply per worker.")
+    board = initial_board.copy(stack=False)
+    weights = []
+    for san in moves:
+        legal = list(board.legal_moves)
+        captures = sum(board.is_capture(move) for move in legal)
+        weights.append(1.0 + .045 * len(legal) + .22 * captures
+                       + (.6 if board.is_check() else 0.0))
+        board.push_san(san)
+    total_weight = sum(weights)
+    cuts = [0]
+    accumulated = 0.0
+    next_boundary = 1
+    for index, weight in enumerate(weights, 1):
+        accumulated += weight
+        while (next_boundary < workers
+               and accumulated >= total_weight * next_boundary / workers
+               and index >= cuts[-1] + 1
+               and index <= n - (workers - next_boundary)):
+            cuts.append(index)
+            next_boundary += 1
+    # Enforce the full worker count even when a very complex tail position
+    # crosses multiple weighted boundaries at once.
+    while len(cuts) < workers:
+        slot = max(range(len(cuts) - 1),
+                   key=lambda i: cuts[i + 1] - cuts[i])
+        cut = (cuts[slot] + cuts[slot + 1]) // 2
+        if not cuts[slot] < cut < cuts[slot + 1]:
+            raise RemoteReviewError("Unable to partition legal review moves.")
+        cuts.insert(slot + 1, cut)
+    return cuts + [n]
+
+
 def _segments(san_moves, start_fen, chess960, max_plies):
     moves = tuple(str(x) for x in san_moves)
     limit = int(max_plies or chess_play.STOCKFISH_ANALYSIS_MAX_PLIES)
@@ -268,7 +311,7 @@ def _segments(san_moves, start_fen, chess960, max_plies):
     board = chess.Board(str(start_fen), chess960=bool(chess960)) if start_fen else chess.Board(chess960=bool(chess960))
     if not board.is_valid() or board.is_game_over(claim_draw=False):
         raise ValueError("Invalid Game Review starting position.")
-    cuts = [(len(useful) * i) // MAX_WORKERS for i in range(MAX_WORKERS + 1)]
+    cuts = _balanced_cuts(useful, board)
     sections = []
     for index in range(MAX_WORKERS):
         beg, end = cuts[index:index+2]
