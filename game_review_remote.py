@@ -26,7 +26,7 @@ BRANCH = "ordinary-review-distributed-work"
 WORKFLOW = "ordinary_review_distributed.yml"
 SCHEMA = "sharkbot-ordinary-review-shards-v1"
 ENGINE_VERSION = "ordinary-review-v8"
-MAX_WORKERS = 2
+MAX_WORKERS = 14
 MIN_REMOTE_PLIES = 80
 MAX_REMOTE_PLIES = 600
 MAX_WAIT_SECONDS = 600
@@ -34,7 +34,7 @@ WORKER_BUDGET_SECONDS = 540
 LEASE_SECONDS = 750
 POLL_SECONDS = 8
 REQUEST_LIFETIME = 800
-FILENAMES = re.compile(r"(?:req_[0-9a-f]{24}|(?:res|progress)_[0-9a-f]{24}_[01]|lease_review)\.enc\Z")
+FILENAMES = re.compile(r"(?:req_[0-9a-f]{24}|(?:res|progress)_[0-9a-f]{24}_(?:[0-9]|1[0-3])|lease_review)\.enc\Z")
 TICKET = re.compile(r"[0-9a-f]{24}\Z")
 REVISION = re.compile(r"[0-9a-f]{40}\Z")
 REPO = re.compile(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+\Z")
@@ -244,7 +244,7 @@ def _segments(san_moves, start_fen, chess960, max_plies):
     board = chess.Board(str(start_fen), chess960=bool(chess960)) if start_fen else chess.Board(chess960=bool(chess960))
     if not board.is_valid() or board.is_game_over(claim_draw=False):
         raise ValueError("Invalid Game Review starting position.")
-    cuts = [0, len(useful) // 2, len(useful)]
+    cuts = [(len(useful) * i) // MAX_WORKERS for i in range(MAX_WORKERS + 1)]
     sections = []
     for index in range(MAX_WORKERS):
         beg, end = cuts[index:index+2]
