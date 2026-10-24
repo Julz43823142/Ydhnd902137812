@@ -2461,9 +2461,20 @@ async def _twitch_cleanup_if_offline():
     async with _twitch_live_notification_lock:
         stream = await _twitch_get_live_stream_info()
         import twitch_presentation
-        await asyncio.to_thread(twitch_presentation.set_status,stream)
         if stream is not None:
+            # EventSub can miss stream.online during reconnects or worker restarts.
+            # The regular Helix status check must recover that notification.
+            started_at = str(stream.get("started_at", "") or "").strip()
+            if started_at:
+                await _twitch_send_stream_online({
+                    "broadcaster_user_id": TWITCH_BROADCASTER_ID,
+                    "started_at": started_at,
+                })
+            else:
+                print("Twitch live status lacks started_at; cannot safely deduplicate notification.", flush=True)
+            await asyncio.to_thread(twitch_presentation.set_status, stream)
             return False
+        await asyncio.to_thread(twitch_presentation.set_status, None)
         return await _twitch_delete_live_notifications()
 
 
