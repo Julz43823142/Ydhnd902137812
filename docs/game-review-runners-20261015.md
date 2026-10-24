@@ -3,7 +3,7 @@
 ## Delivery
 
 The same Game Review service used by `!review`, human-vs-human and human-vs-bot
-postgame threads now supports **two on-demand isolated GitHub Actions workers**
+postgame threads now supports **fourteen on-demand isolated GitHub Actions workers**
 for sufficiently long games. This uses the *same GitHub-hosted runner capacity*,
 but **not** running Fair Play evidence jobs: GitHub-hosted runners are
 ephemeral. A new, separate workflow is dispatched only when the Fair Play
@@ -11,7 +11,7 @@ compute workflow has no queued or active runs.
 
 - `game_review_service.py` remains the single-flight cached entry point and
   falls back to the existing **local depth-18 Stockfish 19** automatically.
-- `game_review_remote.py` splits eligible mainlines into two contiguous
+- `game_review_remote.py` splits eligible mainlines into fourteen contiguous
   segments with their original starting FENs, encrypts all work, leases at most
   one normal review across bot instances, dispatches two compute-only shards,
   validates exact engine configuration and move/FEN chain, and reassembles the
@@ -23,7 +23,7 @@ compute workflow has no queued or active runs.
   GitHub API status, missing token or broken reservation disables remote
   dispatch. Workers check Fair Play status and lease ownership during their
   move loop and abort ordinary computation on preemption. They never cancel or
-  modify an existing Fair Play job. Exactly two ordinary compute jobs may be
+  modify an existing Fair Play job. Up to fourteen ordinary compute jobs may be
   active; the ordinary workflow has its own concurrency group.
 - Remote workers calculate no Fair Play misconduct scores and never touch
   Discord, wallets, puzzles or economy ledgers.
@@ -63,7 +63,7 @@ blobs may remain reachable in git history even after active-ref cleanup.
   remote**, encryption isolation, Fair Play queued/running/unknown fail-closed,
   bounded dispatch inputs, bad/partial/stale response rejection, ordinary
   cached route, and automatic local fallback.
-- CI's existing real Stockfish smoke exercises **two full depth-18 segment
+- CI's existing real Stockfish smoke exercises **fourteen full depth-18 segment
   analyses** and recombines them into one legal Game Review with the original
   final board position.
 - Remote shard aggregation recomputes **whole-game Accuracy** from the
