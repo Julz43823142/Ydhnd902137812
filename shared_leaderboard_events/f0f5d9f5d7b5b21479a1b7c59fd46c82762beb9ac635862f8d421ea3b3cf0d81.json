@@ -1,0 +1,14 @@
+{
+  "after_coins": 67.5,
+  "before_coins": 67.5,
+  "created_at": 1792867364,
+  "created_at_ns": 1792867364046448805,
+  "details": {
+    "piece": "classic"
+  },
+  "display_name": "MH",
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "equip-piece",
+  "transaction_id": "profile-button-pieces:1563623794898243765:386134006170910721:classic",
+  "user_id": "386134006170910721"
+}
