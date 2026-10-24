@@ -22,7 +22,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_tUk3p_1792860433801",
-    "last_activity_at": "2026-10-24T16:47:42.046539+00:00",
+    "last_activity_at": "2026-10-24T16:48:17.565415+00:00",
     "rating": 2700,
     "rp_band": 5,
     "boss": true,
@@ -33,17 +33,17 @@
     "next_player_index": 1,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1563594849637376022
+      "1468320170891022417": 1563594997905891380
     },
-    "message_id": 1563594849637376022,
+    "message_id": 1563594997905891380,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Bxf5",
-        "correct": true,
-        "timestamp": "2026-10-24T16:47:42.046748+00:00"
+        "move": "Be4",
+        "correct": false,
+        "timestamp": "2026-10-24T16:48:17.565651+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
@@ -54,19 +54,8 @@
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
-    "last_card_activity_at": "2026-10-24T16:47:42.046539+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1792860462.0467546,
-        "fen_before": "r4qkb/7p/p3b2P/1p1ppBp1/2n3P1/2N5/PPP4Q/2KR3R b - - 1 23",
-        "expected": {
-          "uci": "e6f5",
-          "san": "Bxf5",
-          "color": "black"
-        },
-        "accepted_uci": "e6f5"
-      }
-    ],
+    "last_card_activity_at": "2026-10-24T16:48:17.565415+00:00",
+    "recent_accepted_moves": [],
     "accepted_solution_moves": [
       {
         "san": "Bxf5",
@@ -74,7 +63,10 @@
         "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Nxd5"
+    "last_feedback": "❌ **Live from the blunder department, Thice: the French Defense has officially revoked your speaking rights.**\n↪️ **Move played:** `Be4`",
+    "wrong_attempt_counts": {
+      "442597396195704832": 1
+    }
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
