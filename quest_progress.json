@@ -1,56 +1,6 @@
 {
   "build": "quests-v1-2026-09-08",
   "periods": {
-    "daily:2026-10-02": {
-      "users": {
-        "1": {
-          "name": "Player 1",
-          "paid": [
-            "daily:2026-10-02:minigame:minigame-3"
-          ],
-          "progress": {
-            "daily:2026-10-02:minigame:minigame-3": 3
-          },
-          "updated_at": 1790918911
-        },
-        "1310661840707129370": {
-          "name": "Chessmass",
-          "paid": [],
-          "progress": {
-            "daily:2026-10-02:puzzle:solve-8": 4
-          },
-          "updated_at": 1790966694
-        },
-        "386134006170910721": {
-          "name": "mh",
-          "paid": [],
-          "progress": {
-            "daily:2026-10-02:puzzle:solve-8": 4
-          },
-          "updated_at": 1790975015
-        },
-        "442597396195704832": {
-          "name": "Thice",
-          "paid": [
-            "daily:2026-10-02:puzzle:solve-8",
-            "daily:2026-10-02:minigame:minigame-3"
-          ],
-          "progress": {
-            "daily:2026-10-02:minigame:minigame-3": 3,
-            "daily:2026-10-02:puzzle:solve-8": 8
-          },
-          "updated_at": 1790976773
-        },
-        "601406103712170014": {
-          "name": "TheMakina",
-          "paid": [],
-          "progress": {
-            "daily:2026-10-02:puzzle:solve-8": 3
-          },
-          "updated_at": 1790975015
-        }
-      }
-    },
     "daily:2026-10-03": {
       "users": {
         "386134006170910721": {
@@ -415,6 +365,18 @@
         }
       }
     },
+    "daily:2026-10-24": {
+      "users": {
+        "442597396195704832": {
+          "name": "Thice",
+          "paid": [],
+          "progress": {
+            "daily:2026-10-24:puzzle:solve-5": 1
+          },
+          "updated_at": 1792860568
+        }
+      }
+    },
     "weekly:2026-09-07": {
       "users": {
         "1": {
@@ -658,9 +620,9 @@
           ],
           "progress": {
             "weekly:2026-10-19:minigame:minigame-8": 9,
-            "weekly:2026-10-19:puzzle:solve-40": 13
+            "weekly:2026-10-19:puzzle:solve-40": 14
           },
-          "updated_at": 1792764982
+          "updated_at": 1792860568
         },
         "550338389535227926": {
           "name": "Nairyaaa",
