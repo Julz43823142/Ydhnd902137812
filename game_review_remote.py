@@ -261,54 +261,6 @@ def _dispatch(ticket, revision, repo, token, *, http=requests):
         raise RemoteReviewError("Remote review dispatch failed.") from exc
 
 
-def _balanced_cuts(moves, initial_board, workers=MAX_WORKERS):
-    """Deterministically balance the 14 independent depth-18 worker workloads.
-
-    Raw ply counts do not predict Stockfish's critical path. Legal branching,
-    available captures, and check are bounded, cheap indicators of search
-    complexity. All boundaries remain contiguous and nonempty. This is a
-    planning heuristic only: it never substitutes for an actual engine search.
-    """
-    n = len(moves)
-    if n < workers or workers < 1:
-        raise RemoteReviewError("Remote review needs one legal ply per worker.")
-    board = initial_board.copy(stack=False)
-    weights = []
-    for san in moves:
-        legal = list(board.legal_moves)
-        captures = sum(board.is_capture(move) for move in legal)
-        weights.append(1.0 + .045 * len(legal) + .22 * captures
-                       + (.6 if board.is_check() else 0.0))
-        board.push_san(san)
-    total_weight = sum(weights)
-    cuts = [0]
-    accumulated = 0.0
-    next_boundary = 1
-    for index, weight in enumerate(weights, 1):
-        accumulated += weight
-        while (next_boundary < workers
-               and accumulated >= total_weight * next_boundary / workers
-               and index >= cuts[-1] + 1
-               and index <= n - (workers - next_boundary)):
-            cuts.append(index)
-            next_boundary += 1
-    # Enforce the full worker count even when a very complex tail position
-    # crosses multiple weighted boundaries at once.
-    while len(cuts) < workers:
-        # Include the as-yet-unappended final boundary: a short game may
-        # have no weighted cut at all. Bisect the widest remaining interval,
-        # including the tail, until all fourteen workers have legal moves.
-        slot = max(range(len(cuts)), key=lambda i:
-                   (cuts[i + 1] if i + 1 < len(cuts) else n) - cuts[i])
-        left = cuts[slot]
-        right = cuts[slot + 1] if slot + 1 < len(cuts) else n
-        cut = (left + right) // 2
-        if not left < cut < right:
-            raise RemoteReviewError("Unable to partition legal review moves.")
-        cuts.insert(slot + 1, cut)
-    return cuts + [n]
-
-
 def _segments(san_moves, start_fen, chess960, max_plies):
     moves = tuple(str(x) for x in san_moves)
     limit = int(max_plies or chess_play.STOCKFISH_ANALYSIS_MAX_PLIES)
@@ -316,7 +268,7 @@ def _segments(san_moves, start_fen, chess960, max_plies):
     board = chess.Board(str(start_fen), chess960=bool(chess960)) if start_fen else chess.Board(chess960=bool(chess960))
     if not board.is_valid() or board.is_game_over(claim_draw=False):
         raise ValueError("Invalid Game Review starting position.")
-    cuts = _balanced_cuts(useful, board)
+    cuts = [(len(useful) * i) // MAX_WORKERS for i in range(MAX_WORKERS + 1)]
     sections = []
     for index in range(MAX_WORKERS):
         beg, end = cuts[index:index+2]
@@ -553,7 +505,11 @@ def try_remote_review(san_moves, max_plies=None, start_fen=None, chess960=False,
                 outstanding.remove(index)
             report("remote-analysis", sum(completed_by_worker.values()), total_plies)
             if outstanding:
-                sleep(min(POLL_SECONDS, max(0, deadline - clock())))
+                # Most workers have finished: tighten only the final tail
+                # so the Discord review sees the last verified result sooner.
+                # Preserve the 4s cadence for the initial 14-way workload.
+                interval = min(POLL_SECONDS, 2) if len(outstanding) <= 3 else POLL_SECONDS
+                sleep(min(interval, max(0, deadline - clock())))
         if outstanding:
             return None
         return _combine(segments, responses, total_plies, elapsed=clock()-started)
