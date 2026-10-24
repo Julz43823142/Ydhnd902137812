@@ -192,6 +192,34 @@ class AggregationTests(unittest.TestCase):
         self.assertEqual(out["review_workers"], remote.MAX_WORKERS)
         self.assertEqual(out["analysis_depth"], 18)
 
+    def test_complexity_balancing_covers_every_position_exactly_once(self):
+        from scripts.benchmark_review_hash import TACTICAL
+        sections, total = remote._segments(TACTICAL, None, False, None)
+        self.assertEqual(total, len(TACTICAL))
+        self.assertEqual(len(sections), 14)
+        self.assertEqual([s["index"] for s in sections], list(range(14)))
+        self.assertTrue(all(s["moves"] for s in sections))
+        self.assertEqual([san for s in sections for san in s["moves"]], TACTICAL)
+        self.assertEqual([s["offset"] for s in sections],
+                         [sum(len(p["moves"]) for p in sections[:i])
+                          for i in range(len(sections))])
+        # Previously every worker received 5-6 consecutive plies. The
+        # measured legal-complexity planner deliberately creates uneven
+        # sections while the verified FEN chain stays contiguous.
+        self.assertEqual(len(sections[0]["moves"]), 8)
+        board = chess.Board()
+        for section in sections:
+            self.assertEqual(section["fen"], board.fen(en_passant="fen"))
+            for san in section["moves"]:
+                board.push_san(san)
+
+    def test_balancer_preserves_minimum_one_ply_per_runner(self):
+        opening = MOVES[:remote.MAX_WORKERS]
+        cuts = remote._balanced_cuts(opening, chess.Board())
+        self.assertEqual(cuts, list(range(remote.MAX_WORKERS + 1)))
+        with self.assertRaises(remote.RemoteReviewError):
+            remote._balanced_cuts(opening[:-1], chess.Board())
+
     def test_bad_fen_label_and_missing_moves_rejected(self):
         for field, value in (("fen", chess.STARTING_FEN), ("classification", "brilliant cheating"),
                              ("eval_white_cp", float("nan")), ("win_loss_pct", 500)):
