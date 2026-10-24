@@ -138,6 +138,7 @@ class TransportAndPriorityTests(unittest.TestCase):
         self.assertNotEqual(remote.BRANCH, BRANCH)
         self.assertTrue(remote.FILENAMES.fullmatch("lease_review.enc"))
         self.assertFalse(remote.FILENAMES.fullmatch("req_game123.enc"))
+        self.assertTrue(remote.FILENAMES.fullmatch(remote._name("res", TICKET, 13)))
 
 
 class AggregationTests(unittest.TestCase):
@@ -148,6 +149,7 @@ class AggregationTests(unittest.TestCase):
         self.assertEqual(sum(len(s["moves"]) for s in self.sections), len(MOVES))
         self.assertEqual(self.sections[0]["offset"], 0)
         self.assertEqual(self.sections[1]["offset"], len(self.sections[0]["moves"]))
+        self.assertEqual(len(self.sections), remote.MAX_WORKERS)
         out = remote._combine(self.sections, [review_fixture(s) for s in self.sections],
                               self.count, elapsed=2.2)
         self.assertEqual(len(out["moves"]), len(MOVES))
@@ -156,7 +158,7 @@ class AggregationTests(unittest.TestCase):
         self.assertEqual(out["black"]["accuracy"], 100)
         self.assertEqual(out["white"]["blunders"], 0)
         self.assertEqual(out["skipped_plies"], 0)
-        self.assertEqual(out["review_workers"], 2)
+        self.assertEqual(out["review_workers"], remote.MAX_WORKERS)
         self.assertEqual(out["analysis_depth"], 18)
 
     def test_bad_fen_label_and_missing_moves_rejected(self):
@@ -174,7 +176,7 @@ class AggregationTests(unittest.TestCase):
 
     def test_nonstandard_start_and_black_to_move(self):
         fen = "4k3/4p3/8/8/8/8/4P3/4K3 b - - 0 37"
-        sections, count = remote._segments(["Kd7", "Kd2", "Ke6", "Ke3"], fen, False, None)
+        sections, count = remote._segments(["Kd7", "Kd2", "Ke6", "Ke3"] * 4, fen, False, None)
         result = remote._combine(sections, [review_fixture(s) for s in sections],
                                  count, elapsed=3)
         self.assertEqual(result["moves"][0]["side"], "black")
