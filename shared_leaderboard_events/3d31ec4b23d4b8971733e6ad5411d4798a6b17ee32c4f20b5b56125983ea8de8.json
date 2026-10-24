@@ -1,0 +1,47 @@
+{
+  "after_coins": 11.45,
+  "before_coins": 111.45,
+  "created_at": 1792860588,
+  "created_at_ns": 1792860588151104748,
+  "details": {
+    "badge": "🦐",
+    "claim_day": null,
+    "holiday": null,
+    "quantity": 5,
+    "rarity": "common",
+    "rarity_label": "Common",
+    "rewards": [
+      {
+        "badge": "🦐",
+        "rarity": "common",
+        "rarity_label": "Common"
+      },
+      {
+        "badge": "🫖",
+        "rarity": "basic",
+        "rarity_label": "Basic"
+      },
+      {
+        "badge": "🦘",
+        "rarity": "common",
+        "rarity_label": "Common"
+      },
+      {
+        "badge": "👁️",
+        "rarity": "uncommon",
+        "rarity_label": "Uncommon"
+      },
+      {
+        "badge": "🧡",
+        "rarity": "common",
+        "rarity_label": "Common"
+      }
+    ],
+    "spent": 100.0
+  },
+  "display_name": "Thice",
+  "ledger_build": "shared-ledger-v16-subscriber-pink-2026-09-29",
+  "operation": "badge-box",
+  "transaction_id": "badge-box:1563595374827012216:442597396195704832",
+  "user_id": "442597396195704832"
+}
