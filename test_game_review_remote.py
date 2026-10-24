@@ -282,6 +282,40 @@ class CoordinatorTests(unittest.TestCase):
         self.assertEqual(result["white"]["accuracy"], 100)
         self.assertIsNone(store.owner)
 
+    def test_tail_polling_detects_last_shards_without_extra_bulk_load(self):
+        store = FakeStore()
+        sections, count = remote._segments(MOVES, None, False, None)
+        ticks = [0.0]
+        intervals = []
+
+        def put_result(section):
+            idx = section["index"]
+            result = review_fixture(section)
+            ticket = store.owner
+            store.put(remote._name("res", ticket, idx), {
+                "schema": remote.SCHEMA, "ticket": ticket,
+                "revision": REVISION, "index": idx,
+                "section_sha256": remote._result_digest(section),
+                "result_sha256": remote._result_digest(result),
+                "result": result,
+            })
+
+        def advance(seconds):
+            intervals.append(seconds)
+            ticks[0] += seconds
+            # First 12 workers finish after the initial full-size poll;
+            # only the remaining two should trigger the faster 2s cadence.
+            for section in sections[:12] if len(intervals) == 1 else sections[12:]:
+                put_result(section)
+
+        with patch.object(remote, "_segments", return_value=(sections, count)):
+            result = remote.try_remote_review(
+                MOVES * 5, env=ENV, store=store, idle=lambda *args: True,
+                dispatch=Mock(), clock=lambda: ticks[0], sleep=advance)
+        self.assertEqual(intervals, [remote.POLL_SECONDS, 2])
+        self.assertEqual(result["analysed_plies"], len(MOVES))
+        self.assertIsNone(store.owner)
+
     def test_failed_dispatch_is_local_fallback(self):
         store = FakeStore()
         with patch.object(remote, "_segments", return_value=(

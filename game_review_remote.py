@@ -505,7 +505,11 @@ def try_remote_review(san_moves, max_plies=None, start_fen=None, chess960=False,
                 outstanding.remove(index)
             report("remote-analysis", sum(completed_by_worker.values()), total_plies)
             if outstanding:
-                sleep(min(POLL_SECONDS, max(0, deadline - clock())))
+                # Most workers have finished: tighten only the final tail
+                # so the Discord review sees the last verified result sooner.
+                # Preserve the 4s cadence for the initial 14-way workload.
+                interval = min(POLL_SECONDS, 2) if len(outstanding) <= 3 else POLL_SECONDS
+                sleep(min(interval, max(0, deadline - clock())))
         if outstanding:
             return None
         return _combine(segments, responses, total_plies, elapsed=clock()-started)
