@@ -71,7 +71,8 @@ def smoke():
         # Verify genuine Stockfish root searches in both worker segments.
         # This is an offline smoke; it does not dispatch or reserve live runners.
         from game_review_remote import _segments, _combine
-        sections, total = _segments(moves, None, False, None)
+        shard_moves = ['Nf3', 'Nf6', 'Ng1', 'Ng8'] * 4
+        sections, total = _segments(shard_moves, None, False, None)
         pieces = [
             chess_play.analyse_game_moves(
                 section['moves'], start_fen=section['fen'],
@@ -79,11 +80,14 @@ def smoke():
             for section in sections
         ]
         combined = _combine(sections, pieces, total, elapsed=0)
-        if (combined['analysed_plies']!=6
-                or [m['played'] for m in combined['moves']]!=moves
-                or combined['moves'][-1]['fen']!=game['moves'][-1]['fen']):
+        expected_board = chess.Board()
+        for san in shard_moves:
+            expected_board.push_san(san)
+        if (combined['analysed_plies']!=len(shard_moves)
+                or [m['played'] for m in combined['moves']]!=shard_moves
+                or combined['moves'][-1]['fen']!=expected_board.fen()):
             raise RuntimeError('Real remote review shard recomposition failed.')
-        print('Real Stockfish ordinary review shards verified: 2 partitions, 6 plies.')
+        print('Real Stockfish ordinary review shards verified: 14 partitions, 16 plies.')
     finally:
         chess_play._close_analysis_engine()
         close_shared_engine_pool()

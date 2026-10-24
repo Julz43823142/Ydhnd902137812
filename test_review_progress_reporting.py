@@ -24,7 +24,7 @@ class ProgressFormattingTests(unittest.TestCase):
         self.assertIn("Calculating from actual progress", progress.render("Synthetic"))
         tick[0] = 100.0
         progress.update({"stage": "remote-dispatched", "completed": 0, "total": 80})
-        self.assertIn("Waiting for two GitHub Actions workers", progress.render("Synthetic"))
+        self.assertIn("Waiting for 14 GitHub Actions workers", progress.render("Synthetic"))
         self.assertIn("**0%** (0/80 plies)", progress.render("Synthetic"))
         tick[0] = 120.0
         progress.update({"stage": "remote-analysis", "completed": 20, "total": 80})
@@ -97,7 +97,7 @@ class MetadataTests(unittest.TestCase):
     def test_worker_progress_is_encrypted_and_bounded(self):
         store = FakeStore()
         sections, _ = remote._segments(
-            ["e4", "e5", "Nf3", "Nc6", "Bb5", "a6"], None, False, None)
+            __import__("test_game_review_remote").MOVES, None, False, None)
         store.owner = TICKET
         store.put(remote._name("req", TICKET), {
             "schema": remote.SCHEMA, "ticket": TICKET,
