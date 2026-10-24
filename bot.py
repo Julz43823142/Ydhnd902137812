@@ -1878,11 +1878,13 @@ async def _twitch_handle_chat_message(event):
 
 
 async def _twitch_create_subscriptions(session_id):
+    """Subscribe independently: optional stream/chat failures must not block rewards."""
     token = _twitch_access_token or await _twitch_prepare_access_token()
     subscriptions = (
         ("Channel Points", "channel.channel_points_custom_reward_redemption.add"),
         ("stream-online", "stream.online"),
     )
+    results = {}
     for label, subscription_type in (*subscriptions, *((("Chat", "channel.chat.message"),) if TWITCH_CHAT_ENABLED else ())):
         payload = {
             "type": subscription_type,
@@ -1892,36 +1894,44 @@ async def _twitch_create_subscriptions(session_id):
                           {"broadcaster_user_id": TWITCH_BROADCASTER_ID}),
             "transport": {"method": "websocket", "session_id": str(session_id)},
         }
-        created = False
-        for attempt in range(2):
-            async with aiohttp.ClientSession() as session:
-                async with session.post(
-                    "https://api.twitch.tv/helix/eventsub/subscriptions",
-                    headers={
-                        "Authorization": f"Bearer {token}",
-                        "Client-Id": TWITCH_CLIENT_ID,
-                        "Content-Type": "application/json",
-                    },
-                    json=payload,
-                    timeout=aiohttp.ClientTimeout(total=20),
-                ) as response:
-                    body = await response.text()
-                    if response.status in {200, 202}:
-                        print(f"Twitch EventSub {label} subscription enabled.", flush=True)
-                        created = True
-                    elif response.status == 401 and attempt == 0:
-                        token = await _twitch_refresh_access_token("eventsub-401")
-                        continue
-                    else:
+        try:
+            for attempt in range(2):
+                async with aiohttp.ClientSession() as session:
+                    async with session.post(
+                        "https://api.twitch.tv/helix/eventsub/subscriptions",
+                        headers={
+                            "Authorization": f"Bearer {token}",
+                            "Client-Id": TWITCH_CLIENT_ID,
+                            "Content-Type": "application/json",
+                        },
+                        json=payload,
+                        timeout=aiohttp.ClientTimeout(total=20),
+                    ) as response:
+                        body = await response.text()
+                        if response.status in {200, 202}:
+                            print(f"Twitch EventSub {label} subscription enabled.", flush=True)
+                            results[label] = True
+                            break
+                        if response.status == 401 and attempt == 0:
+                            token = await _twitch_refresh_access_token("eventsub-401")
+                            continue
                         raise RuntimeError(
                             f"Twitch EventSub {label} subscription failed "
                             f"(HTTP {response.status}): {body[:500]}"
                         )
-            if created:
-                break
-        if not created:
-            raise RuntimeError(f"Twitch EventSub {label} subscription could not be enabled.")
-    return True
+        except asyncio.CancelledError:
+            raise
+        except Exception as error:
+            results[label] = False
+            print(f"Twitch EventSub {label} subscription error: {error}", flush=True)
+            if label == "Channel Points":
+                await _twitch_owner_notice(
+                    f"❌ Twitch Channel Points EventSub is NOT connected: {str(error)[:650]}. "
+                    "Redemptions will not reach Discord. Check channel:read:redemptions permission and reauthorize Twitch."
+                )
+            else:
+                await _twitch_owner_notice(f"⚠️ Optional Twitch {label} subscription failed: {str(error)[:650]}")
+    return results.get("Channel Points", False)
 
 
 async def _twitch_find_discord_member(guild, user_input):
@@ -2527,15 +2537,35 @@ def _twitch_note_message_id(message_id):
     return True
 
 
+_twitch_bridge_alert_last = {}
+
+
+async def _twitch_public_bridge_alert(channel, key, message):
+    """Visible but rate-limited status for broken Channel Points integrations."""
+    now = time.monotonic()
+    if now - _twitch_bridge_alert_last.get(key, -float("inf")) < 1800:
+        return
+    _twitch_bridge_alert_last[key] = now
+    if channel is None:
+        print(f"Twitch bridge diagnostic: {message}", flush=True)
+        return
+    try:
+        await channel.send(message, allowed_mentions=discord.AllowedMentions.none())
+    except Exception as error:
+        print(f"Twitch bridge alert delivery failed: {error}", flush=True)
+
+
 async def twitch_eventsub_loop(guild, fallback_channel):
     if not TWITCH_EVENTSUB_ENABLED:
         print("Twitch EventSub disabled.", flush=True)
+        await _twitch_public_bridge_alert(fallback_channel, "disabled", "⚠️ **Twitch Channel Points rewards are offline:** TWITCH_EVENTSUB_ENABLED is disabled in the running bot.")
         return
     try:
         await _twitch_prepare_access_token()
     except Exception as error:
         print(f"Twitch EventSub startup failed: {error}", flush=True)
         await _twitch_owner_notice(f"❌ Twitch EventSub startup failed: {str(error)[:900]}")
+        await _twitch_public_bridge_alert(fallback_channel, "startup", "❌ **Twitch Channel Points rewards are offline:** Twitch EventSub authorization failed. An administrator must check bot logs and OAuth permissions.")
         return
 
     next_url = TWITCH_EVENTSUB_URL
@@ -2563,7 +2593,9 @@ async def twitch_eventsub_loop(guild, fallback_channel):
                             session_info = payload.get("session") if isinstance(payload.get("session"), dict) else {}
                             session_id = str(session_info.get("id", ""))
                             if session_id and not is_resume:
-                                await _twitch_create_subscriptions(session_id)
+                                rewards_connected = await _twitch_create_subscriptions(session_id)
+                                if not rewards_connected:
+                                    await _twitch_public_bridge_alert(fallback_channel, "subscription", "❌ **Twitch Channel Points are NOT connected.** Redemption confirmation messages cannot appear until the Twitch EventSub subscription is fixed. Check bot logs and Twitch OAuth scope `channel:read:redemptions`.")
                             is_resume = False
                             next_url = TWITCH_EVENTSUB_URL
                             continue
@@ -2615,6 +2647,7 @@ async def twitch_eventsub_loop(guild, fallback_channel):
             raise
         except Exception as error:
             print(f"Twitch EventSub connection warning: {error}", flush=True)
+            await _twitch_public_bridge_alert(fallback_channel, "connection", "⚠️ **Twitch Channel Points connection interrupted.** The bot is retrying EventSub; redemption confirmations may be missed until it reconnects.")
             await asyncio.sleep(5)
 
         next_url = TWITCH_EVENTSUB_URL
