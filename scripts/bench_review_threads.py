@@ -19,9 +19,10 @@ def main():
         board.push_san(san)
     start_fen = board.fen()
     segment = moves[8:]
-    timings = {}
+    timings = {"1": [], "2": []}
     try:
-        for threads in (1, 2, 4):
+        # ABBA ordering reduces one-way warm-cache/runner-load bias.
+        for threads in (1, 2, 2, 1):
             chess_play._close_analysis_engine()
             chess_play.STOCKFISH_THREADS = threads
             start = time.perf_counter()
@@ -32,9 +33,12 @@ def main():
                     or not result["engine"].startswith("Stockfish 19")
                     or result["engine_configuration"]["threads"] != threads):
                 raise RuntimeError("Invalid depth-18 benchmark result")
-            timings[str(threads)] = round(seconds, 3)
+            timings[str(threads)].append(round(seconds, 3))
             print(f"Stockfish 19 depth-18 threads={threads}: {seconds:.3f}s", flush=True)
-        print("Review worker thread benchmark: " + json.dumps(timings), flush=True)
+        means = {key: round(sum(values) / len(values), 3)
+                 for key, values in timings.items()}
+        print("Review worker thread benchmark: " + json.dumps(
+            {"samples": timings, "mean_seconds": means}), flush=True)
     finally:
         chess_play._close_analysis_engine()
 
