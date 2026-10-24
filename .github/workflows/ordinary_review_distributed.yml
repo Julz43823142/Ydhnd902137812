@@ -43,6 +43,8 @@ jobs:
       INPUT_SHARD: ${{ matrix.shard }}
       PYTHONDONTWRITEBYTECODE: "1"
       PYTHONUNBUFFERED: "1"
+      # Benchmark on hosted runner: depth-18 2 threads beats 1 and 4.
+      STOCKFISH_THREADS: "2"
     steps:
       - name: Validate opaque workload parameters
         shell: bash
