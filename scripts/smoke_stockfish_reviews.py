@@ -70,16 +70,23 @@ def smoke():
               f'local={local_seconds:.3f}s, cached={cached_seconds:.4f}s.')
         # Verify genuine Stockfish root searches in both worker segments.
         # This is an offline smoke; it does not dispatch or reserve live runners.
-        from game_review_remote import _segments, _combine
+        from game_review_remote import _segments, _combine, REMOTE_WORKER_THREADS
         shard_moves = ['Nf3', 'Nf6', 'Ng1', 'Ng8'] * 4
         sections, total = _segments(shard_moves, None, False, None)
-        pieces = [
-            chess_play.analyse_game_moves(
-                section['moves'], start_fen=section['fen'],
-                chess960=section['chess960'])
-            for section in sections
-        ]
-        combined = _combine(sections, pieces, total, elapsed=0)
+        previous_threads = chess_play.STOCKFISH_THREADS
+        chess_play._close_analysis_engine()
+        try:
+            chess_play.STOCKFISH_THREADS = REMOTE_WORKER_THREADS
+            pieces = [
+                chess_play.analyse_game_moves(
+                    section['moves'], start_fen=section['fen'],
+                    chess960=section['chess960'])
+                for section in sections
+            ]
+            combined = _combine(sections, pieces, total, elapsed=0)
+        finally:
+            chess_play._close_analysis_engine()
+            chess_play.STOCKFISH_THREADS = previous_threads
         expected_board = chess.Board()
         for san in shard_moves:
             expected_board.push_san(san)
