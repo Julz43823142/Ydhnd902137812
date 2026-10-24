@@ -309,8 +309,8 @@
       "correct_2600": 23,
       "correct_2800": 4,
       "current_hard_streak_2600": 0,
-      "current_streak": 3,
-      "current_wrong_streak": 0,
+      "current_streak": 0,
+      "current_wrong_streak": 1,
       "elo": 2489.3557287006583,
       "elo_games": 449,
       "first_solves": 334,
@@ -319,9 +319,9 @@
       "peak_elo": 2595.0716629479043,
       "rated_correct_count": 354,
       "rated_correct_rating_sum": 642979,
-      "total": 471,
-      "updated_at": 1792758390,
-      "wrong": 75
+      "total": 472,
+      "updated_at": 1792860350,
+      "wrong": 76
     },
     "550338389535227926": {
       "achievements": [
