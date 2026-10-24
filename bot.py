@@ -2166,6 +2166,17 @@ async def _twitch_handle_redemption(event, guild, fallback_channel):
         await _twitch_owner_notice(f"⚠️ Twitch reward {title!r} was redeemed but is not configured in SharkBot. No Discord cosmetic granted.")
         return
 
+    async def public_status(message):
+        """Keep reward processing visible to viewers and moderators."""
+        if fallback_channel is None:
+            print(f"Twitch reward public status unavailable: {message}", flush=True)
+            return
+        try:
+            await fallback_channel.send(message, allowed_mentions=discord.AllowedMentions.none())
+        except Exception as error:
+            print(f"Twitch reward public status failed: {error}", flush=True)
+            await _twitch_owner_notice(f"Could not post Twitch redemption status: {str(error)[:400]}")
+
     pending_state = _twitch_pending_state()
     existing_pending = pending_state.get(redemption_id)
     if isinstance(existing_pending, dict) and existing_pending.get("status") not in {"grant_error", "discord_user_not_found"}:
@@ -2194,6 +2205,7 @@ async def _twitch_handle_redemption(event, guild, fallback_channel):
         user_input=user_input,
     )
     pending_state[redemption_id] = pending
+    await public_status(f"🟣 **Twitch Channel Points redeemed** by **{discord.utils.escape_markdown(twitch_user_name)}**: **{config['label']}**. Checking Discord link…")
 
     try:
         linked = _twitch_discord_user_for_twitch(twitch_user_id)
@@ -2220,6 +2232,7 @@ async def _twitch_handle_redemption(event, guild, fallback_channel):
         try:
             already = await _twitch_grant_to_discord(member, pending)
             await save_all_critical(attempts=3)
+            await public_status(f"✅ Twitch reward **{config['label']}** for **{discord.utils.escape_markdown(twitch_user_name)}**: " + ("already owned." if already else "unlocked for the linked Discord account."))
             try:
                 await member.send(
                     ("ℹ️ You already owned **" if already else "✅ Unlocked **")
@@ -2237,6 +2250,7 @@ async def _twitch_handle_redemption(event, guild, fallback_channel):
             pending["status"] = "grant_error"
             pending["error"] = str(error)[:500]
             await save_all_critical(attempts=3)
+            await public_status(f"❌ Reward grant failed for **{discord.utils.escape_markdown(twitch_user_name)}**. A moderator has been notified.")
             await _twitch_owner_notice(
                 f"❌ Twitch cosmetic grant failed for {twitch_user_name}: {config['label']} — {str(error)[:500]}"
             )
@@ -2246,6 +2260,7 @@ async def _twitch_handle_redemption(event, guild, fallback_channel):
     if member is None:
         pending["status"] = "discord_user_not_found"
         await save_all_critical(attempts=3)
+        await public_status(f"⚠️ **{discord.utils.escape_markdown(twitch_user_name)}** redeemed **{config['label']}**, but the Discord account could not be found. Enter an exact Discord username or Discord user ID in the Twitch reward text field; a moderator may need to refund this redemption.")
         await _twitch_owner_notice(
             f"⚠️ Twitch redemption could not find the Discord user. Twitch: {twitch_user_name}; "
             f"reward: {config['label']}; entered Discord username: {user_input or '[blank]'}. "
@@ -2262,6 +2277,7 @@ async def _twitch_handle_redemption(event, guild, fallback_channel):
         pending["status"] = "confirmation_delivery_failed"
         pending["error"] = str(error)[:500]
         await save_all_critical(attempts=3)
+        await public_status(f"❌ Confirmation for **{discord.utils.escape_markdown(twitch_user_name)}** could not be posted. A moderator has been notified.")
         await _twitch_owner_notice(
             f"❌ Could not deliver Twitch link confirmation to Discord user {member} ({member.id}). "
             f"Reward: {config['label']}. Error: {str(error)[:500]}"
