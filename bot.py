@@ -433,6 +433,10 @@ TWITCH_REWARD_CONFIG = {
     "unlock discord twitch profile theme": {"key": "profile_theme", "label": "Twitch Profile Theme", "points": 5000},
     "unlock discord twitch pieces": {"key": "pieces", "label": "Twitch Pieces", "points": 5000},
     "unlock discord twitch name": {"key": "name", "label": "Twitch Name Color", "points": 20000},
+    "discord hearts": {"key": "survival_hearts", "label": "Twitch Survival Hearts", "points": 1000},
+    "discord purple name": {"key": "name", "label": "Twitch Name Color", "points": 20000},
+    "unlock discord hearts": {"key": "survival_hearts", "label": "Twitch Survival Hearts", "points": 1000},
+    "unlock discord purple name": {"key": "name", "label": "Twitch Name Color", "points": 20000},
     "unlock twitch arrow": {"key": "arrow", "label": "Twitch Arrow", "points": 5000},
     "unlock twitch board": {"key": "board", "label": "Twitch Board", "points": 5000},
     "unlock twitch survival hearts": {"key": "survival_hearts", "label": "Twitch Survival Hearts", "points": 1000},
@@ -2158,6 +2162,8 @@ async def _twitch_handle_redemption(event, guild, fallback_channel):
     title = str(reward.get("title", "") or "")
     config = TWITCH_REWARD_CONFIG.get(_twitch_normalize_reward_title(title))
     if config is None:
+        print(f"Twitch redemption ignored: unknown reward title {title!r} (id={redemption_id}).", flush=True)
+        await _twitch_owner_notice(f"⚠️ Twitch reward {title!r} was redeemed but is not configured in SharkBot. No Discord cosmetic granted.")
         return
 
     pending_state = _twitch_pending_state()
@@ -2353,24 +2359,28 @@ async def _twitch_handle_stream_online(event):
         await _twitch_send_stream_online(event)
 
 
-async def _twitch_send_stream_online(event):
+async def _twitch_send_stream_online(event, stream_info=None):
     if str(event.get("broadcaster_user_id", "")) != TWITCH_BROADCASTER_ID:
         return
 
     started_at = str(event.get("started_at", "") or "").strip()
     live_state = _twitch_live_state()
-    if started_at and live_state.get("last_started_at") == started_at:
+    if not started_at:
+        print("Twitch online notification skipped: missing started_at identity.", flush=True)
+        return
+    if live_state.get("last_started_at") == started_at:
         print(f"Twitch live notification already sent for {started_at}.", flush=True)
         return
 
     # Give Twitch time to publish a fresh frame so the Discord embed normally
     # shows the broadcaster's Starting Soon screen instead of a stale image.
-    await asyncio.sleep(TWITCH_LIVE_PREVIEW_DELAY_SECONDS)
-    try:
-        stream_info = await _twitch_get_live_stream_info()
-    except Exception as error:
-        stream_info = None
-        print(f"Twitch live preview lookup warning: {error}", flush=True)
+    if stream_info is None:
+        await asyncio.sleep(TWITCH_LIVE_PREVIEW_DELAY_SECONDS)
+        try:
+            stream_info = await _twitch_get_live_stream_info()
+        except Exception as error:
+            stream_info = None
+            print(f"Twitch live preview lookup warning: {error}", flush=True)
 
     channel = await _twitch_live_channel()
     message = await channel.send(
@@ -2463,12 +2473,21 @@ async def _twitch_cleanup_if_offline():
         import twitch_presentation
         await asyncio.to_thread(twitch_presentation.set_status,stream)
         if stream is not None:
+            started_at = str(stream.get("started_at", "") or "").strip()
+            if not started_at:
+                # Never send repeatedly when Twitch omits the stream identity.
+                print("Twitch live polling: started_at missing; skipping notification.", flush=True)
+                return False
+            await _twitch_send_stream_online(
+                {"broadcaster_user_id": TWITCH_BROADCASTER_ID, "started_at": started_at},
+                stream_info=stream,
+            )
             return False
         return await _twitch_delete_live_notifications()
 
 
 async def twitch_live_cleanup_loop():
-    """Poll current Twitch status; keep notifications on API errors or while live."""
+    """Recover missed stream.online notifications and clean up only when offline."""
     await client.wait_until_ready()
     while not client.is_closed():
         try:
@@ -2557,12 +2576,20 @@ async def twitch_eventsub_loop(guild, fallback_channel):
                         subscription = payload.get("subscription") if isinstance(payload.get("subscription"), dict) else {}
                         subscription_type = str(subscription.get("type", ""))
                         event = payload.get("event") if isinstance(payload.get("event"), dict) else {}
-                        if subscription_type == "channel.channel_points_custom_reward_redemption.add":
-                            await _twitch_handle_redemption(event, guild, fallback_channel)
-                        elif subscription_type == "stream.online":
-                            await _twitch_handle_stream_online(event)
-                        elif subscription_type == "channel.chat.message" and TWITCH_CHAT_ENABLED:
-                            asyncio.create_task(_twitch_handle_chat_message(event))
+                        try:
+                            if subscription_type == "channel.channel_points_custom_reward_redemption.add":
+                                await _twitch_handle_redemption(event, guild, fallback_channel)
+                            elif subscription_type == "stream.online":
+                                await _twitch_handle_stream_online(event)
+                            elif subscription_type == "channel.chat.message" and TWITCH_CHAT_ENABLED:
+                                asyncio.create_task(_twitch_handle_chat_message(event))
+                        except asyncio.CancelledError:
+                            raise
+                        except Exception as error:
+                            print(f"Twitch {subscription_type} handler failed: {error}", flush=True)
+                            await _twitch_owner_notice(
+                                f"❌ Twitch {subscription_type} event processing failed: {str(error)[:750]}"
+                            )
 
             if reconnect_url:
                 next_url = reconnect_url

@@ -93,6 +93,59 @@ class TwitchLiveNotificationTests(unittest.IsolatedAsyncioTestCase):
             [str(_SentMessage.id)],
         )
 
+    async def test_polling_recovers_missed_eventsub_and_deduplicates_with_eventsub(self):
+        channel = _Channel()
+
+        async def get_channel():
+            return channel
+
+        async def save_state(attempts=3):
+            return True
+
+        async def stream_info():
+            return {
+                "id": "live-stream-id",
+                "started_at": "2026-10-24T17:00:00Z",
+                "title": "Live Chess",
+            }
+
+        bot._twitch_live_channel = get_channel
+        bot._twitch_get_live_stream_info = stream_info
+        bot.save_all_critical = save_state
+        original_presentation = __import__("twitch_presentation").set_status
+        __import__("twitch_presentation").set_status = lambda stream: None
+        try:
+            await bot._twitch_cleanup_if_offline()
+            await bot._twitch_handle_stream_online({
+                "broadcaster_user_id": "1063411811",
+                "started_at": "2026-10-24T17:00:00Z",
+            })
+            await bot._twitch_cleanup_if_offline()
+            self.assertEqual(len(channel.sent), 1)
+            self.assertEqual(
+                bot.state[bot.TWITCH_LIVE_STATE_KEY]["last_started_at"],
+                "2026-10-24T17:00:00Z",
+            )
+        finally:
+            __import__("twitch_presentation").set_status = original_presentation
+
+    async def test_polling_api_error_does_not_send_or_delete(self):
+        async def stream_error():
+            raise RuntimeError("Twitch Helix unavailable")
+
+        bot._twitch_get_live_stream_info = stream_error
+        bot.state[bot.TWITCH_LIVE_STATE_KEY] = {
+            "message_ids": ["123"], "last_started_at": "2026-10-24T17:00:00Z",
+        }
+        with self.assertRaisesRegex(RuntimeError, "Helix unavailable"):
+            await bot._twitch_cleanup_if_offline()
+        self.assertEqual(bot.state[bot.TWITCH_LIVE_STATE_KEY]["message_ids"], ["123"])
+
+    def test_channel_point_aliases_for_named_rewards(self):
+        self.assertEqual(bot.TWITCH_REWARD_CONFIG["discord hearts"]["key"], "survival_hearts")
+        self.assertEqual(bot.TWITCH_REWARD_CONFIG["discord purple name"]["key"], "name")
+
+
 
 if __name__ == "__main__":
     unittest.main()
