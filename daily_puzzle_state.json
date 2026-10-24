@@ -1,41 +1,39 @@
 {
   "latest_random_puzzle": {
-    "url": "https://lichess.org/training/xmBLg",
-    "title": "Puzzle • 1526",
-    "fen": "8/p3k1p1/4p2p/PP3p2/8/1P2K2P/5N2/4n3 w - - 1 36",
-    "current_fen": "8/p3k1p1/4p2p/PP3p2/8/1P2K2P/5N2/4n3 w - - 1 36",
-    "last_move_uci": "f7e7",
+    "url": "https://lichess.org/training/SnBCX",
+    "title": "Puzzle • 2859",
+    "fen": "r4rk1/p2Q1p2/bp4P1/2p4q/8/3P4/P4P1P/1K1R2R1 w - - 1 27",
+    "current_fen": "r4rk1/p2Q1p2/bp4P1/2p4q/8/3P4/P4P1P/1K1R2R1 w - - 1 27",
+    "last_move_uci": "f3h5",
     "pgn": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq3P1lTDlYNfz9zm50SLiQGkyEGQ6XuSiEH2cG9ia6TICkjx6GCxYxqC5UcFrY0ByzrAA63SCrmIF5QjYPfrClP0Utsw=="
+      "__shark_answer_ciphertext_v1__": "gAAAAABq3P2ka-3uRofpagt9DI2aMXyP0kf6xhWXCiDu5LbONJi3Acs7TEvlPnmvkBMP0pGqOYH-uTB3MLnu4i8Zx94LeG5BUh7odI-dC5j1ZcqDuofDqEJlyLQqAk-Z5QE_HaW4HoBx"
     },
     "all_moves": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq3P1lGHHlcUP19y3GFeMlayM0QNezSOo-W0P0v6v95_mkMeX5c9I4gECa4Vy4OhNnHf4JbyaAD1XR4OWppdFdpPJOfeVj3HXEYU9RfA1IHBVN2GAP5gK1SbcsCXjThc8DBGzjOE_U-9Qtce_6R4M14Q4dbAOd_HF_39HKa8QxhhELv1C0J3sM3pqjM6tyHtQNZ4Oq-eArWN1xH1n9OSmCsp0qgwfWSFobAO0NNNT6wT2nE887bW7MSoRlJcNKpYHqFXnC"
+      "__shark_answer_ciphertext_v1__": "gAAAAABq3P2kEzDPvqEEzP84fo_uofbW3ZpoetLdHLAzQ2sWtdNC4hmOq5qzapZur3V5X-NiWPRuVTsQNrX0QkAZX0ZvQS0Mmllb90n-ZKmOJh98alTLet-C6HihehgLiV21rlDlSzQjYH8xMABH2D8SK5-stNyy38H4c_tf6eL3IiGdis6QsasDb9GK23wOBirySp7L0MbtKwVQLiglBZlKrGK-2LdLwhyTtj4y3KnZB9jyU6-C3qIfV19WJ4vyrPnwhQzs1GAjtuX4_4_IjQ6HVS64KyOJ-V2HWA7S1Tip9VPcCNdy-ETKBDpopc74McTnbe61lejTxoxflAtRO5XK5HQXfL7b4pkmY1HPOunmc8xjekHt9dsCJ86hWS0O61HE2SrpkjKMQudvKn-k7solapGvayPwKNiyLADxpEsBCNaW6fkwawUhwTZD1_lx4XuLifqEQ5QeYPs6qGd91eKRvRjhLnS97zYwL9j7QvENklBOaJkepkQ="
     },
     "player_moves": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq3P1llCuUlT9v80v3jeCXcMaMrB3ZpTNsp3VblnMqM_KPjUV3GPiotZUqi1EcgxFYMeqv1MDWcdC53LPJclzT80chxVc0aH8XirUYzmTaI2pNn0XWtwi8JwRhmG54sVZlhUKordRL3RpQZIvzVWqic8R66YYRoK50Z0ybq7KCmS_6wBVtsndowhKudyfmc0hXhD46"
+      "__shark_answer_ciphertext_v1__": "gAAAAABq3P2kezPk2ESF_zsC6JsMY4EtyNbqJC2nDxeAmm_4Z4MSQszCa84RhL1eacpOm-_gfRd-6VFlP3nUhAoZp3i7qe8q-bvvYwIvubgqHYB49zWlOXItELG9BC0diQXSXYewEaUL-3Wq1f1-1DtCPLHAxKuq4QLTUNgSTkjtf-ZqWXV39BOxbdH4D3y6praUv3K6S8D67NvJTXmjAelBU426AFQ7Sw-NmueLi1xCMNAd571hl_bl8APwqQYOxFA5FmU8Bo10EOO54o8kqatL2t2-JbWQlekSih1a3d2mbyi6Iczqb77zZDS9CBtvtvUn_Q8Fh9j3"
     },
     "player_color": "white",
-    "player_move_count": 2,
-    "posted_at": "2026-10-24T18:48:02.905339+00:00",
-    "answer_posted": true,
+    "player_move_count": 4,
+    "posted_at": "2026-10-24T18:49:06.041042+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "random_xmBLg_1792867682905",
-    "last_activity_at": "2026-10-24T18:48:02.905339+00:00",
-    "rating": 1526,
-    "rp_band": 1,
-    "boss": false,
+    "puzzle_id": "random_SnBCX_1792867746041",
+    "last_activity_at": "2026-10-24T18:49:06.041042+00:00",
+    "rating": 2859,
+    "rp_band": 5,
+    "boss": true,
     "board_theme": "classic",
     "piece_theme": "classic",
-    "arrow_theme": "purple",
+    "arrow_theme": "green",
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_ids": {
-      "1468320170891022417": 1563625145254420503
-    },
-    "message_id": 1563625145254420503,
+    "message_ids": {},
+    "message_id": null,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {},
@@ -43,13 +41,9 @@
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "board_attachment_filenames": {
-      "1468320170891022417": "random_puzzle.png"
-    },
-    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** b6 a6"
+    "helper_candidate_users": []
   },
-  "latest_puzzle_type": "daily",
+  "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-24",
