@@ -54,7 +54,7 @@ def review_fixture(section, *, root_baseline=50):
         "skipped_plies": 0, "requested_plies": len(rows),
         "initial_white_win_pct": root_baseline,
         "engine_configuration": {
-            "threads": chess_play.STOCKFISH_THREADS,
+            "threads": remote.REMOTE_WORKER_THREADS,
             "hash_mb": chess_play.STOCKFISH_HASH_MB,
             "depth": chess_play.STOCKFISH_GAME_REVIEW_DEPTH,
         },
@@ -139,6 +139,37 @@ class TransportAndPriorityTests(unittest.TestCase):
         self.assertTrue(remote.FILENAMES.fullmatch("lease_review.enc"))
         self.assertFalse(remote.FILENAMES.fullmatch("req_game123.enc"))
         self.assertTrue(remote.FILENAMES.fullmatch(remote._name("res", TICKET, 13)))
+
+
+class SparseEncryptedPollingTests(unittest.TestCase):
+    def test_only_existing_encrypted_files_are_opened(self):
+        store = remote.ReviewStore(SECRET)
+        files = [remote._name("res", TICKET, i) for i in range(remote.MAX_WORKERS)]
+        files += [remote._name("progress", TICKET, i)
+                  for i in range(remote.MAX_WORKERS)]
+        head = "d" * 40
+        present = files[3]
+        with (patch.object(store, "_head", return_value=head) as get_head,
+              patch.object(store, "_snapshot", return_value={present: "e" * 40}) as snapshot,
+              patch.object(store, "_read_at", return_value={"completed": 3}) as open_blob):
+            self.assertEqual(store.read_many(files), {present: {"completed": 3}})
+        get_head.assert_called_once_with()
+        snapshot.assert_called_once_with(head)
+        open_blob.assert_called_once_with(head, present)
+
+    def test_invalid_packet_name_is_rejected_before_git_access(self):
+        store = remote.ReviewStore(SECRET)
+        with patch.object(store, "_head") as get_head:
+            with self.assertRaises(Exception):
+                store.read_many(["../../other-review.enc"])
+            get_head.assert_not_called()
+
+    def test_missing_branch_requires_no_blob_reads(self):
+        store = remote.ReviewStore(SECRET)
+        with (patch.object(store, "_head", return_value=None),
+              patch.object(store, "_snapshot") as snapshot):
+            self.assertEqual(store.read_many([remote._name("res", TICKET, 0)]), {})
+            snapshot.assert_not_called()
 
 
 class AggregationTests(unittest.TestCase):
@@ -314,7 +345,7 @@ class WorkerProtocolTests(unittest.TestCase):
             "engine_source": chess_play.STOCKFISH_SOURCE_REVISION,
             "analysis_version": remote.ENGINE_VERSION,
             "depth": chess_play.STOCKFISH_GAME_REVIEW_DEPTH,
-            "threads": chess_play.STOCKFISH_THREADS,
+            "threads": remote.REMOTE_WORKER_THREADS,
             "hash_mb": chess_play.STOCKFISH_HASH_MB,
             "created": time.time(), "sections": sections,
         })
@@ -327,7 +358,8 @@ class WorkerProtocolTests(unittest.TestCase):
         def fake_engine(moves, limit, fen, chess960, *, interrupt_check):
             interrupt_check()
             return review_fixture(sections[0])
-        with patch.object(remote, "_git", return_value=fake_git):
+        with (patch.object(remote, "_git", return_value=fake_git),
+              patch.object(chess_play, "STOCKFISH_THREADS", remote.REMOTE_WORKER_THREADS)):
             self.assertEqual(remote.compute_worker(
                 TICKET, 0, env=env, store=store,
                 idle=lambda *args: True, analyser=fake_engine
@@ -336,6 +368,8 @@ class WorkerProtocolTests(unittest.TestCase):
         self.assertEqual(packet["section_sha256"], remote._result_digest(sections[0]))
         self.assertEqual(packet["result_sha256"], remote._result_digest(packet["result"]))
         self.assertNotIn("username", str(packet))
+        # Short shards never publish a redundant zero-progress git commit.
+        self.assertNotIn(remote._name("progress", TICKET, 0), store.payloads)
 
     def test_worker_preempts_when_fairplay_becomes_active(self):
         store, sections = self._prepared()
@@ -348,7 +382,8 @@ class WorkerProtocolTests(unittest.TestCase):
         def fake_engine(moves, limit, fen, chess960, *, interrupt_check):
             interrupt_check()
             return review_fixture(sections[0])
-        with patch.object(remote, "_git", return_value=fake_git):
+        with (patch.object(remote, "_git", return_value=fake_git),
+              patch.object(chess_play, "STOCKFISH_THREADS", remote.REMOTE_WORKER_THREADS)):
             with self.assertRaises(remote.RemoteReviewError):
                 remote.compute_worker(
                     TICKET, 0, env=env, store=store,

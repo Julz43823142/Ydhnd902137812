@@ -1,0 +1,31 @@
+name: Review Worker CPU Benchmark
+
+on:
+  pull_request:
+    paths:
+      - "game_review_remote.py"
+      - "scripts/bench_review_threads.py"
+      - ".github/workflows/review_worker_benchmark.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  depth18-thread-comparison:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install isolated engine dependencies
+        run: python -m pip install python-chess requests cryptography
+      - uses: actions/cache@v4
+        with:
+          path: /tmp/stockfish19-official-pgo/Stockfish/src/stockfish
+          key: stockfish-${{ runner.os }}-${{ runner.arch }}-edb0d9db6731067ec50ce619ff372b463bc4dd5d-pgo-v1
+      - name: Prepare official Stockfish 19 at the same build as remote workers
+        run: python scripts/prepare_stockfish.py --github-env --profile-build
+      - name: Benchmark the same 12-plies at depth 18 using 1 and 2 CPU threads
+        run: python scripts/bench_review_threads.py

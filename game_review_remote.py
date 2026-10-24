@@ -27,12 +27,15 @@ WORKFLOW = "ordinary_review_distributed.yml"
 SCHEMA = "sharkbot-ordinary-review-shards-v1"
 ENGINE_VERSION = "ordinary-review-v8"
 MAX_WORKERS = 14
+# Two engine threads were faster than one or four in a real depth-18
+# GitHub-hosted runner benchmark. The worker workflow pins this value.
+REMOTE_WORKER_THREADS = 2
 MIN_REMOTE_PLIES = 80
 MAX_REMOTE_PLIES = 600
 MAX_WAIT_SECONDS = 600
 WORKER_BUDGET_SECONDS = 540
 LEASE_SECONDS = 750
-POLL_SECONDS = 8
+POLL_SECONDS = 4
 REQUEST_LIFETIME = 800
 FILENAMES = re.compile(r"(?:req_[0-9a-f]{24}|(?:res|progress)_[0-9a-f]{24}_(?:[0-9]|1[0-3])|lease_review)\.enc\Z")
 TICKET = re.compile(r"[0-9a-f]{24}\Z")
@@ -73,6 +76,27 @@ class ReviewStore(EncryptedGitStore):
     """Isolated encrypted exchange; single CAS lease across bot instances."""
 
     LEASE = "lease_review.enc"
+
+    def read_many(self, names):
+        """Read only extant encrypted blobs, not every missing shard name.
+
+        The coordinator polls up to 28 packet paths; git-show on each absent
+        file is expensive. Resolve the authenticated snapshot once per poll
+        and only open blob paths present in that exact commit.
+        """
+        for name in names:
+            self._filename(name)
+        head = self._head()
+        if head is None:
+            return {}
+        entries = self._snapshot(head)
+        result = {}
+        for name in names:
+            if name in entries:
+                value = self._read_at(head, name)
+                if value is not None:
+                    result[name] = value
+        return result
 
     def __init__(self, secret, remote="origin"):
         super().__init__(_derive(secret), remote=remote, branch=BRANCH,
@@ -280,7 +304,7 @@ def _validate_segment(segment, result):
             or result.get("skipped_plies") != 0
             or not str(result.get("engine", "")).startswith("Stockfish 19")
             or not isinstance(result.get("engine_configuration"), dict)
-            or result["engine_configuration"].get("threads") != chess_play.STOCKFISH_THREADS
+            or result["engine_configuration"].get("threads") != REMOTE_WORKER_THREADS
             or result["engine_configuration"].get("hash_mb") != chess_play.STOCKFISH_HASH_MB):
         raise RemoteReviewError("Wrong worker engine configuration.")
     baseline = result.get("initial_white_win_pct")
@@ -436,7 +460,7 @@ def try_remote_review(san_moves, max_plies=None, start_fen=None, chess960=False,
             "schema": SCHEMA, "ticket": ticket, "revision": revision,
             "engine": "Stockfish 19", "engine_source": chess_play.STOCKFISH_SOURCE_REVISION,
             "depth": chess_play.STOCKFISH_GAME_REVIEW_DEPTH,
-            "threads": chess_play.STOCKFISH_THREADS, "hash_mb": chess_play.STOCKFISH_HASH_MB,
+            "threads": REMOTE_WORKER_THREADS, "hash_mb": chess_play.STOCKFISH_HASH_MB,
             "analysis_version": ENGINE_VERSION, "created": time.time(),
             "sections": segments,
         }
@@ -522,7 +546,8 @@ def compute_worker(ticket, index, *, env=None, store=None, idle=None,
             or req.get("engine_source") != chess_play.STOCKFISH_SOURCE_REVISION
             or req.get("analysis_version") != ENGINE_VERSION
             or req.get("depth") != chess_play.STOCKFISH_GAME_REVIEW_DEPTH
-            or req.get("threads") != chess_play.STOCKFISH_THREADS
+            or req.get("threads") != REMOTE_WORKER_THREADS
+            or chess_play.STOCKFISH_THREADS != REMOTE_WORKER_THREADS
             or req.get("hash_mb") != chess_play.STOCKFISH_HASH_MB
             or not isinstance(req.get("created"), (int, float))
             or abs(time.time() - req["created"]) > REQUEST_LIFETIME
@@ -570,9 +595,10 @@ def compute_worker(ticket, index, *, env=None, store=None, idle=None,
                 # because one optional status update could not be published.
                 pass
 
-    store.put(_name("progress", ticket, index),
-              {"schema": SCHEMA, "ticket": ticket, "index": index,
-               "revision": revision, "state": "running", "completed": 0})
+    # A short-lived worker's initial "0 plies" write cost a separate
+    # competing git push on every one of the fourteen runners. The
+    # coordinator already knows all pending shards. Publish periodic
+    # nonzero progress only for genuinely long-running searches.
     try:
         result = analyser(section["moves"], None, section["fen"],
                           section["chess960"], interrupt_check=interrupt_check)
@@ -580,11 +606,17 @@ def compute_worker(ticket, index, *, env=None, store=None, idle=None,
         _validate_segment(section, result)
         if not store.owns(ticket):
             raise RemoteReviewError("Remote ordinary review lease expired.")
+        compute_seconds = clock() - began
+        publishing_started = clock()
         store.put(_name("res", ticket, index), {
             "schema": SCHEMA, "ticket": ticket, "index": index,
             "revision": revision, "section_sha256": _result_digest(section),
             "result_sha256": _result_digest(result), "result": result,
         })
+        # Only timings and numeric shard indices, never private moves/FENs.
+        print(f"Ordinary review timing shard {index}: "
+              f"compute={compute_seconds:.3f}s, "
+              f"publish={clock() - publishing_started:.3f}s", flush=True)
         return len(result["moves"])
     except Exception:
         try:
