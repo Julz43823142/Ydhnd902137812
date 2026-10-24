@@ -1877,6 +1877,70 @@ async def _twitch_handle_chat_message(event):
         print(f"Twitch chat command warning: {type(error).__name__}: {error}", flush=True)
 
 
+_twitch_eventsub_recovery_attempted = False
+
+
+async def _twitch_reclaim_old_websocket_subscriptions(current_session_id, token):
+    """Free only this broadcaster's old bot EventSub connections on 429."""
+    global _twitch_eventsub_recovery_attempted
+    if _twitch_eventsub_recovery_attempted:
+        return 0
+    _twitch_eventsub_recovery_attempted = True
+    headers = {"Authorization": f"Bearer {token}", "Client-Id": TWITCH_CLIENT_ID}
+    old = []
+    cursor = None
+    async with aiohttp.ClientSession() as session:
+        for _ in range(10):
+            params = {"after": cursor} if cursor else {}
+            async with session.get(
+                "https://api.twitch.tv/helix/eventsub/subscriptions",
+                headers=headers, params=params,
+                timeout=aiohttp.ClientTimeout(total=20),
+            ) as response:
+                if response.status != 200:
+                    raise RuntimeError(
+                        f"Cannot inspect EventSub subscriptions (HTTP {response.status}): "
+                        f"{(await response.text())[:250]}"
+                    )
+                data = await response.json()
+            for item in data.get("data", []):
+                transport = item.get("transport") or {}
+                condition = item.get("condition") or {}
+                if (
+                    item.get("status") == "enabled"
+                    and transport.get("method") == "websocket"
+                    and transport.get("session_id") != current_session_id
+                    and condition.get("broadcaster_user_id") == TWITCH_BROADCASTER_ID
+                    and item.get("type") in {
+                        "channel.channel_points_custom_reward_redemption.add",
+                        "stream.online",
+                        "channel.chat.message",
+                    }
+                    and item.get("id")
+                ):
+                    old.append(str(item["id"]))
+            cursor = (data.get("pagination") or {}).get("cursor")
+            if not cursor:
+                break
+
+        removed = 0
+        for subscription_id in old:
+            async with session.delete(
+                "https://api.twitch.tv/helix/eventsub/subscriptions",
+                headers=headers, params={"id": subscription_id},
+                timeout=aiohttp.ClientTimeout(total=20),
+            ) as response:
+                if response.status == 204:
+                    removed += 1
+                else:
+                    print(
+                        f"Twitch old EventSub cleanup failed HTTP {response.status}: "
+                        f"{(await response.text())[:200]}", flush=True,
+                    )
+    print(f"Twitch EventSub 429 recovery removed {removed} old bot subscriptions.", flush=True)
+    return removed
+
+
 async def _twitch_create_subscriptions(session_id):
     """Subscribe independently: optional stream/chat failures must not block rewards."""
     token = _twitch_access_token or await _twitch_prepare_access_token()
@@ -1915,6 +1979,17 @@ async def _twitch_create_subscriptions(session_id):
                         if response.status == 401 and attempt == 0:
                             token = await _twitch_refresh_access_token("eventsub-401")
                             continue
+                        if response.status == 429 and label == "Channel Points" and attempt == 0:
+                            try:
+                                removed = await _twitch_reclaim_old_websocket_subscriptions(
+                                    str(session_id), token,
+                                )
+                            except Exception as cleanup_error:
+                                print(f"Twitch EventSub 429 recovery failed: {cleanup_error}", flush=True)
+                                removed = 0
+                            if removed:
+                                await asyncio.sleep(3)
+                                continue
                         raise RuntimeError(
                             f"Twitch EventSub {label} subscription failed "
                             f"(HTTP {response.status}): {body[:500]}"
@@ -1927,7 +2002,7 @@ async def _twitch_create_subscriptions(session_id):
             if label == "Channel Points":
                 await _twitch_owner_notice(
                     f"❌ Twitch Channel Points EventSub is NOT connected: {str(error)[:650]}. "
-                    "Redemptions will not reach Discord. Check channel:read:redemptions permission and reauthorize Twitch."
+                    "Redemptions will not reach Discord. HTTP 429 means too many active WebSocket transports; stop overlapping workers if recovery fails. For HTTP 403 check OAuth scopes."
                 )
             else:
                 await _twitch_owner_notice(f"⚠️ Optional Twitch {label} subscription failed: {str(error)[:650]}")
