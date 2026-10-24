@@ -295,10 +295,15 @@ def _balanced_cuts(moves, initial_board, workers=MAX_WORKERS):
     # Enforce the full worker count even when a very complex tail position
     # crosses multiple weighted boundaries at once.
     while len(cuts) < workers:
-        slot = max(range(len(cuts) - 1),
-                   key=lambda i: cuts[i + 1] - cuts[i])
-        cut = (cuts[slot] + cuts[slot + 1]) // 2
-        if not cuts[slot] < cut < cuts[slot + 1]:
+        # Include the as-yet-unappended final boundary: a short game may
+        # have no weighted cut at all. Bisect the widest remaining interval,
+        # including the tail, until all fourteen workers have legal moves.
+        slot = max(range(len(cuts)), key=lambda i:
+                   (cuts[i + 1] if i + 1 < len(cuts) else n) - cuts[i])
+        left = cuts[slot]
+        right = cuts[slot + 1] if slot + 1 < len(cuts) else n
+        cut = (left + right) // 2
+        if not left < cut < right:
             raise RemoteReviewError("Unable to partition legal review moves.")
         cuts.insert(slot + 1, cut)
     return cuts + [n]
