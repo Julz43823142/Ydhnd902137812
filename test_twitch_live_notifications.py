@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 
 import bot
 
@@ -92,6 +93,59 @@ class TwitchLiveNotificationTests(unittest.IsolatedAsyncioTestCase):
             bot.state[bot.TWITCH_LIVE_STATE_KEY]["message_ids"],
             [str(_SentMessage.id)],
         )
+
+    async def test_poll_recovers_missed_eventsub_once(self):
+        channel = _Channel()
+
+        async def get_channel():
+            return channel
+
+        async def save_state(attempts=3):
+            return True
+
+        async def stream_info():
+            return {
+                "id": "stream-123",
+                "user_id": "1063411811",
+                "started_at": "2026-10-24T17:00:00Z",
+                "title": "Live chess",
+                "game_name": "Chess",
+            }
+
+        bot._twitch_live_channel = get_channel
+        bot._twitch_get_live_stream_info = stream_info
+        bot.save_all_critical = save_state
+        with patch("twitch_presentation.set_status") as status:
+            await bot._twitch_cleanup_if_offline()
+            await bot._twitch_cleanup_if_offline()
+            await bot._twitch_handle_stream_online({
+                "broadcaster_user_id": "1063411811",
+                "started_at": "2026-10-24T17:00:00Z",
+            })
+
+        self.assertEqual(len(channel.sent), 1)
+        self.assertEqual(
+            bot.state[bot.TWITCH_LIVE_STATE_KEY]["last_started_at"],
+            "2026-10-24T17:00:00Z",
+        )
+        self.assertEqual(status.call_count, 2)
+
+    async def test_poll_with_no_start_time_does_not_send_untracked_duplicates(self):
+        channel = _Channel()
+
+        async def get_channel():
+            return channel
+
+        async def stream_info():
+            return {"id": "stream-123", "title": "Live chess"}
+
+        bot._twitch_live_channel = get_channel
+        bot._twitch_get_live_stream_info = stream_info
+        with patch("twitch_presentation.set_status"):
+            await bot._twitch_cleanup_if_offline()
+            await bot._twitch_cleanup_if_offline()
+
+        self.assertEqual(channel.sent, [])
 
 
 if __name__ == "__main__":
