@@ -9909,6 +9909,18 @@
       "identity_enc": "gAAAAABqvWmYH21u-XCuk0ox38XtA_X_qIn_oEFhLOc7gUt6qTm55k9n23JuOaQcHIQ9xBAtzjY1iPKQM5DaTjoQhmTyQ2Sk_LR5Ar0zVUx6OVkvFYAkfCAEMUdjlqeRU0qx3cB9h1ORaItcnKMYAh1AnrtfSsmrI5S3OLSdfv5MMvITCveFHSUTaiwR6iL8BtGcJlrIUYKwwyR36cuTAAoNuJtIw0zq_w==",
       "status": "processed",
       "discord_user_id": "442597396195704832"
+    },
+    "76cfb63c-c3bb-4d37-acc9-02935dd47cb2": {
+      "redemption_id": "76cfb63c-c3bb-4d37-acc9-02935dd47cb2",
+      "reward_key": "pieces",
+      "reward_label": "Twitch Pieces",
+      "reward_title": "Unlock Discord Pieces",
+      "reward_cost": 5000,
+      "created_at": 1792867286,
+      "updated_at": 1792867289,
+      "identity_enc": "gAAAAABq3PvWQyGA8d1rO9pWUocjMm2HtmT8z37Ljv6sGnsdXKt7B_KColR3iK2Jkkt-vZBzLGkmW_EflJtNNC1MCYinMVtGeYRbnXWse7TtVz9oyrSE5e2w9mC8LyrMuKIxq-IFKo9neqfq9j0K_J_5sV28Q6oZyGvaqm-1IhvZK8jqgbGhBoMoXuOyhVjxJhyyx4MdGVdzQ_opPbUSQftPzW_EF4sueWS1NRGknCGOxEI0rQFqXpM=",
+      "status": "processed",
+      "discord_user_id": "386134006170910721"
     }
   },
   "twitch_links_v1": {
