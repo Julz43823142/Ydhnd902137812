@@ -1703,7 +1703,7 @@ def _twitch_validate_access_token_sync(token):
         return None
     data = response.json()
     scopes = {str(item) for item in data.get("scopes", [])}
-    if "channel:read:redemptions" not in scopes:
+    if not ({"channel:read:redemptions", "channel:manage:redemptions"} & scopes):
         return None
     if TWITCH_BROADCASTER_ID and str(data.get("user_id", "")) != TWITCH_BROADCASTER_ID:
         return None
@@ -2562,6 +2562,9 @@ async def twitch_eventsub_loop(guild, fallback_channel):
         return
     try:
         await _twitch_prepare_access_token()
+        token_details = await asyncio.to_thread(_twitch_validate_access_token_sync, _twitch_access_token)
+        if token_details is None:
+            raise RuntimeError("Twitch token is invalid, belongs to another broadcaster, or lacks channel:read:redemptions / channel:manage:redemptions.")
     except Exception as error:
         print(f"Twitch EventSub startup failed: {error}", flush=True)
         await _twitch_owner_notice(f"❌ Twitch EventSub startup failed: {str(error)[:900]}")
