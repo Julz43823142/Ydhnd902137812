@@ -1,6 +1,10 @@
 """Offline Stockfish 19 depth-18 worker thread benchmark (no private game)."""
 import json
 import time
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import chess
 import chess_play
