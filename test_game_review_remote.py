@@ -54,7 +54,7 @@ def review_fixture(section, *, root_baseline=50):
         "skipped_plies": 0, "requested_plies": len(rows),
         "initial_white_win_pct": root_baseline,
         "engine_configuration": {
-            "threads": chess_play.STOCKFISH_THREADS,
+            "threads": remote.REMOTE_WORKER_THREADS,
             "hash_mb": chess_play.STOCKFISH_HASH_MB,
             "depth": chess_play.STOCKFISH_GAME_REVIEW_DEPTH,
         },
@@ -345,7 +345,7 @@ class WorkerProtocolTests(unittest.TestCase):
             "engine_source": chess_play.STOCKFISH_SOURCE_REVISION,
             "analysis_version": remote.ENGINE_VERSION,
             "depth": chess_play.STOCKFISH_GAME_REVIEW_DEPTH,
-            "threads": chess_play.STOCKFISH_THREADS,
+            "threads": remote.REMOTE_WORKER_THREADS,
             "hash_mb": chess_play.STOCKFISH_HASH_MB,
             "created": time.time(), "sections": sections,
         })
@@ -358,7 +358,8 @@ class WorkerProtocolTests(unittest.TestCase):
         def fake_engine(moves, limit, fen, chess960, *, interrupt_check):
             interrupt_check()
             return review_fixture(sections[0])
-        with patch.object(remote, "_git", return_value=fake_git):
+        with (patch.object(remote, "_git", return_value=fake_git),
+              patch.object(chess_play, "STOCKFISH_THREADS", remote.REMOTE_WORKER_THREADS)):
             self.assertEqual(remote.compute_worker(
                 TICKET, 0, env=env, store=store,
                 idle=lambda *args: True, analyser=fake_engine
@@ -381,7 +382,8 @@ class WorkerProtocolTests(unittest.TestCase):
         def fake_engine(moves, limit, fen, chess960, *, interrupt_check):
             interrupt_check()
             return review_fixture(sections[0])
-        with patch.object(remote, "_git", return_value=fake_git):
+        with (patch.object(remote, "_git", return_value=fake_git),
+              patch.object(chess_play, "STOCKFISH_THREADS", remote.REMOTE_WORKER_THREADS)):
             with self.assertRaises(remote.RemoteReviewError):
                 remote.compute_worker(
                     TICKET, 0, env=env, store=store,
