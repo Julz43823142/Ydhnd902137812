@@ -27,6 +27,9 @@ WORKFLOW = "ordinary_review_distributed.yml"
 SCHEMA = "sharkbot-ordinary-review-shards-v1"
 ENGINE_VERSION = "ordinary-review-v8"
 MAX_WORKERS = 14
+# Two engine threads were faster than one or four in a real depth-18
+# GitHub-hosted runner benchmark. The worker workflow pins this value.
+REMOTE_WORKER_THREADS = 2
 MIN_REMOTE_PLIES = 80
 MAX_REMOTE_PLIES = 600
 MAX_WAIT_SECONDS = 600
@@ -301,7 +304,7 @@ def _validate_segment(segment, result):
             or result.get("skipped_plies") != 0
             or not str(result.get("engine", "")).startswith("Stockfish 19")
             or not isinstance(result.get("engine_configuration"), dict)
-            or result["engine_configuration"].get("threads") != chess_play.STOCKFISH_THREADS
+            or result["engine_configuration"].get("threads") != REMOTE_WORKER_THREADS
             or result["engine_configuration"].get("hash_mb") != chess_play.STOCKFISH_HASH_MB):
         raise RemoteReviewError("Wrong worker engine configuration.")
     baseline = result.get("initial_white_win_pct")
@@ -457,7 +460,7 @@ def try_remote_review(san_moves, max_plies=None, start_fen=None, chess960=False,
             "schema": SCHEMA, "ticket": ticket, "revision": revision,
             "engine": "Stockfish 19", "engine_source": chess_play.STOCKFISH_SOURCE_REVISION,
             "depth": chess_play.STOCKFISH_GAME_REVIEW_DEPTH,
-            "threads": chess_play.STOCKFISH_THREADS, "hash_mb": chess_play.STOCKFISH_HASH_MB,
+            "threads": REMOTE_WORKER_THREADS, "hash_mb": chess_play.STOCKFISH_HASH_MB,
             "analysis_version": ENGINE_VERSION, "created": time.time(),
             "sections": segments,
         }
@@ -543,7 +546,8 @@ def compute_worker(ticket, index, *, env=None, store=None, idle=None,
             or req.get("engine_source") != chess_play.STOCKFISH_SOURCE_REVISION
             or req.get("analysis_version") != ENGINE_VERSION
             or req.get("depth") != chess_play.STOCKFISH_GAME_REVIEW_DEPTH
-            or req.get("threads") != chess_play.STOCKFISH_THREADS
+            or req.get("threads") != REMOTE_WORKER_THREADS
+            or chess_play.STOCKFISH_THREADS != REMOTE_WORKER_THREADS
             or req.get("hash_mb") != chess_play.STOCKFISH_HASH_MB
             or not isinstance(req.get("created"), (int, float))
             or abs(time.time() - req["created"]) > REQUEST_LIFETIME
