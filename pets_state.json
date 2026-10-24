@@ -43,7 +43,8 @@
     "accessories": [
       "glasses",
       "crown",
-      "necklace"
+      "necklace",
+      "bow"
     ],
     "active": "93f7026f2e0e4ae587bd180fef05031b",
     "expedition": {
@@ -57,7 +58,7 @@
         "xp": 50
       },
       "start": 1792765038.0249698,
-      "status": "running"
+      "status": "claimed"
     },
     "pets": [
       {
@@ -656,7 +657,7 @@
         "puzzle_day": "2026-10-22",
         "rarity": "rare",
         "species": "Wolf",
-        "xp": 555.5,
+        "xp": 605.5,
         "xp_day": "2026-10-24"
       },
       {
