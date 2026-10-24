@@ -80,9 +80,12 @@ def smoke():
             for section in sections
         ]
         combined = _combine(sections, pieces, total, elapsed=0)
+        expected_board = chess.Board()
+        for san in shard_moves:
+            expected_board.push_san(san)
         if (combined['analysed_plies']!=len(shard_moves)
                 or [m['played'] for m in combined['moves']]!=shard_moves
-                or combined['moves'][-1]['fen']!=chess.Board().fen()):
+                or combined['moves'][-1]['fen']!=expected_board.fen()):
             raise RuntimeError('Real remote review shard recomposition failed.')
         print('Real Stockfish ordinary review shards verified: 14 partitions, 16 plies.')
     finally:
