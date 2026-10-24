@@ -21,7 +21,7 @@ def main():
     segment = moves[8:]
     timings = {}
     try:
-        for threads in (1, 2):
+        for threads in (1, 2, 4):
             chess_play._close_analysis_engine()
             chess_play.STOCKFISH_THREADS = threads
             start = time.perf_counter()
