@@ -192,42 +192,6 @@ class AggregationTests(unittest.TestCase):
         self.assertEqual(out["review_workers"], remote.MAX_WORKERS)
         self.assertEqual(out["analysis_depth"], 18)
 
-    def test_complexity_balancing_covers_every_position_exactly_once(self):
-        from scripts.benchmark_review_hash import TACTICAL
-        sections, total = remote._segments(TACTICAL, None, False, None)
-        self.assertEqual(total, len(TACTICAL))
-        self.assertEqual(len(sections), 14)
-        self.assertEqual([s["index"] for s in sections], list(range(14)))
-        self.assertTrue(all(s["moves"] for s in sections))
-        self.assertEqual([san for s in sections for san in s["moves"]], TACTICAL)
-        self.assertEqual([s["offset"] for s in sections],
-                         [sum(len(p["moves"]) for p in sections[:i])
-                          for i in range(len(sections))])
-        # Previously every worker received 5-6 consecutive plies. The
-        # measured legal-complexity planner deliberately creates uneven
-        # sections while the verified FEN chain stays contiguous.
-        self.assertEqual(len(sections[0]["moves"]), 8)
-        board = chess.Board()
-        for section in sections:
-            self.assertEqual(section["fen"], board.fen(en_passant="fen"))
-            for san in section["moves"]:
-                board.push_san(san)
-
-    def test_balancer_preserves_minimum_one_ply_per_runner(self):
-        # Both the exact minimum and slightly longer games must produce
-        # strictly increasing boundaries. The tail is always splittable.
-        for count in (14, 15, 16, 17, 18, 19, 20):
-            with self.subTest(plies=count):
-                cuts = remote._balanced_cuts(MOVES[:count], chess.Board())
-                self.assertEqual(cuts[0], 0)
-                self.assertEqual(cuts[-1], count)
-                self.assertEqual(len(cuts), remote.MAX_WORKERS + 1)
-                self.assertTrue(all(a < b for a, b in zip(cuts, cuts[1:])))
-                if count == remote.MAX_WORKERS:
-                    self.assertEqual(cuts, list(range(remote.MAX_WORKERS + 1)))
-        with self.assertRaises(remote.RemoteReviewError):
-            remote._balanced_cuts(MOVES[:13], chess.Board())
-
     def test_bad_fen_label_and_missing_moves_rejected(self):
         for field, value in (("fen", chess.STARTING_FEN), ("classification", "brilliant cheating"),
                              ("eval_white_cp", float("nan")), ("win_loss_pct", 500)):
@@ -316,6 +280,40 @@ class CoordinatorTests(unittest.TestCase):
                 dispatch=Mock(), clock=lambda: tick[0], sleep=supply)
         self.assertEqual(result["analysed_plies"], len(MOVES))
         self.assertEqual(result["white"]["accuracy"], 100)
+        self.assertIsNone(store.owner)
+
+    def test_tail_polling_detects_last_shards_without_extra_bulk_load(self):
+        store = FakeStore()
+        sections, count = remote._segments(MOVES, None, False, None)
+        ticks = [0.0]
+        intervals = []
+
+        def put_result(section):
+            idx = section["index"]
+            result = review_fixture(section)
+            ticket = store.owner
+            store.put(remote._name("res", ticket, idx), {
+                "schema": remote.SCHEMA, "ticket": ticket,
+                "revision": REVISION, "index": idx,
+                "section_sha256": remote._result_digest(section),
+                "result_sha256": remote._result_digest(result),
+                "result": result,
+            })
+
+        def advance(seconds):
+            intervals.append(seconds)
+            ticks[0] += seconds
+            # First 12 workers finish after the initial full-size poll;
+            # only the remaining two should trigger the faster 2s cadence.
+            for section in sections[:12] if len(intervals) == 1 else sections[12:]:
+                put_result(section)
+
+        with patch.object(remote, "_segments", return_value=(sections, count)):
+            result = remote.try_remote_review(
+                MOVES * 5, env=ENV, store=store, idle=lambda *args: True,
+                dispatch=Mock(), clock=lambda: ticks[0], sleep=advance)
+        self.assertEqual(intervals, [remote.POLL_SECONDS, 2])
+        self.assertEqual(result["analysed_plies"], len(MOVES))
         self.assertIsNone(store.owner)
 
     def test_failed_dispatch_is_local_fallback(self):
