@@ -21,39 +21,11 @@ WORKERS = 14
 
 
 def boundaries(moves, weighted):
-    n = len(moves)
     if not weighted:
-        return [n * i // WORKERS for i in range(WORKERS + 1)]
-    board = chess.Board()
-    weights = []
-    for san in moves:
-        legal = list(board.legal_moves)
-        captures = sum(board.is_capture(move) for move in legal)
-        # Search cost generally grows with legal branching and forcing moves.
-        weights.append(1.0 + .045 * len(legal) + .22 * captures
-                       + (.6 if board.is_check() else 0))
-        board.push_san(san)
-    total = sum(weights)
-    result = [0]
-    acc = 0.0
-    next_boundary = 1
-    for index, weight in enumerate(weights, 1):
-        acc += weight
-        while (next_boundary < WORKERS and
-               acc >= total * next_boundary / WORKERS and
-               index >= result[-1] + 1 and
-               index <= n - (WORKERS - next_boundary)):
-            result.append(index)
-            next_boundary += 1
-    while len(result) < WORKERS:
-        slot = max(range(len(result) - 1), key=lambda k:
-                   result[k + 1] - result[k])
-        cut = (result[slot] + result[slot + 1]) // 2
-        if cut <= result[slot] or cut >= result[slot + 1]:
-            raise RuntimeError("Failed to build nonempty weighted sections")
-        result.insert(slot + 1, cut)
-    result.append(n)
-    return result
+        return [len(moves) * i // WORKERS for i in range(WORKERS + 1)]
+    # Benchmark the exact same implementation that the live workers use.
+    from game_review_remote import _balanced_cuts
+    return _balanced_cuts(moves, chess.Board())
 
 
 def analyse(moves, cuts):
