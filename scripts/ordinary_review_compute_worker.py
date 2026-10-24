@@ -13,7 +13,7 @@ def main():
     ticket = os.getenv("INPUT_TICKET", "")
     index = os.getenv("INPUT_SHARD", "")
     if (re.fullmatch(r"[0-9a-f]{24}", ticket) is None
-            or index not in ("0", "1")):
+            or not index.isdecimal() or not 0 <= int(index) < 14):
         raise SystemExit("Invalid bounded Game Review worker request.")
     try:
         positions = compute_worker(ticket, int(index))
