@@ -214,11 +214,19 @@ class AggregationTests(unittest.TestCase):
                 board.push_san(san)
 
     def test_balancer_preserves_minimum_one_ply_per_runner(self):
-        opening = MOVES[:remote.MAX_WORKERS]
-        cuts = remote._balanced_cuts(opening, chess.Board())
-        self.assertEqual(cuts, list(range(remote.MAX_WORKERS + 1)))
+        # Both the exact minimum and slightly longer games must produce
+        # strictly increasing boundaries. The tail is always splittable.
+        for count in (14, 15, 16, 17, 18, 19, 20):
+            with self.subTest(plies=count):
+                cuts = remote._balanced_cuts(MOVES[:count], chess.Board())
+                self.assertEqual(cuts[0], 0)
+                self.assertEqual(cuts[-1], count)
+                self.assertEqual(len(cuts), remote.MAX_WORKERS + 1)
+                self.assertTrue(all(a < b for a, b in zip(cuts, cuts[1:])))
+                if count == remote.MAX_WORKERS:
+                    self.assertEqual(cuts, list(range(remote.MAX_WORKERS + 1)))
         with self.assertRaises(remote.RemoteReviewError):
-            remote._balanced_cuts(opening[:-1], chess.Board())
+            remote._balanced_cuts(MOVES[:13], chess.Board())
 
     def test_bad_fen_label_and_missing_moves_rejected(self):
         for field, value in (("fen", chess.STARTING_FEN), ("classification", "brilliant cheating"),
