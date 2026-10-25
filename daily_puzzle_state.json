@@ -77,7 +77,7 @@
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_id": 1563823710530441257,
+    "message_id": 1563917761069973546,
     "attempted_users": {},
     "first_move_user_id": null,
     "first_move_user_name": null,
@@ -85,13 +85,14 @@
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1563823710530441257
+      "1468320170891022417": 1563917761069973546
     },
     "channel_id": 1468320170891022417,
     "board_attachment_filenames": {
-      "1468320170891022417": "daily_puzzle.png"
+      "1468320170891022417": "random_puzzle.png"
     },
-    "chat_since_refresh": 0
+    "chat_since_refresh": 0,
+    "last_manual_bump": 1792937450.2103603
   },
   "lichess_rating_used": {
     "2000": [
