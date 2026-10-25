@@ -244,3 +244,21 @@ class Behavior(unittest.TestCase):
         svg=opening_svg(r,build_context(rows),marked=marked)
         legend=svg.split('Rating through the games')[0]
         self.assertIn('Context 1:1/10,2:1/10 +3 more',legend)
+
+
+    def test_short_time_pressure_episode_counts_per_game_not_per_move(self):
+        from fairplay_method3_behavior_charts import phase_trends
+        rows=[game(i,kind='blitz',control='180+0',think=2,before=20)
+              for i in range(10)]
+        for g in rows:
+            for d in g.decisions:d.clock_before=20
+            for d in g.decisions[-2:]:d.clock_before=4
+        context=build_context(rows)
+        self.assertTrue(all(context['clocks'][g.identity]['Start <10s']==2
+                            for g in rows))
+        self.assertTrue(all(context['clocks'][g.identity]['Start ≥10s']==2
+                            for g in rows))
+        r=N(games=rows)
+        _,trends=phase_trends(r,context)
+        self.assertEqual(trends['Start <10s']['blitz'][0][1][0],2)
+        self.assertIsNone(trends['Start <10s']['bullet'][0][1])
