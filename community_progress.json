@@ -227,6 +227,12 @@
         "new_cosmetics": 0,
         "puzzle_solve": 3
       }
+    },
+    "2026-W44": {
+      "442597396195704832": {
+        "coins_earned": 50.0,
+        "new_cosmetics": 0
+      }
     }
   }
 }
