@@ -104,31 +104,32 @@ def bands(p,result,edges,top,bottom):
         p.append(text(min(1050,a+2),top+20,f"{span['priority']} {span['number']}",14,stroke))
 
 
-PALETTE=('#2563eb','#f59e0b','#10b981','#a855f7','#e11d48','#94a3b8')
+PALETTE=('#2563eb','#d97706','#059669','#9333ea','#e11d48','#0891b2','#4f46e5','#65a30d','#c026d3','#a16207','#64748b','#94a3b8')
 
 def opening_svg(result,c):
-    p=header('7 · Openings and rating history','White and black separately · all live time controls combined · each bar totals 100%.',2670)
+    p=header('7 · Openings and rating history','White and black separately · all live time controls combined · each bar totals 100%.',2870)
     for i,color in enumerate(('white','black')):
         from fairplay_opening_names import opening_family
         rows=[(g,opening_family(g)) for g in result.games if g.time_class in KINDS and type(getattr(g,'color',None)) is bool and ('white' if g.color else 'black')==color]
         rows.sort(key=lambda row:(row[0].ended,row[0].identity))
-        y=130+i*680
+        y=130+i*780
         p.append(text(30,y,color.title()+' · all Bullet, Blitz and Rapid games',25))
         count=min(20,max(1,len(rows)//10))
         counts=Counter(v for _,v in rows)
-        eligible={v for v,n in counts.items() if n/len(rows)>=.05} if rows else set()
+        eligible={v for v,n in counts.items() if n/len(rows)>=.01} if rows else set()
         for j in range(count):
             chunk=rows[len(rows)*j//count:len(rows)*(j+1)//count]
-            eligible.update(v for v,n in Counter(v for _,v in chunk).items() if n>=2 and n/max(1,len(chunk))>=.05)
-        choices=[v for v,n in counts.most_common() if v in eligible][:5]
-        labels=choices+['Other']
+            eligible.update(v for v,n in Counter(v for _,v in chunk).items() if n>=2 and n/max(1,len(chunk))>=.01)
+        choices=[v for v,n in counts.most_common() if v in eligible and v!='Unknown'][:10]
+        labels=choices+(['Unknown'] if counts.get('Unknown') else [])+['Other']
+        choices=labels[:-1]
         names={'e2e4':'1.e4','d2d4':'1.d4','c2c4':'1.c4','g1f3':'1.Nf3'}
         for j,label in enumerate(labels):p.append(text(30+(j%2)*570,y+30+(j//2)*23,names.get(label,label),16,PALETTE[j]))
         count=min(20,max(1,len(rows)//10))
         for j in range(count):
             chunk=rows[len(rows)*j//count:len(rows)*(j+1)//count]
             if not chunk:continue
-            yy=y+100+j*26
+            yy=y+190+j*26
             overlap=[v for v in periods(result) if v['first_ended']<=chunk[-1][0].ended and v['last_ended']>=chunk[0][0].ended]
             if overlap:p.append(f'<rect x="25" y="{yy-2}" width="1140" height="25" fill="#ede9fe"/>')
             p.append(text(30,yy+16,f'{date(chunk[0][0].ended)}',15))
@@ -141,9 +142,9 @@ def opening_svg(result,c):
             note=f'{len(chunk)} games'
             if overlap:note+=' · Context '+','.join(str(v['number']) for v in overlap)
             p.append(text(885,yy+16,note,14))
-    p.append(text(30,1490,'Purple row: overlaps a flagged period. Opening mix is context only; time-control mix can change it.',17,'#526477'))
-    p.extend(rating_panels(result,1590))
-    return finish(p,2670)
+    p.append(text(30,1690,'Purple row: overlaps a flagged period. Opening mix is context only; time-control mix can change it.',17,'#526477'))
+    p.extend(rating_panels(result,1790))
+    return finish(p,2870)
 
 
 def rating_panels(result, offset):
@@ -253,33 +254,59 @@ def timing_svg(result,c):
     return finish(p,900)
 
 
+def phase_trends(result,c):
+    rows=sorted(result.games,key=lambda g:(g.ended,g.identity))
+    count=min(30,max(1,len(rows)//20))
+    categories=('Early 1–10','Middle 11–30','Late 31+','Start <10s','Start ≥10s')
+    trends={cat:{kind:[] for kind in KINDS} for cat in categories}
+    for j in range(count):
+        lo=len(rows)*j//count;hi=len(rows)*(j+1)//count
+        for cat in categories:
+            for kind in KINDS:
+                values=[c['clocks'][g.identity][cat] for g in rows[lo:hi]
+                        if g.time_class==kind and g.time_control==c['chosen'].get(kind)
+                        and cat in c['clocks'][g.identity]]
+                trends[cat][kind].append(((lo+hi-1)/2,summary(values)))
+    return rows,trends
+
+
 def phase_svg(result,c):
-    p=header('9 · Where is thinking time spent?','Class color: blue Bullet · orange Blitz · green Rapid. Light = comparison; dark = flagged dates.',1100)
-    cats=('Early 1–10','Middle 11–30','Late 31+','Start <10s','Start ≥10s')
-    cells={}
-    for k,kind in enumerate(KINDS):
-        rows=[g for g in result.games if g.time_class==kind and g.time_control==c['chosen'].get(kind)]
-        phase=phases(result,rows)
-        if len(phase)==3:phase=phase[:2] if phase[0][1] else [phase[2],phase[1]]
-        p.append(text(30,120+k*27,kind.title()+' '+control_label(c['chosen'].get(kind,'unknown'))+' · comparison: '+phase[0][0],18,COLORS_LINE[k]))
-        cells[k]=[[summary([c['clocks'][g.identity][cat] for g in games if cat in c['clocks'][g.identity]]) for cat in cats] for _,games in phase]
-    for section,indices in enumerate(((0,1,2),(3,4))):
-        top=240+section*390;bottom=top+260
-        maximum=max([1]+[row[j][0]*1.2 for group in cells.values() for row in group for j in indices if row[j]])
-        p.append(text(30,top-15,'Move phases' if section==0 else 'Clock remaining before the move',23))
-        for column,j in enumerate(indices):
-            base=110+column*(1000/len(indices))
-            p.append(text(base,bottom+30,cats[j],19))
-            for k,group in cells.items():
-                for n,row in enumerate(group):
-                    value=row[j];xx=base+k*96+n*40
-                    if value:
-                        h=230*value[0]/maximum
-                        p.append(f'<rect x="{xx}" y="{bottom-h}" width="26" height="{h}" fill="{COLORS_LINE[k]}" fill-opacity="{.35 if n==0 else 1}"/>')
-                        p.append(text(xx+13,bottom-h-8,f'{value[0]:.1f}s',15,COLORS_LINE[k],'middle'))
-                    else:p.append(text(xx+13,bottom-5,'—',18,COLORS_LINE[k],'middle'))
-    p.append(text(30,1020,'Bar length = seconds. — means insufficient data, not zero. At least 5 games per bar.',18))
-    return finish(p,1100)
+    from bisect import bisect_left,bisect_right
+    rows,trends=phase_trends(result,c);times=[g.ended for g in rows]
+    p=header('9 · How does thinking time change?','Blue Bullet · orange Blitz · green Rapid. Lines: median; shaded bands: middle 50% of game medians.',1810)
+    for k,kind in enumerate(KINDS):p.append(text(30+k*390,115,kind.title()+' · '+control_label(c['chosen'].get(kind,'unknown')),20,COLORS_LINE[k]))
+    x=lambda index:100+1030*index/max(1,len(rows)-1)
+    for panel,(cat,series) in enumerate(trends.items()):
+        top=180+panel*305;bottom=top+205
+        p.append(text(30,top-20,cat+' · seconds per move',23))
+        maximum=max([.5]+[value[2]*1.15 for points in series.values() for _,value in points if value])
+        y=lambda value:bottom-205*value/maximum
+        for span in periods(result):
+            a=bisect_left(times,span['first_ended']);b=bisect_right(times,span['last_ended'])-1
+            if a>b:continue
+            fill,stroke=COLORS[span['priority']]
+            p.append(f'<rect x="{x(a)}" y="{top}" width="{max(2,x(b)-x(a))}" height="205" fill="{fill}" fill-opacity=".16"/>')
+            p.append(text(min(x(a),930),top+16,span['time_class'].title()+' '+span['priority']+' '+str(span['number']),14,stroke))
+        for j in range(4):
+            yy=y(maximum*j/3)
+            p.append(f'<line x1="100" x2="1130" y1="{yy}" y2="{yy}" stroke="#d6e1ea"/>')
+            p.append(text(25,yy+6,f'{maximum*j/3:.1f}s',17))
+        for k,kind in enumerate(KINDS):
+            previous=None
+            for index,value in series[kind]:
+                if value is None:previous=None;continue
+                xx=x(index)
+                if previous:
+                    px,pv=previous
+                    coords=f'{px},{y(pv[1])} {xx},{y(value[1])} {xx},{y(value[2])} {px},{y(pv[2])}'
+                    p.append(f'<polygon points="{coords}" fill="{COLORS_LINE[k]}" fill-opacity=".12"/>')
+                    p.append(f'<line x1="{px}" y1="{y(pv[0])}" x2="{xx}" y2="{y(value[0])}" stroke="{COLORS_LINE[k]}" stroke-width="2.5"/>')
+                p.append(f'<circle cx="{xx}" cy="{y(value[0])}" r="3" fill="{COLORS_LINE[k]}"/>')
+                previous=(xx,value)
+        for j in range(5):p.append(text(x((len(rows)-1)*j/4),bottom+25,str(1+round((len(rows)-1)*j/4)),17,anchor='middle'))
+    p.append(text(30,1730,'Shared game number · full history · gaps mean fewer than 5 contributing games, never zero.',18))
+    p.append(text(30,1760,'Each panel has its own seconds scale. Bands show between-game variation, not certainty or proof.',18))
+    return finish(p,1810)
 
 
 def behavior_svgs(result):

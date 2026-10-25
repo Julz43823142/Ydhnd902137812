@@ -85,12 +85,12 @@ class Behavior(unittest.TestCase):
         from fairplay_config import active_version
         self.assertEqual(priority_color('LOW'),0x22C55E)
         self.assertEqual(priority_color('INSUFFICIENT DATA'),0xFFFFFF)
-        self.assertEqual(active_version({'FAIRPLAY_METHOD3':'1'}),'fairplay-v79-opening-comparison')
+        self.assertEqual(active_version({'FAIRPLAY_METHOD3':'1'}),'fairplay-v80-phase-trends')
         r=N(games=[game(i) for i in range(30)],priority='LOW',diagnostics={'method3':{}})
         pages=behavior_svgs(r)
         self.assertIn('each bar totals 100%',pages[0][1])
         self.assertIn('chronological game number',pages[1][1])
-        self.assertIn('Bar length = seconds',pages[2][1])
+        self.assertIn('How does thinking time change?',pages[2][1])
 
     def test_rating_panels_preserve_points_and_ignore_unrated(self):
         from fairplay_method3_behavior_charts import rating_panels
@@ -141,3 +141,23 @@ class Behavior(unittest.TestCase):
         svg=timing_svg(r,build_context(rows))
         self.assertIn('before 3.0s → during 0.0s',svg)
         self.assertIn('One seconds scale',svg)
+
+    def test_more_named_families_and_unknown_separate(self):
+        from unittest.mock import patch
+        from fairplay_method3_behavior_charts import opening_svg
+        rows=[game(i) for i in range(100)]
+        r=N(games=rows,priority='LOW',diagnostics={'method3':{}})
+        labels=['Family '+str(i) for i in range(9)]+['Unknown']
+        with patch('fairplay_opening_names.opening_family',side_effect=labels*10):
+            svg=opening_svg(r,build_context(rows))
+        for label in labels:self.assertIn(label,svg)
+
+    def test_phase_trends_preserve_change_and_missing_samples(self):
+        from fairplay_method3_behavior_charts import phase_trends
+        rows=[game(i,kind='blitz',think=1 if i<20 else 4) for i in range(60)]
+        r=N(games=rows)
+        ordered,series=phase_trends(r,build_context(rows))
+        values=series['Middle 11–30']['blitz']
+        self.assertEqual(values[0][1][0],1)
+        self.assertEqual(values[-1][1][0],4)
+        self.assertTrue(all(value is None for _,value in series['Middle 11–30']['rapid']))
