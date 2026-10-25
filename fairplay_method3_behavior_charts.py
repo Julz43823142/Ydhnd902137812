@@ -58,6 +58,7 @@ def build_context(games):
     clocks={}
     openings=defaultdict(list)
     coverage=Counter()
+    per_game_timing={}
     for g in games:
         valid=[d for d in g.decisions if descriptive_clock(g,d)]
         coverage['moves']+=len(valid);coverage['excluded_moves']+=len(g.decisions)-len(valid)
@@ -70,11 +71,17 @@ def build_context(games):
             if finite(before) and before>=0:
                 categories['Start <10s' if before<10 else 'Start ≥10s'].append(d.think)
         clocks[g.identity]={k:median(v) for k,v in categories.items() if len(v)>=5}
-        if len(valid)>=5 and chosen.get(g.time_class)==g.time_control:
-            timing[g.time_class][bucket(g.ended,edges)].append(median(d.think for d in valid))
+        if len(valid)>=5:
+            # Same verified/reconstructed PGN clocks for charts 8 and 9.
+            game_median=median(d.think for d in valid)
+            per_game_timing[g.identity]=game_median
+            if chosen.get(g.time_class)==g.time_control:
+                timing[g.time_class][bucket(g.ended,edges)].append(game_median)
         choice=opening_choice(g) if getattr(g,'moves',None) and type(getattr(g,'color',None)) is bool else None
         if choice:openings[choice[0]].append((g,choice[1]))
-    return dict(edges=edges,controls=controls,chosen=chosen,timing=timing,clocks=clocks,openings=openings,coverage=coverage)
+    return dict(edges=edges,controls=controls,chosen=chosen,timing=timing,
+                per_game_timing=per_game_timing,clocks=clocks,
+                openings=openings,coverage=coverage)
 
 
 def header(title,subtitle,height=1100):
@@ -106,7 +113,8 @@ def bands(p,result,edges,top,bottom):
 
 PALETTE=('#2563eb','#d97706','#059669','#9333ea','#e11d48','#0891b2','#4f46e5','#65a30d','#c026d3','#a16207','#64748b','#94a3b8')
 
-def opening_svg(result,c):
+def opening_svg(result,c,marked=None):
+    if marked is None:marked=periods(result)
     p=header('7 · Favourite opening move patterns and rating history','First five own moves · opponent first reply shown · all live controls · each bar totals 100%.',2870)
     for i,color in enumerate(('white','black')):
         from fairplay_opening_names import opening_pattern
@@ -130,8 +138,16 @@ def opening_svg(result,c):
             chunk=rows[len(rows)*j//count:len(rows)*(j+1)//count]
             if not chunk:continue
             yy=y+190+j*26
-            overlap=[v for v in periods(result) if v['first_ended']<=chunk[-1][0].ended and v['last_ended']>=chunk[0][0].ended]
-            if overlap:p.append(f'<rect x="25" y="{yy-2}" width="1140" height="25" fill="#ede9fe"/>')
+            # Count only ACTUAL matching games in a flagged class and period.
+            # Date-range intersection alone can falsely color an entire bar.
+            overlap=[(span,sum(g.time_class==span['time_class']
+                         and span['first_ended']<=g.ended<=span['last_ended']
+                         for g,_ in chunk)) for span in marked]
+            overlap=[(span,n) for span,n in overlap if n]
+            if overlap:
+                fraction=sum(n for _,n in overlap)/len(chunk)
+                p.append(f'<rect x="25" y="{yy-2}" width="1140" height="25" '
+                         f'fill="#ede9fe" fill-opacity="{min(1.,.10+.65*fraction):.3f}"/>')
             p.append(text(30,yy+16,f'{date(chunk[0][0].ended)}',15))
             freq=Counter(v if v in choices else 'Other' for _,v in chunk);x=180
             for k,label in enumerate(labels):
@@ -139,16 +155,20 @@ def opening_svg(result,c):
                 p.append(f'<rect x="{x}" y="{yy}" width="{width}" height="21" fill="{PALETTE[k]}"/>')
                 if share>=.1:p.append(text(x+width/2,yy+16,f'{share:.0%}',15,'white','middle'))
                 x+=width
-            note=f'{len(chunk)} games'
-            if overlap:note+=' · Context '+','.join(str(v['number']) for v in overlap)
+            note=f'n={len(chunk)}'
+            if overlap:
+                note+=' · Context '+','.join(
+                    f"{span['number']}:{n}/{len(chunk)}" for span,n in overlap)
             p.append(text(885,yy+16,note,14))
-    p.append(text(30,1690,'Purple row: overlaps a flagged period. Same own moves can reach different positions; this is context only.',17,'#526477'))
-    p.extend(rating_panels(result,1790))
+    p.append(text(30,1690,'Purple: only the labelled flagged games per bar, not the entire opening bar.',17,'#526477'))
+    p.append(text(30,1730,'Controls pooled: a different Bullet/Blitz/Rapid mix can mimic a repertoire shift.',17,'#526477'))
+    p.extend(rating_panels(result,1790,marked=marked))
     return finish(p,2870)
 
 
-def rating_panels(result, offset):
+def rating_panels(result, offset, marked=None):
     """Observed pre-game ratings, never inferred post-game rating changes."""
+    if marked is None:marked=periods(result)
     from bisect import bisect_left, bisect_right
     rows=sorted(result.games,key=lambda g:(g.ended,g.identity))
     times=[g.ended for g in rows]
@@ -171,7 +191,7 @@ def rating_panels(result, offset):
         pad=max(25,(max(values)-min(values))*.12)
         low=max(0,min(values)-pad);high=max(values)+pad
         y=lambda value:bottom-175*(value-low)/(high-low)
-        for span in periods(result):
+        for span in marked:
             a=bisect_left(times,span['first_ended']);b=bisect_right(times,span['last_ended'])-1
             if a>b:continue
             own=span['time_class']==kind
