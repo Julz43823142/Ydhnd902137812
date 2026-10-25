@@ -107,7 +107,7 @@ class SuspicionDisplay(unittest.TestCase):
         r.diagnostics['method3']['thinking_time_convergence']={'score':100}
         self.assertEqual(suspicion_score(r),original)
 
-def test_accuracy_only_unqualified_results_never_add_suspicion(self):
+    def test_accuracy_only_unqualified_results_never_add_suspicion(self):
         r=suspicion_fixture('MODERATE','accuracy',accuracy=True)
         baseline=suspicion_score(r)
         # No qualifying results-review pass, despite impressive raw numbers.
