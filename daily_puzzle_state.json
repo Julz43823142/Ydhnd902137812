@@ -69,7 +69,7 @@
     "player_color": "white",
     "player_move_count": 5,
     "posted_at": "2026-10-25T07:57:06.608538+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -92,7 +92,8 @@
       "1468320170891022417": "random_puzzle.png"
     },
     "chat_since_refresh": 0,
-    "last_manual_bump": 1792937450.2103603
+    "last_manual_bump": 1792937450.2103603,
+    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Qd7+ f5+ Qg7+ g4+ Qxh7#"
   },
   "lichess_rating_used": {
     "2000": [
