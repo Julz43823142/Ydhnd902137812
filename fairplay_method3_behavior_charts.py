@@ -140,10 +140,15 @@ def opening_svg(result,c,marked=None):
             yy=y+190+j*26
             # Count only ACTUAL matching games in a flagged class and period.
             # Date-range intersection alone can falsely color an entire bar.
-            overlap=[(span,sum(g.time_class==span['time_class']
-                         and span['first_ended']<=g.ended<=span['last_ended']
-                         for g,_ in chunk)) for span in marked]
-            overlap=[(span,n) for span,n in overlap if n]
+            from bisect import bisect_left,bisect_right
+            dates_by_kind=defaultdict(list)
+            for g,_ in chunk:dates_by_kind[g.time_class].append(g.ended)
+            overlap=[]
+            for span in marked:
+                dates=dates_by_kind.get(span['time_class'],())
+                n=(bisect_right(dates,span['last_ended'])
+                   -bisect_left(dates,span['first_ended']))
+                if n:overlap.append((span,n))
             if overlap:
                 fraction=sum(n for _,n in overlap)/len(chunk)
                 p.append(f'<rect x="25" y="{yy-2}" width="1140" height="25" '
