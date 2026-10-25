@@ -36,6 +36,13 @@ class _Session:
 
 
 class TwitchRedemptionBridgeTests(unittest.IsolatedAsyncioTestCase):
+    def setUp(self):
+        self._original_chat_denied = bot._twitch_chat_authorization_denied
+        bot._twitch_chat_authorization_denied = False
+
+    def tearDown(self):
+        bot._twitch_chat_authorization_denied = self._original_chat_denied
+
     async def test_failed_redemption_subscription_keeps_other_subscriptions_independent(self):
         seen = []
         with patch.object(bot, "_twitch_access_token", "fake-token"), \
@@ -65,9 +72,42 @@ class TwitchRedemptionBridgeTests(unittest.IsolatedAsyncioTestCase):
              patch.object(bot.aiohttp, "ClientSession", side_effect=lambda: ChatForbiddenSession(seen)), \
              patch.object(bot, "_twitch_owner_notice", new_callable=AsyncMock) as notice:
             ready = await bot._twitch_create_subscriptions("test-session")
+            # A second EventSub WebSocket connection keeps critical features
+            # online without making another doomed Chat API request.
+            reconnect_ready = await bot._twitch_create_subscriptions("next-session")
+        self.assertTrue(ready)
+        self.assertTrue(reconnect_ready)
+        self.assertEqual(seen, [
+            "channel.channel_points_custom_reward_redemption.add",
+            "stream.online",
+            "channel.chat.message",
+            "channel.channel_points_custom_reward_redemption.add",
+            "stream.online",
+        ])
+        self.assertTrue(bot._twitch_chat_authorization_denied)
+        notice.assert_not_awaited()
+
+    async def test_other_chat_403_reasons_still_notify_owner(self):
+        seen = []
+
+        class ChatForbiddenOtherReason(_Session):
+            def post(self, url, *, headers, json, timeout):
+                kind = json["type"]
+                seen.append(kind)
+                return _Response(403 if kind == "channel.chat.message" else 202,
+                                 '{"message":"different authorization error"}')
+
+        with patch.object(bot, "_twitch_access_token", "fake-token"), \
+             patch.object(bot, "TWITCH_CHAT_ENABLED", True), \
+             patch.object(bot.aiohttp, "ClientSession",
+                          side_effect=lambda: ChatForbiddenOtherReason(seen)), \
+             patch.object(bot, "_twitch_owner_notice", new_callable=AsyncMock) as notice:
+            ready = await bot._twitch_create_subscriptions("test-session")
         self.assertTrue(ready)
         self.assertEqual(len(seen), 3)
-        notice.assert_not_awaited()
+        self.assertFalse(bot._twitch_chat_authorization_denied)
+        notice.assert_awaited_once()
+        self.assertIn("HTTP 403", notice.await_args.args[0])
 
     async def test_other_optional_chat_errors_still_notify_owner(self):
         seen = []
