@@ -2879,8 +2879,8 @@
         "url": "https://lichess.org/training/YDatx",
         "title": "Puzzle • 1237",
         "fen": "8/2k4p/P3p1pP/6p1/3B4/4P3/1Kp4r/8 w - - 1 49",
-        "current_fen": "8/7p/Pk2p1pP/4B1p1/8/4P3/1Kp4r/8 w - - 3 50",
-        "last_move_uci": "c7b6",
+        "current_fen": "8/7p/Pk2p1pP/6p1/8/4P3/1K5B/2q5 w - - 0 51",
+        "last_move_uci": "c2c1q",
         "pgn": {
           "__shark_answer_ciphertext_v1__": "gAAAAABq3mzIRCjQMhbh0XQYcub_u_722ysSj7LxwgxjBZRnkk6_x2vRpc4_DO5Ue2AGUqukujgzneYa9NUd8aGjTfilAq6hSvULnALP4FU1w3bP1U0iX-U="
         },
@@ -2899,16 +2899,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_YDatx_1792961736967",
         "rating": 1237,
-        "next_solution_index": 2,
+        "next_solution_index": 4,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1564019626973601896,
+      "message_id": 1564019653485924516,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792961743.3137386,
-      "last_feedback": "✅ **Be5+** • Opponent: **Kb6**"
+      "last_card_activity_at": 1792961748.5451684,
+      "last_feedback": "✅ **Bxh2** • Opponent: **c1=Q+**"
     },
     "362606514764251137": {
       "active": false,
