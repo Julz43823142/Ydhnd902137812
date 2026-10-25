@@ -213,8 +213,8 @@ def opening_svg(result,c,marked=None):
                       ' → during '+fmt_repeats(observed['during'])+
                       ' → after '+fmt_repeats(observed['after']),18))
     else:
-        p.append(text(30,855,'Matched repertoire repetition unavailable (need ≥8 matched games per era).',18,'#526477'))
-    p.append(text(30,917,'Controls pooled for the opening mixes; matched repetition holds class, control, color and reply fixed.',16,'#526477'))
+        p.append(text(30,855,'Matched opening repetition unavailable (need ≥8 matched games per era).',18,'#526477'))
+    p.append(text(30,917,'Controls pooled: opening mixes; matched repetition holds class, control, color and reply fixed.',16,'#526477'))
     p.extend(landscape_rating_panels(result,offset=965,marked=marked))
     return finish(p,height)
 
