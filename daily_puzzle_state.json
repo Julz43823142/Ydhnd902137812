@@ -2879,8 +2879,8 @@
         "url": "https://lichess.org/training/bh6Cj",
         "title": "Puzzle • 1313",
         "fen": "2R2rk1/5ppp/4p3/2Qp4/1P2q3/5nP1/4BP1P/4K3 w - - 13 37",
-        "current_fen": "2R2rk1/5ppp/4p3/2Qp4/1P6/5nP1/4BP1P/1q3K2 w - - 15 38",
-        "last_move_uci": "e4b1",
+        "current_fen": "2R2rk1/5ppp/4p3/2Qp4/1P6/5nP1/4BPKP/6q1 w - - 17 39",
+        "last_move_uci": "b1g1",
         "pgn": {
           "__shark_answer_ciphertext_v1__": "gAAAAABq3mzaVS1hhzRhFl9vYrUUUQ3UUpOqaGZOzw5Wmb1cwLFZlYxKJ4Tto1L0KHuCzqnkM2yjMymlhFAqsyXVAbu32_pWjA6UUG6_mNsq5I4wnbbjwc4="
         },
@@ -2899,16 +2899,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_bh6Cj_1792961754212",
         "rating": 1313,
-        "next_solution_index": 2,
+        "next_solution_index": 4,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1564019699791036446,
+      "message_id": 1564019759450947674,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792961768.2847838,
-      "last_feedback": "✅ **Kf1** • Opponent: **Qb1+**"
+      "last_card_activity_at": 1792961777.2279239,
+      "last_feedback": "✅ **Kg2** • Opponent: **Qg1+**"
     },
     "362606514764251137": {
       "active": false,
