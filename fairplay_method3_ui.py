@@ -46,10 +46,10 @@ def result_embed(result):
         + (' · incomplete collection' if result.partial else '')
         + f'\nPublished Accuracy: {accuracy_games}/{len(result.games)} games.'),inline=False)
     e.add_field(name='Performance levels',value=(
-        '⚪ Insufficient Data\\n'
-        '🟢 Within Typical Performance Range\\n'
-        '🟡 Moderate Performance Variation\\n'
-        '🟠 Notable Performance\\n'
+        '⚪ Insufficient Data\n'
+        '🟢 Within Typical Performance Range\n'
+        '🟡 Moderate Performance Variation\n'
+        '🟠 Notable Performance\n'
         '⚫ Very Strong Statistical Deviation'
     ),inline=False)
     high_gap=d.get('selected_high_effect_screen')
@@ -168,6 +168,7 @@ def chart_pngs(result, progress=None):
     from fairplay_charts import class_svg
     from fairplay_method3_frequency_charts import accuracy_frequency_svg
     from fairplay_method3_rolling_chart import rolling_history_svg
+    from fairplay_method3_chart_layout import widen_and_number
     from fairplay_method3 import observations
     import cairosvg
     live_games=result.games
@@ -175,25 +176,28 @@ def chart_pngs(result, progress=None):
     files=[]
     zoom=selected_window_svg(result)
     total=sum(bool(rows) for rows in grouped.values())+(5 if live_games else 0)+bool(zoom)
-    def add_chart(name, data):
-        files.append((name,data))
+    def add_chart(name, svg, number):
+        # Transform before PNG conversion: all outputs are truly 1800 pixels
+        # wide, with x-axes/labels using the extra space rather than margins.
+        uniform=widen_and_number(svg,number)
+        files.append((name,cairosvg.svg2png(bytestring=uniform.encode('utf-8'))))
         if progress:progress(len(files),total)
-    for kind,rows in grouped.items():
+    for number,kind in enumerate(('rapid','blitz','bullet'),1):
+        rows=grouped.get(kind)
         if not rows:continue
         svg=class_svg(kind,rows).replace('blue: SharkBot estimate · orange dashed: official Chess.com',
             'orange dashed: official Chess.com · no engine estimate')
         svg=mark_selected(svg,result,kind,rows,(150,470,790))
-        add_chart(f'fairplay_{kind}_charts.png',cairosvg.svg2png(bytestring=svg.encode()))
+        add_chart(f'fairplay_{kind}_charts.png',svg,number)
     if live_games:
-        add_chart('fairplay_method3_accuracy_frequency.png',
-                  cairosvg.svg2png(bytestring=accuracy_frequency_svg(result).encode()))
-        add_chart('fairplay_method3_rolling_history.png',cairosvg.svg2png(bytestring=rolling_history_svg(result).encode()))
+        add_chart('fairplay_method3_accuracy_frequency.png',accuracy_frequency_svg(result),4)
+        add_chart('fairplay_method3_rolling_history.png',rolling_history_svg(result),5)
     if zoom:
-        add_chart('fairplay_method3_selected_period.png',cairosvg.svg2png(bytestring=zoom.encode()))
+        add_chart('fairplay_method3_selected_period.png',zoom,6)
     if live_games:
         from fairplay_method3_behavior_charts import behavior_svgs
-        for name,svg in behavior_svgs(result):
-            add_chart(name,cairosvg.svg2png(bytestring=svg.encode()))
+        for number,(name,svg) in enumerate(behavior_svgs(result),7):
+            add_chart(name,svg,number)
     return files
 
 
