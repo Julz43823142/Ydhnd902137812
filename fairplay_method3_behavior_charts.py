@@ -194,13 +194,16 @@ def opening_svg(result,c,marked=None):
                     if share>=.13:
                         p.append(text(x+bar_width/2,yy+14,f'{share:.0%}',12,'white','middle'))
                 x+=bar_width
+            # A narrow side column must not clip into the other player's
+            # chart. Show the first exact overlap count and how many others
+            # exist; longer full counts remain in marked_periods diagnostics.
             note=f'n={len(chunk)}'
             if overlap:
-                note+=' · Context '+','.join(
-                    f"{span['number']}:{n}/{len(chunk)}" for span,n in overlap[:2])
-                if len(overlap)>2:note+=f' +{len(overlap)-2} more'
+                span,n=overlap[0]
+                note+=f" · C{span['number']}:{n}/{len(chunk)}"
+                if len(overlap)>1:note+=f' +{len(overlap)-1}'
             p.append(text(panel_x+386,yy+15,note,12))
-    p.append(text(30,817,'Purple marks only the matching flagged games; it does not flag the whole time bin.',16,'#526477'))
+    p.append(text(30,817,'C = period/context marker; +N = additional overlapping periods. Purple affects flagged games only.',16,'#526477'))
     observed=opening_repetition(result)
     if observed:
         context=(f"{observed['time_class'].title()} "
