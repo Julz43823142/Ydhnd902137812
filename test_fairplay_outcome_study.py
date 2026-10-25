@@ -2,6 +2,7 @@
 from copy import deepcopy
 from dataclasses import replace
 import json
+import random
 from pathlib import Path
 import tempfile
 import unittest
@@ -27,6 +28,59 @@ def cohort(*,tail=20,abnormal=True):
 
 def outcome(rows,scenario='balanced',source='official_accuracy'):
     return evaluate(rows,source=source)['players'][0]['outcomes'][scenario]
+
+
+class IndexedHistoricalReferences(unittest.TestCase):
+    def test_indexed_references_match_original_full_scan_exactly(self):
+        from fairplay_outcome_study import (
+            _PersonalReferences, _accuracy, _matches, _quantile,
+            _reference_pool)
+        from statistics import median
+
+        rng=random.Random(84)
+        rows=[]
+        for i in range(320):
+            own=900+rng.randrange(0,2200)
+            opp=own+rng.randrange(-400,401)
+            row=game(i,elo=own,opponent=opp,
+                     control=rng.choice(('300+0','180+2','600+0')),
+                     kind=rng.choice(('rapid','blitz','bullet')),
+                     accuracy=rng.choice((None,60,75,90,95,100)))
+            if i%47==0:row['player_elo']=float('nan')
+            if i%31==0:row['opponent_elo']=None
+            rows.append(row)
+
+        refs=_PersonalReferences(rows,'official_accuracy',CONFIG)
+        for i in range(0,len(rows),2):
+            candidate=rows[i]
+            for start in (0,20,i,len(rows)):
+                matched=[(j,_accuracy(row,'official_accuracy'))
+                         for j,row in enumerate(rows)
+                         if j<start and _accuracy(row,'official_accuracy') is not None
+                         and _matches(candidate,row,CONFIG)]
+                if len(matched)<CONFIG.minimum_reference_games:
+                    expected=None
+                else:
+                    scores=[value for _,value in matched]
+                    expected={'median':median(scores),
+                              'upper':_quantile(scores,.90),
+                              'games':len(scores),'players':1,
+                              **_reference_pool([rows[j] for j,_ in matched])}
+                self.assertEqual(refs.at(candidate,start),expected)
+
+    def test_rating_index_avoids_unrelated_full_history_scans(self):
+        from fairplay_outcome_study import _PersonalReferences, _matches
+        from unittest.mock import patch
+        # Four well-separated rating bands; exact filtering still verifies
+        # opponent Elo, gap tolerance and chronological reference scope.
+        rows=[game(i,elo=1000+800*(i%4),opponent=1100+800*(i%4)+i%19,
+                   accuracy=80+i%20) for i in range(400)]
+        refs=_PersonalReferences(rows,'official_accuracy',CONFIG)
+        with patch('fairplay_outcome_study._matches',wraps=_matches) as predicate:
+            for candidate in rows[-40:]:
+                refs.at(candidate,len(rows))
+        self.assertLess(predicate.call_count,40*len(rows)*.4)
+        self.assertGreater(predicate.call_count,0)
 
 
 class ResultsAndAccuracy(unittest.TestCase):
