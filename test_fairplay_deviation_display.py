@@ -103,17 +103,43 @@ class SuspicionDisplay(unittest.TestCase):
         row=r.diagnostics['method3']['selected']['results']
         row.update(games=120,standardized_residual=3.3,score_excess=.28)
         r.diagnostics['method3']['selected']['time_class']='blitz'
+        r.diagnostics['method3']['selected']['games']=120
         r.diagnostics['method3']['corroborating_review_signal']={
             'kind':'combined_uncalibrated_review','priority_effect':'LOW_to_MODERATE_only',
             'time_class':'blitz','results_games':120,
             'uncorrected_standardized_residual':3.3,
-            'accuracy_covered':120,'total_games':200,'at_least_90':70,'at_least_95':30}
+            'accuracy_covered':120,'total_games':200,'at_least_90':70,'at_least_95':30,
+            'selected_period_accuracy':{
+                'games':120,'accuracy_covered':80,'at_least_90':25,
+                'at_least_95':12,'distinct_observed_opponents':40}}
         initial=suspicion_score(r)
         self.assertIsNotNone(initial)
         self.assertTrue(25<=initial<=49)
         row['score_excess']=.50
         self.assertGreater(suspicion_score(r),initial)
         row['standardized_residual']=4.
+        self.assertIsNone(suspicion_score(r))
+
+    def test_combined_score_requires_period_evidence_not_historical_averages(self):
+        r=suspicion_fixture('MODERATE','combined_manual_review')
+        r.diagnostics['method3']['selected'].update(time_class='blitz',games=120)
+        r.diagnostics['method3']['selected']['results'].update(
+            games=120,standardized_residual=3.4,score_excess=.25)
+        historical={'kind':'combined_uncalibrated_review',
+                    'priority_effect':'LOW_to_MODERATE_only',
+                    'time_class':'blitz','results_games':120,
+                    'uncorrected_standardized_residual':3.4,
+                    'accuracy_covered':120,'total_games':200,
+                    'at_least_90':70,'at_least_95':30}
+        r.diagnostics['method3']['corroborating_review_signal']=historical
+        self.assertIsNone(suspicion_score(r))  # pre-v84 unverified record
+        historical['selected_period_accuracy']={
+            'games':120,'accuracy_covered':70,'at_least_90':20,
+            'at_least_95':8,'distinct_observed_opponents':16}
+        self.assertIsNone(suspicion_score(r))  # <60% same-period coverage
+        historical['selected_period_accuracy']['accuracy_covered']=80
+        self.assertIsNotNone(suspicion_score(r))
+        historical['selected_period_accuracy']['accuracy_covered']=True
         self.assertIsNone(suspicion_score(r))
 
     def test_legacy_uncalibrated_absolute_route_never_synthesizes_37(self):
