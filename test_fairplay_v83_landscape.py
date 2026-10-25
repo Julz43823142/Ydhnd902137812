@@ -94,7 +94,7 @@ class TrueLandscape(unittest.TestCase):
         self.assertEqual(len(pngs),9)
         self.assertEqual(len(set(name for name,_ in pngs)),9)
         for number,(name,blob) in enumerate(pngs,1):
-            self.assertTrue(blob.startswith(b'\\x89PNG\\r\\n\\x1a\\n'),name)
+            self.assertTrue(blob.startswith(bytes.fromhex('89504e470d0a1a0a')),name)
             width,height=struct.unpack('>II',blob[16:24])
             self.assertEqual(width,1800,name)
             self.assertGreater(height,0,name)
