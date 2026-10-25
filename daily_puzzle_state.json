@@ -2879,8 +2879,8 @@
         "url": "https://lichess.org/training/3cqWy",
         "title": "Puzzle • 1404",
         "fen": "3r4/pp2k1pp/1n6/5PP1/7P/P7/1P1R4/5K2 w - - 5 34",
-        "current_fen": "3r4/pp2k2p/1n3p2/6P1/7P/P7/1P1R4/5K2 w - - 0 35",
-        "last_move_uci": "g7f6",
+        "current_fen": "3r4/pp5p/1n3k2/8/7P/P7/1P1R4/5K2 w - - 0 36",
+        "last_move_uci": "e7f6",
         "pgn": {
           "__shark_answer_ciphertext_v1__": "gAAAAABq3m0M3zIuLjaTJntOhq5114cJE6sh-_NEQIZMJW5mo7RNZZvv1iQfa4osGcQkcWoAAtRbV8QQ0cvSWwcWMMDwf_uzi97JSW4Re2I_e9rn4dA4Vps="
         },
@@ -2899,16 +2899,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_3cqWy_1792961804606",
         "rating": 1404,
-        "next_solution_index": 2,
+        "next_solution_index": 4,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1564019910894424075,
+      "message_id": 1564019942083264635,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792961812.0949864,
-      "last_feedback": "✅ **f6+** • Opponent: **gxf6**"
+      "last_card_activity_at": 1792961817.1495402,
+      "last_feedback": "✅ **gxf6+** • Opponent: **Kxf6**"
     },
     "362606514764251137": {
       "active": false,
