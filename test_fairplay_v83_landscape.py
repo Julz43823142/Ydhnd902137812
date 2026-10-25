@@ -70,6 +70,29 @@ class LandscapeLayout(unittest.TestCase):
         self.assertEqual([t for x,y,t in original_text if 'Same-choice pair frequency' in t],
                          [t for x,y,t in final_text if 'Same-choice pair frequency' in t])
 
+    def test_full_long_opening_names_fit_in_their_own_half(self):
+        from fairplay_method3_behavior_charts import build_context,opening_svg
+        review=fixture_review()
+        for i,g in enumerate(review.games):
+            g.color=bool(i%2)
+        def long_name(game):
+            number=sum(map(ord,game.identity))%10
+            return (f'Long opening family reference {number} · vs e5 · '
+                    'Nf3 Bb5 O-O d3 Re1')
+        with patch('fairplay_opening_names.opening_pattern',side_effect=long_name):
+            source=opening_svg(review,build_context(review.games))
+        final=image_root(widen_and_number(source,7))
+        names=[(x,y,t) for x,y,t in texts(final)
+               if t.startswith('Long opening family reference')]
+        self.assertGreaterEqual(len(names),4)
+        self.assertTrue(any(x<900 for x,y,t in names))
+        self.assertTrue(any(x>900 for x,y,t in names))
+        # All legend items start at the same x within their own colour pane;
+        # 14px text remains unscaled and no actual opening name is shortened.
+        self.assertLessEqual(len({round(x) for x,y,t in names}),2)
+        self.assertTrue(all(t.endswith('Nf3 Bb5 O-O d3 Re1') for x,y,t in names))
+        self.assertTrue(all(0<=y<390 for x,y,t in names))
+
     def test_phase_five_panels_reflow_to_two_columns_without_losing_data(self):
         review=fixture_review()
         original=behavior_svgs(review)[2][1]
