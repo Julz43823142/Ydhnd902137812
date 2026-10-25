@@ -35,10 +35,18 @@ def result_embed(result):
         description=f'{icon + " " if icon else ""}**{priority_label(result.priority)}**')
     from fairplay_deviation_display import suspicion_score
     index=suspicion_score(result)
+    basis=d.get('priority_basis','results')
+    evidence_basis={
+        'accuracy':'Earlier-personal published Accuracy',
+        'accuracy_frequency':'Recent Accuracy-frequency shift',
+        'absolute_accuracy_frequency':'High Accuracy frequency (exploratory)',
+        'combined_manual_review':'Combined MODERATE review observations',
+    }.get(basis,'Elo-adjusted results, with qualified Accuracy where available')
     e.add_field(name='Suspicion Score (0–100)',value=(
-        f'**{index}/100** · Higher means greater review priority.\n'
-        'Based on Method 3 screening and qualified results/Accuracy evidence. '
-        'Not cheating odds, proof, or engine analysis.'
+        f'**{index}/100** · Higher = stronger manual-review priority.\n'
+        f'Basis: {evidence_basis}. '
+        'Experimental ordinal scale, NOT a chance of cheating or proof. '
+        'Opening/timing graphs are not scored.'
         if index is not None else
         'Unavailable — insufficient or unreliable screening evidence.'),inline=False)
     accuracy_games=sum(g.accuracy is not None for g in result.games)

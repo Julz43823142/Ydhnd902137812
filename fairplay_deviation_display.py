@@ -5,6 +5,9 @@ half-saturation. Both are required, so a huge sample with a tiny effect or a
 small extreme streak cannot saturate the index alone. No tier boundaries.
 """
 from math import isfinite, sqrt
+from fairplay_outcome_study import SCENARIOS, CONFIG as STUDY_CONFIG
+
+_BALANCED = next(s for s in SCENARIOS if s.name == 'balanced')
 
 
 def deviation_score(result):
@@ -43,19 +46,37 @@ def _matched_accuracy_strength(selected):
         return None
     checks = (selected.get('scenarios') or {}).get('balanced') or {}
     guard = selected.get('accuracy_search_guard') or {}
-    if checks.get('accuracy_pass') is not True or guard.get('moderate_pass') is not True:
+    # Recheck the *numeric* gates, not only cached pass booleans. If evidence
+    # is changed or partially serialized, an old True must not create a score.
+    adjusted = guard.get('adjusted_reference_model_bound')
+    if (checks.get('accuracy_pass') is not True or guard.get('moderate_pass') is not True
+            or not _finite_number(adjusted) or not 0 <= adjusted <= .10):
         return None
     accuracy = selected.get('accuracy') or {}
     matched, games = accuracy.get('matched_games'), selected.get('games')
     excess, fraction = accuracy.get('median_excess'), accuracy.get('above_reference_fraction')
     if (type(matched) is not int or not _finite_number(games)
             or games < 5 or matched < 5 or matched > games
-            or matched < .6 * games or not _finite_number(excess)
-            or not _finite_number(fraction) or not 0 <= fraction <= 1):
+            or matched < STUDY_CONFIG.coverage * games
+            or not _finite_number(excess) or excess < _BALANCED.accuracy_delta
+            or not _finite_number(fraction)
+            or not _BALANCED.above_reference_fraction <= fraction <= 1):
         return None
-    magnitude = max(0., excess) / (max(0., excess) + 8.)
+    magnitude = excess / (excess + _BALANCED.accuracy_delta)
     consistency = max(0., 2 * fraction - 1.)
     return sqrt(magnitude * consistency)
+
+
+def _has_manual_review_evidence(data, basis):
+    """Prevent truthy placeholders from masquerading as an Accuracy route."""
+    source = data.get(_ALTERNATE_ACCURACY_ROUTES[basis])
+    if basis == 'combined_manual_review':
+        return (isinstance(source, dict)
+                and source.get('kind') == 'combined_uncalibrated_review'
+                and source.get('priority_effect') == 'LOW_to_MODERATE_only')
+    return (isinstance(source, list) and any(
+        isinstance(item, dict) and item.get('time_class') in ('rapid', 'blitz', 'bullet')
+        for item in source))
 
 
 def suspicion_score(result):
@@ -63,8 +84,9 @@ def suspicion_score(result):
 
     The existing safeguarded final priority sets nonoverlapping score bands.
     Eligible results plus qualified historical Accuracy refine the band, never
-    create new HIGH votes. Alternative published-Accuracy review routes use
-    the MODERATE midpoint rather than borrowing unrelated results evidence.
+    create new HIGH votes. Unqualified descriptive results never inflate an
+    Accuracy-only MODERATE period. Alternative published-Accuracy review routes
+    use the MODERATE midpoint instead of unrelated results evidence.
     Unknown inputs stay unknown, not zero. No engines or further PGN work.
     """
     priority = getattr(result, 'priority', None)
@@ -79,7 +101,7 @@ def suspicion_score(result):
     lo, hi = _SUSPICION_BANDS[priority]
     basis = data.get('priority_basis', 'results')
     if basis in _ALTERNATE_ACCURACY_ROUTES:
-        if priority != 'MODERATE' or not data.get(_ALTERNATE_ACCURACY_ROUTES[basis]):
+        if priority != 'MODERATE' or not _has_manual_review_evidence(data, basis):
             return None
         return (lo + hi) // 2
 
@@ -90,11 +112,20 @@ def suspicion_score(result):
     results_strength = results_index / 100. if results_index is not None else None
     accuracy_strength = _matched_accuracy_strength(selected)
 
-    primary, supporting = ((accuracy_strength, results_strength)
-                           if basis == 'accuracy' else (results_strength, accuracy_strength))
+    if priority == 'VERY HIGH':
+        # Production requires a *strict* adjusted earlier-reference guard.
+        limit = (selected.get('accuracy_search_guard') or {}).get('adjusted_reference_model_bound')
+        if (results_strength is None or accuracy_strength is None
+                or not _finite_number(limit) or not 0 <= limit <= .01):
+            return None
+    if basis == 'accuracy':
+        # An Accuracy-only MODERATE period explicitly FAILED the results-review
+        # threshold. Its descriptive results deviation must not inflate the
+        # score as though this were corroborated results evidence.
+        primary, supporting = accuracy_strength, None
+    else:
+        primary, supporting = results_strength, accuracy_strength
     if primary is None:
-        return None
-    if priority == 'VERY HIGH' and (results_strength is None or accuracy_strength is None):
         return None
     strength = primary
     if supporting is not None:

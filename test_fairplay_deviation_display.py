@@ -41,7 +41,8 @@ def suspicion_fixture(tier='HIGH', basis='results', *, accuracy=False):
     if accuracy:
         s.update(reference_mode='personal_earlier',
             scenarios={'balanced':{'accuracy_pass':True}},
-            accuracy_search_guard={'moderate_pass':True},
+            accuracy_search_guard={'moderate_pass':True,
+                                   'adjusted_reference_model_bound':.005},
             accuracy={'matched_games':20,'median_excess':12,
                       'above_reference_fraction':.8})
     return r
@@ -79,7 +80,10 @@ class SuspicionDisplay(unittest.TestCase):
             ('absolute_accuracy_frequency','absolute_accuracy_frequency_signals'),
             ('combined_manual_review','corroborating_review_signal')]:
             r=suspicion_fixture('MODERATE',basis)
-            r.diagnostics['method3'][field]=[{'time_class':'blitz'}]
+            r.diagnostics['method3'][field]=(
+                {'kind':'combined_uncalibrated_review',
+                 'priority_effect':'LOW_to_MODERATE_only'}
+                if basis=='combined_manual_review' else [{'time_class':'blitz'}])
             r.diagnostics['method3']['selected']['results']['standardized_residual']=None
             self.assertEqual(suspicion_score(r),37)
             r.diagnostics['method3'][field]=[]
@@ -102,3 +106,35 @@ class SuspicionDisplay(unittest.TestCase):
         r.diagnostics['method3']['opening_shift']={'before':'e4','during':'d4'}
         r.diagnostics['method3']['thinking_time_convergence']={'score':100}
         self.assertEqual(suspicion_score(r),original)
+
+def test_accuracy_only_unqualified_results_never_add_suspicion(self):
+        r=suspicion_fixture('MODERATE','accuracy',accuracy=True)
+        baseline=suspicion_score(r)
+        # No qualifying results-review pass, despite impressive raw numbers.
+        r.diagnostics['method3']['selected']['results'].update(
+            standardized_residual=50,score_excess=.99)
+        self.assertEqual(suspicion_score(r),baseline)
+
+    def test_accuracy_requires_the_same_gates_as_production(self):
+        for path,value in [
+                (('accuracy_search_guard','adjusted_reference_model_bound'),.11),
+                (('accuracy_search_guard','adjusted_reference_model_bound'),float('nan')),
+                (('accuracy','matched_games'),15),
+                (('accuracy','median_excess'),7.9),
+                (('accuracy','above_reference_fraction'),.59)]:
+            r=suspicion_fixture('MODERATE','accuracy',accuracy=True)
+            r.diagnostics['method3']['selected'][path[0]][path[1]]=value
+            self.assertIsNone(suspicion_score(r),msg=str(path))
+        r=suspicion_fixture('VERY HIGH',accuracy=True)
+        r.diagnostics['method3']['selected']['accuracy_search_guard']['adjusted_reference_model_bound']=.05
+        self.assertIsNone(suspicion_score(r))
+
+    def test_malformed_accuracy_route_does_not_create_a_score(self):
+        for basis,field in [
+                ('accuracy_frequency','accuracy_frequency_signals'),
+                ('absolute_accuracy_frequency','absolute_accuracy_frequency_signals'),
+                ('combined_manual_review','corroborating_review_signal')]:
+            r=suspicion_fixture('MODERATE',basis)
+            for bad in ['true', [{'no':'verified signal'}], {'time_class':'blitz'}]:
+                r.diagnostics['method3'][field]=bad
+                self.assertIsNone(suspicion_score(r))
