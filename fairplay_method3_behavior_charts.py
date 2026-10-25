@@ -110,7 +110,7 @@ def opening_svg(result,c):
     p=header('7 · Openings and rating history','White and black separately · all live time controls combined · each bar totals 100%.',2670)
     for i,color in enumerate(('white','black')):
         from fairplay_opening_names import opening_family
-        rows=[(g,opening_family(g)) for g in result.games if g.time_class in KINDS and ('white' if g.color else 'black')==color]
+        rows=[(g,opening_family(g)) for g in result.games if g.time_class in KINDS and type(getattr(g,'color',None)) is bool and ('white' if g.color else 'black')==color]
         rows.sort(key=lambda row:(row[0].ended,row[0].identity))
         y=130+i*680
         p.append(text(30,y,color.title()+' · all Bullet, Blitz and Rapid games',25))

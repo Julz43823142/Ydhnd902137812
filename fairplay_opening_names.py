@@ -11,7 +11,7 @@ def reference():
     except (OSError,ValueError,KeyError):return {}
 
 def opening_family(game):
-    moves=tuple(game.moves[:40]);known=reference()
+    moves=tuple((getattr(game,'moves',None) or [])[:40]);known=reference()
     for length in range(len(moves),1,-1):
         if moves[:length] in known:return known[moves[:length]]
     return 'Unknown'

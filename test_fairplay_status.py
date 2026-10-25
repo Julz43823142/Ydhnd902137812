@@ -56,7 +56,8 @@ class AccountStatusIndependence(unittest.TestCase):
             api=Mock();api.deadline=1294
             api.get.side_effect=lambda target,suffix='',**kwargs: profile if not suffix else {'archives':[f'https://api.chess.com/pub/player/{TARGET}/games/2026/10']} if suffix.endswith('/archives') else {'games':[sample_row()]}
             engine=FakeEngine()
-            with patch.object(analysis.time,'monotonic',return_value=1234),patch.object(analysis.time,'time',return_value=1791273600):
+            # Runtime telemetry is external to profile metadata; keep it fixed like the clock.
+            with patch('resource.getrusage',return_value=Mock(ru_maxrss=128*1024)),patch.object(analysis.time,'monotonic',return_value=1234),patch.object(analysis.time,'time',return_value=1791273600):
                 result=analysis.review(TARGET,lambda stage:None,api_factory=lambda deadline:api,engine_factory=lambda:engine)
             api.close.assert_called_once();engine.quit.assert_called_once()
             return asdict(result)

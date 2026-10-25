@@ -11,3 +11,7 @@ class OpeningNames(unittest.TestCase):
     def test_reference_missing_is_unknown(self):
         with patch('fairplay_opening_names.reference',return_value={}):
             self.assertEqual(opening_family(N(moves=['e2e4','c7c5'])),'Unknown')
+
+    def test_missing_move_history_is_unknown(self):
+        self.assertEqual(opening_family(N()),'Unknown')
+        self.assertEqual(opening_family(N(moves=None)),'Unknown')
