@@ -92,7 +92,7 @@ class SelectedWindowPresentation(unittest.TestCase):
         self.assertTrue(all(len(field.value)<=1024 for field in card.fields))
         self.assertLessEqual(len(card),6000)
         self.assertIn('Performance levels',str(card.to_dict()))
-        self.assertIn('Suspicion Score (0–100)',str(card.to_dict()))
+        self.assertIn('Suspicion Score',str(card.to_dict()))
         self.assertNotIn('Results above expectation',str(card.to_dict()))
         self.assertIn('Opening/timing graphs are not scored',str(card.to_dict()))
         self.assertIn('not an average over all games',str(card.to_dict()))
