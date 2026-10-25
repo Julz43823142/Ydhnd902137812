@@ -164,7 +164,7 @@ class Behavior(unittest.TestCase):
         self.assertEqual(values[-1][1][0],4)
         self.assertTrue(all(value is None for _,value in series['Middle 11–30']['rapid']))
 
-def test_small_flagged_period_within_5000_games_is_compared_exactly(self):
+    def test_small_flagged_period_within_5000_games_is_compared_exactly(self):
         # Before, visual bins of ~167 games hid a short 30-game HIGH period.
         rows=[]
         for i in range(5000):
