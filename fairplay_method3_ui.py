@@ -33,11 +33,14 @@ def result_embed(result):
     icon={'LOW':'🟢','MODERATE':'🟡','HIGH':'🟠','VERY HIGH':'⚫','INSUFFICIENT DATA':'⚪'}.get(result.priority,'⚪')
     e=discord.Embed(title='🛡️ Fair Play Review — '+result.username,color=priority_color(result.priority),
         description=f'{icon + " " if icon else ""}**{priority_label(result.priority)}**')
-    from fairplay_deviation_display import deviation_score
-    index=deviation_score(result)
-    e.add_field(name='Results above expectation',value=(
-        f'**{index}/100**\nHow far results exceed Elo expectations; not proof of cheating.'
-        if index is not None else 'Unavailable — insufficient or unreliable comparison data.'),inline=False)
+    from fairplay_deviation_display import suspicion_score
+    index=suspicion_score(result)
+    e.add_field(name='Suspicion Score (0–100)',value=(
+        f'**{index}/100** · Higher means greater review priority.\n'
+        'Based on Method 3 screening and qualified results/Accuracy evidence. '
+        'Not cheating odds, proof, or engine analysis.'
+        if index is not None else
+        'Unavailable — insufficient or unreliable screening evidence.'),inline=False)
     accuracy_games=sum(g.accuracy is not None for g in result.games)
     e.add_field(name='Results confidence',value=f'**{result.confidence}**',inline=False)
     e.add_field(name='Sample / coverage',value=(

@@ -92,6 +92,8 @@ class SelectedWindowPresentation(unittest.TestCase):
         self.assertTrue(all(len(field.value)<=1024 for field in card.fields))
         self.assertLessEqual(len(card),6000)
         self.assertIn('Performance levels',str(card.to_dict()))
+        self.assertIn('Suspicion Score (0–100)',str(card.to_dict()))
+        self.assertNotIn('Results above expectation',str(card.to_dict()))
         self.assertNotIn('additional time controls omitted',str(card.to_dict()))
         self.assertEqual(len(info['accuracy_frequency_signals']),50)
 
