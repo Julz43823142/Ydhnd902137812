@@ -48,7 +48,13 @@ comparisons, the Accuracy-frequency page.
 - The Method 3 observations function previously sorted up to 5000 collected
   games *twice* using the same key; v83 reuses the first sorted result.
   This avoids redundant O(n log n) work with identical plotted values and
-  order. No quantitative runtime gain is claimed without a benchmark.
+  order.
+- Descriptive PGN clock reconstruction now uses a bounded 128-entry cache of
+  the pure time-control parser instead of parsing the same `180+2` /
+  `60+0` value on every eligible move. The exact conversion and all
+  existing clock-validity gates are unchanged; unit tests compare resulting
+  semantics and assert one parse per distinct control.
+- No quantitative runtime gain is claimed without a benchmark.
 
 ## Deploy trade-off
 
