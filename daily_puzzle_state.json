@@ -2865,7 +2865,7 @@
   },
   "puzzle_rush": {
     "442597396195704832": {
-      "active": true,
+      "active": false,
       "user_id": "442597396195704832",
       "name": "Thice",
       "started_at": 1792962057.784943,
@@ -2904,11 +2904,16 @@
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1564021092534849538,
+      "message_id": 1564021145341136907,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
       "last_card_activity_at": 1792962092.5809715,
-      "last_feedback": "✅ **Rxd8** — solved! Score: **1**."
+      "last_feedback": "✅ **Rxd8** — solved! Score: **1**.",
+      "ended_at": 1792962363.8621204,
+      "solve_reward_coins": 0.5,
+      "solve_reward_paid": true,
+      "completion_reward_coins": 10.0,
+      "completion_reward_paid": true
     },
     "362606514764251137": {
       "active": false,
@@ -3811,6 +3816,14 @@
       "score": 3,
       "achieved_at": "2026-10-25T21:00:25.103081+00:00",
       "started_at": 1792961710.0297806,
+      "week": "2026-W43"
+    },
+    "rush:442597396195704832:1792962057784": {
+      "user_id": "442597396195704832",
+      "name": "Thice",
+      "score": 1,
+      "achieved_at": "2026-10-25T21:06:03.862130+00:00",
+      "started_at": 1792962057.784943,
       "week": "2026-W43"
     }
   },
