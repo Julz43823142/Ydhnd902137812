@@ -252,7 +252,10 @@ class Behavior(unittest.TestCase):
               for i in range(10)]
         for g in rows:
             for d in g.decisions:d.clock_before=20
-            for d in g.decisions[-2:]:d.clock_before=4
+            for d in g.decisions[-2:]:
+                d.clock_before=4
+                d.clock_after=2
+                d.clock_valid=False  # Real parser rejects <10s from engine timing.
         context=build_context(rows)
         self.assertTrue(all(context['clocks'][g.identity]['Start <10s']==2
                             for g in rows))
