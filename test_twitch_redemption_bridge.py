@@ -49,6 +49,44 @@ class TwitchRedemptionBridgeTests(unittest.IsolatedAsyncioTestCase):
             "stream.online",
         ])
 
+    async def test_optional_chat_403_does_not_dm_owner(self):
+        seen = []
+
+        class ChatForbiddenSession(_Session):
+            def post(self, url, *, headers, json, timeout):
+                kind = json["type"]
+                seen.append(kind)
+                if kind == "channel.chat.message":
+                    return _Response(403, '{"message":"subscription missing proper authorization"}')
+                return _Response(202, '{}')
+
+        with patch.object(bot, "_twitch_access_token", "fake-token"), \\
+             patch.object(bot, "TWITCH_CHAT_ENABLED", True), \\
+             patch.object(bot.aiohttp, "ClientSession", side_effect=lambda: ChatForbiddenSession(seen)), \\
+             patch.object(bot, "_twitch_owner_notice", new_callable=AsyncMock) as notice:
+            ready = await bot._twitch_create_subscriptions("test-session")
+        self.assertTrue(ready)
+        self.assertEqual(len(seen), 3)
+        notice.assert_not_awaited()
+
+    async def test_other_optional_chat_errors_still_notify_owner(self):
+        seen = []
+
+        class ChatUnavailableSession(_Session):
+            def post(self, url, *, headers, json, timeout):
+                kind = json["type"]
+                seen.append(kind)
+                return _Response(503 if kind == "channel.chat.message" else 202)
+
+        with patch.object(bot, "_twitch_access_token", "fake-token"), \\
+             patch.object(bot, "TWITCH_CHAT_ENABLED", True), \\
+             patch.object(bot.aiohttp, "ClientSession", side_effect=lambda: ChatUnavailableSession(seen)), \\
+             patch.object(bot, "_twitch_owner_notice", new_callable=AsyncMock) as notice:
+            ready = await bot._twitch_create_subscriptions("test-session")
+        self.assertTrue(ready)
+        notice.assert_awaited_once()
+        self.assertIn("Chat", notice.await_args.args[0])
+
     async def test_successful_redemption_subscription_survives_optional_subscription_failure(self):
         seen = []
 
