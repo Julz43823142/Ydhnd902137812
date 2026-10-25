@@ -91,7 +91,7 @@ class Behavior(unittest.TestCase):
         r=N(games=[game(i) for i in range(30)],priority='LOW',diagnostics={'method3':{}})
         pages=behavior_svgs(r)
         self.assertIn('each bar totals 100%',pages[0][1])
-        self.assertIn('chronological game number',pages[1][1])
+        self.assertIn('Shared UTC calendar axis',pages[1][1])
         self.assertIn('How does thinking time change?',pages[2][1])
 
     def test_rating_panels_preserve_points_and_ignore_unrated(self):
@@ -142,7 +142,7 @@ class Behavior(unittest.TestCase):
         r=N(games=rows,priority='HIGH',diagnostics={'method3':{'selected':{'first_ended':rows[60].ended,'last_ended':rows[-1].ended}}})
         svg=timing_svg(r,build_context(rows))
         self.assertIn('before 3.0s → during 0.0s',svg)
-        self.assertIn('One seconds scale',svg)
+        self.assertIn('shared seconds scale',svg)
 
     def test_more_named_families_and_unknown_separate(self):
         from unittest.mock import patch
