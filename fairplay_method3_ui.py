@@ -35,21 +35,9 @@ def result_embed(result):
         description=f'{icon + " " if icon else ""}**{priority_label(result.priority)}**')
     from fairplay_deviation_display import suspicion_score
     index=suspicion_score(result)
-    basis=d.get('priority_basis','results')
-    evidence_basis={
-        'accuracy':'Earlier-personal published Accuracy',
-        'accuracy_frequency':'Recent Accuracy-frequency shift',
-        'absolute_accuracy_frequency':'High Accuracy frequency (exploratory)',
-        'combined_manual_review':'Combined MODERATE review observations',
-    }.get(basis,'Elo-adjusted results, with qualified Accuracy where available')
-    e.add_field(name='Suspicion Score (0–100)',value=(
-        f'**{index}/100** · Higher = stronger manual-review priority.\n'
-        f'Basis: {evidence_basis}. '
-        'Selected period/review signal, not an average over all games. '
-        'Experimental ordinal scale, NOT a chance of cheating or proof. '
-        'Opening/timing graphs are not scored.'
-        if index is not None else
-        'Unavailable — insufficient or unreliable screening evidence.'),inline=False)
+    e.add_field(name='Suspicion Score',
+                value=f'**{index}/100**' if index is not None else 'Unavailable',
+                inline=False)
     accuracy_games=sum(g.accuracy is not None for g in result.games)
     e.add_field(name='Results confidence',value=f'**{result.confidence}**',inline=False)
     e.add_field(name='Sample / coverage',value=(
@@ -58,25 +46,22 @@ def result_embed(result):
         + (' · incomplete collection' if result.partial else '')
         + f'\nPublished Accuracy: {accuracy_games}/{len(result.games)} games.'),inline=False)
     e.add_field(name='Performance levels',value=(
-        '⚪ **Insufficient Data** — White\n'
-        '🟢 **Within Typical Performance Range** — Green\n'
-        '🟡 **Moderate Performance Variation** — Yellow\n'
-        '🟠 **Notable Performance** — Orange\n'
-        '⚫ **Very Strong Statistical Deviation** — Black'
+        '⚪ Insufficient Data\\n'
+        '🟢 Within Typical Performance Range\\n'
+        '🟡 Moderate Performance Variation\\n'
+        '🟠 Notable Performance\\n'
+        '⚫ Very Strong Statistical Deviation'
     ),inline=False)
     high_gap=d.get('selected_high_effect_screen')
     if high_gap and result.priority=='LOW' and not high_gap['passes_excess_threshold']:
         e.add_field(name='Why HIGH was not reached',
-                    value=(f"Selected results window: {high_gap['observed_excess']*100:.1f} "
-                           f"percentage points above Elo expectation; "
-                           f"{high_gap['required_excess']*100:.0f} required for the HIGH effect screen. "
-                           "Additional search and reliability checks also apply."),
+                    value=(f"Results vs Elo: {high_gap['observed_excess']*100:+.1f} pp · "
+                           f"HIGH requires +{high_gap['required_excess']*100:.0f} pp "
+                           "and additional safeguards."),
                     inline=False)
     selected=d.get('selected')
     if selected:
-        label=('Selected results window · separate from Accuracy signal'
-               if d.get('priority_basis') in ('accuracy_frequency','absolute_accuracy_frequency','combined_manual_review')
-               else 'Selected chronological period')
+        label='Selected period'
         e.add_field(name=label,value=f"{selected['time_class'].title()} · {selected['games']} games · {period_dates(selected)}\nExpected points: **{fmt(r['expected_points'])}** · scored: **{fmt(r['actual_points'])}**\nWinrate: **{fmt(r['win_fraction'],True)}**",inline=False)
     if selected and selected.get('classification_guards'):
         support=selected.get('rating_support') or {}
@@ -96,7 +81,7 @@ def result_embed(result):
             'Additional Accuracy cannot bypass an unreliable Elo or repeated-opponent safeguard.'
         )[:1024],inline=False)
     e.add_field(name='Important',value='Not proof of cheating. Human review is required before any action.',inline=False)
-    e.set_footer(text=f'Version: {result.version} · uncalibrated heuristic, not probability')
+    e.set_footer(text=f'Version: {result.version}')
     return e
 
 
