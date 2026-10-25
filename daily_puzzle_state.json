@@ -2871,44 +2871,44 @@
       "started_at": 1792961710.0297806,
       "run_id": "rush:442597396195704832:1792961710029",
       "end_at": 1792962010.0297806,
-      "score": 4,
+      "score": 5,
       "wrong": 0,
       "mistakes": [],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/qfiY2",
-        "title": "Puzzle • 1349",
-        "fen": "5r1r/6k1/1p1pqbp1/p1p5/P1P1PB2/3PQR1P/2P3P1/5RK1 b - - 2 37",
-        "current_fen": "5r2/6k1/1p1pq1pr/p1p5/P1PQP3/3P1R1P/2P3P1/5RK1 b - - 0 39",
-        "last_move_uci": "e3d4",
+        "url": "https://lichess.org/training/3cqWy",
+        "title": "Puzzle • 1404",
+        "fen": "3r4/pp2k1pp/1n6/5PP1/7P/P7/1P1R4/5K2 w - - 5 34",
+        "current_fen": "3r4/pp2k1pp/1n6/5PP1/7P/P7/1P1R4/5K2 w - - 5 34",
+        "last_move_uci": "e8d8",
         "pgn": {
-          "__shark_answer_ciphertext_v1__": "gAAAAABq3mz1JaZqJv-yFRyviI8CKoO3rtETqnH1_Rak9ijP8bYw1biMSIpEkhbWToLQgpJ7L-0vVPJVAexLVf_mIRgIfSVxjIHUJMxIbGk0mJAg8glYYRw="
+          "__shark_answer_ciphertext_v1__": "gAAAAABq3m0M3zIuLjaTJntOhq5114cJE6sh-_NEQIZMJW5mo7RNZZvv1iQfa4osGcQkcWoAAtRbV8QQ0cvSWwcWMMDwf_uzi97JSW4Re2I_e9rn4dA4Vps="
         },
         "all_moves": {
-          "__shark_answer_ciphertext_v1__": "gAAAAABq3mz17QHVXkWrN4xEUlVrMWeDjLypxSTmYDGg02tns49GXAO0EDHcCwMNlpuHD8iF33orLMjZ1hRNsVfsA77QcX9HI1EAIIasATYUcBvj4TUHjiRkV6Kgx8adxbBf2dnqiO79xDdgiNrfD8UPDAv4ZSvs0lKaDriv6fNaQuRHA-Xn8YLjqpZBNeSfzTKc-2TCzjTXfFRV5zxM2sqgY9HDcVwUr3Rn6e3VzUDU4Y7OqUW7iBUs6XrW2njbEqX_CoVtvVzOMygermxChoR-hjPyul07OlLTIz6qclm2Pb_20dS6ESMydE51IMLe8z_-ZubKeujYeJ3FJ1jb-1w3gwDmz2gjYum5bYFgUMN-Hp384OaiiO4="
+          "__shark_answer_ciphertext_v1__": "gAAAAABq3m0MxlNn00R6K4L49WTOj9WgeE2iDMtWZ8YHOYOozxW2_GQEI-FXFaCrKtDhD5jLLjRFto46JO2OH7D4j3H_vCdR4iUK_vm7rsQZJxm83enWsPf0oHaoCoY9CUJrQQviCaTVzxSlqdLxDJj0KiZ_Xy5grt8WsZq8bz6ZrBlJoEWDM3xI-_xxJoZsUFzPAplG2K3L1ZzFkRq-9mz2WswBWYEKuyBqRnLvxHEbq2m13jUN3snnWH9_WG-h67fc9c0qZLy7AH7cEySt0iMafbmDZLghjgIorYQQMtR21mdGEMKunqfCzb3rv110_Eu5p1VNigXbej6l4MiIWj1TiF860o1YeQ0d5uCavLisqZ5HVKCugdM="
         },
         "player_moves": {
-          "__shark_answer_ciphertext_v1__": "gAAAAABq3mz1h5eRXEMd6yWeDw8fbbsMyo9um8Re83_Q9ZmBvmmA_8aFOZb1pKR5UavEQEPGAiIOcaYAlASxFa0DmYCMp6YBsMyNQmkSYkUHv_kZOVYxNSV_8AtJ9oYKI8ly6lUpRa1l5GpW51BvtlUPfBFXTbg1jDQ89FASNcmQ4PiRDdUuiD7z4uY1nvm85NsvQi-rq5RnuxvcPUKT8AdOkaLvvcEVQAL6mfYBNCXpr1i3syq9ROClyzXhu77MoBT72_p90Yo3"
+          "__shark_answer_ciphertext_v1__": "gAAAAABq3m0M1G9jsChRtNPpfzQJQ-51zAMSgz_HJrZ7GoTVkYpmx7pwcQ_yeSN3fMH7Gc0kEY7rsTcOe45BhV0VuHwhAAxXKSRASp1dZTh91BEmwFCeJ85j4BrAFolzZclhj3_QlA585z2xrz2d2t5oyZMUhbwMGfVvn83BDS446BOmibkA3OacC8Vt4VupFXR2fNyFi-6RWGcTj-UKDl6s1LlEdSlMVTwvkzrPpX0iv9pT5AyR4Uye5Mu6Xgl8F839C6_DDoiY"
         },
-        "player_color": "black",
+        "player_color": "white",
         "player_move_count": 3,
-        "posted_at": "2026-10-25T20:56:21.959715+00:00",
+        "posted_at": "2026-10-25T20:56:44.606226+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_qfiY2_1792961781959",
-        "rating": 1349,
-        "next_solution_index": 4,
+        "puzzle_id": "practice_rush_442597396195704832_3cqWy_1792961804606",
+        "rating": 1404,
+        "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1564019844481814598,
+      "message_id": 1564019876207534125,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792961796.389712,
-      "last_feedback": "✅ **Rxh6** • Opponent: **Qxd4+**"
+      "last_card_activity_at": 1792961804.6014137,
+      "last_feedback": "✅ **cxd4** — solved! Score: **5**."
     },
     "362606514764251137": {
       "active": false,
