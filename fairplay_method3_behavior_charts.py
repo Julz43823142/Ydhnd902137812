@@ -444,68 +444,99 @@ def phase_trends(result,c):
 
 
 def phase_svg(result,c,marked=None):
-    from bisect import bisect_left,bisect_right
+    """Five time/pressure panels in a 2-column landscape grid.
+
+    Keep all 5 phases, each phase's own seconds scale, per-game medians,
+    25–75% bands, exact-control coverage rules and UTC dates. No score effect.
+    """
     if marked is None:marked=periods(result)
-    rows,trends=phase_trends(result,c);times=[g.ended for g in rows]
-    edges=calendar(rows,min(30,max(1,len(rows)//20)))
-    p=header('9 · How does thinking time change?','Blue Bullet · orange Blitz · green Rapid. Lines: median; shaded bands: middle 50% of game medians.',2020)
-    for k,kind in enumerate(KINDS):p.append(text(30+k*390,115,kind.title()+' · '+control_label(c['chosen'].get(kind,'unknown')),20,COLORS_LINE[k]))
-    x=lambda stamp:100+1030*(stamp-edges[0])/(edges[-1]-edges[0])
-    for panel,(cat,series) in enumerate(trends.items()):
-        top=180+panel*305;bottom=top+205
-        p.append(text(30,top-20,cat+' · seconds per move',23))
-        maximum=max([.5]+[value[2]*1.15 for points in series.values() for _,value in points if value])
-        y=lambda value:bottom-205*value/maximum
+    rows,trends=phase_trends(result,c)
+    count=min(30,max(1,len(rows)//20))
+    edges=calendar(rows,count)
+    height=1175
+    p=header('9 · How does thinking time change?',
+             'Blue Bullet · orange Blitz · green Rapid · per-game medians and middle 50% bands.',height)
+    for k,kind in enumerate(KINDS):
+        p.append(text(30+k*390,114,kind.title()+' · '+
+                      control_label(c['chosen'].get(kind,'unknown')),18,COLORS_LINE[k]))
+    for panel,(category,series) in enumerate(trends.items()):
+        col=panel%2;row=panel//2
+        left=32+col*590
+        top=175+row*265
+        bottom=top+165
+        xleft=left+75
+        plot_width=445
+        x=lambda stamp:xleft+plot_width*(stamp-edges[0])/(edges[-1]-edges[0])
+        p.append(text(left,top-17,category+' · seconds/move',20))
+        maximum=max([.5]+[value[2]*1.15 for points in series.values()
+                          for _,value in points if value])
+        y=lambda value:bottom-165*value/maximum
         for span in marked:
-            a,b=span['first_ended'],span['last_ended']
-            if b<edges[0] or a>edges[-1]:continue
+            start_time,end_time=span['first_ended'],span['last_ended']
+            if end_time<edges[0] or start_time>edges[-1]:continue
+            xa=x(max(start_time,edges[0]));xb=x(min(end_time,edges[-1]))
             fill,stroke=COLORS[span['priority']]
-            p.append(f'<rect x="{x(max(a,edges[0]))}" y="{top}" '
-                     f'width="{max(2,x(min(b,edges[-1]))-x(max(a,edges[0])))}" '
-                     f'height="205" fill="{fill}" fill-opacity=".16"/>')
-            p.append(text(min(x(a),930),top+16,span['time_class'].title()+' '+span['priority']+' '+str(span['number']),14,stroke))
-        for j in range(4):
-            yy=y(maximum*j/3)
-            p.append(f'<line x1="100" x2="1130" y1="{yy}" y2="{yy}" stroke="#d6e1ea"/>')
-            p.append(text(25,yy+6,f'{maximum*j/3:.1f}s',17))
+            p.append(f'<rect x="{xa:.2f}" y="{top}" width="{max(2,xb-xa):.2f}" '
+                     f'height="165" fill="{fill}" fill-opacity=".16"/>')
+            p.append(text(min(xa,xleft+plot_width-100),top+15,
+                          span['time_class'].title()+' '+span['priority']+' '+
+                          str(span['number']),12,stroke))
+        for tick in range(4):
+            value=maximum*tick/3; yy=y(value)
+            p.append(f'<line x1="{xleft}" x2="{xleft+plot_width}" '
+                     f'y1="{yy:.2f}" y2="{yy:.2f}" stroke="#d6e1ea"/>')
+            p.append(text(xleft-10,yy+5,f'{value:.1f}s',14,anchor='end'))
         for k,kind in enumerate(KINDS):
             previous=None
-            for index,value in series[kind]:
-                if value is None:previous=None;continue
-                xx=x(index)
+            for stamp,values in series[kind]:
+                if values is None:
+                    previous=None
+                    continue
+                xx=x(stamp)
                 if previous:
-                    px,pv=previous
-                    coords=f'{px},{y(pv[1])} {xx},{y(value[1])} {xx},{y(value[2])} {px},{y(pv[2])}'
+                    px,prior=previous
+                    coords=(f'{px:.2f},{y(prior[1]):.2f} '
+                            f'{xx:.2f},{y(values[1]):.2f} '
+                            f'{xx:.2f},{y(values[2]):.2f} '
+                            f'{px:.2f},{y(prior[2]):.2f}')
                     p.append(f'<polygon points="{coords}" fill="{COLORS_LINE[k]}" fill-opacity=".12"/>')
-                    p.append(f'<line x1="{px}" y1="{y(pv[0])}" x2="{xx}" y2="{y(value[0])}" stroke="{COLORS_LINE[k]}" stroke-width="2.5"/>')
-                p.append(f'<circle cx="{xx}" cy="{y(value[0])}" r="3" fill="{COLORS_LINE[k]}"/>')
-                previous=(xx,value)
-        for j in range(5):
-            stamp=edges[0]+(edges[-1]-edges[0])*j/4
-            label=(datetime.fromtimestamp(stamp,timezone.utc).strftime('%d %b %H:%M')
-                   if edges[-1]-edges[0]<172800 else date(stamp))
-            p.append(text(x(stamp),bottom+25,label,16,anchor='middle'))
-    p.append(text(30,1730,'Shared UTC calendar axis · gaps mean fewer than 5 contributing games, never zero.',18))
-    p.append(text(30,1760,'Each panel has its own seconds scale. Bands show between-game variation, not proof.',18))
-    p.append(text(30,1797,'≥5 contributing games/point; one verified time-pressure move/game is sufficient.',17,'#526477'))
+                    p.append(f'<line x1="{px:.2f}" y1="{y(prior[0]):.2f}" '
+                             f'x2="{xx:.2f}" y2="{y(values[0]):.2f}" '
+                             f'stroke="{COLORS_LINE[k]}" stroke-width="2.5"/>')
+                p.append(f'<circle cx="{xx:.2f}" cy="{y(values[0]):.2f}" '
+                         f'r="3" fill="{COLORS_LINE[k]}"/>')
+                previous=(xx,values)
+        for tick in range(3):
+            stamp=edges[0]+(edges[-1]-edges[0])*tick/2
+            date_label=(datetime.fromtimestamp(stamp,timezone.utc).strftime('%d %b %H:%M')
+                        if edges[-1]-edges[0]<172800 else date(stamp))
+            p.append(text(x(stamp),bottom+24,date_label,14,anchor='middle'))
+    # The right cell in the last row is used for a genuine explanatory panel,
+    # rather than making chart 9 twice as tall simply to show five plots.
+    left=640
+    p.append(text(left,715,'Paired time-pressure response',21))
+    p.append(text(left,747,'Own pace with <10 seconds / ≥30 seconds left',16,'#526477'))
     response=time_pressure_response(result,c.get('pressure_ratios',{}))
     if response:
+        p.append(text(left,777,response['time_class'].title()+' · '+
+                      control_label(response['time_control'])+' · matched exact control',16))
         def fmt_pair(value):
             return f"{value['median_ratio']:.2f}× (n={value['games']})" if value else 'unavailable'
-        p.append(text(30,1844,'Paired time-pressure response · '+
-                      response['time_class'].title()+' '+control_label(response['time_control']),19))
-        p.append(text(30,1876,'<10s / ≥30s thinking pace: before '+fmt_pair(response['before'])+
-                      ' → during '+fmt_pair(response['during'])+' → after '+fmt_pair(response['after']),17))
-        p.append(text(30,1908,'Below 1× = faster in time trouble. Matched exact control may differ from plotted control.',17,'#526477'))
-        p.append(text(30,1940,'Paired games / all games: before '+
+        p.append(text(left,806,'Before '+fmt_pair(response['before'])+
+                      ' → during '+fmt_pair(response['during']),16))
+        p.append(text(left,835,'After '+fmt_pair(response['after'])+
+                      ' · below 1× means faster under pressure',15,'#526477'))
+        p.append(text(left,864,'Valid/total games before '+
                       str(response['before']['games'])+'/'+str(response['before']['total_games'])+
-                      ', during '+str(response['during']['games'])+'/'+str(response['during']['total_games'])+
-                      '; interpretation is conditional on reaching both clock states.',16,'#526477'))
+                      ' · during '+str(response['during']['games'])+'/'+
+                      str(response['during']['total_games']),15,'#526477'))
     else:
-        p.append(text(30,1850,'Paired time-pressure comparison unavailable: need ≥5 games with both clock states '
-                      'before/during.',17,'#526477'))
-    return finish(p,2020)
-
+        p.append(text(left,785,'Unavailable: need ≥5 matched games in',16,'#526477'))
+        p.append(text(left,815,'both before and selected-period eras.',16,'#526477'))
+    p.append(text(30,1003,'Shared UTC calendar timeline · gaps mean fewer than 5 timed games, not zero.',17,'#526477'))
+    p.append(text(30,1036,'Different panels use independent seconds scales; each game gets equal weight.',17,'#526477'))
+    p.append(text(30,1069,'One verified pressure move/game is enough; at least 5 different games per plotted point.',17,'#526477'))
+    return finish(p,height)
 
 def behavior_svgs(result):
     c=build_context(result.games)
