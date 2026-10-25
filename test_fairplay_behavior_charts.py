@@ -84,7 +84,7 @@ class Behavior(unittest.TestCase):
         from fairplay_config import active_version
         self.assertEqual(priority_color('LOW'),0x22C55E)
         self.assertEqual(priority_color('INSUFFICIENT DATA'),0xFFFFFF)
-        self.assertEqual(active_version({'FAIRPLAY_METHOD3':'1'}),'fairplay-v75-rating-context')
+        self.assertEqual(active_version({'FAIRPLAY_METHOD3':'1'}),'fairplay-v76-rating-ci')
         r=N(games=[game(i) for i in range(30)],priority='LOW',diagnostics={'method3':{}})
         pages=behavior_svgs(r)
         self.assertIn('Each bar is 100%',pages[0][1])
