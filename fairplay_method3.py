@@ -422,7 +422,9 @@ def observations(games):
     games=sorted(games,key=lambda g:(g.ended,g.identity))
     recent_ids={g.identity for g in games[-PRIORITY_GAMES:]}
     grouped={kind:[] for kind in ('rapid','blitz','bullet')}
-    for game in sorted(games,key=lambda g:(g.ended,g.identity)):
+    # Games are already sorted above to build recent_ids. Re-sorting up to
+    # 5,000 observations here costs time without changing chart order.
+    for game in games:
         times=[d.think for d in game.decisions if d.clock_valid and d.think is not None and d.think>=0]
         group=grouped[game.time_class]
         group.append({'game':len(group)+1,'control':game.time_control,'rated':game.rated,
