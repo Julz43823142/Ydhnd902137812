@@ -1703,7 +1703,14 @@ class FairPlayService:
                                 last_chart_stage=job.stage
                         await asyncio.wait({chart_task},timeout=1)
                     chart_files=await chart_task
-                except Exception:chart_files=[]
+                except Exception as error:
+                    # Keep the review deliverable, but never silently hide
+                    # why all nine expected image attachments disappeared.
+                    import traceback
+                    print(f'Fair Play Method 3 chart rendering failed: '
+                          f'{type(error).__name__}: {error}',flush=True)
+                    traceback.print_exc()
+                    chart_files=[]
             elif result.diagnostics.get("v51_shadow"):
                 try:
                     from fairplay_v51_shadow import observations, chart_pngs

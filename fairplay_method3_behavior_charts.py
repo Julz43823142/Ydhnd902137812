@@ -1,6 +1,7 @@
 """Engine-free descriptive context; never consumed by priority scoring."""
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
+from functools import lru_cache
 from math import exp, log
 from statistics import median
 
@@ -39,13 +40,20 @@ def valid_clock(d):
             and 0<=d.think<120)
 
 
+@lru_cache(maxsize=128)
+def _clock_for_control(control):
+    """Parse unchanged PGN control once instead of per recorded chess move."""
+    from fairplay_data import clock_control
+    return clock_control(control)
+
+
 def descriptive_clock(game,d):
     if valid_clock(d):return True
     # Engine timing deliberately rejects time trouble; these descriptive bars must not.
-    from fairplay_data import clock_control, think_time
+    from fairplay_data import think_time
     before=getattr(d,'clock_before',None);after=getattr(d,'clock_after',None)
     if not (finite(before) and finite(after) and min(before,after)>=0):return False
-    base,increment=clock_control(game.time_control)
+    base,increment=_clock_for_control(game.time_control)
     if base is None:return False
     expected=think_time(before,after,increment)
     return expected is not None and 0<=expected<120 and finite(getattr(d,'think',None)) and abs(expected-d.think)<.001
@@ -138,7 +146,7 @@ def opening_svg(result,c,marked=None):
         rows=[(g,opening_pattern(g)) for g in result.games if g.time_class in KINDS and type(getattr(g,'color',None)) is bool and ('white' if g.color else 'black')==color]
         rows.sort(key=lambda row:(row[0].ended,row[0].identity))
         y=130+i*780
-        p.append(text(30,y,color.title()+' · all Bullet, Blitz and Rapid games',25))
+        p.append(text(30,y,f'{color.title()} · {len(rows)} Bullet/Blitz/Rapid games',25))
         count=min(20,max(1,len(rows)//10))
         counts=Counter(v for _,v in rows)
         eligible={v for v,n in counts.items() if n/len(rows)>=.01} if rows else set()
@@ -149,12 +157,16 @@ def opening_svg(result,c,marked=None):
         labels=choices+(['Unknown'] if counts.get('Unknown') else [])+['Other']
         choices=labels[:-1]
         names={'e2e4':'1.e4','d2d4':'1.d4','c2c4':'1.c4','g1f3':'1.Nf3'}
-        for j,label in enumerate(labels):p.append(text(30+(j%2)*570,y+30+(j//2)*23,names.get(label,label),14,PALETTE[j]))
+        # Full opening signatures can exceed half a panel's width. Use one
+        # 15px-spaced legend column per colour; do not truncate moves or shrink
+        # the 14px legend text to squeeze a second column into the dashboard.
+        for j,label in enumerate(labels):
+            p.append(text(30,y+30+j*15,names.get(label,label),14,PALETTE[j]))
         count=min(20,max(1,len(rows)//10))
         for j in range(count):
             chunk=rows[len(rows)*j//count:len(rows)*(j+1)//count]
             if not chunk:continue
-            yy=y+190+j*26
+            yy=y+230+j*26
             # Count only ACTUAL matching games in a flagged class and period.
             # Date-range intersection alone can falsely color an entire bar.
             from bisect import bisect_left,bisect_right
@@ -197,11 +209,11 @@ def opening_svg(result,c,marked=None):
     else:
         p.append(text(30,1730,'Matched repertoire repetition: unavailable (need ≥8 games before/during).',17,'#526477'))
     p.append(text(30,1800,'Controls pooled: top bars mix modes; matched repetition fixes class/control/color/opponent reply.',17,'#526477'))
-    p.extend(rating_panels(result,1900,marked=marked))
+    p.extend(rating_panels(result,1900,marked=marked,compact=True))
     return finish(p,2980)
 
 
-def rating_panels(result, offset, marked=None):
+def rating_panels(result, offset, marked=None, compact=False):
     """Observed pre-game ratings, never inferred post-game rating changes."""
     if marked is None:marked=periods(result)
     from bisect import bisect_left, bisect_right
@@ -218,7 +230,10 @@ def rating_panels(result, offset, marked=None):
         title=kind.title()
         if points:
             values=[value for _,value in points];first,last=values[0],values[-1]
-            title+=f' · {first:.0f} → {last:.0f} · {last-first:+.0f} points · {len(points)} games'
+            if compact:
+                title+=f' Elo {first:.0f}→{last:.0f} ({last-first:+.0f}) · n={len(points)}'
+            else:
+                title+=f' · {first:.0f} → {last:.0f} · {last-first:+.0f} points · {len(points)} games'
         p.append(text(30,top-25,title,23,COLORS_LINE[k]))
         if not points:
             p.append(text(100,top+75,'No rated games with available ratings',20,'#526477'))
@@ -253,7 +268,10 @@ def rating_panels(result, offset, marked=None):
         for j in range(5):
             index=round((len(rows)-1)*j/4)
             p.append(text(x(index),bottom+26,str(index+1),17,anchor='middle'))
-        p.append(text(100,bottom+50,f'Range {min(values):.0f}–{max(values):.0f} · own rating scale · line connects observed games',17,'#526477'))
+        hint=(f'Range {min(values):.0f}–{max(values):.0f} · own Elo scale'
+              if compact else
+              f'Range {min(values):.0f}–{max(values):.0f} · own rating scale · line connects observed games')
+        p.append(text(100,bottom+50,hint,17,'#526477'))
     p.append(text(30,offset+1000,'Rating changes alone are context, not proof. No smoothing; missing ratings are not filled in.',18,'#526477'))
     return p
 
@@ -297,7 +315,12 @@ def timing_svg(result,c,marked=None):
         p.append(f'<line x1="100" x2="1130" y1="{yy}" y2="{yy}" stroke="#d6e1ea"/>')
         p.append(text(25,yy+6,f'{maximum*j/5:.1f}s',18))
     for k,kind in enumerate(KINDS):
-        p.append(text(30+k*390,130,kind.title()+' · '+control_label(c['chosen'].get(kind,'unknown')),22,COLORS_LINE[k]))
+        controlled=[g for g in rows if g.time_class==kind
+                    and g.time_control==c['chosen'].get(kind)]
+        available=sum(c['per_game_timing'].get(g.identity) is not None for g in controlled)
+        p.append(text(30+k*390,130,
+                      f'{kind.title()} · {control_label(c["chosen"].get(kind,"unknown"))} · clocks {available}/{len(controlled)}',
+                      20,COLORS_LINE[k]))
         previous=None
         for index,value in series[kind]:
             if value is None:previous=None;continue
@@ -364,7 +387,13 @@ def phase_svg(result,c,marked=None):
     rows,trends=phase_trends(result,c);times=[g.ended for g in rows]
     edges=calendar(rows,min(30,max(1,len(rows)//20)))
     p=header('9 · How does thinking time change?','Blue Bullet · orange Blitz · green Rapid. Lines: median; shaded bands: middle 50% of game medians.',2020)
-    for k,kind in enumerate(KINDS):p.append(text(30+k*390,115,kind.title()+' · '+control_label(c['chosen'].get(kind,'unknown')),20,COLORS_LINE[k]))
+    for k,kind in enumerate(KINDS):
+        controlled=[g for g in rows if g.time_class==kind
+                    and g.time_control==c['chosen'].get(kind)]
+        available=sum(bool(c['clocks'].get(g.identity)) for g in controlled)
+        p.append(text(30+k*390,115,
+                      f'{kind.title()} · {control_label(c["chosen"].get(kind,"unknown"))} · clocks {available}/{len(controlled)}',
+                      18,COLORS_LINE[k]))
     x=lambda stamp:100+1030*(stamp-edges[0])/(edges[-1]-edges[0])
     for panel,(cat,series) in enumerate(trends.items()):
         top=180+panel*305;bottom=top+205
