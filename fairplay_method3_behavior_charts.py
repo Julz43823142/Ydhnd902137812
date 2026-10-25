@@ -223,22 +223,66 @@ def rating_panels(result, offset, marked=None):
     return p
 
 
-def timing_svg(result,c):
+
+def window_clock_comparison(result,c,min_games=MIN_GAMES):
+    """Compare fixed-control clock medians over exact selected timestamps.
+
+    Before/after flanks use the same calendar duration as the selected period,
+    floored at 24h. Require five independent games per same time class in
+    BOTH before and during; do not turn missing coverage into a zero-second gap.
+    """
+    selected=result.diagnostics.get('method3',{}).get('selected')
+    if not isinstance(selected,dict):return None
+    first,last=selected.get('first_ended'),selected.get('last_ended')
+    if not finite(first) or not finite(last) or last<first:return None
+    duration=max(86400.,last-first)
+    groups={kind:{'before':[],'during':[],'after':[]} for kind in KINDS
+            if kind in c['chosen']}
+    medians=c.get('per_game_timing',{})
+    for g in result.games:
+        kind=getattr(g,'time_class',None)
+        if (kind not in groups or g.time_control!=c['chosen'][kind]
+                or not finite(getattr(g,'ended',None))):continue
+        value=medians.get(g.identity)
+        if not finite(value) or value<0:continue
+        when=g.ended
+        if first-duration<=when<first:era='before'
+        elif first<=when<=last:era='during'
+        elif last<when<=last+duration:era='after'
+        else:continue
+        groups[kind][era].append(value)
+    common=tuple(kind for kind in KINDS if kind in groups
+                 and min(len(groups[kind]['before']),len(groups[kind]['during']))>=min_games)
+    def summarize(era):
+        if len(common)<2 or any(len(groups[k][era])<min_games for k in common):
+            return None
+        rows={k:{'games':len(groups[k][era]),'median_seconds':median(groups[k][era])}
+              for k in common}
+        values=[row['median_seconds'] for row in rows.values()]
+        return {'classes':rows,'gap_seconds':max(values)-min(values)}
+    return {'comparable':common,'flank_seconds':duration,
+            'controls':{k:c['chosen'][k] for k in common},
+            'counts':{k:{era:len(v) for era,v in d.items()} for k,d in groups.items()},
+            'before':summarize('before'),'during':summarize('during'),
+            'after':summarize('after')}
+
+
+def timing_svg(result,c,marked=None):
+    if marked is None:marked=periods(result)
     from bisect import bisect_left,bisect_right
-    p=header('8 · Do thinking times move together?','One seconds scale · matching periods · blue Bullet, orange Blitz, green Rapid.',900)
+    p=header('8 · Do thinking times move together?','One seconds scale · matching periods · blue Bullet, orange Blitz, green Rapid.',1000)
     rows=sorted(result.games,key=lambda g:(g.ended,g.identity));times=[g.ended for g in rows]
     count=min(30,max(1,len(rows)//20));series={k:[] for k in KINDS}
     for j in range(count):
         lo=len(rows)*j//count;hi=len(rows)*(j+1)//count;chunk=rows[lo:hi]
         for kind in KINDS:
-            values=[]
-            for g in chunk:
-                valid=[d.think for d in g.decisions if valid_clock(d)]
-                if g.time_class==kind and g.time_control==c['chosen'].get(kind) and len(valid)>=5:values.append(median(valid))
+            values=[c['per_game_timing'][g.identity] for g in chunk
+                    if g.time_class==kind and g.time_control==c['chosen'].get(kind)
+                    and g.identity in c['per_game_timing']]
             series[kind].append(((lo+hi-1)/2,median(values) if len(values)>=5 else None))
     top=200;bottom=680;maximum=max([1]+[v*1.15 for points in series.values() for _,v in points if v is not None])
     x=lambda i:100+1030*i/max(1,len(rows)-1)
-    for span in periods(result):
+    for span in marked:
         a=bisect_left(times,span['first_ended']);b=bisect_right(times,span['last_ended'])-1
         if a>b:continue
         fill,stroke=COLORS[span['priority']]
@@ -259,19 +303,25 @@ def timing_svg(result,c):
     for j in range(5):p.append(text(x((len(rows)-1)*j/4),720,str(1+round((len(rows)-1)*j/4)),18,anchor='middle'))
     p.append(text(30,770,'Shared chronological game number · all history retained. Gaps = fewer than 5 timed games.',18))
     p.append(text(30,810,'Only compare lines in the same period. Similar pace alone does not establish misconduct.',18))
-    selected=result.diagnostics['method3'].get('selected')
-    if selected:
-        before=[];during=[]
-        for j in range(count):
-            chunk=rows[len(rows)*j//count:len(rows)*(j+1)//count]
-            a=series['bullet'][j][1];b=series['blitz'][j][1]
-            if not chunk or a is None or b is None:continue
-            if chunk[-1].ended<selected['first_ended']:before.append(abs(a-b))
-            elif chunk[0].ended>=selected['first_ended'] and chunk[-1].ended<=selected['last_ended']:during.append(abs(a-b))
-        note=(f'Bullet–Blitz gap: before {median(before):.1f}s → during {median(during):.1f}s'
-              if before and during else 'Bullet–Blitz before/during comparison: insufficient overlapping coverage.')
-        p.append(text(30,845,note,18))
-    return finish(p,900)
+    comparison=window_clock_comparison(result,c)
+    if comparison is not None:
+        before,during=comparison['before'],comparison['during']
+        if before is not None and during is not None:
+            kinds=comparison['comparable']
+            name='–'.join(k.title() for k in kinds)
+            p.append(text(30,846,f'{name} gap: before {before["gap_seconds"]:.1f}s → '
+                          f'during {during["gap_seconds"]:.1f}s (exact selected dates)',18))
+            counts=', '.join(f'{k.title()} {before["classes"][k]["games"]}/{during["classes"][k]["games"]}'
+                             for k in kinds)
+            p.append(text(30,878,'n before/during: '+counts+' games · exact control per class',17,'#526477'))
+            if comparison['after'] is not None:
+                p.append(text(30,910,f'After-period gap: {comparison["after"]["gap_seconds"]:.1f}s '
+                              'using the same classes',17,'#526477'))
+        else:
+            p.append(text(30,846,'Exact-date comparison unavailable: fewer than five '
+                          'valid games per class in both eras.',18,'#526477'))
+        p.append(text(30,948,'Flanks: same calendar span as selected period, minimum 24 hours.',16,'#526477'))
+    return finish(p,1000)
 
 
 def phase_trends(result,c):
@@ -290,8 +340,9 @@ def phase_trends(result,c):
     return rows,trends
 
 
-def phase_svg(result,c):
+def phase_svg(result,c,marked=None):
     from bisect import bisect_left,bisect_right
+    if marked is None:marked=periods(result)
     rows,trends=phase_trends(result,c);times=[g.ended for g in rows]
     p=header('9 · How does thinking time change?','Blue Bullet · orange Blitz · green Rapid. Lines: median; shaded bands: middle 50% of game medians.',1810)
     for k,kind in enumerate(KINDS):p.append(text(30+k*390,115,kind.title()+' · '+control_label(c['chosen'].get(kind,'unknown')),20,COLORS_LINE[k]))
@@ -301,7 +352,7 @@ def phase_svg(result,c):
         p.append(text(30,top-20,cat+' · seconds per move',23))
         maximum=max([.5]+[value[2]*1.15 for points in series.values() for _,value in points if value])
         y=lambda value:bottom-205*value/maximum
-        for span in periods(result):
+        for span in marked:
             a=bisect_left(times,span['first_ended']);b=bisect_right(times,span['last_ended'])-1
             if a>b:continue
             fill,stroke=COLORS[span['priority']]
@@ -331,7 +382,8 @@ def phase_svg(result,c):
 
 def behavior_svgs(result):
     c=build_context(result.games)
+    marked=periods(result)  # Stable period identities on all three pages.
     return [(name,svg) for name,svg in [
-            ('fairplay_07_openings.png',opening_svg(result,c)),
-            ('fairplay_08_clock_convergence.png',timing_svg(result,c)),
-            ('fairplay_09_phase_pressure.png',phase_svg(result,c))]]
+            ('fairplay_07_openings.png',opening_svg(result,c,marked=marked)),
+            ('fairplay_08_clock_convergence.png',timing_svg(result,c,marked=marked)),
+            ('fairplay_09_phase_pressure.png',phase_svg(result,c,marked=marked))]]
