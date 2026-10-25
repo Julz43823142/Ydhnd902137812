@@ -267,7 +267,8 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
             chosen['last_game']+=class_offset
             chosen['history_block']=block_index+1
             chosen['history_segment']='boundary' if is_bridge else 'block'
-        from fairplay_method3_accuracy_frequency import historical_signal, absolute_frequency_signal
+        from fairplay_method3_accuracy_frequency import (
+            historical_signal, absolute_frequency_signal, apply_historical_frequency_review)
         frequency_signals=historical_signal(games)
         absolute_signals=absolute_frequency_signal(games)
         # Relative change against the player's *earlier matched history* may
@@ -275,9 +276,8 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         # validated player- or population-matched reference: strong players
         # naturally accumulate high published Accuracy values. Keep such
         # uncalibrated absolute rates as descriptive diagnostics ONLY.
-        if priority=='LOW' and frequency_signals:
-            priority='MODERATE'
-            basis='accuracy_frequency'
+        priority,basis=apply_historical_frequency_review(
+            priority,basis,frequency_signals,absolute_signals)
         # Separate exploratory MODERATE manual-review route. Requires a large,
         # reliable results period AND sufficiently broad published Accuracy.
         # Never promotes HIGH and must not be treated as a cheating verdict.
