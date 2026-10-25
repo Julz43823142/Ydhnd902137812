@@ -197,11 +197,11 @@ def opening_svg(result,c,marked=None):
     else:
         p.append(text(30,1730,'Matched repertoire repetition: unavailable (need ≥8 games before/during).',17,'#526477'))
     p.append(text(30,1800,'Controls pooled: top bars mix modes; matched repetition fixes class/control/color/opponent reply.',17,'#526477'))
-    p.extend(rating_panels(result,1900,marked=marked))
+    p.extend(rating_panels(result,1900,marked=marked,compact=True))
     return finish(p,2980)
 
 
-def rating_panels(result, offset, marked=None):
+def rating_panels(result, offset, marked=None, compact=False):
     """Observed pre-game ratings, never inferred post-game rating changes."""
     if marked is None:marked=periods(result)
     from bisect import bisect_left, bisect_right
@@ -218,7 +218,10 @@ def rating_panels(result, offset, marked=None):
         title=kind.title()
         if points:
             values=[value for _,value in points];first,last=values[0],values[-1]
-            title+=f' · {first:.0f} → {last:.0f} · {last-first:+.0f} points · {len(points)} games'
+            if compact:
+                title+=f' Elo {first:.0f}→{last:.0f} ({last-first:+.0f}) · n={len(points)}'
+            else:
+                title+=f' · {first:.0f} → {last:.0f} · {last-first:+.0f} points · {len(points)} games'
         p.append(text(30,top-25,title,23,COLORS_LINE[k]))
         if not points:
             p.append(text(100,top+75,'No rated games with available ratings',20,'#526477'))
@@ -253,7 +256,10 @@ def rating_panels(result, offset, marked=None):
         for j in range(5):
             index=round((len(rows)-1)*j/4)
             p.append(text(x(index),bottom+26,str(index+1),17,anchor='middle'))
-        p.append(text(100,bottom+50,f'Range {min(values):.0f}–{max(values):.0f} · own rating scale · line connects observed games',17,'#526477'))
+        hint=(f'Range {min(values):.0f}–{max(values):.0f} · own Elo scale'
+              if compact else
+              f'Range {min(values):.0f}–{max(values):.0f} · own rating scale · line connects observed games')
+        p.append(text(100,bottom+50,hint,17,'#526477'))
     p.append(text(30,offset+1000,'Rating changes alone are context, not proof. No smoothing; missing ratings are not filled in.',18,'#526477'))
     return p
 
