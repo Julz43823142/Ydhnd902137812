@@ -128,8 +128,9 @@ class Behavior(unittest.TestCase):
         for i,g in enumerate(rows):g.color=bool(i%2)
         r=N(games=rows,priority='LOW',diagnostics={'method3':{}})
         pages=behavior_svgs(r)
-        self.assertIn('White · all Bullet, Blitz and Rapid games',pages[0][1])
-        self.assertIn('Black · all Bullet, Blitz and Rapid games',pages[0][1])
+        self.assertIn('White · 45 games',pages[0][1])
+        self.assertIn('Black · 45 games',pages[0][1])
+        self.assertIn('all live controls',pages[0][1])
         self.assertTrue(all('Shared periods' not in svg for _,svg in pages))
         self.assertNotIn('purple: after',pages[2][1])
 
