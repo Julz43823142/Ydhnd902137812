@@ -5,6 +5,7 @@ from math import exp, log
 from statistics import median
 
 from fairplay_charts import finite, start, text
+from fairplay_method3_frequency_charts import control_label
 from fairplay_method3_opening_shift import opening_choice
 from fairplay_method3_period_overlays import periods, COLORS
 
@@ -134,7 +135,8 @@ def timing_svg(result,c):
     height=1180;p=header('8 · Do thinking times converge?','Same UTC calendar bins · fixed most-played exact control per class · median of game medians.',height)
     for i,kind in enumerate(KINDS):
         n=sum(len(v) for v in c['timing'][kind]);alln=sum(c['controls'][kind].values())
-        p.append(text(30,112+i*27,f"{kind.title()}: {c['chosen'].get(kind,'unavailable')} · {n}/{alln} games with usable clocks in this control",20,COLORS_LINE[i]))
+        control=c['chosen'].get(kind,'unavailable'); selectedn=c['controls'][kind].get(control,0)
+        p.append(text(30,112+i*27,f'{kind.title()} {control_label(control)}: {n}/{selectedn} usable games · {selectedn-n} missing/short · {alln-selectedn} other-control games',19,COLORS_LINE[i]))
     values=[summary(v) for bins in c['timing'].values() for v in bins]
     maximum=max([4]+[v[2]*1.15 for v in values if v]); top,bottom=240,620
     bands(p,result,c['edges'],top,bottom)
@@ -171,7 +173,7 @@ def phase_svg(result,c):
     coverage=c['coverage'];p.append(text(30,110,f"Valid clock decisions: {coverage['moves']} · excluded/missing: {coverage['excluded_moves']}",20))
     for i,kind in enumerate(KINDS):
         control=c['chosen'].get(kind);rows=[g for g in result.games if g.time_class==kind and g.time_control==control]
-        y=165+i*335;p.append(text(30,y,f'{kind.title()} · exact control {control or "unavailable"}',24))
+        y=165+i*335;p.append(text(30,y,f'{kind.title()} · exact control {control_label(control) if control else "unavailable"}',24))
         categories=('Early 1–10','Middle 11–30','Late 31+','Start <10s','Start ≥10s')
         for j,name in enumerate(categories):p.append(text(335+j*175,y+42,name,19,anchor='middle'))
         for j,(label,games) in enumerate(phases(result,rows)):
