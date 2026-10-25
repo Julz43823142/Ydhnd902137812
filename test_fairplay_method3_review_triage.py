@@ -24,8 +24,8 @@ def sparse():
 
 def selected_games():
     return [SimpleNamespace(time_class='rapid',
-                            accuracy=(95 if i < 14 else 90 if i < 45 else
-                                      80 if i < 150 else None),
+                            accuracy=(95 if i < 14 else 90 if i < 30 else
+                                      80 if i < 123 else None),
                             opponent_username=f'opponent-{i}')
             for i in range(200)]
 
@@ -35,6 +35,7 @@ class CorroboratedReview(unittest.TestCase):
         result=corroboration(selected(),sparse(), period_games=selected_games())
         self.assertEqual(result['kind'],'combined_uncalibrated_review')
         self.assertEqual(result['priority_effect'],'LOW_to_MODERATE_only')
+        self.assertEqual(result['selected_period_accuracy']['accuracy_covered'],123)
         self.assertEqual(result['searched_windows'],2718)
         self.assertEqual(result['adjusted_model_bound'],1.0)
 
