@@ -138,7 +138,7 @@ def opening_svg(result,c,marked=None):
         rows=[(g,opening_pattern(g)) for g in result.games if g.time_class in KINDS and type(getattr(g,'color',None)) is bool and ('white' if g.color else 'black')==color]
         rows.sort(key=lambda row:(row[0].ended,row[0].identity))
         y=130+i*780
-        p.append(text(30,y,color.title()+' · all Bullet, Blitz and Rapid games',25))
+        p.append(text(30,y,f'{color.title()} · {len(rows)} Bullet/Blitz/Rapid games',25))
         count=min(20,max(1,len(rows)//10))
         counts=Counter(v for _,v in rows)
         eligible={v for v,n in counts.items() if n/len(rows)>=.01} if rows else set()
@@ -303,7 +303,12 @@ def timing_svg(result,c,marked=None):
         p.append(f'<line x1="100" x2="1130" y1="{yy}" y2="{yy}" stroke="#d6e1ea"/>')
         p.append(text(25,yy+6,f'{maximum*j/5:.1f}s',18))
     for k,kind in enumerate(KINDS):
-        p.append(text(30+k*390,130,kind.title()+' · '+control_label(c['chosen'].get(kind,'unknown')),22,COLORS_LINE[k]))
+        controlled=[g for g in rows if g.time_class==kind
+                    and g.time_control==c['chosen'].get(kind)]
+        available=sum(c['per_game_timing'].get(g.identity) is not None for g in controlled)
+        p.append(text(30+k*390,130,
+                      f'{kind.title()} · {control_label(c["chosen"].get(kind,"unknown"))} · clocks {available}/{len(controlled)}',
+                      20,COLORS_LINE[k]))
         previous=None
         for index,value in series[kind]:
             if value is None:previous=None;continue
@@ -370,7 +375,13 @@ def phase_svg(result,c,marked=None):
     rows,trends=phase_trends(result,c);times=[g.ended for g in rows]
     edges=calendar(rows,min(30,max(1,len(rows)//20)))
     p=header('9 · How does thinking time change?','Blue Bullet · orange Blitz · green Rapid. Lines: median; shaded bands: middle 50% of game medians.',2020)
-    for k,kind in enumerate(KINDS):p.append(text(30+k*390,115,kind.title()+' · '+control_label(c['chosen'].get(kind,'unknown')),20,COLORS_LINE[k]))
+    for k,kind in enumerate(KINDS):
+        controlled=[g for g in rows if g.time_class==kind
+                    and g.time_control==c['chosen'].get(kind)]
+        available=sum(bool(c['clocks'].get(g.identity)) for g in controlled)
+        p.append(text(30+k*390,115,
+                      f'{kind.title()} · {control_label(c["chosen"].get(kind,"unknown"))} · clocks {available}/{len(controlled)}',
+                      18,COLORS_LINE[k]))
     x=lambda stamp:100+1030*(stamp-edges[0])/(edges[-1]-edges[0])
     for panel,(cat,series) in enumerate(trends.items()):
         top=180+panel*305;bottom=top+205
