@@ -54,6 +54,10 @@ comparisons, the Accuracy-frequency page.
   `60+0` value on every eligible move. The exact conversion and all
   existing clock-validity gates are unchanged; unit tests compare resulting
   semantics and assert one parse per distinct control.
+- Discord report delivery previously caught every Method 3 graph-rendering error
+  and silently replaced all chart attachments with an empty list. v83 still
+  delivers the review card if charts fail but logs the exception and
+  traceback to GitHub Actions, enabling diagnosis of missing images.
 - No quantitative runtime gain is claimed without a benchmark.
 
 ## Deploy trade-off
