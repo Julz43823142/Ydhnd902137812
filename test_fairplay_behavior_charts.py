@@ -229,7 +229,7 @@ class Behavior(unittest.TestCase):
                                'first_ended':rows[20].ended,
                                'last_ended':rows[28].ended}]}})
         svg=opening_svg(r,build_context(rows))
-        self.assertIn('Context 1:5/10',svg)
+        self.assertIn('C1:5/10',svg)
         self.assertIn('Controls pooled:',svg)
         import xml.etree.ElementTree as E
         E.fromstring(svg)
@@ -244,7 +244,7 @@ class Behavior(unittest.TestCase):
         r=N(games=rows,priority='HIGH',diagnostics={'method3':{'marked_periods':[]}})
         svg=opening_svg(r,build_context(rows),marked=marked)
         legend=svg.split('Rating through the games')[0]
-        self.assertIn('Context 1:1/10,2:1/10 +3 more',legend)
+        self.assertIn('C1:1/10 +4',legend)
 
 
     def test_short_time_pressure_episode_counts_per_game_not_per_move(self):
