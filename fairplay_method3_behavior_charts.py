@@ -107,10 +107,10 @@ def bands(p,result,edges,top,bottom):
 PALETTE=('#2563eb','#d97706','#059669','#9333ea','#e11d48','#0891b2','#4f46e5','#65a30d','#c026d3','#a16207','#64748b','#94a3b8')
 
 def opening_svg(result,c):
-    p=header('7 · Openings and rating history','White and black separately · all live time controls combined · each bar totals 100%.',2870)
+    p=header('7 · Favourite opening move patterns and rating history','First five own moves · opponent first reply shown · all live controls · each bar totals 100%.',2870)
     for i,color in enumerate(('white','black')):
-        from fairplay_opening_names import opening_family
-        rows=[(g,opening_family(g)) for g in result.games if g.time_class in KINDS and type(getattr(g,'color',None)) is bool and ('white' if g.color else 'black')==color]
+        from fairplay_opening_names import opening_pattern
+        rows=[(g,opening_pattern(g)) for g in result.games if g.time_class in KINDS and type(getattr(g,'color',None)) is bool and ('white' if g.color else 'black')==color]
         rows.sort(key=lambda row:(row[0].ended,row[0].identity))
         y=130+i*780
         p.append(text(30,y,color.title()+' · all Bullet, Blitz and Rapid games',25))
@@ -124,7 +124,7 @@ def opening_svg(result,c):
         labels=choices+(['Unknown'] if counts.get('Unknown') else [])+['Other']
         choices=labels[:-1]
         names={'e2e4':'1.e4','d2d4':'1.d4','c2c4':'1.c4','g1f3':'1.Nf3'}
-        for j,label in enumerate(labels):p.append(text(30+(j%2)*570,y+30+(j//2)*23,names.get(label,label),16,PALETTE[j]))
+        for j,label in enumerate(labels):p.append(text(30+(j%2)*570,y+30+(j//2)*23,names.get(label,label),14,PALETTE[j]))
         count=min(20,max(1,len(rows)//10))
         for j in range(count):
             chunk=rows[len(rows)*j//count:len(rows)*(j+1)//count]
@@ -142,7 +142,7 @@ def opening_svg(result,c):
             note=f'{len(chunk)} games'
             if overlap:note+=' · Context '+','.join(str(v['number']) for v in overlap)
             p.append(text(885,yy+16,note,14))
-    p.append(text(30,1690,'Purple row: overlaps a flagged period. Opening mix is context only; time-control mix can change it.',17,'#526477'))
+    p.append(text(30,1690,'Purple row: overlaps a flagged period. Same own moves can reach different positions; this is context only.',17,'#526477'))
     p.extend(rating_panels(result,1790))
     return finish(p,2870)
 
