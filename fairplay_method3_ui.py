@@ -45,6 +45,7 @@ def result_embed(result):
     e.add_field(name='Suspicion Score (0–100)',value=(
         f'**{index}/100** · Higher = stronger manual-review priority.\n'
         f'Basis: {evidence_basis}. '
+        'Selected period/review signal, not an average over all games. '
         'Experimental ordinal scale, NOT a chance of cheating or proof. '
         'Opening/timing graphs are not scored.'
         if index is not None else
