@@ -10,6 +10,7 @@ from statistics import median
 from fairplay_method3_opening_shift import opening_choice
 
 MIN_GAMES = 5
+MIN_CLOCK_COVERAGE = 0.60
 MIN_OPENING_GAMES = 8
 FLANK_FLOOR = 86400.0
 
@@ -65,6 +66,11 @@ def matched_clock_controls(result, clock_values, *, minimum=MIN_GAMES):
     for (kind,control),group in sorted(groups.items()):
         before,during = len(group['before']),len(group['during'])
         if min(before,during)<minimum:continue
+        counts=totals[(kind,control)]
+        # Selectively missing clock comments can create a false convergence.
+        # Without adequate per-era coverage, the gap must stay unavailable.
+        if (before < MIN_CLOCK_COVERAGE*counts['before']
+                or during < MIN_CLOCK_COVERAGE*counts['during']):continue
         # Same-control coverage is explicit, not silently imputed.
         quality = (min(before,during),before+during,control)
         previous = kinds.get(kind)
@@ -148,10 +154,12 @@ def time_pressure_response(result, pressure_ratios, *, minimum=MIN_GAMES):
     start,end,flank,kind=window
     if kind not in ('bullet','blitz','rapid'):return None
     by_control=defaultdict(lambda:{'before':[],'during':[],'after':[]})
+    total_by_control=defaultdict(lambda:Counter())
     for game in result.games:
         if getattr(game,'time_class',None)!=kind:continue
         era=_era(getattr(game,'ended',None),start,end,flank)
         if era is None:continue
+        total_by_control[game.time_control][era]+=1
         ratio=pressure_ratios.get(game.identity)
         if not _finite(ratio) or ratio<0:continue
         by_control[game.time_control][era].append(ratio)
@@ -163,7 +171,9 @@ def time_pressure_response(result, pressure_ratios, *, minimum=MIN_GAMES):
     _,_,control,eras=sorted(eligible,key=lambda x:(-x[0],-x[1],x[2]))[0]
     def summarize(era):
         values=eras[era]
-        return {'games':len(values),'median_ratio':median(values)} if len(values)>=minimum else None
+        return {'games':len(values),
+                'total_games':total_by_control[control][era],
+                'median_ratio':median(values)} if len(values)>=minimum else None
     return {'time_class':kind,'time_control':control,
             'before':summarize('before'),'during':summarize('during'),
             'after':summarize('after'),'flank_seconds':flank,
