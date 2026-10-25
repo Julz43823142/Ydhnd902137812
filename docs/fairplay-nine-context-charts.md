@@ -1,3 +1,36 @@
+# v74 readable context charts
+
+Version: `fairplay-v74-readable-context`. This update includes the shared numbered
+period markers from PR #276. Classification thresholds and engine budgets are unchanged.
+
+- Page 7: 100% stacked opening-choice bars across four calendar intervals, within
+  matched color / exact control / opponent-first-move groups. Top choices have
+  consistent colors within each group; remaining choices are Other. Small samples
+  are marked. These are first-move families, not full opening identification.
+- Page 8: separate Bullet, Blitz and Rapid panels with the same seconds scale and
+  shared chronological game-number axis across all collected games. Each line uses
+  the most-played exact control, with at most ten recent game medians and at least
+  five games within sixty shared positions. Sparse samples remain gaps. Numbered
+  priority bands use original period dates mapped to the shared game positions.
+- Page 9: grouped seconds bars for early/middle/late moves and clock pressure,
+  comparing before/during/after selected dates. Without a selected period, blue
+  shows all history. Missing samples are dashes, not zero. Each cell requires five
+  contributing games with at least five valid moves per game/category.
+- Every page retains numbered shared calendar strips: original-class HIGH is
+  orange; matching dates in other classes are purple Context, not extra evidence.
+- LOW / Within Typical Performance Range is green; Insufficient Data is white.
+
+The pressure graph previously inherited an engine timing filter that excludes
+clock trouble. Its descriptive clock extraction now recovers those observations
+only when raw before/after clocks and increment reproduce the stored think time.
+Engine/scoring timing flags are unchanged. Each game still contributes one median.
+
+Validation: regression tests and visual PNG inspection with synthetic games.
+The previous implementation and benchmark below describe the initial v73 layout,
+not the redesigned v74 presentation or its runtime.
+
+---
+
 # Nine-image Method 3 report
 
 Three descriptive images join the six existing pages. No priority, engine,

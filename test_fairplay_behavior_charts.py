@@ -53,3 +53,40 @@ class Behavior(unittest.TestCase):
         self.assertEqual(summary(c['timing']['blitz'][0])[0],6)
         self.assertEqual(summary(c['timing']['bullet'][-1])[0],3)
         self.assertEqual(summary(c['timing']['blitz'][-1])[0],3)
+
+    def test_shared_period_identity_on_all_three_pages(self):
+        rows=[game(i,kind=k) for i,k in enumerate(['bullet','blitz','rapid']*20)]
+        r=N(games=rows,priority='HIGH',diagnostics={'method3':{'marked_periods':[
+            {'time_class':'blitz','priority':'HIGH','first_ended':rows[10].ended,'last_ended':rows[40].ended}]}})
+        before=copy.deepcopy(r)
+        for name,svg in behavior_svgs(r):
+            self.assertIn('HIGH 1',svg)
+            self.assertGreaterEqual(svg.count('Context 1'),2)
+            self.assertIn('#c4b5fd',svg)
+            self.assertIn('#fb923c',svg)
+            import xml.etree.ElementTree as E
+            E.fromstring(svg)
+        self.assertEqual(r,before)
+
+    def test_no_invented_period_for_unmarked_history(self):
+        r=N(games=[game(0)],priority='LOW',diagnostics={'method3':{}})
+        self.assertTrue(all('Shared periods' not in svg for _,svg in behavior_svgs(r)))
+
+    def test_pressure_recovered_without_engine_clock_flag(self):
+        g=game(0,before=9,think=3)
+        for d in g.decisions:d.clock_valid=False;d.clock_after=8
+        self.assertEqual(build_context([g])['clocks'][g.identity]['Start <10s'],3)
+        for d in g.decisions:d.clock_after=90
+        self.assertEqual(build_context([g])['clocks'][g.identity],{})
+
+    def test_readable_charts_and_colors(self):
+        from fairplay_method3_ui import priority_color
+        from fairplay_config import active_version
+        self.assertEqual(priority_color('LOW'),0x22C55E)
+        self.assertEqual(priority_color('INSUFFICIENT DATA'),0xFFFFFF)
+        self.assertEqual(active_version({'FAIRPLAY_METHOD3':'1'}),'fairplay-v74-readable-context')
+        r=N(games=[game(i) for i in range(30)],priority='LOW',diagnostics={'method3':{}})
+        pages=behavior_svgs(r)
+        self.assertIn('Each bar is 100%',pages[0][1])
+        self.assertIn('chronological game number',pages[1][1])
+        self.assertIn('Bar length = seconds',pages[2][1])
