@@ -1,3 +1,27 @@
+# v75 rating history below openings
+
+Version: `fairplay-v75-rating-context`. Builds on the v74 readable charts.
+Page 7 retains opening-share bars above three separate Bullet, Blitz and Rapid
+rating panels. All available valid rated-game observations are drawn, without
+smoothing or downsampling. Each panel has its own padded rating scale and shows
+first/last observed rating, signed difference, range and sample size.
+
+The shared x-axis is chronological game position across the collected sample,
+identical to page 8. Numbered priority dates are mapped to those positions; the
+originating class uses its priority color, other classes purple Context. Ratings
+are recorded at games, not inferred after games. No one-game shift is applied:
+incomplete history and mixed classes make that inference unreliable. Missing
+ratings break lines; unrated games do not enter rating changes. Lines connect
+observations and do not assert that intermediate games or rating updates were
+collected. Rating history remains descriptive and cannot promote priority.
+
+Validation includes sample immutability, missing/unrated filtering, unsmoothed
+rating extrema, identical period positions across classes, XML validity and
+visual inspection of the combined PNG with 900 synthetic games. There are still
+nine attachments; page 7 is taller, not a new tenth image.
+
+---
+
 # v74 readable context charts
 
 Version: `fairplay-v74-readable-context`. This update includes the shared numbered

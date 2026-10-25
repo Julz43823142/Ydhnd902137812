@@ -107,7 +107,7 @@ def bands(p,result,edges,top,bottom):
 PALETTE=('#2563eb','#f59e0b','#10b981','#a855f7','#94a3b8')
 
 def opening_svg(result,c):
-    p=header('7 · Which openings were played?','Each bar is 100% of games in that period. Colors identify the opening choice.',1120)
+    p=header('7 · Opening choices and rating history','Each bar is 100% of games in that period. Colors identify the opening choice.',2200)
     groups=sorted(c['openings'].items(),key=lambda r:-len(r[1]))
     shown=[]
     for color in ('white','black'):
@@ -136,7 +136,64 @@ def opening_svg(result,c):
             p.append(text(990,yy+20,f'{len(vals)} games'+(' *' if len(vals)<5 else ''),17))
     p.append(text(30,1030,f'{len(result.games)} games · {max(0,len(groups)-len(shown))} smaller groups not shown · * small sample',18))
     p.append(text(30,1060,'First-move choices/families, not complete opening variations. Compare within the same row.',18))
-    return finish(p,1120)
+    p.extend(rating_panels(result,1120))
+    return finish(p,2200)
+
+
+def rating_panels(result, offset):
+    """Observed pre-game ratings, never inferred post-game rating changes."""
+    from bisect import bisect_left, bisect_right
+    rows=sorted(result.games,key=lambda g:(g.ended,g.identity))
+    times=[g.ended for g in rows]
+    denominator=max(1,len(rows)-1)
+    x=lambda index:100+1030*index/denominator
+    p=[text(30,offset+25,'Rating through the games',28),
+       text(30,offset+58,'Shared game numbers · rated games only · observed ratings at each game, not after it.',18,'#526477')]
+    for k,kind in enumerate(KINDS):
+        entries=[(index,g) for index,g in enumerate(rows) if g.time_class==kind and g.rated is True]
+        points=[(index,g.rating) for index,g in entries if finite(g.rating) and 100<=g.rating<=4000]
+        top=offset+125+k*290;bottom=top+175
+        title=kind.title()
+        if points:
+            values=[value for _,value in points];first,last=values[0],values[-1]
+            title+=f' · {first:.0f} → {last:.0f} · {last-first:+.0f} points · {len(points)} games'
+        p.append(text(30,top-25,title,23,COLORS_LINE[k]))
+        if not points:
+            p.append(text(100,top+75,'No rated games with available ratings',20,'#526477'))
+            continue
+        pad=max(25,(max(values)-min(values))*.12)
+        low=max(0,min(values)-pad);high=max(values)+pad
+        y=lambda value:bottom-175*(value-low)/(high-low)
+        for span in periods(result):
+            a=bisect_left(times,span['first_ended']);b=bisect_right(times,span['last_ended'])-1
+            if a>b:continue
+            own=span['time_class']==kind
+            fill,stroke=COLORS[span['priority']] if own else ('#c4b5fd','#6d28d9')
+            p.append(f'<rect x="{x(a)}" y="{top}" width="{max(2,x(b)-x(a))}" height="175" fill="{fill}" fill-opacity=".25"/>')
+            p.append(text(min(x(a),980),top+17,(span['priority'] if own else 'Context')+' '+str(span['number']),15,stroke))
+        for j in range(4):
+            value=low+(high-low)*j/3;yy=y(value)
+            p.append(f'<line x1="100" x2="1130" y1="{yy}" y2="{yy}" stroke="#d6e1ea"/>')
+            p.append(text(88,yy+6,f'{value:.0f}',17,anchor='end'))
+        segment=[]
+        def flush():
+            if segment:
+                coords=' '.join(f'{x(index):.2f},{y(value):.2f}' for index,value in segment)
+                p.append(f'<polyline points="{coords}" fill="none" stroke="{COLORS_LINE[k]}" stroke-width="2"/>')
+                if len(segment)==1:
+                    index,value=segment[0]
+                    p.append(f'<circle cx="{x(index)}" cy="{y(value)}" r="3" fill="{COLORS_LINE[k]}"/>')
+                segment.clear()
+        for index,g in entries:
+            if finite(g.rating) and 100<=g.rating<=4000:segment.append((index,g.rating))
+            else:flush()
+        flush()
+        for j in range(5):
+            index=round((len(rows)-1)*j/4)
+            p.append(text(x(index),bottom+26,str(index+1),17,anchor='middle'))
+        p.append(text(100,bottom+50,f'Range {min(values):.0f}–{max(values):.0f} · own rating scale · line connects observed games',17,'#526477'))
+    p.append(text(30,offset+1000,'Rating changes alone are context, not proof. No smoothing; missing ratings are not filled in.',18,'#526477'))
+    return p
 
 
 def timing_svg(result,c):
