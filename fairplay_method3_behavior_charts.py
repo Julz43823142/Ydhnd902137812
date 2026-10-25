@@ -1,6 +1,7 @@
 """Engine-free descriptive context; never consumed by priority scoring."""
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
+from functools import lru_cache
 from math import exp, log
 from statistics import median
 
@@ -39,13 +40,20 @@ def valid_clock(d):
             and 0<=d.think<120)
 
 
+@lru_cache(maxsize=128)
+def _clock_for_control(control):
+    """Parse unchanged PGN control once instead of per recorded chess move."""
+    from fairplay_data import clock_control
+    return clock_control(control)
+
+
 def descriptive_clock(game,d):
     if valid_clock(d):return True
     # Engine timing deliberately rejects time trouble; these descriptive bars must not.
-    from fairplay_data import clock_control, think_time
+    from fairplay_data import think_time
     before=getattr(d,'clock_before',None);after=getattr(d,'clock_after',None)
     if not (finite(before) and finite(after) and min(before,after)>=0):return False
-    base,increment=clock_control(game.time_control)
+    base,increment=_clock_for_control(game.time_control)
     if base is None:return False
     expected=think_time(before,after,increment)
     return expected is not None and 0<=expected<120 and finite(getattr(d,'think',None)) and abs(expected-d.think)<.001
