@@ -52,10 +52,12 @@ permissions:
 
 concurrency:
   group: daily-puzzle
-  # Do not kill an active depth-18 scan when cron or a deployment arrives.
-  # The current runner rotates itself after persisting work; the replacement
-  # run stays pending until then.
-  cancel-in-progress: false
+  # Normal pushes/cron preserve the running review: the old worker writes
+  # encrypted state then hands off deliberately. A release merge explicitly
+  # tagged [replace-daily-run] is the owner's opt-in to cancel the old run
+  # immediately and start the version on main. Other workers stay untouched.
+  # Warning: an in-flight review may lose unsynced state on this cutover.
+  cancel-in-progress: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '[replace-daily-run]') }}
 
 jobs:
   run:
