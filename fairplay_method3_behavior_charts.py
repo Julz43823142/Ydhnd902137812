@@ -163,7 +163,8 @@ def opening_svg(result,c,marked=None):
             note=f'n={len(chunk)}'
             if overlap:
                 note+=' · Context '+','.join(
-                    f"{span['number']}:{n}/{len(chunk)}" for span,n in overlap)
+                    f"{span['number']}:{n}/{len(chunk)}" for span,n in overlap[:2])
+                if len(overlap)>2:note+=f' +{len(overlap)-2} more'
             p.append(text(885,yy+16,note,14))
     p.append(text(30,1690,'Purple: only the labelled flagged games per bar, not the entire opening bar.',17,'#526477'))
     p.append(text(30,1730,'Controls pooled: a different Bullet/Blitz/Rapid mix can mimic a repertoire shift.',17,'#526477'))
