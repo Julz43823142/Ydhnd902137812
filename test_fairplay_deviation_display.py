@@ -74,20 +74,58 @@ class SuspicionDisplay(unittest.TestCase):
         r.diagnostics['method3']['selected']['accuracy']['matched_games']=2
         self.assertIsNone(suspicion_score(r))
 
-    def test_frequency_routes_do_not_borrow_selected_results(self):
-        for basis,field in [
-            ('accuracy_frequency','accuracy_frequency_signals'),
-            ('absolute_accuracy_frequency','absolute_accuracy_frequency_signals'),
-            ('combined_manual_review','corroborating_review_signal')]:
-            r=suspicion_fixture('MODERATE',basis)
-            r.diagnostics['method3'][field]=(
-                {'kind':'combined_uncalibrated_review',
-                 'priority_effect':'LOW_to_MODERATE_only'}
-                if basis=='combined_manual_review' else [{'time_class':'blitz'}])
-            r.diagnostics['method3']['selected']['results']['standardized_residual']=None
-            self.assertEqual(suspicion_score(r),37)
-            r.diagnostics['method3'][field]=[]
-            self.assertIsNone(suspicion_score(r))
+    def test_valid_historical_frequency_is_dynamic_and_uses_its_own_evidence(self):
+        def signal(high90, baseline90, adjusted=.004):
+            return dict(time_class='blitz',time_control='180+0',
+                        recent_games=25,recent_at_least_90=high90,
+                        recent_accuracy_covered=30,recent_total_games=30,
+                        baseline_games=50,baseline_at_least_90=baseline90,
+                        baseline_accuracy_covered=60,baseline_total_games=60,
+                        distinct_opponents=17,adjusted_tail_bound=adjusted)
+        a=suspicion_fixture('MODERATE','accuracy_frequency')
+        b=copy.deepcopy(a)
+        a.diagnostics['method3']['accuracy_frequency_signals']=[signal(20,14)]
+        b.diagnostics['method3']['accuracy_frequency_signals']=[signal(24,8,.001)]
+        # A selected LOW results period does not affect the historical score.
+        a.diagnostics['method3']['selected']['results']['standardized_residual']=None
+        b.diagnostics['method3']['selected']['results']['standardized_residual']=None
+        a_old=copy.deepcopy(a)
+        one,two=suspicion_score(a),suspicion_score(b)
+        self.assertIsNotNone(one)
+        self.assertTrue(25<=one<two<=49)
+        self.assertNotEqual(one,37)
+        self.assertEqual(a,a_old)
+        b.diagnostics['method3']['accuracy_frequency_signals'][0]['adjusted_tail_bound']=.25
+        self.assertIsNone(suspicion_score(b))
+
+    def test_combined_route_is_numeric_and_requires_matching_results(self):
+        r=suspicion_fixture('MODERATE','combined_manual_review')
+        row=r.diagnostics['method3']['selected']['results']
+        row.update(games=120,standardized_residual=3.3,score_excess=.28)
+        r.diagnostics['method3']['selected']['time_class']='blitz'
+        r.diagnostics['method3']['corroborating_review_signal']={
+            'kind':'combined_uncalibrated_review','priority_effect':'LOW_to_MODERATE_only',
+            'time_class':'blitz','results_games':120,
+            'uncorrected_standardized_residual':3.3,
+            'accuracy_covered':120,'total_games':200,'at_least_90':70,'at_least_95':30}
+        initial=suspicion_score(r)
+        self.assertIsNotNone(initial)
+        self.assertTrue(25<=initial<=49)
+        row['score_excess']=.50
+        self.assertGreater(suspicion_score(r),initial)
+        row['standardized_residual']=4.
+        self.assertIsNone(suspicion_score(r))
+
+    def test_legacy_uncalibrated_absolute_route_never_synthesizes_37(self):
+        r=suspicion_fixture('MODERATE','absolute_accuracy_frequency')
+        r.diagnostics['method3']['absolute_accuracy_frequency_signals']=[
+            {'time_class':'blitz','eligible_games':1207,'at_least_90':571}]
+        self.assertIsNone(suspicion_score(r))
+        r.priority='LOW';r.diagnostics['method3']['priority_basis']='results'
+        r.diagnostics['method3']['selected']['results'].update(
+            standardized_residual=-.41,score_excess=-.011)
+        self.assertEqual(suspicion_score(r),0)
+
 
     def test_unknown_reliability_and_missing_data_are_not_zero(self):
         r=suspicion_fixture()

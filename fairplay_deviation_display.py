@@ -31,7 +31,6 @@ _SUSPICION_BANDS = {'LOW': (0, 24), 'MODERATE': (25, 49),
                     'HIGH': (50, 74), 'VERY HIGH': (75, 99)}
 _ALTERNATE_ACCURACY_ROUTES = {
     'accuracy_frequency': 'accuracy_frequency_signals',
-    'absolute_accuracy_frequency': 'absolute_accuracy_frequency_signals',
     'combined_manual_review': 'corroborating_review_signal',
 }
 
@@ -67,16 +66,79 @@ def _matched_accuracy_strength(selected):
     return sqrt(magnitude * consistency)
 
 
-def _has_manual_review_evidence(data, basis):
-    """Prevent truthy placeholders from masquerading as an Accuracy route."""
-    source = data.get(_ALTERNATE_ACCURACY_ROUTES[basis])
-    if basis == 'combined_manual_review':
-        return (isinstance(source, dict)
-                and source.get('kind') == 'combined_uncalibrated_review'
-                and source.get('priority_effect') == 'LOW_to_MODERATE_only')
-    return (isinstance(source, list) and any(
-        isinstance(item, dict) and item.get('time_class') in ('rapid', 'blitz', 'bullet')
-        for item in source))
+def _historical_frequency_strength(data):
+    """Continuous within-band strength from an eligible historical CHANGE.
+
+    Source evidence must include full denominators and the search-adjusted
+    tail guard. Absolute high Accuracy percentages do not qualify, even when
+    they look impressive. This is ordinal, not a cheating probability.
+    """
+    signals = data.get('accuracy_frequency_signals')
+    if not isinstance(signals, list):
+        return None
+    strengths = []
+    for row in signals:
+        if not isinstance(row, dict) or row.get('time_class') not in ('rapid', 'blitz', 'bullet'):
+            continue
+        control = row.get('time_control')
+        if not isinstance(control, str) or not control:
+            continue
+        names = ('recent_games', 'recent_at_least_90', 'baseline_games',
+                 'baseline_at_least_90', 'recent_accuracy_covered',
+                 'recent_total_games', 'baseline_accuracy_covered',
+                 'baseline_total_games', 'distinct_opponents')
+        if any(type(row.get(k)) is not int for k in names):
+            continue
+        (recent_n, recent_hits, baseline_n, baseline_hits, recent_covered,
+         recent_total, base_covered, base_total, opponents) = (row[k] for k in names)
+        adjusted = row.get('adjusted_tail_bound')
+        if (recent_n < 20 or baseline_n < 40 or opponents < 10
+                or recent_total < 30 or base_total < 60
+                or not 0 <= recent_hits <= recent_n <= recent_covered <= recent_total
+                or not 0 <= baseline_hits <= baseline_n <= base_covered <= base_total
+                or recent_covered < .8 * recent_total
+                or base_covered < .6 * base_total
+                or not _finite_number(adjusted) or not 0 <= adjusted <= .01):
+            continue
+        recent_rate = recent_hits / recent_n
+        baseline_rate = baseline_hits / baseline_n
+        delta = recent_rate - baseline_rate
+        if delta <= .15:
+            continue
+        # Rate headroom is normalized to the baseline; .15 is the existing
+        # production effect gate and .01 its multiplicity-adjusted tail guard.
+        magnitude = min(1., max(0., (delta - .15) / max(.001, 1. - baseline_rate - .15)))
+        search_support = 1. - adjusted / .01
+        strengths.append(.8 * magnitude + .2 * search_support)
+    return max(strengths) if strengths else None
+
+
+def _combined_review_strength(result, data, selected):
+    """Use corroborated result effect, never a default category midpoint."""
+    row = data.get('corroborating_review_signal')
+    if not isinstance(row, dict) or row.get('kind') != 'combined_uncalibrated_review':
+        return None
+    if row.get('priority_effect') != 'LOW_to_MODERATE_only':
+        return None
+    numbers = ('results_games', 'accuracy_covered', 'total_games',
+               'at_least_90', 'at_least_95', 'distinct_observed_opponents')
+    # The archived review signal does not contain distinct_observed_opponents
+    # in older records; it instead carries evidence for the same control.
+    required = numbers[:-1]
+    if any(type(row.get(key)) is not int for key in required):
+        return None
+    n, covered, total, hits90, hits95 = (row[key] for key in required)
+    residual = row.get('uncorrected_standardized_residual')
+    result_row = selected.get('results') or {}
+    actual_z = result_row.get('standardized_residual')
+    if (n < 100 or covered < 100 or not 0 <= hits95 <= hits90 <= covered <= total
+            or not _finite_number(residual) or residual < 3.
+            or not _finite_number(actual_z) or abs(actual_z-residual) > 1e-6
+            or result_row.get('games') != n
+            or selected.get('time_class') != row.get('time_class')):
+        return None
+    value = deviation_score(result)
+    return value / 100. if value is not None else None
 
 
 def suspicion_score(result):
@@ -85,8 +147,8 @@ def suspicion_score(result):
     The existing safeguarded final priority sets nonoverlapping score bands.
     Eligible results plus qualified historical Accuracy refine the band, never
     create new HIGH votes. Unqualified descriptive results never inflate an
-    Accuracy-only MODERATE period. Alternative published-Accuracy review routes
-    use the MODERATE midpoint instead of unrelated results evidence.
+    Accuracy-only MODERATE period. Alternative routes use validated numeric
+    evidence; no categorical fixed midpoint is used.
     Unknown inputs stay unknown, not zero. No engines or further PGN work.
     """
     priority = getattr(result, 'priority', None)
@@ -100,10 +162,22 @@ def suspicion_score(result):
         return None
     lo, hi = _SUSPICION_BANDS[priority]
     basis = data.get('priority_basis', 'results')
+    # v81's absolute-frequency route was not calibrated, so its fixed 37
+    # must never be reinterpreted as an individualized suspicion score.
+    if basis == 'absolute_accuracy_frequency':
+        return None
     if basis in _ALTERNATE_ACCURACY_ROUTES:
-        if priority != 'MODERATE' or not _has_manual_review_evidence(data, basis):
+        if priority != 'MODERATE':
             return None
-        return (lo + hi) // 2
+        selected = data.get('selected')
+        if not isinstance(selected, dict):
+            return None
+        strength = (_historical_frequency_strength(data)
+                    if basis == 'accuracy_frequency'
+                    else _combined_review_strength(result, data, selected))
+        if strength is None:
+            return None
+        return lo + round((hi-lo) * min(1., max(0., strength)))
 
     selected = data.get('selected')
     if not isinstance(selected, dict):

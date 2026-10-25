@@ -90,7 +90,7 @@ def limited_coverage_review_flags(games):
 
 
 def absolute_frequency_signal(games):
-    """Uncalibrated manual-review flag, not a misconduct probability.
+    """Uncalibrated descriptive frequency flag, NOT a priority trigger.
 
     Require broad published coverage, comparable Elo, game length and opponent
     diversity. Missing Accuracy is never interpreted as a low score.
@@ -118,8 +118,22 @@ def absolute_frequency_signal(games):
                         'at_least_90':high90,'at_least_95':high95,
                         'accuracy_covered':len(covered),'total_games':len(rows),
                         'distinct_opponents':len(opponents),
-                        'note':'Uncalibrated absolute-frequency review flag; no population reference or cheating probability.'})
+                        'priority_effect':False,
+                        'note':'Descriptive absolute frequency only; no population-calibrated reference or tier effect.'})
     return signals
+
+
+def apply_historical_frequency_review(priority, basis, historical_signals, absolute_signals):
+    """Only comparison-backed changes can promote LOW to MODERATE.
+
+    Absolute high-Accuracy proportions have no calibrated population/reference
+    base rate and can be ordinary for strong players. Preserve those signals
+    in diagnostics, but never turn them into an accusation or tier promotion.
+    This rule applies to EVERY account, with no username allowlist.
+    """
+    if priority == 'LOW' and historical_signals:
+        return 'MODERATE', 'accuracy_frequency'
+    return priority, basis
 
 
 def historical_signal(games, *, min_recent=30, min_baseline=60):

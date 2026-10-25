@@ -49,7 +49,7 @@ class Method3(unittest.TestCase):
     def test_v73_exposes_review_observations_without_forcing_tier(self):
         result=self.run_review()
         diagnostic=result.diagnostics['method3']
-        self.assertEqual(result.version,'fairplay-v81-opening-patterns')
+        self.assertEqual(result.version,'fairplay-v82-evidence-and-wide-charts')
         self.assertIn('manual_review_observations',diagnostic)
         self.assertIn('selected_high_effect_screen',diagnostic)
         gap=diagnostic['selected_high_effect_screen']
@@ -125,7 +125,8 @@ class Method3(unittest.TestCase):
         self.assertIn('Performance levels',summary)
         self.assertNotIn('Earlier → recent Accuracy frequency',summary)
         self.assertNotIn('27/30',summary)
-        self.assertIn('separate from Accuracy signal',summary)
+        self.assertIn("'name': 'Selected period'",summary)
+        self.assertNotIn('separate from Accuracy signal',summary)
         selected=selected_period_embed(result)
         self.assertIn('LOW results window',selected.description)
         self.assertIn('Overall MODERATE',selected.description)

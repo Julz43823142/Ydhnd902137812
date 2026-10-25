@@ -35,21 +35,9 @@ def result_embed(result):
         description=f'{icon + " " if icon else ""}**{priority_label(result.priority)}**')
     from fairplay_deviation_display import suspicion_score
     index=suspicion_score(result)
-    basis=d.get('priority_basis','results')
-    evidence_basis={
-        'accuracy':'Earlier-personal published Accuracy',
-        'accuracy_frequency':'Recent Accuracy-frequency shift',
-        'absolute_accuracy_frequency':'High Accuracy frequency (exploratory)',
-        'combined_manual_review':'Combined MODERATE review observations',
-    }.get(basis,'Elo-adjusted results, with qualified Accuracy where available')
-    e.add_field(name='Suspicion Score (0–100)',value=(
-        f'**{index}/100** · Higher = stronger manual-review priority.\n'
-        f'Basis: {evidence_basis}. '
-        'Selected period/review signal, not an average over all games. '
-        'Experimental ordinal scale, NOT a chance of cheating or proof. '
-        'Opening/timing graphs are not scored.'
-        if index is not None else
-        'Unavailable — insufficient or unreliable screening evidence.'),inline=False)
+    e.add_field(name='Suspicion Score',
+                value=f'**{index}/100**' if index is not None else 'Unavailable',
+                inline=False)
     accuracy_games=sum(g.accuracy is not None for g in result.games)
     e.add_field(name='Results confidence',value=f'**{result.confidence}**',inline=False)
     e.add_field(name='Sample / coverage',value=(
@@ -58,25 +46,22 @@ def result_embed(result):
         + (' · incomplete collection' if result.partial else '')
         + f'\nPublished Accuracy: {accuracy_games}/{len(result.games)} games.'),inline=False)
     e.add_field(name='Performance levels',value=(
-        '⚪ **Insufficient Data** — White\n'
-        '🟢 **Within Typical Performance Range** — Green\n'
-        '🟡 **Moderate Performance Variation** — Yellow\n'
-        '🟠 **Notable Performance** — Orange\n'
-        '⚫ **Very Strong Statistical Deviation** — Black'
+        '⚪ Insufficient Data\n'
+        '🟢 Within Typical Performance Range\n'
+        '🟡 Moderate Performance Variation\n'
+        '🟠 Notable Performance\n'
+        '⚫ Very Strong Statistical Deviation'
     ),inline=False)
     high_gap=d.get('selected_high_effect_screen')
     if high_gap and result.priority=='LOW' and not high_gap['passes_excess_threshold']:
         e.add_field(name='Why HIGH was not reached',
-                    value=(f"Selected results window: {high_gap['observed_excess']*100:.1f} "
-                           f"percentage points above Elo expectation; "
-                           f"{high_gap['required_excess']*100:.0f} required for the HIGH effect screen. "
-                           "Additional search and reliability checks also apply."),
+                    value=(f"Results vs Elo: {high_gap['observed_excess']*100:+.1f} pp · "
+                           f"HIGH requires +{high_gap['required_excess']*100:.0f} pp "
+                           "and additional safeguards."),
                     inline=False)
     selected=d.get('selected')
     if selected:
-        label=('Selected results window · separate from Accuracy signal'
-               if d.get('priority_basis') in ('accuracy_frequency','absolute_accuracy_frequency','combined_manual_review')
-               else 'Selected chronological period')
+        label='Selected period'
         e.add_field(name=label,value=f"{selected['time_class'].title()} · {selected['games']} games · {period_dates(selected)}\nExpected points: **{fmt(r['expected_points'])}** · scored: **{fmt(r['actual_points'])}**\nWinrate: **{fmt(r['win_fraction'],True)}**",inline=False)
     if selected and selected.get('classification_guards'):
         support=selected.get('rating_support') or {}
@@ -96,7 +81,7 @@ def result_embed(result):
             'Additional Accuracy cannot bypass an unreliable Elo or repeated-opponent safeguard.'
         )[:1024],inline=False)
     e.add_field(name='Important',value='Not proof of cheating. Human review is required before any action.',inline=False)
-    e.set_footer(text=f'Version: {result.version} · uncalibrated heuristic, not probability')
+    e.set_footer(text=f'Version: {result.version}')
     return e
 
 
@@ -183,6 +168,7 @@ def chart_pngs(result, progress=None):
     from fairplay_charts import class_svg
     from fairplay_method3_frequency_charts import accuracy_frequency_svg
     from fairplay_method3_rolling_chart import rolling_history_svg
+    from fairplay_method3_chart_layout import widen_and_number
     from fairplay_method3 import observations
     import cairosvg
     live_games=result.games
@@ -190,25 +176,28 @@ def chart_pngs(result, progress=None):
     files=[]
     zoom=selected_window_svg(result)
     total=sum(bool(rows) for rows in grouped.values())+(5 if live_games else 0)+bool(zoom)
-    def add_chart(name, data):
-        files.append((name,data))
+    def add_chart(name, svg, number):
+        # Transform before PNG conversion: all outputs are truly 1800 pixels
+        # wide, with x-axes/labels using the extra space rather than margins.
+        uniform=widen_and_number(svg,number)
+        files.append((name,cairosvg.svg2png(bytestring=uniform.encode('utf-8'))))
         if progress:progress(len(files),total)
-    for kind,rows in grouped.items():
+    for number,kind in enumerate(('rapid','blitz','bullet'),1):
+        rows=grouped.get(kind)
         if not rows:continue
         svg=class_svg(kind,rows).replace('blue: SharkBot estimate · orange dashed: official Chess.com',
             'orange dashed: official Chess.com · no engine estimate')
         svg=mark_selected(svg,result,kind,rows,(150,470,790))
-        add_chart(f'fairplay_{kind}_charts.png',cairosvg.svg2png(bytestring=svg.encode()))
+        add_chart(f'fairplay_{kind}_charts.png',svg,number)
     if live_games:
-        add_chart('fairplay_method3_accuracy_frequency.png',
-                  cairosvg.svg2png(bytestring=accuracy_frequency_svg(result).encode()))
-        add_chart('fairplay_method3_rolling_history.png',cairosvg.svg2png(bytestring=rolling_history_svg(result).encode()))
+        add_chart('fairplay_method3_accuracy_frequency.png',accuracy_frequency_svg(result),4)
+        add_chart('fairplay_method3_rolling_history.png',rolling_history_svg(result),5)
     if zoom:
-        add_chart('fairplay_method3_selected_period.png',cairosvg.svg2png(bytestring=zoom.encode()))
+        add_chart('fairplay_method3_selected_period.png',zoom,6)
     if live_games:
         from fairplay_method3_behavior_charts import behavior_svgs
-        for name,svg in behavior_svgs(result):
-            add_chart(name,cairosvg.svg2png(bytestring=svg.encode()))
+        for number,(name,svg) in enumerate(behavior_svgs(result),7):
+            add_chart(name,svg,number)
     return files
 
 

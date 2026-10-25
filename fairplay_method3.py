@@ -11,7 +11,7 @@ from fairplay_config import CONFIG
 from fairplay_data import PubAPI, ReviewError, ScanDeadline, check_deadline, collect_games, username
 from fairplay_outcome_study import evaluate, SCENARIOS, DEVELOPMENT_SCENARIOS, CONFIG as STUDY_CONFIG
 
-VERSION='fairplay-v81-opening-patterns'
+VERSION='fairplay-v82-evidence-and-wide-charts'
 LIMIT=5000
 BLOCK_SIZE=200
 PRIORITY_GAMES=200
@@ -267,17 +267,17 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
             chosen['last_game']+=class_offset
             chosen['history_block']=block_index+1
             chosen['history_segment']='boundary' if is_bridge else 'block'
-        from fairplay_method3_accuracy_frequency import historical_signal, absolute_frequency_signal
+        from fairplay_method3_accuracy_frequency import (
+            historical_signal, absolute_frequency_signal, apply_historical_frequency_review)
         frequency_signals=historical_signal(games)
         absolute_signals=absolute_frequency_signal(games)
-        # The frequency signal is supporting review triage only: it can
-        # promote LOW to MODERATE, never HIGH or VERY HIGH.
-        if priority=='LOW' and frequency_signals:
-            priority='MODERATE'
-            basis='accuracy_frequency'
-        elif priority=='LOW' and absolute_signals:
-            priority='MODERATE'
-            basis='absolute_accuracy_frequency'
+        # Relative change against the player's *earlier matched history* may
+        # justify MODERATE manual review. Absolute Accuracy frequency has no
+        # validated player- or population-matched reference: strong players
+        # naturally accumulate high published Accuracy values. Keep such
+        # uncalibrated absolute rates as descriptive diagnostics ONLY.
+        priority,basis=apply_historical_frequency_review(
+            priority,basis,frequency_signals,absolute_signals)
         # Separate exploratory MODERATE manual-review route. Requires a large,
         # reliable results period AND sufficiently broad published Accuracy.
         # Never promotes HIGH and must not be treated as a cheating verdict.
@@ -322,8 +322,10 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                  'Not enough comparable chronological games with valid ratings/results to assign a tier.')]
         if basis=='combined_manual_review':
             reasons=['Combined substantial Elo-results deviation and published Accuracy observations warrant MODERATE manual-review priority. This is exploratory, uncalibrated, and not evidence of cheating.']
-        if basis=='absolute_accuracy_frequency':
-            reasons=['High published Accuracy frequency in well-covered, comparable-Elo games merits manual review. This is an uncalibrated heuristic, not evidence of cheating.']
+        if priority=='LOW' and absolute_signals:
+            reasons=['Absolute high Accuracy frequency alone is descriptive. '
+                     'No matched increase or qualifying results anomaly was found; '
+                     'this does not establish fair play.']
         if basis=='accuracy_frequency':
             reasons=['A recent high-Accuracy frequency increase passed a conservative earlier-history comparison against similar-Elo opponents. Exploratory review signal, not proof of misconduct.']
         from fairplay_method3_history import changes
@@ -398,7 +400,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                 'selected':chosen,'selected_period_priority':selected_period_priority,
                 'marked_periods':marked,'subject':subject,'source':'official_accuracy',
                 'engine_used':False,'maia_used':False,'timing_scoring':False,
-                'accuracy_role':'Conservative historical/absolute and safeguarded combined review signals can promote LOW to MODERATE; HIGH requires independent strict results guards and no Accuracy-only promotion',
+                'accuracy_role':'Only qualifying earlier-history Accuracy increases or corroborated result-review evidence may raise LOW to MODERATE. Absolute Accuracy frequency is descriptive only; never independently raises priority. HIGH requires strict results guards.',
                 'limits':'Rated and unrated share chronological periods/references, but their Elo reliability is separately audited. Zero rated anchors, cross-control discrepancies and verified new-account rating ramps cap results-backed HIGH/VERY HIGH. Repeated opponents cap these tiers even if Accuracy corroborates. Daily is excluded; only collected live history is searched. Underrating, legitimate improvement, smurfing, rating lag, correlated games, missing archives and selected hot streaks can qualify. VERY HIGH requires both results and matched earlier Accuracy but never proves misconduct.'}
         # Offline evaluate's cross-player groups have no other players here. Attach
         # the earlier personal references by period, never fabricate a group norm.
