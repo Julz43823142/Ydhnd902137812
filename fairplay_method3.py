@@ -323,9 +323,9 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         if basis=='combined_manual_review':
             reasons=['Combined substantial Elo-results deviation and published Accuracy observations warrant MODERATE manual-review priority. This is exploratory, uncalibrated, and not evidence of cheating.']
         if priority=='LOW' and absolute_signals:
-            reasons=['Absolute high Accuracy frequency is descriptive only; without a ' +
-                     'matched historical increase or qualifying results anomaly it cannot raise the
-review priority. No positive screening signal does not establish fair play.']
+            reasons=['Absolute high Accuracy frequency alone is descriptive. '
+                     'No matched increase or qualifying results anomaly was found; '
+                     'this does not establish fair play.']
         if basis=='accuracy_frequency':
             reasons=['A recent high-Accuracy frequency increase passed a conservative earlier-history comparison against similar-Elo opponents. Exploratory review signal, not proof of misconduct.']
         from fairplay_method3_history import changes
