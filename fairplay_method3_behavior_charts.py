@@ -107,37 +107,36 @@ def bands(p,result,edges,top,bottom):
 PALETTE=('#2563eb','#f59e0b','#10b981','#a855f7','#94a3b8')
 
 def opening_svg(result,c):
-    p=header('7 · Opening choices and rating history','Each bar is 100% of games in that period. Colors identify the opening choice.',2200)
-    groups=sorted(c['openings'].items(),key=lambda r:-len(r[1]))
-    shown=[]
-    for color in ('white','black'):
-        row=next((r for r in groups if r[0][2]==color),None)
-        if row:shown.append(row)
-    shown += [r for r in groups if r not in shown][:3-len(shown)]
-    names={'e2e4':'1.e4','d2d4':'1.d4','c2c4':'1.c4','g1f3':'1.Nf3'}
-    for i,(key,rows) in enumerate(shown):
-        y=145+i*285
-        p.append(text(30,y,f'{key[0].title()} {control_label(key[1])} · {key[2]} · {key[3]}',25))
-        counts=Counter(v for _,v in rows);choices=[v for v,_ in counts.most_common(4)];labels=choices+['Other']
-        for j,label in enumerate(labels):
-            p.append(text(30+j*230,y+34,names.get(label,label),17,PALETTE[j]))
-        edges=calendar(result.games,4)
-        for j in range(4):
-            vals=[v for g,v in rows if bucket(g.ended,edges)==j];yy=y+64+j*42
-            p.append(text(30,yy+18,date(edges[j]),18))
-            x=210
-            if not vals:p.append(text(x,yy+18,'No games',18));continue
-            freq=Counter(v if v in choices else 'Other' for v in vals)
+    p=header('7 · Openings and rating history','White and black separately · all live time controls combined · each bar totals 100%.',2670)
+    for i,color in enumerate(('white','black')):
+        rows=[(g,(key[3]+' · '+v if color=='black' else v)) for key,group in c['openings'].items() if key[2]==color and key[0] in KINDS for g,v in group]
+        rows.sort(key=lambda row:(row[0].ended,row[0].identity))
+        y=130+i*680
+        p.append(text(30,y,color.title()+' · all Bullet, Blitz and Rapid games',25))
+        choices=[v for v,_ in Counter(v for _,v in rows).most_common(4)]
+        labels=choices+['Other']
+        names={'e2e4':'1.e4','d2d4':'1.d4','c2c4':'1.c4','g1f3':'1.Nf3'}
+        for j,label in enumerate(labels):p.append(text(30+(j%2)*570,y+30+(j//2)*23,names.get(label,label),16,PALETTE[j]))
+        count=min(20,max(1,len(rows)//10))
+        for j in range(count):
+            chunk=rows[len(rows)*j//count:len(rows)*(j+1)//count]
+            if not chunk:continue
+            yy=y+100+j*26
+            overlap=[v for v in periods(result) if v['first_ended']<=chunk[-1][0].ended and v['last_ended']>=chunk[0][0].ended]
+            if overlap:p.append(f'<rect x="25" y="{yy-2}" width="1140" height="25" fill="#ede9fe"/>')
+            p.append(text(30,yy+16,f'{date(chunk[0][0].ended)}',15))
+            freq=Counter(v if v in choices else 'Other' for _,v in chunk);x=180
             for k,label in enumerate(labels):
-                fraction=freq[label]/len(vals);width=760*fraction
-                p.append(f'<rect x="{x}" y="{yy}" width="{width}" height="27" fill="{PALETTE[k]}"/>')
-                if fraction>=.09:p.append(text(x+width/2,yy+20,f'{fraction:.0%}',17,'white','middle'))
+                share=freq[label]/len(chunk);width=690*share
+                p.append(f'<rect x="{x}" y="{yy}" width="{width}" height="21" fill="{PALETTE[k]}"/>')
+                if share>=.1:p.append(text(x+width/2,yy+16,f'{share:.0%}',15,'white','middle'))
                 x+=width
-            p.append(text(990,yy+20,f'{len(vals)} games'+(' *' if len(vals)<5 else ''),17))
-    p.append(text(30,1030,f'{len(result.games)} games · {max(0,len(groups)-len(shown))} smaller groups not shown · * small sample',18))
-    p.append(text(30,1060,'First-move choices/families, not complete opening variations. Compare within the same row.',18))
-    p.extend(rating_panels(result,1120))
-    return finish(p,2200)
+            note=f'{len(chunk)} games'
+            if overlap:note+=' · Context '+','.join(str(v['number']) for v in overlap)
+            p.append(text(885,yy+16,note,14))
+    p.append(text(30,1490,'Purple row: overlaps a flagged period. Opening mix is context only; time-control mix can change it.',17,'#526477'))
+    p.extend(rating_panels(result,1590))
+    return finish(p,2670)
 
 
 def rating_panels(result, offset):
@@ -197,7 +196,7 @@ def rating_panels(result, offset):
 
 
 def timing_svg(result,c):
-    p=header('8 · Thinking time through the games','Shared x-axis: chronological game number across ALL time controls. Lines: recent game medians.',1200)
+    p=header('8 · Thinking time through the games','Shared x-axis: chronological game number across ALL time controls. Own seconds scale per class; full history.',1200)
     rows=sorted(result.games,key=lambda g:(g.ended,g.identity));series={k:[] for k in KINDS}
     for index,g in enumerate(rows):
         valid=[d.think for d in g.decisions if valid_clock(d)]
@@ -213,6 +212,7 @@ def timing_svg(result,c):
     from bisect import bisect_left,bisect_right
     times=[g.ended for g in rows]
     for k,kind in enumerate(KINDS):
+        maximum=max([.5]+[v*1.15 for _,v in smooth[kind] if v is not None])
         top=155+k*315;bottom=top+210
         p.append(text(30,top-25,f'{kind.title()} · {control_label(c["chosen"].get(kind,"unknown"))}',25,COLORS_LINE[k]))
         for span in periods(result):
@@ -236,14 +236,18 @@ def timing_svg(result,c):
 
 
 def phase_svg(result,c):
-    legend=('Blue: before the selected period · orange: during its dates · purple: after.'
+    legend=('Compare ordinary history with flagged dates; see the legend above each chart.'
             if result.diagnostics['method3'].get('selected') else 'Blue: all available history; no selected period.')
     p=header('9 · Where is thinking time spent?',legend+' Bar length = seconds.',1200)
     cats=('Early 1–10','Middle 11–30','Late 31+','Start <10s','Start ≥10s')
     colors=('#2563eb','#f97316','#a855f7')
     for i,kind in enumerate(KINDS):
         control=c['chosen'].get(kind);rows=[g for g in result.games if g.time_class==kind and g.time_control==control]
-        phase=phases(result,rows);cells=[]
+        phase=phases(result,rows)
+        if len(phase)==3:
+            phase=phase[:2] if phase[0][1] else [phase[2],phase[1]]
+        p.append(text(30,155+i*310+5,'Blue: '+phase[0][0]+(' · Orange: flagged dates' if len(phase)>1 else ''),18))
+        cells=[]
         for label,games in phase:
             cells.append([summary([c['clocks'][g.identity][name] for g in games if name in c['clocks'][g.identity]]) for name in cats])
         maximum=max([1]+[v[0]*1.2 for row in cells for v in row if v])
@@ -264,47 +268,7 @@ def phase_svg(result,c):
 
 def behavior_svgs(result):
     c=build_context(result.games)
-    return [(name,with_period_timelines(svg,result)) for name,svg in [
+    return [(name,svg) for name,svg in [
             ('fairplay_07_openings.png',opening_svg(result,c)),
             ('fairplay_08_clock_convergence.png',timing_svg(result,c)),
             ('fairplay_09_phase_pressure.png',phase_svg(result,c))]]
-
-
-def with_period_timelines(svg,result):
-    """Same numbered calendar spans on every page; never infer a new HIGH."""
-    import re
-    marked=periods(result)
-    if not marked:return svg
-    height=int(re.search(r'<svg[^>]* height="(\d+)"',svg).group(1))
-    edges=calendar(result.games)
-    # Reserve enough lanes for labels as well as actual temporal spans.
-    lanes=[]
-    ends=[]
-    for span in marked:
-        x1=70+1060*(span['first_ended']-edges[0])/(edges[-1]-edges[0])
-        x2=70+1060*(span['last_ended']-edges[0])/(edges[-1]-edges[0])
-        label_end=max(x2,x1+155)
-        lane=next((i for i,end in enumerate(ends) if end+8<x1),len(ends))
-        if lane==len(ends):ends.append(label_end)
-        else:ends[lane]=label_end
-        lanes.append((span,x1,x2,lane))
-    row_height=50+32*len(ends)
-    added=110+3*row_height
-    new_height=height+added
-    svg=svg.replace(f'height="{height}"',f'height="{new_height}"',1)
-    svg=svg.replace(f'viewBox="0 0 1200 {height}"',f'viewBox="0 0 1200 {new_height}"',1)
-    parts=[f'<rect x="0" y="{height}" width="1200" height="{added}" fill="white"/>',
-           text(30,height+35,'Shared periods · identical numbers and dates across all pages',24),
-           text(30,height+64,'Orange/red: original class priority. Purple: same dates in another class, context only.',18)]
-    for index,kind in enumerate(KINDS):
-        y=height+100+index*row_height
-        parts.append(text(30,y,kind.title(),20))
-        for span,x1,x2,lane in lanes:
-            own=span['time_class']==kind
-            fill,stroke=COLORS[span['priority']] if own else ('#c4b5fd','#6d28d9')
-            yy=y+12+32*lane
-            parts.append(f'<rect x="{x1:.1f}" y="{yy}" width="{max(2,x2-x1):.1f}" height="23" fill="{fill}" fill-opacity=".6"/>')
-            label=(span['priority'] if own else 'Context')+' '+str(span['number'])
-            parts.append(text(min(x1,980),yy+17,label,16,stroke))
-    parts.extend([text(70,new_height-15,date(edges[0]),16),text(1130,new_height-15,date(edges[-1]-1),16,anchor='end')])
-    return svg.replace('</svg>',''.join(parts)+'</svg>')
