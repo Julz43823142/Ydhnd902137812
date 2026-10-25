@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from math import ceil
 
 from fairplay_charts import start, text
-from fairplay_method3_accuracy_frequency import summarize
+from fairplay_method3_accuracy_frequency import _valid_accuracy
 from fairplay_method3_period_overlays import periods, draw
 
 CLASSES=('bullet','blitz','rapid')
@@ -13,13 +13,51 @@ COLORS=('#2563eb','#0f766e')
 
 
 def frequency_summary(games,kind):
-    """Reuse the existing published-score coverage and >=90/95 calculations."""
-    row=summarize(games)['by_time_class'][kind]
-    above80=sum(isinstance(g.accuracy,(int,float)) and not isinstance(g.accuracy,bool)
-                and 80<=g.accuracy<=100 for g in games)
-    return {'games':len(games),'available':row['accuracy_coverage'],
-            'missing':len(games)-row['accuracy_coverage'],
-            'counts':{80:above80,90:row['at_least_90'],95:row['at_least_95']}}
+    """Count graph-only frequencies in one pass, with the official coverage rule.
+
+    The full player summary also calculates medians and Elo context, none of
+    which the frequency image uses. Missing and invalid Accuracy stay missing.
+    """
+    counts = {80: 0, 90: 0, 95: 0}
+    available = 0
+    for game in games:
+        if game.time_class != kind or not _valid_accuracy(game):
+            continue
+        available += 1
+        for threshold in counts:
+            counts[threshold] += game.accuracy >= threshold
+    return {'games':len(games),'available':available,
+            'missing':len(games)-available,'counts':counts}
+
+
+def rolling_frequency_points(values, window=100, stride=10):
+    """Exact rolling published-Accuracy fractions, O(n) rather than O(n*window).
+
+    Return the same end-game indices, thresholds and missing-data gaps as the
+    original sampled-window chart. A final off-stride observation is preserved.
+    Values are already validated; None is missing rather than zero.
+    """
+    if window <= 0 or stride <= 0:
+        raise ValueError('Rolling window and stride must be positive.')
+    counts = {threshold: 0 for threshold in THRESHOLDS}
+    observed = 0
+    points = {threshold: [] for threshold in THRESHOLDS}
+    for end, value in enumerate(values):
+        if value is not None:
+            observed += 1
+            for threshold in THRESHOLDS:
+                counts[threshold] += value >= threshold
+        if end >= window:
+            dropped = values[end-window]
+            if dropped is not None:
+                observed -= 1
+                for threshold in THRESHOLDS:
+                    counts[threshold] -= dropped >= threshold
+        if end < window - 1 or ((end + 1 - window) % stride and end != len(values) - 1):
+            continue
+        for threshold in THRESHOLDS:
+            points[threshold].append((end, counts[threshold]/observed if observed else None))
+    return points
 
 
 def calendar_buckets(games,kind,selected=None,limit=4):
@@ -125,20 +163,15 @@ def accuracy_frequency_svg(result):
         window=100
         # Every plotted value covers the previous 100 played games; unavailable
         # official scores are excluded from the denominator, never treated as zero.
-        valid=[g.accuracy if isinstance(g.accuracy,(int,float)) and not isinstance(g.accuracy,bool)
-               and 0<=g.accuracy<=100 else None for g in rows]
+        valid=[g.accuracy if _valid_accuracy(g) else None for g in rows]
+        rolling=rolling_frequency_points(valid,window)
         for offset,threshold in enumerate(THRESHOLDS):
             segments=[]
             current=[]
-            for end_index in range(window-1,n):
-                if (end_index+1-window)%10 and end_index!=n-1:
-                    continue
-                sample=valid[end_index+1-window:end_index+1]
-                known=[value for value in sample if value is not None]
-                if not known:
+            for end_index,fraction in rolling[threshold]:
+                if fraction is None:
                     if current:segments.append(current);current=[]
                     continue
-                fraction=sum(value>=threshold for value in known)/len(known)
                 xx=left+(right-left)*end_index/max(1,n-1)
                 yy=bottom-(bottom-top)*fraction
                 current.append((xx,yy))
