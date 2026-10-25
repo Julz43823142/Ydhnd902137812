@@ -152,7 +152,7 @@ class Method3(unittest.TestCase):
         result=self.run_review();files=chart_pngs(result)
         self.assertTrue(any('accuracy_frequency' in name for name,data in files))
         self.assertTrue(any('selected_period' in name for name,data in files))
-        self.assertLessEqual(len(files),6)
+        self.assertLessEqual(len(files),9)
         self.assertTrue(all(data.startswith(b'\x89PNG') for name,data in files))
 
 if __name__=='__main__':unittest.main()

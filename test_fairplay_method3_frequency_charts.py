@@ -1,4 +1,4 @@
-"""Published Accuracy chart denominators, calendar scope and six-image delivery."""
+"""Published Accuracy chart denominators, calendar scope and nine-image delivery."""
 import copy
 from datetime import datetime,timezone
 from types import SimpleNamespace
@@ -77,7 +77,7 @@ class AccuracyFrequencyCharts(unittest.TestCase):
         self.assertNotIn('≥95%',svg)
         self.assertNotIn('Overlaps selected dates',svg)
 
-    def test_complete_report_has_six_images_and_preserves_review(self):
+    def test_complete_report_has_nine_images_and_preserves_review(self):
         from fairplay_method3_ui import chart_pngs
         games=[fixture(i+offset,kind=kind,accuracy=80+i,clock_moves=1)
                for offset,kind in ((0,'blitz'),(100,'rapid'),(200,'bullet')) for i in range(10)]
@@ -86,8 +86,8 @@ class AccuracyFrequencyCharts(unittest.TestCase):
         progress=[]
         with patch('cairosvg.svg2png',return_value=b'\x89PNG-synthetic'):
             files=chart_pngs(result,lambda done,total:progress.append((done,total)))
-        self.assertEqual(len(files),6)
-        self.assertEqual(progress,[(n,6) for n in range(1,7)])
+        self.assertEqual(len(files),9)
+        self.assertEqual(progress,[(n,9) for n in range(1,10)])
         names=[name for name,_ in files]
         self.assertIn('fairplay_method3_accuracy_frequency.png',names)
         self.assertIn('fairplay_method3_selected_period.png',names)
