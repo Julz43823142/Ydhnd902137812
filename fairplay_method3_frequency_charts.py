@@ -193,14 +193,18 @@ def accuracy_frequency_svg(result):
             parts.append(text(x,y,control_label(comp['time_control'])+
                               ' · available / missing',19))
             for col,threshold in enumerate(THRESHOLDS):
-                parts.append(text(x+350+col*135,y,f'≥{threshold}%',16,COLORS[col]))
+                parts.append(text(x+331+col*145,y,f'≥{threshold}%',16,COLORS[col],'middle'))
             for row,(phase,counts) in enumerate(comp['phases'].items()):
                 yy=y+31+row*30
                 parts.append(text(x,yy,phase+f": {counts['available']}/{counts['missing']} "
                                   f"({counts['games']} games)",15))
                 for col,threshold in enumerate(THRESHOLDS):
-                    parts.append(text(x+350+col*135,yy,frequency_label(counts,threshold),
-                                      15,COLORS[col]))
+                    # Keep long count/percentage labels inside the 560px panel.
+                    available=counts['available'];hits=counts['counts'][threshold]
+                    small=(f'{hits}/{available} ({hits/available:.0%})'
+                           if available else '0/0 (?)')
+                    parts.append(text(x+331+col*145,yy,small,
+                                      14,COLORS[col],'middle'))
         if omitted:
             parts.append(text(x,1195,str(omitted)+' more controls omitted from summary.',
                               16,'#526477'))
