@@ -19,17 +19,46 @@ No account names, player titles or allowlists participate in this rule.
 This is a conservative evidence gate, **not** independent population
 calibration or engine confirmation. The combined path remains capped
 at MODERATE manual-review priority. HIGH/VERY HIGH rules are unchanged.
-The selected-period Accuracy coverage is retained in diagnostics.
+The selected-period Accuracy coverage is retained in diagnostics. The
+Suspicion Score stays unknown when that corroboration is absent, stale or
+inconsistent with the selected period, rather than manufacturing a number.
 
 ## Twitch
 
-A 403 for the optional Twitch Chat EventSub subscription, including
-`subscription missing proper authorization`, is recorded in worker logs
-without generating a recurring owner Discord notice. Twitch Channel
-Points subscription failures still alert the owner; other optional
-subscription failures still alert. This does **not** grant Twitch Chat
-permissions, and chat commands remain unavailable until the OAuth
-authorization is corrected.
+Only the specific missing-authorization Twitch Chat EventSub HTTP 403
+(`subscription missing proper authorization`) is recorded once in worker
+logs without a recurring owner Discord notice. Further doomed Chat
+subscriptions are skipped on WebSocket reconnections **within the same
+worker process**. Other optional failures (including 403 for different
+reasons) and critical Channel Points subscription failures still alert
+the owner.
+
+This does **not** grant Twitch Chat permissions. Chat commands remain
+unavailable until the OAuth scopes are corrected and a worker restarts.
+Other Twitch subscriptions continue to operate independently.
+
+## Efficiency audit
+
+- Accuracy-frequency charts previously calculated comprehensive per-player
+  Elo/move-length medians for every display-only bucket. v84 counts official
+  Accuracy coverage and threshold numerators directly in one pass, preserving
+  missingness and every displayed denominator.
+- Rolling 100-*played*-game Accuracy chart trends previously copied and rescanned
+  each 100-game window at each sampled point and each threshold. v84 uses
+  incrementally maintained numerators and denominators in a single chronological
+  pass. Off-stride final samples and unknown-only gaps are unchanged.
+- Earlier personal Accuracy references previously scanned the entire history
+  on first access to every distinct rating context. v84 indexes earlier games
+  by exact time control and own Elo, then applies the original full matching
+  predicate and chronological prefix constraints. It still includes only
+  already-played reference games at every searched boundary.
+- Benchmark with `python scripts/benchmark_fairplay_v84_plot.py --games 5000
+  --iterations 25`. It asserts exact equivalence against preserved old
+  calculations. Speedups apply only to synthetic chart calculations, not to
+  network fetch, PGN decoding, Stockfish/Maia, Discord, or full review latency.
+- Indexed-reference tests compare all stored statistics and cryptographic
+  reference-pool keys against a brute-force original-style implementation,
+  including missing ratings, partial coverage, control changes and boundaries.
 
 ## Safety and verification
 
