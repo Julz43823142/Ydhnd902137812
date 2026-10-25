@@ -96,6 +96,28 @@ class MatchedClockControls(unittest.TestCase):
         self.assertIsNone(matched_clock_controls(r,values)['during'])
 
 
+    def test_low_clock_completeness_suppresses_numeric_gap(self):
+        first,last=START+100000,START+100600
+        games=[]
+        observed={}
+        i=0
+        for kind,control in [('bullet','60+0'),('blitz','180+0')]:
+            for era in ('before','during'):
+                for j in range(20):
+                    game=make_game(i,kind=kind,control=control,
+                                   ended=first-3600+j if era=='before' else first+j)
+                    games.append(game)
+                    # Five verified games out of twenty in each era. A huge
+                    # apparent difference must not pass as a stable pattern.
+                    if j<5:observed[game.identity]=1 if era=='before' else 9
+                    i+=1
+        r=review(games,first,last)
+        comparison=matched_clock_controls(r,observed)
+        self.assertIsNone(comparison['before'])
+        self.assertIsNone(comparison['during'])
+        self.assertEqual(comparison['controls'],{})
+
+
 class MatchedRepertoire(unittest.TestCase):
     def test_unbiased_pair_repetition_matched_by_color_control_and_reply(self):
         first,last=START+100000,START+100600
@@ -148,10 +170,12 @@ class PairedPressure(unittest.TestCase):
         self.assertEqual(observed['before']['median_ratio'],.25)
         self.assertEqual(observed['during']['median_ratio'],.5)
         self.assertEqual(observed['during']['games'],6)
+        self.assertEqual(observed['during']['total_games'],6)
         self.assertEqual(r,before)
         svg=phase_svg(r,context)
         self.assertIn('Paired time-pressure response',svg)
         self.assertIn('before 0.25× (n=6) → during 0.50× (n=6)',svg)
+        self.assertIn('Paired games / all games: before 6/6, during 6/6',svg)
 
     def test_no_pressure_or_zero_normal_clock_is_missing_not_infinite(self):
         first,last=START+100000,START+100600
