@@ -196,7 +196,7 @@ def opening_svg(result,c,marked=None):
                       ' → after '+fmt_repeats(observed['after']),19))
     else:
         p.append(text(30,1730,'Matched repertoire repetition: unavailable (need ≥8 games before/during).',17,'#526477'))
-    p.append(text(30,1800,'Top bars pool controls; matched repetition holds class/control/color/opponent reply fixed.',17,'#526477'))
+    p.append(text(30,1800,'Controls pooled: top bars mix modes; matched repetition fixes class/control/color/opponent reply.',17,'#526477'))
     p.extend(rating_panels(result,1900,marked=marked))
     return finish(p,2980)
 
