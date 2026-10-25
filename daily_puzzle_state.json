@@ -2865,90 +2865,50 @@
   },
   "puzzle_rush": {
     "442597396195704832": {
-      "active": false,
+      "active": true,
       "user_id": "442597396195704832",
       "name": "Thice",
-      "started_at": 1792184249.1924014,
-      "run_id": "rush:442597396195704832:1792184249192",
-      "end_at": 1792184549.1924014,
-      "score": 10,
-      "wrong": 2,
-      "mistakes": [
-        {
-          "puzzle_number": 1,
-          "submitted": "bxc7",
-          "correct": "Ra8+",
-          "puzzle": {
-            "puzzle_id": "practice_rush_442597396195704832_0FEOX_1792184249196",
-            "fen": "6k1/R1r2p2/4p1pp/3pB3/3P4/2P1n2P/5rPK/8 w - - 0 31",
-            "current_fen": "6k1/R1r2p2/4p1pp/3pB3/3P4/2P1n2P/5rPK/8 w - - 0 31",
-            "last_move_uci": "c8c7",
-            "player_color": "white",
-            "rating": 1200,
-            "board_theme": "blue",
-            "piece_theme": "classic",
-            "arrow_theme": "pink"
-          },
-          "recorded_at": 1792184253.0800955
-        },
-        {
-          "puzzle_number": 12,
-          "submitted": "kxf5",
-          "correct": "Kxe6",
-          "puzzle": {
-            "puzzle_id": "practice_rush_442597396195704832_6nbla_1792184367868",
-            "fen": "4b3/1B1k4/2p1p3/2PpPpK1/3P4/4P3/8/8 w - - 3 42",
-            "current_fen": "8/8/2k1pK2/2PpPp1b/3P4/4P3/8/8 w - - 0 44",
-            "last_move_uci": "d7c6",
-            "player_color": "white",
-            "rating": 1633,
-            "board_theme": "blue",
-            "piece_theme": "classic",
-            "arrow_theme": "pink"
-          },
-          "recorded_at": 1792184383.3194616
-        }
-      ],
+      "started_at": 1792961710.0297806,
+      "run_id": "rush:442597396195704832:1792961710029",
+      "end_at": 1792962010.0297806,
+      "score": 0,
+      "wrong": 0,
+      "mistakes": [],
       "ruleset": "universal-1200-plus40-v1",
       "puzzle": {
-        "url": "https://lichess.org/training/Vqy3U",
-        "title": "Lichess • 1625",
-        "fen": "2r4k/p5pp/1p3r2/1P2q3/1P1nPp1Q/2NR1P2/6PP/1R4K1 b - - 0 29",
-        "current_fen": "2r4k/p5pp/1p3r2/1P2q3/1P1nPp1Q/2NR1P2/6PP/1R4K1 b - - 0 29",
-        "last_move_uci": "f2h4",
+        "url": "https://lichess.org/training/zhD42",
+        "title": "Puzzle • 1207",
+        "fen": "2b5/Pk5p/3p2p1/5p2/7P/8/4B1P1/7K w - - 1 41",
+        "current_fen": "2b5/Pk5p/3p2p1/5p2/7P/8/4B1P1/7K w - - 1 41",
+        "last_move_uci": "c6b7",
         "pgn": {
-          "__shark_answer_ciphertext_v1__": "gAAAAABq3mHCibaQmPKCR8SYKvwkRQQVVmMPllrTj_zV3cIf-kzX_r-q1Q9BX4uJiprPypF0EX2u052qQrJ55a0PJZc1mTORVINu8tnpWOelUhnYEVytNOk="
+          "__shark_answer_ciphertext_v1__": "gAAAAABq3myudOdGeT5kt92mpXitOm5v0zL1eisEqjR0hnjf8b8UfAXLvTex3lWXcKubXB1H6nQjvk7qcmNAXCepRCREEUA6p6_Q-gUfP6TjePicG-CjszM="
         },
         "all_moves": {
-          "__shark_answer_ciphertext_v1__": "gAAAAABq3mHCUf1uu6Vn-P2bXzDmmG6IatNWYe2F20vhb1p1eoPzIZLMVHkd6kifHP0zKoDCyXr12sCWSO1YaRw-bpXcv-4G0xBWAZnIN59TI5jO1FGbP3G5Q-r3ywBgkZ8eGM97IozUxe29iEYufZcXL6oXUBJurG1HQIl9pY71f7jOgTFQutO736xqA7AMxHx3RWdTU7i48-Z2x0x-yF5Jj8i1lEgpfpkcbs96Yxa8bqKgF0aMpQDjRFfLkM3x1DsJoMRir_Fz"
+          "__shark_answer_ciphertext_v1__": "gAAAAABq3myuP22inn0tKw0XRKuUO6sgO9LPmw3xTLJ5K-LP7WIvzSHQCkD3rpL7clcut2TBYkHZ9nGKA2sHfqdBdKGkDAEJTfox3Pm6ztLSSJbWSwr0FP37YuV47pFmlU-i4IR3DnKCcwumfraC193A1NnLzh4jWDNIkF4yAnUz0aTDExcNNnMNAuxjeEfXGYmmoGyqdJkP88Sbs6uoexBYNZwEnh1WESfm-Q3qMSrNOv6POCwUSo7pvmZrP4i9MW3tF2n3ENtb"
         },
         "player_moves": {
-          "__shark_answer_ciphertext_v1__": "gAAAAABq3mHCEbCbhyRQiNSfOcq0BEbpBBVk-sVJleSxa4DoJ8icksSl4q1ChMLwpkV8SC3kK9NVTER_dnm9kbCqJ4GaFPfbaKdCcFamTLnovjAbJNo9q170BL8ktFTvKJZif4T5WUjhKpdcjXwXYLF_boEXii5QrAWFkDJtXnuhi5_HGgW-SxdfFWVG0_rQLROZ19Hp2bT0"
+          "__shark_answer_ciphertext_v1__": "gAAAAABq3myuOIxKGvaAwAGsrou_D4by8YJ_lX4qKYwb7Yck3uLpp1Chb0N44o9eE_ScxJRmAk_PkgbcNpvdCHIIJp3VUWitVOdb5ZXCgU9AzQk1cqyeTTNtJ8p61Xozm1vkd5Xsxs2lpBrXtYbwUguUT1iVKuAIkH4ON3-fk8WIsFC6Nmr9hU3r7GkOoysyTN0bz1gRBVqu"
         },
-        "player_color": "black",
+        "player_color": "white",
         "player_move_count": 2,
-        "posted_at": "2026-10-16T20:59:43.324736+00:00",
+        "posted_at": "2026-10-25T20:55:10.032912+00:00",
         "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_Vqy3U_1792184383324",
-        "rating": 1625,
+        "puzzle_id": "practice_rush_442597396195704832_zhD42_1792961710032",
+        "rating": 1207,
         "next_solution_index": 0,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1560759170146242630,
+      "message_id": 1564019513903554685,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792184383.3191178,
-      "last_feedback": "❌ **kxf5** was wrong. Correct move: **Kxe6**.",
-      "ended_at": 1792184552.7119358,
-      "solve_reward_coins": 5.0,
-      "solve_reward_paid": true,
-      "completion_reward_coins": 10.0,
-      "completion_reward_paid": true
+      "last_card_activity_at": 1792961710.0297887,
+      "last_feedback": "🎯 **Type your move in chat.** Your answer message will be removed. You have **3 lives**."
     },
     "362606514764251137": {
       "active": false,
