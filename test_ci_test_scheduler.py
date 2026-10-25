@@ -45,3 +45,10 @@ class TestScheduler(unittest.TestCase):
         expected = {path.stem for path in root.glob('test_*.py') if path.is_file()}
         self.assertEqual(set(weights), expected)
         self.assertEqual(sorted(name for group in partition(weights, 6) for name in group), sorted(expected))
+
+    def test_extra_first_load_reserves_room_for_auxiliary_checks(self):
+        weights = {f'test_{i}': 10.0 for i in range(10)}
+        groups = partition(weights, 2, extra_first=20)
+        self.assertEqual([len(group) for group in groups], [4, 6])
+        for bad in [-1, float('nan'), float('inf')]:
+            with self.assertRaises(ValueError):partition(weights, 2, extra_first=bad)

@@ -1,6 +1,6 @@
 """Deterministic whole-module test shards; weights affect scheduling, never coverage.
 
-Measured weights are local test-only seconds from the October 2026 profile.
+Measured weights are test-body seconds from a successful full GitHub CI run.
 They are scheduling hints, not CI performance guarantees. Unknown/new modules
 use their AST test count and are always included. Refresh hints when timings drift.
 """
@@ -16,23 +16,8 @@ import sys
 import time
 import unittest
 
-MEASURED_SECONDS = {
-    'test_fairplay_human': 36.04,
-    'test_fairplay': 32.83,
-    'test_fairplay_v6': 27.89,
-    'test_fairplay_v4': 26.40,
-    'test_fairplay_local_timing': 15.13,
-    'test_independent_formula_lab': 12.00,
-    'test_fairplay_method3_unrated': 11.32,
-    'test_fairplay_periods': 4.83,
-    'test_accuracy_optimizer': 4.29,
-    'test_fairplay_repeatability': 3.90,
-    'test_pet_trading': 3.88,
-    'test_fairplay_method3_coverage': 2.06,
-    'test_fairplay_snapshot_fetch': 2.03,
-    'test_daily_mystery_box': 1.78,
-    'test_fairplay_v50': 1.74,
-}
+# Timing hints from successful full CI run 40147584590; no account data.
+MEASURED_SECONDS = json.loads(Path(__file__).with_name('ci_test_weights.json').read_text())
 
 
 def discover_weights(root: Path) -> dict[str, float]:
@@ -55,13 +40,15 @@ def discover_weights(root: Path) -> dict[str, float]:
     return weights
 
 
-def partition(weights: dict[str, float], count: int) -> list[list[str]]:
+def partition(weights: dict[str, float], count: int, *, extra_first: float = 0) -> list[list[str]]:
     if count < 1:
         raise ValueError('Shard count must be positive')
     if any(not math.isfinite(value) or value <= 0 for value in weights.values()):
         raise ValueError('Scheduling weights must be positive and finite')
     groups = [[] for _ in range(count)]
-    loads = [0.0] * count
+    if not math.isfinite(extra_first) or extra_first < 0:
+        raise ValueError('Extra load must be finite and non-negative')
+    loads = [extra_first] + [0.0] * (count - 1)
     # Longest first, explicit stable tie breaks independent of dictionary order.
     for name in sorted(weights, key=lambda name: (-weights[name], name)):
         index = min(range(count), key=lambda index: (loads[index], index))
@@ -97,7 +84,7 @@ def main(argv=None):
     weights = discover_weights(root)
     if not weights:
         parser.error('No root test modules found')
-    groups = partition(weights, args.shards)
+    groups = partition(weights, args.shards, extra_first=20)
     selected = groups[args.shard]
     print(json.dumps({'shard': args.shard, 'shards': args.shards,
                       'total_modules': len(weights), 'modules': selected,

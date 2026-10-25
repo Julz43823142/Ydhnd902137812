@@ -30,3 +30,10 @@ not a measured speedup of the new workflow. GitHub CI results are authoritative.
 Local verification: scheduler coverage/disjointness/determinism tests; chart,
 UI and triage regressions; repository YAML/JSON validation; script inventory
 comparison verifies all previous smoke/benchmark invocations remain present.
+
+First complete GitHub run (40147584590): all checks passed. Engine groups took
+64/65/71/157 seconds (last group includes cold SF18 compilation); unit groups
+179/99/97/108/60/62 seconds. The long first group motivated a second refinement:
+`scripts/ci_test_weights.json` records all 171 actual module durations, and shard0
+reserves 20 seconds for auxiliary checks. The partition still discovers every
+root test module dynamically; this JSON schedules work and never filters tests.
