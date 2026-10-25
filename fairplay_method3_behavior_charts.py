@@ -70,7 +70,11 @@ def build_context(games):
             before=getattr(d,'clock_before',None)
             if finite(before) and before>=0:
                 categories['Start <10s' if before<10 else 'Start ≥10s'].append(d.think)
-        clocks[g.identity]={k:median(v) for k,v in categories.items() if len(v)>=5}
+        # A single validated time-pressure move is useful as one *game*
+        # observation; summary() still requires >=5 distinct games per plotted
+        # point. Requiring 5 pressure moves within ONE game lost short episodes.
+        clocks[g.identity]={k:median(v) for k,v in categories.items()
+                            if len(v)>=(1 if k.startswith('Start ') else 5)}
         if len(valid)>=5:
             # Same verified/reconstructed PGN clocks for charts 8 and 9.
             game_median=median(d.think for d in valid)
@@ -350,7 +354,7 @@ def phase_svg(result,c,marked=None):
     from bisect import bisect_left,bisect_right
     if marked is None:marked=periods(result)
     rows,trends=phase_trends(result,c);times=[g.ended for g in rows]
-    p=header('9 · How does thinking time change?','Blue Bullet · orange Blitz · green Rapid. Lines: median; shaded bands: middle 50% of game medians.',1810)
+    p=header('9 · How does thinking time change?','Blue Bullet · orange Blitz · green Rapid. Lines: median; shaded bands: middle 50% of game medians.',1860)
     for k,kind in enumerate(KINDS):p.append(text(30+k*390,115,kind.title()+' · '+control_label(c['chosen'].get(kind,'unknown')),20,COLORS_LINE[k]))
     x=lambda index:100+1030*index/max(1,len(rows)-1)
     for panel,(cat,series) in enumerate(trends.items()):
@@ -382,8 +386,9 @@ def phase_svg(result,c,marked=None):
                 previous=(xx,value)
         for j in range(5):p.append(text(x((len(rows)-1)*j/4),bottom+25,str(1+round((len(rows)-1)*j/4)),17,anchor='middle'))
     p.append(text(30,1730,'Shared game number · full history · gaps mean fewer than 5 contributing games, never zero.',18))
-    p.append(text(30,1760,'Each panel has its own seconds scale. Bands show between-game variation, not certainty or proof.',18))
-    return finish(p,1810)
+    p.append(text(30,1760,'Each panel has its own seconds scale. Bands show between-game variation, not proof.',18))
+    p.append(text(30,1797,'≥5 contributing games per point; time-pressure episodes may contain only one eligible move.',17,'#526477'))
+    return finish(p,1860)
 
 
 def behavior_svgs(result):
