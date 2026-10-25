@@ -172,7 +172,7 @@ def chart_pngs(result, progress=None):
     grouped=observations(live_games)
     files=[]
     zoom=selected_window_svg(result)
-    total=sum(bool(rows) for rows in grouped.values())+(2 if live_games else 0)+bool(zoom)
+    total=sum(bool(rows) for rows in grouped.values())+(5 if live_games else 0)+bool(zoom)
     def add_chart(name, data):
         files.append((name,data))
         if progress:progress(len(files),total)
@@ -188,6 +188,10 @@ def chart_pngs(result, progress=None):
         add_chart('fairplay_method3_rolling_history.png',cairosvg.svg2png(bytestring=rolling_history_svg(result).encode()))
     if zoom:
         add_chart('fairplay_method3_selected_period.png',cairosvg.svg2png(bytestring=zoom.encode()))
+    if live_games:
+        from fairplay_method3_behavior_charts import behavior_svgs
+        for name,svg in behavior_svgs(result):
+            add_chart(name,cairosvg.svg2png(bytestring=svg.encode()))
     return files
 
 
