@@ -1,7 +1,7 @@
 import copy
 import unittest
 from types import SimpleNamespace as N
-from fairplay_method3_behavior_charts import build_context, summary, behavior_svgs
+from fairplay_method3_behavior_charts import build_context, summary, behavior_svgs, window_clock_comparison
 from test_fairplay_method3_context import fixture
 
 
@@ -76,7 +76,9 @@ class Behavior(unittest.TestCase):
     def test_pressure_recovered_without_engine_clock_flag(self):
         g=game(0,before=9,think=3)
         for d in g.decisions:d.clock_valid=False;d.clock_after=8
-        self.assertEqual(build_context([g])['clocks'][g.identity]['Start <10s'],3)
+        context=build_context([g])
+        self.assertEqual(context['clocks'][g.identity]['Start <10s'],3)
+        self.assertEqual(context['per_game_timing'][g.identity],3)
         for d in g.decisions:d.clock_after=90
         self.assertEqual(build_context([g])['clocks'][g.identity],{})
 
@@ -161,3 +163,105 @@ class Behavior(unittest.TestCase):
         self.assertEqual(values[0][1][0],1)
         self.assertEqual(values[-1][1][0],4)
         self.assertTrue(all(value is None for _,value in series['Middle 11–30']['rapid']))
+
+    def test_small_flagged_period_within_5000_games_is_compared_exactly(self):
+        # Before, visual bins of ~167 games hid a short 30-game HIGH period.
+        rows=[]
+        for i in range(5000):
+            kind='bullet' if i%2==0 else 'blitz'
+            control='60+0' if kind=='bullet' else '180+0'
+            think=3 if 2490<=i<=2519 else 1 if kind=='bullet' else 6
+            g=game(i,kind=kind,control=control,think=think)
+            g.ended=1770000000+i*60
+            g.decisions=g.decisions[:5]
+            rows.append(g)
+        r=N(games=rows,priority='HIGH',diagnostics={'method3':{
+            'selected':{'first_ended':rows[2490].ended,'last_ended':rows[2519].ended},
+            'marked_periods':[]}})
+        context=build_context(rows)
+        comparison=window_clock_comparison(r,context)
+        self.assertEqual(comparison['comparable'],('bullet','blitz'))
+        self.assertEqual(comparison['before']['gap_seconds'],5)
+        self.assertEqual(comparison['during']['gap_seconds'],0)
+        self.assertEqual(comparison['during']['classes']['bullet']['games'],15)
+        self.assertEqual(comparison['during']['classes']['blitz']['games'],15)
+        from fairplay_method3_behavior_charts import timing_svg
+        svg=timing_svg(r,context)
+        self.assertIn('before 5.0s → during 0.0s',svg)
+        self.assertIn('exact selected dates',svg)
+
+    def test_convergence_needs_both_classes_and_matching_exact_controls(self):
+        rows=[]
+        for i in range(30):
+            kind='bullet' if i%2==0 else 'blitz'
+            control='60+0' if kind=='bullet' else '180+0'
+            g=game(i,kind=kind,control=control,think=i%5+1)
+            g.ended=1770000000+i*3600
+            rows.append(g)
+        r=N(games=rows,priority='HIGH',diagnostics={'method3':{
+            'selected':{'first_ended':rows[12].ended,
+                        'last_ended':rows[21].ended}}})
+        context=build_context(rows)
+        self.assertEqual(window_clock_comparison(r,context)['before']['classes']['bullet']['games'],6)
+        for g in rows[12:22]:
+            if g.time_class=='bullet':g.time_control='60+2'
+        context=build_context(rows)
+        comparison=window_clock_comparison(r,context)
+        self.assertIsNone(comparison['before'])
+        self.assertIsNone(comparison['during'])
+
+    def test_shared_marked_chronology_is_computed_once(self):
+        from unittest.mock import patch
+        from fairplay_method3_period_overlays import periods
+        r=N(games=[game(i) for i in range(90)],priority='LOW',
+            diagnostics={'method3':{'marked_periods':[]}})
+        with patch('fairplay_method3_behavior_charts.periods',wraps=periods) as called:
+            pages=behavior_svgs(r)
+        self.assertEqual(called.call_count,1)
+        self.assertEqual(len(pages),3)
+
+    def test_opening_highlight_is_actual_games_not_date_range(self):
+        from fairplay_method3_behavior_charts import opening_svg
+        rows=[game(i,kind='bullet' if i%2 else 'blitz') for i in range(100)]
+        r=N(games=rows,priority='HIGH',diagnostics={'method3':{
+            'marked_periods':[{'time_class':'blitz','priority':'HIGH',
+                               'first_ended':rows[20].ended,
+                               'last_ended':rows[28].ended}]}})
+        svg=opening_svg(r,build_context(rows))
+        self.assertIn('Context 1:5/10',svg)
+        self.assertIn('Controls pooled:',svg)
+        import xml.etree.ElementTree as E
+        E.fromstring(svg)
+
+
+    def test_dense_period_labels_are_bounded_for_mobile_readability(self):
+        from fairplay_method3_behavior_charts import opening_svg
+        rows=[game(i) for i in range(40)]
+        marked=[{'time_class':'blitz','priority':'HIGH','number':j+1,
+                 'first_ended':rows[j].ended,'last_ended':rows[j].ended}
+                for j in range(5)]
+        r=N(games=rows,priority='HIGH',diagnostics={'method3':{'marked_periods':[]}})
+        svg=opening_svg(r,build_context(rows),marked=marked)
+        legend=svg.split('Rating through the games')[0]
+        self.assertIn('Context 1:1/10,2:1/10 +3 more',legend)
+
+
+    def test_short_time_pressure_episode_counts_per_game_not_per_move(self):
+        from fairplay_method3_behavior_charts import phase_trends
+        rows=[game(i,kind='blitz',control='180+0',think=2,before=20)
+              for i in range(10)]
+        for g in rows:
+            for d in g.decisions:d.clock_before=20
+            for d in g.decisions[-2:]:
+                d.clock_before=4
+                d.clock_after=2
+                d.clock_valid=False  # Real parser rejects <10s from engine timing.
+        context=build_context(rows)
+        self.assertTrue(all(context['clocks'][g.identity]['Start <10s']==2
+                            for g in rows))
+        self.assertTrue(all(context['clocks'][g.identity]['Start ≥10s']==2
+                            for g in rows))
+        r=N(games=rows)
+        _,trends=phase_trends(r,context)
+        self.assertEqual(trends['Start <10s']['blitz'][0][1][0],2)
+        self.assertIsNone(trends['Start <10s']['bullet'][0][1])
