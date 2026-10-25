@@ -60,9 +60,9 @@ class TwitchRedemptionBridgeTests(unittest.IsolatedAsyncioTestCase):
                     return _Response(403, '{"message":"subscription missing proper authorization"}')
                 return _Response(202, '{}')
 
-        with patch.object(bot, "_twitch_access_token", "fake-token"), \\
-             patch.object(bot, "TWITCH_CHAT_ENABLED", True), \\
-             patch.object(bot.aiohttp, "ClientSession", side_effect=lambda: ChatForbiddenSession(seen)), \\
+        with patch.object(bot, "_twitch_access_token", "fake-token"), \
+             patch.object(bot, "TWITCH_CHAT_ENABLED", True), \
+             patch.object(bot.aiohttp, "ClientSession", side_effect=lambda: ChatForbiddenSession(seen)), \
              patch.object(bot, "_twitch_owner_notice", new_callable=AsyncMock) as notice:
             ready = await bot._twitch_create_subscriptions("test-session")
         self.assertTrue(ready)
@@ -78,9 +78,9 @@ class TwitchRedemptionBridgeTests(unittest.IsolatedAsyncioTestCase):
                 seen.append(kind)
                 return _Response(503 if kind == "channel.chat.message" else 202)
 
-        with patch.object(bot, "_twitch_access_token", "fake-token"), \\
-             patch.object(bot, "TWITCH_CHAT_ENABLED", True), \\
-             patch.object(bot.aiohttp, "ClientSession", side_effect=lambda: ChatUnavailableSession(seen)), \\
+        with patch.object(bot, "_twitch_access_token", "fake-token"), \
+             patch.object(bot, "TWITCH_CHAT_ENABLED", True), \
+             patch.object(bot.aiohttp, "ClientSession", side_effect=lambda: ChatUnavailableSession(seen)), \
              patch.object(bot, "_twitch_owner_notice", new_callable=AsyncMock) as notice:
             ready = await bot._twitch_create_subscriptions("test-session")
         self.assertTrue(ready)
