@@ -86,92 +86,126 @@ def control_label(control):
     except (ValueError,TypeError):return str(control)
 
 
+def rolling_accuracy_counts(values, threshold, *, window=100, stride=10):
+    """O(n) rolling published-Accuracy fractions, preserving missing gaps.
+
+    Windows cover PLAYED games, not only games with published scores. The last
+    window is displayed even if it does not fall on a stride tick. Unknown
+    denominators stay None rather than being treated as zero.
+    """
+    if window<1 or stride<1:raise ValueError('Positive window and stride required')
+    from math import isfinite
+    available=[0]
+    hits=[0]
+    for value in values:
+        valid=(type(value) in (float,int) and isfinite(value) and 0<=value<=100)
+        available.append(available[-1]+int(valid))
+        hits.append(hits[-1]+int(valid and value>=threshold))
+    output=[]
+    for end in range(window-1,len(values)):
+        if (end+1-window)%stride and end!=len(values)-1:continue
+        known=available[end+1]-available[end+1-window]
+        passed=hits[end+1]-hits[end+1-window]
+        output.append((end,passed/known if known else None,known))
+    return output
+
+
 def accuracy_frequency_svg(result):
-    """One bounded image: class histories plus the selected exact controls."""
+    """Two-column, real-landscape chart; identical figures and source games."""
     games=result.games
     diagnostic=result.diagnostics['method3']
     selected=diagnostic.get('selected')
     comparisons,omitted=selected_control_comparisons(games,selected)
-    height=1455+(85+190*len(comparisons) if comparisons else 60)
+    height=1290
     parts=start(1200,height)
-    parts.extend((text(35,42,'Official Chess.com Accuracy · frequency',30),
-        text(35,77,'Counts and percentages use available scores; missing scores never count as zero.',21),
-        text(35,108,'Cumulative thresholds · descriptive, not evidence of misconduct · chronological game numbers.',19,'#526477')))
+    parts.extend((text(30,42,'Official Chess.com Accuracy · frequency',28),
+        text(30,76,'Count thresholds use published Accuracy only. Missing scores are excluded, never zero.',19),
+        text(30,105,'Rolling 100 played games · chronological game numbers · description, not misconduct proof.',17,'#526477')))
     marked_periods=periods(result)
     selected_tier=diagnostic.get('selected_period_priority',result.priority)
     neutral=selected_tier in ('LOW','INSUFFICIENT DATA')
-    for class_index,kind in enumerate(CLASSES):
-        rows=[g for g in games if g.time_class==kind]
-        summary=frequency_summary(rows,kind)
-        y=150+class_index*420
-        parts.append(text(35,y,kind.title(),28))
-        parts.append(text(200,y,f"{summary['available']} available · {summary['missing']} missing · {summary['games']} games",21))
-        for index,threshold in enumerate(THRESHOLDS):
-            parts.append(text(35+index*385,y+34,
-                f'≥{threshold}%: {frequency_label(summary,threshold)}',23,COLORS[index]))
-        rows=sorted(rows,key=lambda g:(g.ended,g.identity))
-        parts.append(text(35,y+66,'Rolling 100 played games · X-axis is game number, not calendar time.',18,'#526477'))
-        left,right,top,bottom=70,1140,y+100,y+310
+
+    def class_panel(kind,panel_x,panel_y):
+        rows=sorted((g for g in games if g.time_class==kind),
+                    key=lambda g:(g.ended,g.identity))
+        row=frequency_summary(rows,kind)
+        left,right=panel_x+50,panel_x+532
+        top,bottom=panel_y+96,panel_y+304
+        parts.append(text(panel_x,panel_y,kind.title()+
+                          f" · {row['games']} played · {row['available']} available / "
+                          f"{row['missing']} missing",21))
+        for col,threshold in enumerate(THRESHOLDS):
+            parts.append(text(panel_x+col*275,panel_y+33,
+                 f'≥{threshold}%: {frequency_label(row,threshold)}',18,COLORS[col]))
+        parts.append(text(panel_x,panel_y+59,'Rolling proportion · exact played-game window',16,'#526477'))
         for level in (0,25,50,75,100):
             yy=bottom-(bottom-top)*level/100
-            parts.append(f'<line x1="{left}" x2="{right}" y1="{yy:.1f}" y2="{yy:.1f}" stroke="#d6e1ea"/>')
-            parts.append(text(55,yy+5,f'{level}%',15,anchor='end'))
+            parts.append(f'<line x1="{left}" x2="{right}" y1="{yy:.1f}" y2="{yy:.1f}" '
+                         f'stroke="#d6e1ea"/>')
+            parts.append(text(left-9,yy+5,f'{level}%',14,anchor='end'))
         n=len(rows)
-        for tick in range(5 if n>=5 else max(1,n)):
-            game_no=1+round((n-1)*tick/max(1,(5 if n>=5 else max(1,n))-1))
-            xx=left+(right-left)*(game_no-1)/max(1,n-1)
-            parts.append(text(xx,bottom+28,str(game_no),15,anchor='middle'))
+        for tick in range(5):
+            game_no=1+round((n-1)*tick/4) if n else 0
+            xx=left+(right-left)*tick/4
+            parts.append(text(xx,bottom+23,str(game_no),14,anchor='middle'))
         draw(parts,rows,kind,marked_periods,top,bottom,left,right)
-        window=100
-        # Every plotted value covers the previous 100 played games; unavailable
-        # official scores are excluded from the denominator, never treated as zero.
-        valid=[g.accuracy if isinstance(g.accuracy,(int,float)) and not isinstance(g.accuracy,bool)
-               and 0<=g.accuracy<=100 else None for g in rows]
-        for offset,threshold in enumerate(THRESHOLDS):
-            segments=[]
-            current=[]
-            for end_index in range(window-1,n):
-                if (end_index+1-window)%10 and end_index!=n-1:
-                    continue
-                sample=valid[end_index+1-window:end_index+1]
-                known=[value for value in sample if value is not None]
-                if not known:
+        valid=[g.accuracy if type(g.accuracy) in (int,float) and 0<=g.accuracy<=100
+               else None for g in rows]
+        for index,threshold in enumerate(THRESHOLDS):
+            segments=[];current=[]
+            for end_index,fraction,known in rolling_accuracy_counts(valid,threshold):
+                if fraction is None:
                     if current:segments.append(current);current=[]
                     continue
-                fraction=sum(value>=threshold for value in known)/len(known)
                 xx=left+(right-left)*end_index/max(1,n-1)
                 yy=bottom-(bottom-top)*fraction
                 current.append((xx,yy))
             if current:segments.append(current)
             for segment in segments:
                 if len(segment)>1:
-                    pts=' '.join(f'{xx:.1f},{yy:.1f}' for xx,yy in segment)
-                    parts.append(f'<polyline points="{pts}" fill="none" stroke="{COLORS[offset]}" stroke-width="4"/>')
+                    pts=' '.join(f'{x:.2f},{y:.2f}' for x,y in segment)
+                    parts.append(f'<polyline points="{pts}" fill="none" '
+                                 f'stroke="{COLORS[index]}" stroke-width="3.5"/>')
                 else:
                     xx,yy=segment[0]
-                    parts.append(f'<circle cx="{xx:.1f}" cy="{yy:.1f}" r="4" fill="{COLORS[offset]}"/>')
-        if n<window:
-            parts.append(text(450,top+105,'Fewer than 100 games; rolling trend unavailable.',19,'#526477'))
-        parts.append(text(35,y+365,'Blue ≥80% · green ≥90% · yellow MODERATE / orange HIGH / red VERY HIGH / purple context',17,'#526477'))
-    y=1445
+                    parts.append(f'<circle cx="{xx:.1f}" cy="{yy:.1f}" r="4" fill="{COLORS[index]}"/>')
+        if n<100:
+            parts.append(text(left+60,top+90,'Fewer than 100 games · rolling trend unavailable',
+                              16,'#526477'))
+        parts.append(text(panel_x,panel_y+366,
+              'Blue ≥80% · green ≥90% · shaded periods preserve review context.',15,'#526477'))
+
+    # Two top plots; lower-left third plot; lower-right exact-control table.
+    class_panel('bullet',30,150)
+    class_panel('blitz',620,150)
+    class_panel('rapid',30,635)
+    x=620
+    parts.append(text(x,635,
+        ('Context only · '+selected_tier+' results window' if neutral else 'Selected Method 3 period')
+        if comparisons else 'Selected period · exact-control comparison',21))
+    parts.append(text(x,662,'Before / during / after · nearest 50 played games each side.',16,'#526477'))
     if comparisons:
-        label=f'Context only · {selected_tier} results window' if neutral else 'Selected Method 3 period'
-        parts.append(text(35,y,f"{label} · {selected['time_class'].title()}",26))
-        parts.append(text(35,y+31,'Exact controls · up to 50 played games before/after; During uses the exact selected games.',19,'#526477'))
-        for comparison in comparisons:
-            y+=190
-            parts.append(text(35,y-120,f"{control_label(comparison['time_control'])} · available / missing",23))
-            for column,threshold in enumerate(THRESHOLDS):
-                parts.append(text(590+column*220,y-120,f'≥{threshold}%',23,COLORS[column],'middle'))
-            for row,(phase,summary) in enumerate(comparison['phases'].items()):
-                yy=y-80+row*35
-                parts.append(text(35,yy,f"{phase}: {summary['available']} / {summary['missing']} ({summary['games']} games)",21))
-                for column,threshold in enumerate(THRESHOLDS):
-                    parts.append(text(590+column*220,yy,frequency_label(summary,threshold),21,COLORS[column],'middle'))
+        parts.append(text(x,693,selected['time_class'].title()+
+                          ' · '+str(selected['games'])+' selected games',17))
+        base=718
+        for index,comp in enumerate(comparisons):
+            y=base+index*151
+            parts.append(text(x,y,control_label(comp['time_control'])+
+                              ' · available / missing',19))
+            for col,threshold in enumerate(THRESHOLDS):
+                parts.append(text(x+350+col*135,y,f'≥{threshold}%',16,COLORS[col]))
+            for row,(phase,counts) in enumerate(comp['phases'].items()):
+                yy=y+31+row*30
+                parts.append(text(x,yy,phase+f": {counts['available']}/{counts['missing']} "
+                                  f"({counts['games']} games)",15))
+                for col,threshold in enumerate(THRESHOLDS):
+                    parts.append(text(x+350+col*135,yy,frequency_label(counts,threshold),
+                                      15,COLORS[col]))
         if omitted:
-            parts.append(text(35,y+35,f'{omitted} additional selected exact controls omitted; the three most represented are shown.',18,'#526477'))
+            parts.append(text(x,1195,str(omitted)+' more controls omitted from summary.',
+                              16,'#526477'))
     else:
-        parts.append(text(35,y,'No selected period available for exact-control before/during/after comparison.',22,'#526477'))
-    parts.append(text(35,height-24,'Published scores may be selectively available. Different opponent strengths and game lengths can affect these frequencies.',17,'#526477'))
+        parts.append(text(x,745,'No eligible exact-control selected-window comparison.',17,'#526477'))
+    parts.append(text(30,1240,'Accuracy availability is not random; opponent strength, time and length affect observed rates.',17,'#526477'))
     parts.append('</svg>')
     return ''.join(parts)
