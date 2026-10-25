@@ -1,0 +1,38 @@
+name: Fair Play chart visual preview
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'fairplay_method3*.py'
+      - 'fairplay_charts.py'
+      - 'scripts/render_fairplay_method3_preview.py'
+      - 'test_fairplay_v83_landscape.py'
+      - '.github/workflows/fairplay-method3-visual-preview.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  chart-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Install lightweight bot chart requirements
+        run: python -m pip install -r requirements.txt
+      - name: Render 9 synthetic PNGs and strict dimension manifest
+        run: python -m scripts.render_fairplay_method3_preview
+      - name: Save visual inspection artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: method3-nine-charts-preview
+          path: .artifacts/fairplay-method3-preview/
+          retention-days: 7
+          if-no-files-found: error
