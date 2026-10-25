@@ -2004,6 +2004,11 @@ async def _twitch_create_subscriptions(session_id):
                     f"❌ Twitch Channel Points EventSub is NOT connected: {str(error)[:650]}. "
                     "Redemptions will not reach Discord. HTTP 429 means too many active WebSocket transports; stop overlapping workers if recovery fails. For HTTP 403 check OAuth scopes."
                 )
+            elif label == "Chat" and "HTTP 403" in str(error):
+                # Twitch Chat is optional. Missing chat OAuth authorization is
+                # actionable in logs, but must not spam the owner's Discord DMs
+                # on every WebSocket reconnect. Channel Points remains independent.
+                print("Optional Twitch Chat disabled for this session: missing Twitch Chat authorization (HTTP 403).", flush=True)
             else:
                 await _twitch_owner_notice(f"⚠️ Optional Twitch {label} subscription failed: {str(error)[:650]}")
     return results.get("Channel Points", False)
