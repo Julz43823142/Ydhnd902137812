@@ -1,5 +1,6 @@
 """Published Accuracy chart denominators, calendar scope and nine-image delivery."""
 import copy
+import random
 from datetime import datetime,timezone
 from types import SimpleNamespace
 import unittest
@@ -7,7 +8,7 @@ from unittest.mock import patch
 
 from fairplay_method3_frequency_charts import (
     accuracy_frequency_svg,calendar_buckets,frequency_label,
-    frequency_summary,selected_control_comparisons)
+    frequency_summary,selected_control_comparisons,rolling_frequency_points)
 from test_fairplay_method3_context import fixture
 
 
@@ -30,6 +31,54 @@ class AccuracyFrequencyCharts(unittest.TestCase):
         self.assertEqual(frequency_label(row,90),'4/8 (50.0%)')
         empty=frequency_summary([fixture(1,accuracy=None)],'blitz')
         self.assertEqual(frequency_label(empty,80),'0/0 (Unknown)')
+
+    def test_single_pass_summary_matches_full_coverage_reference(self):
+        from fairplay_method3_accuracy_frequency import summarize
+        rng=random.Random(84)
+        choices=[None,True,False,-5,0,79.9,80,89.9,90,95,100,101,
+                 float('nan'),float('inf'),float('-inf')]
+        for count in (0,1,17,100,500):
+            games=[fixture(i,kind='blitz',accuracy=rng.choice(choices))
+                   for i in range(count)]
+            reference=summarize(games)['by_time_class']['blitz']
+            actual=frequency_summary(games,'blitz')
+            available=reference['accuracy_coverage']
+            self.assertEqual(actual,{'games':count,'available':available,
+                'missing':count-available,
+                'counts':{80:sum(type(g.accuracy) in (int,float) and 80<=g.accuracy<=100
+                                 for g in games),
+                          90:reference['at_least_90'],95:reference['at_least_95']}})
+        # A caller passing multiple classes must never count another class's
+        # published scores in the selected class numerator.
+        mixed=[fixture(1,kind='blitz',accuracy=None),
+               fixture(2,kind='rapid',accuracy=99)]
+        self.assertEqual(frequency_summary(mixed,'blitz')['counts'][80],0)
+
+    def test_rolling_accuracy_exactly_matches_original_window_sampling(self):
+        rng=random.Random(84)
+        for n in (0,1,99,100,101,109,110,119,211,1000,5000):
+            values=[rng.choice((None,None,50.,79.9,80.,89.9,90.,95.,100.))
+                    for _ in range(n)]
+            actual=rolling_frequency_points(values)
+            expected={80:[],90:[]}
+            for end in range(99,n):
+                if (end+1-100)%10 and end!=n-1:
+                    continue
+                known=[value for value in values[end-99:end+1] if value is not None]
+                for threshold in expected:
+                    expected[threshold].append((
+                        end,sum(value>=threshold for value in known)/len(known)
+                        if known else None))
+            self.assertEqual(actual,expected)
+        values=[None]*110
+        values[-1]=90.
+        points=rolling_frequency_points(values)
+        self.assertEqual(points[90][0],(99,None))
+        self.assertEqual(points[90][-1],(109,1.0))
+        with self.assertRaises(ValueError):
+            rolling_frequency_points([90],window=0)
+        with self.assertRaises(ValueError):
+            rolling_frequency_points([90],stride=0)
 
     def test_utc_months_empty_months_and_adaptive_history_conserve_games(self):
         def stamp(year,month):return int(datetime(year,month,1,tzinfo=timezone.utc).timestamp())
