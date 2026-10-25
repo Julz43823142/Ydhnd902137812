@@ -49,7 +49,7 @@ class Method3(unittest.TestCase):
     def test_v73_exposes_review_observations_without_forcing_tier(self):
         result=self.run_review()
         diagnostic=result.diagnostics['method3']
-        self.assertEqual(result.version,'fairplay-v77-clear-charts')
+        self.assertEqual(result.version,'fairplay-v78-deviation-display')
         self.assertIn('manual_review_observations',diagnostic)
         self.assertIn('selected_high_effect_screen',diagnostic)
         gap=diagnostic['selected_high_effect_screen']
