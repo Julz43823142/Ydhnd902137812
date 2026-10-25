@@ -35,8 +35,8 @@ def result_embed(result):
         description=f'{icon + " " if icon else ""}**{priority_label(result.priority)}**')
     from fairplay_deviation_display import deviation_score
     index=deviation_score(result)
-    e.add_field(name='Results deviation score',value=(
-        f'**{index}/100**\nSelected-period results only; not cheating odds or category boundaries.'
+    e.add_field(name='Results above expectation',value=(
+        f'**{index}/100**\nHow far results exceed Elo expectations; not proof of cheating.'
         if index is not None else 'Unavailable — insufficient or unreliable comparison data.'),inline=False)
     accuracy_games=sum(g.accuracy is not None for g in result.games)
     e.add_field(name='Results confidence',value=f'**{result.confidence}**',inline=False)

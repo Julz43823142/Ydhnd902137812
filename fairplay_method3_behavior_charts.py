@@ -104,16 +104,23 @@ def bands(p,result,edges,top,bottom):
         p.append(text(min(1050,a+2),top+20,f"{span['priority']} {span['number']}",14,stroke))
 
 
-PALETTE=('#2563eb','#f59e0b','#10b981','#a855f7','#94a3b8')
+PALETTE=('#2563eb','#f59e0b','#10b981','#a855f7','#e11d48','#94a3b8')
 
 def opening_svg(result,c):
     p=header('7 · Openings and rating history','White and black separately · all live time controls combined · each bar totals 100%.',2670)
     for i,color in enumerate(('white','black')):
-        rows=[(g,(key[3]+' · '+v if color=='black' else v)) for key,group in c['openings'].items() if key[2]==color and key[0] in KINDS for g,v in group]
+        from fairplay_opening_names import opening_family
+        rows=[(g,opening_family(g)) for g in result.games if g.time_class in KINDS and ('white' if g.color else 'black')==color]
         rows.sort(key=lambda row:(row[0].ended,row[0].identity))
         y=130+i*680
         p.append(text(30,y,color.title()+' · all Bullet, Blitz and Rapid games',25))
-        choices=[v for v,_ in Counter(v for _,v in rows).most_common(4)]
+        count=min(20,max(1,len(rows)//10))
+        counts=Counter(v for _,v in rows)
+        eligible={v for v,n in counts.items() if n/len(rows)>=.05} if rows else set()
+        for j in range(count):
+            chunk=rows[len(rows)*j//count:len(rows)*(j+1)//count]
+            eligible.update(v for v,n in Counter(v for _,v in chunk).items() if n>=2 and n/max(1,len(chunk))>=.05)
+        choices=[v for v,n in counts.most_common() if v in eligible][:5]
         labels=choices+['Other']
         names={'e2e4':'1.e4','d2d4':'1.d4','c2c4':'1.c4','g1f3':'1.Nf3'}
         for j,label in enumerate(labels):p.append(text(30+(j%2)*570,y+30+(j//2)*23,names.get(label,label),16,PALETTE[j]))
@@ -196,74 +203,83 @@ def rating_panels(result, offset):
 
 
 def timing_svg(result,c):
-    p=header('8 · Thinking time through the games','Shared x-axis: chronological game number across ALL time controls. Own seconds scale per class; full history.',1200)
-    rows=sorted(result.games,key=lambda g:(g.ended,g.identity));series={k:[] for k in KINDS}
-    for index,g in enumerate(rows):
-        valid=[d.think for d in g.decisions if valid_clock(d)]
-        if g.time_class in series and c['chosen'].get(g.time_class)==g.time_control and len(valid)>=5:
-            series[g.time_class].append((index,median(valid)))
-    smooth={}
-    for kind,points in series.items():
-        smooth[kind]=[]
-        for j,(index,value) in enumerate(points):
-            recent=[v for pos,v in points[max(0,j-9):j+1] if index-pos<=60]
-            smooth[kind].append((index,median(recent) if len(recent)>=5 else None))
-    maximum=max([3]+[v*1.15 for pts in smooth.values() for _,v in pts if v is not None])
     from bisect import bisect_left,bisect_right
-    times=[g.ended for g in rows]
+    p=header('8 · Do thinking times move together?','One seconds scale · matching periods · blue Bullet, orange Blitz, green Rapid.',900)
+    rows=sorted(result.games,key=lambda g:(g.ended,g.identity));times=[g.ended for g in rows]
+    count=min(30,max(1,len(rows)//20));series={k:[] for k in KINDS}
+    for j in range(count):
+        lo=len(rows)*j//count;hi=len(rows)*(j+1)//count;chunk=rows[lo:hi]
+        for kind in KINDS:
+            values=[]
+            for g in chunk:
+                valid=[d.think for d in g.decisions if valid_clock(d)]
+                if g.time_class==kind and g.time_control==c['chosen'].get(kind) and len(valid)>=5:values.append(median(valid))
+            series[kind].append(((lo+hi-1)/2,median(values) if len(values)>=5 else None))
+    top=200;bottom=680;maximum=max([1]+[v*1.15 for points in series.values() for _,v in points if v is not None])
+    x=lambda i:100+1030*i/max(1,len(rows)-1)
+    for span in periods(result):
+        a=bisect_left(times,span['first_ended']);b=bisect_right(times,span['last_ended'])-1
+        if a>b:continue
+        fill,stroke=COLORS[span['priority']]
+        p.append(f'<rect x="{x(a)}" y="{top}" width="{max(2,x(b)-x(a))}" height="480" fill="{fill}" fill-opacity=".2"/>')
+        p.append(text(min(x(a),930),top+20,span['time_class'].title()+' '+span['priority']+' '+str(span['number']),16,stroke))
+    for j in range(6):
+        yy=bottom-480*j/5
+        p.append(f'<line x1="100" x2="1130" y1="{yy}" y2="{yy}" stroke="#d6e1ea"/>')
+        p.append(text(25,yy+6,f'{maximum*j/5:.1f}s',18))
     for k,kind in enumerate(KINDS):
-        maximum=max([.5]+[v*1.15 for _,v in smooth[kind] if v is not None])
-        top=155+k*315;bottom=top+210
-        p.append(text(30,top-25,f'{kind.title()} · {control_label(c["chosen"].get(kind,"unknown"))}',25,COLORS_LINE[k]))
-        for span in periods(result):
-            a=bisect_left(times,span['first_ended']);b=bisect_right(times,span['last_ended'])-1
-            own=span['time_class']==kind;fill,stroke=COLORS[span['priority']] if own else ('#c4b5fd','#6d28d9')
-            x=90+1040*a/max(1,len(rows)-1);w=max(2,1040*(b-a)/max(1,len(rows)-1))
-            p.append(f'<rect x="{x}" y="{top}" width="{w}" height="210" fill="{fill}" fill-opacity=".25"/>')
-            p.append(text(min(x,980),top+18,(span['priority'] if own else 'Context')+' '+str(span['number']),15,stroke))
-        for j in range(4):
-            yy=bottom-210*j/3
-            p.append(f'<line x1="90" x2="1130" y1="{yy}" y2="{yy}" stroke="#d6e1ea"/>');p.append(text(25,yy+6,f'{maximum*j/3:.1f}s',18))
+        p.append(text(30+k*390,130,kind.title()+' · '+control_label(c['chosen'].get(kind,'unknown')),22,COLORS_LINE[k]))
         previous=None
-        for index,value in smooth[kind]:
+        for index,value in series[kind]:
             if value is None:previous=None;continue
-            x=90+1040*index/max(1,len(rows)-1);y=bottom-210*value/maximum
-            if previous and index-previous[2]<=60:p.append(f'<line x1="{previous[0]}" y1="{previous[1]}" x2="{x}" y2="{y}" stroke="{COLORS_LINE[k]}" stroke-width="3"/>')
-            p.append(f'<circle cx="{x}" cy="{y}" r="2" fill="{COLORS_LINE[k]}"/>');previous=(x,y,index)
-        for j in range(5):p.append(text(90+1040*j/4,bottom+28,str(1+round((len(rows)-1)*j/4)),18,anchor='middle'))
-    p.append(text(30,1120,'Gaps mean insufficient recent games. Minimum 5, at most 10 games within 60 shared game positions.',18))
-    return finish(p,1200)
+            xx=x(index);yy=bottom-480*value/maximum
+            if previous:p.append(f'<line x1="{previous[0]}" y1="{previous[1]}" x2="{xx}" y2="{yy}" stroke="{COLORS_LINE[k]}" stroke-width="3"/>')
+            p.append(f'<circle cx="{xx}" cy="{yy}" r="4" fill="{COLORS_LINE[k]}"/>');previous=(xx,yy)
+    for j in range(5):p.append(text(x((len(rows)-1)*j/4),720,str(1+round((len(rows)-1)*j/4)),18,anchor='middle'))
+    p.append(text(30,770,'Shared chronological game number · all history retained. Gaps = fewer than 5 timed games.',18))
+    p.append(text(30,810,'Only compare lines in the same period. Similar pace alone does not establish misconduct.',18))
+    selected=result.diagnostics['method3'].get('selected')
+    if selected:
+        before=[];during=[]
+        for j in range(count):
+            chunk=rows[len(rows)*j//count:len(rows)*(j+1)//count]
+            a=series['bullet'][j][1];b=series['blitz'][j][1]
+            if not chunk or a is None or b is None:continue
+            if chunk[-1].ended<selected['first_ended']:before.append(abs(a-b))
+            elif chunk[0].ended>=selected['first_ended'] and chunk[-1].ended<=selected['last_ended']:during.append(abs(a-b))
+        note=(f'Bullet–Blitz gap: before {median(before):.1f}s → during {median(during):.1f}s'
+              if before and during else 'Bullet–Blitz before/during comparison: insufficient overlapping coverage.')
+        p.append(text(30,845,note,18))
+    return finish(p,900)
 
 
 def phase_svg(result,c):
-    legend=('Compare ordinary history with flagged dates; see the legend above each chart.'
-            if result.diagnostics['method3'].get('selected') else 'Blue: all available history; no selected period.')
-    p=header('9 · Where is thinking time spent?',legend+' Bar length = seconds.',1200)
+    p=header('9 · Where is thinking time spent?','Class color: blue Bullet · orange Blitz · green Rapid. Light = comparison; dark = flagged dates.',1100)
     cats=('Early 1–10','Middle 11–30','Late 31+','Start <10s','Start ≥10s')
-    colors=('#2563eb','#f97316','#a855f7')
-    for i,kind in enumerate(KINDS):
-        control=c['chosen'].get(kind);rows=[g for g in result.games if g.time_class==kind and g.time_control==control]
+    cells={}
+    for k,kind in enumerate(KINDS):
+        rows=[g for g in result.games if g.time_class==kind and g.time_control==c['chosen'].get(kind)]
         phase=phases(result,rows)
-        if len(phase)==3:
-            phase=phase[:2] if phase[0][1] else [phase[2],phase[1]]
-        p.append(text(30,155+i*310+5,'Blue: '+phase[0][0]+(' · Orange: flagged dates' if len(phase)>1 else ''),18))
-        cells=[]
-        for label,games in phase:
-            cells.append([summary([c['clocks'][g.identity][name] for g in games if name in c['clocks'][g.identity]]) for name in cats])
-        maximum=max([1]+[v[0]*1.2 for row in cells for v in row if v])
-        y=155+i*310;p.append(text(30,y-25,f'{kind.title()} · {control_label(control) if control else "unavailable"}',25))
-        for j,name in enumerate(cats):
-            x=80+j*225;p.append(text(x,y+215,name,19))
-            for k,row in enumerate(cells):
-                value=row[j];bx=x+k*48
-                if value:
-                    h=170*value[0]/maximum
-                    p.append(f'<rect x="{bx}" y="{y+180-h}" width="39" height="{h}" fill="{colors[k]}"/>')
-                    p.append(text(bx+19,y+172-h,f'{value[0]:.1f}s',16,colors[k],'middle'))
-                else:p.append(text(bx+19,y+177,'—',20,colors[k],'middle'))
-        p.append(text(30,y+250,'— = fewer than 5 contributing games; never treated as zero.',18,'#526477'))
-    p.append(text(30,1125,'Pressure uses the clock BEFORE the move. Each game needs 5 valid moves in the displayed category.',18))
-    return finish(p,1200)
+        if len(phase)==3:phase=phase[:2] if phase[0][1] else [phase[2],phase[1]]
+        p.append(text(30,120+k*27,kind.title()+' '+control_label(c['chosen'].get(kind,'unknown'))+' · comparison: '+phase[0][0],18,COLORS_LINE[k]))
+        cells[k]=[[summary([c['clocks'][g.identity][cat] for g in games if cat in c['clocks'][g.identity]]) for cat in cats] for _,games in phase]
+    for section,indices in enumerate(((0,1,2),(3,4))):
+        top=240+section*390;bottom=top+260
+        maximum=max([1]+[row[j][0]*1.2 for group in cells.values() for row in group for j in indices if row[j]])
+        p.append(text(30,top-15,'Move phases' if section==0 else 'Clock remaining before the move',23))
+        for column,j in enumerate(indices):
+            base=110+column*(1000/len(indices))
+            p.append(text(base,bottom+30,cats[j],19))
+            for k,group in cells.items():
+                for n,row in enumerate(group):
+                    value=row[j];xx=base+k*96+n*40
+                    if value:
+                        h=230*value[0]/maximum
+                        p.append(f'<rect x="{xx}" y="{bottom-h}" width="26" height="{h}" fill="{COLORS_LINE[k]}" fill-opacity="{.35 if n==0 else 1}"/>')
+                        p.append(text(xx+13,bottom-h-8,f'{value[0]:.1f}s',15,COLORS_LINE[k],'middle'))
+                    else:p.append(text(xx+13,bottom-5,'—',18,COLORS_LINE[k],'middle'))
+    p.append(text(30,1020,'Bar length = seconds. — means insufficient data, not zero. At least 5 games per bar.',18))
+    return finish(p,1100)
 
 
 def behavior_svgs(result):
