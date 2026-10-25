@@ -319,15 +319,17 @@ def timing_svg(result,c,marked=None):
             name='–'.join(k.title() for k in kinds)
             p.append(text(30,846,f'{name} gap: before {before["gap_seconds"]:.1f}s → '
                           f'during {during["gap_seconds"]:.1f}s (exact selected dates)',18))
-            counts=', '.join(f'{k.title()} {before["classes"][k]["games"]}/{during["classes"][k]["games"]}'
-                             for k in kinds)
-            p.append(text(30,878,'n before/during: '+counts+' games · matched exact controls',17,'#526477'))
+            counts=', '.join(
+                f'{k.title()} {before["classes"][k]["games"]}/{before["classes"][k]["total_games"]}'
+                f' → {during["classes"][k]["games"]}/{during["classes"][k]["total_games"]}'
+                for k in kinds)
+            p.append(text(30,878,'Valid/total clocks before → during: '+counts,17,'#526477'))
             if comparison['after'] is not None:
                 p.append(text(30,910,f'After-period gap: {comparison["after"]["gap_seconds"]:.1f}s '
                               'using the same classes',17,'#526477'))
         else:
-            p.append(text(30,846,'Exact-date comparison unavailable: fewer than five '
-                          'valid games per class in both eras.',18,'#526477'))
+            p.append(text(30,846,'Exact-date comparison unavailable: need ≥5 timed games and '
+                          '≥60% clock coverage in ≥2 classes.',18,'#526477'))
         controls=', '.join(f'{k.title()} {control_label(value)}'
                            for k,value in comparison['controls'].items())
         if controls:p.append(text(30,933,'Period-matched controls: '+controls,16,'#526477'))
@@ -410,6 +412,10 @@ def phase_svg(result,c,marked=None):
         p.append(text(30,1876,'<10s / ≥30s thinking pace: before '+fmt_pair(response['before'])+
                       ' → during '+fmt_pair(response['during'])+' → after '+fmt_pair(response['after']),17))
         p.append(text(30,1908,'Below 1× = faster in time trouble. Matched exact control may differ from plotted control.',17,'#526477'))
+        p.append(text(30,1940,'Paired games / all games: before '+
+                      str(response['before']['games'])+'/'+str(response['before']['total_games'])+
+                      ', during '+str(response['during']['games'])+'/'+str(response['during']['total_games'])+
+                      '; interpretation is conditional on reaching both clock states.',16,'#526477'))
     else:
         p.append(text(30,1850,'Paired time-pressure comparison unavailable: need ≥5 games with both clock states '
                       'before/during.',17,'#526477'))
