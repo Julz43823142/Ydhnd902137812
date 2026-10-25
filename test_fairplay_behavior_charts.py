@@ -60,10 +60,11 @@ class Behavior(unittest.TestCase):
             {'time_class':'blitz','priority':'HIGH','first_ended':rows[10].ended,'last_ended':rows[40].ended}]}})
         before=copy.deepcopy(r)
         for name,svg in behavior_svgs(r):
-            self.assertIn('HIGH 1',svg)
-            self.assertGreaterEqual(svg.count('Context 1'),2)
-            self.assertIn('#c4b5fd',svg)
-            self.assertIn('#fb923c',svg)
+            self.assertNotIn('Shared periods',svg)
+            if '09_' not in name:self.assertIn('HIGH 1',svg)
+            if '09_' not in name:self.assertGreaterEqual(svg.count('Context 1'),2)
+            if '09_' not in name:self.assertIn('#c4b5fd',svg)
+            if '09_' not in name:self.assertIn('#fb923c',svg)
             import xml.etree.ElementTree as E
             E.fromstring(svg)
         self.assertEqual(r,before)
@@ -84,10 +85,10 @@ class Behavior(unittest.TestCase):
         from fairplay_config import active_version
         self.assertEqual(priority_color('LOW'),0x22C55E)
         self.assertEqual(priority_color('INSUFFICIENT DATA'),0xFFFFFF)
-        self.assertEqual(active_version({'FAIRPLAY_METHOD3':'1'}),'fairplay-v76-rating-ci')
+        self.assertEqual(active_version({'FAIRPLAY_METHOD3':'1'}),'fairplay-v77-clear-charts')
         r=N(games=[game(i) for i in range(30)],priority='LOW',diagnostics={'method3':{}})
         pages=behavior_svgs(r)
-        self.assertIn('Each bar is 100%',pages[0][1])
+        self.assertIn('each bar totals 100%',pages[0][1])
         self.assertIn('chronological game number',pages[1][1])
         self.assertIn('Bar length = seconds',pages[2][1])
 
@@ -119,3 +120,13 @@ class Behavior(unittest.TestCase):
         positions=re.findall(r'<rect x="([^"]+)" y="[^"]+" width="([^"]+)" height="175"',svg)
         self.assertEqual(len(positions),3)
         self.assertEqual(len(set(positions)),1)
+
+    def test_combined_openings_and_no_detached_timelines(self):
+        rows=[game(i,kind=['bullet','blitz','rapid'][i%3]) for i in range(90)]
+        for i,g in enumerate(rows):g.color=bool(i%2)
+        r=N(games=rows,priority='LOW',diagnostics={'method3':{}})
+        pages=behavior_svgs(r)
+        self.assertIn('White · all Bullet, Blitz and Rapid games',pages[0][1])
+        self.assertIn('Black · all Bullet, Blitz and Rapid games',pages[0][1])
+        self.assertTrue(all('Shared periods' not in svg for _,svg in pages))
+        self.assertNotIn('purple: after',pages[2][1])
