@@ -18,6 +18,29 @@ class Behavior(unittest.TestCase):
         g.decisions[0].clock_before=10
         for d in g.decisions:d.clock_before=10;d.clock_after=1
         c=build_context([g]);self.assertIn('Start ≥10s',c['clocks'][g.identity]);self.assertNotIn('Start <10s',c['clocks'][g.identity])
+    def test_time_control_parsing_is_cached_without_changing_clock_semantics(self):
+        from fairplay_method3_behavior_charts import (
+            _clock_for_control,descriptive_clock)
+        from fairplay_data import clock_control
+        first=game(0,control='180+2',think=3,before=9)
+        second=game(1,control='60+0',think=3,before=9)
+        for g in (first,second):
+            for d in g.decisions:
+                d.clock_valid=False
+                d.clock_before=9
+                d.clock_after=7 if g.time_control=='180+2' else 6
+        _clock_for_control.cache_clear()
+        for g in (first,second):
+            for d in g.decisions:
+                self.assertEqual(descriptive_clock(g,d),
+                                 bool(clock_control(g.time_control)[0] is not None
+                                      and d.think==d.clock_before+
+                                      clock_control(g.time_control)[1]-d.clock_after))
+        info=_clock_for_control.cache_info()
+        self.assertEqual(info.misses,2)
+        self.assertGreater(info.hits,50)
+        self.assertEqual(_clock_for_control('unknown'),(None,None))
+
     def test_missing_invalid_and_premoves(self):
         g=game(0,think=0);self.assertEqual(build_context([g])['clocks'][g.identity]['Early 1–10'],0)
         for d in g.decisions:d.think=float('nan')
