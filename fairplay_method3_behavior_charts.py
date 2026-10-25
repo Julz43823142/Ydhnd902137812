@@ -157,12 +157,16 @@ def opening_svg(result,c,marked=None):
         labels=choices+(['Unknown'] if counts.get('Unknown') else [])+['Other']
         choices=labels[:-1]
         names={'e2e4':'1.e4','d2d4':'1.d4','c2c4':'1.c4','g1f3':'1.Nf3'}
-        for j,label in enumerate(labels):p.append(text(30+(j%2)*570,y+30+(j//2)*23,names.get(label,label),14,PALETTE[j]))
+        # Full opening signatures can exceed half a panel's width. Use one
+        # 15px-spaced legend column per colour; do not truncate moves or shrink
+        # the 14px legend text to squeeze a second column into the dashboard.
+        for j,label in enumerate(labels):
+            p.append(text(30,y+30+j*15,names.get(label,label),14,PALETTE[j]))
         count=min(20,max(1,len(rows)//10))
         for j in range(count):
             chunk=rows[len(rows)*j//count:len(rows)*(j+1)//count]
             if not chunk:continue
-            yy=y+190+j*26
+            yy=y+230+j*26
             # Count only ACTUAL matching games in a flagged class and period.
             # Date-range intersection alone can falsely color an entire bar.
             from bisect import bisect_left,bisect_right
