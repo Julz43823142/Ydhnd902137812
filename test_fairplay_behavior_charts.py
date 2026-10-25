@@ -232,3 +232,15 @@ class Behavior(unittest.TestCase):
         self.assertIn('Controls pooled:',svg)
         import xml.etree.ElementTree as E
         E.fromstring(svg)
+
+
+    def test_dense_period_labels_are_bounded_for_mobile_readability(self):
+        from fairplay_method3_behavior_charts import opening_svg
+        rows=[game(i) for i in range(40)]
+        marked=[{'time_class':'blitz','priority':'HIGH','number':j+1,
+                 'first_ended':rows[j].ended,'last_ended':rows[j].ended}
+                for j in range(5)]
+        r=N(games=rows,priority='HIGH',diagnostics={'method3':{'marked_periods':[]}})
+        svg=opening_svg(r,build_context(rows),marked=marked)
+        legend=svg.split('Rating through the games')[0]
+        self.assertIn('Context 1:1/10,2:1/10 +3 more',legend)
