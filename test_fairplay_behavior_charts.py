@@ -62,8 +62,8 @@ class Behavior(unittest.TestCase):
         for name,svg in behavior_svgs(r):
             self.assertNotIn('Shared periods',svg)
             if '09_' not in name:self.assertIn('HIGH 1',svg)
-            if '09_' not in name:self.assertGreaterEqual(svg.count('Context 1'),2)
-            if '09_' not in name:self.assertIn('#c4b5fd',svg)
+            if '07_' in name:self.assertGreaterEqual(svg.count('Context 1'),2)
+            if '07_' in name:self.assertIn('#c4b5fd',svg)
             if '09_' not in name:self.assertIn('#fb923c',svg)
             import xml.etree.ElementTree as E
             E.fromstring(svg)
@@ -85,7 +85,7 @@ class Behavior(unittest.TestCase):
         from fairplay_config import active_version
         self.assertEqual(priority_color('LOW'),0x22C55E)
         self.assertEqual(priority_color('INSUFFICIENT DATA'),0xFFFFFF)
-        self.assertEqual(active_version({'FAIRPLAY_METHOD3':'1'}),'fairplay-v78-deviation-display')
+        self.assertEqual(active_version({'FAIRPLAY_METHOD3':'1'}),'fairplay-v79-opening-comparison')
         r=N(games=[game(i) for i in range(30)],priority='LOW',diagnostics={'method3':{}})
         pages=behavior_svgs(r)
         self.assertIn('each bar totals 100%',pages[0][1])
@@ -130,3 +130,14 @@ class Behavior(unittest.TestCase):
         self.assertIn('Black · all Bullet, Blitz and Rapid games',pages[0][1])
         self.assertTrue(all('Shared periods' not in svg for _,svg in pages))
         self.assertNotIn('purple: after',pages[2][1])
+
+    def test_combined_clock_gap_uses_shared_periods(self):
+        from fairplay_method3_behavior_charts import timing_svg
+        rows=[]
+        for i in range(120):
+            kind='bullet' if i%2==0 else 'blitz'
+            rows.append(game(i,kind=kind,control='60+0' if kind=='bullet' else '180+0',think=(1 if kind=='bullet' else 4) if i<60 else 2))
+        r=N(games=rows,priority='HIGH',diagnostics={'method3':{'selected':{'first_ended':rows[60].ended,'last_ended':rows[-1].ended}}})
+        svg=timing_svg(r,build_context(rows))
+        self.assertIn('before 3.0s → during 0.0s',svg)
+        self.assertIn('One seconds scale',svg)
