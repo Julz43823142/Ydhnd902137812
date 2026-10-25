@@ -338,16 +338,21 @@ def timing_svg(result,c,marked=None):
 def phase_trends(result,c):
     rows=sorted(result.games,key=lambda g:(g.ended,g.identity))
     count=min(30,max(1,len(rows)//20))
+    edges=calendar(rows,count)
     categories=('Early 1–10','Middle 11–30','Late 31+','Start <10s','Start ≥10s')
-    trends={cat:{kind:[] for kind in KINDS} for cat in categories}
-    for j in range(count):
-        lo=len(rows)*j//count;hi=len(rows)*(j+1)//count
-        for cat in categories:
-            for kind in KINDS:
-                values=[c['clocks'][g.identity][cat] for g in rows[lo:hi]
-                        if g.time_class==kind and g.time_control==c['chosen'].get(kind)
-                        and cat in c['clocks'][g.identity]]
-                trends[cat][kind].append(((lo+hi-1)/2,summary(values)))
+    # All panels now share an actual UTC calendar axis with Graph 8. Each
+    # game contributes its own per-category median to a fixed-control bin.
+    grouped={cat:{kind:[[] for _ in range(count)] for kind in KINDS}
+             for cat in categories}
+    for game in rows:
+        kind=game.time_class
+        if kind not in KINDS or game.time_control!=c['chosen'].get(kind):continue
+        index=bucket(game.ended,edges)
+        for cat,value in c['clocks'][game.identity].items():
+            if cat in grouped:grouped[cat][kind][index].append(value)
+    trends={cat:{kind:[((edges[j]+edges[j+1])/2,summary(grouped[cat][kind][j]))
+                       for j in range(count)] for kind in KINDS}
+            for cat in categories}
     return rows,trends
 
 
@@ -355,19 +360,22 @@ def phase_svg(result,c,marked=None):
     from bisect import bisect_left,bisect_right
     if marked is None:marked=periods(result)
     rows,trends=phase_trends(result,c);times=[g.ended for g in rows]
+    edges=calendar(rows,min(30,max(1,len(rows)//20)))
     p=header('9 · How does thinking time change?','Blue Bullet · orange Blitz · green Rapid. Lines: median; shaded bands: middle 50% of game medians.',2020)
     for k,kind in enumerate(KINDS):p.append(text(30+k*390,115,kind.title()+' · '+control_label(c['chosen'].get(kind,'unknown')),20,COLORS_LINE[k]))
-    x=lambda index:100+1030*index/max(1,len(rows)-1)
+    x=lambda stamp:100+1030*(stamp-edges[0])/(edges[-1]-edges[0])
     for panel,(cat,series) in enumerate(trends.items()):
         top=180+panel*305;bottom=top+205
         p.append(text(30,top-20,cat+' · seconds per move',23))
         maximum=max([.5]+[value[2]*1.15 for points in series.values() for _,value in points if value])
         y=lambda value:bottom-205*value/maximum
         for span in marked:
-            a=bisect_left(times,span['first_ended']);b=bisect_right(times,span['last_ended'])-1
-            if a>b:continue
+            a,b=span['first_ended'],span['last_ended']
+            if b<edges[0] or a>edges[-1]:continue
             fill,stroke=COLORS[span['priority']]
-            p.append(f'<rect x="{x(a)}" y="{top}" width="{max(2,x(b)-x(a))}" height="205" fill="{fill}" fill-opacity=".16"/>')
+            p.append(f'<rect x="{x(max(a,edges[0]))}" y="{top}" '
+                     f'width="{max(2,x(min(b,edges[-1]))-x(max(a,edges[0])))}" '
+                     f'height="205" fill="{fill}" fill-opacity=".16"/>')
             p.append(text(min(x(a),930),top+16,span['time_class'].title()+' '+span['priority']+' '+str(span['number']),14,stroke))
         for j in range(4):
             yy=y(maximum*j/3)
@@ -385,8 +393,12 @@ def phase_svg(result,c,marked=None):
                     p.append(f'<line x1="{px}" y1="{y(pv[0])}" x2="{xx}" y2="{y(value[0])}" stroke="{COLORS_LINE[k]}" stroke-width="2.5"/>')
                 p.append(f'<circle cx="{xx}" cy="{y(value[0])}" r="3" fill="{COLORS_LINE[k]}"/>')
                 previous=(xx,value)
-        for j in range(5):p.append(text(x((len(rows)-1)*j/4),bottom+25,str(1+round((len(rows)-1)*j/4)),17,anchor='middle'))
-    p.append(text(30,1730,'Shared game number · full history · gaps mean fewer than 5 contributing games, never zero.',18))
+        for j in range(5):
+            stamp=edges[0]+(edges[-1]-edges[0])*j/4
+            label=(datetime.fromtimestamp(stamp,timezone.utc).strftime('%d %b %H:%M')
+                   if edges[-1]-edges[0]<172800 else date(stamp))
+            p.append(text(x(stamp),bottom+25,label,16,anchor='middle'))
+    p.append(text(30,1730,'Shared UTC calendar axis · gaps mean fewer than 5 contributing games, never zero.',18))
     p.append(text(30,1760,'Each panel has its own seconds scale. Bands show between-game variation, not proof.',18))
     p.append(text(30,1797,'≥5 contributing games/point; one verified time-pressure move/game is sufficient.',17,'#526477'))
     response=time_pressure_response(result,c.get('pressure_ratios',{}))
@@ -397,7 +409,7 @@ def phase_svg(result,c,marked=None):
                       response['time_class'].title()+' '+control_label(response['time_control']),19))
         p.append(text(30,1876,'<10s / ≥30s thinking pace: before '+fmt_pair(response['before'])+
                       ' → during '+fmt_pair(response['during'])+' → after '+fmt_pair(response['after']),17))
-        p.append(text(30,1908,'Below 1× = faster in time trouble. Same game, exact control; context, not proof.',17,'#526477'))
+        p.append(text(30,1908,'Below 1× = faster in time trouble. Matched exact control may differ from plotted control.',17,'#526477'))
     else:
         p.append(text(30,1850,'Paired time-pressure comparison unavailable: need ≥5 games with both clock states '
                       'before/during.',17,'#526477'))
