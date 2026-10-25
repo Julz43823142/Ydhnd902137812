@@ -94,6 +94,8 @@ class SelectedWindowPresentation(unittest.TestCase):
         self.assertIn('Performance levels',str(card.to_dict()))
         self.assertIn('Suspicion Score (0–100)',str(card.to_dict()))
         self.assertNotIn('Results above expectation',str(card.to_dict()))
+        self.assertIn('Opening/timing graphs are not scored',str(card.to_dict()))
+        self.assertIn('not an average over all games',str(card.to_dict()))
         self.assertNotIn('additional time controls omitted',str(card.to_dict()))
         self.assertEqual(len(info['accuracy_frequency_signals']),50)
 
