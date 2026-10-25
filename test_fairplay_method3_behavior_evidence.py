@@ -78,7 +78,7 @@ class MatchedClockControls(unittest.TestCase):
         matched=matched_clock_controls(r,{g.identity:3 for g in games})
         self.assertIsNone(matched['before'])
         self.assertIsNone(matched['during'])
-        self.assertEqual(matched['controls'],{})
+        self.assertEqual(matched['controls'],{'blitz':'180+0'})
 
     def test_invalid_values_do_not_count_as_valid_games(self):
         first,last=START+100000,START+100600
