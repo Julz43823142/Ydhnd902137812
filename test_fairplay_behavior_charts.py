@@ -84,9 +84,38 @@ class Behavior(unittest.TestCase):
         from fairplay_config import active_version
         self.assertEqual(priority_color('LOW'),0x22C55E)
         self.assertEqual(priority_color('INSUFFICIENT DATA'),0xFFFFFF)
-        self.assertEqual(active_version({'FAIRPLAY_METHOD3':'1'}),'fairplay-v74-readable-context')
+        self.assertEqual(active_version({'FAIRPLAY_METHOD3':'1'}),'fairplay-v76-rating-ci')
         r=N(games=[game(i) for i in range(30)],priority='LOW',diagnostics={'method3':{}})
         pages=behavior_svgs(r)
         self.assertIn('Each bar is 100%',pages[0][1])
         self.assertIn('chronological game number',pages[1][1])
         self.assertIn('Bar length = seconds',pages[2][1])
+
+    def test_rating_panels_preserve_points_and_ignore_unrated(self):
+        from fairplay_method3_behavior_charts import rating_panels
+        rows=[game(i) for i in range(5)]
+        for g,value in zip(rows,[1000,1200,None,1100,3900]):g.rating=value;g.rated=True
+        rows[-1].rated=False
+        r=N(games=rows,priority='LOW',diagnostics={'method3':{}})
+        before=copy.deepcopy(r)
+        svg=''.join(rating_panels(r,0))
+        self.assertIn('1000 → 1100 · +100 points · 3 games',svg)
+        self.assertIn('Range 1000–1200',svg)
+        self.assertNotIn('3900',svg)
+        self.assertEqual(svg.count('<polyline'),2)  # missing rating breaks the line
+        self.assertEqual(r,before)
+        self.assertEqual(svg.count('No rated games with available ratings'),2)
+
+    def test_rating_panels_map_shared_period_to_all_classes(self):
+        from fairplay_method3_behavior_charts import rating_panels
+        rows=[game(i,kind=k) for i,k in enumerate(['bullet','blitz','rapid']*4)]
+        for g in rows:g.rating=1500;g.rated=True
+        r=N(games=rows,priority='HIGH',diagnostics={'method3':{'marked_periods':[
+            {'time_class':'blitz','priority':'HIGH','first_ended':rows[3].ended,'last_ended':rows[8].ended}]}})
+        svg=''.join(rating_panels(r,0))
+        self.assertEqual(svg.count('HIGH 1'),1)
+        self.assertEqual(svg.count('Context 1'),2)
+        import re
+        positions=re.findall(r'<rect x="([^"]+)" y="[^"]+" width="([^"]+)" height="175"',svg)
+        self.assertEqual(len(positions),3)
+        self.assertEqual(len(set(positions)),1)

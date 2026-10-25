@@ -31,7 +31,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [0, 1, 2, 3]
+        shard: [0, 1, 2, 3, 4, 5]
     timeout-minutes: 10
     env:
       PYTHONDONTWRITEBYTECODE: '1'
@@ -43,20 +43,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Cache Python package downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ runner.os }}-${{ runner.arch }}-py311-${{ github.job }}-${{ hashFiles('requirements*.txt', 'minigames/minigames_requirements.txt', '.github/workflows/bot-tests.yml') }}
       - name: Install bot and minigame dependencies
         run: python -m pip install -r requirements.txt -r minigames/minigames_requirements.txt PyYAML
       - name: Run offline bot and persistence tests
-        run: |
-          python - <<'PY'
-          import glob, subprocess, sys
-          modules = sorted(path[:-3] for path in glob.glob('test_*.py'))
-          # Stable module-level partition; each shard runs in a separate
-          # runner to reduce wall-clock time without skipping any tests.
-          selected = [module for index,module in enumerate(modules) if index % 4 == ${{ matrix.shard }}]
-          # Preload the root module before test imports can shadow it with scripts/.
-          code = 'import fairplay_outcome_study, unittest, sys; unittest.main(module=None, argv=[sys.argv[0], "-q", *sys.argv[1:]])'
-          raise SystemExit(subprocess.call([sys.executable, '-c', code, *selected]))
-          PY
+        run: python scripts/run_ci_tests.py --shard ${{ matrix.shard }} --shards 6
       - name: Check specified synthetic selective-policy behavior
         if: matrix.shard == 0
         run: python scripts/benchmark_fairplay_selective.py --samples 4
@@ -83,6 +78,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Cache Python package downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ runner.os }}-${{ runner.arch }}-py311-${{ github.job }}-${{ hashFiles('requirements*.txt', 'minigames/minigames_requirements.txt', '.github/workflows/bot-tests.yml') }}
       - name: Install bot dependencies for synthetic detection tests
         run: python -m pip install -r requirements.txt
       - name: Verify positive and false-positive legacy HIGH selection
@@ -93,21 +93,32 @@ jobs:
             test_fairplay_status.AccountStatusIndependence.test_full_scoring_is_identical_with_hidden_open_or_closed_status \
             test_fairplay_v4.ExtendedHistory.test_adapter_is_capped_to_200_context_and_100_full_engine
 
-  engine-smoke:
+  engine-checks:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        group: [reviews, equivalence, transport, versions]
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Cache Python package downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ runner.os }}-${{ runner.arch }}-py311-${{ github.job }}-${{ hashFiles('requirements*.txt', 'minigames/minigames_requirements.txt', '.github/workflows/bot-tests.yml') }}
       - name: Install engine review dependencies
         run: python -m pip install python-chess requests cryptography
       - uses: actions/cache@v4
+        if: matrix.group == 'transport' || matrix.group == 'versions'
         with:
           path: /tmp/stockfish19-official/Stockfish/src/stockfish
           key: stockfish-${{ runner.os }}-${{ runner.arch }}-edb0d9db6731067ec50ce619ff372b463bc4dd5d-v1
-      - name: Prepare official Stockfish and export verified path
+      - name: Prepare official baseline Stockfish
+        if: matrix.group == 'transport' || matrix.group == 'versions'
         env:
           STOCKFISH_PATH: /tmp/stockfish19-official/Stockfish/src/stockfish
         run: python scripts/prepare_stockfish.py --github-env
@@ -117,33 +128,54 @@ jobs:
           key: stockfish-${{ runner.os }}-${{ runner.arch }}-edb0d9db6731067ec50ce619ff372b463bc4dd5d-pgo-v1
       - name: Prepare official profile-guided Stockfish
         run: python scripts/prepare_stockfish.py --github-env --profile-build
-      - name: Run synthetic two-pass Fair Play and normal Game Review smoke tests
-        run: python scripts/smoke_stockfish_reviews.py
-      - name: Verify real Stockfish position-queue evidence matches sequential search
-        run: python scripts/smoke_fairplay_equivalence.py
-      - name: Verify exact real-engine candidate reuse
-        run: python scripts/smoke_fairplay_candidate_cache.py
-      - name: Verify exact Maia counterfactual root reuse
-        run: python scripts/smoke_fairplay_policy_cache.py
-      - name: Verify compute-only sparse package preserves real evidence
-        run: python scripts/smoke_fairplay_sparse_compute.py
-      - name: Verify real v21 MultiPV 1 / MultiPV 3 / depth 18 contract
-        run: python scripts/smoke_fairplay_v21.py
-      - name: Verify real isolated v22 worker and full engine depth contract
-        run: python scripts/smoke_fairplay_distributed.py
+      - name: Review and evidence reuse contracts
+        if: matrix.group == 'reviews'
+        run: |
+          python scripts/smoke_stockfish_reviews.py
+          python scripts/smoke_fairplay_candidate_cache.py
+          python scripts/smoke_fairplay_policy_cache.py
+          python scripts/smoke_fairplay_v21.py
+          python scripts/smoke_fairplay_distributed.py
+      - name: Queue and sparse-compute equivalence
+        if: matrix.group == 'equivalence'
+        run: |
+          python scripts/smoke_fairplay_equivalence.py
+          python scripts/smoke_fairplay_sparse_compute.py
       - name: Compare compact and standard fixed-node transports
+        if: matrix.group == 'transport'
         env:
           BASELINE_STOCKFISH_PATH: /tmp/stockfish19-official/Stockfish/src/stockfish
         run: python scripts/benchmark_fairplay_transport.py
       - name: Benchmark depth 18 versus current 24k-node Fair Play fast pass
+        if: matrix.group == 'versions'
         run: python scripts/benchmark_fairplay_depth18.py
+      - name: Cache official Stockfish 18 binary
+        if: matrix.group == 'versions'
+        id: sf18
+        uses: actions/cache@v4
+        with:
+          path: /tmp/fairplay-stockfish18/src/stockfish
+          key: stockfish18-${{ runner.os }}-${{ runner.arch }}-cb3d4ee-avx2-v1
       - name: Compile official Stockfish 18 with matching AVX2 build options
+        if: matrix.group == 'versions' && steps.sf18.outputs.cache-hit != 'true'
         run: |
           git clone -q --depth 1 --branch sf_18 https://github.com/official-stockfish/Stockfish.git /tmp/fairplay-stockfish18
           test "$(git -C /tmp/fairplay-stockfish18 rev-parse --short=7 HEAD)" = "cb3d4ee"
           make -C /tmp/fairplay-stockfish18/src -j2 build ARCH=x86-64-avx2
       - name: Compare Stockfish 18 and 19 at fixed depth 18
+        if: matrix.group == 'versions'
         run: python scripts/compare_stockfish18_19.py /tmp/fairplay-stockfish18/src/stockfish /tmp/stockfish19-official/Stockfish/src/stockfish
+
+  engine-smoke:
+    # Preserve the existing check name, and fail closed for failed/cancelled/skipped shards.
+    needs: engine-checks
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require all engine groups to pass
+        env:
+          ENGINE_RESULT: ${{ needs.engine-checks.result }}
+        run: test "$ENGINE_RESULT" = success
 
   depth18-smoke:
     runs-on: ubuntu-latest
@@ -153,6 +185,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Cache Python package downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ runner.os }}-${{ runner.arch }}-py311-${{ github.job }}-${{ hashFiles('requirements*.txt', 'minigames/minigames_requirements.txt', '.github/workflows/bot-tests.yml') }}
       - run: python -m pip install python-chess requests cryptography
       - uses: actions/cache@v4
         with:
@@ -172,6 +209,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Cache Python package downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ runner.os }}-${{ runner.arch }}-py311-${{ github.job }}-${{ hashFiles('requirements*.txt', 'minigames/minigames_requirements.txt', '.github/workflows/bot-tests.yml') }}
       - run: python -m pip install python-chess requests
       - uses: actions/cache@v4
         with:
@@ -190,6 +232,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Cache Python package downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ runner.os }}-${{ runner.arch }}-py311-${{ github.job }}-${{ hashFiles('requirements*.txt', 'minigames/minigames_requirements.txt', '.github/workflows/bot-tests.yml') }}
       - run: python -m pip install requests python-chess
       - run: python -m pip install torch==2.8.0 --index-url https://download.pytorch.org/whl/cpu
       - run: python -m pip install -r requirements-fairplay-human.txt
@@ -217,6 +264,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Cache Python package downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ runner.os }}-${{ runner.arch }}-py311-${{ github.job }}-${{ hashFiles('requirements*.txt', 'minigames/minigames_requirements.txt', '.github/workflows/bot-tests.yml') }}
       - name: Install Leela build prerequisites
         run: |
           sudo apt-get update -qq
