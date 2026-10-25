@@ -54,7 +54,7 @@
       "progress": {
         "minigame_win": 52,
         "puzzle_solve": 47,
-        "rush_complete": 3
+        "rush_complete": 4
       },
       "start": 1792015200,
       "theme": "Spooky game marathon",
@@ -66,7 +66,7 @@
         "442597396195704832": {
           "minigame_win": 17,
           "puzzle_solve": 36,
-          "rush_complete": 3
+          "rush_complete": 4
         },
         "550338389535227926": {
           "minigame_win": 34,
@@ -202,13 +202,14 @@
       },
       "442597396195704832": {
         "coins_earned": 231.5,
-        "contribution": 0.013747,
+        "contribution": 0.016247,
         "minigame_win": 9,
         "new_cosmetics": 18,
         "pet_feed": 14,
         "pet_levels_gained": 11,
         "pet_puzzle": 8,
-        "puzzle_solve": 14
+        "puzzle_solve": 14,
+        "rush_complete": 1
       },
       "550338389535227926": {
         "coins_earned": 96.0,
