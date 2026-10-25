@@ -2868,47 +2868,19 @@
       "active": true,
       "user_id": "442597396195704832",
       "name": "Thice",
-      "started_at": 1792961710.0297806,
-      "run_id": "rush:442597396195704832:1792961710029",
-      "end_at": 1792962010.0297806,
-      "score": 3,
+      "started_at": 1792962057.784943,
+      "run_id": "rush:442597396195704832:1792962057784",
+      "end_at": 1792962357.784943,
+      "score": 0,
       "wrong": 0,
       "mistakes": [],
       "ruleset": "universal-1200-plus40-v1",
-      "puzzle": {
-        "url": "https://lichess.org/training/bh6Cj",
-        "title": "Puzzle • 1313",
-        "fen": "2R2rk1/5ppp/4p3/2Qp4/1P2q3/5nP1/4BP1P/4K3 w - - 13 37",
-        "current_fen": "2R2rk1/5ppp/4p3/2Qp4/1P6/5nP1/4BPKP/6q1 w - - 17 39",
-        "last_move_uci": "b1g1",
-        "pgn": {
-          "__shark_answer_ciphertext_v1__": "gAAAAABq3m1SLBAbp_99OI3fZsJ_lrT9hIUY0y1XTXZwM9FtAbG1J_yHI_KqDjFY4IOonWb29bohdmKg_40_uAoGWG8BLprGUK3ThZZnmz94pJM2aQloC4I="
-        },
-        "all_moves": {
-          "__shark_answer_ciphertext_v1__": "gAAAAABq3m1S57RrhS5Ss9B9J0jEolmMHIzVcUQKFJtDOfhbyJUfbYl5GjeFqhz5NspxLKBhVFUJCNyCtX4fMnq2_VcCbHebs5YHAsXeOWgQdicvbQ6qQcJS5nl4cQOu-b7Pe6QKC01nNOWvfqLhDw9962dwNcZFpE33WetwHnti4YkyQHh5rKgNZON-BF-orAPcxmrh6ylYsAoY1-bun5sBUQ6bXi1MLxui7Xkh5bv8L4uVO29t8y6CLlnmII31-h8HI2DXHHH__uz5INHSL3GK2l74RNnzm-VjBddTH9alhnC7dG3IKbJewECEF5yWJo8VAK0-3dGsdZzdscmeHCRtNe9vUHHtoN_PTAzSNcQVIbZkW96Dksg="
-        },
-        "player_moves": {
-          "__shark_answer_ciphertext_v1__": "gAAAAABq3m1SDD5ieDE21xAhZe-jS10O2z8Bz7bh_K4Aj2n-m6foPL4l4wOD7wEmbcjqNzFyz0kE67do7jLnEt5jtBXqdPyktAsdeZWIs5Kl9qW_uHB9lvxh_9KVASUujC6yTlzvlM-nTdFbakMKzhwrgomsmlcRxXiZpNiyjvgOKrevaoFUMdOJQ7Wp1uj6NWIpMTzdMhPA59-ljNDWHykgbKmBUoFV7A0em42Dr9-ollUsFtZyAOE5n6UOs7GaK1RC9jy5WtjX"
-        },
-        "player_color": "white",
-        "player_move_count": 3,
-        "posted_at": "2026-10-25T20:55:54.212323+00:00",
-        "answer_posted": false,
-        "winner_user_id": null,
-        "winner_name": null,
-        "latest_attempts": {},
-        "puzzle_id": "practice_rush_442597396195704832_bh6Cj_1792961754212",
-        "rating": 1313,
-        "next_solution_index": 4,
-        "board_theme": "blue",
-        "piece_theme": "classic",
-        "arrow_theme": "pink"
-      },
-      "message_id": 1564019759450947674,
+      "puzzle": null,
+      "message_id": null,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792961777.2279239,
-      "last_feedback": "✅ **Kg2** • Opponent: **Qg1+**"
+      "last_card_activity_at": 1792962057.7849514,
+      "last_feedback": "🎯 **Type your move in chat.** Your answer message will be removed. You have **3 lives**."
     },
     "362606514764251137": {
       "active": false,
@@ -3188,6 +3160,14 @@
         "name": "Thice",
         "updated_at": "2026-10-16T19:58:15.543642+00:00",
         "achieved_at": "2026-10-16T19:58:15.543642+00:00"
+      }
+    },
+    "2026-W43": {
+      "442597396195704832": {
+        "score": 3,
+        "name": "Thice",
+        "updated_at": "2026-10-25T21:00:25.103081+00:00",
+        "achieved_at": "2026-10-25T21:00:25.103081+00:00"
       }
     }
   },
@@ -3796,6 +3776,14 @@
       "achieved_at": "2026-10-16T21:02:32.711975+00:00",
       "started_at": 1792184249.1924014,
       "week": "2026-W42"
+    },
+    "rush:442597396195704832:1792961710029": {
+      "user_id": "442597396195704832",
+      "name": "Thice",
+      "score": 3,
+      "achieved_at": "2026-10-25T21:00:25.103081+00:00",
+      "started_at": 1792961710.0297806,
+      "week": "2026-W43"
     }
   },
   "puzzle_rush_runs_seeded_v1": true,
