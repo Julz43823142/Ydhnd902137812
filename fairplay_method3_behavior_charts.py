@@ -139,7 +139,7 @@ def timing_svg(result,c):
         p.append(text(30,112+i*27,f'{kind.title()} {control_label(control)}: {n}/{selectedn} usable games · {selectedn-n} missing/short · {alln-selectedn} other-control games',19,COLORS_LINE[i]))
     values=[summary(v) for bins in c['timing'].values() for v in bins]
     maximum=max([4]+[v[2]*1.15 for v in values if v]); top,bottom=240,620
-    bands(p,result,c['edges'],top,bottom)
+    # Cross-class period identity is shown in the shared timelines below.
     for i in range(5):
         v=maximum*i/4;y=bottom-(bottom-top)*i/4
         p.append(f'<line x1="90" x2="1130" y1="{y}" y2="{y}" stroke="#d6e1ea"/>');p.append(text(25,y+5,f'{v:.1f}s',18))
@@ -188,6 +188,47 @@ def phase_svg(result,c):
 
 def behavior_svgs(result):
     c=build_context(result.games)
-    return [('fairplay_07_openings.png',opening_svg(result,c)),
+    return [(name,with_period_timelines(svg,result)) for name,svg in [
+            ('fairplay_07_openings.png',opening_svg(result,c)),
             ('fairplay_08_clock_convergence.png',timing_svg(result,c)),
-            ('fairplay_09_phase_pressure.png',phase_svg(result,c))]
+            ('fairplay_09_phase_pressure.png',phase_svg(result,c))]]
+
+
+def with_period_timelines(svg,result):
+    """Same numbered calendar spans on every page; never infer a new HIGH."""
+    import re
+    marked=periods(result)
+    if not marked:return svg
+    height=int(re.search(r'<svg[^>]* height="(\d+)"',svg).group(1))
+    edges=calendar(result.games)
+    # Reserve enough lanes for labels as well as actual temporal spans.
+    lanes=[]
+    ends=[]
+    for span in marked:
+        x1=70+1060*(span['first_ended']-edges[0])/(edges[-1]-edges[0])
+        x2=70+1060*(span['last_ended']-edges[0])/(edges[-1]-edges[0])
+        label_end=max(x2,x1+155)
+        lane=next((i for i,end in enumerate(ends) if end+8<x1),len(ends))
+        if lane==len(ends):ends.append(label_end)
+        else:ends[lane]=label_end
+        lanes.append((span,x1,x2,lane))
+    row_height=50+32*len(ends)
+    added=110+3*row_height
+    new_height=height+added
+    svg=svg.replace(f'height="{height}"',f'height="{new_height}"',1)
+    svg=svg.replace(f'viewBox="0 0 1200 {height}"',f'viewBox="0 0 1200 {new_height}"',1)
+    parts=[f'<rect x="0" y="{height}" width="1200" height="{added}" fill="white"/>',
+           text(30,height+35,'Shared periods · identical numbers and dates across all pages',24),
+           text(30,height+64,'Orange/red: original class priority. Purple: same dates in another class, context only.',18)]
+    for index,kind in enumerate(KINDS):
+        y=height+100+index*row_height
+        parts.append(text(30,y,kind.title(),20))
+        for span,x1,x2,lane in lanes:
+            own=span['time_class']==kind
+            fill,stroke=COLORS[span['priority']] if own else ('#c4b5fd','#6d28d9')
+            yy=y+12+32*lane
+            parts.append(f'<rect x="{x1:.1f}" y="{yy}" width="{max(2,x2-x1):.1f}" height="23" fill="{fill}" fill-opacity=".6"/>')
+            label=(span['priority'] if own else 'Context')+' '+str(span['number'])
+            parts.append(text(min(x1,980),yy+17,label,16,stroke))
+    parts.extend([text(70,new_height-15,date(edges[0]),16),text(1130,new_height-15,date(edges[-1]-1),16,anchor='end')])
+    return svg.replace('</svg>',''.join(parts)+'</svg>')
