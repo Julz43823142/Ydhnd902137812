@@ -2879,8 +2879,8 @@
         "url": "https://lichess.org/training/qfiY2",
         "title": "Puzzle • 1349",
         "fen": "5r1r/6k1/1p1pqbp1/p1p5/P1P1PB2/3PQR1P/2P3P1/5RK1 b - - 2 37",
-        "current_fen": "5r1r/6k1/1p1pq1pB/p1p5/P1PbP3/3PQR1P/2P3P1/5RK1 b - - 4 38",
-        "last_move_uci": "f4h6",
+        "current_fen": "5r2/6k1/1p1pq1pr/p1p5/P1PQP3/3P1R1P/2P3P1/5RK1 b - - 0 39",
+        "last_move_uci": "e3d4",
         "pgn": {
           "__shark_answer_ciphertext_v1__": "gAAAAABq3mz1JaZqJv-yFRyviI8CKoO3rtETqnH1_Rak9ijP8bYw1biMSIpEkhbWToLQgpJ7L-0vVPJVAexLVf_mIRgIfSVxjIHUJMxIbGk0mJAg8glYYRw="
         },
@@ -2899,16 +2899,16 @@
         "latest_attempts": {},
         "puzzle_id": "practice_rush_442597396195704832_qfiY2_1792961781959",
         "rating": 1349,
-        "next_solution_index": 2,
+        "next_solution_index": 4,
         "board_theme": "blue",
         "piece_theme": "classic",
         "arrow_theme": "pink"
       },
-      "message_id": 1564019815646232729,
+      "message_id": 1564019844481814598,
       "channel_id": 1468320170891022417,
       "chat_since_refresh": 0,
-      "last_card_activity_at": 1792961788.7703621,
-      "last_feedback": "✅ **Bd4** • Opponent: **Bh6+**"
+      "last_card_activity_at": 1792961796.389712,
+      "last_feedback": "✅ **Rxh6** • Opponent: **Qxd4+**"
     },
     "362606514764251137": {
       "active": false,
