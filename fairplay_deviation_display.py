@@ -137,6 +137,22 @@ def _combined_review_strength(result, data, selected):
             or result_row.get('games') != n
             or selected.get('time_class') != row.get('time_class')):
         return None
+    # v84 requires independent selected-period coverage, not merely a high
+    # published-Accuracy count somewhere else in the player's history.
+    period = row.get('selected_period_accuracy')
+    if not isinstance(period, dict):
+        return None
+    keys = ('games','accuracy_covered','at_least_90',
+            'at_least_95','distinct_observed_opponents')
+    if any(type(period.get(key)) is not int for key in keys):
+        return None
+    size, observed, matches90, matches95, opponents = (period[k] for k in keys)
+    if (size != n or selected.get('games') != n
+            or not 0 <= matches95 <= matches90 <= observed <= size
+            or observed < 30 or observed < .60 * size or opponents < 15
+            or matches90 < 10 or matches95 < 5
+            or observed > covered or matches90 > hits90 or matches95 > hits95):
+        return None
     value = deviation_score(result)
     return value / 100. if value is not None else None
 

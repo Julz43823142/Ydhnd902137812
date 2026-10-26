@@ -169,17 +169,44 @@ def _reference_pool(games):
 
 
 class _PersonalReferences:
-    """Exact earlier-only references, reused across dense chronological windows."""
+    """Earlier-only references with an exact-control/rating index.
+
+    The full _matches predicate is still applied. The index only rules out
+    histories that provably cannot match the player's time control and Elo.
+    Cached contexts and chronological prefix membership are unchanged.
+    """
     def __init__(self,group,source,config):
         self.group,self.source,self.config=group,source,config
         self.contexts={};self.prefixes={}
+        indexed={}
+        for i,game in enumerate(group):
+            score=_accuracy(game,source)
+            elo=number(game.get('player_elo'))
+            if score is None or elo is None:
+                continue
+            key=(game.get('time_class'),game.get('time_control'))
+            indexed.setdefault(key,[]).append((elo,i,score))
+        self.rating_index={}
+        for key,bucket in indexed.items():
+            bucket.sort(key=lambda row:(row[0],row[1]))
+            self.rating_index[key]=(
+                [row[0] for row in bucket],
+                [(row[1],row[2]) for row in bucket])
 
     def at(self,game,start):
-        from bisect import bisect_left
-        context=(game['time_class'],game.get('time_control'),number(game.get('player_elo')),number(game.get('opponent_elo')))
+        from bisect import bisect_left, bisect_right
+        own=number(game.get('player_elo'))
+        opp=number(game.get('opponent_elo'))
+        context=(game['time_class'],game.get('time_control'),own,opp)
         if context not in self.contexts:
-            matches=[(i,_accuracy(g,self.source)) for i,g in enumerate(self.group)
-                     if _accuracy(g,self.source) is not None and _matches(game,g,self.config)]
+            matches=[]
+            if own is not None and opp is not None:
+                ratings,items=self.rating_index.get(context[:2],([],[]))
+                lower=bisect_left(ratings,own-self.config.rating_tolerance)
+                upper=bisect_right(ratings,own+self.config.rating_tolerance)
+                matches=sorted(((i,score) for i,score in items[lower:upper]
+                                if _matches(game,self.group[i],self.config)),
+                               key=lambda item:item[0])
             self.contexts[context]=([i for i,a in matches],[a for i,a in matches])
         indices,values=self.contexts[context]
         n=bisect_left(indices,start)

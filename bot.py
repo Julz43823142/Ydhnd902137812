@@ -1878,6 +1878,9 @@ async def _twitch_handle_chat_message(event):
 
 
 _twitch_eventsub_recovery_attempted = False
+# Token scope cannot grow during a normal OAuth refresh. Avoid repeatedly
+# requesting optional chat on every reconnect once Twitch rejects its scope.
+_twitch_chat_authorization_denied = False
 
 
 async def _twitch_reclaim_old_websocket_subscriptions(current_session_id, token):
@@ -1943,13 +1946,16 @@ async def _twitch_reclaim_old_websocket_subscriptions(current_session_id, token)
 
 async def _twitch_create_subscriptions(session_id):
     """Subscribe independently: optional stream/chat failures must not block rewards."""
+    global _twitch_chat_authorization_denied
     token = _twitch_access_token or await _twitch_prepare_access_token()
     subscriptions = (
         ("Channel Points", "channel.channel_points_custom_reward_redemption.add"),
         ("stream-online", "stream.online"),
     )
     results = {}
-    for label, subscription_type in (*subscriptions, *((("Chat", "channel.chat.message"),) if TWITCH_CHAT_ENABLED else ())):
+    optional_chat = (("Chat", "channel.chat.message"),) if (
+        TWITCH_CHAT_ENABLED and not _twitch_chat_authorization_denied) else ()
+    for label, subscription_type in (*subscriptions, *optional_chat):
         payload = {
             "type": subscription_type,
             "version": "1",
@@ -1998,14 +2004,25 @@ async def _twitch_create_subscriptions(session_id):
             raise
         except Exception as error:
             results[label] = False
-            print(f"Twitch EventSub {label} subscription error: {error}", flush=True)
-            if label == "Channel Points":
+            message = str(error)
+            if (label == "Chat" and "HTTP 403" in message
+                    and "subscription missing proper authorization" in message.casefold()):
+                # This specific missing-scope response will persist across
+                # reconnects and token refreshes. Log once per worker instead
+                # of resubscribing and DMing the owner on every reconnect.
+                _twitch_chat_authorization_denied = True
+                print("Optional Twitch Chat unavailable (HTTP 403: missing authorization); "
+                      "skipping retries until worker restart. Other Twitch features remain enabled.",
+                      flush=True)
+            elif label == "Channel Points":
+                print(f"Twitch EventSub {label} subscription error: {error}", flush=True)
                 await _twitch_owner_notice(
-                    f"❌ Twitch Channel Points EventSub is NOT connected: {str(error)[:650]}. "
+                    f"❌ Twitch Channel Points EventSub is NOT connected: {message[:650]}. "
                     "Redemptions will not reach Discord. HTTP 429 means too many active WebSocket transports; stop overlapping workers if recovery fails. For HTTP 403 check OAuth scopes."
                 )
             else:
-                await _twitch_owner_notice(f"⚠️ Optional Twitch {label} subscription failed: {str(error)[:650]}")
+                print(f"Twitch EventSub {label} subscription error: {error}", flush=True)
+                await _twitch_owner_notice(f"⚠️ Optional Twitch {label} subscription failed: {message[:650]}")
     return results.get("Channel Points", False)
 
 

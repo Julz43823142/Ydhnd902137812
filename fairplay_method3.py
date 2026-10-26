@@ -11,7 +11,7 @@ from fairplay_config import CONFIG
 from fairplay_data import PubAPI, ReviewError, ScanDeadline, check_deadline, collect_games, username
 from fairplay_outcome_study import evaluate, SCENARIOS, DEVELOPMENT_SCENARIOS, CONFIG as STUDY_CONFIG
 
-VERSION='fairplay-v83-landscape-and-runtime'
+VERSION='fairplay-v84-period-evidence-and-twitch-alerts'
 LIMIT=5000
 BLOCK_SIZE=200
 PRIORITY_GAMES=200
@@ -284,7 +284,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         from fairplay_method3_accuracy_frequency import limited_coverage_review_flags
         from fairplay_method3_review_triage import corroboration, apply_combined_review
         limited_accuracy_flags=limited_coverage_review_flags(games)
-        combined_review=corroboration(chosen,limited_accuracy_flags)
+        combined_review=corroboration(chosen,limited_accuracy_flags, period_games=games)
         priority,basis=apply_combined_review(priority,basis,combined_review)
         selected_period_priority=priority if basis not in (
             'accuracy_frequency','absolute_accuracy_frequency','combined_manual_review') else 'LOW'
