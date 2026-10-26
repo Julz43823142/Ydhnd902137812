@@ -83,6 +83,27 @@ class SelectedWindowPresentation(unittest.TestCase):
         self.assertNotIn('\\\\n',opening)
         self.assertLessEqual(len(card),6000)
 
+    def test_many_long_opponent_labels_cannot_reject_discord_card(self):
+        result=self.frequency_review()
+        info=result.diagnostics['method3']
+        info['subject']['opponent_groups']=[{
+            'time_class':'rapid',
+            'time_control':'600+'+'0'*330+str(i),
+            'opponent_elo_min':1000,'opponent_elo_max':1200,
+            'games':30,'limited_sample':False,
+            'results':{'expected_points':15.0,'actual_points':18.0,
+                       'win_fraction':.6},
+            'accuracy':{'observed_median':82.0}
+        } for i in range(15)]
+        info['period_guard_counts']={
+            'guard_'+str(i)+'_'+'z'*100:i for i in range(80)}
+        card=detail_embed(result,'Review Gates')
+        self.assertLessEqual(len(card),6000)
+        self.assertLessEqual(len(card.fields),25)
+        self.assertTrue(all(0 < len(f.name)<=256 and 0 < len(f.value)<=1024
+                            for f in card.fields))
+        self.assertIn('Automated screening only',[f.name for f in card.fields])
+
     def test_empty_explanation_is_valid_discord_field(self):
         result=self.frequency_review()
         result.reasons=[]
