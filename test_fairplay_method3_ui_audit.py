@@ -79,8 +79,8 @@ class SelectedWindowPresentation(unittest.TestCase):
         card=detail_embed(result,'Performance')
         opening=next(field.value for field in card.fields
                      if field.name=='Temporary opening switch · context')
-        self.assertIn('Sicilian Defence\\nBefore:',opening)
-        self.assertNotIn('\\\\n',opening)
+        self.assertIn('Sicilian Defence\nBefore:',opening)
+        self.assertNotIn('\\n',opening)
         self.assertLessEqual(len(card),6000)
 
     def test_many_long_opponent_labels_cannot_reject_discord_card(self):
