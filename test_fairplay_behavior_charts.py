@@ -84,10 +84,10 @@ class Behavior(unittest.TestCase):
         before=copy.deepcopy(r)
         for name,svg in behavior_svgs(r):
             self.assertNotIn('Shared periods',svg)
-            if '09_' not in name:self.assertIn('HIGH 1',svg)
-            if '07_' in name:self.assertGreaterEqual(svg.count('Context 1'),2)
-            if '07_' in name:self.assertIn('#c4b5fd',svg)
-            if '09_' not in name:self.assertIn('#fb923c',svg)
+            if '08_' in name:self.assertIn('HIGH 1',svg)
+            if '06_' in name:self.assertGreaterEqual(svg.count('Context 1'),2)
+            if '06_' in name:self.assertIn('#ede9fe',svg)  # contextual opening bars
+            if '08_' in name:self.assertIn('#fb923c',svg)  # flagged timing only; ratings moved off openings
             import xml.etree.ElementTree as E
             E.fromstring(svg)
         self.assertEqual(r,before)
@@ -110,7 +110,7 @@ class Behavior(unittest.TestCase):
         from fairplay_config import active_version
         self.assertEqual(priority_color('LOW'),0x22C55E)
         self.assertEqual(priority_color('INSUFFICIENT DATA'),0xFFFFFF)
-        self.assertEqual(active_version({'FAIRPLAY_METHOD3':'1'}),'fairplay-v84-period-evidence-and-twitch-alerts')
+        self.assertEqual(active_version({'FAIRPLAY_METHOD3':'1'}),'fairplay-v85-rolling-context-and-winrate')
         r=N(games=[game(i) for i in range(30)],priority='LOW',diagnostics={'method3':{}})
         pages=behavior_svgs(r)
         self.assertIn('each bar totals 100%',pages[0][1])

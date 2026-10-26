@@ -140,7 +140,7 @@ PALETTE=('#2563eb','#d97706','#059669','#9333ea','#e11d48','#0891b2','#4f46e5','
 
 def opening_svg(result,c,marked=None):
     if marked is None:marked=periods(result)
-    p=header('7 · Favourite opening move patterns and rating history','First five own moves · opponent first reply shown · all live controls · each bar totals 100%.',2980)
+    p=header('Favourite opening move patterns','First five own moves · opponent first reply shown · all live controls · each bar totals 100%.',1900)
     for i,color in enumerate(('white','black')):
         from fairplay_opening_names import opening_pattern
         rows=[(g,opening_pattern(g)) for g in result.games if g.time_class in KINDS and type(getattr(g,'color',None)) is bool and ('white' if g.color else 'black')==color]
@@ -209,8 +209,7 @@ def opening_svg(result,c,marked=None):
     else:
         p.append(text(30,1730,'Matched repertoire repetition: unavailable (need ≥8 games before/during).',17,'#526477'))
     p.append(text(30,1800,'Controls pooled: top bars mix modes; matched repetition fixes class/control/color/opponent reply.',17,'#526477'))
-    p.extend(rating_panels(result,1900,marked=marked,compact=True))
-    return finish(p,2980)
+    return finish(p,1900)
 
 
 def rating_panels(result, offset, marked=None, compact=False):
@@ -455,6 +454,6 @@ def behavior_svgs(result):
     c=build_context(result.games)
     marked=periods(result)  # Stable period identities on all three pages.
     return [(name,svg) for name,svg in [
-            ('fairplay_07_openings.png',opening_svg(result,c,marked=marked)),
+            ('fairplay_06_openings.png',opening_svg(result,c,marked=marked)),
             ('fairplay_08_clock_convergence.png',timing_svg(result,c,marked=marked)),
             ('fairplay_09_phase_pressure.png',phase_svg(result,c,marked=marked))]]

@@ -70,21 +70,16 @@ def _map_svg_elements(body, layout):
 
 def _landscape_layout(body, number, height, source):
     """Use 2-column chart rows and 3-column rating panels where readable."""
-    if number == 7 and '7 · Favourite opening move patterns' in source:
-        # Opening by colour: White left, Black right (20 history bars each);
-        # all contextual notes and comparisons full width; Bullet / Blitz /
-        # Rapid rating histories become three 600px-wide panels in one row.
+    if number == 6 and 'Favourite opening move patterns' in source:
+        # Opening choices only. White and Black share one compact row.
+        # Rating observations have their own page 8 rather than consuming
+        # most of the openings panel.
         def layout(y):
             if y < 115: return 1., 0, 0
             if y < 900: return .5, 0, 0
             if y < 1680: return .5, 900, -780
-            if y < 1900: return 1., 0, -790
-            if y < 2000: return 1., 0, -875
-            if y < 2290: return 1/3, 0, -895
-            if y < 2580: return 1/3, 600, -1185
-            if y < 2870: return 1/3, 1200, -1475
-            return 1., 0, -1490
-        return _map_svg_elements(body, layout), 1495
+            return 1., 0, -790
+        return _map_svg_elements(body, layout), 1090
     if number == 9 and '9 · How does thinking time change?' in source:
         # Five time/phase panels: rows of 2, 2, 1, retaining every
         # middle-50% band, calendar tick, and missing-data gap.
@@ -95,15 +90,6 @@ def _landscape_layout(body, number, height, source):
                 return .5, 900 * (panel % 2), (panel // 2) * 355 - panel * 305
             return 1., 0, -550
         return _map_svg_elements(body, layout), 1475
-    if number == 4 and 'Official Chess.com Accuracy · frequency' in source:
-        # Bullet/Blitz above, Rapid full width below; exact-control
-        # before/during/after comparisons remain full-width underneath.
-        def layout(y):
-            if y < 140: return 1., 0, 0
-            if y < 550: return .5, 0, 0
-            if y < 970: return .5, 900, -420
-            return 1., 0, -420
-        return _map_svg_elements(body, layout), height - 420
     return body, height
 
 

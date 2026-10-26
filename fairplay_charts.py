@@ -46,8 +46,35 @@ def start(width, height):
             f'viewBox="0 0 {width} {height}">', '<rect width="100%" height="100%" fill="white"/>']
 
 
-def plot(parts, rows, y, title, values, unit, color, *, second=None, first_game=1):
-    all_values = values + (second or [])
+def moving_average(values, window=30, minimum=5, coverage=.60):
+    """Rolling mean over *played* games. Invalid/missing measurements stay gaps.
+
+    At least five finite observations and >=60% window coverage are required,
+    so a sparse published-Accuracy or PGN clock series cannot appear complete.
+    The current point reflects the most recent min(window, index+1) games.
+    """
+    if window < 1 or minimum < 1 or not 0 < coverage <= 1:
+        raise ValueError('Invalid moving-average window or coverage.')
+    total = 0.0
+    count = 0
+    output = []
+    for i, value in enumerate(values):
+        if finite(value) and value >= 0:
+            total += value
+            count += 1
+        if i >= window:
+            old = values[i-window]
+            if finite(old) and old >= 0:
+                total -= old
+                count -= 1
+        played = min(window, i+1)
+        output.append(total/count if count >= minimum and count/played >= coverage else None)
+    return output
+
+
+def plot(parts, rows, y, title, values, unit, color, *, second=None,
+         average=None, first_game=1):
+    all_values = values + (second or []) + (average or [])
     lo, hi = axis_range(all_values, minimum_span=10 if unit == "%" else 200 if not unit else 1,
                         ceiling=100 if unit == "%" else None)
     left, right, height, top = 115, 1375, 200, y + 30
@@ -86,6 +113,10 @@ def plot(parts, rows, y, title, values, unit, color, *, second=None, first_game=
     draw(values, color)
     if second is not None:
         draw(second, "#e87519", True)
+    if average is not None:
+        # The green dashed mean is distinct from raw blue/purple traces and
+        # from the orange official published Accuracy series.
+        draw(average, "#15803d", True)
     if not any(finite(v) for v in all_values):
         parts.append(text((left + right) / 2, top + height / 2,
                           "No valid measurements available", 20, anchor="middle"))
@@ -103,13 +134,17 @@ def accuracy_bins(rows):
 def class_svg(kind, rows):
     parts = start(1440, 1390)
     parts += [text(45, 45, f"{kind.title()} — Fair Play Game-by-Game", 30),
-              text(45, 78, f"{len(rows)} collected games · blue: SharkBot estimate · orange dashed: official Chess.com", 18),
-              text(45, 106, "Y-axes zoom to observed data. Gaps mean missing data. Charts do not establish misconduct.", 17, "#526477")]
-    plot(parts, rows, 150, "Accuracy by Game", [r["estimated_accuracy"] for r in rows], "%", "#2563eb",
-         second=[r["official_accuracy"] for r in rows])
+              text(45, 78, f"{len(rows)} games · orange dashed: official Chess.com Accuracy · green dashed: rolling mean", 18),
+              text(45, 106, "Y-axes zoom to observed data · green mean: last 30 games, ≥5 observed, ≥60% coverage; gaps mean missing data.", 17, "#526477")]
+    official = [value if finite(value) and 0 <= value <= 100 else None
+                for row in rows for value in [row["official_accuracy"]]]
+    plot(parts, rows, 150, "Accuracy by Game · green rolling average",
+         [r["estimated_accuracy"] for r in rows], "%", "#2563eb",
+         second=official, average=moving_average(official))
     plot(parts, rows, 470, "Opponent Elo by Game", [r["opponent_elo"] for r in rows], "", "#0f766e")
-    plot(parts, rows, 790, "Median Think Time by Game — valid PGN clocks only",
-         [r["median_think_seconds"] for r in rows], "s", "#7c3aed")
+    thinking = [r["median_think_seconds"] for r in rows]
+    plot(parts, rows, 790, "Median Think Time by Game · green rolling average (valid PGN clocks)",
+         thinking, "s", "#7c3aed", average=moving_average(thinking))
     parts.append(text(45, 1120, "Official Chess.com Accuracy by Opponent Elo — 200-point groups", 22))
     bins = accuracy_bins(rows)
     keys = sorted(bins)

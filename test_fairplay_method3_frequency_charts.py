@@ -120,9 +120,10 @@ class AccuracyFrequencyCharts(unittest.TestCase):
         result=self.result([fixture(i,accuracy=90) for i in range(10)])
         svg=accuracy_frequency_svg(result)
         for label in ('Bullet','Blitz','Rapid','≥80','≥90','available','missing',
-                      'Context only · LOW results window','Rolling 100 played games',
-                      'Before:','During:','After:','3+0'):
+                      'Rolling 100 played games'):
             self.assertIn(label,svg)
+        for removed in ('Context only · LOW results window','Before:','During:','After:'):
+            self.assertNotIn(removed,svg)
         self.assertNotIn('≥95%',svg)
         self.assertNotIn('Overlaps selected dates',svg)
 
@@ -138,7 +139,8 @@ class AccuracyFrequencyCharts(unittest.TestCase):
         self.assertEqual(len(files),9)
         self.assertEqual(progress,[(n,9) for n in range(1,10)])
         names=[name for name,_ in files]
-        self.assertIn('fairplay_method3_accuracy_frequency.png',names)
+        self.assertIn('fairplay_07_accuracy_frequency_and_timing.png',names)
+        self.assertIn('fairplay_08_rating_and_winrate.png',names)
         self.assertIn('fairplay_method3_selected_period.png',names)
         self.assertNotIn('fairplay_opponent_elo_comparison.png',names)
         self.assertNotIn('fairplay_method3_expected_points.png',names)
