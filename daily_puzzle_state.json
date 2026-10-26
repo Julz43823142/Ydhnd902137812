@@ -52,48 +52,38 @@
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
-    "url": "https://www.chess.com/daily/2026-10-25",
-    "title": "Pushing Up Daisies 🥀",
-    "fen": "5r2/p4k1p/1bp2B2/4P3/1Pb1qPQ1/8/1KP3P1/8 w - - 0 1",
-    "current_fen": "5r2/p4k1p/1bp2B2/4P3/1Pb1qPQ1/8/1KP3P1/8 w - - 0 1",
+    "url": "https://www.chess.com/daily/2026-10-26",
+    "title": "Silent Partner",
+    "fen": "2r2r2/1p3pk1/3qpn1p/1n4p1/p2B4/P1PQ1P1P/5P2/1B2R1K1 w - - 0 1",
+    "current_fen": "2r2r2/1p3pk1/3qpn1p/1n4p1/p2B4/P1PQ1P1P/5P2/1B2R1K1 w - - 0 1",
     "last_move_uci": null,
     "pgn": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq3tbL0Hn7IWTxak4WgVqu4SnbEWWxy2gKZEjAQSVb37QDoZAEOF5tpFvwkG93NFFHsk-7dY2fK9kYV5_lzAzv0KWrRGlxItf05XWK2Hmlmn9wmxMDZJco3SST_R6SoUO_rxnqBOcqkjk5z5INRoyEgsNWszkDSpjeGy-HGdw9b75PJrZxS6Z3AynOKvLgooUR9Vww0V6ZnRWt9Ak5u7c9czGocBw5PdweQH46eF41H7GZi1H3xoe-Kob89jKQIXHpuepD"
+      "__shark_answer_ciphertext_v1__": "gAAAAABq3whBuSX-_gJOKDWwGsjuO66J0e7XwenbbwRQ7LghpMZvqJ2wLfVlyO0oSOr8d60-mFegqYOTEZpz3QiW1qfJd7eQR3G2w-5oNy0c8w2eQngWp4dHvWkLO-slFFwFM-j1dCSRdBShN-aHYxzEvqGmZhfsyYefIzkxFEgbXGmt49yAT0ksAnBnH-26NfNEk9JB1louTnW3n93O39MXYl6qoFou6kH2jQ9vgVhd9ofelUC1v-tcIg8YtD8i04fJecaQ9PjW-a7Ir7c5dRT-_x0nwLfw8w_tNG4c_4P2syIVXJpLAWE="
     },
     "all_moves": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq3tbL9m2LloYbRAqF6hRkDaB52yn2n8w22HWvjmNy_uB3tOJHQkBA9yXVyAmnGkixs8QGiN8lnimS-_HUn4ej54s4EBMYG-EsZ3ILzXf2e-wZZgiideppl5xcatM27U-PliecxTR4ViE_zUkJOHdZBiY4yI87kdUsvOJejsH3NH8okv2FXSChQxS2_oiQL4WKyTGe_V7y9Oet9fggovBbdYcxoTGe1nAYiiIMxmJRT4R9W04m2h7tuMLDRtkmU7PqGD-V2qeffBCuydtrVzNq1JDKrahrBHYT61jFmWT61T8pCrgFEFYpi4TwqBuu6R0cULa3e0MFFyFSrqx0tE0mUYEcxPWpGi6mvPQCS0iPP6sznG6Iu7eueYFK5IgJTnaCfPTr_fPtR9NUn2JQhWJ4wmaezCNecbmfF-gQGNcFrwp1ZxTkarAQd8pLq7hRVtYopf1MifkqAe7emmlTji0uOq2hNKIZ6d1P10g7yWB30FsbBtw39JdfcL0aqGiYrj563SEEtWl4QyAIrCzSKO06wKIFmh6D2Ygb2IXjxa3-WXrkVbmOKbm_L3kd4_RPOVs6DOZBF392osWc3Gvb4fzyY2j1lA=="
+      "__shark_answer_ciphertext_v1__": "gAAAAABq3whBTvzchkjUW-SWwbCl1eeAgHcllsQAs30SsbkqzMLoF-LNOVGume67FyDXljPCKU0jaFVM1viHrPEhIrM8R3R6AAovwJ6rjkOH6LtXFABkFf9iD0h2BUhdxO1f_S17_kGV"
     },
     "player_moves": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq3tbLMy5QcCOq2CdK8COBOEWTbMSPXOSPjmFBfACUzJsnIW9vnga5EK3xqLPjCVKCQEP91VrWBY-6FCeQCn43LbatafgcNdrTpmLihxxpGgJSpM40dtrqZmy6rXHqPMnle1lKMl4Rf_UWPfPjsTiEzPW4aSCzU-8fFI3ninG4ILY6P_JkU4-ITfJ8X9G-M1uts2qGltwnajNSFeTS3iSA-FTAGOFSwvfbj0X2fW3wgXV-VlPo4hK-pFtH06a78_iWLDE6GQMOnN2Fw6BgQrH4dtkjeTf7ngwWkPPrm_3zbfj9_P2DSIeYmhBVMLHOSy20lqNaGUH7YojpZonF0hsJGCI3nauMd9vBAk1JALjqNjhoU-s="
+      "__shark_answer_ciphertext_v1__": "gAAAAABq3whBTvzchkjUW-SWwbCl1eeAgHcllsQAs30SsbkqzMLoF-LNOVGume67FyDXljPCKU0jaFVM1viHrPEhIrM8R3R6AAovwJ6rjkOH6LtXFABkFf9iD0h2BUhdxO1f_S17_kGV"
     },
     "player_color": "white",
-    "player_move_count": 5,
-    "posted_at": "2026-10-25T07:57:06.608538+00:00",
-    "answer_posted": true,
+    "player_move_count": 1,
+    "posted_at": "2026-10-26T07:58:57.108593+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "daily_1792915026608",
+    "puzzle_id": "daily_1793001537108",
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_id": 1563917761069973546,
+    "message_id": null,
     "attempted_users": {},
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "message_ids": {
-      "1468320170891022417": 1563917761069973546
-    },
-    "channel_id": 1468320170891022417,
-    "board_attachment_filenames": {
-      "1468320170891022417": "random_puzzle.png"
-    },
-    "chat_since_refresh": 0,
-    "last_manual_bump": 1792937450.2103603,
-    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Qd7+ f5+ Qg7+ g4+ Qxh7#"
+    "helper_candidate_users": []
   },
   "lichess_rating_used": {
     "2000": [
