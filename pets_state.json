@@ -856,8 +856,8 @@
       {
         "born_at": 1793055377.5245764,
         "fed_at": 1793055377.5245764,
-        "happiness": 80,
-        "happy_at": 1793055377.5245764,
+        "happiness": 100,
+        "happy_at": 1793055420.9093115,
         "id": "634e464e764f42b0b51afec28c7bbfce",
         "name": "",
         "owner_history": [
@@ -866,22 +866,29 @@
             "at": 1793055377,
             "owner_id": "442597396195704832",
             "owner_name": "Thice"
+          },
+          {
+            "action": "Hatched",
+            "at": 1793055420,
+            "owner_id": "442597396195704832",
+            "owner_name": "Thice"
           }
         ],
         "puzzle": {
           "day": "2026-10-26",
-          "fen": "2r4r/1pq1k3/3p3p/3Pp1p1/Q3P2P/3n1P2/PP1R4/1K4R1 w - - 2 27",
+          "fen": "2r4r/1pq1k3/3p3p/3Pp1p1/Q3P2P/3R1P2/PP6/1K4R1 b - - 0 27",
           "id": "SXiV0",
-          "index": 2,
+          "index": 3,
           "moves": [
             "a7a4",
             "d7e7",
             "d2d3"
           ]
         },
+        "puzzle_day": "2026-10-26",
         "rarity": "common",
         "species": "Rabbit",
-        "xp": 0
+        "xp": 20
       }
     ]
   },
