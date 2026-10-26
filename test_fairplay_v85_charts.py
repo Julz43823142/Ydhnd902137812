@@ -186,7 +186,7 @@ class LayoutAndSafety(unittest.TestCase):
         _,clock,_=behavior_svgs(result)
         for svg in (frequency_timing_svg(result,clock[1]),rating_winrate_svg(result)):
             png=cairosvg.svg2png(bytestring=svg.encode('utf-8'))
-            self.assertTrue(png.startswith(b'\\x89PNG\\r\\n\\x1a\\n'))
+            self.assertTrue(png.startswith(bytes.fromhex('89504e470d0a1a0a')))
             self.assertGreater(len(png),2000)
 
     def test_combination_keeps_both_svg_contents_with_distinct_numbers(self):
