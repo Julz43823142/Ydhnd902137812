@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 from fairplay_charts import moving_average
 from fairplay_method3_rating_winrate import (
-    counts, rolling_winrate, rating_winrate_svg, valid_result)
+    counts, rolling_winrate, rolling_class_mix, rating_winrate_svg, valid_result, _label)
 from fairplay_method3_overview_charts import frequency_timing_svg
 from fairplay_method3_behavior_charts import behavior_svgs
 from fairplay_method3_chart_layout import CHART_WIDTH, widen_and_number
@@ -91,6 +91,7 @@ class WinRate(unittest.TestCase):
         self.assertFalse(valid_result(games[3]))
         self.assertEqual(counts(games[:4]),
                          {'played':4,'known':3,'wins':1,'draws':1,'losses':1})
+        self.assertIn('Score 50.0%',_label(counts(games[:3])))
         self.assertEqual(rolling_winrate(games[:4],window=4,stride=1,minimum=3),
                          [(0,None),(1,None),(2,1/3),(3,1/3)])
         with self.assertRaises(ValueError):
@@ -101,6 +102,8 @@ class WinRate(unittest.TestCase):
         self.assertIn('Selected Blitz window',svg)
         self.assertNotIn('Daily',svg)
         self.assertIn('HIGH 1',svg)  # overlapping selected/flagged dates remain visible
+        self.assertIn('Mix: Bullet purple / Blitz teal / Rapid orange',svg)
+        self.assertIn('Score ',svg)
         ET.fromstring(svg)
 
     def test_rolling_winrate_matches_bruteforce_with_5000_mixed_games(self):
@@ -117,6 +120,27 @@ class WinRate(unittest.TestCase):
             expected.append((i,sum(x==1 for x in known)/len(known)
                 if len(known)>=10 and len(known)/len(window)>=.6 else None))
         self.assertEqual(actual,expected)
+
+    def test_class_mix_is_aligned_to_played_game_windows(self):
+        games=[fixture(i,kind='bullet' if i<50 else 'rapid',
+                       score=0 if i<50 else 1) for i in range(100)]
+        points=rolling_class_mix(games)
+        self.assertEqual(points[9],(49,{'bullet':50,'blitz':0,'rapid':0},50))
+        self.assertEqual(points[-1],(99,{'bullet':0,'blitz':0,'rapid':50},50))
+        rates=rolling_winrate(games)
+        self.assertEqual([i for i,_,__ in points],[i for i,_ in rates])
+        self.assertEqual(rates[9],(49,0))
+        self.assertEqual(rates[-1],(99,1))
+        rng=random.Random(86)
+        mixed=[fixture(i,kind=rng.choice(('bullet','blitz','rapid')),
+                       score=rng.choice((0,.5,1,None))) for i in range(500)]
+        for end,mix,played in rolling_class_mix(mixed):
+            expected=mixed[max(0,end-49):end+1]
+            self.assertEqual(played,len(expected))
+            self.assertEqual(mix,{kind:sum(g.time_class==kind for g in expected)
+                                  for kind in ('bullet','blitz','rapid')})
+        with self.assertRaises(ValueError):
+            rolling_class_mix(mixed,window=0)
 
 
 class LayoutAndSafety(unittest.TestCase):
