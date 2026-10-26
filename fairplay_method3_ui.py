@@ -1,10 +1,13 @@
 """Discord presentation for results-only Method 3; no engine claims."""
 import discord
+from math import isfinite
 from fairplay_config import DISCLAIMER
 
 
 def fmt(value, percent=False):
-    return 'Unknown' if value is None else f'{value*100:.1f}%' if percent else f'{value:.1f}'
+    if type(value) not in (int,float) or not isfinite(value):
+        return 'Unknown'
+    return f'{value*100:.1f}%' if percent else f'{value:.1f}'
 
 
 METHOD3_LABELS = {
