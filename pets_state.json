@@ -46,7 +46,7 @@
       "necklace",
       "bow"
     ],
-    "active": "37502520508042aeb14fba0620329593",
+    "active": "634e464e764f42b0b51afec28c7bbfce",
     "expedition": {
       "end": 1792923019.1982539,
       "hours": 12,
@@ -852,6 +852,25 @@
         "rarity": "common",
         "species": "Dog",
         "xp": 20
+      },
+      {
+        "born_at": 1793055377.5245764,
+        "fed_at": 1793055377.5245764,
+        "happiness": 80,
+        "happy_at": 1793055377.5245764,
+        "id": "634e464e764f42b0b51afec28c7bbfce",
+        "name": "",
+        "owner_history": [
+          {
+            "action": "Created",
+            "at": 1793055377,
+            "owner_id": "442597396195704832",
+            "owner_name": "Thice"
+          }
+        ],
+        "rarity": "common",
+        "species": "Rabbit",
+        "xp": 0
       }
     ]
   },
