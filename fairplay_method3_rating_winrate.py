@@ -182,7 +182,7 @@ def rating_winrate_svg(result):
     # A pooled win-rate change can reflect a different mix of game formats.
     colors = (('bullet','#7c3aed'), ('blitz','#0f766e'), ('rapid','#e87519'))
     band_top, band_height = 1635, 30
-    bar_width = max(1.0, (right-left)*5/max(1,n-1))
+    bar_width = min(30.0, max(1.0, (right-left)*5/max(1,n-1)))
     for index, mix, played in rolling_class_mix(rows):
         xx = max(left, min(right-bar_width, x(index)-bar_width/2))
         yy = band_top
