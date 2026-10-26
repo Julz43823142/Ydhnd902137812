@@ -868,6 +868,17 @@
             "owner_name": "Thice"
           }
         ],
+        "puzzle": {
+          "day": "2026-10-26",
+          "fen": "2r4r/Qpqk4/3p3p/3Pp1p1/4P2P/3n1P2/PP1R4/1K4R1 w - - 0 26",
+          "id": "SXiV0",
+          "index": 0,
+          "moves": [
+            "a7a4",
+            "d7e7",
+            "d2d3"
+          ]
+        },
         "rarity": "common",
         "species": "Rabbit",
         "xp": 0
