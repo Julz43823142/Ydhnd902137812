@@ -36,7 +36,7 @@ def result_embed(result):
     from fairplay_deviation_display import suspicion_score
     from fairplay_method3_accuracy_frequency import _valid_accuracy
     index=suspicion_score(result)
-    e.add_field(name='Review Index (not a %)',
+    e.add_field(name='Review Index',
                 value=f'**{index}/99**' if index is not None else 'Unavailable',
                 inline=False)
     accuracy_games=sum(_valid_accuracy(g) for g in result.games)
@@ -90,7 +90,8 @@ def detail_embed(result,mode):
     d=result.diagnostics['method3'];s=d['subject']
     e=discord.Embed(title=f'{mode} — {result.username}',description='Results-based screening using game outcomes and published Accuracy; no engine analysis.',color=priority_color(result.priority))
     if mode in ('Performance', 'Report Details'):
-        e.add_field(name='Explanation',value='\n'.join(result.reasons)[:1024],inline=False)
+        e.add_field(name='Explanation',value=('\n'.join(result.reasons) or
+                    'No additional explanation.')[:1024],inline=False)
         e.add_field(name='Limits',value=d['limits'][:1024],inline=False)
         selected=d.get('selected')
         if selected:
@@ -136,9 +137,13 @@ def detail_embed(result,mode):
                 'Comparable, stationary scores remain an assumption; this is not a cheating probability.'),inline=False)
         counts=d.get('period_guard_counts') or {}
         if counts:
-            e.add_field(name='Evidence limits across searched periods',value='\n'.join(
-                f"{reason.replace('_',' ')}: {count} periods" for reason,count in sorted(counts.items())
-            )[:1024]+'\nOverlapping periods are not independent evidence.',inline=False)
+            note='Overlapping periods are not independent evidence.'
+            details='\n'.join(
+                f"{reason.replace('_',' ')}: {count} periods"
+                for reason,count in sorted(counts.items()))
+            maximum=1024-len(note)-1
+            e.add_field(name='Evidence limits across searched periods',
+                        value=details[:maximum].rstrip()+'\n'+note,inline=False)
     elif mode=='Timing':
         e.add_field(name='Descriptive clocks only',value='PGN clocks supply the think-time charts. Timing does not change this method’s priority.',inline=False)
     for group in s['opponent_groups'][:9]:
@@ -156,7 +161,7 @@ def detail_embed(result,mode):
     if shift:
         counts=shift['counts']
         e.add_field(name='Temporary opening switch · context',value=(
-            f"{shift['time_class'].title()} {shift['time_control']} · {shift['color']} {shift['opponent_opening']}\\n"
+            f"{shift['time_class'].title()} {shift['time_control']} · {shift['color']} {shift['opponent_opening']}\n"
             f"Before: {shift['before']} ({counts['before']} games) → "
             f"During: {shift['during']} ({counts['during']} games) → "
             f"After: {shift['after']} ({counts['after']} games). "
