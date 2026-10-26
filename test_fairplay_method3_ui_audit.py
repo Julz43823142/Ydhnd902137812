@@ -4,7 +4,7 @@ import unittest
 from unittest.mock import patch
 
 from fairplay_method3 import review
-from fairplay_method3_ui import detail_embed, result_embed, selected_period_embed, selected_window_svg
+from fairplay_method3_ui import detail_embed, result_embed, selected_period_embed, selected_window_svg, fmt
 from test_fairplay_method3 import API, TARGET
 from test_fairplay_method3_context import fixture
 
@@ -115,6 +115,12 @@ class SelectedWindowPresentation(unittest.TestCase):
     def test_no_candidate_does_not_invent_selected_chart(self):
         result=SimpleNamespace(games=[],diagnostics={'method3':{'selected':None}})
         self.assertIsNone(selected_window_svg(result))
+
+    def test_nonfinite_values_remain_unknown_in_discord(self):
+        for invalid in (float('nan'), float('inf'), float('-inf'), True, '95'):
+            self.assertEqual(fmt(invalid),'Unknown')
+            self.assertEqual(fmt(invalid,percent=True),'Unknown')
+        self.assertEqual(fmt(0.5,percent=True),'50.0%')
 
     def test_many_frequency_signals_fit_discord_without_changing_diagnostics(self):
         result=self.frequency_review()
