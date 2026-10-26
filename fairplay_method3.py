@@ -378,7 +378,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         selected_high_gap=None
         if chosen and isinstance(chosen.get('results'),dict):
             score_excess=chosen['results'].get('score_excess')
-            if isinstance(score_excess,(int,float)):
+            if type(score_excess) in (int,float) and isfinite(score_excess):
                 selected_high_gap={
                     'observed_excess':score_excess,
                     'required_excess':0.20,
