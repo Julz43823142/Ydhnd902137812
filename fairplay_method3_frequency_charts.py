@@ -30,15 +30,16 @@ def frequency_summary(games,kind):
             'missing':len(games)-available,'counts':counts}
 
 
-def rolling_frequency_points(values, window=100, stride=10):
+def rolling_frequency_points(values, window=100, stride=10, minimum_coverage=.60):
     """Exact rolling published-Accuracy fractions, O(n) rather than O(n*window).
 
-    Return the same end-game indices, thresholds and missing-data gaps as the
-    original sampled-window chart. A final off-stride observation is preserved.
-    Values are already validated; None is missing rather than zero.
+    Use complete played-game windows and require at least 60% published
+    Accuracy. Sparse reviewed games cannot create misleading 100% frequency.
+    The final off-stride point is preserved; missing stays missing.
     """
-    if window <= 0 or stride <= 0:
-        raise ValueError('Rolling window and stride must be positive.')
+    if window <= 0 or stride <= 0 or not 0 < minimum_coverage <= 1:
+        raise ValueError('Invalid rolling window, stride, or coverage.')
+    minimum_valid = ceil(window * minimum_coverage)
     counts = {threshold: 0 for threshold in THRESHOLDS}
     observed = 0
     points = {threshold: [] for threshold in THRESHOLDS}
@@ -56,7 +57,7 @@ def rolling_frequency_points(values, window=100, stride=10):
         if end < window - 1 or ((end + 1 - window) % stride and end != len(values) - 1):
             continue
         for threshold in THRESHOLDS:
-            points[threshold].append((end, counts[threshold]/observed if observed else None))
+            points[threshold].append((end, counts[threshold]/observed if observed >= minimum_valid else None))
     return points
 
 
@@ -129,12 +130,12 @@ def accuracy_frequency_svg(result):
 
     The three Bullet/Blitz/Rapid panels fit above the existing comparison of
     thinking times on report page 7. Missing official Accuracy never counts as
-    a low score; rolling fractions require at least one published observation.
+    a low score; rolling fractions require at least 60% observed Accuracy.
     """
     parts = start(1200, 600)
     parts.extend((text(28, 42, 'Official Chess.com Accuracy · frequency', 30),
                   text(28, 76, 'Bullet / Blitz / Rapid · only published scores count; missing is not zero.', 19, '#526477'),
-                  text(28, 105, 'Rolling 100 played games (minimum 100) · ≥80% blue / ≥90% green.', 18, '#526477')))
+                  text(28, 105, 'Rolling 100 played games · ≥60% coverage · ≥80% blue / ≥90% green.', 18, '#526477')))
     marked = periods(result)
     for index, kind in enumerate(CLASSES):
         rows = sorted((g for g in result.games if g.time_class == kind),
