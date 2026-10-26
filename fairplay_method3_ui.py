@@ -1,10 +1,13 @@
 """Discord presentation for results-only Method 3; no engine claims."""
 import discord
+from math import isfinite
 from fairplay_config import DISCLAIMER
 
 
 def fmt(value, percent=False):
-    return 'Unknown' if value is None else f'{value*100:.1f}%' if percent else f'{value:.1f}'
+    if type(value) not in (int,float) or not isfinite(value):
+        return 'Unknown'
+    return f'{value*100:.1f}%' if percent else f'{value:.1f}'
 
 
 METHOD3_LABELS = {
@@ -28,6 +31,30 @@ def priority_label(priority):
     return METHOD3_LABELS.get(priority, METHOD3_LABELS['INSUFFICIENT DATA'])
 
 
+def _fit_discord_card(card):
+    """Fit Discord's 256-character names, 1,024-character values and 6k total.
+
+    Reduce descriptive opponent rows first; never discard the warning when
+    a long control name or diagnostic text would otherwise reject the report.
+    """
+    for index in range(len(card.fields)):
+        field = card.fields[index]
+        name = str(field.name)[:256] or 'Details'
+        value = str(field.value)[:1024] or 'Unknown'
+        if name != field.name or value != field.value:
+            card.set_field_at(index, name=name, value=value, inline=field.inline)
+    while (len(card) > 5800 or len(card.fields) > 25) and card.fields:
+        candidates = [index for index, field in enumerate(card.fields)
+                      if ' · opponent ' in field.name]
+        if not candidates:
+            candidates = [index for index, field in enumerate(card.fields)
+                          if field.name not in ('Important', 'Automated screening only')]
+        if not candidates:
+            break
+        card.remove_field(candidates[-1])
+    return card
+
+
 def result_embed(result):
     d=result.diagnostics['method3'];s=d['subject'];r=(d.get('selected') or {}).get('results',s['overall_results'])
     icon={'LOW':'🟢','MODERATE':'🟡','HIGH':'🟠','VERY HIGH':'⚫','INSUFFICIENT DATA':'⚪'}.get(result.priority,'⚪')
@@ -36,7 +63,7 @@ def result_embed(result):
     from fairplay_deviation_display import suspicion_score
     from fairplay_method3_accuracy_frequency import _valid_accuracy
     index=suspicion_score(result)
-    e.add_field(name='Review Index (not a %)',
+    e.add_field(name='Review Index',
                 value=f'**{index}/99**' if index is not None else 'Unavailable',
                 inline=False)
     accuracy_games=sum(_valid_accuracy(g) for g in result.games)
@@ -83,14 +110,15 @@ def result_embed(result):
         )[:1024],inline=False)
     e.add_field(name='Important',value='Not proof of cheating. Human review is required before any action.',inline=False)
     e.set_footer(text=f'Version: {result.version}')
-    return e
+    return _fit_discord_card(e)
 
 
 def detail_embed(result,mode):
     d=result.diagnostics['method3'];s=d['subject']
     e=discord.Embed(title=f'{mode} — {result.username}',description='Results-based screening using game outcomes and published Accuracy; no engine analysis.',color=priority_color(result.priority))
     if mode in ('Performance', 'Report Details'):
-        e.add_field(name='Explanation',value='\n'.join(result.reasons)[:1024],inline=False)
+        e.add_field(name='Explanation',value=('\n'.join(result.reasons) or
+                    'No additional explanation.')[:1024],inline=False)
         e.add_field(name='Limits',value=d['limits'][:1024],inline=False)
         selected=d.get('selected')
         if selected:
@@ -136,9 +164,13 @@ def detail_embed(result,mode):
                 'Comparable, stationary scores remain an assumption; this is not a cheating probability.'),inline=False)
         counts=d.get('period_guard_counts') or {}
         if counts:
-            e.add_field(name='Evidence limits across searched periods',value='\n'.join(
-                f"{reason.replace('_',' ')}: {count} periods" for reason,count in sorted(counts.items())
-            )[:1024]+'\nOverlapping periods are not independent evidence.',inline=False)
+            note='Overlapping periods are not independent evidence.'
+            details='\n'.join(
+                f"{reason.replace('_',' ')}: {count} periods"
+                for reason,count in sorted(counts.items()))
+            maximum=1024-len(note)-1
+            e.add_field(name='Evidence limits across searched periods',
+                        value=details[:maximum].rstrip()+'\n'+note,inline=False)
     elif mode=='Timing':
         e.add_field(name='Descriptive clocks only',value='PGN clocks supply the think-time charts. Timing does not change this method’s priority.',inline=False)
     for group in s['opponent_groups'][:9]:
@@ -156,13 +188,13 @@ def detail_embed(result,mode):
     if shift:
         counts=shift['counts']
         e.add_field(name='Temporary opening switch · context',value=(
-            f"{shift['time_class'].title()} {shift['time_control']} · {shift['color']} {shift['opponent_opening']}\\n"
+            f"{shift['time_class'].title()} {shift['time_control']} · {shift['color']} {shift['opponent_opening']}\n"
             f"Before: {shift['before']} ({counts['before']} games) → "
             f"During: {shift['during']} ({counts['during']} games) → "
             f"After: {shift['after']} ({counts['after']} games). "
             "Context only; not proof of cheating."),inline=False)
     e.set_footer(text=result.version)
-    return e
+    return _fit_discord_card(e)
 
 
 def chart_pngs(result, progress=None):
@@ -389,7 +421,7 @@ def selected_period_embed(result):
                 f"Date: **{date}** (UTC)\n"
                 f"Result: **{game.result}**\n"
                 f"{link}"),inline=True)
-    return e
+    return _fit_discord_card(e)
 
 
 def mark_selected(svg,result,kind,rows,positions):

@@ -6,12 +6,18 @@ games against a single opponent also violate the independent-opposition
 interpretation of a results-only streak.
 """
 from collections import Counter
+from math import isfinite
 from statistics import median
 
 YEAR_SECONDS = 365 * 24 * 3600
 MIN_RATED = 20
 MIN_OTHER_RATED = 10
 MIN_ELO_GAP = 400
+
+
+def _valid_rating(value):
+    """Only finite, positive numeric Elo values can authenticate a baseline."""
+    return type(value) in (int, float) and isfinite(value) and value > 0
 
 
 
@@ -23,16 +29,14 @@ def _opening_rating_ramp(games, members, account_joined, early_rated=None):
     account name/status is an input. A rising early Elo violates the stationary
     skill assumption of the results-only search bound.
     """
-    if (not isinstance(account_joined, (int, float)) or
-            isinstance(account_joined, bool) or account_joined <= 0):
+    if not _valid_rating(account_joined):
         return None
     kind = members[0].time_class
     # Live scoring passes a precomputed chronological first-150 cohort so
     # the thousands of searched windows never re-sort the same game history.
     rated = early_rated if early_rated is not None else sorted(
         (g for g in games if g.time_class == kind and g.rated is True
-         and isinstance(g.rating, (int, float)) and not isinstance(g.rating, bool)
-         and g.rating > 0),
+         and _valid_rating(g.rating)),
         key=lambda g: (g.ended, g.identity))
     if len(rated) < 40:
         return None
@@ -75,13 +79,10 @@ def rating_support(games, members, *, account_joined=None, early_rated=None):
     kind = members[0].time_class
     end = max(g.ended for g in members)
     recent = [g for g in games if 0 <= end - g.ended <= YEAR_SECONDS]
-    same = [g for g in recent if g.time_class == kind and
-            isinstance(g.rating, (int, float)) and not isinstance(g.rating, bool)
-            and g.rating > 0]
+    same = [g for g in recent if g.time_class == kind and _valid_rating(g.rating)]
     rated = [g.rating for g in same if g.rated is True]
     other = [g.rating for g in recent if g.time_class != kind and
-             g.rated is True and isinstance(g.rating, (int, float))
-             and not isinstance(g.rating, bool) and g.rating > 0]
+             g.rated is True and _valid_rating(g.rating)]
     # An unrated-only control often retains a frozen, untested Elo. Its number
     # is useful to detect a cross-control discrepancy, not to authenticate it.
     own_median = median(rated) if rated else median(g.rating for g in same) if same else None
