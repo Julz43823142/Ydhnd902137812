@@ -819,8 +819,8 @@
       {
         "born_at": 1793055313.2046106,
         "fed_at": 1793055313.2046106,
-        "happiness": 80,
-        "happy_at": 1793055313.2046106,
+        "happiness": 100,
+        "happy_at": 1793055357.9756646,
         "id": "37502520508042aeb14fba0620329593",
         "name": "",
         "owner_history": [
@@ -829,22 +829,29 @@
             "at": 1793055313,
             "owner_id": "442597396195704832",
             "owner_name": "Thice"
+          },
+          {
+            "action": "Hatched",
+            "at": 1793055357,
+            "owner_id": "442597396195704832",
+            "owner_name": "Thice"
           }
         ],
         "puzzle": {
           "day": "2026-10-26",
-          "fen": "3b2k1/R4p2/6pp/8/P2N4/7P/5rPK/8 w - - 0 30",
+          "fen": "R2b2k1/5p2/6pp/8/P2N4/7P/5rPK/8 b - - 1 30",
           "id": "PteRf",
-          "index": 2,
+          "index": 3,
           "moves": [
             "d7d8",
             "f6d8",
             "a7a8"
           ]
         },
+        "puzzle_day": "2026-10-26",
         "rarity": "common",
         "species": "Dog",
-        "xp": 0
+        "xp": 20
       }
     ]
   },
