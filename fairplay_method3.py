@@ -115,17 +115,15 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         # controls make segments contain very different numbers of windows.
         from statistics import median
         from fairplay_method3_reliability import (
-            rating_support, opponent_support, independent_results_tier)
+            rating_support, opponent_support, independent_results_tier, _valid_rating)
         # The review history is already chronological. Reuse the first
         # 150 valid rated games per control for the account-opening guard.
         opening_rated_by_class={kind:[g for g in games
             if g.rated is True and g.time_class==kind
-            and isinstance(g.rating,(int,float)) and not isinstance(g.rating,bool)
-            and g.rating>0][:150] for kind in ('rapid','blitz','bullet')}
+            and _valid_rating(g.rating)][:150] for kind in ('rapid','blitz','bullet')}
         rated_by_class={kind:[g.rating for g in games
             if g.rated is True and g.time_class==kind
-            and isinstance(g.rating,(int,float)) and not isinstance(g.rating,bool)
-            and g.rating>0] for kind in ('rapid','blitz','bullet')}
+            and _valid_rating(g.rating)] for kind in ('rapid','blitz','bullet')}
         bullet_ratings=rated_by_class['bullet']
         other_ratings=rated_by_class['rapid']+rated_by_class['blitz']
         latest_bullet=next((g for g in reversed(games) if g.time_class=='bullet'),None)
