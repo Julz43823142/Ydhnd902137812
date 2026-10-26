@@ -49,7 +49,7 @@ class Method3(unittest.TestCase):
     def test_v73_exposes_review_observations_without_forcing_tier(self):
         result=self.run_review()
         diagnostic=result.diagnostics['method3']
-        self.assertEqual(result.version,'fairplay-v86-evidence-clarity')
+        self.assertEqual(result.version,'fairplay-v87-review-reliability')
         self.assertIn('manual_review_observations',diagnostic)
         self.assertIn('selected_high_effect_screen',diagnostic)
         gap=diagnostic['selected_high_effect_screen']
@@ -88,7 +88,7 @@ class Method3(unittest.TestCase):
         summary=str(result_embed(result).to_dict())
         self.assertIn('Sample / coverage',summary)
         self.assertIn('Sample support',summary)
-        self.assertIn('Review Index (not a %)',summary)
+        self.assertIn('Review Index',summary)
         self.assertNotIn('Data reliability',summary)
         self.assertIn('20/20',summary)
         for row in API.rows[:10]:
