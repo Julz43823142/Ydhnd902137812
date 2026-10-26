@@ -85,7 +85,7 @@ class Behavior(unittest.TestCase):
         for name,svg in behavior_svgs(r):
             self.assertNotIn('Shared periods',svg)
             if '09_' not in name:self.assertIn('HIGH 1',svg)
-            if '07_' in name:self.assertGreaterEqual(svg.count('Context 1'),2)
+            if '06_' in name:self.assertGreaterEqual(svg.count('Context 1'),2)
             if '07_' in name:self.assertIn('#c4b5fd',svg)
             if '09_' not in name:self.assertIn('#fb923c',svg)
             import xml.etree.ElementTree as E
