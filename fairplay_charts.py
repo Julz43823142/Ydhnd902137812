@@ -136,7 +136,8 @@ def class_svg(kind, rows):
     parts += [text(45, 45, f"{kind.title()} — Fair Play Game-by-Game", 30),
               text(45, 78, f"{len(rows)} games · orange dashed: official Chess.com Accuracy · green dashed: rolling mean", 18),
               text(45, 106, "Green mean: last 30 games, ≥5 observed and ≥60% coverage · missing stays missing.", 17, "#526477")]
-    official = [r["official_accuracy"] for r in rows]
+    official = [value if finite(value) and 0 <= value <= 100 else None
+                for row in rows for value in [row["official_accuracy"]]]
     plot(parts, rows, 150, "Accuracy by Game · green rolling average",
          [r["estimated_accuracy"] for r in rows], "%", "#2563eb",
          second=official, average=moving_average(official))
