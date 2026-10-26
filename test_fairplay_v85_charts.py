@@ -100,7 +100,7 @@ class WinRate(unittest.TestCase):
         self.assertIn('all live classes pooled',svg)
         self.assertIn('Selected Blitz window',svg)
         self.assertNotIn('Daily',svg)
-        self.assertIn('Selected context',svg)
+        self.assertIn('HIGH 1',svg)  # overlapping selected/flagged dates remain visible
         ET.fromstring(svg)
 
     def test_rolling_winrate_matches_bruteforce_with_5000_mixed_games(self):
