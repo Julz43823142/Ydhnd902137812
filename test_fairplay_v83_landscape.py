@@ -144,7 +144,7 @@ class LandscapeLayout(unittest.TestCase):
         for number,svg in sources.items():
             final=widen_and_number(svg,number)
             data=cairosvg.svg2png(bytestring=final.encode('utf-8'))
-            self.assertEqual(data[:8],b'\\x89PNG\\r\\n\\x1a\\n')
+            self.assertEqual(data[:8],b'\x89PNG\r\n\x1a\n')
             width,height=struct.unpack('>II',data[16:24])
             self.assertEqual(width,CHART_WIDTH)
             self.assertLess(height,width)
