@@ -166,7 +166,8 @@ def detail_embed(result,mode):
 
 def chart_pngs(result, progress=None):
     from fairplay_charts import class_svg
-    from fairplay_method3_frequency_charts import accuracy_frequency_svg
+    from fairplay_method3_overview_charts import frequency_timing_svg
+    from fairplay_method3_rating_winrate import rating_winrate_svg
     from fairplay_method3_rolling_chart import rolling_history_svg
     from fairplay_method3_chart_layout import widen_and_number
     from fairplay_method3 import observations
@@ -185,19 +186,20 @@ def chart_pngs(result, progress=None):
     for number,kind in enumerate(('rapid','blitz','bullet'),1):
         rows=grouped.get(kind)
         if not rows:continue
-        svg=class_svg(kind,rows).replace('blue: SharkBot estimate · orange dashed: official Chess.com',
-            'orange dashed: official Chess.com · no engine estimate')
+        svg=class_svg(kind,rows)
         svg=mark_selected(svg,result,kind,rows,(150,470,790))
         add_chart(f'fairplay_{kind}_charts.png',svg,number)
-    if live_games:
-        add_chart('fairplay_method3_accuracy_frequency.png',accuracy_frequency_svg(result),4)
-        add_chart('fairplay_method3_rolling_history.png',rolling_history_svg(result),5)
     if zoom:
-        add_chart('fairplay_method3_selected_period.png',zoom,6)
+        add_chart('fairplay_method3_selected_period.png',zoom,4)
     if live_games:
+        add_chart('fairplay_method3_rolling_history.png',rolling_history_svg(result),5)
         from fairplay_method3_behavior_charts import behavior_svgs
-        for number,(name,svg) in enumerate(behavior_svgs(result),7):
-            add_chart(name,svg,number)
+        (opening_name,opening_svg),(timing_name,timing_svg),(pressure_name,pressure_svg)=behavior_svgs(result)
+        add_chart(opening_name,opening_svg,6)
+        add_chart('fairplay_07_accuracy_frequency_and_timing.png',
+                  frequency_timing_svg(result,timing_svg),7)
+        add_chart('fairplay_08_rating_and_winrate.png',rating_winrate_svg(result),8)
+        add_chart(pressure_name,pressure_svg,9)
     return files
 
 
