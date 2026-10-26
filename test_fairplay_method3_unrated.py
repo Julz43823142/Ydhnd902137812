@@ -55,7 +55,7 @@ class UnratedCohorts(unittest.TestCase):
         self.assertIn('unverified_time_control_rating',result.diagnostics['method3']['selected']['classification_guards'])
         self.assertFalse(result.deep_confirmed)
         from fairplay_method3_ui import result_embed,detail_embed,chart_pngs
-        self.assertIn('Results confidence',str(result_embed(result).to_dict()))
+        self.assertIn('Sample support',str(result_embed(result).to_dict()))
         self.assertIn('Rapid',str(detail_embed(result,'Performance').to_dict()))
         files=chart_pngs(result)
         self.assertIn('fairplay_rapid_charts.png',[name for name,data in files])

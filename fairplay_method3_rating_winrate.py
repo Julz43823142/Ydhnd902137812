@@ -63,14 +63,33 @@ def rolling_winrate(games, window=50, stride=5, minimum=10, coverage=.60):
     return points
 
 
+def rolling_class_mix(games, window=50, stride=5):
+    """Played-game composition for the SAME windows as the pooled win-rate line."""
+    if window < 1 or stride < 1:
+        raise ValueError('Invalid class-mix window or stride')
+    mix = {kind: 0 for kind in ('bullet', 'blitz', 'rapid')}
+    points = []
+    for index, game in enumerate(games):
+        if game.time_class in mix:
+            mix[game.time_class] += 1
+        if index >= window:
+            old = games[index-window]
+            if old.time_class in mix:
+                mix[old.time_class] -= 1
+        if (index+1) % stride == 0 or index == len(games)-1:
+            points.append((index, dict(mix), min(index+1,window)))
+    return points
+
+
 def _label(data):
     n = data['known']
     if not n:
         return f"{data['played']} games · no valid outcomes"
-    return (f"{data['played']} games · {n} valid · "
-            f"{data['wins']}W ({data['wins']/n:.1%}) · "
-            f"{data['draws']}D ({data['draws']/n:.1%}) · "
-            f"{data['losses']}L ({data['losses']/n:.1%})")
+    points = (data['wins'] + data['draws'] / 2) / n
+    return (f"{data['played']} games · {n} results · "
+            f"W {data['wins']} ({data['wins']/n:.1%}) · "
+            f"D {data['draws']} ({data['draws']/n:.1%}) · "
+            f"L {data['losses']} ({data['losses']/n:.1%}) · Score {points:.1%}")
 
 
 def _selected_rows(games, selected):
@@ -95,7 +114,7 @@ def rating_winrate_svg(result):
     parts.extend(rating_panels(result,98,marked=marked,compact=False))
     overall=counts(rows)
     parts.append(text(30,1202,'Total win rate through time · all live classes pooled',26))
-    parts.append(text(30,1238,_label(overall),19,'#526477'))
+    parts.append(text(30,1238,_label(overall),16,'#526477'))
     selected_rows = _selected_rows(rows,selected)
     if selected and selected_rows:
         parts.append(text(30,1272,
@@ -158,7 +177,23 @@ def rating_winrate_svg(result):
     for j in range(5):
         index=round((n-1)*j/4) if n else 0
         parts.append(text(x(index),bottom+30,str(index+1 if n else 0),17,anchor='middle'))
-    parts.append(text(30,1661,'Blue: wins / valid results, rolling 50 played games · ≥10 valid, ≥60% coverage.',18,'#526477'))
-    parts.append(text(30,1696,'Draws and losses remain in denominator; unknown results remain missing. Shaded dates are context only.',17,'#526477'))
+
+    # Show the time-class composition of each SAME 50-played-game window.
+    # A pooled win-rate change can reflect a different mix of game formats.
+    colors = (('bullet','#7c3aed'), ('blitz','#0f766e'), ('rapid','#e87519'))
+    band_top, band_height = 1635, 30
+    bar_width = min(30.0, max(1.0, (right-left)*5/max(1,n-1)))
+    for index, mix, played in rolling_class_mix(rows):
+        xx = max(left, min(right-bar_width, x(index)-bar_width/2))
+        yy = band_top
+        for kind, color in colors:
+            hh = band_height*mix[kind]/played if played else 0
+            if hh > 0:
+                parts.append(f'<rect x="{xx:.2f}" y="{yy:.2f}" '
+                             f'width="{bar_width:.2f}" height="{hh:.2f}" '
+                             f'fill="{color}"/>')
+                yy += hh
+    parts.append(text(30,1694,'Blue: 50-game win rate · Mix: Bullet purple / Blitz teal / Rapid orange.',17,'#526477'))
+    parts.append(text(30,1720,'At least 60% valid results · Missing is unknown · Shaded dates are context only.',17,'#526477'))
     parts.append('</svg>')
     return ''.join(parts)
