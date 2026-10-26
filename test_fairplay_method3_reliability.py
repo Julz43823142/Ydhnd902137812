@@ -69,6 +69,23 @@ class RatingReliabilityTests(unittest.TestCase):
         self.assertGreater(result.diagnostics['method3']['period_guard_counts']
                            .get('unreliable_time_control_rating',0),0)
 
+    def test_nonfinite_ratings_cannot_authenticate_elo(self):
+        invalid = [float('nan'), float('inf'), float('-inf'), True, 0]
+        rows=[game(i,kind='bullet',rating=invalid[i%len(invalid)],
+                   rated=True,ended=1770000000+i) for i in range(30)]
+        support=rating_support(rows,rows)
+        self.assertEqual(support['rated_anchor_games_365d'],0)
+        self.assertIsNone(support['class_median_elo_365d'])
+        self.assertTrue(support['unverified'])
+        self.assertEqual(support['anchor_status'],'unverified')
+
+        others=[game(100+i,kind='rapid',rating=float('nan'),rated=True,
+                     ended=1770000050+i) for i in range(30)]
+        support=rating_support(rows+others,rows)
+        self.assertEqual(support['other_control_rated_games_365d'],0)
+        self.assertIsNone(support['other_control_median_elo_365d'])
+        self.assertIsNone(support['rating_gap'])
+
     def test_other_controls_are_not_substituted_as_expected_elo(self):
         g=[game(i,rated=False,ended=1770000000+i) for i in range(35)]
         support=rating_support(g,g)
