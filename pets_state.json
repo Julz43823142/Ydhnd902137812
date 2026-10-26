@@ -833,9 +833,9 @@
         ],
         "puzzle": {
           "day": "2026-10-26",
-          "fen": "3r2k1/R2R1p2/5bpp/8/P2N4/7P/5rPK/8 w - - 1 29",
+          "fen": "3b2k1/R4p2/6pp/8/P2N4/7P/5rPK/8 w - - 0 30",
           "id": "PteRf",
-          "index": 0,
+          "index": 2,
           "moves": [
             "d7d8",
             "f6d8",
