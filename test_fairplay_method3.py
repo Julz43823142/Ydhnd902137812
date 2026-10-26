@@ -87,6 +87,8 @@ class Method3(unittest.TestCase):
         self.assertEqual(quality['valid_rating_pairs'],20)
         summary=str(result_embed(result).to_dict())
         self.assertIn('Sample / coverage',summary)
+        self.assertIn('Sample support',summary)
+        self.assertIn('Review Index (not a %)',summary)
         self.assertNotIn('Data reliability',summary)
         self.assertIn('20/20',summary)
         for row in API.rows[:10]:
