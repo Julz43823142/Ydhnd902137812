@@ -140,7 +140,7 @@ PALETTE=('#2563eb','#d97706','#059669','#9333ea','#e11d48','#0891b2','#4f46e5','
 
 def opening_svg(result,c,marked=None):
     if marked is None:marked=periods(result)
-    p=header('6 · Favourite opening move patterns','First five own moves · opponent first reply shown · all live controls · each bar totals 100%.',1900)
+    p=header('Favourite opening move patterns','First five own moves · opponent first reply shown · all live controls · each bar totals 100%.',1900)
     for i,color in enumerate(('white','black')):
         from fairplay_opening_names import opening_pattern
         rows=[(g,opening_pattern(g)) for g in result.games if g.time_class in KINDS and type(getattr(g,'color',None)) is bool and ('white' if g.color else 'black')==color]
