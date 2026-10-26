@@ -52,12 +52,11 @@ permissions:
 
 concurrency:
   group: daily-puzzle
-  # A main-branch deployment needs an immediate single-controller handoff.
-  # Only push deploys replace an outdated worker; scheduled and planned
-  # rotations continue to wait for a state-synced graceful exit.
-  # GitHub cancellation can interrupt an active scan; encrypted checkpoints
-  # and normal state persistence are the safeguards, not a success guarantee.
-  cancel-in-progress: ${{ github.event_name == 'push' }}
+  # A push must NOT cancel a running controller or an active Fair Play scan.
+  # Let the current worker finish its checkpointed rotation. The pending
+  # job checks out the latest main after the active controller exits.
+  # GitHub may coalesce pending runs, but never runs two workers concurrently.
+  cancel-in-progress: false
 
 jobs:
   run:
