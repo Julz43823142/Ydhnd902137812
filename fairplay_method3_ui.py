@@ -34,12 +34,13 @@ def result_embed(result):
     e=discord.Embed(title='🛡️ Fair Play Review — '+result.username,color=priority_color(result.priority),
         description=f'{icon + " " if icon else ""}**{priority_label(result.priority)}**')
     from fairplay_deviation_display import suspicion_score
+    from fairplay_method3_accuracy_frequency import _valid_accuracy
     index=suspicion_score(result)
-    e.add_field(name='Suspicion Score',
-                value=f'**{index}/100**' if index is not None else 'Unavailable',
+    e.add_field(name='Review Index (not a %)',
+                value=f'**{index}/99**' if index is not None else 'Unavailable',
                 inline=False)
-    accuracy_games=sum(g.accuracy is not None for g in result.games)
-    e.add_field(name='Results confidence',value=f'**{result.confidence}**',inline=False)
+    accuracy_games=sum(_valid_accuracy(g) for g in result.games)
+    e.add_field(name='Sample support',value=f'**{result.confidence}**',inline=False)
     e.add_field(name='Sample / coverage',value=(
         f'{len(result.games)} live history games: '
         f'{d.get("rated_games",len(result.games))} rated · {d.get("unrated_games",0)} unrated'
