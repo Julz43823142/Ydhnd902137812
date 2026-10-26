@@ -9928,11 +9928,13 @@
     "schema": 1
   },
   "twitch_live_notifications_v1": {
-    "message_ids": [],
+    "message_ids": [
+      "1564371054368137290"
+    ],
     "last_cleanup_at": "2026-10-24T22:54:03.510058+00:00",
     "last_cleanup_date": "2026-10-01",
-    "last_started_at": "2026-10-24T17:08:09Z",
-    "last_sent_at": "2026-10-24T17:59:42.742708+00:00",
+    "last_started_at": "2026-10-26T20:11:34Z",
+    "last_sent_at": "2026-10-26T20:12:05.277485+00:00",
     "channel_id": "1320033128676589669"
   },
   "seasonal_bot_profile_v1": {
