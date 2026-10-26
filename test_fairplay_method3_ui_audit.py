@@ -56,6 +56,41 @@ class SelectedWindowPresentation(unittest.TestCase):
         self.assertIn('Not enough earlier',str(card.to_dict()))
         self.assertNotIn('99.0 / 12.0',str(card.to_dict()))
 
+    def test_review_gates_stay_within_discord_limits_on_many_guards(self):
+        result=self.frequency_review()
+        info=result.diagnostics['method3']
+        info['period_guard_counts']={
+            f'synthetic_guard_{i:03d}_' + 'x'*55:i for i in range(80)}
+        card=detail_embed(result,'Review Gates')
+        guard=next(field.value for field in card.fields
+                   if field.name=='Evidence limits across searched periods')
+        self.assertLessEqual(len(guard),1024)
+        self.assertTrue(guard.endswith(
+            'Overlapping periods are not independent evidence.'))
+        self.assertLessEqual(len(card),6000)
+
+    def test_opening_switch_has_real_line_breaks(self):
+        result=self.frequency_review()
+        result.diagnostics['method3']['opening_shift']={
+            'time_class':'rapid','time_control':'600+0','color':'white',
+            'opponent_opening':'Sicilian Defence',
+            'before':'e4','during':'d4','after':'e4',
+            'counts':{'before':20,'during':12,'after':8}}
+        card=detail_embed(result,'Performance')
+        opening=next(field.value for field in card.fields
+                     if field.name=='Temporary opening switch · context')
+        self.assertIn('Sicilian Defence\\nBefore:',opening)
+        self.assertNotIn('\\\\n',opening)
+        self.assertLessEqual(len(card),6000)
+
+    def test_empty_explanation_is_valid_discord_field(self):
+        result=self.frequency_review()
+        result.reasons=[]
+        card=detail_embed(result,'Performance')
+        self.assertEqual(next(field.value for field in card.fields
+                         if field.name=='Explanation'),
+                         'No additional explanation.')
+
     def test_five_game_window_remains_readable_in_5000_without_aggregating(self):
         games=[fixture(i,accuracy=50+i%50,clock_moves=1) for i in range(5000)]
         games[2502].accuracy=None
