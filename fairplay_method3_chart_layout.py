@@ -90,15 +90,6 @@ def _landscape_layout(body, number, height, source):
                 return .5, 900 * (panel % 2), (panel // 2) * 355 - panel * 305
             return 1., 0, -550
         return _map_svg_elements(body, layout), 1475
-    if number == 4 and 'Official Chess.com Accuracy · frequency' in source:
-        # Bullet/Blitz above, Rapid full width below; exact-control
-        # before/during/after comparisons remain full-width underneath.
-        def layout(y):
-            if y < 140: return 1., 0, 0
-            if y < 550: return .5, 0, 0
-            if y < 970: return .5, 900, -420
-            return 1., 0, -420
-        return _map_svg_elements(body, layout), height - 420
     return body, height
 
 
