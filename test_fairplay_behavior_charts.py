@@ -87,7 +87,7 @@ class Behavior(unittest.TestCase):
             if '09_' not in name:self.assertIn('HIGH 1',svg)
             if '06_' in name:self.assertGreaterEqual(svg.count('Context 1'),2)
             if '07_' in name:self.assertIn('#c4b5fd',svg)
-            if '09_' not in name:self.assertIn('#fb923c',svg)
+            if '08_' in name:self.assertIn('#fb923c',svg)  # flagged timing only; ratings moved off openings
             import xml.etree.ElementTree as E
             E.fromstring(svg)
         self.assertEqual(r,before)
