@@ -5,17 +5,32 @@ not a population norm. Result HIGH is moderator workload priority, not gameplay
 confirmation. Labels and account status never enter this computation.
 """
 from dataclasses import replace
+from math import isfinite
 import time
 
 from fairplay_config import CONFIG
 from fairplay_data import PubAPI, ReviewError, ScanDeadline, check_deadline, collect_games, username
 from fairplay_outcome_study import evaluate, SCENARIOS, DEVELOPMENT_SCENARIOS, CONFIG as STUDY_CONFIG
 
-VERSION='fairplay-v85-rolling-context-and-winrate'
+VERSION='fairplay-v86-evidence-clarity'
 LIMIT=5000
 BLOCK_SIZE=200
 PRIORITY_GAMES=200
 STUDY=replace(STUDY_CONFIG,history_limit=2*BLOCK_SIZE,minimum_games=5,widths=(5,10,20,50,100,200))
+
+
+def review_confidence(priority, total_games, chosen, partial):
+    """Report sample support, never the probability of a correct allegation.
+
+    A large archive cannot give a selected short streak HIGH support.
+    This label does not change detection priorities.
+    """
+    if partial or total_games < 30 or not chosen or chosen.get('classification_guards'):
+        return 'LOW'
+    period_games = chosen.get('games', 0)
+    if priority in ('MODERATE', 'HIGH', 'VERY HIGH') and period_games < 20:
+        return 'LOW'
+    return 'HIGH' if period_games >= 100 else 'MEDIUM'
 
 
 def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
@@ -289,12 +304,12 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
         selected_period_priority=priority if basis not in (
             'accuracy_frequency','absolute_accuracy_frequency','combined_manual_review') else 'LOW'
         rated_count=sum(g.rated is True for g in games)
-        valid_accuracy=sum(isinstance(g.accuracy,(int,float)) and not isinstance(g.accuracy,bool)
+        valid_accuracy=sum(type(g.accuracy) in (int,float) and isfinite(g.accuracy)
                            and 0 <= g.accuracy <= 100 for g in games)
         known_opponents=sum(bool(getattr(g,'opponent_username',None)) for g in games)
-        known_ratings=sum(isinstance(g.rating,(int,float)) and g.rating>0
-                          and isinstance(g.opponent_rating,(int,float)) and g.opponent_rating>0
-                          for g in games)
+        known_ratings=sum(type(g.rating) in (int,float) and isfinite(g.rating) and g.rating>0
+                          and type(g.opponent_rating) in (int,float) and isfinite(g.opponent_rating)
+                          and g.opponent_rating>0 for g in games)
         data_quality={'history_games':len(games),'valid_rating_pairs':known_ratings,
                       'published_accuracy_games':valid_accuracy,
                       'identified_opponents':known_opponents,
@@ -304,9 +319,7 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                       'note':'Observed-data denominators, not independent evidence.'}
         subject['rated_games']=rated_count
         subject['unrated_games']=len(games)-rated_count
-        confidence=('LOW' if partial or len(games)<30 or (chosen and chosen.get('classification_guards'))
-                    or (priority in ('HIGH','MODERATE') and chosen and chosen['games']<10)
-                    else 'HIGH' if len(games)>=100 else 'MEDIUM')
+        confidence=review_confidence(priority, len(games), chosen, partial)
         reasons=[('This time control has no rated-game anchors in the previous year. Its Elo expectation cannot independently justify HIGH or VERY HIGH.' if chosen and chosen.get('rating_unverified_downgrade') else
                  'Some eligible games inside this period could not be read. The remaining games cannot establish an uninterrupted results sequence; HIGH is capped at MODERATE.' if chosen and 'incomplete_period_chronology' in chosen.get('classification_guards',()) else
                  'Opponent identities are missing in too much of this period to verify diverse opposition. HIGH is capped at MODERATE until that coverage is resolved.' if chosen and 'unverified_opponent_identities' in chosen.get('classification_guards',()) else
