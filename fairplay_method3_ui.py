@@ -31,6 +31,30 @@ def priority_label(priority):
     return METHOD3_LABELS.get(priority, METHOD3_LABELS['INSUFFICIENT DATA'])
 
 
+def _fit_discord_card(card):
+    """Fit Discord's 256-character names, 1,024-character values and 6k total.
+
+    Reduce descriptive opponent rows first; never discard the warning when
+    a long control name or diagnostic text would otherwise reject the report.
+    """
+    for index in range(len(card.fields)):
+        field = card.fields[index]
+        name = str(field.name)[:256] or 'Details'
+        value = str(field.value)[:1024] or 'Unknown'
+        if name != field.name or value != field.value:
+            card.set_field_at(index, name=name, value=value, inline=field.inline)
+    while (len(card) > 5800 or len(card.fields) > 25) and card.fields:
+        candidates = [index for index, field in enumerate(card.fields)
+                      if ' · opponent ' in field.name]
+        if not candidates:
+            candidates = [index for index, field in enumerate(card.fields)
+                          if field.name not in ('Important', 'Automated screening only')]
+        if not candidates:
+            break
+        card.remove_field(candidates[-1])
+    return card
+
+
 def result_embed(result):
     d=result.diagnostics['method3'];s=d['subject'];r=(d.get('selected') or {}).get('results',s['overall_results'])
     icon={'LOW':'🟢','MODERATE':'🟡','HIGH':'🟠','VERY HIGH':'⚫','INSUFFICIENT DATA':'⚪'}.get(result.priority,'⚪')
@@ -86,7 +110,7 @@ def result_embed(result):
         )[:1024],inline=False)
     e.add_field(name='Important',value='Not proof of cheating. Human review is required before any action.',inline=False)
     e.set_footer(text=f'Version: {result.version}')
-    return e
+    return _fit_discord_card(e)
 
 
 def detail_embed(result,mode):
@@ -170,7 +194,7 @@ def detail_embed(result,mode):
             f"After: {shift['after']} ({counts['after']} games). "
             "Context only; not proof of cheating."),inline=False)
     e.set_footer(text=result.version)
-    return e
+    return _fit_discord_card(e)
 
 
 def chart_pngs(result, progress=None):
@@ -397,7 +421,7 @@ def selected_period_embed(result):
                 f"Date: **{date}** (UTC)\n"
                 f"Result: **{game.result}**\n"
                 f"{link}"),inline=True)
-    return e
+    return _fit_discord_card(e)
 
 
 def mark_selected(svg,result,kind,rows,positions):
