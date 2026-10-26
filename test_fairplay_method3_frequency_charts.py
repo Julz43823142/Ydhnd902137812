@@ -54,7 +54,7 @@ class AccuracyFrequencyCharts(unittest.TestCase):
                fixture(2,kind='rapid',accuracy=99)]
         self.assertEqual(frequency_summary(mixed,'blitz')['counts'][80],0)
 
-    def test_rolling_accuracy_exactly_matches_original_window_sampling(self):
+    def test_rolling_accuracy_uses_coverage_aware_window_sampling(self):
         rng=random.Random(84)
         for n in (0,1,99,100,101,109,110,119,211,1000,5000):
             values=[rng.choice((None,None,50.,79.9,80.,89.9,90.,95.,100.))
@@ -68,13 +68,21 @@ class AccuracyFrequencyCharts(unittest.TestCase):
                 for threshold in expected:
                     expected[threshold].append((
                         end,sum(value>=threshold for value in known)/len(known)
-                        if known else None))
+                        if len(known)>=60 else None))
             self.assertEqual(actual,expected)
         values=[None]*110
         values[-1]=90.
         points=rolling_frequency_points(values)
         self.assertEqual(points[90][0],(99,None))
-        self.assertEqual(points[90][-1],(109,1.0))
+        self.assertEqual(points[90][-1],(109,None))
+        adequate=[90.]*60+[None]*40
+        self.assertEqual(rolling_frequency_points(adequate)[90][-1],(99,1.0))
+        inadequate=[90.]*59+[None]*41
+        self.assertEqual(rolling_frequency_points(inadequate)[90][-1],(99,None))
+        with self.assertRaises(ValueError):
+            rolling_frequency_points([90],minimum_coverage=0)
+        with self.assertRaises(ValueError):
+            rolling_frequency_points([90],minimum_coverage=1.1)
         with self.assertRaises(ValueError):
             rolling_frequency_points([90],window=0)
         with self.assertRaises(ValueError):
@@ -120,7 +128,7 @@ class AccuracyFrequencyCharts(unittest.TestCase):
         result=self.result([fixture(i,accuracy=90) for i in range(10)])
         svg=accuracy_frequency_svg(result)
         for label in ('Bullet','Blitz','Rapid','≥80','≥90','available','missing',
-                      'Rolling 100 played games'):
+                      'Rolling 100 played games','≥60% coverage'):
             self.assertIn(label,svg)
         for removed in ('Context only · LOW results window','Before:','During:','After:'):
             self.assertNotIn(removed,svg)
