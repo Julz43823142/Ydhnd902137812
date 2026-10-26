@@ -92,7 +92,7 @@ class WinRate(unittest.TestCase):
         self.assertEqual(counts(games[:4]),
                          {'played':4,'known':3,'wins':1,'draws':1,'losses':1})
         self.assertEqual(rolling_winrate(games[:4],window=4,stride=1,minimum=3),
-                         [(0,None),(1,None),(2,1/3),(3,None)])
+                         [(0,None),(1,None),(2,1/3),(3,1/3)])
         with self.assertRaises(ValueError):
             rolling_winrate(games,window=0)
         r=report()
@@ -161,7 +161,7 @@ class LayoutAndSafety(unittest.TestCase):
         _,clock,_=behavior_svgs(result)
         combined=frequency_timing_svg(result,clock[1])
         self.assertIn('7 · Official Chess.com Accuracy',combined)
-        self.assertIn('Period-matched controls',combined)
+        self.assertIn('Shared UTC calendar axis',combined)
         self.assertIn('Rolling 100 played games',combined)
         compact=widen_and_number(combined,7)
         root=ET.fromstring(compact)
