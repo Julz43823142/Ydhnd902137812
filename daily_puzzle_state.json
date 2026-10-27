@@ -3,8 +3,8 @@
     "url": "https://lichess.org/training/PVsso",
     "title": "Puzzle • 1715",
     "fen": "r7/4q2k/1pr1N3/2b2p2/8/PQ2P1P1/1P4P1/1K3R2 w - - 1 32",
-    "current_fen": "r7/4q2k/1pr1N3/2b2p2/8/PQ2P1P1/1P4P1/1K3R2 w - - 1 32",
-    "last_move_uci": "c8c6",
+    "current_fen": "r7/4q3/1pr1N1k1/2b2p2/8/PQ2P1P1/1P4P1/1K5R w - - 3 33",
+    "last_move_uci": "h7g6",
     "pgn": {
       "__shark_answer_ciphertext_v1__": "gAAAAABq4S-nw5YcIPL8VdMMmTNp9cKnzeW-hGWel-u_LScGouk1qKuf6LE0JQnqBc-7RU3L_cmWuuZ_R9Od4ofm-cDyfSzHgY8JnJ8Dv21Qlq_UG4iZOcw="
     },
@@ -22,44 +22,62 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_PVsso_1793142695131",
-    "last_activity_at": "2026-10-27T23:11:58.586642+00:00",
+    "last_activity_at": "2026-10-27T23:12:15.843633+00:00",
     "rating": 1715,
     "rp_band": 1,
     "boss": false,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
     "message_ids": {
-      "1468320170891022417": 1564778718566555659
+      "1468320170891022417": 1564778791639978114
     },
-    "message_id": 1564778718566555659,
+    "message_id": 1564778791639978114,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Ng5",
-        "correct": false,
-        "timestamp": "2026-10-27T23:11:58.586972+00:00"
+        "move": "Rh1",
+        "correct": true,
+        "timestamp": "2026-10-27T23:12:15.843843+00:00"
       }
     },
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
-    "last_card_activity_at": "2026-10-27T23:11:58.586642+00:00",
-    "recent_accepted_moves": [],
+    "last_card_activity_at": "2026-10-27T23:12:15.843633+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1793142735.84385,
+        "fen_before": "r7/4q2k/1pr1N3/2b2p2/8/PQ2P1P1/1P4P1/1K3R2 w - - 1 32",
+        "expected": {
+          "uci": "f1h1",
+          "san": "Rh1+",
+          "color": "white"
+        },
+        "accepted_uci": "f1h1"
+      }
+    ],
     "wrong_attempt_counts": {
       "442597396195704832": 1
     },
-    "last_feedback": "❌ **Thice, congratulations: the Dutch Defense wants no association with what just happened.**\n↪️ **Move played:** `Ng5`"
+    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Kg6",
+    "accepted_solution_moves": [
+      {
+        "san": "Rh1+",
+        "uci": "f1h1",
+        "principal": true
+      }
+    ]
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
