@@ -22,7 +22,7 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "random_PVsso_1793142695131",
-    "last_activity_at": "2026-10-27T23:11:35.131341+00:00",
+    "last_activity_at": "2026-10-27T23:11:58.586642+00:00",
     "rating": 1715,
     "rp_band": 1,
     "boss": false,
@@ -32,16 +32,34 @@
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_ids": {},
-    "message_id": null,
+    "message_ids": {
+      "1468320170891022417": 1564778718566555659
+    },
+    "message_id": 1564778718566555659,
     "channel_id": 1468320170891022417,
     "chat_since_refresh": 0,
-    "attempted_users": {},
+    "attempted_users": {
+      "442597396195704832": {
+        "name": "Thice",
+        "move": "Ng5",
+        "correct": false,
+        "timestamp": "2026-10-27T23:11:58.586972+00:00"
+      }
+    },
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": []
+    "helper_candidate_users": [],
+    "board_attachment_filenames": {
+      "1468320170891022417": "random_puzzle.png"
+    },
+    "last_card_activity_at": "2026-10-27T23:11:58.586642+00:00",
+    "recent_accepted_moves": [],
+    "wrong_attempt_counts": {
+      "442597396195704832": 1
+    },
+    "last_feedback": "❌ **Thice, congratulations: the Dutch Defense wants no association with what just happened.**\n↪️ **Move played:** `Ng5`"
   },
   "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
