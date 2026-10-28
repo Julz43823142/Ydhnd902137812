@@ -21,7 +21,8 @@ class SharkAIStaticTests(unittest.TestCase):
         self.assertNotIn('"content": key', SOURCE)
 
     def test_chat_only_and_scoped_memory(self):
-        self.assertIn("Do not create websites", SOURCE)
+        self.assertIn("PUBLIC_CHAT_PROMPT", SOURCE)
+        self.assertNotIn("SYSTEM_RULES =", SOURCE)
         self.assertIn("return (message.guild.id, message.channel.id)", SOURCE)
         self.assertIn("return (message.guild.id, message.channel.id, message.author.id)", SOURCE)
         self.assertIn("discord.AllowedMentions.none()", SOURCE)
