@@ -17,7 +17,7 @@
     "player_color": "black",
     "player_move_count": 3,
     "posted_at": "2026-10-28T16:17:03.727450+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -37,16 +37,23 @@
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_id": null,
+    "message_id": 1565036690056413187,
     "attempted_users": {},
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "channel_id": 1468320170891022417
+    "channel_id": 1468320170891022417,
+    "message_ids": {
+      "1468320170891022417": 1565036690056413187
+    },
+    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Rxe2 Bxf3 Bxe2",
+    "board_attachment_filenames": {
+      "1468320170891022417": "random_puzzle.png"
+    }
   },
-  "latest_puzzle_type": "random",
+  "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-28",
