@@ -185,6 +185,62 @@ def _fit_reply(text, limit=MAX_REPLY_CHARS):
     return " ".join(kept) if kept else "Please ask for a shorter summary."
 
 
+
+_META_POLICY_REQUEST = re.compile(
+    r"(?i)(?:\b(?:summari[sz]e|describe|explain|list|repeat|quote|reveal|show|"
+    r"tell\s+me|what\s+are|what\s+do|how\s+do)\b.{0,100}"
+    r"\b(?:your|sharkbot(?:'s)?|the\s+bot(?:'s)?)\b.{0,45}"
+    r"\b(?:instructions?|rules?|polic(?:y|ies)|guidelines?|restrictions?|"
+    r"limitations?|behavior|behaviour|prompt|configuration|what\s+you\s+can|"
+    r"allowed|forbidden)\b|"
+    r"\b(?:system\s+prompt|developer\s+instructions?|hidden\s+instructions?|"
+    r"internal\s+polic(?:y|ies)|operating\s+instructions?)\b|"
+    r"\b(?:summari[sz]e|describe|explain|list)\b.{0,70}"
+    r"\b(?:what\s+you\s+(?:can|cannot|can't)\s+do|"
+    r"how\s+you\s+(?:must|should|always)\s+(?:behave|respond|answer))\b)"
+)
+_POLICY_DUMP_MARKERS = (
+    "answers in english unless", "english unless a user", "always spells the streamer",
+    "never discloses private", "never disclose private",
+    "internal policies", "implementation details", "hidden instructions",
+    "never creates scripts", "never create websites", "never creates websites",
+    "never assumes users", "never invents outcomes", "never fabricates outcomes",
+    "not slash commands", "within a 1,200-character", "1,200-character limit",
+    "under 900", "ordinary questions, chat", "how-to queries",
+    "direct action requests", "public version behavior",
+    "current public version behaviour", "secure command router",
+    "trusted bot", "permission-filtered", "cannot independently run",
+    "separate restricted command router", "private conversations",
+)
+
+
+def _is_meta_policy_request(prompt):
+    """Ignore requests for private bot behavior/configuration, not game rules."""
+    return bool(_META_POLICY_REQUEST.search(prompt))
+
+
+def _is_policy_dump(reply):
+    """Suppress paraphrased instruction inventories before sending to Discord."""
+    normalized = " ".join(reply.casefold().split())
+    if re.search(
+        r"\b(?:system prompt|hidden instructions|developer instructions?|"
+        r"internal config(?:uration)?|security controls?|private conversations|"
+        r"internal policies|operational rules)\b", normalized
+    ):
+        return True
+    markers = sum(phrase in normalized for phrase in _POLICY_DUMP_MARKERS)
+    if markers >= 3:
+        return True
+    if re.search(r"\bsharkbot\s+is\s+(?:a|an|the)\b", normalized) and markers >= 2:
+        return True
+    clauses = re.findall(
+        r"\b(?:sharkbot|i|it)\s+(?:always|never|cannot|can't|must|"
+        r"doesn't|does not|only|avoids|handles|distinguishes)\b",
+        normalized,
+    )
+    return len(clauses) >= 4 and markers >= 1
+
+
 def _close_incomplete_reply(text):
     """Never send a mid-sentence continuation when Groq runs out of tokens."""
     text = text.strip()
@@ -390,6 +446,9 @@ async def handle_mention(message, client):
         prompt = "Hello!"
     prompt = prompt[:MAX_INPUT]
     if chat_only and await dispatch_fairplay_mention(message,prompt):
+        return True
+    # Ignore private policy-extraction prompts without replying.
+    if _is_meta_policy_request(prompt):
         return True
     # Deny privilege-escalation and private-internals requests before either
     # the conversational model or command classifier sees them.
@@ -730,13 +789,12 @@ async def handle_mention(message, client):
                      else "Can't answer right now. Try again in a bit.")
         else:
             reply = (await _summarize_for_discord(answer) if failure == "truncated" or len(answer.encode("utf-16-le")) // 2 > MAX_REPLY_CHARS else _fit_reply(answer))
-            if re.search(
-                r"(?i)\b(?:system prompt|hidden instructions|source code|api key|"
-                r"internal config(?:uration)?|changelog|patch notes?|release notes?|"
-                r"security controls?|developer instructions?)\b",
+            if _is_policy_dump(reply) or re.search(
+                r"(?i)\b(?:source code|api key|changelog|patch notes?|release notes?)\b",
                 reply,
             ):
-                reply = "I can help with chess and public SharkBot gameplay."
+                # Never send or remember an instruction dump or a revealing refusal.
+                return True
             _history[scope].append((time.monotonic(), "user", speaker_prompt))
             _history[scope].append((time.monotonic(), "assistant", reply))
         await _counted_reply(message,reply, mention_author=False, allowed_mentions=discord.AllowedMentions.none())
