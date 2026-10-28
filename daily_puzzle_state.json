@@ -1,100 +1,52 @@
 {
   "latest_random_puzzle": {
-    "url": "https://lichess.org/training/PVsso",
-    "title": "Puzzle • 1715",
-    "fen": "r7/4q2k/1pr1N3/2b2p2/8/PQ2P1P1/1P4P1/1K3R2 w - - 1 32",
-    "current_fen": "r7/4q1k1/1pr5/2b2p2/5N2/P1Q1P1P1/1P4P1/1K5R b - - 6 34",
-    "last_move_uci": "b3c3",
+    "url": "https://lichess.org/training/aiF6D",
+    "title": "Puzzle • 2413",
+    "fen": "r3r1k1/ppp2pp1/2b4p/7q/8/2PB1Nb1/PPQ1RBP1/5RK1 b - - 1 23",
+    "current_fen": "r3r1k1/ppp2pp1/2b4p/7q/8/2PB1Nb1/PPQ1RBP1/5RK1 b - - 1 23",
+    "last_move_uci": "d4f2",
     "pgn": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq4fOlw2_khkD5nXgOLLnLod3CqktbqwbQ_W0PLJ8X4lW0ZId51zOkIDKZHfE1E1pFZts6FM4axeiNBCO9Oia6gp0arwkkuIKuxxHi-m9XdWuFSUU="
+      "__shark_answer_ciphertext_v1__": "gAAAAABq4h__nPx-PMsE9IHAE2RtJDZKhj9MAep37-a7m8OGAqyXxlMoIW5U4zf-SBem9v5gkN4jq2bMKlVuGC8YXdW4adpMTfnU839AdInLVXdxMQwzpgY="
     },
     "all_moves": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq4fOlxYRhTAiUrE7yc7TL0bWyATDH7E5XbmWHRGvdmDDaqy9snKQG8lj3plSE68X57X2gAz3z8Vwkhu6scxw3vhhF57OkSS3-gwDt7C14lVrLggLiOY9z-PgFLS4dFqlnictZrV60gkRULrTvp_1E960arAMSBguU2AoIp_WrjMrYUDiwbgHxP9C-hVFWSINp_32WwCM8WDtIF_nRVPsU27Qtb4qmY3BxG-ZZM4GnLVeg9URY3YHgGvuiQlloiK-Za96WhYJB9dLAxCasEczr4nUDWPXJRsBlIunZa91yCFsa6x5LDkYdjWSqNvFMVa68LmxT3V2Ovlno5sMwLnLjqeQgmzMAVNCXSd0nZkAujdV7LBQ="
+      "__shark_answer_ciphertext_v1__": "gAAAAABq4h__fyTgP0G32JaOAwATzbt3mla6PcQbj_ZBtzo22qKzJ2Ht5D1so1eE0gCSfFmcq5a49xFDFW51B5EitAI-yvKFcUt3cY7qZhNi9QESOMIqZYU6BtMywKW-qmOzwtQEpozFIObz1zFIUvcb4_QQNKjtfEuer3pOwMyGoAyDoOmqtLtBq1LToEA2LHNlKDVPySzLsSE3fLIr5Al6ZV494jnW1ceiy6YIpwNjHDYFdmXnFXe6Re8NtwuF79jhuK32i6FmVLeUkZ9ht6oJHidCC23DIkP9xIjFMDkjI3f4HVdIU_bZfU-PaXBPdzxpu5sWXRDtSqSqED8982Cb6bqkH_xZbLq0deUEOWIld-6-DDPZ7ro="
     },
     "player_moves": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq4fOltpJspWla0IH840EE2QoyTBnS5lqUy_vqLteCWO6jAuembEmx12-j69YV_0hEnMd1Amnq6IgxgR-UTtVOYQdBxgBeb4LTe7CcQxAwR-TZ85knU80jcJG4WGOp9JvyREbmiE1M1TGKqhQJwr1-6unaZXi_WsWJnHgN73Ea_8ceLpke30o8d5J8uJJZWrV50GMak8EG3_ibBhaRSA1c8IvIZF_ib1iRpbg3YgTDMTC_vZ-D_dm3-ORjjJfi5UelzQJ5"
+      "__shark_answer_ciphertext_v1__": "gAAAAABq4h__dnRjrhUdXDE1aq1XLHoEv4wk2EwRiFg5oLKzleOtJkKxmmoeR2LTp-R08ExlByd7bs3YDefi9c9y2ETD9jeguoIa7I3heyZaVVCp9GR7kDnXjyCYgMMb9RczMAV2gYmg89lgGIyKLWrApNEFWUjPtXXRUcA007ZA6sNUk_nGSXHUVFMsXRQpDCBAlm_CbRJ5eYltluAi8P_5MdvcaYZ02OlwSrY6lBlk_D8Ly9NMde4nbSvcLATX38jW4iTcra-F"
     },
-    "player_color": "white",
+    "player_color": "black",
     "player_move_count": 3,
-    "posted_at": "2026-10-27T23:11:35.131341+00:00",
-    "answer_posted": true,
+    "posted_at": "2026-10-28T16:17:03.727450+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "random_PVsso_1793142695131",
-    "last_activity_at": "2026-10-27T23:12:39.936463+00:00",
-    "rating": 1715,
-    "rp_band": 1,
+    "puzzle_id": "practice_aiF6D_442597396195704832_1793204223727",
+    "last_activity_at": "2026-10-28T16:17:03.727450+00:00",
+    "rating": 2413,
+    "rp_band": 4,
     "boss": false,
+    "practice_only": true,
+    "rated_practice": true,
+    "practice_owner_id": "442597396195704832",
+    "practice_owner_name": "Thice",
+    "chat_since_refresh": 0,
     "board_theme": "blue",
     "piece_theme": "classic",
     "arrow_theme": "pink",
-    "next_solution_index": 5,
-    "next_player_index": 3,
-    "solved": true,
-    "message_ids": {
-      "1468320170891022417": 1564778892303016049
-    },
-    "message_id": 1564778892303016049,
-    "channel_id": 1468320170891022417,
-    "chat_since_refresh": 0,
-    "attempted_users": {
-      "442597396195704832": {
-        "name": "Thice",
-        "move": "Qc3",
-        "correct": true,
-        "timestamp": "2026-10-27T23:12:39.936674+00:00"
-      }
-    },
-    "first_move_user_id": "442597396195704832",
-    "first_move_user_name": "Thice",
-    "first_move_awarded": true,
+    "next_solution_index": 0,
+    "next_player_index": 0,
+    "solved": false,
+    "message_id": null,
+    "attempted_users": {},
+    "first_move_user_id": null,
+    "first_move_user_name": null,
+    "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
-    "board_attachment_filenames": {
-      "1468320170891022417": "random_puzzle.png"
-    },
-    "last_card_activity_at": "2026-10-27T23:12:39.936463+00:00",
-    "recent_accepted_moves": [
-      {
-        "accepted_at": 1793142759.9366798,
-        "fen_before": "r7/4q1k1/1pr5/2b2p2/5N2/PQ2P1P1/1P4P1/1K5R w - - 5 34",
-        "expected": {
-          "uci": "b3c3",
-          "san": "Qc3+",
-          "color": "white"
-        },
-        "accepted_uci": "b3c3"
-      }
-    ],
-    "wrong_attempt_counts": {
-      "442597396195704832": 1
-    },
-    "last_feedback": "✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1828 points.**\n🔥 **Daily Activity Bonus: +10 coins**\n\nPuzzle Elo: **2482**\n\n💡 **Solution:** Rh1+ Nf4+ Qc3+\n\n🏆 **Your ranking**\n**#1 🧛 Thice — 1828 points ← you**\n**#2 🍅 TheMakina — 1560 points**",
-    "accepted_solution_moves": [
-      {
-        "san": "Rh1+",
-        "uci": "f1h1",
-        "principal": true
-      },
-      {
-        "san": "Nf4+",
-        "uci": "e6f4",
-        "principal": true
-      },
-      {
-        "san": "Qc3+",
-        "uci": "b3c3",
-        "principal": true
-      }
-    ],
-    "completion_solver_id": "442597396195704832",
-    "completion_solver_name": "Thice",
-    "activity_bonus_users": [
-      "442597396195704832"
-    ]
+    "channel_id": 1468320170891022417
   },
-  "latest_puzzle_type": "daily",
+  "latest_puzzle_type": "random",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
     "url": "https://www.chess.com/daily/2026-10-28",
