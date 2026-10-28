@@ -9,11 +9,11 @@ CHESS_PUZZLE_HELP = (
 GAME_REVIEW_HELP = (
     "To analyze a finished chess game, open a chess channel "
     "(<#1468320170891022417> or <#1546557493038284840>) and type "
-    "\`!review\` as a normal text message. Then paste the game's PGN "
-    "(move record) or attach a \`.pgn\`/\`.txt\` file. "
+    "`!review` as a normal text message. Then paste the game's PGN "
+    "(move record) or attach a `.pgn`/`.txt` file. "
     "SharkBot will run a Stockfish Game Review and show the moves and accuracy. "
     "You can export a PGN from your finished game on Chess.com. "
-    "Use \`!cancelreview\` if you change your mind."
+    "Use `!cancelreview` if you change your mind."
 )
 
 _GAME_REVIEW_HOWTO = re.compile(
