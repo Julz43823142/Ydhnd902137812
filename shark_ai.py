@@ -10,6 +10,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 from shark_version import SHARKBOT_VERSION
+from shark_ai_response_guard import is_private_meta_output
 from shark_ai_version import SHARKBOT_AI_VERSION
 from shark_public_help import public_help_reply, game_review_help_reply, PUBLIC_FEATURE_KNOWLEDGE, CHESS_PUZZLE_HELP
 
