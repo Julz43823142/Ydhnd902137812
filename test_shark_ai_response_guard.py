@@ -81,5 +81,60 @@ class OutputSafetyTests(unittest.TestCase):
         self.assertLess(final, send)
 
 
+
+class LiveHandlerSafetyTests(unittest.IsolatedAsyncioTestCase):
+    async def test_unprompted_policy_dump_is_never_sent(self):
+        import os
+        from contextlib import asynccontextmanager
+        from types import SimpleNamespace
+        from unittest.mock import AsyncMock, patch
+
+        import shark_ai
+
+        @asynccontextmanager
+        async def typing():
+            yield
+
+        bot = SimpleNamespace(id=42)
+        delivered = []
+
+        async def reply(message, **kwargs):
+            delivered.append(message)
+
+        channel = SimpleNamespace(
+            id=90234281,
+            permissions_for=lambda _: SimpleNamespace(
+                view_channel=True, send_messages=True,
+                send_messages_in_threads=True,
+            ),
+            typing=typing,
+        )
+        prompt = "Explain how castling works."
+        msg = SimpleNamespace(
+            guild=SimpleNamespace(id=678947, me=bot),
+            author=SimpleNamespace(id=95683, bot=False, display_name="Player"),
+            channel=channel,
+            mentions=[bot],
+            content="<@42> " + prompt,
+            reply=reply,
+        )
+        leak = (
+            "SharkBot is a companion for SH4RKMATE. It always replies in English, "
+            "it never creates websites or scripts, it only handles verified commands, "
+            "and it follows internal policies and instructions."
+        )
+        with patch.dict(os.environ, {"GROQ_API_KEY": "not-a-real-key"}), \
+             patch("shark_ai._start_periodic_cleanup"), \
+             patch("shark_ai._cleanup_caches"), \
+             patch("shark_personality.update_tone", return_value=0), \
+             patch("shark_stats_query.answer", return_value=None), \
+             patch("shark_discord_knowledge.should_search", return_value=False), \
+             patch("shark_commands.plan_mention", new_callable=AsyncMock, return_value=None), \
+             patch("shark_ai._complete", new_callable=AsyncMock, return_value=(leak, None)):
+            handled = await shark_ai.handle_mention(msg, SimpleNamespace(user=bot))
+        self.assertTrue(handled)
+        self.assertEqual(delivered, [], "No policy summary may be posted to Discord")
+        self.assertEqual(list(shark_ai._history.get((678947, 90234281), ())), [])
+
 if __name__ == "__main__":
     unittest.main()
