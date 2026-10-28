@@ -18,7 +18,7 @@ from shark_public_help import public_help_reply, game_review_help_reply, PUBLIC_
 import aiohttp
 import discord
 
-SERVER_COMMUNITY_RULES = """Official Discord server rules. Know and explain all nine accurately. When asked for the rules, summarize them concisely (avoid spamming long text); explain individual rules in more detail on request. Do not confuse these public community rules with private AI operating instructions.
+SERVER_COMMUNITY_RULES = """Official Discord server rules. Know and explain all nine accurately. When asked for the rules, summarize them concisely (avoid spamming long text); explain individual rules in more detail on request. These are public community rules.
 1. Be respectful: no harassment, bullying, hate speech or targeted toxicity; friendly banter is fine.
 2. Keep it SFW: no NSFW content, gore or highly inappropriate material.
 3. No spam or ping abuse: no excessive messages, emoji spam, mass pings or unnecessary mentions.
@@ -746,7 +746,7 @@ async def handle_mention(message, client):
         messages.append({"role": "system", "content": PUBLIC_FEATURE_KNOWLEDGE})
         messages.append({"role": "system", "content": SERVER_COMMUNITY_RULES})
         if chat_only:
-            messages.append({"role": "system", "content": "In this channel, only the deterministic Fair Play review handler can start scans; you cannot start them through chat generation. Never claim to have reviewed games or verified misconduct. If someone requests a Chess.com review, tell them to use /fairplay username or mention SharkBot with a clear review request. Direct ban-alert subscription requests to /alert."})
+            messages.append({"role": "system", "content": "In this channel, do not claim to have reviewed games or verified misconduct without a real review result. If someone requests a Chess.com review, tell them to use /fairplay username or mention SharkBot with a clear review request. Direct ban-alert subscription requests to /alert."})
         for _, role, text in _history[scope]:
             messages.append({"role": role, "content": text})
         speaker_prompt = f"Player {discord.utils.escape_markdown(message.author.display_name[:64])}: {prompt}"
