@@ -15,6 +15,8 @@ def is_private_meta_output(value):
         text,
     ):
         return True
+    if re.search(r"\b(?:the streamer is always spelled|always spell(?:s)? the streamer|keep(?:s)? responses? under|the bot is configured to)\b", text):
+        return True
     if re.search(
         r"\b(?:responds?|answers?|speaks?|replies?) in english unless\b|"
         r"\b(?:never|always) (?:disclos(?:e|es)|reveal|show|repeat) "
