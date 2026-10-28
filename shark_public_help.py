@@ -6,6 +6,35 @@ CHESS_PUZZLE_HELP = (
     "rated practice, and answer with a move such as `Re4`. "
     "Type `!menu` for the chess menu. These are text commands, not slash commands."
 )
+GAME_REVIEW_HELP = (
+    "To analyze a finished chess game, open a chess channel "
+    "(<#1468320170891022417> or <#1546557493038284840>) and type "
+    "\`!review\` as a normal text message. Then paste the game's PGN "
+    "(move record) or attach a \`.pgn\`/\`.txt\` file. "
+    "SharkBot will run a Stockfish Game Review and show the moves and accuracy. "
+    "You can export a PGN from your finished game on Chess.com. "
+    "Use \`!cancelreview\` if you change your mind."
+)
+
+_GAME_REVIEW_HOWTO = re.compile(
+    r"(?i)(?:\b(?:how|where|help|guide|steps|hoe|waar|uitleg|"
+    r"can\s+i|could\s+i|kan\s+ik)\b.{0,110}"
+    r"\b(?:analy[sz](?:e|ing|is|sis)?|review|analyseer|analyseren|"
+    r"analyse|analyser|beoordelen)\b.{0,70}"
+    r"\b(?:game|match|chess|pgn|partij|schaakpartij)\b|"
+    r"\b(?:how|hoe|can\s+i|kan\s+ik)\b.{0,110}"
+    r"\b(?:game|chess|pgn|partij|schaakpartij)\b.{0,70}"
+    r"\b(?:analy[sz](?:e|ing|is|sis)?|review|analyseer|analyseren|analyse)\b)"
+)
+
+
+def game_review_help_reply(prompt):
+    """Answer only game-analysis how-to, never trigger an engine review."""
+    if not isinstance(prompt, str):
+        return None
+    return GAME_REVIEW_HELP if _GAME_REVIEW_HOWTO.search(prompt) else None
+
+
 MINIGAMES_HELP = (
     "Play in <#1546155761405788230>. Browse with `!menu`, or go directly "
     "to a game with `!blackjack`, `!trivia`, `!chessle`, `!poker`, "
@@ -72,6 +101,9 @@ def public_help_reply(prompt):
     """Navigation questions only; explicit requests to play still use command router."""
     if not isinstance(prompt, str) or not _HOW.search(prompt):
         return None
+    review_help = game_review_help_reply(prompt)
+    if review_help is not None:
+        return review_help
     if _PUZZLES.search(prompt):
         # Imperative requests belong to the trusted interactive puzzle dispatcher,
         # never to informational onboarding. "How do I start..." remains help.
