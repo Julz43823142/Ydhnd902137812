@@ -196,7 +196,7 @@ _META_POLICY_REQUEST = re.compile(
     r"\b(?:system\s+prompt|developer\s+instructions?|hidden\s+instructions?|"
     r"internal\s+polic(?:y|ies)|operating\s+instructions?)\b|"
     r"\b(?:summari[sz]e|describe|explain|list)\b.{0,70}"
-    r"\b(?:what\s+you\s+(?:can|cannot|can't)\s+do|"
+    r"\b(?:what\s+(?:you|sharkbot|the\s+bot)\s+(?:can|cannot|can't)\b|"
     r"how\s+you\s+(?:must|should|always)\s+(?:behave|respond|answer))\b)"
 )
 _POLICY_DUMP_MARKERS = (
