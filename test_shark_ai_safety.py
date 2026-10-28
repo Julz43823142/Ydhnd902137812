@@ -75,7 +75,7 @@ class SharkAIStaticTests(unittest.TestCase):
 
     def test_policy_guards_run_before_reply(self):
         self.assertIn("if _is_meta_policy_request(prompt):\n        return True", SOURCE)
-        self.assertIn("if _is_policy_dump(reply)", SOURCE)
+        self.assertIn("if is_private_meta_output(reply) or _is_policy_dump(reply)", SOURCE)
         self.assertIn("return True\n            _history[scope].append", SOURCE)
 
 if __name__ == "__main__":
