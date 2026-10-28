@@ -18,6 +18,23 @@ class PublicHelpTests(unittest.TestCase):
         self.assertIn("<#1546155761405788230>",trivia)
         self.assertEqual(public_help_reply("How do I start minigames?"),MINIGAMES_HELP)
         self.assertIn("!poker",public_help_reply("How do I play poker?"))
+    def test_game_analysis_howto_is_not_puzzle_help(self):
+        from shark_public_help import GAME_REVIEW_HELP, game_review_help_reply
+        for prompt in (
+            "how to analyze a game?",
+            "How can I review my chess game?",
+            "How do I analyze a PGN?",
+            "Hoe analyseer ik een schaakpartij?",
+        ):
+            with self.subTest(prompt=prompt):
+                self.assertEqual(game_review_help_reply(prompt), GAME_REVIEW_HELP)
+                self.assertEqual(public_help_reply(prompt), GAME_REVIEW_HELP)
+                self.assertIn("`!review`", GAME_REVIEW_HELP)
+                self.assertIn("PGN", GAME_REVIEW_HELP)
+        self.assertIsNone(game_review_help_reply("Analyze this game now"))
+        self.assertIsNone(game_review_help_reply("How do I start chess puzzles?"))
+        self.assertIsNone(game_review_help_reply("Review this Chess.com account"))
+
     def test_action_not_hijacked(self):
         self.assertIsNone(public_help_reply("Give me a chess puzzle"))
         self.assertIsNone(public_help_reply("17...Be6!!"))
