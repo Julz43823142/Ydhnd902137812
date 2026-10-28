@@ -46,7 +46,7 @@
       "necklace",
       "bow"
     ],
-    "active": "634e464e764f42b0b51afec28c7bbfce",
+    "active": "93f7026f2e0e4ae587bd180fef05031b",
     "expedition": {
       "end": 1792923019.1982539,
       "hours": 12,
@@ -740,6 +740,7 @@
       },
       {
         "born_at": 1792514451.3104699,
+        "died_at": 1793186213.491081,
         "fed_at": 1792581413.491081,
         "feed_day": "2026-10-21",
         "happiness": 100,
