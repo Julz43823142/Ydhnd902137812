@@ -11,7 +11,7 @@ from zoneinfo import ZoneInfo
 
 from shark_version import SHARKBOT_VERSION
 from shark_ai_version import SHARKBOT_AI_VERSION
-from shark_public_help import public_help_reply, PUBLIC_FEATURE_KNOWLEDGE, CHESS_PUZZLE_HELP
+from shark_public_help import public_help_reply, game_review_help_reply, PUBLIC_FEATURE_KNOWLEDGE, CHESS_PUZZLE_HELP
 
 import aiohttp
 import discord
@@ -445,6 +445,13 @@ async def handle_mention(message, client):
     if not prompt:
         prompt = "Hello!"
     prompt = prompt[:MAX_INPUT]
+    # A question about analyzing a game is not a request to scan a player.
+    # Give verified PGN instructions without sending the prompt to Groq.
+    review_help = game_review_help_reply(prompt)
+    if review_help is not None:
+        await _counted_reply(message, review_help, mention_author=False,
+                             allowed_mentions=discord.AllowedMentions.none())
+        return True
     if chat_only and await dispatch_fairplay_mention(message,prompt):
         return True
     # Ignore private policy-extraction prompts without replying.
