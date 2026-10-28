@@ -64,6 +64,15 @@ class SharkAIStaticTests(unittest.TestCase):
         self.assertFalse(namespace["_is_policy_dump"](
             "SH4RKMATE is streaming chess today."))
 
+    def test_game_review_howto_bypasses_fairplay_and_groq(self):
+        route = SOURCE.index("review_help = game_review_help_reply(prompt)")
+        fairplay = SOURCE.index("if chat_only and await dispatch_fairplay_mention(message,prompt)")
+        model = SOURCE.index("answer, failure = await _complete(messages)")
+        self.assertLess(route, fairplay)
+        self.assertLess(fairplay, model)
+        self.assertIn("if review_help is not None:", SOURCE)
+        self.assertIn("await _counted_reply(message, review_help", SOURCE)
+
     def test_policy_guards_run_before_reply(self):
         self.assertIn("if _is_meta_policy_request(prompt):\n        return True", SOURCE)
         self.assertIn("if _is_policy_dump(reply)", SOURCE)
