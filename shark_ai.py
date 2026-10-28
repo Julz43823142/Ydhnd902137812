@@ -11,6 +11,7 @@ from zoneinfo import ZoneInfo
 
 from shark_version import SHARKBOT_VERSION
 from shark_ai_response_guard import is_private_meta_output
+from shark_ai_model_prompt import PUBLIC_CHAT_PROMPT
 from shark_ai_version import SHARKBOT_AI_VERSION
 from shark_public_help import public_help_reply, game_review_help_reply, PUBLIC_FEATURE_KNOWLEDGE, CHESS_PUZZLE_HELP
 
@@ -255,7 +256,7 @@ def _close_incomplete_reply(text):
 async def _summarize_for_discord(draft):
     """Compress a long or unfinished draft into a finished short response."""
     summary, error = await _complete([
-        {"role": "system", "content": (SYSTEM_RULES + "\nSummarize this draft accurately in at most 800 characters. "
+        {"role": "system", "content": (PUBLIC_CHAT_PROMPT + "\nSummarize this draft accurately in at most 800 characters. "
             "Use brief plain English paragraphs, no tables or unfinished "
             "lists. Preserve important qualifications, do not invent facts, "
             "and finish on a complete sentence."
@@ -741,7 +742,7 @@ async def handle_mention(message, client):
             persona += (" The user is asking for a fictional pet roleplay named " + repr(pet_name) +
                         ". Speak AS that pet, with this consistent character: " + repr(profile) +
                         ". This is roleplay only: do not assert pet ownership, inventory, rewards or game actions.")
-        messages = [{"role": "system", "content": SYSTEM_RULES + "\\n" + persona}]
+        messages = [{"role": "system", "content": PUBLIC_CHAT_PROMPT + "\\n" + persona}]
         messages.append({"role": "system", "content": PUBLIC_FEATURE_KNOWLEDGE})
         messages.append({"role": "system", "content": SERVER_COMMUNITY_RULES})
         if chat_only:
