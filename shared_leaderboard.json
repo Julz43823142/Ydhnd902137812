@@ -541,7 +541,7 @@
           "type": "coins"
         },
         "status": "declined",
-        "status_unread": true,
+        "status_unread": false,
         "to_name": "Sharkmeister",
         "to_user_id": "362606514764251137",
         "trade_id": "trade-propose:1562495138507260025:442597396195704832:362606514764251137",
@@ -558,7 +558,7 @@
           "type": "coins"
         },
         "status": "accepted",
-        "status_unread": true,
+        "status_unread": false,
         "to_name": "Nairyaaa",
         "to_user_id": "550338389535227926",
         "trade_id": "trade-propose:1562494738479714425:442597396195704832:550338389535227926",
