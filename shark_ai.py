@@ -796,8 +796,10 @@ async def handle_mention(message, client):
             reply = ("I've reached my chat limit for now. Try again later!" if failure == "limit"
                      else "Can't answer right now. Try again in a bit.")
         else:
+            if is_private_meta_output(answer) or _is_policy_dump(answer):
+                return True
             reply = (await _summarize_for_discord(answer) if failure == "truncated" or len(answer.encode("utf-16-le")) // 2 > MAX_REPLY_CHARS else _fit_reply(answer))
-            if _is_policy_dump(reply) or re.search(
+            if is_private_meta_output(reply) or _is_policy_dump(reply) or re.search(
                 r"(?i)\b(?:source code|api key|changelog|patch notes?|release notes?)\b",
                 reply,
             ):
