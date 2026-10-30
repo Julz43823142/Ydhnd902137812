@@ -64,7 +64,7 @@ class CheckpointStore:
                        ("origin" if os.getenv("GITHUB_ACTIONS") == "true" else ""))
         self.path = Path(path or os.getenv("FAIRPLAY_CHECKPOINT_FILE", ".fairplay_checkpoint.enc"))
         self.lock = threading.RLock()
-        self.state = {"jobs": {}, "failures": {}, "auto": {}}
+        self.state = {"jobs": {}, "failures": {}, "auto": {}, "research": {}}
         self.last_remote = 0.0
         self.remote_ok = not bool(self.remote)
         self.cipher = (Fernet(base64.urlsafe_b64encode(hashlib.sha256(
@@ -102,6 +102,8 @@ class CheckpointStore:
             if isinstance(decoded, dict) and isinstance(decoded.get("jobs"), dict):
                 auto = decoded.get("auto", {})
                 if isinstance(auto, dict):self.state["auto"] = auto
+                research = decoded.get("research", {})
+                if isinstance(research, dict):self.state["research"] = research
                 now = time.time()
                 self.state["jobs"] = {
                     key: val for key, val in decoded["jobs"].items()
@@ -171,6 +173,17 @@ class CheckpointStore:
                 return True
         self.remote_ok = False
         return False
+
+    def research_state(self):
+        """Read the private resumable batch cursor from Fernet storage."""
+        with self.lock:return copy.deepcopy(self.state.get("research", {}))
+
+    def save_research(self, state):
+        """Write each delivered result before advancing to the next account."""
+        if not self.enabled or not isinstance(state, dict):return False
+        with self.lock:
+            self.state["research"] = copy.deepcopy(state)
+            return self._write(force=True)
 
     def auto_state(self):
         with self.lock:return copy.deepcopy(self.state.get("auto", {}))

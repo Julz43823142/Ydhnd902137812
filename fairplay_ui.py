@@ -1922,7 +1922,7 @@ class FairPlayService:
         self.closed = True
         for job in self.jobs.values():job.stop.set()
         tasks=[]
-        for task in [self.idle_task,self.pool_warm_task,getattr(self.auto,"task",None),*self.workers,self.worker]:
+        for task in [self.research_task,self.idle_task,self.pool_warm_task,getattr(self.auto,"task",None),*self.workers,self.worker]:
             if task and task not in tasks:tasks.append(task)
         for task in tasks:
             if not task.done():task.cancel()
@@ -2036,6 +2036,9 @@ async def startup(client):
         # No account names or case details in the deployment logs.
         if _service.jobs:
             print(f'Fair Play: restoring {len(_service.jobs)} encrypted scan checkpoint(s).',flush=True)
+    # Reserve the Fair Play executor before any normal queue worker or auto-rescan starts.
+    from fairplay_research_live import start_research
+    start_research(_service)
     from fairplay_auto import AutoRescanner
     _service.auto = AutoRescanner(_service)
     _service.auto.task = asyncio.create_task(_service.auto.run(), name='fairplay-auto')
@@ -2059,10 +2062,6 @@ async def startup(client):
         for index in range(MAX_CONCURRENT_SCANS)
     ]
     _service.worker = _service.workers[0]
-    if os.getenv('SHARKBOT_RESEARCH_COHORTS_B64'):
-        from fairplay_research_live import run_research
-        _service.research_hold.clear()
-        _service.research_task = asyncio.create_task(run_research(_service), name='fairplay-private-research')
     async def restore_and_idle():
         await _service.restore_history()
         await _service.idle_loop()
