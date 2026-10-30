@@ -164,6 +164,22 @@ async def heartbeat(service, state):
         await report_status("pending", state["cursor"])
 
 
+async def save_research_with_retry(checkpoint, state, *, attempts=8):
+    """Retry transient encrypted checkpoint pushes without advancing the cursor.
+
+    Keep the completed review in memory during retries so the analyzer is not
+    called again merely because GitHub rejected or timed out a push.
+    """
+    for attempt in range(attempts):
+        if await asyncio.to_thread(checkpoint.save_research, state):
+            return True
+        print("Research checkpoint persistence retry %d/%d" %
+              (attempt + 1, attempts), flush=True)
+        if attempt + 1 < attempts:
+            await asyncio.sleep(min(90, 5 * 2 ** attempt))
+    return False
+
+
 async def run_research(service):
     checkpoint = service.checkpoints
     state = None
@@ -173,6 +189,7 @@ async def run_research(service):
         if checkpoint is None or not checkpoint.enabled:
             raise RuntimeError("Encrypted research checkpoint unavailable")
         state = await asyncio.to_thread(checkpoint.research_state)
+        print("Research checkpoint restored at %d/%d." % (state.get("cursor", 0) if state else 0, TOTAL), flush=True)
         if state and state.get("digest") != digest:
             if not state.get("finished"):
                 raise RuntimeError("Research cohort changed before previous batch finished")
@@ -182,7 +199,7 @@ async def run_research(service):
         if not state:
             state = {"digest": digest, "cursor": 0, "rows": [], "evidence": [], "archive_version": 3,
                      "finished": False, "started_at": time.time()}
-            if not await asyncio.to_thread(checkpoint.save_research, state):
+            if not await save_research_with_retry(checkpoint, state):
                 raise RuntimeError("Research checkpoint cannot be saved")
         if (len(state.get("rows", [])) != state["cursor"] or len(state.get("evidence", [])) != state["cursor"] or not 0 <= state["cursor"] <= TOTAL):
             raise RuntimeError("Invalid research checkpoint cursor")
@@ -221,7 +238,7 @@ async def run_research(service):
             next_state["rows"] = state["rows"] + [entry]
             next_state["evidence"] = state["evidence"] + [packed]
             next_state["cursor"] = index + 1
-            if not await asyncio.to_thread(checkpoint.save_research, next_state):
+            if not await save_research_with_retry(checkpoint, next_state):
                 raise RuntimeError("Research checkpoint cannot be saved")
             state.clear()
             state.update(next_state)
@@ -236,7 +253,7 @@ async def run_research(service):
         await deliver_final_document(service.client, state)
         await service.channel.send(report, allowed_mentions=discord.AllowedMentions.none())
         final_state = dict(state, finished=True)
-        if not await asyncio.to_thread(checkpoint.save_research, final_state):
+        if not await save_research_with_retry(checkpoint, final_state):
             raise RuntimeError("Final research checkpoint cannot be saved")
         state.clear()
         state.update(final_state)
@@ -245,8 +262,8 @@ async def run_research(service):
         raise
     except Exception as exc:
         completed = state["cursor"] if state else 0
-        print("Fair Play research stopped: %s; completed %d/%d." %
-              (type(exc).__name__, completed, TOTAL), flush=True)
+        print("Fair Play research stopped: %s; completed %d/%d; details: %s." %
+              (type(exc).__name__, completed, TOTAL, str(exc)[:160] if isinstance(exc, RuntimeError) else "redacted"), flush=True)
         await report_status("failure", completed, reason="FAILED")
         try:
             await owner_dm(service.client,
