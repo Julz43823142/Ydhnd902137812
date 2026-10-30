@@ -146,6 +146,63 @@ class AlertView(discord.ui.View):
             button.callback=callback;self.add_item(button)
 
 
+
+class AlertTypeSelect(discord.ui.Select):
+    def __init__(self):
+        super().__init__(
+            custom_id=PREFIX+'alert-types',
+            placeholder='Choose alert types',
+            min_values=0,max_values=2,
+            options=[
+                discord.SelectOption(label='Fair Play ban',value='fair_play',description='Official Fair Play closure'),
+                discord.SelectOption(label='Other account closure',value='closed_unknown',description='Reason not publicly confirmed'),
+            ],
+        )
+
+    async def callback(self,ctx):
+        if not _service or _service.closed:
+            return await ctx.response.send_message('Alert service unavailable.',ephemeral=True)
+        try:
+            async with _service.lock:
+                await asyncio.to_thread(set_alert_types,_service.store,ctx.user.id,self.values)
+            await ctx.response.send_message('Alert preferences saved. Abuse and inactivity cannot be individually identified by the public API.',ephemeral=True)
+        except Exception:
+            await ctx.response.send_message('Could not save preferences.',ephemeral=True)
+
+
+class AlertSettingsView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=300)
+        self.add_item(AlertTypeSelect())
+        for label,action in [('Unsubscribe','remove'),('Mute Pings','mute'),('Unmute Pings','unmute'),('Members','members')]:
+            button=discord.ui.Button(label=label,custom_id=PREFIX+'settings-'+action,row=1)
+            async def callback(ctx,action=action):
+                if not _service or _service.closed:
+                    return await ctx.response.send_message('Alert service unavailable.',ephemeral=True)
+                if action=='remove':
+                    return await ctx.response.send_modal(AlertModal(True))
+                await ctx.response.defer(ephemeral=True)
+                try:
+                    if action in ('mute','unmute'):
+                        async with _service.lock:
+                            await asyncio.to_thread(mute,_service.store,ctx.user.id,action=='mute')
+                        return await ctx.followup.send('Pings '+('muted.' if action=='mute' else 'unmuted.'),ephemeral=True)
+                    state=await asyncio.to_thread(_service.store.snapshot)
+                    members=sorted(int(uid) for uid,row in state['users'].items() if row.get('subscriptions'))
+                    lines=[]
+                    for uid in members:
+                        member=ctx.guild.get_member(uid) if ctx.guild else None
+                        lines.append(member.display_name if member else 'Unknown member')
+                    listing='\\n'.join(lines)
+                    await ctx.followup.send(
+                        f'Ban Alert members: {len(members)} subscribers\\n'+(listing[:1700] or 'No members.'),
+                        ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
+                except Exception:
+                    await ctx.followup.send('Alert settings unavailable.',ephemeral=True)
+            button.callback=callback
+            self.add_item(button)
+
+
 class AlertService:
     def __init__(self,client,channel,store,settings):
         self.client=client;self.channel=channel;self.store=store;self.settings=settings
