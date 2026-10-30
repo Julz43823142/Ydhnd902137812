@@ -1316,6 +1316,9 @@ class FairPlayService:
         self.pool_warm_task = None
         self.auto = None
         self.closed = False
+        self.research_hold = asyncio.Event()
+        self.research_hold.set()
+        self.research_task = None
 
     def note_human(self):self.last_human = time.time()
 
@@ -1372,7 +1375,7 @@ class FairPlayService:
             await output_channel.send(
                 content=f'The Fair Play queue is full ({MAX_CONCURRENT_SCANS} active + {MAX_WAITING_SCANS} waiting). Please try again later.',
                 allowed_mentions=discord.AllowedMentions.none());return
-        waiting=len(self.jobs)>=MAX_CONCURRENT_SCANS
+        waiting=(not self.research_hold.is_set()) or len(self.jobs)>=MAX_CONCURRENT_SCANS
         job = Job(target,ctx,output_channel=output_channel)
         self.jobs[target] = job
         self.queue.put_nowait(job)
@@ -1407,7 +1410,7 @@ class FairPlayService:
             await message.reply('The Fair Play review queue is full. Please try again later.',
                 mention_author=False,allowed_mentions=discord.AllowedMentions.none())
             return False
-        waiting=len(self.jobs)>=MAX_CONCURRENT_SCANS
+        waiting=(not self.research_hold.is_set()) or len(self.jobs)>=MAX_CONCURRENT_SCANS
         job=Job(target,None,output_channel=self.channel)
         self.jobs[target]=job
         self.queue.put_nowait(job)
@@ -1840,7 +1843,9 @@ class FairPlayService:
 
     async def run_queue(self):
         while not self.closed and not self.client.is_closed():
+            await self.research_hold.wait()
             job = await self.queue.get()
+            await self.research_hold.wait()
             self.active_job=job
             try:
                 await self.process(job)
@@ -2054,6 +2059,10 @@ async def startup(client):
         for index in range(MAX_CONCURRENT_SCANS)
     ]
     _service.worker = _service.workers[0]
+    if os.getenv('SHARKBOT_RESEARCH_COHORTS_B64'):
+        from fairplay_research_live import run_research
+        _service.research_hold.clear()
+        _service.research_task = asyncio.create_task(run_research(_service), name='fairplay-private-research')
     async def restore_and_idle():
         await _service.restore_history()
         await _service.idle_loop()
