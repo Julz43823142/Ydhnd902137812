@@ -478,6 +478,12 @@ PUZZLE_RUSH_START_RATING = 1200
 PUZZLE_RUSH_RATING_STEP = 40
 PUZZLE_RUSH_TIMEZONE = ZoneInfo("Europe/Amsterdam")
 PUZZLE_RUSH_WEEKLY_REWARDS = (50, 40, 30, 25, 20, 15, 12, 10, 8, 5)
+
+
+def puzzle_rush_weekly_winner_coins(participant_count):
+    """Weekly first-place prize: zero for no participants, capped at 50."""
+    count = max(0, int(participant_count))
+    return min(50, 5 * count + 5) if count else 0
 PUZZLE_RUSH_WEEKLY_STATE_KEY = "puzzle_rush_weekly_bests_universal_v1"
 PUZZLE_RUSH_WEEKLY_PAID_KEY = "puzzle_rush_weekly_paid_universal_v1"
 PUZZLE_RUSH_WEEKLY_SEED_KEY = "puzzle_rush_weekly_seeded_universal_v1"
@@ -4698,7 +4704,9 @@ async def process_due_rush_weekly_rewards(channel=None):
         winners = []
         try:
             for rank, (user_id, entry, _achieved_at) in enumerate(rows, 1):
-                reward = int(PUZZLE_RUSH_WEEKLY_REWARDS[rank - 1])
+                reward = (puzzle_rush_weekly_winner_coins(len(rows)) if rank == 1
+                          else min(int(PUZZLE_RUSH_WEEKLY_REWARDS[rank - 1]),
+                                   puzzle_rush_weekly_winner_coins(len(rows))))
                 balance = await asyncio.to_thread(
                     shared_credit_coins,
                     user_id,
