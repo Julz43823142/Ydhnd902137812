@@ -24,3 +24,14 @@ def test_closed_reason_not_inferred():
     source = Path("fairplay_ban_alerts.py").read_text()
     assert "status not in (FAIRPLAY_CLOSED,'closed')" in source
     assert "'closure_status':status" in source
+
+def test_alert_settings_and_siren():
+    ui = Path("fairplay_ban_alerts_ui.py").read_text()
+    logic = Path("fairplay_ban_alerts.py").read_text()
+    assert "Fair Play Ban Alert 🚨" in ui
+    assert "('Subscribe','add'),('Settings','settings')" in ui
+    assert "class AlertSettingsView" in ui
+    assert "class AlertTypeSelect" in ui
+    assert "def alert_enabled(user,event):" in logic
+    assert "if not alert_enabled(u,{'closure_status':status}):continue" in logic
+    assert "or not alert_enabled(user,event)" in logic
