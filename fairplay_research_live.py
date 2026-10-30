@@ -91,8 +91,7 @@ async def report_status(state, completed, *, reason=""):
     elif state == "success":
         detail = "COMPLETE %d/%d; %s" % (completed, TOTAL, timestamp)
     elif reason:
-        detail = "%s %d/%d; %s; %s" % (
-            reason, completed, TOTAL, timestamp, "see owner DM")
+        detail = "%s %d/%d; %s" % (reason, completed, TOTAL, timestamp)
     else:
         detail = "STOPPED %d/%d; %s" % (completed, TOTAL, timestamp)
     return await asyncio.to_thread(_github_status, state, detail)
