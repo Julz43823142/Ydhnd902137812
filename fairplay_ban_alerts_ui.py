@@ -8,7 +8,7 @@ import discord
 from fairplay_config import CHANNEL_ID,NAMESPACE
 from fairplay_data import PubAPI,ScanDeadline,username,ReviewError
 from fairplay_alert_store import AlertStore
-from fairplay_ban_alerts import Settings,subscribe,unsubscribe,mute,poll,reserve,mark
+from fairplay_ban_alerts import Settings,subscribe,unsubscribe,mute,set_alert_types,alert_enabled,poll,reserve,mark
 
 PREFIX=NAMESPACE+'ban-alert:'
 PANEL_TITLE='🔔 Fair Play Ban Alerts'
@@ -21,7 +21,7 @@ def alert_embed(event,key):
     game_url=event['url']
     fair_play=event.get('closure_status','closed:fair_play_violations')=='closed:fair_play_violations'
     e=discord.Embed(
-        title='SharkBot — Fair Play Ban Alert' if fair_play else 'SharkBot — Account Closed Alert',
+        title='SharkBot — Fair Play Ban Alert 🚨' if fair_play else 'SharkBot — Account Closed Alert',
         url=game_url+'#sharkbot-alert-'+key,
         color=0x8b0000 if fair_play else 0x64748b,
         description=("Chess.com has closed an opponent's account for Fair Play violations."
@@ -52,7 +52,7 @@ def alert_embed(event,key):
     detected=datetime.fromtimestamp(event['detected'],timezone.utc).strftime('%B %d, %Y').replace(' 0',' ')
     e.add_field(name='Detected by SharkBot',value=detected,inline=False)
     e.add_field(name='Get your own alerts',inline=False,
-        value='Subscribe below to receive alerts when your Chess.com opponents' accounts are closed. Manage subscriptions with `/alert`.')
+        value="Subscribe below for Chess.com opponent closure alerts. Manage preferences with `/alert` Settings.")
     return e
 
 
@@ -61,7 +61,7 @@ def panel_embed():
         'Subscribe to alerts about opponents of a Chess.com account. '
         'Enter your own username to follow your opponents. '
         'Checks run hourly; existing closures do not trigger old alerts. '
-        'Use the buttons to manage subscriptions and pings.'))
+        'Use Subscribe or Settings to manage your alerts.'))
 
 
 async def open_menu(ctx):
@@ -109,12 +109,15 @@ class AlertModal(discord.ui.Modal):
 class AlertView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
-        for label,action in [('Subscribe','add'),('Unsubscribe','remove'),('Mute Pings','mute'),('Unmute Pings','unmute'),('Members','members')]:
-            button=discord.ui.Button(label=label,custom_id=PREFIX+action,row=1 if action=='members' else 0)
+        for label,action in [('Subscribe','add'),('Settings','settings')]:
+            button=discord.ui.Button(label=label,custom_id=PREFIX+action)
             async def callback(ctx,action=action):
                 if ctx.channel_id!=CHANNEL_ID or ctx.user.bot:return
                 if action in ('add','remove'):
                     await ctx.response.send_modal(AlertModal(action=='remove'));return
+                if action=='settings':
+                    await ctx.response.send_message('Manage your subscriptions, pings and closure alerts. Abuse and inactivity are not separately verifiable through the public Chess.com status.',view=AlertSettingsView(),ephemeral=True)
+                    return
                 await ctx.response.defer(ephemeral=True)
                 if not _service:return await ctx.followup.send('Ban Alerts are reconnecting.',ephemeral=True)
                 try:
@@ -174,7 +177,7 @@ class AlertService:
             groups={}
             for key,event in state['outbox'].items():
                 if event['state']=='pending':
-                    groups.setdefault(event['opponent'],[]).append((key,event))
+                    groups.setdefault((event['opponent'],event.get('closure_status','closed:fair_play_violations')),[]).append((key,event))
             for opponent,items in groups.items():
                 reserved=[]
                 for key,event in items:
@@ -186,7 +189,7 @@ class AlertService:
                 recipients=[]
                 for key,event in reserved:
                     user=fresh['users'].get(event['user'],{})
-                    if event['target'] not in user.get('subscriptions',{}):
+                    if event['target'] not in user.get('subscriptions',{}) or not alert_enabled(user,event):
                         await asyncio.to_thread(mark,self.store,key,'cancelled')
                         continue
                     recipients.append((key,event,user))
