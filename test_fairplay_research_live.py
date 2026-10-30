@@ -66,6 +66,7 @@ class ResearchTests(unittest.TestCase):
                 enabled = True
                 def __init__(self):
                     self.state = {"digest": "cohort", "cursor": 1,
+                                  "archive_version": 3, "evidence": ["saved-one"],
                                   "rows": [{"group": "closed", "account": "one",
                                             "status": "complete", "priority": "LOW",
                                             "partial": False}], "finished": False}
@@ -92,11 +93,12 @@ class ResearchTests(unittest.TestCase):
                         research, "read_cohorts", return_value=(
                             {"closed": ["one"], "comparison": ["two"]}, "cohort")
                         ), patch.object(research, "owner_dm", new=no_delivery), patch.object(
-                        research, "deliver_result", new=no_delivery), patch.object(
+                        research, "deliver_final_document", new=no_delivery), patch.object(research, "pack_result", return_value="saved-two"), patch.object(
                         research, "report_status", new=no_delivery):
                     await research.run_research(service)
             self.assertEqual(called, ["two"])
             self.assertEqual(store.state["cursor"], 2)
+            self.assertEqual(store.state["evidence"], ["saved-one", "saved-two"])
             self.assertTrue(store.state["finished"])
             self.assertTrue(service.research_hold.is_set())
             channel.send.assert_awaited_once()
