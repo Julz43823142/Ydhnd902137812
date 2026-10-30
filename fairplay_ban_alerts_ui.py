@@ -19,15 +19,17 @@ def alert_embed(event,key):
     # Preserve the durable reconciliation key without exposing a technical ID
     # in the visible footer. Discord embeds retain the URL fragment.
     game_url=event['url']
+    fair_play=event.get('closure_status','closed:fair_play_violations')=='closed:fair_play_violations'
     e=discord.Embed(
-        title='SharkBot — Fair Play Ban Alert',
+        title='SharkBot — Fair Play Ban Alert' if fair_play else 'SharkBot — Account Closed Alert',
         url=game_url+'#sharkbot-alert-'+key,
-        color=0xe89b35,
-        description="Chess.com has closed an opponent's account for Fair Play violations.",
+        color=0x8b0000 if fair_play else 0x64748b,
+        description=("Chess.com has closed an opponent's account for Fair Play violations."
+                     if fair_play else "Chess.com reports this account as closed. The reason is not publicly confirmed."),
     )
     e.add_field(name='Followed Chess.com account',value=event['target'],inline=False)
     e.add_field(name='Opponent',value=event['opponent'],inline=False)
-    e.add_field(name='Official status',value='Closed — Fair Play',inline=False)
+    e.add_field(name='Official status',value='Closed — Fair Play' if fair_play else 'Closed — reason unknown',inline=False)
     e.add_field(name='Public links',inline=False,
         value=f"[View Game]({game_url}) · [Opponent profile](https://www.chess.com/member/{event['opponent']})")
     games=int(event['games'])
@@ -50,7 +52,7 @@ def alert_embed(event,key):
     detected=datetime.fromtimestamp(event['detected'],timezone.utc).strftime('%B %d, %Y').replace(' 0',' ')
     e.add_field(name='Detected by SharkBot',value=detected,inline=False)
     e.add_field(name='Get your own alerts',inline=False,
-        value='Subscribe below to receive alerts when your Chess.com opponents are banned. Manage subscriptions with `/alert`.')
+        value='Subscribe below to receive alerts when your Chess.com opponents' accounts are closed. Manage subscriptions with `/alert`.')
     return e
 
 
@@ -126,7 +128,7 @@ class AlertView(discord.ui.View):
                         lines=[]
                         for uid in subscribers:
                             member=guild.get_member(uid) if guild else None
-                            lines.append((member.display_name if member else f'User {uid}')+f' ({uid})')
+                            lines.append(member.display_name if member else 'Unknown member')
                         header=f'Ban Alert members: {len(subscribers)} subscribers'
                         # Discord messages have a 2000-character limit.
                         listing='\n'.join(lines)
