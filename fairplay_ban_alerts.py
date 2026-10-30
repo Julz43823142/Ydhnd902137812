@@ -206,7 +206,8 @@ def poll(store,settings=Settings(),api_factory=PubAPI,now=None,cancel=None):
                     status=profile['status']
                     previous=sub['seen'].get(other)
                     # Legacy booleans represented active / Fair Play closed.
-                    was_active=previous is False or previous=='active'
+                    was_active=(previous is False or
+                                isinstance(previous,str) and previous not in (FAIRPLAY_CLOSED,'closed') and not previous.startswith('closed:'))
                     sub['seen'][other]=status
                     if not was_active or status not in (FAIRPLAY_CLOSED,'closed'):continue
                     if not alert_enabled(u,{'closure_status':status}):continue
