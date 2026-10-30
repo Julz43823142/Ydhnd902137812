@@ -28,8 +28,9 @@ STATUS_CONTEXT = "sharkbot/fairplay-research-200"
 
 
 def read_cohorts():
-    secret = os.environ["SHARKBOT_RESEARCH_COHORTS_B64"]
-    decoded = json.loads(base64.b64decode(secret, validate=True))
+    from pathlib import Path
+    path = Path(__file__).with_name("research_cohorts_200.json")
+    decoded = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(decoded, dict) or set(decoded) != {"closed", "comparison"}:
         raise ValueError("Expected closed and comparison cohorts")
     for group in ("closed", "comparison"):
@@ -261,7 +262,8 @@ async def run_research(service):
 
 def start_research(service):
     """Called before queue workers are created to eliminate the startup race."""
-    if os.getenv("SHARKBOT_RESEARCH_COHORTS_B64"):
+    from pathlib import Path
+    if Path(__file__).with_name("research_cohorts_200.json").is_file():
         service.research_hold.clear()
         service.research_task = asyncio.create_task(
             run_research(service), name="fairplay-private-research")
