@@ -113,26 +113,31 @@ async def owner_dm(client, message, *, filename=None, data=None):
             await asyncio.sleep(3 * (attempt + 1))
 
 
-async def deliver_result(client, index, entry, result):
-    # Every account's full normalized review is retained, not just a priority.
+def pack_result(index, entry, result):
     record = {"schema": "sharkbot-private-research-v2", "index": index,
               "metadata": entry, "review": normalize(result) if result is not None else None}
     raw = json.dumps(record, ensure_ascii=False, separators=(",", ":"),
                      allow_nan=False).encode("utf-8")
-    compressed = gzip.compress(raw, compresslevel=6, mtime=0)
-    parts = [compressed[offset:offset + MAX_PART_BYTES]
-             for offset in range(0, len(compressed), MAX_PART_BYTES)]
-    digest = hashlib.sha256(compressed).hexdigest()
-    for number, data in enumerate(parts, 1):
-        name = ("fairplay-research-%03d.json.gz" % index if len(parts) == 1 else
-                "fairplay-research-%03d.json.gz.part%03d" % (index, number))
-        await owner_dm(
-            client,
-            "Private result %d/%d (%s): %s — %s. Evidence %d/%d; "
-            "whole gzip SHA-256: %s. Concatenate numbered parts before decompressing." %
-            (index, TOTAL, entry["group"], entry["account"], entry["priority"],
-             number, len(parts), digest),
-            filename=name, data=data)
+    return base64.b64encode(gzip.compress(raw, compresslevel=6, mtime=0)).decode("ascii")
+
+
+async def deliver_final_document(client, state):
+    records = [json.loads(gzip.decompress(base64.b64decode(item)).decode("utf-8"))
+               for item in state["evidence"]]
+    if len(records) != TOTAL:
+        raise RuntimeError("Missing research evidence")
+    document = {"schema": "sharkbot-research-complete-v3", "total": TOTAL,
+                "cohort_digest": state["digest"], "summary": summary(state["rows"]),
+                "accounts": records}
+    raw = json.dumps(document, ensure_ascii=False, separators=(",", ":"),
+                     allow_nan=False).encode("utf-8")
+    data = gzip.compress(raw, compresslevel=9, mtime=0)
+    if len(data) > MAX_PART_BYTES:
+        raise RuntimeError("Final document exceeds Discord attachment limit")
+    await owner_dm(client, "Fair Play research complete: 200/200. All 200 account "
+                   "reviews in one private archive. SHA-256: %s" %
+                   hashlib.sha256(data).hexdigest(),
+                   filename="fairplay-research-all-200.json.gz", data=data)
 
 
 def summary(rows):
@@ -172,25 +177,21 @@ async def run_research(service):
             if not state.get("finished"):
                 raise RuntimeError("Research cohort changed before previous batch finished")
             state = None
+        if state and not state.get("finished") and (state.get("archive_version") != 3 or len(state.get("evidence", [])) != state.get("cursor", 0)):
+            state = None
         if not state:
-            state = {"digest": digest, "cursor": 0, "rows": [],
+            state = {"digest": digest, "cursor": 0, "rows": [], "evidence": [], "archive_version": 3,
                      "finished": False, "started_at": time.time()}
             if not await asyncio.to_thread(checkpoint.save_research, state):
                 raise RuntimeError("Research checkpoint cannot be saved")
-        if len(state.get("rows", [])) != state["cursor"] or not 0 <= state["cursor"] <= TOTAL:
+        if (len(state.get("rows", [])) != state["cursor"] or len(state.get("evidence", [])) != state["cursor"] or not 0 <= state["cursor"] <= TOTAL):
             raise RuntimeError("Invalid research checkpoint cursor")
         if state.get("finished"):
             await report_status("success", TOTAL)
             return
         await report_status("pending", state["cursor"])
         pulse = asyncio.create_task(heartbeat(service, state), name="fairplay-research-heartbeat")
-        if state["cursor"] == 0:
-            await owner_dm(service.client,
-                           "Fair Play research started: 200 accounts. Normal reviews are queued. "
-                           "Progress is visible as account numbers in GitHub commit statuses.")
-        else:
-            await owner_dm(service.client, "Fair Play research resumed at %d/200 accounts. "
-                           "Normal reviews remain queued." % state["cursor"])
+        print("Fair Play research active at %d/200; one final DM at completion." % state["cursor"], flush=True)
         loop = asyncio.get_running_loop()
         accounts = [("closed", name) for name in cohorts["closed"]] + [
             ("comparison", name) for name in cohorts["comparison"]]
@@ -215,9 +216,10 @@ async def run_research(service):
                 entry.update(status="failed", priority="UNCLASSIFIED",
                              error_type=type(exc).__name__, partial=True)
             # Evidence must reach the owner before advancing the durable cursor.
-            await deliver_result(service.client, index + 1, entry, result)
+            packed = pack_result(index + 1, entry, result)
             next_state = dict(state)
             next_state["rows"] = state["rows"] + [entry]
+            next_state["evidence"] = state["evidence"] + [packed]
             next_state["cursor"] = index + 1
             if not await asyncio.to_thread(checkpoint.save_research, next_state):
                 raise RuntimeError("Research checkpoint cannot be saved")
@@ -231,7 +233,7 @@ async def run_research(service):
         await asyncio.gather(pulse, return_exceptions=True)
         pulse = None
         report = summary(state["rows"])
-        await owner_dm(service.client, report)
+        await deliver_final_document(service.client, state)
         await service.channel.send(report, allowed_mentions=discord.AllowedMentions.none())
         final_state = dict(state, finished=True)
         if not await asyncio.to_thread(checkpoint.save_research, final_state):
