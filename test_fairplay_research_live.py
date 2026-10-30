@@ -14,6 +14,14 @@ from fairplay_checkpoint import CheckpointStore
 
 
 class ResearchTests(unittest.TestCase):
+    def test_public_candidate_file_is_valid_and_secretless(self):
+        with patch.dict(os.environ, {}, clear=True):
+            groups, digest = research.read_cohorts()
+        self.assertEqual(len(groups["closed"]), 100)
+        self.assertEqual(len(groups["comparison"]), 100)
+        self.assertEqual(len(set(groups["closed"] + groups["comparison"])), 200)
+        self.assertEqual(len(digest), 64)
+
     def test_no_usernames_in_public_status(self):
         async def run():
             with patch.object(research, "_github_status", return_value=True) as post:
