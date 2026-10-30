@@ -2270,8 +2270,10 @@ async def _twitch_handle_redemption(event, guild, fallback_channel):
     title = str(reward.get("title", "") or "")
     config = TWITCH_REWARD_CONFIG.get(_twitch_normalize_reward_title(title))
     if config is None:
-        print(f"Twitch redemption ignored: unknown reward title {title!r} (id={redemption_id}).", flush=True)
-        await _twitch_owner_notice(f"⚠️ Twitch reward {title!r} was redeemed but is not configured in SharkBot. No Discord cosmetic granted.")
+        # Other channel-point rewards (sounds, game reviews, etc.) are not
+        # SharkBot cosmetics. Their redemption is expected, not an error.
+        # Keep them out of owner DMs and the public reward channel.
+        return
         return
 
     async def public_status(message):

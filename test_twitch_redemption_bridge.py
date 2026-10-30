@@ -43,6 +43,15 @@ class TwitchRedemptionBridgeTests(unittest.IsolatedAsyncioTestCase):
     def tearDown(self):
         bot._twitch_chat_authorization_denied = self._original_chat_denied
 
+    async def test_unconfigured_sound_or_game_review_reward_is_silent(self):
+        for title in ("Review My Game", "Shark I'm So Stupid", "Lars What Do", "Sound Effect"):
+            with patch.object(bot, "_twitch_owner_notice", new_callable=AsyncMock) as notice:
+                await bot._twitch_handle_redemption(
+                    {"id": "test-redemption", "reward": {"title": title}},
+                    None, None,
+                )
+                notice.assert_not_awaited()
+
     async def test_failed_redemption_subscription_keeps_other_subscriptions_independent(self):
         seen = []
         with patch.object(bot, "_twitch_access_token", "fake-token"), \
