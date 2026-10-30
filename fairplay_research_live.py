@@ -195,7 +195,7 @@ async def run_research(service):
                 raise RuntimeError("Research cohort changed before previous batch finished")
             state = None
         if state and (state.get("archive_version") != 3 or len(state.get("evidence", [])) != state.get("cursor", 0)):
-            state = None
+            raise RuntimeError("Existing research checkpoint incompatible; refusing silent reset")
         if not state:
             state = {"digest": digest, "cursor": 0, "rows": [], "evidence": [], "archive_version": 3,
                      "finished": False, "started_at": time.time()}
@@ -239,7 +239,7 @@ async def run_research(service):
             next_state["evidence"] = state["evidence"] + [packed]
             next_state["cursor"] = index + 1
             if not await save_research_with_retry(checkpoint, next_state):
-                raise RuntimeError("Research checkpoint cannot be saved")
+                raise RuntimeError("Research checkpoint cannot be saved; inspect GitHub push permissions, payload size and timeout")
             state.clear()
             state.update(next_state)
             await report_status("pending", state["cursor"])
