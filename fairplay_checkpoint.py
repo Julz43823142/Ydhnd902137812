@@ -34,7 +34,7 @@ def _git(args, data=None):
     env.setdefault("GIT_COMMITTER_EMAIL", "sharkbot-checkpoint@users.noreply.github.com")
     return subprocess.run(
         ["git", *args], input=data, stdout=subprocess.PIPE, env=env,
-        stderr=subprocess.DEVNULL, check=False, timeout=25,
+        stderr=subprocess.DEVNULL, check=False, timeout=120,
     )
 
 
@@ -129,7 +129,7 @@ class CheckpointStore:
         if not self.enabled:
             return False
         raw=json.dumps(self.state,separators=(",",":"),allow_nan=False).encode("utf-8")
-        payload=self.cipher.encrypt(b"gzip-v1\0"+gzip.compress(raw,compresslevel=1,mtime=0))
+        payload=self.cipher.encrypt(b"gzip-v1\0"+gzip.compress(raw,compresslevel=9,mtime=0))
         self.path.parent.mkdir(parents=True, exist_ok=True)
         temp = self.path.with_suffix(self.path.suffix + ".tmp")
         with temp.open("wb") as handle:
