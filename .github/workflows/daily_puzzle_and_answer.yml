@@ -46,6 +46,8 @@ on:
 
 permissions:
   contents: write
+  # Public commit-status progress: account numbers only, never usernames or evidence.
+  statuses: write
   # Required for the worker to dispatch a fresh copy of this workflow after a
   # planned, state-synced rotation.
   actions: write
@@ -254,6 +256,8 @@ jobs:
           # Workers remain idle unless a Fair Play review dispatches them.
           FAIRPLAY_DISTRIBUTED: "1"
           GITHUB_TOKEN: ${{ github.token }}
+          # Private cohorts are supplied only to the running Discord bot.
+          SHARKBOT_RESEARCH_COHORTS_B64: ${{ secrets.SHARKBOT_RESEARCH_COHORTS_B64 || secrets.RESEARCH_COHORTS_B64 }}
           FAIRPLAY_DISTRIBUTED_KEY: ${{ secrets.FAIRPLAY_DISTRIBUTED_KEY }}
           FAIRPLAY_REQUIRE_MAIA: "1"
           # Deterministic supplementary model observations on up to 48
