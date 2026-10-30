@@ -193,9 +193,9 @@ class AlertSettingsView(discord.ui.View):
                     for uid in members:
                         member=ctx.guild.get_member(uid) if ctx.guild else None
                         lines.append(member.display_name if member else 'Unknown member')
-                    listing='\\n'.join(lines)
+                    listing='\n'.join(lines)
                     await ctx.followup.send(
-                        f'Ban Alert members: {len(members)} subscribers\\n'+(listing[:1700] or 'No members.'),
+                        f'Ban Alert members: {len(members)} subscribers\n'+(listing[:1700] or 'No members.'),
                         ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
                 except Exception:
                     await ctx.followup.send('Alert settings unavailable.',ephemeral=True)
