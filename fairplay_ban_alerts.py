@@ -185,15 +185,17 @@ def poll(store,settings=Settings(),api_factory=PubAPI,now=None,cancel=None):
                     profile=profiles.get(other)
                     if profile is None or not isinstance(profile.get('status'),str):continue
                     if other not in sub['seen'] and profile['checked']<sub['created']:continue
-                    closed=profile['status']==FAIRPLAY_CLOSED
+                    status=profile['status']
                     previous=sub['seen'].get(other)
-                    sub['seen'][other]=closed
-                    if previous is not False or not closed:continue
-                    key=hashlib.sha256(f'{uid}:{target}:{other}:{FAIRPLAY_CLOSED}'.encode()).hexdigest()[:24]
+                    # Legacy booleans represented active / Fair Play closed.
+                    was_active=previous is False or previous=='active'
+                    sub['seen'][other]=status
+                    if not was_active or status not in (FAIRPLAY_CLOSED,'closed'):continue
+                    key=hashlib.sha256(f'{uid}:{target}:{other}:{status}'.encode()).hexdigest()[:24]
                     s['outbox'].setdefault(key,{'user':uid,'target':target,'opponent':other,'url':game['url'],
                         'games':len(game['games']),'most_recent_game':game['ended'],
                         'rated':game.get('rated'),'result':game.get('result','Unknown'),
-                        'rating_delta':game.get('rating_delta'),'detected':profile['checked'],'state':'pending','attempts':0})
+                        'rating_delta':game.get('rating_delta'),'closure_status':status,'detected':profile['checked'],'state':'pending','attempts':0})
     store.update(change)
     return {'profiles':requests,'targets':len(targets)}
 
