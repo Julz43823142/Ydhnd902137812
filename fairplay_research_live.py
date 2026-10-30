@@ -177,7 +177,7 @@ async def run_research(service):
             if not state.get("finished"):
                 raise RuntimeError("Research cohort changed before previous batch finished")
             state = None
-        if state and not state.get("finished") and (state.get("archive_version") != 3 or len(state.get("evidence", [])) != state.get("cursor", 0)):
+        if state and (state.get("archive_version") != 3 or len(state.get("evidence", [])) != state.get("cursor", 0)):
             state = None
         if not state:
             state = {"digest": digest, "cursor": 0, "rows": [], "evidence": [], "archive_version": 3,
@@ -215,7 +215,7 @@ async def run_research(service):
             except Exception as exc:
                 entry.update(status="failed", priority="UNCLASSIFIED",
                              error_type=type(exc).__name__, partial=True)
-            # Evidence must reach the owner before advancing the durable cursor.
+            # Save full evidence in the encrypted checkpoint before advancing the cursor.
             packed = pack_result(index + 1, entry, result)
             next_state = dict(state)
             next_state["rows"] = state["rows"] + [entry]
