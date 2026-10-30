@@ -135,8 +135,8 @@ class Alerts(unittest.IsolatedAsyncioTestCase):
         self.assertFalse(channel.send.call_args.kwargs['allowed_mentions'].users)
         self.assertEqual(self.store.snapshot()['outbox'][key]['state'],'sent')
         view=channel.send.call_args.kwargs['view']
-        self.assertEqual(len(view.children),5)
-        self.assertEqual(view.children[-1].label,'Members')
+        self.assertEqual(len(view.children),2)
+        self.assertEqual(view.children[-1].label,'Settings')
         self.assertEqual(view.children[0].label,'Subscribe')
     async def test_shared_opponent_one_alert_mentions_all_subscribers(self):
         self.subscribe(user=1,target='synthetic-player')

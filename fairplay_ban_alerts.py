@@ -50,6 +50,24 @@ def unsubscribe(store,user,target):
     return store.update(change)
 
 
+def set_alert_types(store,user,types):
+    allowed={'fair_play','closed_unknown'}
+    selected=sorted(set(types)&allowed)
+    def change(s):
+        row=s['users'].setdefault(str(int(user)),{'muted':False,'subscriptions':{}})
+        row['alert_types']=selected
+        for event in s['outbox'].values():
+            if event['user']==str(int(user)) and event['state']=='pending' and not alert_enabled(row,event):
+                event['state']='cancelled'
+    store.update(change)
+
+
+def alert_enabled(user,event):
+    selected=user.get('alert_types',['fair_play'])
+    category='fair_play' if event.get('closure_status',FAIRPLAY_CLOSED)==FAIRPLAY_CLOSED else 'closed_unknown'
+    return category in selected
+
+
 def mute(store,user,enabled):
     def change(s):s['users'].setdefault(str(int(user)),{'muted':False,'subscriptions':{}})['muted']=bool(enabled)
     store.update(change)
@@ -185,15 +203,19 @@ def poll(store,settings=Settings(),api_factory=PubAPI,now=None,cancel=None):
                     profile=profiles.get(other)
                     if profile is None or not isinstance(profile.get('status'),str):continue
                     if other not in sub['seen'] and profile['checked']<sub['created']:continue
-                    closed=profile['status']==FAIRPLAY_CLOSED
+                    status=profile['status']
                     previous=sub['seen'].get(other)
-                    sub['seen'][other]=closed
-                    if previous is not False or not closed:continue
-                    key=hashlib.sha256(f'{uid}:{target}:{other}:{FAIRPLAY_CLOSED}'.encode()).hexdigest()[:24]
+                    # Legacy booleans represented active / Fair Play closed.
+                    was_active=(previous is False or
+                                isinstance(previous,str) and previous not in (FAIRPLAY_CLOSED,'closed') and not previous.startswith('closed:'))
+                    sub['seen'][other]=status
+                    if not was_active or status not in (FAIRPLAY_CLOSED,'closed'):continue
+                    if not alert_enabled(u,{'closure_status':status}):continue
+                    key=hashlib.sha256(f'{uid}:{target}:{other}:{status}'.encode()).hexdigest()[:24]
                     s['outbox'].setdefault(key,{'user':uid,'target':target,'opponent':other,'url':game['url'],
                         'games':len(game['games']),'most_recent_game':game['ended'],
                         'rated':game.get('rated'),'result':game.get('result','Unknown'),
-                        'rating_delta':game.get('rating_delta'),'detected':profile['checked'],'state':'pending','attempts':0})
+                        'rating_delta':game.get('rating_delta'),'closure_status':status,'detected':profile['checked'],'state':'pending','attempts':0})
     store.update(change)
     return {'profiles':requests,'targets':len(targets)}
 
@@ -202,7 +224,7 @@ def reserve(store,key):
     def change(s):
         event=s['outbox'][key]
         user=s['users'].get(event['user'],{})
-        if event['target'] not in user.get('subscriptions',{}) or event['state']!='pending':return None
+        if event['target'] not in user.get('subscriptions',{}) or event['state']!='pending' or not alert_enabled(user,event):return None
         event['state']='sending';event['attempts']+=1
         return copy.deepcopy(event)
     return store.update(change)

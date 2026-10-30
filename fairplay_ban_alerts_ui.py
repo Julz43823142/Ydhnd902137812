@@ -8,7 +8,7 @@ import discord
 from fairplay_config import CHANNEL_ID,NAMESPACE
 from fairplay_data import PubAPI,ScanDeadline,username,ReviewError
 from fairplay_alert_store import AlertStore
-from fairplay_ban_alerts import Settings,subscribe,unsubscribe,mute,poll,reserve,mark
+from fairplay_ban_alerts import Settings,subscribe,unsubscribe,mute,set_alert_types,alert_enabled,poll,reserve,mark
 
 PREFIX=NAMESPACE+'ban-alert:'
 PANEL_TITLE='🔔 Fair Play Ban Alerts'
@@ -19,15 +19,17 @@ def alert_embed(event,key):
     # Preserve the durable reconciliation key without exposing a technical ID
     # in the visible footer. Discord embeds retain the URL fragment.
     game_url=event['url']
+    fair_play=event.get('closure_status','closed:fair_play_violations')=='closed:fair_play_violations'
     e=discord.Embed(
-        title='SharkBot — Fair Play Ban Alert',
+        title='SharkBot — Fair Play Ban Alert 🚨' if fair_play else 'SharkBot — Account Closed Alert',
         url=game_url+'#sharkbot-alert-'+key,
-        color=0xe89b35,
-        description="Chess.com has closed an opponent's account for Fair Play violations.",
+        color=0x8b0000 if fair_play else 0x64748b,
+        description=("Chess.com has closed an opponent's account for Fair Play violations."
+                     if fair_play else "Chess.com reports this account as closed. The reason is not publicly confirmed."),
     )
     e.add_field(name='Followed Chess.com account',value=event['target'],inline=False)
     e.add_field(name='Opponent',value=event['opponent'],inline=False)
-    e.add_field(name='Official status',value='Closed — Fair Play',inline=False)
+    e.add_field(name='Official status',value='Closed — Fair Play' if fair_play else 'Closed — reason unknown',inline=False)
     e.add_field(name='Public links',inline=False,
         value=f"[View Game]({game_url}) · [Opponent profile](https://www.chess.com/member/{event['opponent']})")
     games=int(event['games'])
@@ -50,7 +52,7 @@ def alert_embed(event,key):
     detected=datetime.fromtimestamp(event['detected'],timezone.utc).strftime('%B %d, %Y').replace(' 0',' ')
     e.add_field(name='Detected by SharkBot',value=detected,inline=False)
     e.add_field(name='Get your own alerts',inline=False,
-        value='Subscribe below to receive alerts when your Chess.com opponents are banned. Manage subscriptions with `/alert`.')
+        value="Subscribe below for Chess.com opponent closure alerts. Manage preferences with `/alert` Settings.")
     return e
 
 
@@ -59,7 +61,7 @@ def panel_embed():
         'Subscribe to alerts about opponents of a Chess.com account. '
         'Enter your own username to follow your opponents. '
         'Checks run hourly; existing closures do not trigger old alerts. '
-        'Use the buttons to manage subscriptions and pings.'))
+        'Use Subscribe or Settings to manage your alerts.'))
 
 
 async def open_menu(ctx):
@@ -107,12 +109,15 @@ class AlertModal(discord.ui.Modal):
 class AlertView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
-        for label,action in [('Subscribe','add'),('Unsubscribe','remove'),('Mute Pings','mute'),('Unmute Pings','unmute'),('Members','members')]:
-            button=discord.ui.Button(label=label,custom_id=PREFIX+action,row=1 if action=='members' else 0)
+        for label,action in [('Subscribe','add'),('Settings','settings')]:
+            button=discord.ui.Button(label=label,custom_id=PREFIX+action)
             async def callback(ctx,action=action):
                 if ctx.channel_id!=CHANNEL_ID or ctx.user.bot:return
                 if action in ('add','remove'):
                     await ctx.response.send_modal(AlertModal(action=='remove'));return
+                if action=='settings':
+                    await ctx.response.send_message('Manage your subscriptions, pings and closure alerts. Abuse and inactivity are not separately verifiable through the public Chess.com status.',view=AlertSettingsView(),ephemeral=True)
+                    return
                 await ctx.response.defer(ephemeral=True)
                 if not _service:return await ctx.followup.send('Ban Alerts are reconnecting.',ephemeral=True)
                 try:
@@ -126,7 +131,7 @@ class AlertView(discord.ui.View):
                         lines=[]
                         for uid in subscribers:
                             member=guild.get_member(uid) if guild else None
-                            lines.append((member.display_name if member else f'User {uid}')+f' ({uid})')
+                            lines.append(member.display_name if member else 'Unknown member')
                         header=f'Ban Alert members: {len(subscribers)} subscribers'
                         # Discord messages have a 2000-character limit.
                         listing='\n'.join(lines)
@@ -139,6 +144,63 @@ class AlertView(discord.ui.View):
                     await ctx.followup.send(text,ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
                 except Exception:await ctx.followup.send('Alert storage unavailable; please retry later.',ephemeral=True)
             button.callback=callback;self.add_item(button)
+
+
+
+class AlertTypeSelect(discord.ui.Select):
+    def __init__(self):
+        super().__init__(
+            custom_id=PREFIX+'alert-types',
+            placeholder='Choose alert types',
+            min_values=0,max_values=2,
+            options=[
+                discord.SelectOption(label='Fair Play ban',value='fair_play',description='Official Fair Play closure'),
+                discord.SelectOption(label='Other account closure',value='closed_unknown',description='Reason not publicly confirmed'),
+            ],
+        )
+
+    async def callback(self,ctx):
+        if not _service or _service.closed:
+            return await ctx.response.send_message('Alert service unavailable.',ephemeral=True)
+        try:
+            async with _service.lock:
+                await asyncio.to_thread(set_alert_types,_service.store,ctx.user.id,self.values)
+            await ctx.response.send_message('Alert preferences saved. Abuse and inactivity cannot be individually identified by the public API.',ephemeral=True)
+        except Exception:
+            await ctx.response.send_message('Could not save preferences.',ephemeral=True)
+
+
+class AlertSettingsView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=300)
+        self.add_item(AlertTypeSelect())
+        for label,action in [('Unsubscribe','remove'),('Mute Pings','mute'),('Unmute Pings','unmute'),('Members','members')]:
+            button=discord.ui.Button(label=label,custom_id=PREFIX+'settings-'+action,row=1)
+            async def callback(ctx,action=action):
+                if not _service or _service.closed:
+                    return await ctx.response.send_message('Alert service unavailable.',ephemeral=True)
+                if action=='remove':
+                    return await ctx.response.send_modal(AlertModal(True))
+                await ctx.response.defer(ephemeral=True)
+                try:
+                    if action in ('mute','unmute'):
+                        async with _service.lock:
+                            await asyncio.to_thread(mute,_service.store,ctx.user.id,action=='mute')
+                        return await ctx.followup.send('Pings '+('muted.' if action=='mute' else 'unmuted.'),ephemeral=True)
+                    state=await asyncio.to_thread(_service.store.snapshot)
+                    members=sorted(int(uid) for uid,row in state['users'].items() if row.get('subscriptions'))
+                    lines=[]
+                    for uid in members:
+                        member=ctx.guild.get_member(uid) if ctx.guild else None
+                        lines.append(member.display_name if member else 'Unknown member')
+                    listing='\n'.join(lines)
+                    await ctx.followup.send(
+                        f'Ban Alert members: {len(members)} subscribers\n'+(listing[:1700] or 'No members.'),
+                        ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
+                except Exception:
+                    await ctx.followup.send('Alert settings unavailable.',ephemeral=True)
+            button.callback=callback
+            self.add_item(button)
 
 
 class AlertService:
@@ -172,7 +234,7 @@ class AlertService:
             groups={}
             for key,event in state['outbox'].items():
                 if event['state']=='pending':
-                    groups.setdefault(event['opponent'],[]).append((key,event))
+                    groups.setdefault((event['opponent'],event.get('closure_status','closed:fair_play_violations')),[]).append((key,event))
             for opponent,items in groups.items():
                 reserved=[]
                 for key,event in items:
@@ -184,7 +246,7 @@ class AlertService:
                 recipients=[]
                 for key,event in reserved:
                     user=fresh['users'].get(event['user'],{})
-                    if event['target'] not in user.get('subscriptions',{}):
+                    if event['target'] not in user.get('subscriptions',{}) or not alert_enabled(user,event):
                         await asyncio.to_thread(mark,self.store,key,'cancelled')
                         continue
                     recipients.append((key,event,user))
