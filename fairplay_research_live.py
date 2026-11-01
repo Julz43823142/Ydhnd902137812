@@ -19,6 +19,7 @@ from datetime import datetime, timezone
 import discord
 from fairplay_data import username
 from fairplay_evidence_payload import normalize
+from fairplay_research_store import ResearchRecordStore
 
 OWNER_ID = 362606514764251137
 BANDS = ("LOW", "MODERATE", "HIGH", "VERY HIGH")
@@ -181,10 +182,14 @@ async def save_research_with_retry(checkpoint, state, *, attempts=8):
 
 
 async def run_research(service):
-    checkpoint = service.checkpoints
+    # Independent append-only encrypted branch, not the shared ~100 MiB state.enc.
+    # A clean research run starts at 0/200; prior 34-account work may be dropped.
+    checkpoint = getattr(service, "research_checkpoints", None)
     state = None
     pulse = None
     try:
+        if checkpoint is None:
+            checkpoint = await asyncio.to_thread(ResearchRecordStore)
         cohorts, digest = read_cohorts()
         if checkpoint is None or not checkpoint.enabled:
             raise RuntimeError("Encrypted research checkpoint unavailable")
@@ -203,6 +208,20 @@ async def run_research(service):
                 raise RuntimeError("Research checkpoint cannot be saved")
         if (len(state.get("rows", [])) != state["cursor"] or len(state.get("evidence", [])) != state["cursor"] or not 0 <= state["cursor"] <= TOTAL):
             raise RuntimeError("Invalid research checkpoint cursor")
+        # The old shared checkpoint contains the former research evidence and
+        # is almost at GitHub's 100 MiB single-object ceiling. Compact it once
+        # before normal per-account analysis writes any additional job data.
+        legacy = getattr(service, "checkpoints", None)
+        if legacy is not None and hasattr(legacy, "release_legacy_research"):
+            released = False
+            for attempt in range(3):
+                if await asyncio.to_thread(legacy.release_legacy_research):
+                    released = True
+                    break
+                if attempt < 2:
+                    await asyncio.sleep(2 ** attempt)
+            if not released:
+                raise RuntimeError("Legacy encrypted checkpoint compaction failed")
         if state.get("finished"):
             await report_status("success", TOTAL)
             return
