@@ -21,8 +21,7 @@ def clean(value, depth=0):
 
 
 def chart_samples(games):
-    """Publish measured chronology and conservative, matched Elo score trends."""
-    from collections import deque
+    """Sample real chronological observations without smoothing scores."""
     grouped = observations(games)
     ordered = sorted(games, key=lambda g: (g.ended, g.identity))
     by_control = {name: [] for name in ("rapid", "blitz", "bullet")}
@@ -31,22 +30,19 @@ def chart_samples(games):
             by_control[game.time_class].append(game)
     sampled = {}
     for kind, rows in grouped.items():
-        window = deque(maxlen=10)
         full = []
         for row, game in zip(rows, by_control[kind]):
             item = dict(row)
             item["ended"] = game.ended
-            item["score"] = game.score
             player, opponent = game.rating, game.opponent_rating
-            valid = all(isinstance(v, (int, float)) and math.isfinite(v)
-                        and v > 0 for v in (player, opponent))
-            expected = 1.0 / (1.0 + 10 ** ((opponent - player) / 400)) if valid else None
-            window.append((game.score, expected))
-            matched = [(actual, estimate) for actual, estimate in window
-                       if isinstance(actual, (int, float)) and expected_number(estimate)]
-            if len(matched) >= 8:
-                item["rolling_observed"] = sum(actual for actual, _ in matched) / len(matched) * 100
-                item["rolling_expected"] = sum(estimate for _, estimate in matched) / len(matched) * 100
+            valid = (game.rated is True
+                     and all(isinstance(v, (int, float)) and math.isfinite(v) and v > 0
+                             for v in (player, opponent))
+                     and game.score in (0, 0.5, 1))
+            item["actual_score"] = game.score * 100 if valid else None
+            item["expected_score"] = (
+                100 / (1 + 10 ** ((opponent - player) / 400))
+                if valid else None)
             full.append(item)
         stride = max(1, math.ceil(len(full) / 500))
         selected = full[::stride][:500]
@@ -55,9 +51,6 @@ def chart_samples(games):
         sampled[kind] = selected
     return sampled
 
-
-def expected_number(value):
-    return isinstance(value, (int, float)) and math.isfinite(value)
 
 
 def main():
