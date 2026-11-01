@@ -187,12 +187,15 @@ async def run_research(service):
     checkpoint = getattr(service, "research_checkpoints", None)
     state = None
     pulse = None
+    stage = "initialization"
     try:
         if checkpoint is None:
             checkpoint = await asyncio.to_thread(ResearchRecordStore)
+        stage = "cohort validation"
         cohorts, digest = read_cohorts()
         if checkpoint is None or not checkpoint.enabled:
             raise RuntimeError("Encrypted research checkpoint unavailable")
+        stage = "record restoration"
         state = await asyncio.to_thread(checkpoint.research_state)
         print("Research checkpoint restored at %d/%d." % (state.get("cursor", 0) if state else 0, TOTAL), flush=True)
         if state and state.get("digest") != digest:
@@ -204,6 +207,7 @@ async def run_research(service):
         if not state:
             state = {"digest": digest, "cursor": 0, "rows": [], "evidence": [], "archive_version": 3,
                      "finished": False, "started_at": time.time()}
+            stage = "initial record persistence"
             if not await save_research_with_retry(checkpoint, state):
                 raise RuntimeError("Research checkpoint cannot be saved")
         if (len(state.get("rows", [])) != state["cursor"] or len(state.get("evidence", [])) != state["cursor"] or not 0 <= state["cursor"] <= TOTAL):
@@ -211,6 +215,7 @@ async def run_research(service):
         # The old shared checkpoint contains the former research evidence and
         # is almost at GitHub's 100 MiB single-object ceiling. Compact it once
         # before normal per-account analysis writes any additional job data.
+        stage = "legacy cleanup"
         legacy = getattr(service, "checkpoints", None)
         if legacy is not None and hasattr(legacy, "release_legacy_research"):
             # One best-effort cleanup; legacy retries/timeouts must not hold
@@ -229,6 +234,7 @@ async def run_research(service):
         if state.get("finished"):
             await report_status("success", TOTAL)
             return
+        stage = "research start"
         await report_status("pending", state["cursor"])
         pulse = asyncio.create_task(heartbeat(service, state), name="fairplay-research-heartbeat")
         print("Fair Play research active at %d/200; one final DM at completion." % state["cursor"], flush=True)
@@ -241,6 +247,7 @@ async def run_research(service):
             group, account = accounts[index]
             entry = {"group": group, "account": account}
             result = None
+            stage = "analysis"
             try:
                 # Use the *same* analysis callable/executor as normal /fairplay.
                 result = await loop.run_in_executor(
@@ -261,6 +268,7 @@ async def run_research(service):
             next_state["rows"] = state["rows"] + [entry]
             next_state["evidence"] = state["evidence"] + [packed]
             next_state["cursor"] = index + 1
+            stage = "record persistence"
             if not await save_research_with_retry(checkpoint, next_state):
                 raise RuntimeError("Research checkpoint cannot be saved; inspect GitHub push permissions, payload size and timeout")
             state.clear()
@@ -273,8 +281,10 @@ async def run_research(service):
         await asyncio.gather(pulse, return_exceptions=True)
         pulse = None
         report = summary(state["rows"])
+        stage = "private archive delivery"
         await deliver_final_document(service.client, state)
         await service.channel.send(report, allowed_mentions=discord.AllowedMentions.none())
+        stage = "terminal record persistence"
         final_state = dict(state, finished=True)
         if not await save_research_with_retry(checkpoint, final_state):
             raise RuntimeError("Final research checkpoint cannot be saved")
@@ -285,9 +295,12 @@ async def run_research(service):
         raise
     except Exception as exc:
         completed = state["cursor"] if state else 0
-        print("Fair Play research stopped: %s; completed %d/%d; details: %s." %
-              (type(exc).__name__, completed, TOTAL, str(exc)[:160] if isinstance(exc, RuntimeError) else "redacted"), flush=True)
-        await report_status("failure", completed, reason="FAILED")
+        # Stage and exception type are fixed/structural metadata; never include
+        # exception text, account names, reviews, file paths or decrypted records.
+        print("Fair Play research stopped at %s: %s; completed %d/%d." %
+              (stage, type(exc).__name__, completed, TOTAL), flush=True)
+        safe_stage = stage.replace(" ", "-").upper()
+        await report_status("failure", completed, reason="FAILED-" + safe_stage)
         try:
             await owner_dm(service.client,
                            "Fair Play research stopped after %d/200 accounts. Reason: %s. "
