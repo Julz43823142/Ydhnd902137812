@@ -804,7 +804,8 @@ class DiscordRules(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(card.colour.value,0xEA8537)
         self.assertIn('gameplay assessment: LOW',card.description)
         self.assertIn('Not engine/Maia-confirmed',card.description)
-        self.assertIn('synthetic-version',card.footer.text)
+        self.assertIn('V2.1',card.footer.text)
+        self.assertEqual(result.version,'synthetic-version')
         self.assertIn(job.token,card.footer.text)
         self.assertLess(len(card),6000)
 
