@@ -59,8 +59,8 @@
     "url": "https://www.chess.com/daily/2026-11-01",
     "title": "Take Your Sweet Time",
     "fen": "8/p5pk/1R2p3/2p3p1/8/2p4P/PN4P1/6K1 b - - 0 33",
-    "current_fen": "8/6pk/4p3/p5p1/1RN5/2p4P/P5P1/6K1 b - - 0 35",
-    "last_move_uci": "b2c4",
+    "current_fen": "8/6pk/4p3/p5p1/2N5/1R5P/P1p3P1/6K1 b - - 1 36",
+    "last_move_uci": "b4b3",
     "pgn": {
       "__shark_answer_ciphertext_v1__": "gAAAAABq5uWTg-7lbYbn1Nrs5PZAx14LrXXJ6FjpSoeXsm3s8jbQgiLlYSUodjtXE_Z7JGKKFRG-LQ7zFZrLJPIgSmOhdDxV95itEvsAQqBKjmEGaEHxPmM1XuYU116L9vVCGP71fi9JzwsHL4aPmvNuIo6-zCxfpECGJqAEETN1rcOB66er3kI9Wfutr0z_U8L4l3HWx7DEtLOIFnQCtcS2UOiGc5KezUmmdAMcnohbYNj_8jlfrNBhYzHyjbECanvS-8zUF4uzNn3jO8mE8HoZMKG2zwXu3DUx1NdZnnoJ5555PgN2KDoPvPQbV5Ek2UBnMeV7GonaskRzncVggz5B6KEufH1PxSiRbcQYQXqdvtTbLiMpP8Q="
     },
@@ -78,16 +78,16 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1793516947304",
-    "next_solution_index": 4,
-    "next_player_index": 2,
+    "next_solution_index": 6,
+    "next_player_index": 3,
     "solved": false,
-    "message_id": 1566349883433287782,
+    "message_id": 1566349914164699179,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "A5",
+        "move": "C2",
         "correct": true,
-        "timestamp": "2026-11-01T07:15:13.084036+00:00"
+        "timestamp": "2026-11-01T07:15:20.722714+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
@@ -96,14 +96,14 @@
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1566349883433287782
+      "1468320170891022417": 1566349914164699179
     },
     "channel_id": 1468320170891022417,
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
     "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-11-01T07:15:13.083622+00:00",
+    "last_card_activity_at": "2026-11-01T07:15:20.722337+00:00",
     "recent_accepted_moves": [
       {
         "accepted_at": 1793517313.0840447,
@@ -114,12 +114,22 @@
           "color": "black"
         },
         "accepted_uci": "a7a5"
+      },
+      {
+        "accepted_at": 1793517320.7227228,
+        "fen_before": "8/6pk/4p3/p5p1/1RN5/2p4P/P5P1/6K1 b - - 0 35",
+        "expected": {
+          "uci": "c3c2",
+          "san": "c2",
+          "color": "black"
+        },
+        "accepted_uci": "c3c2"
       }
     ],
     "wrong_attempt_counts": {
       "442597396195704832": 1
     },
-    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Nxc4",
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Rb3",
     "accepted_solution_moves": [
       {
         "san": "c4",
@@ -129,6 +139,11 @@
       {
         "san": "a5",
         "uci": "a7a5",
+        "principal": true
+      },
+      {
+        "san": "c2",
+        "uci": "c3c2",
         "principal": true
       }
     ]
