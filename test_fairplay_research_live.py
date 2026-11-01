@@ -103,7 +103,7 @@ class ResearchTests(unittest.TestCase):
                         research, "report_status", new=noop), patch.object(
                         research, "pack_result", return_value="encrypted-test-evidence"):
                     await research.run_research(service)
-            self.assertEqual(old.attempts, 3)
+            self.assertEqual(old.attempts, 1)
             self.assertEqual(called, ["user-1", "user-2"])
             self.assertEqual(checkpoint.state["cursor"], 2)
             self.assertTrue(checkpoint.state["finished"])
