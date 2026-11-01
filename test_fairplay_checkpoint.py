@@ -228,6 +228,26 @@ class CheckpointTests(unittest.TestCase):
             self.assertTrue(three["complete"])
             self.assertEqual(len(seen),2)
 
+    def test_legacy_research_compaction_preserves_other_encrypted_jobs(self):
+        store = self.store()
+        self.bind(store)
+        legacy = {"cursor": 34, "evidence": ["private-evidence" * 1000]}
+        self.assertTrue(store.save_research(legacy))
+        self.assertTrue(store.release_legacy_research())
+        self.assertEqual(store.research_state(), {})
+        resumed = self.store()
+        self.assertEqual(resumed.research_state(), {})
+        self.assertEqual(len(resumed.pending()), 1)
+        self.assertNotIn(b"private-evidence", Path(self.path).read_bytes())
+
+    def test_legacy_compaction_rolls_back_if_persistence_fails(self):
+        store = self.store()
+        legacy = {"cursor": 34, "evidence": ["private-evidence"]}
+        self.assertTrue(store.save_research(legacy))
+        with patch.object(store, "_write", return_value=False):
+            self.assertFalse(store.release_legacy_research())
+        self.assertEqual(store.research_state(), legacy)
+
     def test_remote_branch_survives_ephemeral_worker(self):
         bare = Path(self.temp.name) / "remote.git"
         work = Path(self.temp.name) / "runner"
