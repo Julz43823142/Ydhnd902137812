@@ -5,6 +5,7 @@ from unittest.mock import patch
 
 import shark_ai
 from shark_version import SHARKBOT_VERSION
+from shark_ai_version import SHARKBOT_AI_VERSION
 
 
 class ReplyLimitTests(unittest.IsolatedAsyncioTestCase):
@@ -106,7 +107,7 @@ class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
         with patch.dict("os.environ", {"GROQ_API_KEY": ""}):
             handled = await shark_ai.handle_mention(msg, SimpleNamespace(user=bot))
         self.assertTrue(handled)
-        self.assertEqual(replies[0][0], SHARKBOT_VERSION)
+        self.assertEqual(replies[0][0], "SharkBot AI " + SHARKBOT_AI_VERSION)
         self.assertFalse(replies[0][1]["mention_author"])
 
     async def test_informal_which_version_are_u(self):
@@ -132,7 +133,7 @@ class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
         )
         with patch.dict("os.environ", {"GROQ_API_KEY": ""}):
             self.assertTrue(await shark_ai.handle_mention(msg, SimpleNamespace(user=bot)))
-        self.assertEqual(replies, [SHARKBOT_VERSION])
+        self.assertEqual(replies, ["SharkBot AI " + SHARKBOT_AI_VERSION])
 
     async def test_version_paraphrases_never_call_groq(self):
         bot = SimpleNamespace(id=42)
@@ -167,7 +168,11 @@ class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
                 )
                 with patch("shark_ai._complete", side_effect=AssertionError("Groq called")):
                     self.assertTrue(await shark_ai.handle_mention(msg, SimpleNamespace(user=bot)))
-                self.assertEqual(replies, [SHARKBOT_VERSION])
+                expected = ("SharkBot " + SHARKBOT_VERSION
+                            if question in ("what is the current public version of SharkBot?",
+                                            "Welke versie draait de bot?")
+                            else "SharkBot AI " + SHARKBOT_AI_VERSION)
+                self.assertEqual(replies, [expected])
 
     async def test_free_box_claim_uses_authenticated_author(self):
         from shark_commands import PRIMARY_CHESS_CHANNEL_ID
@@ -329,7 +334,7 @@ class VersionMentionTests(unittest.IsolatedAsyncioTestCase):
         )
         with patch.dict("os.environ", {"GROQ_API_KEY": ""}):
             self.assertTrue(await shark_ai.handle_mention(msg, SimpleNamespace(user=bot)))
-        self.assertEqual(replies, [SHARKBOT_VERSION])
+        self.assertEqual(replies, ["SharkBot AI " + SHARKBOT_AI_VERSION])
 
 
 if __name__ == "__main__":
