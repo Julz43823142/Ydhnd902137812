@@ -300,7 +300,7 @@ def _asks_public_version(prompt: str) -> bool:
 def _public_version_reply(prompt: str) -> str:
     """AI replies speak for the AI, unless the general SharkBot is explicit."""
     normalized = " ".join(prompt.casefold().split())
-    if re.search(r"\bsharkbot\b", normalized) and not re.search(
+    if re.search(r"\b(?:sharkbot|(?:de|the) bot)\b", normalized) and not re.search(
         r"\b(?:ai|sharkbotai|your|you|jouw|jij|je)\b", normalized
     ):
         return "SharkBot " + SHARKBOT_VERSION
