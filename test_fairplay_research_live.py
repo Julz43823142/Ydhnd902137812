@@ -84,7 +84,7 @@ class ResearchTests(unittest.TestCase):
                 return SimpleNamespace(priority="HIGH", confidence="HIGH",
                                        partial=False, selected_games=50)
             with ThreadPoolExecutor(max_workers=1) as pool:
-                service = SimpleNamespace(checkpoints=store, client=client, channel=channel,
+                service = SimpleNamespace(checkpoints=store, research_checkpoints=store, client=client, channel=channel,
                                           executor=pool, analyzer=analyzer, closed=False,
                                           research_hold=asyncio.Event())
                 async def no_delivery(*args, **kwargs):
