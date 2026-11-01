@@ -174,6 +174,24 @@ class CheckpointStore:
         self.remote_ok = False
         return False
 
+    def release_legacy_research(self):
+        """Remove obsolete, oversized research snapshots without affecting normal jobs.
+
+        Research now uses independent encrypted append-only records. Previous
+        34-account evidence is intentionally not migrated (the operator permits
+        restarting at zero); historical ciphertext remains in Git history.
+        Roll back in-memory removal if the compact checkpoint cannot be pushed.
+        """
+        with self.lock:
+            if not self.state.get("research"):
+                return True
+            previous = self.state["research"]
+            self.state["research"] = {}
+            if self._write(force=True):
+                return True
+            self.state["research"] = previous
+            return False
+
     def research_state(self):
         """Read the private resumable batch cursor from Fernet storage."""
         with self.lock:return copy.deepcopy(self.state.get("research", {}))
