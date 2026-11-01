@@ -1,0 +1,37 @@
+name: Fair Play Research and SharkBot AI Regression
+
+on:
+  pull_request:
+    paths:
+      - 'fairplay_research_live.py'
+      - 'fairplay_research_store.py'
+      - 'fairplay_checkpoint.py'
+      - 'shark_ai.py'
+      - 'shark_ai_version.py'
+      - 'test_fairplay_research_live.py'
+      - 'test_fairplay_research_store.py'
+      - 'test_shark_ai_safety.py'
+      - '.github/workflows/research_version_regression.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          filter: blob:none
+          fetch-depth: 1
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Install test dependencies
+        run: pip install -r requirements.txt
+      - name: Validate syntax
+        run: python -m py_compile fairplay_research_live.py fairplay_research_store.py fairplay_checkpoint.py shark_ai.py
+      - name: Run regression tests
+        run: python -m unittest -v test_fairplay_research_live test_fairplay_research_store test_shark_ai_safety
