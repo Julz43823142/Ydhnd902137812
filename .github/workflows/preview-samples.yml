@@ -1,0 +1,37 @@
+name: EloScanner verified example reports
+run-name: Preview samples · ${{ matrix.username }}
+on:
+  push:
+    paths:
+      - '.github/workflows/preview-samples.yml'
+  schedule:
+    - cron: '13 5 * * 1'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preview:
+    name: Public review for ${{ matrix.username }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    strategy:
+      fail-fast: false
+      matrix:
+        username: [MagnusCarlsen, Hikaru]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - name: Analyze public player history
+        run: python fairplay_website_runner.py
+        env:
+          CHESS_USERNAME: ${{ matrix.username }}
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: preview-${{ matrix.username }}
+          path: v87-result.json
+          retention-days: 30
+          compression-level: 0
