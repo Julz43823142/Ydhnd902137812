@@ -101,8 +101,7 @@ class ResearchTests(unittest.TestCase):
                         ), patch.object(research, "owner_dm", new=noop), patch.object(
                         research, "deliver_final_document", new=noop), patch.object(
                         research, "report_status", new=noop), patch.object(
-                        research, "pack_result", return_value="encrypted-test-evidence"), patch.object(
-                        research.asyncio, "sleep", new=noop):
+                        research, "pack_result", return_value="encrypted-test-evidence"):
                     await research.run_research(service)
             self.assertEqual(old.attempts, 3)
             self.assertEqual(called, ["user-1", "user-2"])
