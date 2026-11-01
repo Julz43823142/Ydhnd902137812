@@ -38,11 +38,20 @@ def _git(args, *, data=None):
                           stderr=subprocess.PIPE, env=env, check=False, timeout=120)
 
 
+class ResearchGitFailure(RuntimeError):
+    """Safe Git failure details, without credentials or raw stderr."""
+
+    def __init__(self, step, code):
+        self.step = step
+        self.code = code
+        super().__init__("Encrypted research Git %s failed (exit %d)" %
+                         (step, code))
+
+
 def _check(command, step):
     if command.returncode:
         # Never print Git stderr: it can include authentication URLs or private paths.
-        raise RuntimeError("Encrypted research Git %s failed (exit %d)" %
-                           (step, command.returncode))
+        raise ResearchGitFailure(step, command.returncode)
     return command.stdout
 
 
@@ -216,8 +225,13 @@ class ResearchRecordStore:
                 return True
             except (OSError, ValueError, RuntimeError, subprocess.TimeoutExpired) as exc:
                 # Nothing identifying the reviewed account is logged.
-                print("Encrypted research record persistence unavailable: %s" %
-                      type(exc).__name__, flush=True)
+                if isinstance(exc, ResearchGitFailure):
+                    # Step + exit code are safe; Git stderr and private evidence are not.
+                    print("Encrypted research record persistence unavailable at "
+                          "%s (exit %d)." % (exc.step, exc.code), flush=True)
+                else:
+                    print("Encrypted research record persistence unavailable: %s" %
+                          type(exc).__name__, flush=True)
                 try:
                     self._load()  # An ambiguous push result may already be durable.
                     return self.state == desired
