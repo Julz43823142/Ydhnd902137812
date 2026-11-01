@@ -1,0 +1,36 @@
+name: Fair Play v87 manual review
+on:
+  workflow_dispatch:
+    inputs:
+      chess_username:
+        description: "Public Chess.com username"
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - name: Run original engine-free Method 3
+        env:
+          CHESS_USERNAME: ${{ inputs.chess_username }}
+        run: |
+          python - <<'PY'
+          import os
+          from fairplay_method3 import review
+          username = os.environ['CHESS_USERNAME']
+          result = review(username, progress=lambda msg: print(str(msg)[:160], flush=True))
+          print('VERSION:', result.version)
+          print('PRIORITY:', result.priority)
+          print('CONFIDENCE:', result.confidence)
+          print('GAMES:', len(result.games))
+          print('SELECTED GAMES:', result.selected_games)
+          print('PARTIAL:', result.partial)
+          PY
