@@ -102,6 +102,7 @@ def main():
         "priority": result.priority,
         "confidence": result.confidence,
         "games": len(result.games),
+        "elapsed_seconds": clean(result.elapsed),
         "selected_games": result.selected_games,
         "partial": result.partial,
         "reasons": clean(result.reasons),
