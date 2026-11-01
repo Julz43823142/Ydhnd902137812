@@ -288,13 +288,30 @@ def _is_daily_answer_question(prompt):
 
 
 def _asks_public_version(prompt: str) -> bool:
-    """Recognize questions about the bot's published release number."""
+    """Recognize public bot/AI release-number questions, not third-party versions."""
     normalized = " ".join(prompt.casefold().split())
     if not re.search(r"\b(?:versie|version|versienummer|versionnummer)\b", normalized):
         return False
     if re.search(r"\b(?:python|stockfish|minecraft|windows|chess960)\b", normalized):
         return False
     return True
+
+
+def _public_version_reply(prompt: str) -> str:
+    """AI replies speak for the AI, unless the general SharkBot is explicit."""
+    normalized = " ".join(prompt.casefold().split())
+    # Preserve the existing non-disclosure reply for release-history questions.
+    if re.search(
+        r"\b(?:what changed|what's new|what is new|was added|changelog|"
+        r"wat is nieuw|difference between versions|nieuw in versie)\b",
+        normalized,
+    ):
+        return SHARKBOT_VERSION
+    if re.search(r"\b(?:sharkbot|(?:de|the) bot)\b", normalized) and not re.search(
+        r"\b(?:ai|sharkbotai|your|you|jouw|jij|je)\b", normalized
+    ):
+        return "SharkBot " + SHARKBOT_VERSION
+    return "SharkBot AI " + SHARKBOT_AI_VERSION
 
 
 def fairplay_review_target(prompt):
@@ -503,7 +520,7 @@ async def handle_mention(message, client):
             mention_author=False, allowed_mentions=discord.AllowedMentions.none())
         return True
     if _asks_public_version(prompt):
-        await _counted_reply(message, SHARKBOT_AI_VERSION if re.search(r"(?i)\\b(?:ai|sharkbotai)\\b", prompt) else SHARKBOT_VERSION,
+        await _counted_reply(message, _public_version_reply(prompt),
             mention_author=False, allowed_mentions=discord.AllowedMentions.none())
         return True
     # Version number is public; release history and internal changes are not.
@@ -730,6 +747,10 @@ async def handle_mention(message, client):
                         ". This is roleplay only: do not assert pet ownership, inventory, rewards or game actions.")
         messages = [{"role": "system", "content": PUBLIC_CHAT_PROMPT + "\\n" + persona}]
         messages.append({"role": "system", "content": PUBLIC_FEATURE_KNOWLEDGE})
+        messages.append({"role": "system", "content":
+            "Your public identity is SharkBot AI " + SHARKBOT_AI_VERSION +
+            ". The general SharkBot release is " + SHARKBOT_VERSION +
+            ". Never invent or substitute another version number."})
         messages.append({"role": "system", "content": SERVER_COMMUNITY_RULES})
         if chat_only:
             messages.append({"role": "system", "content": "In this channel, do not claim to have reviewed games or verified misconduct without a real review result. If someone requests a Chess.com review, tell them to use /fairplay username or mention SharkBot with a clear review request. Direct ban-alert subscription requests to /alert."})

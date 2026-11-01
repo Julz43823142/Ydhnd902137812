@@ -60,6 +60,56 @@ class ResearchTests(unittest.TestCase):
                 await asyncio.gather(service.research_task, return_exceptions=True)
         asyncio.run(run())
 
+    def test_failed_legacy_compaction_does_not_block_new_research(self):
+        async def run():
+            class IndependentStore:
+                enabled = True
+                def __init__(self):
+                    self.state = {}
+                def research_state(self):
+                    return dict(self.state)
+                def save_research(self, state):
+                    self.state = dict(state)
+                    return True
+
+            class BrokenLegacy:
+                def __init__(self):
+                    self.attempts = 0
+                def release_legacy_research(self):
+                    self.attempts += 1
+                    return False
+
+            checkpoint = IndependentStore()
+            old = BrokenLegacy()
+            called = []
+            def analyzer(name, progress):
+                called.append(name)
+                return SimpleNamespace(priority="LOW", confidence="HIGH",
+                                       partial=False, selected_games=10)
+            client = SimpleNamespace(is_closed=lambda: False)
+            channel = SimpleNamespace(send=AsyncMock())
+            with ThreadPoolExecutor(max_workers=1) as pool:
+                service = SimpleNamespace(
+                    checkpoints=old, research_checkpoints=checkpoint,
+                    client=client, channel=channel, executor=pool,
+                    analyzer=analyzer, closed=False, research_hold=asyncio.Event())
+                async def noop(*args, **kwargs):
+                    pass
+                with patch.object(research, "TOTAL", 2), patch.object(
+                        research, "read_cohorts",
+                        return_value=({"closed": ["user-1"], "comparison": ["user-2"]}, "digest")
+                        ), patch.object(research, "owner_dm", new=noop), patch.object(
+                        research, "deliver_final_document", new=noop), patch.object(
+                        research, "report_status", new=noop), patch.object(
+                        research, "pack_result", return_value="encrypted-test-evidence"):
+                    await research.run_research(service)
+            self.assertEqual(old.attempts, 1)
+            self.assertEqual(called, ["user-1", "user-2"])
+            self.assertEqual(checkpoint.state["cursor"], 2)
+            self.assertTrue(checkpoint.state["finished"])
+            self.assertTrue(service.research_hold.is_set())
+        asyncio.run(run())
+
     def test_resume_does_not_repeat_delivered_accounts(self):
         async def run():
             class Store:

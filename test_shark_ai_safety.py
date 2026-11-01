@@ -65,6 +65,27 @@ class SharkAIStaticTests(unittest.TestCase):
         self.assertFalse(namespace["_is_policy_dump"](
             "SH4RKMATE is streaming chess today."))
 
+    def test_public_ai_version_answers_are_deterministic(self):
+        import re
+        tree = ast.parse(SOURCE)
+        functions = [node for node in tree.body if
+                     isinstance(node, ast.FunctionDef) and
+                     node.name in ("_asks_public_version", "_public_version_reply")]
+        namespace = {"re": re, "SHARKBOT_VERSION": "2.34",
+                     "SHARKBOT_AI_VERSION": "V1.2"}
+        exec(compile(ast.Module(body=functions, type_ignores=[]),
+                     "shark_ai_version_guard", "exec"), namespace)
+        asks = namespace["_asks_public_version"]
+        reply = namespace["_public_version_reply"]
+        self.assertTrue(asks("What version are you?"))
+        self.assertTrue(asks("Welke versie is SharkBot AI?"))
+        self.assertFalse(asks("What Python version is used?"))
+        self.assertEqual(reply("What version are you?"), "SharkBot AI V1.2")
+        self.assertEqual(reply("What is SharkBot AI version?"), "SharkBot AI V1.2")
+        self.assertEqual(reply("Welke versie heb jij?"), "SharkBot AI V1.2")
+        self.assertEqual(reply("SharkBot version"), "SharkBot 2.34")
+        self.assertIn("_public_version_reply(prompt)", SOURCE)
+
     def test_game_review_howto_bypasses_fairplay_and_groq(self):
         route = SOURCE.index("review_help = game_review_help_reply(prompt)")
         fairplay = SOURCE.index("if chat_only and await dispatch_fairplay_mention(message,prompt)")
