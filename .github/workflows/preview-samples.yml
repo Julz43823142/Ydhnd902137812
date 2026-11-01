@@ -1,5 +1,5 @@
 name: EloScanner verified example reports
-run-name: Preview samples · ${{ matrix.username }}
+run-name: Verified Magnus and Hikaru example reports
 on:
   push:
     paths:
