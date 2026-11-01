@@ -221,7 +221,12 @@ async def run_research(service):
                 if attempt < 2:
                     await asyncio.sleep(2 ** attempt)
             if not released:
-                raise RuntimeError("Legacy encrypted checkpoint compaction failed")
+                # The new append-only record store is independent of the legacy
+                # snapshot. Do not kill the 200-account batch because old
+                # checkpoints cannot be pushed (e.g. GitHub's 100 MiB limit).
+                # The old in-memory snapshot is left unchanged on failure.
+                print("Legacy research checkpoint compaction unavailable; "
+                      "continuing via independent encrypted records.", flush=True)
         if state.get("finished"):
             await report_status("success", TOTAL)
             return
