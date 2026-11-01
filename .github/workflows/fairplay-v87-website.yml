@@ -1,0 +1,32 @@
+name: Fair Play v87 website review
+on:
+  workflow_dispatch:
+    inputs:
+      chess_username:
+        description: Chess.com username
+        required: true
+      request_id:
+        description: Request correlation
+        required: true
+permissions:
+  contents: read
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install -r requirements.txt
+      - run: python fairplay_website_runner.py
+        env:
+          CHESS_USERNAME: ${{ inputs.chess_username }}
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: v87-result
+          path: v87-result.json
+          retention-days: 1
+          compression-level: 0
