@@ -60,6 +60,29 @@ class ResearchTests(unittest.TestCase):
                 await asyncio.gather(service.research_task, return_exceptions=True)
         asyncio.run(run())
 
+    def test_failed_startup_reports_safe_stage_not_sensitive_exception(self):
+        async def run():
+            class FailingStore:
+                enabled = True
+                def research_state(self):
+                    raise RuntimeError("sensitive-account-or-secret")
+            client = SimpleNamespace(is_closed=lambda: False)
+            service = SimpleNamespace(
+                research_checkpoints=FailingStore(), checkpoints=None,
+                client=client, closed=False, research_hold=asyncio.Event())
+            with patch.object(research, "read_cohorts",
+                              return_value=({"closed": [], "comparison": []}, "digest")), \
+                 patch.object(research, "report_status", new_callable=AsyncMock) as status, \
+                 patch.object(research, "owner_dm", new_callable=AsyncMock), \
+                 patch("builtins.print") as log:
+                await research.run_research(service)
+            self.assertEqual(status.await_args.kwargs["reason"],
+                             "FAILED-RECORD-RESTORATION")
+            logged = " ".join(str(call) for call in log.call_args_list)
+            self.assertNotIn("sensitive-account-or-secret", logged)
+            self.assertTrue(service.research_hold.is_set())
+        asyncio.run(run())
+
     def test_failed_legacy_compaction_does_not_block_new_research(self):
         async def run():
             class IndependentStore:
