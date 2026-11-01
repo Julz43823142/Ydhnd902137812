@@ -3,7 +3,7 @@ import json
 import math
 import os
 
-from fairplay_method3 import review
+from fairplay_method3 import review, observations
 
 
 def clean(value, depth=0):
@@ -34,6 +34,7 @@ def main():
         "reasons": clean(result.reasons),
         "method3": clean((result.diagnostics or {}).get("method3") or {}),
         "engine_used": False,
+        "charts": clean(observations(result.games)),
     }
     with open("v87-result.json", "w", encoding="utf-8") as file:
         json.dump(payload, file, ensure_ascii=True)
