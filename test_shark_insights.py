@@ -236,3 +236,14 @@ class AdditionalCoverage(unittest.TestCase):
         f = parse_game(r, 'example')
         self.assertEqual(f['tactics']['Geometric forks (not verified wins)'], 1)
         self.assertIsNone(f['book_moves'])
+
+class VisualRevision(unittest.TestCase):
+    def test_requested_visuals_and_compact_height(self):
+        report = collect('example', api=FakeAPI([raw()]))
+        import xml.etree.ElementTree as ET
+        for page in (1, 2, 4, 7):
+            svg = render_svg(report, page)
+            self.assertIn('<circle', svg)
+        self.assertLess(int(ET.fromstring(render_svg(report, 6)).attrib['height']), 2000)
+        svg = render_svg(report, 10)
+        self.assertLess(svg.index('>Mon<'), svg.index('>Sun<'))

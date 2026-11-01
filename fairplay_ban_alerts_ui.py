@@ -53,6 +53,7 @@ def alert_embed(event,key):
     e.add_field(name='Detected by SharkBot',value=detected,inline=False)
     e.add_field(name='Get your own alerts',inline=False,
         value="Subscribe below for Chess.com opponent closure alerts. Manage preferences with `/alert` Settings.")
+    e.set_footer(text="V1.1")
     return e
 
 
@@ -61,7 +62,7 @@ def panel_embed():
         'Subscribe to alerts about opponents of a Chess.com account. '
         'Enter your own username to follow your opponents. '
         'Checks run hourly; existing closures do not trigger old alerts. '
-        'Use Subscribe or Settings to manage your alerts.'))
+        'Use Subscribe or Settings to manage your alerts.')).set_footer(text='V1.1')
 
 
 async def open_menu(ctx):

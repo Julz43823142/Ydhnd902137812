@@ -209,7 +209,7 @@ def _full_result_embed(result: ReviewResult):
                        f"Descriptive shift flags: **{len(row['flags'])}**"))
         embed.add_field(name="Charts",value="Separate Bullet, Blitz and Rapid PNG reports, plus a side-by-side opponent-Elo comparison, follow below where data exists. Axes zoom to observed values.",inline=False)
         embed.add_field(name="Important",value=DISCLAIMER,inline=False)
-        embed.set_footer(text=f"Version: {result.version} · Heuristic review priority, not probability")
+        embed.set_footer(text=f"V2.1 · Heuristic review priority, not probability")
         return embed
     """Discord-safe summary; keep technical diagnostics in the detail buttons.
 
@@ -420,7 +420,7 @@ def _full_result_embed(result: ReviewResult):
     revision=(result.diagnostics.get('run_contract') or {}).get('code_revision')
     suffix=(f" · Code {revision}" if revision else "")
     detector_version=getattr(result,'version',None) or VERSION
-    embed.set_footer(text=f'More details: buttons below · Version: {detector_version}'+suffix)
+    embed.set_footer(text=f'More details: buttons below · V2.1'+suffix)
     return embed
 
 
@@ -436,7 +436,7 @@ def fallback_result_embed(result):
                      "Detailed report could not be displayed. Use the buttons to open the results.\n"
                      +SHORT_SCREENING_NOTICE),
         color=priority_color(result.priority))
-    embed.set_footer(text=f"Version: {result.version} · Short report (delivery fallback)")
+    embed.set_footer(text=f"V2.1 · Short report (delivery fallback)")
     return embed
 
 

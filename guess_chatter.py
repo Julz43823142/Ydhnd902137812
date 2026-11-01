@@ -3842,7 +3842,7 @@ def guess_info_embed():
             "👤 Profile, 🛒 Shop and 🤝 Trade are available as physical buttons in `!menu`. Old text commands remain compatible."
         ),
         color=0x4DD6B6,
-    )
+    ).set_footer(text="V1.3")
 
 
 def guess_main_menu_embed():
@@ -3854,7 +3854,7 @@ def guess_main_menu_embed():
             "🤝 Trade • 🏆 Leaderboards • 📊 My Stats • ℹ️ Info"
         ),
         color=0x4DD6B6,
-    )
+    ).set_footer(text="V1.3")
 
 
 def guess_shop_home_embed(profile):

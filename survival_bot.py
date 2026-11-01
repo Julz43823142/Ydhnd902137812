@@ -1624,7 +1624,7 @@ async def send_puzzle_embed(
     embed.set_footer(
         text=(
             "Type your move in chat • Survival answers are removed • "
-            "3 strikes ends the run"
+            "3 strikes ends the run • V1"
         )
     )
 
@@ -1695,7 +1695,7 @@ async def finish_survival_embed(channel, team, run, title, description):
         title=title,
         description=description,
     )
-    embed.set_footer(text="Survival run finished")
+    embed.set_footer(text="Survival run finished • V1")
     message_id = run.get("message_id")
     if message_id:
         try:

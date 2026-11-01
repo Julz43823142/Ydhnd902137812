@@ -318,7 +318,7 @@ def quick_menu_embed():
         ),
         color=0x4dd6b6,
     )
-    e.set_footer(text='Choose a game • Quests shows bonus coin objectives • Game Info explains every minigame')
+    e.set_footer(text='V1 • Choose a game • Quests shows bonus coin objectives • Game Info explains every minigame')
     return e
 
 
@@ -631,7 +631,7 @@ def game_embed(g):
     if guide and g['status']!='finished':desc+='\n\n**How to play:** '+safe(guide)
     e.description=desc[:4096]
     if g['kind']!='mines':e.set_image(url='attachment://minigame.png')
-    e.set_footer(text=('Trivia: Open Trivia DB · CC BY-SA 4.0 | ' if g['kind']=='trivia' else '')+'Shark Minigames • '+g['id'][-6:])
+    e.set_footer(text=('Trivia: Open Trivia DB · CC BY-SA 4.0 | ' if g['kind']=='trivia' else '')+'V1 • Shark Minigames • '+g['id'][-6:])
     return e
 
 
