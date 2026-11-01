@@ -14,7 +14,7 @@ def clean(value, depth=0):
     if isinstance(value, float):
         return value if math.isfinite(value) else None
     if isinstance(value, (tuple, list)):
-        return [clean(item, depth + 1) for item in value[:500]]
+        return [clean(item, depth + 1) for item in value[:1200]]
     if isinstance(value, dict):
         return {str(key): clean(item, depth + 1) for key, item in list(value.items())[:300]}
     return str(value)
@@ -67,6 +67,32 @@ def chart_samples(games):
 
 
 
+def opening_summary(games):
+    """Descriptive opening repertoire, using the same UCI choice groups as Method 3."""
+    from collections import Counter
+    from fairplay_method3_opening_shift import opening_choice
+    output = {}
+    for kind in ("rapid", "blitz", "bullet"):
+        grouped = {}
+        for game in games:
+            if game.time_class != kind:
+                continue
+            choice = opening_choice(game)
+            if not choice:
+                continue
+            (time_class, control, color, family), name = choice
+            label = color.title() + " · " + family
+            grouped.setdefault(label, Counter())[name] += 1
+        output[kind] = [
+            {"group": label, "total": sum(counter.values()),
+             "choices": [{"name": name, "games": count}
+                         for name, count in counter.most_common(6)]}
+            for label, counter in sorted(grouped.items(),
+                key=lambda entry: sum(entry[1].values()), reverse=True)[:5]
+        ]
+    return output
+
+
 def main():
     username = os.environ["CHESS_USERNAME"]
     result = review(username, progress=lambda message: print(str(message)[:160], flush=True))
@@ -82,6 +108,7 @@ def main():
         "method3": clean((result.diagnostics or {}).get("method3") or {}),
         "engine_used": False,
         "charts": clean(chart_samples(result.games)),
+        "opening_summary": clean(opening_summary(result.games)),
     }
     with open("v87-result.json", "w", encoding="utf-8") as file:
         json.dump(payload, file, ensure_ascii=True)
