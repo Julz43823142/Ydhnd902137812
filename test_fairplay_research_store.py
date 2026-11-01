@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from fairplay_research_store import ResearchRecordStore
+from fairplay_research_store import ResearchRecordStore, ResearchGitFailure, _check
 
 
 def next_state(previous, i):
@@ -85,6 +85,52 @@ class ResearchRecordTests(unittest.TestCase):
             self.assertEqual(ResearchRecordStore(remote="origin").research_state()["cursor"], 2)
         finally:
             os.chdir(original)
+
+    def test_git_error_is_diagnostic_without_leaking_stderr(self):
+        failed = subprocess.CompletedProcess(
+            ["git", "push"], 128, b"", b"secret-token-private-account")
+        with self.assertRaises(ResearchGitFailure) as caught:
+            _check(failed, "push")
+        self.assertEqual(caught.exception.step, "push")
+        self.assertEqual(caught.exception.code, 128)
+        self.assertIn("push failed (exit 128)", str(caught.exception))
+        self.assertNotIn("secret-token-private-account", str(caught.exception))
+
+    def test_remote_history_replays_all_200_reviews_after_restart(self):
+        bare = Path(self.tmp.name) / "all-200.git"
+        checkout = Path(self.tmp.name) / "worker"
+        subprocess.run(["git", "init", "--bare", "-q", str(bare)], check=True)
+        checkout.mkdir()
+        subprocess.run(["git", "init", "-q"], cwd=checkout, check=True)
+        subprocess.run(["git", "remote", "add", "origin", str(bare)],
+                       cwd=checkout, check=True)
+        previous_directory = os.getcwd()
+        try:
+            os.chdir(checkout)
+            store = ResearchRecordStore(remote="origin")
+            state = {"cursor": 0, "rows": [], "evidence": [], "digest": "digest",
+                     "archive_version": 3, "finished": False, "started_at": 10}
+            self.assertTrue(store.save_research(state))
+            for i in range(1, 36):
+                state = next_state(state, i)
+                self.assertTrue(store.save_research(state))
+            # Simulate an entirely fresh GitHub Actions worker after 35 reviews.
+            store = ResearchRecordStore(remote="origin")
+            self.assertEqual(store.research_state()["cursor"], 35)
+            for i in range(36, 201):
+                state = next_state(state, i)
+                self.assertTrue(store.save_research(state), i)
+            state = {**state, "finished": True}
+            self.assertTrue(store.save_research(state))
+            restored = ResearchRecordStore(remote="origin")
+            self.assertEqual(restored.research_state(), state)
+            history = subprocess.run(
+                ["git", "rev-list", "--count", restored.head], check=True,
+                stdout=subprocess.PIPE).stdout.strip()
+            self.assertEqual(history, b"202")
+            self.assertFalse(restored.save_research({**state, "cursor": 199}))
+        finally:
+            os.chdir(previous_directory)
 
     def test_invalid_transition_and_corrupted_record_fail_closed(self):
         path = Path(self.tmp.name) / "records"

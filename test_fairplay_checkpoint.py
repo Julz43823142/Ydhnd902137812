@@ -228,6 +228,25 @@ class CheckpointTests(unittest.TestCase):
             self.assertTrue(three["complete"])
             self.assertEqual(len(seen),2)
 
+    def test_github_blob_limit_skips_impossible_push_without_leaking_data(self):
+        store = self.store()
+        store.state["research"] = {"cursor": 34,
+                                   "evidence": ["confidential-payload" * 100]}
+        store.remote = "origin"
+        # Simulate an oversized payload with a small threshold; no 100 MiB
+        # allocation or remote network activity is needed for this regression.
+        with patch("fairplay_checkpoint.MAX_GITHUB_BLOB_BYTES", 128), \
+             patch("fairplay_checkpoint._git") as git, \
+             patch("builtins.print") as safe_log:
+            self.assertFalse(store._write(force=True))
+        git.assert_not_called()
+        log = " ".join(str(call) for call in safe_log.call_args_list)
+        self.assertIn("100 MiB blob limit", log)
+        self.assertNotIn("confidential-payload", log)
+        self.assertFalse(store.remote_ok)
+        self.assertTrue(Path(self.path).exists())
+        self.assertNotIn(b"confidential-payload", Path(self.path).read_bytes())
+
     def test_legacy_research_compaction_preserves_other_encrypted_jobs(self):
         store = self.store()
         self.bind(store)

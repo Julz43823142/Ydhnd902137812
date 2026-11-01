@@ -1,0 +1,39 @@
+name: Encrypted Fair Play research storage preflight
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'fairplay_checkpoint.py'
+      - 'fairplay_research_live.py'
+      - 'fairplay_research_store.py'
+      - 'scripts/preflight_fairplay_research_store.py'
+      - '.github/workflows/fairplay_research_storage_preflight.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fairplay-research-storage-preflight
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          filter: blob:none
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Install minimal encrypted research prerequisites
+        run: python -m pip install -r requirements.txt
+      - name: Verify write and restore on real encrypted branch
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python -m scripts.preflight_fairplay_research_store

@@ -10,6 +10,10 @@ on:
       - 'shark_ai_version.py'
       - 'test_fairplay_research_live.py'
       - 'test_fairplay_research_store.py'
+      - 'test_fairplay_checkpoint.py'
+      - 'test_fairplay_research_preflight.py'
+      - 'scripts/preflight_fairplay_research_store.py'
+      - '.github/workflows/fairplay_research_storage_preflight.yml'
       - 'test_shark_ai_safety.py'
       - '.github/workflows/research_version_regression.yml'
   workflow_dispatch:
@@ -34,4 +38,4 @@ jobs:
       - name: Validate syntax
         run: python -m py_compile fairplay_research_live.py fairplay_research_store.py fairplay_checkpoint.py shark_ai.py
       - name: Run regression tests
-        run: python -m unittest -v test_fairplay_research_live test_fairplay_research_store test_shark_ai_safety
+        run: python -m unittest -v test_fairplay_research_live test_fairplay_research_store test_fairplay_checkpoint test_fairplay_research_preflight test_shark_ai_safety

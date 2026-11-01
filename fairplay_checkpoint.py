@@ -23,6 +23,9 @@ from cryptography.fernet import Fernet, InvalidToken
 
 BRANCH = "fairplay-checkpoints"
 FILE = "state.enc"
+# GitHub refuses a single blob at or above 100 MiB. The legacy shared
+# snapshot must never waste minutes attempting a push that cannot succeed.
+MAX_GITHUB_BLOB_BYTES = 100 * 1024 * 1024
 MAX_AGE = 7 * 86400
 
 
@@ -139,6 +142,13 @@ class CheckpointStore:
         os.replace(temp, self.path)
         if not self.remote:
             return True
+        if len(payload) >= MAX_GITHUB_BLOB_BYTES:
+            # Log sizes only; never log any checkpoint content or account data.
+            print("Shared encrypted Fair Play checkpoint exceeds GitHub's "
+                  "100 MiB blob limit (%d bytes); skipping impossible push." %
+                  len(payload), flush=True)
+            self.remote_ok = False
+            return False
         if not force and time.monotonic() - self.last_remote < 15:
             return self.remote_ok
         # All branch contents are encrypted; update an isolated ref so a
