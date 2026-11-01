@@ -86,9 +86,9 @@ def opening_summary(games):
         output[kind] = [
             {"group": label, "total": sum(counter.values()),
              "choices": [{"name": name, "games": count}
-                         for name, count in counter.most_common(6)]}
+                         for name, count in counter.most_common()]}
             for label, counter in sorted(grouped.items(),
-                key=lambda entry: sum(entry[1].values()), reverse=True)[:5]
+                key=lambda entry: sum(entry[1].values()), reverse=True)
         ]
     return output
 
