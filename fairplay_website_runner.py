@@ -21,7 +21,9 @@ def clean(value, depth=0):
 
 
 def chart_samples(games):
-    """Sample real chronological observations without smoothing scores."""
+    """Return truthful game-numbered chart observations and descriptive rolling trends."""
+    from collections import deque
+    from statistics import mean
     grouped = observations(games)
     ordered = sorted(games, key=lambda g: (g.ended, g.identity))
     by_control = {name: [] for name in ("rapid", "blitz", "bullet")}
@@ -31,21 +33,33 @@ def chart_samples(games):
     sampled = {}
     for kind, rows in grouped.items():
         full = []
+        score_window = deque(maxlen=10)
+        accuracy_window = deque(maxlen=30)
+        timing_window = deque(maxlen=30)
         for row, game in zip(rows, by_control[kind]):
             item = dict(row)
             item["ended"] = game.ended
             player, opponent = game.rating, game.opponent_rating
-            valid = (game.rated is True
-                     and all(isinstance(v, (int, float)) and math.isfinite(v) and v > 0
-                             for v in (player, opponent))
-                     and game.score in (0, 0.5, 1))
+            valid = (game.rated is True and
+                     all(isinstance(v, (int, float)) and math.isfinite(v) and v > 0
+                         for v in (player, opponent)) and
+                     game.score in (0, 0.5, 1))
             item["actual_score"] = game.score * 100 if valid else None
             item["expected_score"] = (
-                100 / (1 + 10 ** ((opponent - player) / 400))
-                if valid else None)
+                100 / (1 + 10 ** ((opponent - player) / 400)) if valid else None)
+            score_window.append((item["actual_score"], item["expected_score"]))
+            matched = [(a, e) for a, e in score_window if a is not None and e is not None]
+            item["rolling_observed"] = mean(a for a, _ in matched) if len(matched) >= 8 else None
+            item["rolling_expected"] = mean(e for _, e in matched) if len(matched) >= 8 else None
+            accuracy_window.append(item.get("official_accuracy"))
+            good_accuracy = [v for v in accuracy_window if isinstance(v, (int,float)) and math.isfinite(v)]
+            item["accuracy_mean_30"] = mean(good_accuracy) if len(good_accuracy) >= 5 else None
+            timing_window.append(item.get("median_think_seconds"))
+            good_timing = [v for v in timing_window if isinstance(v, (int,float)) and math.isfinite(v)]
+            item["timing_mean_30"] = mean(good_timing) if len(good_timing) >= 5 else None
             full.append(item)
-        stride = max(1, math.ceil(len(full) / 500))
-        selected = full[::stride][:500]
+        stride = max(1, math.ceil(len(full) / 1000))
+        selected = full[::stride][:1000]
         if full and selected and selected[-1] is not full[-1]:
             selected[-1] = full[-1]
         sampled[kind] = selected
