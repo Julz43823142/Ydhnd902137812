@@ -26,9 +26,10 @@ def chart_samples(games):
     for kind, rows in grouped.items():
         stride = max(1, math.ceil(len(rows) / 500))
         selected = rows[::stride]
-        if rows and (not selected or selected[-1] is not rows[-1]):
-            selected.append(rows[-1])
-        sampled[kind] = selected[:501]
+        selected = selected[:500]
+        if rows and selected and selected[-1] is not rows[-1]:
+            selected[-1] = rows[-1]
+        sampled[kind] = selected
     return sampled
 
 
