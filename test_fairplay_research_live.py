@@ -72,8 +72,8 @@ class ResearchTests(unittest.TestCase):
                 client=client, closed=False, research_hold=asyncio.Event())
             with patch.object(research, "read_cohorts",
                               return_value=({"closed": [], "comparison": []}, "digest")), \
-                 patch.object(research, "report_status", new_callable=AsyncMock) as status, \\
-                 patch.object(research, "owner_dm", new_callable=AsyncMock), \\
+                 patch.object(research, "report_status", new_callable=AsyncMock) as status, \
+                 patch.object(research, "owner_dm", new_callable=AsyncMock), \
                  patch("builtins.print") as log:
                 await research.run_research(service)
             self.assertEqual(status.await_args.kwargs["reason"],
