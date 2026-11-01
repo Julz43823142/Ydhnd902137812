@@ -213,13 +213,12 @@ async def run_research(service):
         # before normal per-account analysis writes any additional job data.
         legacy = getattr(service, "checkpoints", None)
         if legacy is not None and hasattr(legacy, "release_legacy_research"):
-            released = False
-            for attempt in range(3):
-                if await asyncio.to_thread(legacy.release_legacy_research):
-                    released = True
-                    break
-                if attempt < 2:
-                    await asyncio.sleep(2 ** attempt)
+            # One best-effort cleanup; legacy retries/timeouts must not hold
+            # the independent research for minutes before processing account 1.
+            try:
+                released = await asyncio.to_thread(legacy.release_legacy_research)
+            except Exception:
+                released = False
             if not released:
                 # The new append-only record store is independent of the legacy
                 # snapshot. Do not kill the 200-account batch because old
