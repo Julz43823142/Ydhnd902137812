@@ -1,4 +1,5 @@
 name: Fair Play v87 website review
+run-name: Fair Play v87 · ${{ inputs.request_id }}
 on:
   workflow_dispatch:
     inputs:
