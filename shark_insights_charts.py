@@ -20,7 +20,7 @@ class Canvas:
         self.text(60, 125, f"{report['player']} · {report['time_class'].title()} · {'Rated' if report['rated'] else 'Casual'} · {report['color'].title()} · last {report['days']} days", 25, '#c5c7bf')
         self.text(60, 166, f"{len(report['games'])} valid games · timezone {report['timezone']} · accuracy: published scores only", 23, '#c5c7bf')
         self.text(60, 1930, 'Partial sample' if report['limits'] else 'Public archive sample · no new engine analysis', 23, '#d5b45e')
-        self.text(60, 1970, f"{report['version']} · {page + 1}/{len(PAGES)} · details: use the Details button", 22, '#c5c7bf')
+        self.text(60, 1970, f"V1 · {page + 1}/{len(PAGES)} · details: use the Details button", 22, '#c5c7bf')
 
     def text(self, x, y, text, size=25, color='#f1f1ed'):
         self.parts.append(f'<text x="{x}" y="{y}" fill="{color}" font-family="DejaVu Sans,sans-serif" font-size="{size}">{escape(str(text))}</text>')
@@ -86,8 +86,34 @@ class Canvas:
             self.text(120, self.y + 105, 'No data', 24)
         self.y += 265
 
+    def accuracy_bars(self, rows):
+        for label, value in rows:
+            self.text(60, self.y + 25, label)
+            self.parts.append(f'<rect x="600" y="{self.y}" width="{6*value}" height="32" fill="#49bce0"/>')
+            self.text(1220, self.y + 25, f'{value:.1f}')
+            self.y += 60
+        self.y += 30
+
+    def weekdays(self, groups):
+        self.title('Results by weekday · Win / Draw / Loss')
+        base = self.y + 320
+        for i, name in enumerate(('Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday')):
+            row = groups.get(name, {})
+            total = sum(row.get(k,0) for k in ('Win','Draw','Loss'))
+            x, y = 80 + i*180, base
+            for j, key in enumerate(('Win','Draw','Loss')):
+                h = 280 * row.get(key,0)/total if total else 0
+                y -= h
+                self.parts.append(f'<rect x="{x}" y="{y}" width="120" height="{h}" fill="{COLORS[j]}"/>')
+            self.text(x, base+35, name[:3])
+            self.text(x, base+65, f'n={total}', 20)
+            self.text(x, base+95, '/'.join(str(row.get(k,0)) for k in ('Win','Draw','Loss')), 19)
+        self.y = base + 140
+
     def svg(self):
-        return ''.join(self.parts) + '</svg>'
+        height = max(1000, int(self.y + 150))
+        svg = ''.join(self.parts) + '</svg>'
+        return svg.replace('height="2000"', f'height="{height}"').replace('0 0 1400 2000', f'0 0 1400 {height}').replace('y="1930"', f'y="{height-70}"').replace('y="1970"', f'y="{height-30}"')
 
 
 def result_counts(games):
@@ -124,32 +150,27 @@ def render_svg(report, page):
     elif page == 1:
         for outcome in ('Win', 'Draw', 'Loss'):
             counts = Counter(g['reason'] for g in games if g['outcome'] == outcome)
-            c.bars(counts.most_common(), f'{outcome}: termination reasons', 8)
+            c.donut(dict(counts.most_common()), f'{outcome}: termination reasons')
     elif page == 2:
         c.stacks(ordered(grouped(games, 'shape')), 'Results by SharkBot Game Shape')
         c.note('Ordered definitions: Short Game ≤15 moves; Long Battle ≥60; Material Swing: material-balance range ≥8 pawn units; Endgame Battle: ends with ≤20 total non-pawn material; Check-rich: ≥8 checks; otherwise Other Game.')
         c.note('These are reproducible descriptive categories, not Chess.com game shapes or engine assessments.')
-        c.bars(Counter(g['shape'] for g in games).most_common(), 'Games by shape')
+        c.donut(dict(Counter(g['shape'] for g in games).most_common()), 'Games by shape')
     elif page == 3:
         c.stacks(grouped(games, 'phase'), 'Results by final position phase')
         for color in ('White', 'Black'):
             c.bars(Counter(g['phase'] for g in games if g['color'] == color).items(), f'Ending phase · {color}')
         c.note('Endgame: ≤20 non-pawn material points across both sides (N/B=3, R=5, Q=9). Otherwise opening through move 10; middlegame afterwards. Phase accuracy is unavailable without trusted per-move review data.')
     elif page == 4:
-        # Compact rows make both top tens readable on a single page.
         for color in ('White', 'Black'):
-            c.title(f'Top openings · {color}')
-            rows = ordered(grouped([g for g in games if g['color'] == color], 'opening'))
-            for name, row in list(rows.items())[:10]:
-                count = sum(row[k] for k in ('Win', 'Draw', 'Loss'))
-                c.text(60, c.y, name[:55], 23)
-                c.text(800, c.y, f'{count} games · W/D/L {row["Win"]}/{row["Draw"]}/{row["Loss"]}', 22)
-                example = next(g['opening_moves'] for g in games if g['opening'] == name and g['color'] == color)
-                c.text(60, c.y + 27, f'Example: {example[:75]}', 20, '#c5c7bf')
-                c.text(800, c.y + 27, ' / '.join(f'{100 * row[k] / count:.0f}%' for k in ('Win', 'Draw', 'Loss')), 20, '#c5c7bf')
-                c.y += 65
-            c.y += 20
-        c.note('Local Lichess opening families by longest exact move prefix. Example moves may vary; transpositions are not fully recognized.')
+            counts = Counter(g['opening'] for g in games if g['color'] == color)
+            top = dict(counts.most_common(7))
+            remaining = sum(counts.values()) - sum(top.values())
+            if remaining:
+                top['Other openings'] = remaining
+            c.donut(top, f'Most played opening families · {color}')
+            c.y += 70
+        c.note('Local opening families, not exact variations. Counts include only this selection.')
     elif page == 5:
         c.title('Local opening-reference coverage')
         for color in ('White', 'Black'):
@@ -164,19 +185,21 @@ def render_svg(report, page):
         counts = Counter()
         for g in games:
             counts.update(g['tactics'])
-        c.bars(counts.items(), 'Observed patterns · player moves only')
+        c.bars([( {'New absolute pins': 'New pieces pinned to the king', 'Captures of undefended pieces': 'Undefended enemy pieces captured', 'Geometric forks (not verified wins)': 'Moves attacking multiple pieces'}.get(k,k),v) for k,v in counts.items()], 'Observed patterns · player moves only')
         c.note('Geometric forks attack at least two enemy non-pawn pieces after a move. Targets may be defended; this does not establish a winning tactic. Pins count newly absolutely pinned enemy pieces. Undefended captures exclude en passant.')
         c.note('No missed-tactic rates, forced mate searches, hanging-piece losses or tactical win claims are inferred. These require a stronger opportunity model.')
     elif page == 7:
-        c.title('Move Quality data unavailable')
-        c.note('The public Published Data API does not supply trusted per-move Brilliant / Best / Blunder classifications. This version does not start engine reviews or reuse PGN annotations as official labels.')
+        c.title('Published game accuracy')
         accuracy_note(c, games)
-        c.title('Published game accuracy by result')
+        rows = []
         for outcome in ('Win', 'Draw', 'Loss'):
             sample = [g['accuracy'] for g in games if g['outcome'] == outcome and g['accuracy'] is not None]
-            c.note(f'{outcome}: {mean(sample):.1f} ({len(sample)} published scores)' if sample else f'{outcome}: Not available')
-        c.title('Similar Players')
-        c.note('Unavailable: no representative, validated comparison dataset. No reference statistics are invented.')
+            if sample:
+                rows.append((f'{outcome} · {len(sample)} scores', round(mean(sample), 1)))
+        known = sum(g['accuracy'] is not None for g in games)
+        c.donut({'Published score': known, 'No published score': len(games)-known}, 'Accuracy coverage')
+        c.accuracy_bars(rows)
+        c.note('Move labels such as Brilliant or Blunder are unavailable from the public API. No move-quality estimates are invented.')
     elif page == 8:
         counts = Counter()
         phases = {}
@@ -195,7 +218,7 @@ def render_svg(report, page):
     elif page == 10:
         c.stacks(grouped(games, 'daypart'), f'Results by time of day · {report["timezone"]}')
         c.note('Uses recorded game END time. Night 00–06; Morning 06–12; Afternoon 12–18; Evening 18–24. This is not the time of each move, especially for Daily games.')
-        c.stacks(grouped(games, 'weekday'), 'Results by weekday')
+        c.weekdays(grouped(games, 'weekday'))
     elif page == 11:
         c.stacks(ordered(grouped(games, 'country')), 'Public opponent countries · top 16', 16)
         c.note('Country codes describe public profile settings, not verified location. International, unknown, unavailable and not-fetched profiles remain separate. Up to 100 most frequent opponents are fetched per report.')

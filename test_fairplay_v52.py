@@ -308,7 +308,7 @@ class Presentation(unittest.TestCase):
         serialized = json.dumps(embed.to_dict())
         self.assertIn("HIGH review priority", serialized)
         self.assertIn("not a cheating verdict", serialized)
-        self.assertIn(MODE, serialized)
+        self.assertIn('V2.1', serialized)
         self.assertLessEqual(len(embed), 6000)
         detail = detail_embed(result, "Human Moves")
         self.assertIn("No learned Maia inference", json.dumps(detail.to_dict()))

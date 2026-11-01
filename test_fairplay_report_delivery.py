@@ -55,12 +55,15 @@ class CompactResultCard(unittest.TestCase):
             self.assertIn(level,card.description)
             self.assertEqual(case.priority,level)
 
-    def test_public_report_shows_detector_version(self):
+    def test_public_version_is_independent_of_detector_version(self):
         case=self.fixture()
         case.version='fairplay-v24-example'
-        self.assertIn('Version: fairplay-v24-example',result_embed(case).footer.text)
+        footer=result_embed(case).footer.text
+        self.assertIn('V2.1',footer)
+        self.assertNotIn(case.version,footer)
+        self.assertEqual(case.version,'fairplay-v24-example')
         del case.version
-        self.assertIn(f'Version: {VERSION}',result_embed(case).footer.text)
+        self.assertIn('V2.1',result_embed(case).footer.text)
 
     def test_no_streak_does_not_create_false_alert(self):
         case=self.fixture()

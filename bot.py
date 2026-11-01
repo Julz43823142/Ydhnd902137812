@@ -6767,7 +6767,7 @@ class ChessGameReviewView(discord.ui.View):
         )
         embed.set_image(url="attachment://chess_review.png")
         version = str(self.analysis.get("analysis_version") or "unknown")
-        embed.set_footer(text=f"Stockfish estimates, not official Chess.com ratings • SharkBot {version}")
+        embed.set_footer(text=f"Stockfish estimates, not official Chess.com ratings • V1.2")
         return embed
 
     async def _refresh(self, interaction, *, target=None, delta=0, indices=None):
