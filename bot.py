@@ -731,6 +731,9 @@ command_tree = discord.app_commands.CommandTree(client)
 from shark_editmessage import register_editmessage
 register_editmessage(command_tree)
 
+from shark_insights_ui import register_insight
+register_insight(command_tree)
+
 
 SHARK_ADMIN_COMMAND_LIST = shark_admin.ADMIN_LIST
 
@@ -21008,6 +21011,12 @@ async def on_ready():
         asyncio.create_task(bot_ideas_idle_reminder_loop(primary_channel.guild))
     except Exception as error:
         print(f"Could not initialize Bot Ideas & Bugs ticket panel: {error}", flush=True)
+
+    try:
+        from shark_insights_ui import recover_interrupted
+        await recover_interrupted(client)
+    except Exception as error:
+        print(f"Could not recover Insights notices: {error}", flush=True)
 
     try:
         command_tree.copy_global_to(guild=primary_channel.guild)
