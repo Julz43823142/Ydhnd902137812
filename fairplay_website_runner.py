@@ -20,6 +20,18 @@ def clean(value, depth=0):
     return str(value)
 
 
+def chart_samples(games):
+    grouped = observations(games)
+    sampled = {}
+    for kind, rows in grouped.items():
+        stride = max(1, math.ceil(len(rows) / 500))
+        selected = rows[::stride]
+        if rows and (not selected or selected[-1] is not rows[-1]):
+            selected.append(rows[-1])
+        sampled[kind] = selected[:501]
+    return sampled
+
+
 def main():
     username = os.environ["CHESS_USERNAME"]
     result = review(username, progress=lambda message: print(str(message)[:160], flush=True))
@@ -34,7 +46,7 @@ def main():
         "reasons": clean(result.reasons),
         "method3": clean((result.diagnostics or {}).get("method3") or {}),
         "engine_used": False,
-        "charts": clean(observations(result.games)),
+        "charts": clean(chart_samples(result.games)),
     }
     with open("v87-result.json", "w", encoding="utf-8") as file:
         json.dump(payload, file, ensure_ascii=True)
