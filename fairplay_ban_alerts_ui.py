@@ -11,6 +11,7 @@ from fairplay_alert_store import AlertStore
 from fairplay_ban_alerts import Settings,subscribe,unsubscribe,mute,set_alert_types,alert_enabled,poll,reserve,mark
 
 PREFIX=NAMESPACE+'ban-alert:'
+REVIEW_PREFIX=PREFIX+'player-review:'
 PANEL_TITLE='🔔 Fair Play Ban Alerts'
 _service=None
 
@@ -204,10 +205,43 @@ class AlertSettingsView(discord.ui.View):
             self.add_item(button)
 
 
+
+class BanReviewView(discord.ui.View):
+    """One persistent button on ban alerts; no public full report."""
+    def __init__(self, opponent):
+        super().__init__(timeout=None)
+        self.opponent = opponent
+        button = discord.ui.Button(
+            label='Player Review', style=discord.ButtonStyle.secondary,
+            custom_id=REVIEW_PREFIX+opponent,
+        )
+        button.callback = self.show_review
+        self.add_item(button)
+
+    async def show_review(self, ctx):
+        await ctx.response.defer(ephemeral=True, thinking=True)
+        from fairplay_ui import _service as fairplay_service, result_embed
+        cached = fairplay_service.cache.get(self.opponent) if fairplay_service else None
+        if cached is None:
+            await ctx.followup.send(
+                'The full player review is unavailable after a restart or cache expiry. '
+                'Submit a normal Fair Play review to regenerate it.', ephemeral=True)
+            return
+        try:
+            embed = await asyncio.to_thread(result_embed, cached[1])
+            await ctx.followup.send(
+                embed=embed, ephemeral=True,
+                allowed_mentions=discord.AllowedMentions.none())
+        except Exception as error:
+            print(f'Ban review button failed: {type(error).__name__}', flush=True)
+            await ctx.followup.send('Player review temporarily unavailable.', ephemeral=True)
+
+
 class AlertService:
     def __init__(self,client,channel,store,settings):
         self.client=client;self.channel=channel;self.store=store;self.settings=settings
         self.task=None;self.lock=asyncio.Lock();self.validation_slots=asyncio.Semaphore(2);self.closed=False;self.stop=threading.Event()
+        self.ban_review_attempted=set()
     async def reconcile(self):
         # Never blindly retry a send with an unknown ACK. A missing history
         # match leaves it uncertain; at-most-once beats an accidental duplicate.
@@ -271,6 +305,35 @@ class AlertService:
                     continue
                 except (OSError,TimeoutError):continue
                 for key in keys:await asyncio.to_thread(mark,self.store,key,'sent',message.id)
+                if primary.get('closure_status','closed:fair_play_violations')=='closed:fair_play_violations':
+                    await self.start_background_review(primary['opponent'], message)
+    async def start_background_review(self, opponent, alert_message):
+        # Never auto-scan unconfirmed closures, and never flood the review queue.
+        try:
+            target=username(opponent)
+            if target in self.ban_review_attempted:return
+            from fairplay_ui import _service as fairplay_service
+            if fairplay_service is None or fairplay_service.closed:return
+
+            async def completed(result):
+                # Publish only the measured classification on the original alert.
+                # This is independent of Chess.com's official ban decision.
+                card=alert_message.embeds[0].copy()
+                label=str(getattr(result,'priority','Unavailable'))[:100]
+                card.add_field(
+                    name='Automated Player Review',
+                    value=(f'**{label}** — gameplay screening only, not a cheating verdict. '
+                           'Select Player Review for the report.'),
+                    inline=False,
+                )
+                await alert_message.edit(embed=card,view=BanReviewView(target))
+                self.client.add_view(BanReviewView(target))
+
+            queued=await fairplay_service.enqueue_ban_review(target,completed)
+            if queued:self.ban_review_attempted.add(target)
+        except Exception as error:
+            print(f'Ban alert background review could not start: {type(error).__name__}',flush=True)
+
     async def run(self):
         while not self.closed:
             began=time.monotonic()
