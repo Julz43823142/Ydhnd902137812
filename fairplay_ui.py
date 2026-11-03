@@ -1292,6 +1292,8 @@ class Job:
     report_delivery_http_status: int | None = None
     failure_requester_notified: bool = False
     checkpoint_warning: bool = False
+    silent_ban_review: bool = False
+    on_ban_review_complete: object = None
     token: str = field(default_factory=lambda:uuid.uuid4().hex[:12])
 
 
@@ -1388,6 +1390,18 @@ class FairPlayService:
                 'Your Fair Play review is queued. Public progress will appear when it starts.',
                 ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
 
+    async def enqueue_ban_review(self, target, on_complete):
+        """Low-priority silent scan; never displace human-requested work."""
+        if self.closed or not self.research_hold.is_set():
+            return False
+        if target in self.jobs or len(self.jobs) >= MAX_CONCURRENT_SCANS:
+            return False
+        job = Job(target, None, output_channel=self.channel,
+                  silent_ban_review=True, on_ban_review_complete=on_complete)
+        self.jobs[target] = job
+        self.queue.put_nowait(job)
+        return True
+
     async def enqueue_mention(self,message,target):
         """Public Fair Play channel mention, using the normal bounded scan queue.
 
@@ -1427,6 +1441,8 @@ class FairPlayService:
         return True
 
     async def safe_progress(self,job,stage,*,view=None,embed=None):
+        if job.silent_ban_review:
+            return True  # Never post progress for automatic closure screening.
         job.progress_rejected=False
         job.progress_delivery_http_status=None
         if job.message_deleted:
@@ -1725,6 +1741,19 @@ class FairPlayService:
             # All detailed position caches remain bounded in the engine worker.
             # Discord detail pages need game summaries, not thousands of FENs.
             for game in result.games:game.decisions.clear()
+            if job.silent_ban_review:
+                # Reuse the normal bounded Fair Play executor, without posting
+                # any progress or a separate public review.
+                self.cache[job.target] = (time.time(), result, None)
+                self.expire_cache()
+                if job.on_ban_review_complete is not None:
+                    try:
+                        await job.on_ban_review_complete(result)
+                    except Exception as error:
+                        print(f'Ban review result delivery failed: {type(error).__name__}', flush=True)
+                if self.checkpoints is not None:
+                    await self.note_delivered_checkpoint(job, 'finish')
+                return
             # The analysis has finished. Do not silently leave Discord at
             # 99% if it rejects the report (embed limits, transient HTTP
             # failure, permissions or message edits). Retry once with a tiny
