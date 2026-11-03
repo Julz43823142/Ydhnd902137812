@@ -702,7 +702,11 @@ class DiscordRules(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(submit.is_persistent());self.assertTrue(report.is_persistent())
         event = ctx();event.message = SimpleNamespace(id=999)
         await report.children[0].callback(event)
-        self.assertTrue(event.response.send_message.call_args.kwargs['ephemeral'])
+        event.response.defer.assert_awaited_once()
+        self.assertTrue(event.response.defer.call_args.kwargs['ephemeral'])
+        self.assertTrue(event.response.defer.call_args.kwargs['thinking'])
+        event.followup.send.assert_awaited_once()
+        self.assertTrue(event.followup.send.call_args.kwargs['ephemeral'])
         submit.stop();report.stop()
 
     async def test_queue_limit_duplicates_and_no_target_in_analytics(self):
