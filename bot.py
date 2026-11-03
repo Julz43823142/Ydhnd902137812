@@ -731,22 +731,22 @@ command_tree = discord.app_commands.CommandTree(client)
 from shark_editmessage import register_editmessage
 register_editmessage(command_tree)
 
-from shark_insights_ui import register_insight
-register_insight(command_tree)
-
+# Insights now uses the existing Fair Play analysis pipeline.
+# Do not register the legacy charts-only /insight command.
 
 SHARK_ADMIN_COMMAND_LIST = shark_admin.ADMIN_LIST
 
 
-@command_tree.command(name='fairplay',description='Start a Fair Play screening for a Chess.com username.')
-@discord.app_commands.describe(username='Chess.com account to screen')
-async def fairplay_command(interaction: discord.Interaction, username: str):
+@command_tree.command(name='insight',description='Analyze a Chess.com player’s performance and gameplay patterns.')
+@discord.app_commands.describe(username='Chess.com account to analyze')
+async def insight_command(interaction: discord.Interaction, username: str):
     from fairplay_ui import channel_check,submit
-    if await channel_check(interaction):await submit(interaction,username)
+    if await channel_check(interaction):
+        await submit(interaction,username)
 
 
-@command_tree.command(name='fairplaystop',description='Stop the running Fair Play review (server moderators only).')
-async def stopfairplay_command(interaction: discord.Interaction):
+@command_tree.command(name='insightstop',description='Stop a running Insights review (server moderators only).')
+async def stopinsight_command(interaction: discord.Interaction):
     from fairplay_ui import stop_current_review
     await stop_current_review(interaction)
 
@@ -757,8 +757,8 @@ async def alert_command(interaction: discord.Interaction):
     await open_menu(interaction)
 
 
-@command_tree.command(name='fairplaydiagnostic',description='Owner-only review failure insights (use a Review ID or list recent failures).')
-async def fairplaydiagnostic_command(interaction: discord.Interaction, review_id: str = ''):
+@command_tree.command(name='insightdiagnostic',description='Owner-only Insights review diagnostics (Review ID or recent failures).')
+async def insightdiagnostic_command(interaction: discord.Interaction, review_id: str = ''):
     from fairplay_failure import owner_diagnostics
     await owner_diagnostics(interaction,review_id)
 
@@ -21011,12 +21011,6 @@ async def on_ready():
         asyncio.create_task(bot_ideas_idle_reminder_loop(primary_channel.guild))
     except Exception as error:
         print(f"Could not initialize Bot Ideas & Bugs ticket panel: {error}", flush=True)
-
-    try:
-        from shark_insights_ui import recover_interrupted
-        await recover_interrupted(client)
-    except Exception as error:
-        print(f"Could not recover Insights notices: {error}", flush=True)
 
     try:
         command_tree.copy_global_to(guild=primary_channel.guild)
