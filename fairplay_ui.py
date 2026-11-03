@@ -1963,20 +1963,30 @@ async def stop_current_review(ctx):
 
 
 async def submit(ctx,target):
-    # Discord requires acknowledgement within three seconds. Remove the
-    # transient private placeholder once the request has been handled.
+    # Always leave an acknowledgement visible to the requester. A deleted
+    # deferred response previously made accepted jobs look like no-ops.
     await ctx.response.defer(ephemeral=True,thinking=True)
     try:
         try:target = username(target)
         except ReviewError as error:
-            await ctx.channel.send(content=str(error),allowed_mentions=discord.AllowedMentions.none());return
-        if _service is None:
-            await ctx.channel.send(content='Fair Play is reconnecting. Please try again shortly.',allowed_mentions=discord.AllowedMentions.none());return
+            await ctx.followup.send(str(error),ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
+            return
+        if _service is None or _service.closed:
+            await ctx.followup.send('Fair Play is reconnecting. Please try again shortly.',ephemeral=True)
+            return
         _service.note_human()
         await _service.enqueue(ctx,target)
-    finally:
-        try:await ctx.delete_original_response()
-        except discord.HTTPException:pass
+        await ctx.followup.send(
+            f'Review request for **{public_text(target)}** received. '
+            'If accepted, progress will appear in this channel when the scan starts. '
+            'If a scan is already running or the queue is full, check the channel response.',
+            ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
+    except Exception as error:
+        print(f'Fair Play slash submission failed: {type(error).__name__}',flush=True)
+        try:
+            await ctx.followup.send('Could not submit the review. Please try again shortly.',ephemeral=True)
+        except discord.HTTPException:
+            pass
 
 
 async def handle_message(message):
