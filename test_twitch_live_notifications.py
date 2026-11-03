@@ -17,6 +17,9 @@ class _Channel:
         self.sent.append((content, embed, view, allowed_mentions))
         return _SentMessage()
 
+    async def fetch_message(self, message_id):
+        return _SentMessage()
+
 
 class TwitchLiveNotificationTests(unittest.IsolatedAsyncioTestCase):
     def setUp(self):
