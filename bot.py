@@ -2505,12 +2505,11 @@ async def _twitch_send_stream_online(event, stream_info=None):
             channel = await _twitch_live_channel()
             for message_id in reversed(tracked_ids):
                 try:
-                    existing = await channel.fetch_message(int(message_id))
+                    await channel.fetch_message(int(message_id))
                 except discord.NotFound:
                     continue
-                if _is_twitch_live_notification(existing):
-                    print(f"Twitch live notification verified for {started_at}.", flush=True)
-                    return
+                print(f"Twitch live notification verified for {started_at}.", flush=True)
+                return
         print(
             f"Twitch live notification state was stale for {started_at}; retrying Discord delivery.",
             flush=True,
