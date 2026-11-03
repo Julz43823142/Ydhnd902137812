@@ -9899,11 +9899,13 @@
     "schema": 1
   },
   "twitch_live_notifications_v1": {
-    "message_ids": [],
+    "message_ids": [
+      "1567217894075539618"
+    ],
     "last_cleanup_at": "2026-11-02T06:47:08.474878+00:00",
     "last_cleanup_date": "2026-10-01",
-    "last_started_at": "2026-11-01T21:04:35Z",
-    "last_sent_at": "2026-11-01T21:05:00.637077+00:00",
+    "last_started_at": "2026-11-03T16:37:01Z",
+    "last_sent_at": "2026-11-03T16:44:24.585673+00:00",
     "channel_id": "1320033128676589669"
   },
   "seasonal_bot_profile_v1": {
