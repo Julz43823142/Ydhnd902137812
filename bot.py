@@ -2498,8 +2498,23 @@ async def _twitch_send_stream_online(event, stream_info=None):
         print("Twitch online notification skipped: missing started_at identity.", flush=True)
         return
     if live_state.get("last_started_at") == started_at:
-        print(f"Twitch live notification already sent for {started_at}.", flush=True)
-        return
+        # Persisted state can outlive a missing/deleted Discord message. Only
+        # suppress a repeat notification after verifying the message exists.
+        tracked_ids = list(live_state.get("message_ids", []))
+        if tracked_ids:
+            channel = await _twitch_live_channel()
+            for message_id in reversed(tracked_ids):
+                try:
+                    existing = await channel.fetch_message(int(message_id))
+                except discord.NotFound:
+                    continue
+                if _is_twitch_live_notification(existing):
+                    print(f"Twitch live notification verified for {started_at}.", flush=True)
+                    return
+        print(
+            f"Twitch live notification state was stale for {started_at}; retrying Discord delivery.",
+            flush=True,
+        )
 
     # Give Twitch time to publish a fresh frame so the Discord embed normally
     # shows the broadcaster's Starting Soon screen instead of a stale image.
@@ -2599,8 +2614,12 @@ async def _twitch_cleanup_if_offline():
     """Only an explicit, successful offline response permits deletion."""
     async with _twitch_live_notification_lock:
         stream = await _twitch_get_live_stream_info()
-        import twitch_presentation
-        await asyncio.to_thread(twitch_presentation.set_status,stream)
+        # Presentation updates are optional; they must not prevent the live alert.
+        try:
+            import twitch_presentation
+            await asyncio.to_thread(twitch_presentation.set_status, stream)
+        except Exception as error:
+            print(f"Twitch presentation update failed (notification continues): {error}", flush=True)
         if stream is not None:
             started_at = str(stream.get("started_at", "") or "").strip()
             if not started_at:
