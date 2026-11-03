@@ -141,6 +141,62 @@ class TwitchLiveNotificationTests(unittest.IsolatedAsyncioTestCase):
             await bot._twitch_cleanup_if_offline()
         self.assertEqual(bot.state[bot.TWITCH_LIVE_STATE_KEY]["message_ids"], ["123"])
 
+
+    async def test_stale_sent_state_retries_when_discord_message_is_missing(self):
+        channel = _Channel()
+
+        async def get_channel():
+            return channel
+
+        async def missing_message(message_id):
+            raise bot.discord.NotFound(
+                type("Response", (), {"status": 404, "reason": "Not Found"})(),
+                "Unknown Message",
+            )
+
+        async def save_state(attempts=3):
+            return True
+
+        channel.fetch_message = missing_message
+        bot._twitch_live_channel = get_channel
+        bot.save_all_critical = save_state
+        bot.state[bot.TWITCH_LIVE_STATE_KEY] = {
+            "last_started_at": "2026-11-02T09:00:00Z",
+            "message_ids": ["111"],
+        }
+        event = {"broadcaster_user_id": "1063411811", "started_at": "2026-11-02T09:00:00Z"}
+        await bot._twitch_handle_stream_online(event)
+        self.assertEqual(len(channel.sent), 1)
+        self.assertIn(str(_SentMessage.id), bot.state[bot.TWITCH_LIVE_STATE_KEY]["message_ids"])
+
+    async def test_presentation_failure_does_not_block_live_alert(self):
+        channel = _Channel()
+
+        async def get_channel():
+            return channel
+
+        async def save_state(attempts=3):
+            return True
+
+        async def stream_info():
+            return {"id": "live-id", "started_at": "2026-11-02T09:00:00Z"}
+
+        bot._twitch_live_channel = get_channel
+        bot._twitch_get_live_stream_info = stream_info
+        bot.save_all_critical = save_state
+        presentation = __import__("twitch_presentation")
+        original = presentation.set_status
+
+        def broken_presentation(stream):
+            raise RuntimeError("presentation backend unavailable")
+
+        presentation.set_status = broken_presentation
+        try:
+            await bot._twitch_cleanup_if_offline()
+            self.assertEqual(len(channel.sent), 1)
+        finally:
+            presentation.set_status = original
+
     def test_channel_point_aliases_for_named_rewards(self):
         self.assertEqual(bot.TWITCH_REWARD_CONFIG["discord hearts"]["key"], "survival_hearts")
         self.assertEqual(bot.TWITCH_REWARD_CONFIG["discord purple name"]["key"], "name")
