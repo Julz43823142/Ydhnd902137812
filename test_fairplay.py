@@ -985,7 +985,11 @@ class Isolation(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(all(call.kwargs['ephemeral'] for call in event.response.send_message.call_args_list))
         allowed = {'channel_id':str(bot.PRIMARY_CHESS_CHANNEL_ID),'type':3,'data':{'custom_id':'shop-buy'}}
         connection.parsers['INTERACTION_CREATE'](allowed);original.assert_called_once_with(allowed)
-        self.assertTrue(routing.permitted({'channel_id':str(CHANNEL_ID),'type':2,'data':{'name':'fairplay'}}))
+        self.assertTrue(routing.permitted({'channel_id':str(CHANNEL_ID),'type':2,'data':{'name':'insight'}}))
+        self.assertTrue(routing.permitted({'channel_id':str(CHANNEL_ID),'type':2,'data':{'name':'insightstop'}}))
+        self.assertTrue(routing.permitted({'channel_id':str(CHANNEL_ID),'type':2,'data':{'name':'insightdiagnostic'}}))
+        self.assertFalse(routing.permitted({'channel_id':str(CHANNEL_ID),'type':2,'data':{'name':'fairplay'}}))
+        self.assertFalse(routing.permitted({'channel_id':str(CHANNEL_ID),'type':2,'data':{'name':'fairplaystop'}}))
 
     async def test_secondary_daily_never_fetches_posts_mirrors_or_parses_daily(self):
         channel = SimpleNamespace(id=bot.SECONDARY_CHESS_CHANNEL_ID,send=AsyncMock())
