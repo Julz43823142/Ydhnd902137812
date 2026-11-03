@@ -1252,14 +1252,27 @@ class ReportView(SubmitView):
                     except (ValueError,IndexError,ReviewError):
                         await ctx.response.send_message('Open the submission panel to start a new review.',ephemeral=True);return
                     await submit(ctx,target);return
-                result = _service.result_for(ctx.message.id)
-                if result is None:
-                    await ctx.response.send_message('Detailed data expired or was cleared after a restart. Re-scan to rebuild it. The public review remains in Discord.',ephemeral=True);return
-                if action=='selected-period':
-                    from fairplay_method3_ui import selected_period_embed
-                    await ctx.response.send_message(embed=selected_period_embed(result),ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
-                    return
-                await ctx.response.send_message(embed=detail_embed(result,{'Overview':'Report Details','History':'Clusters & History','Review Rules':'Review Gates'}.get(label,label)),ephemeral=True,view=CopyTextView(),allowed_mentions=discord.AllowedMentions.none())
+                # Acknowledge before potentially expensive report rendering:
+                # Discord marks buttons as "application did not respond" after 3s.
+                await ctx.response.defer(ephemeral=True, thinking=True)
+                try:
+                    result = _service.result_for(ctx.message.id)
+                    if result is None:
+                        await ctx.followup.send('Detailed data expired or was cleared after a restart. Re-scan to rebuild it. The public review remains in Discord.',ephemeral=True)
+                        return
+                    if action=='selected-period':
+                        from fairplay_method3_ui import selected_period_embed
+                        embed = await asyncio.to_thread(selected_period_embed, result)
+                        await ctx.followup.send(embed=embed,ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
+                        return
+                    embed = await asyncio.to_thread(
+                        detail_embed, result,
+                        {'Overview':'Report Details','History':'Clusters & History','Review Rules':'Review Gates'}.get(label,label),
+                    )
+                    await ctx.followup.send(embed=embed,ephemeral=True,view=CopyTextView(),allowed_mentions=discord.AllowedMentions.none())
+                except Exception as error:
+                    print(f'Fair Play detail interaction failed: {type(error).__name__}',flush=True)
+                    await ctx.followup.send('The report could not be displayed. Please try again.',ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
             button.callback = show;self.add_item(button)
         if target and not method3:self.add_item(discord.ui.Button(label='Chess.com Profile',emoji='🔗',url=f'https://www.chess.com/member/{username(target)}'))
 
