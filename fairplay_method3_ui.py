@@ -11,10 +11,10 @@ def fmt(value, percent=False):
 
 
 METHOD3_LABELS = {
-    'LOW': 'Within Typical Performance Range',
-    'MODERATE': 'Moderate Performance Variation',
-    'HIGH': 'Notable Performance',
-    'VERY HIGH': 'Very Strong Statistical Deviation',
+    'LOW': 'Typical Performance',
+    'MODERATE': 'Moderate Performance',
+    'HIGH': 'High Performance',
+    'VERY HIGH': 'Very High Performance',
     'INSUFFICIENT DATA': 'Insufficient Data',
 }
 METHOD3_COLORS = {
@@ -75,10 +75,10 @@ def result_embed(result):
         + f'\nPublished Accuracy: {accuracy_games}/{len(result.games)} games.'),inline=False)
     e.add_field(name='Performance levels',value=(
         '⚪ Insufficient Data\n'
-        '🟢 Within Typical Performance Range\n'
-        '🟡 Moderate Performance Variation\n'
-        '🟠 Notable Performance\n'
-        '⚫ Very Strong Statistical Deviation'
+        '🟢 Typical Performance\n'
+        '🟡 Moderate Performance\n'
+        '🟠 High Performance\n'
+        '⚫ Very High Performance'
     ),inline=False)
     high_gap=d.get('selected_high_effect_screen')
     if high_gap and result.priority=='LOW' and not high_gap['passes_excess_threshold']:
