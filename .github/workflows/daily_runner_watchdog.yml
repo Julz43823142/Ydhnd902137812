@@ -1,0 +1,29 @@
+name: Daily Puzzle Watchdog
+
+on:
+  schedule:
+    # Separate from the bot runner: catches crashes, runner loss and missed handoffs.
+    # GitHub schedules are best-effort; the recovery interval is not guaranteed.
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: daily-puzzle-watchdog
+  cancel-in-progress: false
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - name: Test watchdog safety decisions
+        run: python3 -m unittest -v test_daily_runner_watchdog
+      - name: Restart the single Discord runner only if no run exists
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 scripts/daily_runner_watchdog.py
