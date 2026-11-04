@@ -158,15 +158,15 @@ class IdentityTests(unittest.TestCase):
 
     def test_slash_fairplay_is_direct_username_command(self):
         import bot
-        command=bot.command_tree.get_command('fairplay')
+        command=bot.command_tree.get_command('insight')
         self.assertIsInstance(command,discord.app_commands.Command)
         self.assertEqual([parameter.name for parameter in command.parameters],['username'])
-        self.assertIsNotNone(bot.command_tree.get_command('fairplaystop'))
+        self.assertIsNotNone(bot.command_tree.get_command('insightstop'))
         self.assertIsNone(bot.command_tree.get_command('fairplay_auto'))
         from fairplay_routing import permitted
         from fairplay_config import CHANNEL_ID
         self.assertTrue(permitted({'type':2,'channel_id':str(CHANNEL_ID),
-                                   'data':{'name':'fairplay'}}))
+                                   'data':{'name':'insight'}}))
 
     def test_atomic_encrypted_state_roundtrip(self):
         with tempfile.TemporaryDirectory() as folder, patch.dict('os.environ',{'FAIRPLAY_CHECKPOINT_KEY':'synthetic-test-key'}):
