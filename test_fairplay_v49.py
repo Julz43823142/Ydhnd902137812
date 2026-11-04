@@ -165,12 +165,13 @@ class PrivateCopy(unittest.IsolatedAsyncioTestCase):
 
     async def test_detail_response_has_copy_button(self):
         result=partial_report(rows())
-        ctx=SimpleNamespace(message=SimpleNamespace(id=123),response=SimpleNamespace(send_message=AsyncMock()))
+        ctx=SimpleNamespace(message=SimpleNamespace(id=123),response=SimpleNamespace(defer=AsyncMock(),send_message=AsyncMock()),followup=SimpleNamespace(send=AsyncMock()))
         service=SimpleNamespace(result_for=Mock(return_value=result))
         with patch('fairplay_ui.channel_check',new=AsyncMock(return_value=True)),patch('fairplay_ui._service',service):
             button=next(b for b in ReportView().children if b.label=='Review Gates')
             await button.callback(ctx)
-        kwargs=ctx.response.send_message.call_args.kwargs
+        ctx.response.defer.assert_awaited_once_with(ephemeral=True,thinking=True)
+        kwargs=ctx.followup.send.call_args.kwargs
         self.assertTrue(kwargs['ephemeral']);self.assertIsInstance(kwargs['view'],CopyTextView)
 
     async def test_scoped_limits_and_actual_route_visible_in_detail(self):
