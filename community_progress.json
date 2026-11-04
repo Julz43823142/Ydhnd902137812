@@ -252,7 +252,9 @@
       },
       "442597396195704832": {
         "coins_earned": 0,
-        "new_cosmetics": 1
+        "new_cosmetics": 1,
+        "pet_feed": 1,
+        "pet_levels_gained": 0
       }
     }
   }
