@@ -1,4 +1,5 @@
 import unittest
+from pathlib import Path
 
 import bot
 
@@ -140,6 +141,17 @@ class TwitchLiveNotificationTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaisesRegex(RuntimeError, "Helix unavailable"):
             await bot._twitch_cleanup_if_offline()
         self.assertEqual(bot.state[bot.TWITCH_LIVE_STATE_KEY]["message_ids"], ["123"])
+
+    def test_live_polling_starts_without_eventsub(self):
+        # Prevent accidentally coupling stream.online recovery to Channel Points.
+        source = Path(bot.__file__).read_text(encoding="utf-8")
+        startup = source.split("Twitch live-notification status polling task started.")[0]
+        condition = startup.rsplit("if TWITCH_CLIENT_ID and TWITCH_BROADCASTER_ID and (", 1)
+        self.assertEqual(len(condition), 2)
+        self.assertNotIn("TWITCH_EVENTSUB_ENABLED", condition[1])
+        loop = source.split("async def twitch_live_cleanup_loop():", 1)[1].split(
+            "def _twitch_note_message_id", 1)[0]
+        self.assertIn("await asyncio.sleep(60)", loop)
 
     def test_channel_point_aliases_for_named_rewards(self):
         self.assertEqual(bot.TWITCH_REWARD_CONFIG["discord hearts"]["key"], "survival_hearts")

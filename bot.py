@@ -2625,7 +2625,7 @@ async def twitch_live_cleanup_loop():
             raise
         except Exception as error:
             print(f"Twitch status check failed; keeping live notifications: {error}", flush=True)
-        await asyncio.sleep(300)
+        await asyncio.sleep(60)
 
 
 def _twitch_note_message_id(message_id):
@@ -20987,7 +20987,10 @@ async def on_ready():
         )
         print("Twitch EventSub bridge task started.", flush=True)
 
-    if TWITCH_EVENTSUB_ENABLED and (
+    # Live alerts must not depend on Channel Points/EventSub being enabled.
+    # Helix polling is an independent fallback when EventSub is disabled,
+    # disconnected or missing stream.online permissions.
+    if TWITCH_CLIENT_ID and TWITCH_BROADCASTER_ID and (
         _twitch_live_cleanup_task is None or _twitch_live_cleanup_task.done()
     ):
         _twitch_live_cleanup_task = asyncio.create_task(
