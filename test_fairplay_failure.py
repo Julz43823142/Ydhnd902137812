@@ -136,7 +136,7 @@ class SanitizationTests(unittest.TestCase):
 
     def test_gateway_allows_private_owner_diagnostic_command(self):
         self.assertTrue(permitted({"channel_id":"1311445685492781186",
-                                   "type":2,"data":{"name":"fairplaydiagnostic"}}))
+                                   "type":2,"data":{"name":"insightdiagnostic"}}))
 
 
 class EncryptedFailures(unittest.TestCase):

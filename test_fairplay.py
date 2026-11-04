@@ -702,7 +702,11 @@ class DiscordRules(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(submit.is_persistent());self.assertTrue(report.is_persistent())
         event = ctx();event.message = SimpleNamespace(id=999)
         await report.children[0].callback(event)
-        self.assertTrue(event.response.send_message.call_args.kwargs['ephemeral'])
+        event.response.defer.assert_awaited_once()
+        self.assertTrue(event.response.defer.call_args.kwargs['ephemeral'])
+        self.assertTrue(event.response.defer.call_args.kwargs['thinking'])
+        event.followup.send.assert_awaited_once()
+        self.assertTrue(event.followup.send.call_args.kwargs['ephemeral'])
         submit.stop();report.stop()
 
     async def test_queue_limit_duplicates_and_no_target_in_analytics(self):
@@ -846,16 +850,19 @@ class DiscordRules(unittest.IsolatedAsyncioTestCase):
         await ui.submit(event,'https://example.org')
         event.response.defer.assert_awaited_once_with(ephemeral=True,thinking=True)
         self.assertFalse(self.service.jobs)
-        event.delete_original_response.assert_awaited_once()
-        event.followup.send.assert_not_awaited()
-        self.assertEqual(event.channel.sends,1)
+        event.delete_original_response.assert_not_awaited()
+        event.followup.send.assert_awaited_once()
+        self.assertTrue(event.followup.send.call_args.kwargs['ephemeral'])
+        self.assertEqual(event.channel.sends,0)
 
     async def test_immediate_submit_is_quiet_and_queue_is_private_but_duplicates_are_public(self):
         with patch('feature_usage.note'):
             first=ctx(self.channel)
             await ui.submit(first,TARGET)
-            first.delete_original_response.assert_awaited_once()
-            first.followup.send.assert_not_awaited()
+            first.delete_original_response.assert_not_awaited()
+            first.followup.send.assert_awaited_once()
+            self.assertTrue(first.followup.send.call_args.kwargs['ephemeral'])
+            self.assertIn('Review request',str(first.followup.send.call_args.args))
             self.assertEqual(self.channel.sends,0)
             await ui.submit(ctx(self.channel),TARGET)
             self.assertIn('queued or running',self.channel.messages[-1].content)
@@ -982,7 +989,11 @@ class Isolation(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(all(call.kwargs['ephemeral'] for call in event.response.send_message.call_args_list))
         allowed = {'channel_id':str(bot.PRIMARY_CHESS_CHANNEL_ID),'type':3,'data':{'custom_id':'shop-buy'}}
         connection.parsers['INTERACTION_CREATE'](allowed);original.assert_called_once_with(allowed)
-        self.assertTrue(routing.permitted({'channel_id':str(CHANNEL_ID),'type':2,'data':{'name':'fairplay'}}))
+        self.assertTrue(routing.permitted({'channel_id':str(CHANNEL_ID),'type':2,'data':{'name':'insight'}}))
+        self.assertTrue(routing.permitted({'channel_id':str(CHANNEL_ID),'type':2,'data':{'name':'insightstop'}}))
+        self.assertTrue(routing.permitted({'channel_id':str(CHANNEL_ID),'type':2,'data':{'name':'insightdiagnostic'}}))
+        self.assertFalse(routing.permitted({'channel_id':str(CHANNEL_ID),'type':2,'data':{'name':'fairplay'}}))
+        self.assertFalse(routing.permitted({'channel_id':str(CHANNEL_ID),'type':2,'data':{'name':'fairplaystop'}}))
 
     async def test_secondary_daily_never_fetches_posts_mirrors_or_parses_daily(self):
         channel = SimpleNamespace(id=bot.SECONDARY_CHESS_CHANNEL_ID,send=AsyncMock())
