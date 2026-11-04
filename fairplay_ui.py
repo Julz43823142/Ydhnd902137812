@@ -1252,14 +1252,27 @@ class ReportView(SubmitView):
                     except (ValueError,IndexError,ReviewError):
                         await ctx.response.send_message('Open the submission panel to start a new review.',ephemeral=True);return
                     await submit(ctx,target);return
-                result = _service.result_for(ctx.message.id)
-                if result is None:
-                    await ctx.response.send_message('Detailed data expired or was cleared after a restart. Re-scan to rebuild it. The public review remains in Discord.',ephemeral=True);return
-                if action=='selected-period':
-                    from fairplay_method3_ui import selected_period_embed
-                    await ctx.response.send_message(embed=selected_period_embed(result),ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
-                    return
-                await ctx.response.send_message(embed=detail_embed(result,{'Overview':'Report Details','History':'Clusters & History','Review Rules':'Review Gates'}.get(label,label)),ephemeral=True,view=CopyTextView(),allowed_mentions=discord.AllowedMentions.none())
+                # Acknowledge before potentially expensive report rendering:
+                # Discord marks buttons as "application did not respond" after 3s.
+                await ctx.response.defer(ephemeral=True, thinking=True)
+                try:
+                    result = _service.result_for(ctx.message.id)
+                    if result is None:
+                        await ctx.followup.send('Detailed data expired or was cleared after a restart. Re-scan to rebuild it. The public review remains in Discord.',ephemeral=True)
+                        return
+                    if action=='selected-period':
+                        from fairplay_method3_ui import selected_period_embed
+                        embed = await asyncio.to_thread(selected_period_embed, result)
+                        await ctx.followup.send(embed=embed,ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
+                        return
+                    embed = await asyncio.to_thread(
+                        detail_embed, result,
+                        {'Overview':'Report Details','History':'Clusters & History','Review Rules':'Review Gates'}.get(label,label),
+                    )
+                    await ctx.followup.send(embed=embed,ephemeral=True,view=CopyTextView(),allowed_mentions=discord.AllowedMentions.none())
+                except Exception as error:
+                    print(f'Fair Play detail interaction failed: {type(error).__name__}',flush=True)
+                    await ctx.followup.send('The report could not be displayed. Please try again.',ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
             button.callback = show;self.add_item(button)
         if target and not method3:self.add_item(discord.ui.Button(label='Chess.com Profile',emoji='🔗',url=f'https://www.chess.com/member/{username(target)}'))
 
@@ -1292,6 +1305,8 @@ class Job:
     report_delivery_http_status: int | None = None
     failure_requester_notified: bool = False
     checkpoint_warning: bool = False
+    silent_ban_review: bool = False
+    on_ban_review_complete: object = None
     token: str = field(default_factory=lambda:uuid.uuid4().hex[:12])
 
 
@@ -1388,6 +1403,18 @@ class FairPlayService:
                 'Your Fair Play review is queued. Public progress will appear when it starts.',
                 ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
 
+    async def enqueue_ban_review(self, target, on_complete):
+        """Low-priority silent scan; never displace human-requested work."""
+        if self.closed or not self.research_hold.is_set():
+            return False
+        if target in self.jobs or len(self.jobs) >= MAX_CONCURRENT_SCANS:
+            return False
+        job = Job(target, None, output_channel=self.channel,
+                  silent_ban_review=True, on_ban_review_complete=on_complete)
+        self.jobs[target] = job
+        self.queue.put_nowait(job)
+        return True
+
     async def enqueue_mention(self,message,target):
         """Public Fair Play channel mention, using the normal bounded scan queue.
 
@@ -1427,6 +1454,8 @@ class FairPlayService:
         return True
 
     async def safe_progress(self,job,stage,*,view=None,embed=None):
+        if job.silent_ban_review:
+            return True  # Never post progress for automatic closure screening.
         job.progress_rejected=False
         job.progress_delivery_http_status=None
         if job.message_deleted:
@@ -1725,6 +1754,19 @@ class FairPlayService:
             # All detailed position caches remain bounded in the engine worker.
             # Discord detail pages need game summaries, not thousands of FENs.
             for game in result.games:game.decisions.clear()
+            if job.silent_ban_review:
+                # Reuse the normal bounded Fair Play executor, without posting
+                # any progress or a separate public review.
+                self.cache[job.target] = (time.time(), result, None)
+                self.expire_cache()
+                if job.on_ban_review_complete is not None:
+                    try:
+                        await job.on_ban_review_complete(result)
+                    except Exception as error:
+                        print(f'Ban review result delivery failed: {type(error).__name__}', flush=True)
+                if self.checkpoints is not None:
+                    await self.note_delivered_checkpoint(job, 'finish')
+                return
             # The analysis has finished. Do not silently leave Discord at
             # 99% if it rejects the report (embed limits, transient HTTP
             # failure, permissions or message edits). Retry once with a tiny
@@ -1963,20 +2005,30 @@ async def stop_current_review(ctx):
 
 
 async def submit(ctx,target):
-    # Discord requires acknowledgement within three seconds. Remove the
-    # transient private placeholder once the request has been handled.
+    # Always leave an acknowledgement visible to the requester. A deleted
+    # deferred response previously made accepted jobs look like no-ops.
     await ctx.response.defer(ephemeral=True,thinking=True)
     try:
         try:target = username(target)
         except ReviewError as error:
-            await ctx.channel.send(content=str(error),allowed_mentions=discord.AllowedMentions.none());return
-        if _service is None:
-            await ctx.channel.send(content='Fair Play is reconnecting. Please try again shortly.',allowed_mentions=discord.AllowedMentions.none());return
+            await ctx.followup.send(str(error),ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
+            return
+        if _service is None or _service.closed:
+            await ctx.followup.send('Fair Play is reconnecting. Please try again shortly.',ephemeral=True)
+            return
         _service.note_human()
         await _service.enqueue(ctx,target)
-    finally:
-        try:await ctx.delete_original_response()
-        except discord.HTTPException:pass
+        await ctx.followup.send(
+            f'Review request for **{public_text(target)}** received. '
+            'If accepted, progress will appear in this channel when the scan starts. '
+            'If a scan is already running or the queue is full, check the channel response.',
+            ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
+    except Exception as error:
+        print(f'Fair Play slash submission failed: {type(error).__name__}',flush=True)
+        try:
+            await ctx.followup.send('Could not submit the review. Please try again shortly.',ephemeral=True)
+        except discord.HTTPException:
+            pass
 
 
 async def handle_message(message):
