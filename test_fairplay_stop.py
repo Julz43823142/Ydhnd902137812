@@ -45,13 +45,13 @@ class SlashPermissions(unittest.IsolatedAsyncioTestCase):
         ui._service=self.old_service
 
     async def test_registered_command_and_gateway_whitelist(self):
-        command=bot.command_tree.get_command('fairplaystop')
+        command=bot.command_tree.get_command('insightstop')
         self.assertIsNotNone(command)
-        self.assertEqual(command.name,'fairplaystop')
+        self.assertEqual(command.name,'insightstop')
         self.assertIsNone(bot.command_tree.get_command('stopfairplay'))
         for typ in (2,4):
             self.assertTrue(routing.permitted({'channel_id':str(CHANNEL_ID),
-                'type':typ,'data':{'name':'fairplaystop'}}))
+                'type':typ,'data':{'name':'insightstop'}}))
             self.assertFalse(routing.permitted({'channel_id':str(CHANNEL_ID),
                 'type':typ,'data':{'name':'stopfairplay'}}))
             self.assertFalse(routing.permitted({'channel_id':str(CHANNEL_ID),
