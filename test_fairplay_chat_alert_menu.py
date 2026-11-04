@@ -169,10 +169,10 @@ class AlertMenu(unittest.IsolatedAsyncioTestCase):
 
     def test_fairplay_direct_and_stop_commands(self):
         import bot
-        check=bot.command_tree.get_command('fairplay')
+        check=bot.command_tree.get_command('insight')
         self.assertIsNotNone(check)
         self.assertEqual([p.name for p in check.parameters], ['username'])
-        stop=bot.command_tree.get_command('fairplaystop')
+        stop=bot.command_tree.get_command('insightstop')
         self.assertIsNotNone(stop)
         self.assertEqual(stop.parameters, [])
         self.assertIsNone(bot.command_tree.get_command('stopfairplay'))
