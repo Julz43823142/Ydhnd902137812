@@ -21014,7 +21014,7 @@ async def on_ready():
         _twitch_live_cleanup_task = asyncio.create_task(
             twitch_live_cleanup_loop()
         )
-        print("Twitch live-notification status polling task started.", flush=True)
+        print("Twitch live-notification recovery polling started.", flush=True)
 
     try:
         await restore_open_challenges()
