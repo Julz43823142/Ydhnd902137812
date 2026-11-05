@@ -17,6 +17,11 @@ class WatchdogTests(unittest.TestCase):
             {"status": "completed", "conclusion": "success"},
         ]))
 
+    def test_recent_failure_waits_before_retry(self):
+        from datetime import datetime, timezone
+        timestamp = datetime.now(timezone.utc).isoformat()
+        self.assertFalse(should_dispatch([{'status': 'completed', 'created_at': timestamp}]))
+
     def test_invalid_or_missing_api_data_fails_closed(self):
         for state in (None, [], {}, [{"conclusion": "failure"}],
                       [{"status": "mystery"}], [{"status": "completed"}, {}]):
