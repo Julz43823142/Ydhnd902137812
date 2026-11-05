@@ -7,6 +7,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+from datetime import datetime, timezone
 import urllib.error
 import urllib.request
 
@@ -25,6 +26,11 @@ def should_dispatch(runs):
             return False
         if run["status"] != "completed":
             raise ValueError("Unknown run state; refusing to dispatch")
+    last_start = runs[0].get("created_at")
+    if last_start:
+        started = datetime.fromisoformat(last_start.replace("Z", "+00:00"))
+        if (datetime.now(timezone.utc) - started).total_seconds() < 600:
+            return False
     return True
 
 
