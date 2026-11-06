@@ -753,7 +753,7 @@ async def handle_mention(message, client):
             ". Never invent or substitute another version number."})
         messages.append({"role": "system", "content": SERVER_COMMUNITY_RULES})
         if chat_only:
-            messages.append({"role": "system", "content": "In this channel, do not claim to have reviewed games or verified misconduct without a real review result. If someone requests a Chess.com review, tell them to use /fairplay username or mention SharkBot with a clear review request. Direct ban-alert subscription requests to /alert."})
+            messages.append({"role": "system", "content": "In this channel, do not claim to have reviewed games or verified misconduct without a real review result. If someone requests a Chess.com review, tell them to use /insight username or mention SharkBot with a clear review request. Direct ban-alert subscription requests to /alert."})
         for _, role, text in _history[scope]:
             messages.append({"role": role, "content": text})
         speaker_prompt = f"Player {discord.utils.escape_markdown(message.author.display_name[:64])}: {prompt}"
