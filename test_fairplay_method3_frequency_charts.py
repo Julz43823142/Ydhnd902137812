@@ -147,7 +147,7 @@ class AccuracyFrequencyCharts(unittest.TestCase):
         self.assertEqual(len(files),9)
         self.assertEqual(progress,[(n,9) for n in range(1,10)])
         names=[name for name,_ in files]
-        self.assertIn('fairplay_07_accuracy_frequency_and_timing.png',names)
+        self.assertIn('insight_07_accuracy_frequency_and_timing.png',names)
         self.assertIn('fairplay_08_rating_and_winrate.png',names)
         self.assertIn('fairplay_method3_selected_period.png',names)
         self.assertNotIn('fairplay_opponent_elo_comparison.png',names)
