@@ -229,5 +229,5 @@ def integrate(result, games, config=CONFIG, *, context_games=()):
         result.priority = 'LOW'
         result.confidence = 'MEDIUM' if sum(g.deep is True for g in daily) >= config.min_games else 'LOW'
         result.reasons = ['No supported Daily gameplay change was established. '
-                          'The correspondence reference is limited; this does not establish fair play.']
+                          'The correspondence reference is limited; this does not establish rule-compliant play.']
     return result
