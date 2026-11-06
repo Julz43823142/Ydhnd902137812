@@ -731,7 +731,7 @@ command_tree = discord.app_commands.CommandTree(client)
 from shark_editmessage import register_editmessage
 register_editmessage(command_tree)
 
-# Insights now uses the existing Insight analysis pipeline.
+# Insight uses the existing analysis pipeline.
 # Do not register the legacy charts-only /insight command.
 
 SHARK_ADMIN_COMMAND_LIST = shark_admin.ADMIN_LIST
@@ -745,7 +745,7 @@ async def insight_command(interaction: discord.Interaction, username: str):
         await submit(interaction,username)
 
 
-@command_tree.command(name='insightstop',description='Stop a running Insights review (server moderators only).')
+@command_tree.command(name='insightstop',description='Stop a running Insight review (server moderators only).')
 async def stopinsight_command(interaction: discord.Interaction):
     from fairplay_ui import stop_current_review
     await stop_current_review(interaction)
@@ -757,7 +757,7 @@ async def alert_command(interaction: discord.Interaction):
     await open_menu(interaction)
 
 
-@command_tree.command(name='insightdiagnostic',description='Owner-only Insights review diagnostics (Review ID or recent failures).')
+@command_tree.command(name='insightdiagnostic',description='Owner-only Insight review diagnostics (Review ID or recent failures).')
 async def insightdiagnostic_command(interaction: discord.Interaction, review_id: str = ''):
     from fairplay_failure import owner_diagnostics
     await owner_diagnostics(interaction,review_id)
