@@ -320,7 +320,7 @@ def fairplay_review_target(prompt):
     This deterministic parser is only called from the dedicated Insight
     channel. It does not infer targets from display names or general chat.
     """
-    action=r'(?:review|check|scan|screen|analyse|analyze|controleer|onderzoek)'
+    action=r'(?:insight|review|check|scan|screen|analyse|analyze|controleer|onderzoek)'
     if not re.search(r'(?i)\b'+action+r'\b',prompt):
         return None
     profiles=re.findall(
@@ -348,7 +348,7 @@ def fairplay_review_target(prompt):
     )
     ignored={'please','chess','com','the','een','het','van','voor',
              'on','of','for','my','username','profile','account','user',
-             'review','check','scan','screen','analyse','analyze','it',
+             'insight','review','check','scan','screen','analyse','analyze','it',
              'this','that','a','an','someone','player','me','you'}
     # Prefer the explicit chess.com username label when present.
     explicit=re.search(
