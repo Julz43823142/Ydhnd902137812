@@ -147,6 +147,8 @@ jobs:
         timeout-minutes: 2
         run: python scripts/smoke_stockfish_reviews.py
 
+      # The real engine smoke is diagnostic: engine initialization above
+      # already passed. A review fixture regression must not delay Discord.
       - name: Verify Daily Puzzle build and offline RP pool
         run: |
           python -m py_compile bot.py puzzle_move_validation.py quests.py shared_leaderboard.py fairplay_research_live.py
@@ -257,8 +259,6 @@ jobs:
           # Workers remain idle unless a Fair Play review dispatches them.
           FAIRPLAY_DISTRIBUTED: "1"
           GITHUB_TOKEN: ${{ github.token }}
-          # Private cohorts are supplied only to the running Discord bot.
-          SHARKBOT_RESEARCH_COHORTS_B64: ${{ secrets.SHARKBOT_RESEARCH_COHORTS_B64 || secrets.RESEARCH_COHORTS_B64 }}
           FAIRPLAY_DISTRIBUTED_KEY: ${{ secrets.FAIRPLAY_DISTRIBUTED_KEY }}
           FAIRPLAY_REQUIRE_MAIA: "1"
           # Deterministic supplementary model observations on up to 48

@@ -122,7 +122,8 @@ def pack_result(index, entry, result):
     return base64.b64encode(gzip.compress(raw, compresslevel=6, mtime=0)).decode("ascii")
 
 
-async def deliver_final_document(client, state):
+def _prepare_final_document(state):
+    """Build the private archive off the Discord gateway event loop."""
     records = [json.loads(gzip.decompress(base64.b64decode(item)).decode("utf-8"))
                for item in state["evidence"]]
     if len(records) != TOTAL:
@@ -135,9 +136,15 @@ async def deliver_final_document(client, state):
     data = gzip.compress(raw, compresslevel=9, mtime=0)
     if len(data) > MAX_PART_BYTES:
         raise RuntimeError("Final document exceeds Discord attachment limit")
+    return data, hashlib.sha256(data).hexdigest()
+
+
+async def deliver_final_document(client, state):
+    # A completed 200-account research archive can take minutes of CPU time
+    # to decode and compress. Never block Discord heartbeat or regular commands.
+    data, digest = await asyncio.to_thread(_prepare_final_document, state)
     await owner_dm(client, "Fair Play research complete: 200/200. All 200 account "
-                   "reviews in one private archive. SHA-256: %s" %
-                   hashlib.sha256(data).hexdigest(),
+                   "reviews in one private archive. SHA-256: %s" % digest,
                    filename="fairplay-research-all-200.json.gz", data=data)
 
 
@@ -263,7 +270,7 @@ async def run_research(service):
                 entry.update(status="failed", priority="UNCLASSIFIED",
                              error_type=type(exc).__name__, partial=True)
             # Save full evidence in the encrypted checkpoint before advancing the cursor.
-            packed = pack_result(index + 1, entry, result)
+            packed = await asyncio.to_thread(pack_result, index + 1, entry, result)
             next_state = dict(state)
             next_state["rows"] = state["rows"] + [entry]
             next_state["evidence"] = state["evidence"] + [packed]
@@ -316,13 +323,10 @@ async def run_research(service):
 
 
 def start_research(service):
-    """Called before queue workers are created to eliminate the startup race."""
-    from pathlib import Path
-    if Path(__file__).with_name("research_cohorts_200.json").is_file():
-        service.research_hold.clear()
-        service.research_task = asyncio.create_task(
-            run_research(service), name="fairplay-private-research")
-    else:
-        # Visible, falsifiable 'not running' state even when the bot is online.
-        asyncio.create_task(report_status("error", 0, reason="NOT CONFIGURED"),
-                            name="fairplay-research-not-configured")
+    """Legacy entry point: never start the removed automatic 200-account batch.
+
+    Preserve a harmless no-op for callers while keeping on-demand /insight
+    reviews unblocked. No task, GitHub status or owner DM is scheduled.
+    """
+    service.research_hold.set()
+    service.research_task = None

@@ -33,6 +33,30 @@ class ResearchTests(unittest.TestCase):
                 self.assertNotIn("test-user", desc)
         asyncio.run(run())
 
+    def test_private_archive_runs_in_thread_and_keeps_discord_responsive(self):
+        async def run():
+            import gzip
+            import time
+            payload = research.pack_result(1, {"group": "closed"}, None)
+            state = {"evidence": [payload], "digest": "test-digest", "rows": []}
+            with patch.object(research, "TOTAL", 1):
+                original = research._prepare_final_document
+                def slow_archive(value):
+                    time.sleep(.15)
+                    return original(value)
+                async def timer():
+                    start = asyncio.get_running_loop().time()
+                    await asyncio.sleep(.02)
+                    return asyncio.get_running_loop().time() - start
+                with patch.object(research, "_prepare_final_document", side_effect=slow_archive), patch.object(
+                        research, "owner_dm", new_callable=AsyncMock) as send:
+                    _, delay = await asyncio.gather(
+                        research.deliver_final_document(object(), state), timer())
+                    self.assertLess(delay, .12)
+                    send.assert_awaited_once()
+                    self.assertEqual(gzip.decompress(send.await_args.kwargs["data"])[:1], b"{")
+        asyncio.run(run())
+
     def test_encrypted_resume_cursor(self):
         with tempfile.TemporaryDirectory() as folder:
             with patch.dict(os.environ, {"FAIRPLAY_CHECKPOINT_KEY": "unit-test-key"}):
@@ -45,19 +69,19 @@ class ResearchTests(unittest.TestCase):
                 second = CheckpointStore(path=path, remote="")
                 self.assertEqual(second.research_state(), record)
 
-    def test_hold_is_reserved_before_queue_starts(self):
+    def test_automatic_200_account_research_is_disabled(self):
         async def run():
             service = SimpleNamespace(research_hold=asyncio.Event(), research_task=None)
-            service.research_hold.set()
-            async def worker(_):
-                await asyncio.sleep(60)
-            with patch.dict(os.environ, {"SHARKBOT_RESEARCH_COHORTS_B64": "present"}), patch.object(
-                    research, "run_research", worker):
+            service.research_hold.clear()
+            with patch.dict(os.environ, {"SHARKBOT_RESEARCH_COHORTS_B64": "present"}), \
+                 patch.object(research, "run_research", new_callable=AsyncMock) as run_batch, \
+                 patch.object(research, "report_status", new_callable=AsyncMock) as status:
                 research.start_research(service)
-                self.assertFalse(service.research_hold.is_set())
-                self.assertIsNotNone(service.research_task)
-                service.research_task.cancel()
-                await asyncio.gather(service.research_task, return_exceptions=True)
+                await asyncio.sleep(0)
+                self.assertTrue(service.research_hold.is_set())
+                self.assertIsNone(service.research_task)
+                run_batch.assert_not_awaited()
+                status.assert_not_awaited()
         asyncio.run(run())
 
     def test_failed_startup_reports_safe_stage_not_sensitive_exception(self):
