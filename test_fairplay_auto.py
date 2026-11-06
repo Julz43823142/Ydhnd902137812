@@ -12,7 +12,8 @@ from fairplay_config import VERSION
 
 
 def message(mid, target='example-player', version='fairplay-v49-old', author=123, complete=True, legacy=False):
-    prefix = '🛡️ Fair Play Review — ' if legacy else '🛡️ Insight Review — '\n    card = discord.Embed(title=prefix+target,
+    prefix = '🛡️ Fair Play Review — ' if legacy else '🛡️ Insight Review — '
+    card = discord.Embed(title=prefix+target,
                          description='LOW review priority' if complete else 'Fast scan 20/100')
     card.set_footer(text='Version: '+version)
     return NS(id=mid, author=NS(id=author), embeds=[card])
@@ -151,7 +152,8 @@ class AutoTests(unittest.IsolatedAsyncioTestCase):
 
 class IdentityTests(unittest.TestCase):
     def test_normalization_and_malformed_unknown_versions(self):
-        self.assertEqual(report_identity(message(1,'EXAMPLE-player'),123)[0],'example-player')\n        self.assertEqual(report_identity(message(1,'EXAMPLE-player',legacy=True),123)[0],'example-player')
+        self.assertEqual(report_identity(message(1,'EXAMPLE-player'),123)[0],'example-player')
+        self.assertEqual(report_identity(message(1,'EXAMPLE-player',legacy=True),123)[0],'example-player')
         self.assertIsNone(report_identity(message(1,version='unknown'),123))
         self.assertIsNone(report_identity(message(1,target='https://evil.invalid'),123))
         self.assertIsNone(report_identity(message(1,author=999),123))
