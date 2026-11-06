@@ -329,14 +329,14 @@ def review(target, progress, config=CONFIG, *, api_factory=PubAPI, cancel=None,
                   'This experimental results flag is not engine or Maia confirmation.') if priority=='HIGH' else
                  'Official Accuracy exceeded a matched earlier personal reference. Manual review is needed.' if priority=='MODERATE' and basis=='accuracy' else
                  'A chronological period exceeded the results review boundary but did not pass the stricter HIGH search guard.' if priority=='MODERATE' else
-                 'No period passed the configured review boundaries; this does not establish fair play.' if priority=='LOW' else
+                 'No period passed the configured review boundaries; this does not establish rule-compliant play.' if priority=='LOW' else
                  'Not enough comparable chronological games with valid ratings/results to assign a tier.')]
         if basis=='combined_manual_review':
             reasons=['Combined substantial Elo-results deviation and published Accuracy observations warrant MODERATE manual-review priority. This is exploratory, uncalibrated, and not evidence of cheating.']
         if priority=='LOW' and absolute_signals:
             reasons=['Absolute high Accuracy frequency alone is descriptive. '
                      'No matched increase or qualifying results anomaly was found; '
-                     'this does not establish fair play.']
+                     'this does not establish rule-compliant play.']
         if basis=='accuracy_frequency':
             reasons=['A recent high-Accuracy frequency increase passed a conservative earlier-history comparison against similar-Elo opponents. Exploratory review signal, not proof of misconduct.']
         from fairplay_method3_history import changes

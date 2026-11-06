@@ -311,7 +311,7 @@ def score_review(target, games, selected, skipped, partial, engine_name, profile
     if stable_strong and not scope_behavior:reasons.append('Strong precision without an independent personal behavior change is compatible with stable expert play.')
     if critical_score>=.5 and engine_score<.5 and max(gate_scores[2:])<.35:reasons.append('Critical-move agreement alone is insufficient to raise review priority.')
     if not any(g.metrics['timing']['count']>=config.min_timing_moves for g in timeline):reasons.append('Clock coverage is limited; missing timing evidence is not a normal-behavior finding.')
-    if not reasons:reasons.append('No well-supported elevated signal combination was found; this does not establish fair play.')
+    if not reasons:reasons.append('No well-supported elevated signal combination was found; this does not establish rule-compliant play.')
     names=('Engine Precision','Critical Position Precision','Move-Time Pattern','Performance Shift','Account / Results')
     families=dict(zip(names,(family_label(v) for v in scores)))
     clock_games=sum(g.metrics['timing']['count']>=config.timing_min_game_moves for g in timeline)

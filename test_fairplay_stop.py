@@ -96,7 +96,7 @@ class SlashPermissions(unittest.IsolatedAsyncioTestCase):
         await ui.stop_current_review(interaction)
         self.assertFalse(waiting.stop.is_set())
         self.assertEqual(self.service.queue.qsize(),1)
-        self.assertIn('No Fair Play review',interaction.followup.send.call_args.args[0])
+        self.assertIn('No Insight review',interaction.followup.send.call_args.args[0])
 
     async def test_duplicate_stop_is_idempotent(self):
         active=ui.Job(TARGET,None)

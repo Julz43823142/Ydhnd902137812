@@ -3,7 +3,7 @@
 Independent engine results are cached by normalized position and mainline,
 not source PGN text; genuine source clocks always remain with each game.
 One in-flight analysis per key prevents expensive duplicate Stockfish searches.
-This module never interacts with Discord or Fair Play scoring.
+This module never interacts with Discord or Insight scoring.
 """
 from __future__ import annotations
 
@@ -141,7 +141,7 @@ class GameReviewService:
             local_seconds = 0.0
             default_engine = self._analyser is chess_play.analyse_game_moves
             if default_engine:
-                # Remote work is opportunistic only. Fair Play has priority;
+                # Remote work is opportunistic only. Insight has priority;
                 # on unavailable/invalid remote results use local depth-18.
                 from game_review_remote import try_remote_review
                 remote_start = time.monotonic()
