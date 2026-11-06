@@ -2089,7 +2089,7 @@ async def startup(client):
         if _service.jobs:
             print(f'Insight: restoring {len(_service.jobs)} encrypted scan checkpoint(s).',flush=True)
     # The former automatic 200-account research batch is permanently disabled.
-    # Normal on-demand Insights scans and the ordinary Insight queue remain active.
+    # Normal on-demand Insight scans and the ordinary Insight queue remain active.
     from fairplay_auto import AutoRescanner
     _service.auto = AutoRescanner(_service)
     _service.auto.task = asyncio.create_task(_service.auto.run(), name='fairplay-auto')
