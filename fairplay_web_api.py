@@ -1,4 +1,4 @@
-"""HTTP adapter for the original engine-free Fair Play v87 review.
+"""HTTP adapter for the original engine-free Insight v87 review.
 
 Deploy this as a persistent Python service; the Cloudflare Pages frontend
 cannot execute Python. No results are written to disk.
@@ -17,7 +17,7 @@ from pydantic import BaseModel
 
 from fairplay_method3 import review, VERSION
 
-app = FastAPI(title="Shark Fair Play v87 API", docs_url=None, redoc_url=None)
+app = FastAPI(title="Shark Insight v87 API", docs_url=None, redoc_url=None)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["https://fairplaychess.pages.dev"],
