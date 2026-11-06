@@ -66,15 +66,15 @@ def safe_error_code(error):
             "Stockfish returned no candidate moves.":"engine_missing_candidates",
             "Stockfish pool is unavailable; please retry the review.":"engine_pool_unavailable",
             "Invalid compute decision count.":"decision_count",
-            "Malformed Fair Play compute game.":"game_shape",
+            "Malformed Insight compute game.":"game_shape",
             "Malformed compute decision.":"decision_shape",
             "Cannot record encrypted compute artifact.":"git_blob",
             "Cannot inspect encrypted compute tree.":"git_read_tree",
             "Unexpected contents in encrypted compute ref.":"git_tree_shape",
             "Cannot construct compute snapshot.":"git_write_tree",
             "Cannot commit encrypted compute snapshot.":"git_commit",
-            "Fair Play compute workload exceeds its bounded size.":"workload_size",
-            "Fair Play compute ciphertext exceeds its bounded size.":"ciphertext_size",
+            "Insight compute workload exceeds its bounded size.":"workload_size",
+            "Insight compute ciphertext exceeds its bounded size.":"ciphertext_size",
         }
         return fixed.get(str(error),"compute_validation")
     if isinstance(error, TimeoutError):return "worker_timeout"
@@ -100,9 +100,9 @@ def key_material(env=None):
 
 def cipher(secret):
     if not secret:
-        raise ReviewError("Encrypted Fair Play compute exchange is not configured.")
+        raise ReviewError("Encrypted Insight compute exchange is not configured.")
     return Fernet(base64.urlsafe_b64encode(hashlib.sha256(
-        b"SharkBot isolated Fair Play compute v1\0" + secret.encode("utf-8")
+        b"SharkBot isolated Insight compute v1\0" + secret.encode("utf-8")
     ).digest()))
 
 
@@ -110,10 +110,10 @@ def pack(value, secret):
     raw=json.dumps(normalize(value),sort_keys=True,separators=(",",":"),
                    ensure_ascii=False,allow_nan=False).encode("utf-8")
     if len(raw)>MAX_DECOMPRESSED:
-        raise ReviewError("Fair Play compute workload exceeds its bounded size.")
+        raise ReviewError("Insight compute workload exceeds its bounded size.")
     blob=cipher(secret).encrypt(gzip.compress(raw,compresslevel=6,mtime=0))
     if len(blob)>MAX_CIPHERTEXT:
-        raise ReviewError("Fair Play compute ciphertext exceeds its bounded size.")
+        raise ReviewError("Insight compute ciphertext exceeds its bounded size.")
     return blob
 
 
@@ -139,7 +139,7 @@ def serialize_game(game):
 
 def deserialize_game(value):
     if not isinstance(value,dict):
-        raise ReviewError("Malformed Fair Play compute game.")
+        raise ReviewError("Malformed Insight compute game.")
     keys={f.name for f in fields(GameSample)}
     decision_keys={f.name for f in fields(Decision)}
     if not isinstance(value.get("decisions"),list) or len(value["decisions"])>300:
@@ -445,7 +445,7 @@ def expand_response(originals, payload):
         raise ReviewError('Worker response does not match original game structure.')
     rows=payload.get('games')
     if not isinstance(rows,list) or len(rows)!=len(originals):
-        raise ReviewError('Incomplete Fair Play worker response.')
+        raise ReviewError('Incomplete Insight worker response.')
     restored=[]
     for source,row in zip(originals,rows):
         if (not isinstance(row,dict) or row.get('identity')!=source.identity
@@ -464,10 +464,10 @@ def validate_policy_response(originals,payload,**header):
     from fairplay_checkpoint import valid_counterfactual
     if (not isinstance(payload,dict) or payload.get('phase')!='policy'
             or payload.get('schema')!=SCHEMA or any(payload.get(k)!=v for k,v in header.items())):
-        raise ReviewError('Wrong or stale Fair Play worker response.')
+        raise ReviewError('Wrong or stale Insight worker response.')
     payload=expand_response(originals,payload)
     if not isinstance(payload.get('games'),list) or len(payload['games'])!=len(originals):
-        raise ReviewError('Incomplete Fair Play worker response.')
+        raise ReviewError('Incomplete Insight worker response.')
     returned=[deserialize_game(row) for row in payload['games']]
     for source,game in zip(originals,returned):
         # No reclassification, altered Maia probabilities or objective evidence.
@@ -487,7 +487,7 @@ def validate_policy_response(originals,payload,**header):
                     or contract.get('engine')!=header['engine']
                     or contract.get('completed') is not True or contract.get('exact') is not True
                     or set(row.get('scores',{}))!=set(alternatives(before))):
-                raise ReviewError('Incomplete Fair Play worker response.')
+                raise ReviewError('Incomplete Insight worker response.')
     return returned
 
 def validate_response(originals,payload,*,ticket,index,revision,engine):
@@ -495,11 +495,11 @@ def validate_response(originals,payload,*,ticket,index,revision,engine):
     if (not isinstance(payload,dict) or payload.get("phase","objective")!="objective" or payload.get("schema")!=SCHEMA or
             payload.get("ticket")!=ticket or payload.get("index")!=index or
             payload.get("revision")!=revision or payload.get("engine")!=engine):
-        raise ReviewError("Wrong or stale Fair Play worker response.")
+        raise ReviewError("Wrong or stale Insight worker response.")
     payload=expand_response(originals,payload)
     rows=payload.get("games")
     if not isinstance(rows,list) or len(rows)!=len(originals):
-        raise ReviewError("Incomplete Fair Play worker response.")
+        raise ReviewError("Incomplete Insight worker response.")
     returned=[deserialize_game(row) for row in rows]
     if [g.identity for g in returned]!=[g.identity for g in originals]:
         raise ReviewError("Worker response does not match the requested games.")
@@ -548,7 +548,7 @@ def validate_response(originals,payload,*,ticket,index,revision,engine):
 def _dispatch(ticket,revision,token,repo,indices=None):
     if (not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+",repo)
             or not re.fullmatch(r"[0-9a-f]{40}",revision)):
-        raise ReviewError("Invalid repository or code revision for Fair Play compute.")
+        raise ReviewError("Invalid repository or code revision for Insight compute.")
     import requests
     url=f"https://api.github.com/repos/{repo}/actions/workflows/fairplay_distributed.yml/dispatches"
     try:
@@ -563,7 +563,7 @@ def _dispatch(ticket,revision,token,repo,indices=None):
                                            "shards":json.dumps(list(range(WORKERS)) if indices is None else indices)}},
             timeout=15,allow_redirects=False)
         if response.status_code!=204:
-            raise ReviewError("GitHub cannot dispatch Fair Play compute workers.")
+            raise ReviewError("GitHub cannot dispatch Insight compute workers.")
     except requests.RequestException:
         raise ReviewError("GitHub compute dispatch is temporarily unavailable.") from None
 
