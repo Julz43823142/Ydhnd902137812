@@ -2088,9 +2088,8 @@ async def startup(client):
         # No account names or case details in the deployment logs.
         if _service.jobs:
             print(f'Fair Play: restoring {len(_service.jobs)} encrypted scan checkpoint(s).',flush=True)
-    # Reserve the Fair Play executor before any normal queue worker or auto-rescan starts.
-    from fairplay_research_live import start_research
-    start_research(_service)
+    # The former automatic 200-account research batch is permanently disabled.
+    # Normal on-demand Insights scans and the ordinary Fair Play queue remain active.
     from fairplay_auto import AutoRescanner
     _service.auto = AutoRescanner(_service)
     _service.auto.task = asyncio.create_task(_service.auto.run(), name='fairplay-auto')
