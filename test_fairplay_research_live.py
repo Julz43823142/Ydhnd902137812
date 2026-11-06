@@ -44,14 +44,15 @@ class ResearchTests(unittest.TestCase):
                 def slow_archive(value):
                     time.sleep(.15)
                     return original(value)
-                pulse = asyncio.Event()
-                async def ticker():
+                async def timer():
+                    start = asyncio.get_running_loop().time()
                     await asyncio.sleep(.02)
-                    pulse.set()
+                    return asyncio.get_running_loop().time() - start
                 with patch.object(research, "_prepare_final_document", side_effect=slow_archive), patch.object(
                         research, "owner_dm", new_callable=AsyncMock) as send:
-                    await asyncio.gather(research.deliver_final_document(object(), state), ticker())
-                    self.assertTrue(pulse.is_set())
+                    _, delay = await asyncio.gather(
+                        research.deliver_final_document(object(), state), timer())
+                    self.assertLess(delay, .12)
                     send.assert_awaited_once()
                     self.assertEqual(gzip.decompress(send.await_args.kwargs["data"])[:1], b"{")
         asyncio.run(run())
