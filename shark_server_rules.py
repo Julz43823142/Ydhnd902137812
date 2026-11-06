@@ -26,7 +26,7 @@ RULES = (
 RULE_6_CONTEXT = (
     "Avoid publicly accusing players of cheating or misconduct. "
     "Reporting a concern privately to staff is different from making a public accusation. "
-    "A neutral Fair Play review does not by itself establish guilt. "
+    "A neutral Insight review does not by itself establish guilt. "
     "Do not claim that any player cheated without a substantiated decision; refer uncertain cases to staff."
 )
 
