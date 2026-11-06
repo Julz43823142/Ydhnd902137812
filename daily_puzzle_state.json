@@ -73,7 +73,7 @@
     "player_color": "white",
     "player_move_count": 4,
     "posted_at": "2026-11-06T08:22:52.153968+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -95,7 +95,8 @@
     "board_attachment_filenames": {
       "1468320170891022417": "daily_puzzle.png"
     },
-    "chat_since_refresh": 0
+    "chat_since_refresh": 0,
+    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Qg6+ Qxh6+ Ng6 Qh8#"
   },
   "lichess_rating_used": {
     "2000": [
