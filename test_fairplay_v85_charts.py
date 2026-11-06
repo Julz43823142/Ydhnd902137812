@@ -163,7 +163,7 @@ class LayoutAndSafety(unittest.TestCase):
         for i,root in enumerate(svgs,1):
             title=next(root.iter(NS+'text')).text
             self.assertTrue(title.startswith(f'{i} · '),(i,title))
-        self.assertIn('fairplay_method3_selected_period.png',outputs[3][0])
+        self.assertIn('insight_method3_selected_period.png',outputs[3][0])
         self.assertIn('rolling_history',outputs[4][0])
         self.assertIn('openings',outputs[5][0])
         self.assertIn('accuracy_frequency_and_timing',outputs[6][0])
