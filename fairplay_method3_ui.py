@@ -221,17 +221,17 @@ def chart_pngs(result, progress=None):
         if not rows:continue
         svg=class_svg(kind,rows)
         svg=mark_selected(svg,result,kind,rows,(150,470,790))
-        add_chart(f'fairplay_{kind}_charts.png',svg,number)
+        add_chart(f'insight_{kind}_charts.png',svg,number)
     if zoom:
-        add_chart('fairplay_method3_selected_period.png',zoom,4)
+        add_chart('insight_method3_selected_period.png',zoom,4)
     if live_games:
-        add_chart('fairplay_method3_rolling_history.png',rolling_history_svg(result),5)
+        add_chart('insight_method3_rolling_history.png',rolling_history_svg(result),5)
         from fairplay_method3_behavior_charts import behavior_svgs
         (opening_name,opening_svg),(timing_name,timing_svg),(pressure_name,pressure_svg)=behavior_svgs(result)
         add_chart(opening_name,opening_svg,6)
-        add_chart('fairplay_07_accuracy_frequency_and_timing.png',
+        add_chart('insight_07_accuracy_frequency_and_timing.png',
                   frequency_timing_svg(result,timing_svg),7)
-        add_chart('fairplay_08_rating_and_winrate.png',rating_winrate_svg(result),8)
+        add_chart('insight_08_rating_and_winrate.png',rating_winrate_svg(result),8)
         add_chart(pressure_name,pressure_svg,9)
     return files
 
