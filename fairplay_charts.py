@@ -197,8 +197,8 @@ def comparison_svg(grouped):
 
 def chart_pngs(grouped):
     import cairosvg
-    files = [(f"fairplay_{kind}_charts.png", class_svg(kind, grouped[kind]))
+    files = [(f"insight_{kind}_charts.png", class_svg(kind, grouped[kind]))
              for kind in CLASSES if grouped.get(kind)]
     if files:
-        files.append(("fairplay_opponent_elo_comparison.png", comparison_svg(grouped)))
+        files.append(("insight_opponent_elo_comparison.png", comparison_svg(grouped)))
     return [(name, cairosvg.svg2png(bytestring=svg.encode("utf-8"))) for name, svg in files]
