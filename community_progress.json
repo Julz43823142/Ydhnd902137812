@@ -110,13 +110,13 @@
       "paid": [],
       "pool": 500,
       "progress": {
-        "puzzle_solve": 1
+        "puzzle_solve": 2
       },
       "start": 1793574000,
       "title": "Weekly Community Challenge",
       "users": {
         "601406103712170014": {
-          "puzzle_solve": 1
+          "puzzle_solve": 2
         }
       }
     }
@@ -277,10 +277,10 @@
         "pet_levels_gained": 1
       },
       "601406103712170014": {
-        "coins_earned": 11.0,
-        "contribution": 0.000333,
+        "coins_earned": 12.0,
+        "contribution": 0.000666,
         "new_cosmetics": 0,
-        "puzzle_solve": 1
+        "puzzle_solve": 2
       }
     }
   }
