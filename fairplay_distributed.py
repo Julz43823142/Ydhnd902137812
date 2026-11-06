@@ -102,7 +102,7 @@ def cipher(secret):
     if not secret:
         raise ReviewError("Encrypted Insight compute exchange is not configured.")
     return Fernet(base64.urlsafe_b64encode(hashlib.sha256(
-        b"SharkBot isolated Insight compute v1\0" + secret.encode("utf-8")
+        b"SharkBot isolated Fair Play compute v1\0" + secret.encode("utf-8")
     ).digest()))
 
 
