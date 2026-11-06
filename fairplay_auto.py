@@ -12,7 +12,7 @@ import discord
 from fairplay_config import active_version
 from fairplay_data import username, ReviewError
 
-PREFIX = '🛡️ Fair Play Review — '
+PREFIX = '🛡️ Insight Review — '\nLEGACY_PREFIX = '🛡️ Fair Play Review — '
 VERSION_PATTERN = re.compile(r'fairplay-v(\d+)(?:[.\w-]*)', re.I)
 
 
@@ -21,13 +21,14 @@ def report_identity(message, bot_id):
     if message.author.id != bot_id:return None
     for card in message.embeds:
         title = str(card.title or '')
-        if not title.startswith(PREFIX):continue
+        prefix = next((item for item in (PREFIX, LEGACY_PREFIX) if title.startswith(item)), None)
+        if prefix is None:continue
         text = str(card.description or '').casefold()
         fields = ' '.join(str(f.name) for f in card.fields).casefold()
         if 'review priority' not in text and 'review priority' not in fields:continue
         match = VERSION_PATTERN.search(str(card.footer.text or ''))
         if not match:continue  # unknown version is not permission to rescan
-        try:target = username(title[len(PREFIX):])
+        try:target = username(title[len(prefix):])
         except ReviewError:continue
         return target, match.group(0).casefold(), int(match.group(1))
     return None
@@ -137,11 +138,11 @@ async def control(ctx, enabled):
     from shark_admin import ADMIN_ID
     if not await channel_check(ctx):return
     if ctx.user.id != ADMIN_ID:
-        await ctx.response.send_message('Only Sharkmeister can control automatic Fair Play reviews.', ephemeral=True)
+        await ctx.response.send_message('Only Sharkmeister can control automatic Insight reviews.', ephemeral=True)
         return
     await ctx.response.defer(ephemeral=True, thinking=True)
     if _service is None or _service.closed:
-        text = 'Fair Play is reconnecting. Please try again shortly.'
+        text = 'Insight is reconnecting. Please try again shortly.'
     else:
         _service.note_human()
         try:text = await _service.auto.set_enabled(enabled)
