@@ -323,13 +323,10 @@ async def run_research(service):
 
 
 def start_research(service):
-    """Called before queue workers are created to eliminate the startup race."""
-    from pathlib import Path
-    if Path(__file__).with_name("research_cohorts_200.json").is_file():
-        service.research_hold.clear()
-        service.research_task = asyncio.create_task(
-            run_research(service), name="fairplay-private-research")
-    else:
-        # Visible, falsifiable 'not running' state even when the bot is online.
-        asyncio.create_task(report_status("error", 0, reason="NOT CONFIGURED"),
-                            name="fairplay-research-not-configured")
+    """Legacy entry point: never start the removed automatic 200-account batch.
+
+    Preserve a harmless no-op for callers while keeping on-demand /insight
+    reviews unblocked. No task, GitHub status or owner DM is scheduled.
+    """
+    service.research_hold.set()
+    service.research_task = None
