@@ -133,7 +133,7 @@ def accuracy_bins(rows):
 
 def class_svg(kind, rows):
     parts = start(1440, 1390)
-    parts += [text(45, 45, f"{kind.title()} — Fair Play Game-by-Game", 30),
+    parts += [text(45, 45, f"{kind.title()} — Insight Game-by-Game", 30),
               text(45, 78, f"{len(rows)} games · orange dashed: official Chess.com Accuracy · green dashed: rolling mean", 18),
               text(45, 106, "Y-axes zoom to observed data · green mean: last 30 games, ≥5 observed, ≥60% coverage; gaps mean missing data.", 17, "#526477")]
     official = [value if finite(value) and 0 <= value <= 100 else None
