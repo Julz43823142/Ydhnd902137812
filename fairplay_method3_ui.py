@@ -58,7 +58,7 @@ def _fit_discord_card(card):
 def result_embed(result):
     d=result.diagnostics['method3'];s=d['subject'];r=(d.get('selected') or {}).get('results',s['overall_results'])
     icon={'LOW':'🟢','MODERATE':'🟡','HIGH':'🟠','VERY HIGH':'⚫','INSUFFICIENT DATA':'⚪'}.get(result.priority,'⚪')
-    e=discord.Embed(title='🛡️ Fair Play Review — '+result.username,color=priority_color(result.priority),
+    e=discord.Embed(title='🛡️ Insight Review — '+result.username,color=priority_color(result.priority),
         description=f'{icon + " " if icon else ""}**{priority_label(result.priority)}**')
     from fairplay_deviation_display import suspicion_score
     from fairplay_method3_accuracy_frequency import _valid_accuracy
