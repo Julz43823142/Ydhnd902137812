@@ -3911,8 +3911,8 @@
         "url": "https://lichess.org/training/NlBCR",
         "title": "Puzzle • 1263",
         "fen": "8/7p/4k1p1/1p1pP3/3K1P1P/6P1/8/8 w - - 4 53",
-        "current_fen": "8/7p/4k1p1/1p1pP3/3K1P1P/6P1/8/8 w - - 4 53",
-        "last_move_uci": "f5e6",
+        "current_fen": "8/7p/4k1p1/2KpP3/1p3P1P/6P1/8/8 w - - 0 54",
+        "last_move_uci": "b5b4",
         "pgn": {
           "__shark_answer_ciphertext_v1__": "gAAAAABq7itz3m2-CWBLNnhx2N_3YT3rD3wS4SVzWNesOETQGqBByfg_3Qa4w3ngJLYbCgIMhmwxUiq4YBTPvKCJWy-tJ6AM7A=="
         },
@@ -3930,25 +3930,58 @@
         "winner_name": null,
         "latest_attempts": {},
         "puzzle_id": "random_NlBCR_1793993587349",
-        "last_activity_at": "2026-11-06T19:33:07.349289+00:00",
+        "last_activity_at": "2026-11-06T19:33:19.812729+00:00",
         "rating": 1263,
         "rp_band": 0,
         "boss": false,
         "board_theme": "classic",
         "piece_theme": "classic",
         "arrow_theme": "green",
-        "next_solution_index": 0,
-        "next_player_index": 0,
+        "next_solution_index": 2,
+        "next_player_index": 1,
         "solved": false,
-        "message_ids": {},
+        "message_ids": {
+          "1546557493038284840": 1568347573285027972
+        },
         "chat_since_refresh": 0,
-        "attempted_users": {},
-        "first_move_user_id": null,
-        "first_move_user_name": null,
+        "attempted_users": {
+          "601406103712170014": {
+            "name": "TheMakina",
+            "move": "Kc5",
+            "correct": true,
+            "timestamp": "2026-11-06T19:33:19.813012+00:00"
+          }
+        },
+        "first_move_user_id": "601406103712170014",
+        "first_move_user_name": "TheMakina",
         "first_move_awarded": false,
         "helper_awarded_users": [],
         "helper_candidate_users": [],
-        "channel_id": 1546557493038284840
+        "channel_id": 1546557493038284840,
+        "board_attachment_filenames": {
+          "1546557493038284840": "random_puzzle.png"
+        },
+        "last_card_activity_at": "2026-11-06T19:33:19.812729+00:00",
+        "recent_accepted_moves": [
+          {
+            "accepted_at": 1793993599.8130178,
+            "fen_before": "8/7p/4k1p1/1p1pP3/3K1P1P/6P1/8/8 w - - 4 53",
+            "expected": {
+              "uci": "d4c5",
+              "san": "Kc5",
+              "color": "white"
+            },
+            "accepted_uci": "d4c5"
+          }
+        ],
+        "accepted_solution_moves": [
+          {
+            "san": "Kc5",
+            "uci": "d4c5",
+            "principal": true
+          }
+        ],
+        "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** b4"
       }
     }
   },
