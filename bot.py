@@ -731,7 +731,7 @@ command_tree = discord.app_commands.CommandTree(client)
 from shark_editmessage import register_editmessage
 register_editmessage(command_tree)
 
-# Insights now uses the existing Fair Play analysis pipeline.
+# Insights now uses the existing Insight analysis pipeline.
 # Do not register the legacy charts-only /insight command.
 
 SHARK_ADMIN_COMMAND_LIST = shark_admin.ADMIN_LIST
@@ -751,7 +751,7 @@ async def stopinsight_command(interaction: discord.Interaction):
     await stop_current_review(interaction)
 
 
-@command_tree.command(name='alert',description='Manage Chess.com Fair Play ban alert subscriptions.')
+@command_tree.command(name='alert',description='Manage Chess.com account-closure alert subscriptions.')
 async def alert_command(interaction: discord.Interaction):
     from fairplay_ban_alerts_ui import open_menu
     await open_menu(interaction)
@@ -1327,7 +1327,7 @@ async def daily_workflow_rotation_loop():
     try:
         await asyncio.sleep(DAILY_WORKFLOW_ROTATION_SECONDS)
 
-        # Keep a live Fair Play depth-18 scan on the current runner as
+        # Keep a live Insight depth-18 scan on the current runner as
         # long as it is safe. Past this grace window, encrypted checkpoints
         # permit the replacement worker to resume unfinished positions.
         rotation_grace = max(0, int(os.getenv("FAIRPLAY_ROTATION_GRACE_SECONDS", "3000")))
@@ -18946,7 +18946,7 @@ async def on_message(
         if message.author.bot:
             return
 
-        # Fair Play allows mention-only chat, never game/economy actions.
+        # Insight allows mention-only chat, never game/economy actions.
         # Dispatch it first, including for guild-less test messages.
         if message.channel.id == FAIRPLAY_CHANNEL_ID:
             from fairplay_ui import handle_message
@@ -20796,7 +20796,7 @@ async def on_message(
 async def on_ready():
     import fairplay_ui
     try:await fairplay_ui.startup(client)
-    except Exception:print('Fair Play startup needs a retry; normal SharkBot remains available.',flush=True)
+    except Exception:print('Insight startup needs a retry; normal SharkBot remains available.',flush=True)
     try:
         from fairplay_ban_alerts_ui import startup as start_ban_alerts
         await start_ban_alerts(client)
@@ -20813,7 +20813,7 @@ async def on_ready():
         return
 
     client.started = True
-    # Re-register persistent Fair Play diagnostic DM callbacks after restarts.
+    # Re-register persistent Insight diagnostic DM callbacks after restarts.
     from fairplay_failure import FailureView
     client.add_view(FailureView())
     client.add_view(PlayerChallengeView())
