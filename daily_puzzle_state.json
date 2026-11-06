@@ -3908,41 +3908,39 @@
     "1546557493038284840": {
       "latest_puzzle_type": "random",
       "latest_random_puzzle": {
-        "url": "https://lichess.org/training/auIZK",
-        "title": "Puzzle • 1998",
-        "fen": "8/2b5/2P4p/8/4K1P1/7k/5P2/8 w - - 0 56",
-        "current_fen": "8/2b5/2P4p/8/4K1P1/7k/5P2/8 w - - 0 56",
-        "last_move_uci": "h4h3",
+        "url": "https://lichess.org/training/NlBCR",
+        "title": "Puzzle • 1263",
+        "fen": "8/7p/4k1p1/1p1pP3/3K1P1P/6P1/8/8 w - - 4 53",
+        "current_fen": "8/7p/4k1p1/1p1pP3/3K1P1P/6P1/8/8 w - - 4 53",
+        "last_move_uci": "f5e6",
         "pgn": {
-          "__shark_answer_ciphertext_v1__": "gAAAAABq7gPPurq-bjVj11Dp_axjXiC-KKfY2ItgnbyMKPQANDPw7B0WwRfaNdgfz7KCyv9uiutk8uZCaRSdJR5DWDaf22jqtQ=="
+          "__shark_answer_ciphertext_v1__": "gAAAAABq7itz3m2-CWBLNnhx2N_3YT3rD3wS4SVzWNesOETQGqBByfg_3Qa4w3ngJLYbCgIMhmwxUiq4YBTPvKCJWy-tJ6AM7A=="
         },
         "all_moves": {
-          "__shark_answer_ciphertext_v1__": "gAAAAABq7gPPsFf2qdtvoq2tyizOnq06UNrvJb8fiRNkpL7Nek2rPILumooTjFg5p6gwDioMObTR6Ttjcxsnd1aw98JCo3QnWu7XzUz0nyorgdHJmKe7uT3lpfFFhaNay-MOt-NgsnK_I0zv0z0kGLT383jRR45sQbNPxdYUtfOU4me_TUknKxOyFf49oRM9789BFFDd5PyeMCh7FTJ79jx1yYzVeLJt6F_CBdDTgyS6OrnV5ZFb4pW9Twg2Qcx7hoUVsWQNmZRx"
+          "__shark_answer_ciphertext_v1__": "gAAAAABq7itzDRTTY7qvju1ieTNcWIjYDIzTsgPJf-vERuX3VnB23jwF_W1g2LONFzEImzPL1WWVQ_-9bIsEKNagqKLZtrNMSO08EY9M4NVhkqzwucpLupdiDxaT2SYg0EpofhyaxDvi1c-OQN3i348noYQcIvcw06prGSaN3oP_TAlXHEThXaa0ueFewwSqc1WeBxvmEL-SZjCFGZMK97Y7nB8puF1-RnB61DrNiiySqfLRdB0IgNma7Ou8nSG0Q9PwAU4ieTYJ"
         },
         "player_moves": {
-          "__shark_answer_ciphertext_v1__": "gAAAAABq7gPPSIlhHQF8Xn4qTNRQPoXZnvvhq4_bXcGGR2W7S73VH5CNumoZLUr8DIFxn7hJN13l-CqT-oG2q_MAY2i6iElF8016CVquHvnANudCUnPjwMwXbDd-OzIMS1s1FGWX85VbsW3tuVu8xUMbVfpBjxm70hjN8YhM2ouL7pBBeKI381pxYVBriURtIY4eqOe8pC2F"
+          "__shark_answer_ciphertext_v1__": "gAAAAABq7itzs55OnJBYFWw_ADSYH97q3bkQ4JivDSFkWxcBJ9ACXQvhUK_nVea4BYAe0arzC6-MFblF6KZ2o7MQGsFJ6OXxPw4aoX7bJ9UK5nuAcIdJ2cGGx6VMxN88WI3CN1_sH4JC4l9z1Y9dKmcS2vowa2KDuhnWU4k3FIGvGXeZxzC7UXlEHpZQVW8fJ5IZ8nbfR4U8"
         },
         "player_color": "white",
         "player_move_count": 2,
-        "posted_at": "2026-10-22T12:26:47.268387+00:00",
-        "answer_posted": true,
+        "posted_at": "2026-11-06T19:33:07.349289+00:00",
+        "answer_posted": false,
         "winner_user_id": null,
         "winner_name": null,
         "latest_attempts": {},
-        "puzzle_id": "random_auIZK_1792672007268",
-        "last_activity_at": "2026-10-22T12:26:47.268387+00:00",
-        "rating": 1998,
-        "rp_band": 2,
+        "puzzle_id": "random_NlBCR_1793993587349",
+        "last_activity_at": "2026-11-06T19:33:07.349289+00:00",
+        "rating": 1263,
+        "rp_band": 0,
         "boss": false,
         "board_theme": "classic",
         "piece_theme": "classic",
-        "arrow_theme": "purple",
+        "arrow_theme": "green",
         "next_solution_index": 0,
         "next_player_index": 0,
         "solved": false,
-        "message_ids": {
-          "1546557493038284840": 1562805742040522823
-        },
+        "message_ids": {},
         "chat_since_refresh": 0,
         "attempted_users": {},
         "first_move_user_id": null,
@@ -3950,11 +3948,7 @@
         "first_move_awarded": false,
         "helper_awarded_users": [],
         "helper_candidate_users": [],
-        "channel_id": 1546557493038284840,
-        "board_attachment_filenames": {
-          "1546557493038284840": "random_puzzle.png"
-        },
-        "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Kf5 f4"
+        "channel_id": 1546557493038284840
       }
     }
   },
