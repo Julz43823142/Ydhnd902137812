@@ -99,6 +99,26 @@
           "puzzle_solve": 8
         }
       }
+    },
+    "weekly:2026-W45": {
+      "end": 1794178800,
+      "event": null,
+      "goals": {
+        "puzzle_solve": 3000
+      },
+      "id": "weekly:2026-W45",
+      "paid": [],
+      "pool": 500,
+      "progress": {
+        "puzzle_solve": 1
+      },
+      "start": 1793574000,
+      "title": "Weekly Community Challenge",
+      "users": {
+        "601406103712170014": {
+          "puzzle_solve": 1
+        }
+      }
     }
   },
   "weeks": {
@@ -255,6 +275,12 @@
         "new_cosmetics": 1,
         "pet_feed": 3,
         "pet_levels_gained": 1
+      },
+      "601406103712170014": {
+        "coins_earned": 11.0,
+        "contribution": 0.000333,
+        "new_cosmetics": 0,
+        "puzzle_solve": 1
       }
     }
   }
