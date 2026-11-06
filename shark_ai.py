@@ -317,7 +317,7 @@ def _public_version_reply(prompt: str) -> str:
 def fairplay_review_target(prompt):
     """Find an explicit target in a Task Force review request.
 
-    This deterministic parser is only called from the dedicated Fair Play
+    This deterministic parser is only called from the dedicated Insight
     channel. It does not infer targets from display names or general chat.
     """
     action=r'(?:review|check|scan|screen|analyse|analyze|controleer|onderzoek)'
@@ -334,9 +334,9 @@ def fairplay_review_target(prompt):
         r'(?:the\s+)?(?:chess\.com\s+)?'
         r'(?:username|gebruikersnaam|profile|profiel|account|user)?\s*:?\s*'
         r'([A-Za-z0-9_-]{3,25})\b',
-        # "fairplay review on Sharkmeister": skip the intervening
+        # "insight review on Sharkmeister": skip the intervening
         # word "review" rather than treating it as a username.
-        r'(?i)\bfair[\s-]*play\s+'+action+
+        r'(?i)\b(?:insight|fair[\s-]*play)\s+'+action+
         r'\s+(?:(?:of|for|on|van|voor)\s+)?'
         r'(?:the\s+)?(?:chess\.com\s+)?'
         r'(?:username|gebruikersnaam|profile|profiel|account|user)?\s*:?\s*'
@@ -385,10 +385,10 @@ async def dispatch_fairplay_mention(message,prompt):
     target=fairplay_review_target(prompt)
     if target is None and pending is not None:
         target=fairplay_username_followup(prompt)
-    intent=bool(re.search(r'(?i)\b(?:fair[\s-]*play|review|check|scan|analyse|analyze|controleer|onderzoek)\b',prompt))
+    intent=bool(re.search(r'(?i)\b(?:insight|fair[\s-]*play|review|check|scan|analyse|analyze|controleer|onderzoek)\b',prompt))
     if not intent and target is None:return False
     if target is None:
-        if not re.search(r'(?i)\b(?:fair[\s-]*play|review|check|scan|analyse|analyze|controleer|onderzoek)\b',prompt):
+        if not re.search(r'(?i)\b(?:insight|fair[\s-]*play|review|check|scan|analyse|analyze|controleer|onderzoek)\b',prompt):
             return False
         _FAIRPLAY_PENDING[key]=now
         await _counted_reply(message,
@@ -406,7 +406,7 @@ async def dispatch_fairplay_mention(message,prompt):
         return True
     from fairplay_ui import _service
     if _service is None:
-        await _counted_reply(message,'Fair Play is reconnecting. Please try again shortly.',
+        await _counted_reply(message,'Insight is reconnecting. Please try again shortly.',
             mention_author=False,allowed_mentions=discord.AllowedMentions.none())
         return True
     _FAIRPLAY_PENDING.pop(key,None)
