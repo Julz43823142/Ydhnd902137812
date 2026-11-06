@@ -12,7 +12,8 @@ import discord
 from fairplay_config import active_version
 from fairplay_data import username, ReviewError
 
-PREFIX = '🛡️ Insight Review — '\nLEGACY_PREFIX = '🛡️ Insight Review — '\nLEGACY_PREFIX = '🛡️ Fair Play Review — '
+PREFIX = '🛡️ Insight Review — '
+LEGACY_PREFIX = '🛡️ Fair Play Review — '
 VERSION_PATTERN = re.compile(r'fairplay-v(\d+)(?:[.\w-]*)', re.I)
 
 
