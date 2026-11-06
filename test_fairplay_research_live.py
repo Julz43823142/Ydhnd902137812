@@ -33,6 +33,29 @@ class ResearchTests(unittest.TestCase):
                 self.assertNotIn("test-user", desc)
         asyncio.run(run())
 
+    def test_private_archive_runs_in_thread_and_keeps_discord_responsive(self):
+        async def run():
+            import gzip
+            import time
+            payload = research.pack_result(1, {"group": "closed"}, None)
+            state = {"evidence": [payload], "digest": "test-digest", "rows": []}
+            with patch.object(research, "TOTAL", 1):
+                original = research._prepare_final_document
+                def slow_archive(value):
+                    time.sleep(.15)
+                    return original(value)
+                pulse = asyncio.Event()
+                async def ticker():
+                    await asyncio.sleep(.02)
+                    pulse.set()
+                with patch.object(research, "_prepare_final_document", side_effect=slow_archive), patch.object(
+                        research, "owner_dm", new_callable=AsyncMock) as send:
+                    await asyncio.gather(research.deliver_final_document(object(), state), ticker())
+                    self.assertTrue(pulse.is_set())
+                    send.assert_awaited_once()
+                    self.assertEqual(gzip.decompress(send.await_args.kwargs["data"])[:1], b"{")
+        asyncio.run(run())
+
     def test_encrypted_resume_cursor(self):
         with tempfile.TemporaryDirectory() as folder:
             with patch.dict(os.environ, {"FAIRPLAY_CHECKPOINT_KEY": "unit-test-key"}):
