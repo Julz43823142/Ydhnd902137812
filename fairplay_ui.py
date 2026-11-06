@@ -1160,7 +1160,7 @@ FAIRPLAY_ALLOWED_CHANNEL_IDS = frozenset((CHANNEL_ID, STAFF_TEST_CHANNEL_ID))
 
 async def channel_check(ctx):
     if ctx.channel_id in FAIRPLAY_ALLOWED_CHANNEL_IDS and not ctx.user.bot:return True
-    await ctx.response.send_message('🛡️ Insight reviews are only available in the Insight Task Force or staff test channel.',ephemeral=True)
+    await ctx.response.send_message(f'🛡️ Insight reviews are only available in <#{CHANNEL_ID}> or the staff test channel.',ephemeral=True)
     return False
 
 
