@@ -61,6 +61,25 @@
       "updated_at": 1788786671,
       "wrong": 9
     },
+    "1448429349362466936": {
+      "best_streak": 0,
+      "correct": 0,
+      "current_streak": 0,
+      "name": "?",
+      "targets": {
+        "chatter": {},
+        "chess": {
+          "Sushi": {
+            "correct": 0,
+            "total": 1,
+            "wrong": 1
+          }
+        }
+      },
+      "total": 1,
+      "updated_at": 1794017214,
+      "wrong": 1
+    },
     "1455217865249652799": {
       "best_streak": 2,
       "correct": 9,
