@@ -9683,8 +9683,8 @@
     }
   },
   "twitch_oauth_v1": {
-    "refresh_token_enc": "gAAAAABq7--0ACcHfu9846AaBkfI6PtyLP3jvbNstEwtt8WXM-Xq7z6Qg2f424gPmg44glsKTHR4mzkbvvbFiZ3AxEtlPq0p-KjCHJDMfVxtgNXSVQuPWHrx0xSh3oSJ7MV8u0psu3afMW3k36vYbNXfT8s08ZhTwA==",
-    "updated_at": 1794109364,
+    "refresh_token_enc": "gAAAAABq8Cmebm4j3w3NRmFkXOMPj7L3XkQ8wzv_Nf1s1BM5FXrrw6_01JlrORBpUUNixYhw7xqCIFFsT6_sYyQijovZBEu8ZHbwrNw9sgi87XleKveuW9AUIYk9itM_lRtXVWipmzr5HNx-l4VCM57w6pCw3L8NmA==",
+    "updated_at": 1794124190,
     "reason": "live-preview-401"
   },
   "twitch_pending_redemptions_v1": {
