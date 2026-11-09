@@ -500,8 +500,8 @@
     },
     "442597396195704832": {
       "best_streak": 21,
-      "correct": 268,
-      "current_streak": 2,
+      "correct": 269,
+      "current_streak": 3,
       "name": "Thice",
       "targets": {
         "chatter": {
@@ -633,8 +633,8 @@
             "wrong": 7
           },
           "Pandarou": {
-            "correct": 11,
-            "total": 16,
+            "correct": 12,
+            "total": 17,
             "wrong": 5
           },
           "Pospos": {
@@ -664,8 +664,8 @@
           }
         }
       },
-      "total": 409,
-      "updated_at": 1794226860,
+      "total": 410,
+      "updated_at": 1794226889,
       "wrong": 141
     },
     "550338389535227926": {
