@@ -288,7 +288,8 @@
         "coins_earned": 20.0,
         "new_cosmetics": 1,
         "pet_feed": 3,
-        "pet_levels_gained": 1
+        "pet_levels_gained": 2,
+        "pet_puzzle": 1
       }
     }
   }

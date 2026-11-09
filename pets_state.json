@@ -902,8 +902,8 @@
       {
         "born_at": 1794227922.851687,
         "fed_at": 1794227922.851687,
-        "happiness": 80,
-        "happy_at": 1794227922.851687,
+        "happiness": 100,
+        "happy_at": 1794227983.004673,
         "id": "7ed42407920848ae8522f5973308fe6a",
         "name": "",
         "owner_history": [
@@ -912,13 +912,19 @@
             "at": 1794227922,
             "owner_id": "442597396195704832",
             "owner_name": "Thice"
+          },
+          {
+            "action": "Hatched",
+            "at": 1794227983,
+            "owner_id": "442597396195704832",
+            "owner_name": "Thice"
           }
         ],
         "puzzle": {
           "day": "2026-11-09",
-          "fen": "8/pp1b3k/4R3/8/8/5K2/PPP1p3/8 b - - 2 38",
+          "fen": "8/pp5k/4b3/8/8/5K2/PPP1p3/8 w - - 0 39",
           "id": "IhQQ0",
-          "index": 4,
+          "index": 5,
           "moves": [
             "g2g4",
             "g5g4",
@@ -927,9 +933,10 @@
             "d7e6"
           ]
         },
+        "puzzle_day": "2026-11-09",
         "rarity": "rare",
         "species": "Shark",
-        "xp": 0
+        "xp": 20
       }
     ]
   },
