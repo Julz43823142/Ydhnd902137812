@@ -4,9 +4,9 @@
     "fast": 100
   },
   "errors": [],
-  "finished_at_utc": "2026-11-08T22:47:50.635575+00:00",
+  "finished_at_utc": "2026-11-09T02:03:47.017742+00:00",
   "interrupted": false,
-  "mode": "fast",
+  "mode": "depth18",
   "new_completed_games": 0,
   "no_chesscom_data": true,
   "no_chesscom_requests": true,
@@ -17,12 +17,12 @@
       "training_mae": 0.926
     },
     "best_settings": {
-      "loss_power": 0.6912418,
-      "loss_scale": 0.0843001,
-      "worst_move_weight": 0.0898349
+      "loss_power": 0.6138534,
+      "loss_scale": 0.1261777,
+      "worst_move_weight": 0.0375518
     },
-    "candidate_holdout_mae": 2.71,
-    "candidate_training_mae": 2.2573,
+    "candidate_holdout_mae": 2.452,
+    "candidate_training_mae": 2.2007,
     "holdout_games": 25,
     "no_chesscom_data": true,
     "paired_games": 100,
@@ -32,6 +32,6 @@
     "train_games": 75
   },
   "paired_games": 100,
-  "started_at_utc": "2026-11-08T22:47:42.668707+00:00",
+  "started_at_utc": "2026-11-09T02:03:39.109032+00:00",
   "status": "completed"
 }
