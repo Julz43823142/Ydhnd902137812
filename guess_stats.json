@@ -501,7 +501,7 @@
     "442597396195704832": {
       "best_streak": 21,
       "correct": 265,
-      "current_streak": 2,
+      "current_streak": 0,
       "name": "Thice",
       "targets": {
         "chatter": {
@@ -517,8 +517,8 @@
           },
           "George": {
             "correct": 11,
-            "total": 21,
-            "wrong": 10
+            "total": 22,
+            "wrong": 11
           },
           "Grumpymonk": {
             "correct": 1,
@@ -664,9 +664,9 @@
           }
         }
       },
-      "total": 403,
-      "updated_at": 1794226588,
-      "wrong": 138
+      "total": 404,
+      "updated_at": 1794226624,
+      "wrong": 139
     },
     "550338389535227926": {
       "best_streak": 1,
