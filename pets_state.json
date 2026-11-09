@@ -914,6 +914,19 @@
             "owner_name": "Thice"
           }
         ],
+        "puzzle": {
+          "day": "2026-11-09",
+          "fen": "8/pp5k/2b1R3/6K1/6R1/8/PPP1p1r1/8 b - - 3 36",
+          "id": "IhQQ0",
+          "index": 0,
+          "moves": [
+            "g2g4",
+            "g5g4",
+            "c6d7",
+            "g4f3",
+            "d7e6"
+          ]
+        },
         "rarity": "rare",
         "species": "Shark",
         "xp": 0
