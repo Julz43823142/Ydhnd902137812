@@ -501,7 +501,7 @@
     "442597396195704832": {
       "best_streak": 21,
       "correct": 266,
-      "current_streak": 1,
+      "current_streak": 0,
       "name": "Thice",
       "targets": {
         "chatter": {
@@ -547,8 +547,8 @@
           },
           "Mohammad": {
             "correct": 1,
-            "total": 4,
-            "wrong": 3
+            "total": 5,
+            "wrong": 4
           },
           "Mr_thice": {
             "correct": 54,
@@ -664,9 +664,9 @@
           }
         }
       },
-      "total": 405,
-      "updated_at": 1794226651,
-      "wrong": 139
+      "total": 406,
+      "updated_at": 1794226690,
+      "wrong": 140
     },
     "550338389535227926": {
       "best_streak": 1,
