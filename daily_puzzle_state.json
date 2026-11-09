@@ -59,8 +59,8 @@
     "url": "https://www.chess.com/daily/2026-11-09",
     "title": "Holler Back",
     "fen": "7k/5rpp/8/p7/1p4n1/1P5P/4RrP1/5R1K w - - 0 1",
-    "current_fen": "7k/5rpp/8/p7/1p4n1/1P5P/4RrP1/5R1K w - - 0 1",
-    "last_move_uci": null,
+    "current_fen": "4Rr1k/6pp/8/p7/1p4n1/1P5P/5rP1/5R1K w - - 2 2",
+    "last_move_uci": "f7f8",
     "pgn": {
       "__shark_answer_ciphertext_v1__": "gAAAAABq8Z5qzfcahdTVxm92maG0wLvhhwFdyNod_K53vfuVLQ_DOboVtDBcvD3FTU_DJp8w2PYiH4pjwt1_4Z_Ep1lMP81CvsssTmkFGyjlinLVAT8eLoF2JIpQ24JIYvHIabL83-ZfWImrBgPrOlSofZ8Nvg9VPlBZrMid9LSmLYEwmmbiw6OmLHYWU4MAHXJsPQq_qzf-uShwYDDaJkTgq0NboxmzfPjp1zK2vdT56v5jqoIOfiY="
     },
@@ -78,24 +78,52 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1794213214358",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
-    "message_id": 1569268703789580289,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "message_id": 1569334240791765073,
+    "attempted_users": {
+      "442597396195704832": {
+        "name": "Thice",
+        "move": "Re8",
+        "correct": true,
+        "timestamp": "2026-11-09T12:53:59.701755+00:00"
+      }
+    },
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1569268703789580289
+      "1468320170891022417": 1569334240791765073
     },
     "channel_id": 1468320170891022417,
     "board_attachment_filenames": {
-      "1468320170891022417": "daily_puzzle.png"
+      "1468320170891022417": "random_puzzle.png"
     },
-    "chat_since_refresh": 0
+    "chat_since_refresh": 0,
+    "last_card_activity_at": "2026-11-09T12:53:59.701370+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1794228839.7017632,
+        "fen_before": "7k/5rpp/8/p7/1p4n1/1P5P/4RrP1/5R1K w - - 0 1",
+        "expected": {
+          "color": "white",
+          "san": "Re8+",
+          "uci": "e2e8"
+        },
+        "accepted_uci": "e2e8"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "Re8+",
+        "uci": "e2e8",
+        "principal": true
+      }
+    ],
+    "last_feedback": "**✅ Correct! 2 moves remaining.**\n↩️ **Opponent replies:** Rf8"
   },
   "lichess_rating_used": {
     "2000": [
