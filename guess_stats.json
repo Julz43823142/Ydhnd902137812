@@ -597,8 +597,8 @@
           },
           "Sushi": {
             "correct": 12,
-            "total": 23,
-            "wrong": 11
+            "total": 24,
+            "wrong": 12
           },
           "Thejazzdude": {
             "correct": 2,
@@ -664,9 +664,9 @@
           }
         }
       },
-      "total": 416,
-      "updated_at": 1794227048,
-      "wrong": 143
+      "total": 417,
+      "updated_at": 1794227537,
+      "wrong": 144
     },
     "550338389535227926": {
       "best_streak": 1,
