@@ -916,9 +916,9 @@
         ],
         "puzzle": {
           "day": "2026-11-09",
-          "fen": "8/pp5k/2b1R3/8/6K1/8/PPP1p3/8 b - - 0 37",
+          "fen": "8/pp1b3k/4R3/8/8/5K2/PPP1p3/8 b - - 2 38",
           "id": "IhQQ0",
-          "index": 2,
+          "index": 4,
           "moves": [
             "g2g4",
             "g5g4",
