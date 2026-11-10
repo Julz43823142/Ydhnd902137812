@@ -9911,11 +9911,13 @@
     "schema": 1
   },
   "twitch_live_notifications_v1": {
-    "message_ids": [],
+    "message_ids": [
+      "1569808972888936551"
+    ],
     "last_cleanup_at": "2026-11-09T22:18:40.500493+00:00",
     "last_cleanup_date": "2026-10-01",
-    "last_started_at": "2026-11-09T19:39:23Z",
-    "last_sent_at": "2026-11-09T19:39:49.504079+00:00",
+    "last_started_at": "2026-11-10T20:19:56Z",
+    "last_sent_at": "2026-11-10T20:20:28.630418+00:00",
     "channel_id": "1320033128676589669"
   },
   "seasonal_bot_profile_v1": {
