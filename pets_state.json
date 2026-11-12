@@ -903,7 +903,8 @@
         "accessory": "crown",
         "activity_xp": 10,
         "born_at": 1794227922.851687,
-        "fed_at": 1794227922.851687,
+        "fed_at": 1794503156.5657415,
+        "feed_day": "2026-11-12",
         "happiness": 100,
         "happy_at": 1794227983.004673,
         "id": "7ed42407920848ae8522f5973308fe6a",
@@ -938,7 +939,7 @@
         "puzzle_day": "2026-11-09",
         "rarity": "rare",
         "species": "Shark",
-        "xp": 30,
+        "xp": 35,
         "xp_day": "2026-11-09"
       }
     ]
