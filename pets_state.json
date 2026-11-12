@@ -925,9 +925,9 @@
         ],
         "puzzle": {
           "day": "2026-11-12",
-          "fen": "8/pR6/4N1k1/p1br1p2/6p1/6P1/5P1P/6K1 w - - 6 40",
+          "fen": "8/pR6/5k2/p1br1p2/5Np1/6P1/5P1P/6K1 w - - 8 41",
           "id": "p7IKW",
-          "index": 0,
+          "index": 2,
           "moves": [
             "e6f4",
             "g6f6",
