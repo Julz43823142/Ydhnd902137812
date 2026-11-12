@@ -58,7 +58,7 @@
         "xp": 50
       },
       "start": 1794228107.1256285,
-      "status": "running"
+      "status": "claimed"
     },
     "pets": [
       {
@@ -939,7 +939,7 @@
         "puzzle_day": "2026-11-09",
         "rarity": "rare",
         "species": "Shark",
-        "xp": 35,
+        "xp": 85,
         "xp_day": "2026-11-09"
       }
     ]
