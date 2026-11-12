@@ -454,6 +454,6 @@ def behavior_svgs(result):
     c=build_context(result.games)
     marked=periods(result)  # Stable period identities on all three pages.
     return [(name,svg) for name,svg in [
-            ('fairplay_06_openings.png',opening_svg(result,c,marked=marked)),
-            ('fairplay_08_clock_convergence.png',timing_svg(result,c,marked=marked)),
-            ('fairplay_09_phase_pressure.png',phase_svg(result,c,marked=marked))]]
+            ('insight_06_openings.png',opening_svg(result,c,marked=marked)),
+            ('insight_08_clock_convergence.png',timing_svg(result,c,marked=marked)),
+            ('insight_09_phase_pressure.png',phase_svg(result,c,marked=marked))]]

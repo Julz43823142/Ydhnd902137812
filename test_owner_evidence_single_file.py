@@ -18,7 +18,7 @@ class OwnerSingleFileTests(unittest.TestCase):
 
     def test_complete_single_json(self):
         name, data = owner_json(self.make_bundle())
-        self.assertEqual(name, "fairplay-owner-evidence.json.gz")
+        self.assertEqual(name, "insight-owner-evidence.json.gz")
         payload = json.loads(gzip.decompress(data))
         self.assertEqual(len(payload["games"]), 2)
         self.assertEqual(payload["position_records"], 3)

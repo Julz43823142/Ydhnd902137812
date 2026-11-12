@@ -12,7 +12,7 @@ from fairplay_ban_alerts import Settings,subscribe,unsubscribe,mute,set_alert_ty
 
 PREFIX=NAMESPACE+'ban-alert:'
 REVIEW_PREFIX=PREFIX+'player-review:'
-PANEL_TITLE='🔔 Fair Play Ban Alerts'
+PANEL_TITLE='🔔 Insight Ban Alerts'
 _service=None
 
 
@@ -22,7 +22,7 @@ def alert_embed(event,key):
     game_url=event['url']
     fair_play=event.get('closure_status','closed:fair_play_violations')=='closed:fair_play_violations'
     e=discord.Embed(
-        title='SharkBot — Fair Play Ban Alert 🚨' if fair_play else 'SharkBot — Account Closed Alert',
+        title='SharkBot — Insight Ban Alert 🚨' if fair_play else 'SharkBot — Account Closed Alert',
         url=game_url+'#sharkbot-alert-'+key,
         color=0x8b0000 if fair_play else 0x64748b,
         description=("Chess.com has closed an opponent's account for Fair Play violations."
@@ -225,7 +225,7 @@ class BanReviewView(discord.ui.View):
         if cached is None:
             await ctx.followup.send(
                 'The full player review is unavailable after a restart or cache expiry. '
-                'Submit a normal Fair Play review to regenerate it.', ephemeral=True)
+                'Submit a normal Insight review to regenerate it.', ephemeral=True)
             return
         try:
             embed = await asyncio.to_thread(result_embed, cached[1])

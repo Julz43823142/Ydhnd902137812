@@ -161,7 +161,7 @@ def pretty_report(record):
 
 
 def _embed(record):
-    e=discord.Embed(title="Sharkmeister · Fair Play failure diagnostic",
+    e=discord.Embed(title="Sharkmeister · Insight failure diagnostic",
                     description=(
                         f"**Reason:** `{record['reason_code']}`\n"
                         f"**Phase:** `{record['stage']}`\n"
@@ -197,7 +197,7 @@ async def get_owner_record(review_id):
 async def send_report(ctx, review_id):
     if ctx.user.id != ADMIN_ID:
         await ctx.response.send_message(
-            "Only Sharkmeister can view Fair Play failure diagnostics.",ephemeral=True)
+            "Only Sharkmeister can view Insight failure diagnostics.",ephemeral=True)
         return
     if not isinstance(review_id,str) or not TOKEN_RE.fullmatch(review_id):
         await ctx.response.send_message("Invalid 12-character Review ID.",ephemeral=True)
@@ -213,7 +213,7 @@ async def send_report(ctx, review_id):
     payload = pretty_report(record).encode("utf-8")
     await ctx.followup.send(
         content="Private diagnostic report. You can share this JSON with the developer.",
-        file=discord.File(io.BytesIO(payload),filename="fairplay_failure_"+review_id+".json"),
+        file=discord.File(io.BytesIO(payload),filename="insight_failure_"+review_id+".json"),
         ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
 
 
@@ -221,7 +221,7 @@ async def owner_diagnostics(ctx, review_id=""):
     """Private fallback if DM delivery was blocked, including after a restart."""
     if ctx.user.id != ADMIN_ID:
         await ctx.response.send_message(
-            "Only Sharkmeister can view Fair Play diagnostics.",ephemeral=True)
+            "Only Sharkmeister can view Insight diagnostics.",ephemeral=True)
         return
     review_id=str(review_id or "").strip().lower()
     if review_id:
@@ -230,7 +230,7 @@ async def owner_diagnostics(ctx, review_id=""):
     await ctx.response.defer(ephemeral=True,thinking=True)
     service=_store_for_interaction()
     if service is None:
-        await ctx.followup.send("Fair Play is not yet initialized.",ephemeral=True)
+        await ctx.followup.send("Insight is not yet initialized.",ephemeral=True)
         return
     if service.checkpoints is not None:
         recent=await asyncio.to_thread(service.checkpoints.recent_failures,5)
@@ -243,9 +243,9 @@ async def owner_diagnostics(ctx, review_id=""):
            f"{(row.get('git_commit') or 'unknown')[:12]} · "
            f"{row.get('elapsed_text','unknown')}" for token,row in recent]
     await ctx.followup.send(
-        "Recent encrypted Fair Play diagnostics (newest first):\n"
+        "Recent encrypted Insight diagnostics (newest first):\n"
         +"\n".join(lines)
-        +"\nUse /fairplaydiagnostic with the Review ID to receive a JSON export.",
+        +"\nUse /insightdiagnostic with the Review ID to receive a JSON export.",
         ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
 
 
@@ -284,5 +284,5 @@ async def owner_failure_notice(client, record, *, durable):
                          allowed_mentions=discord.AllowedMentions.none())
         return True
     except (discord.Forbidden,discord.HTTPException,AttributeError):
-        # Never post owner metadata to the public Fair Play channel.
+        # Never post owner metadata to the public Insight channel.
         return False

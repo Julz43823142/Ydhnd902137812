@@ -1,4 +1,4 @@
-"""Complete, owner-delivered Fair Play evidence; never a cheating verdict."""
+"""Complete, owner-delivered Insight evidence; never a cheating verdict."""
 import gzip
 import hashlib
 import json
@@ -41,7 +41,7 @@ def evidence(result):
         data = pack(part)
         if len(data) > MAX_BYTES:
             raise ValueError("One evidence chunk is too large for Discord")
-        chunks.append((f"fairplay-part-{len(chunks)+1:03}.json.gz", data))
+        chunks.append((f"insight-part-{len(chunks)+1:03}.json.gz", data))
         batch.clear()
     for game in games:
         record = normalize(game)
@@ -63,7 +63,7 @@ def evidence(result):
                     files=[{"name": n, "sha256": hashlib.sha256(blob).hexdigest()}
                            for n, blob in chunks],
                     interpretation="Review priority, not proof of misconduct.")
-    header = ("fairplay-manifest.json.gz", pack(manifest))
+    header = ("insight-manifest.json.gz", pack(manifest))
     if len(header[1]) > MAX_BYTES:
         raise ValueError("The evidence manifest is too large")
     return (header, *chunks)
@@ -79,7 +79,7 @@ def owner_zip(files, *, max_bytes=MAX_BYTES):
     """
     import io
     import zipfile
-    if not files or len(files)<2 or files[0][0]!="fairplay-manifest.json.gz":
+    if not files or len(files)<2 or files[0][0] not in ("insight-manifest.json.gz", "fairplay-manifest.json.gz"):
         return None
     verify(files[0][1],files[1:])
     stream=io.BytesIO()
@@ -91,7 +91,7 @@ def owner_zip(files, *, max_bytes=MAX_BYTES):
                 raise ValueError("Invalid owner evidence filename")
             archive.writestr(name,blob)
     packed=stream.getvalue()
-    return ("fairplay-owner-evidence.zip",packed) if len(packed)<=max_bytes else None
+    return ("insight-owner-evidence.zip",packed) if len(packed)<=max_bytes else None
 
 
 def verify(manifest_file, chunks):
@@ -112,7 +112,7 @@ def verify(manifest_file, chunks):
 
 def owner_json(files, *, max_bytes=MAX_BYTES):
     """Export one complete, verified, gzip-compressed JSON document."""
-    if not files or files[0][0] != "fairplay-manifest.json.gz":
+    if not files or files[0][0] not in ("insight-manifest.json.gz", "fairplay-manifest.json.gz"):
         raise ValueError("Evidence manifest missing")
     verify(files[0][1], files[1:])
     manifest = json.loads(gzip.decompress(files[0][1]))
@@ -123,4 +123,4 @@ def owner_json(files, *, max_bytes=MAX_BYTES):
     raw = pack(manifest)
     if len(raw) > max_bytes:
         raise ValueError("Complete evidence exceeds Discord's configured upload limit")
-    return ("fairplay-owner-evidence.json.gz", raw)
+    return ("insight-owner-evidence.json.gz", raw)

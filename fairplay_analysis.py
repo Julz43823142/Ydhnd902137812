@@ -648,7 +648,7 @@ def engine_profile(scanners):
 
 
 class SharedEnginePool:
-    """Process-wide Stockfish pool shared by all concurrent Fair Play reviews."""
+    """Process-wide Stockfish pool shared by all concurrent Insight reviews."""
     def __init__(self,config=CONFIG,*,size=None,factory=None):
         self.config=config
         self.size=max(1,int(size or shared_engine_pool_size(config)))
@@ -740,7 +740,7 @@ class SharedEnginePool:
                         timeout_seconds,(int,float)) else 'unknown',
                     'worker_restarted':recovered,
                     'terminal':not recovered or attempt==1}
-                print(f'Fair Play engine worker {reason}; '
+                print(f'Insight engine worker {reason}; '
                       f'{"restarted" if recovered else "restart-failed"} '
                       f'(attempt {attempt+1}/2; phase={phase}; '
                       f'budget={budget}; multipv={multipv}; seconds={seconds}; '
@@ -950,7 +950,7 @@ def require_recent_maia_coverage(reference, latest_games):
             and expected_positions > 0):
         raise ReviewError(
             'The latest fifty rated games did not receive complete valid Maia-3 '
-            'policy inference; no Fair Play priority was issued.')
+            'policy inference; no Insight priority was issued.')
     from fairplay_maia import valid_policy
     for game in latest_games:
         if (game.rating is None or game.opponent_rating is None
@@ -958,7 +958,7 @@ def require_recent_maia_coverage(reference, latest_games):
                        for decision in game.decisions)):
             raise ReviewError(
                 'Maia-3 policy evidence is missing or invalid for a latest-fifty '
-                'player decision; no Fair Play priority was issued.')
+                'player decision; no Insight priority was issued.')
 
 
 def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI, engine_factory=None,
@@ -1350,7 +1350,7 @@ def review(target: str, progress: Callable, config=CONFIG, *, api_factory=PubAPI
             # with the existing local depth-18/depth-12 path for those games.
             distributed_completed=join_distributed(
                 distributed_handle,progress,deadline)
-            progress(f'Fair Play compute: {len(distributed_completed)} / '
+            progress(f'Insight compute: {len(distributed_completed)} / '
                      f'{len(v21_deep)} remotely confirmed games')
             if len(distributed_completed)<len(v21_deep):
                 progress('Recovering missing Stockfish games locally…')

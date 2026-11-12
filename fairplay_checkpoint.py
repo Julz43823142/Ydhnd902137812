@@ -31,9 +31,9 @@ MAX_AGE = 7 * 86400
 
 def _git(args, data=None):
     env = os.environ.copy()
-    env.setdefault("GIT_AUTHOR_NAME", "SharkBot Fair Play checkpoint")
+    env.setdefault("GIT_AUTHOR_NAME", "SharkBot Insight checkpoint")
     env.setdefault("GIT_AUTHOR_EMAIL", "sharkbot-checkpoint@users.noreply.github.com")
-    env.setdefault("GIT_COMMITTER_NAME", "SharkBot Fair Play checkpoint")
+    env.setdefault("GIT_COMMITTER_NAME", "SharkBot Insight checkpoint")
     env.setdefault("GIT_COMMITTER_EMAIL", "sharkbot-checkpoint@users.noreply.github.com")
     return subprocess.run(
         ["git", *args], input=data, stdout=subprocess.PIPE, env=env,
@@ -144,7 +144,7 @@ class CheckpointStore:
             return True
         if len(payload) >= MAX_GITHUB_BLOB_BYTES:
             # Log sizes only; never log any checkpoint content or account data.
-            print("Shared encrypted Fair Play checkpoint exceeds GitHub's "
+            print("Shared encrypted Insight checkpoint exceeds GitHub's "
                   "100 MiB blob limit (%d bytes); skipping impossible push." %
                   len(payload), flush=True)
             self.remote_ok = False
@@ -169,7 +169,7 @@ class CheckpointStore:
             if tree.returncode:
                 break
             commit_args = ["commit-tree", tree.stdout.decode().strip(), "-m",
-                           "Persist encrypted Fair Play work"]
+                           "Persist encrypted Insight work"]
             if parent:
                 commit_args.extend(["-p", parent])
             commit = _git(commit_args)

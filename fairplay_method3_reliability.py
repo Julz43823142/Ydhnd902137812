@@ -65,7 +65,7 @@ def _opening_rating_ramp(games, members, account_joined, early_rated=None):
                     '40-100 rated games gained 500+ Elo (first/last 10 medians). '
                     'Only a period in the first 150 rated games is affected. '
                     'Rating movement is diagnostic only and does not cap review priority; '
-                    'this is not proof of fair play.'}
+                    'this is not proof of rule-compliant play.'}
 
 
 def rating_support(games, members, *, account_joined=None, early_rated=None):

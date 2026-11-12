@@ -13,7 +13,7 @@ import time
 
 _STAGE_LABELS = {
     "starting": "Preparing review",
-    "remote-check": "Checking runner capacity and Fair Play priority",
+    "remote-check": "Checking runner capacity and Insight review priority",
     "remote-dispatched": "Waiting for 14 GitHub Actions workers",
     "remote-analysis": "14 remote Stockfish workers analysing",
     "remote-skipped": "Remote unavailable; preparing local Stockfish",

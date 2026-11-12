@@ -21,6 +21,14 @@ class SelectedWindowPresentation(unittest.TestCase):
         with patch('fairplay_method3.collect_games',return_value=(games,{},False)):
             return review(TARGET,lambda _:None,api_factory=API)
 
+    def test_public_review_uses_insight_branding(self):
+        from fairplay_ui import REPORT_PREFIX, PANEL_TITLE
+        self.assertEqual(REPORT_PREFIX, '🛡️ Insight Review — ')
+        self.assertEqual(PANEL_TITLE, '🛡️ Insight Task Force')
+        result = self.frequency_review()
+        self.assertTrue(result_embed(result).title.startswith('🛡️ Insight Review — '))
+        self.assertNotIn('Fair Play', result_embed(result).title)
+
     def test_production_frequency_promotion_preserves_low_results_tier(self):
         result=self.frequency_review()
         info=result.diagnostics['method3']

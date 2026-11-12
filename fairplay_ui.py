@@ -27,9 +27,9 @@ from fairplay_progress import estimate, bar, label, duration, LiveTiming, Reliab
 from fairplay_eta import predict as predict_runtime, record as record_runtime, remaining as runtime_remaining
 from fairplay_checkpoint import CheckpointStore
 
-RESERVED = '🛡️ This channel is reserved for Fair Play reviews.'
-PANEL_TITLE = '🛡️ Fair Play Task Force'
-REPORT_PREFIX = '🛡️ Fair Play Review — '
+RESERVED = '🛡️ This channel is reserved for Insight reviews.'
+PANEL_TITLE = '🛡️ Insight Task Force'
+REPORT_PREFIX = '🛡️ Insight Review — '
 PRIORITY_COLORS = {
     'LOW': 0x2E9E65, 'MODERATE': 0xE9B44C, 'HIGH': 0xEA8537,
     'VERY HIGH': 0xD94F55, 'INSUFFICIENT DATA': 0x788491,
@@ -335,7 +335,7 @@ def _full_result_embed(result: ReviewResult):
         context_only=window_audit.get('context_only_windows',0)
         if context_only:message+=f" Investigated for context only: **{context_only}**."
         if not total_candidates:
-            message+=" No block qualified for extra review; this is not proof of fair play."
+            message+=" No block qualified for extra review; this is not proof of rule-compliant play."
         if count and latest_mean is not None:
             message+=f"\nTop published-score mean: **{latest_mean:.1f}%**."
             if any(row.get('missing_accuracy_games',0) for row in mean_rows):
@@ -841,7 +841,7 @@ def detail_embed(result, mode):
         for row in sorted(result.history.get('timing_baselines',[]),key=lambda r:r['profile']['games'],reverse=True)[:2]:
             p=row['profile'];cats=p['categories']
             embed.add_field(name=f'Extended timing reference · {row["class"]} · {row["control"]}',inline=False,
-                value=f'{p["games"]} historical games; includes unselected games, not a claim of fair play.\n'
+                value=f'{p["games"]} historical games; includes unselected games, not a claim of rule-compliant play.\n'
                       f'Opening / trivial / ordinary medians: {number(cats.get("opening",{}).get("median"))} / {number(cats.get("trivial",{}).get("median"))} / {number(cats.get("ordinary",{}).get("median"))} sec\n'
                       f'Per-game delayed MAD: {number(p["comparison"].get("delayed_mad"))} · entropy: {number(p["comparison"].get("entropy"))}\n'
                       'Critical timing requires actual engine classification; unscanned historical decisions are not labelled critical.')
@@ -1160,11 +1160,11 @@ FAIRPLAY_ALLOWED_CHANNEL_IDS = frozenset((CHANNEL_ID, STAFF_TEST_CHANNEL_ID))
 
 async def channel_check(ctx):
     if ctx.channel_id in FAIRPLAY_ALLOWED_CHANNEL_IDS and not ctx.user.bot:return True
-    await ctx.response.send_message('🛡️ Fair Play reviews are only available in the Fair Play Task Force or staff test channel.',ephemeral=True)
+    await ctx.response.send_message(f'🛡️ Insight reviews are only available in <#{CHANNEL_ID}> or the staff test channel.',ephemeral=True)
     return False
 
 
-class SubmitModal(discord.ui.Modal, title='Fair Play Review'):
+class SubmitModal(discord.ui.Modal, title='Insight Review'):
     account = discord.ui.TextInput(label='Chess.com username',min_length=2,max_length=25,required=True)
 
     def __init__(self):
@@ -1187,7 +1187,7 @@ class SubmitView(discord.ui.View):
     async def open(self,ctx,button):await ctx.response.send_modal(SubmitModal())
 
     async def on_error(self,ctx,error,item):
-        if not ctx.response.is_done():await ctx.response.send_message('Fair Play is temporarily unavailable.',ephemeral=True)
+        if not ctx.response.is_done():await ctx.response.send_message('Insight is temporarily unavailable.',ephemeral=True)
 
 
 
@@ -1246,7 +1246,7 @@ class ReportView(SubmitView):
                 if action=='copy':
                     await copy_visible_report(ctx);return
                 if _service is None:
-                    await ctx.response.send_message('Fair Play is reconnecting. Please try again shortly.',ephemeral=True);return
+                    await ctx.response.send_message('Insight is reconnecting. Please try again shortly.',ephemeral=True);return
                 if action=='rescan':
                     try:target = username(ctx.message.embeds[0].title.removeprefix(REPORT_PREFIX))
                     except (ValueError,IndexError,ReviewError):
@@ -1271,7 +1271,7 @@ class ReportView(SubmitView):
                     )
                     await ctx.followup.send(embed=embed,ephemeral=True,view=CopyTextView(),allowed_mentions=discord.AllowedMentions.none())
                 except Exception as error:
-                    print(f'Fair Play detail interaction failed: {type(error).__name__}',flush=True)
+                    print(f'Insight detail interaction failed: {type(error).__name__}',flush=True)
                     await ctx.followup.send('The report could not be displayed. Please try again.',ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
             button.callback = show;self.add_item(button)
         if target and not method3:self.add_item(discord.ui.Button(label='Chess.com Profile',emoji='🔗',url=f'https://www.chess.com/member/{username(target)}'))
@@ -1294,7 +1294,7 @@ class Job:
         return max(0,time.monotonic()-self.timing.started)
     message: object = None
     stop: threading.Event = field(default_factory=threading.Event)
-    cancel_requested: bool = False  # explicit /fairplaystop; not a runner handoff
+    cancel_requested: bool = False  # explicit /insightstop; not a runner handoff
     report_published: bool = False  # do not retroactively cancel a delivered review
     report_delivery_lock: asyncio.Lock = field(default_factory=asyncio.Lock)
     message_deleted: bool = False
@@ -1380,7 +1380,7 @@ class FairPlayService:
         self.expire_cache()
         output_channel = ctx.channel if ctx.channel_id in FAIRPLAY_ALLOWED_CHANNEL_IDS else self.channel
         if self.closed:
-            await output_channel.send(content='Fair Play is restarting. Please try again shortly.',allowed_mentions=discord.AllowedMentions.none());return
+            await output_channel.send(content='Insight is restarting. Please try again shortly.',allowed_mentions=discord.AllowedMentions.none());return
         if target in self.jobs:
             job = self.jobs[target]
             text = 'This account already has a queued or running review. The existing scan is reused.'
@@ -1388,7 +1388,7 @@ class FairPlayService:
             await output_channel.send(content=text,allowed_mentions=discord.AllowedMentions.none());return
         if len(self.jobs)>=MAX_JOBS:
             await output_channel.send(
-                content=f'The Fair Play queue is full ({MAX_CONCURRENT_SCANS} active + {MAX_WAITING_SCANS} waiting). Please try again later.',
+                content=f'The Insight queue is full ({MAX_CONCURRENT_SCANS} active + {MAX_WAITING_SCANS} waiting). Please try again later.',
                 allowed_mentions=discord.AllowedMentions.none());return
         waiting=(not self.research_hold.is_set()) or len(self.jobs)>=MAX_CONCURRENT_SCANS
         job = Job(target,ctx,output_channel=output_channel)
@@ -1400,7 +1400,7 @@ class FairPlayService:
         feature_usage.note('use:fairplay-scan',ctx.user.id)
         if waiting:
             await ctx.followup.send(
-                'Your Fair Play review is queued. Public progress will appear when it starts.',
+                'Your Insight review is queued. Public progress will appear when it starts.',
                 ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
 
     async def enqueue_ban_review(self, target, on_complete):
@@ -1416,25 +1416,25 @@ class FairPlayService:
         return True
 
     async def enqueue_mention(self,message,target):
-        """Public Fair Play channel mention, using the normal bounded scan queue.
+        """Public Insight channel mention, using the normal bounded scan queue.
 
         No slash-interaction token is available here. Report progress and
-        errors in the Fair Play Task Force; do not create a second engine path.
+        errors in the Insight Task Force; do not create a second engine path.
         """
         self.expire_cache()
         if self.closed:
-            await message.reply('Fair Play is restarting. Please try again shortly.',
+            await message.reply('Insight is restarting. Please try again shortly.',
                 mention_author=False,allowed_mentions=discord.AllowedMentions.none())
             return False
         if target in self.jobs:
             existing=self.jobs[target]
-            text='This account already has a queued or running Fair Play review.'
+            text='This account already has a queued or running Insight review.'
             if existing.message:text+=f' [View progress]({existing.message.jump_url})'
             await message.reply(text,mention_author=False,
                 allowed_mentions=discord.AllowedMentions.none())
             return False
         if len(self.jobs)>=MAX_JOBS:
-            await message.reply('The Fair Play review queue is full. Please try again later.',
+            await message.reply('The Insight review queue is full. Please try again later.',
                 mention_author=False,allowed_mentions=discord.AllowedMentions.none())
             return False
         waiting=(not self.research_hold.is_set()) or len(self.jobs)>=MAX_CONCURRENT_SCANS
@@ -1446,7 +1446,7 @@ class FairPlayService:
         import feature_usage
         feature_usage.note('use:fairplay-scan',message.author.id)
         await message.reply(
-            f'🛡️ Fair Play screening for **{public_text(target)}** '
+            f'🛡️ Insight screening for **{public_text(target)}** '
             + ('has been queued.' if waiting else 'has been submitted.')
             + ' Progress and the report will appear in this channel. '
               'This is automated screening, not proof of cheating.',
@@ -1606,7 +1606,7 @@ class FairPlayService:
         if self.checkpoints is None:return
         try:await asyncio.to_thread(self.checkpoints.suspend,job.target)
         except Exception:
-            print('Fair Play failure checkpoint update unavailable.',flush=True)
+            print('Insight failure checkpoint update unavailable.',flush=True)
 
     async def note_delivered_checkpoint(self,job,operation,**kwargs):
         """Storage trouble cannot undo an acknowledged Discord delivery.
@@ -1620,7 +1620,7 @@ class FairPlayService:
         except Exception:
             if not job.checkpoint_warning:
                 # No account, report, paths or exception values in public logs.
-                print('Fair Play delivery succeeded; restart checkpoint update failed.',flush=True)
+                print('Insight delivery succeeded; restart checkpoint update failed.',flush=True)
                 job.checkpoint_warning=True
             return False
 
@@ -1659,7 +1659,7 @@ class FairPlayService:
             await owner_failure_notice(self.client,report,durable=durable)
         except Exception:
             # Diagnostic delivery is supplementary; never log raw exceptions.
-            print('Fair Play private failure diagnostic unavailable.',flush=True)
+            print('Insight private failure diagnostic unavailable.',flush=True)
 
     async def process(self,job):
         loop = asyncio.get_running_loop()
@@ -1739,7 +1739,7 @@ class FairPlayService:
                     # Keep the review deliverable, but never silently hide
                     # why all nine expected image attachments disappeared.
                     import traceback
-                    print(f'Fair Play Method 3 chart rendering failed: '
+                    print(f'Insight Method 3 chart rendering failed: '
                           f'{type(error).__name__}: {error}',flush=True)
                     traceback.print_exc()
                     chart_files=[]
@@ -1755,7 +1755,7 @@ class FairPlayService:
             # Discord detail pages need game summaries, not thousands of FENs.
             for game in result.games:game.decisions.clear()
             if job.silent_ban_review:
-                # Reuse the normal bounded Fair Play executor, without posting
+                # Reuse the normal bounded Insight executor, without posting
                 # any progress or a separate public review.
                 self.cache[job.target] = (time.time(), result, None)
                 self.expire_cache()
@@ -1874,7 +1874,7 @@ class FairPlayService:
                         await self.safe_progress(job,'Stopped by moderator')
                     elif job.ctx is not None:
                         await job.ctx.followup.send(
-                            'Fair Play review stopped by a moderator.',ephemeral=True)
+                            'Insight review stopped by a moderator.',ephemeral=True)
                 except discord.HTTPException:
                     pass
                 finally:
@@ -1985,21 +1985,21 @@ async def stop_current_review(ctx):
                 bool(getattr(permissions,'manage_guild',False)))
     if not authorized:
         await ctx.response.send_message(
-            'Only Sharkmeister or a server moderator with Manage Server permission can stop a Fair Play review.',
+            'Only Sharkmeister or a server moderator with Manage Server permission can stop a Insight review.',
             ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
         return
     await ctx.response.defer(ephemeral=True,thinking=True)
     if _service is None or _service.closed:
-        text='Fair Play is reconnecting; no active review can be stopped.'
+        text='Insight is reconnecting; no active review can be stopped.'
     else:
         _service.note_human()
         status=await _service.stop_current()
         text={
-            'idle':'No Fair Play review is currently running. Queued reviews were left unchanged.',
-            'already':'A stop was already requested for the active Fair Play review.',
-            'unavailable':'Fair Play is shutting down; no stop request was applied.',
-            'stopping':'Stop requested for the active Fair Play review. The engine will finish its in-flight search; queued reviews remain untouched. The stopped scan will not resume automatically.',
-            'checkpoint_unconfirmed':'Stop requested for the active Fair Play review, but durable cancellation could not be confirmed. The bot will retry checkpoint cleanup when the engine exits; queued reviews remain untouched.',
+            'idle':'No Insight review is currently running. Queued reviews were left unchanged.',
+            'already':'A stop was already requested for the active Insight review.',
+            'unavailable':'Insight is shutting down; no stop request was applied.',
+            'stopping':'Stop requested for the active Insight review. The engine will finish its in-flight search; queued reviews remain untouched. The stopped scan will not resume automatically.',
+            'checkpoint_unconfirmed':'Stop requested for the active Insight review, but durable cancellation could not be confirmed. The bot will retry checkpoint cleanup when the engine exits; queued reviews remain untouched.',
         }[status]
     await ctx.followup.send(text,ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
 
@@ -2014,7 +2014,7 @@ async def submit(ctx,target):
             await ctx.followup.send(str(error),ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
             return
         if _service is None or _service.closed:
-            await ctx.followup.send('Fair Play is reconnecting. Please try again shortly.',ephemeral=True)
+            await ctx.followup.send('Insight is reconnecting. Please try again shortly.',ephemeral=True)
             return
         _service.note_human()
         await _service.enqueue(ctx,target)
@@ -2024,7 +2024,7 @@ async def submit(ctx,target):
             'If a scan is already running or the queue is full, check the channel response.',
             ephemeral=True,allowed_mentions=discord.AllowedMentions.none())
     except Exception as error:
-        print(f'Fair Play slash submission failed: {type(error).__name__}',flush=True)
+        print(f'Insight slash submission failed: {type(error).__name__}',flush=True)
         try:
             await ctx.followup.send('Could not submit the review. Please try again shortly.',ephemeral=True)
         except discord.HTTPException:
@@ -2052,7 +2052,7 @@ async def startup(client):
     client.add_view(FailureView())
     try:channel = client.get_channel(CHANNEL_ID) or await client.fetch_channel(CHANNEL_ID)
     except discord.HTTPException:
-        print('Fair Play channel unavailable; normal SharkBot startup continues.',flush=True);return
+        print('Insight channel unavailable; normal SharkBot startup continues.',flush=True);return
     checkpoints = await asyncio.to_thread(CheckpointStore)
     _service = FairPlayService(client,channel,checkpoints=checkpoints)
     if checkpoints.enabled:
@@ -2072,7 +2072,7 @@ async def startup(client):
                 output_channel=(channel if output_id==CHANNEL_ID else
                     client.get_channel(output_id) or await client.fetch_channel(output_id))
             except discord.HTTPException:
-                print('Fair Play: checkpoint channel unavailable; review remains pending.',flush=True)
+                print('Insight: checkpoint channel unavailable; review remains pending.',flush=True)
                 continue
             if output_channel is None or output_channel.id!=output_id:continue
             timing=(ReliableTiming.from_checkpoint(item.get('timing'))
@@ -2087,9 +2087,9 @@ async def startup(client):
             _service.queue.put_nowait(job)
         # No account names or case details in the deployment logs.
         if _service.jobs:
-            print(f'Fair Play: restoring {len(_service.jobs)} encrypted scan checkpoint(s).',flush=True)
+            print(f'Insight: restoring {len(_service.jobs)} encrypted scan checkpoint(s).',flush=True)
     # The former automatic 200-account research batch is permanently disabled.
-    # Normal on-demand Insights scans and the ordinary Fair Play queue remain active.
+    # Normal on-demand Insight scans and the ordinary Insight queue remain active.
     from fairplay_auto import AutoRescanner
     _service.auto = AutoRescanner(_service)
     _service.auto.task = asyncio.create_task(_service.auto.run(), name='fairplay-auto')
@@ -2098,14 +2098,14 @@ async def startup(client):
             pool=await asyncio.to_thread(get_shared_engine_pool)
             memory=available_engine_memory_mb()
             memory_text='unbounded/unknown' if memory is None else f'{memory:.0f} MB'
-            print(f'Fair Play engine pool ready: {pool.size} workers; '
+            print(f'Insight engine pool ready: {pool.size} workers; '
                   f'effective CPU={available_engine_cpus()}; memory limit={memory_text}',flush=True)
         except Exception:pass  # scans still fail safely with the normal unavailable-engine message
         try:
             ready=await asyncio.to_thread(__import__('fairplay_maia').warm_worker)
-            print('Fair Play local human reference: '+('ready' if ready else 'not installed'),flush=True)
+            print('Insight local human reference: '+('ready' if ready else 'not installed'),flush=True)
         except Exception:
-            print('Fair Play local human reference unavailable; Stockfish remains available.',flush=True)
+            print('Insight local human reference unavailable; Stockfish remains available.',flush=True)
     if os.getenv('FAIRPLAY_METHOD3')!='1':
         _service.pool_warm_task=asyncio.create_task(warm_engine_pool(),name='fairplay-engine-warmup')
     _service.workers = [

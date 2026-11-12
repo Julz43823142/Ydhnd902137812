@@ -312,7 +312,7 @@ class PubAPI:
         cached=None
         if re.fullmatch(r'/games/[0-9]{4}/[0-9]{2}',suffix):
             with _archive_http_lock:cached=_archive_http_cache.get(url)
-        headers={'User-Agent':'SharkBot/1.0 (Discord moderator fair-play screening; Chess.com PubAPI)'}
+        headers={'User-Agent':'SharkBot/1.0 (Discord Insight screening; Chess.com PubAPI)'}
         if cached:headers['If-None-Match']=cached[0]
         for attempt in range(3):
             check_deadline(self.deadline)
@@ -369,7 +369,7 @@ def collect_games(api: PubAPI, target: str, progress: Callable, config=CONFIG,
     if time_classes is not None:
         time_classes = frozenset(time_classes)
         if not time_classes or not time_classes <= {'bullet', 'blitz', 'rapid', 'daily'}:
-            raise ValueError('Invalid Fair Play collection classes.')
+            raise ValueError('Invalid Insight collection classes.')
     payload = api.get(target, '/games/archives')
     if payload is None:raise ReviewError('No public game archives are available for this account.')
     months = set()

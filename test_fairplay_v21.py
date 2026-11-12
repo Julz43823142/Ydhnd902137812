@@ -218,7 +218,7 @@ class PrivateZipTests(unittest.TestCase):
             "position_records":2,"files":[{"name":part[0],
                                           "sha256":hashlib.sha256(part[1]).hexdigest()}]}))
         bundle=owner_zip((manifest,part))
-        self.assertEqual(bundle[0],"fairplay-owner-evidence.zip")
+        self.assertEqual(bundle[0],"insight-owner-evidence.zip")
         with zipfile.ZipFile(io.BytesIO(bundle[1])) as z:
             self.assertEqual(z.read(manifest[0]),manifest[1])
             self.assertEqual(z.read(part[0]),part[1])

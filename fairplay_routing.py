@@ -21,7 +21,7 @@ def permitted(payload):
 async def reject(interaction):
     try:
         if interaction.type==discord.InteractionType.autocomplete:await interaction.response.autocomplete([])
-        else:await interaction.response.send_message('🛡️ This channel is reserved for Fair Play reviews.',ephemeral=True)
+        else:await interaction.response.send_message('🛡️ This channel is reserved for Insight reviews.',ephemeral=True)
     except discord.HTTPException:pass
 
 

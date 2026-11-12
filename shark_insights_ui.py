@@ -203,7 +203,7 @@ _RECOVERED = False
 
 
 async def recover_interrupted(client):
-    """Best-effort on same filesystem; never couples to Fair Play checkpoint storage."""
+    """Best-effort on same filesystem; never couples to Insight checkpoint storage."""
     global _RECOVERED
     if _RECOVERED:
         return
