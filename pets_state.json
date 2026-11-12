@@ -905,8 +905,8 @@
         "born_at": 1794227922.851687,
         "fed_at": 1794503156.5657415,
         "feed_day": "2026-11-12",
-        "happiness": 100,
-        "happy_at": 1794227983.004673,
+        "happiness": 90,
+        "happy_at": 1794503659.886769,
         "id": "7ed42407920848ae8522f5973308fe6a",
         "name": "",
         "owner_history": [
@@ -925,19 +925,19 @@
         ],
         "puzzle": {
           "day": "2026-11-12",
-          "fen": "8/pR6/5k2/p1br1p2/5Np1/6P1/5P1P/6K1 w - - 8 41",
+          "fen": "8/pR6/5k2/p1bN1p2/6p1/6P1/5P1P/6K1 b - - 0 41",
           "id": "p7IKW",
-          "index": 2,
+          "index": 3,
           "moves": [
             "e6f4",
             "g6f6",
             "f4d5"
           ]
         },
-        "puzzle_day": "2026-11-09",
+        "puzzle_day": "2026-11-12",
         "rarity": "rare",
         "species": "Shark",
-        "xp": 85,
+        "xp": 105,
         "xp_day": "2026-11-09"
       }
     ]
