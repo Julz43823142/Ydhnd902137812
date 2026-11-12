@@ -9911,10 +9911,8 @@
     "schema": 1
   },
   "twitch_live_notifications_v1": {
-    "message_ids": [
-      "1570444528693805189"
-    ],
-    "last_cleanup_at": "2026-11-11T23:45:58.268139+00:00",
+    "message_ids": [],
+    "last_cleanup_at": "2026-11-12T16:58:30.283880+00:00",
     "last_cleanup_date": "2026-10-01",
     "last_started_at": "2026-11-12T14:25:28Z",
     "last_sent_at": "2026-11-12T14:25:54.636115+00:00",
