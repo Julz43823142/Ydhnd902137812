@@ -56,47 +56,38 @@
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
-    "url": "https://www.chess.com/daily/2026-11-11",
-    "title": "Eviction Notice",
-    "fen": "6k1/4rb2/3b1R1Q/p6p/2pq3r/P2n2NP/1P4P1/5R1K w - - 0 1",
-    "current_fen": "6k1/4rb2/3b1R1Q/p6p/2pq3r/P2n2NP/1P4P1/5R1K w - - 0 1",
+    "url": "https://www.chess.com/daily/2026-11-12",
+    "title": "As the Pendulum Swings",
+    "fen": "2r1q3/3nb1p1/p6p/5B2/4R3/6P1/PBk2K1P/8 w - - 0 1",
+    "current_fen": "2r1q3/3nb1p1/p6p/5B2/4R3/6P1/PBk2K1P/8 w - - 0 1",
     "last_move_uci": null,
     "pgn": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq9XbfazkbHOFFNiVkblMR4eus8dCUbTXRAhEvcLsoNO0uuxbtEkz6MejK8iNF1cY5MIDetobFjYBkFBQAk40xnrcZHUPlhvCxBapCiGUdUZ79mgMyftdMrqLGr6zqksGO37o0wKIPKD0cnRDHAkcvoMrqGR9d_RGzwpWYJpNvll-X9vXE6GpXlz4jILA7HVJu317lbZ6AJ9S9S0sU3Owd_evX1InbFvSV-p1ezhM9NPld3SPeSTITW0zEyGEdUngJZRq9nNmdLTLb3F_ETK0RtJVX9l71Ijcrh8t8Vc5mNjp3_hg="
+      "__shark_answer_ciphertext_v1__": "gAAAAABq9Xzta7bBNqWHqy-A34dx9HWRxiCtfxmY40bL0YCmKWXPw6aNnlN1baxrP7TmiZmmBDYE4YA8ycNFDMhqyXbTOH-vDAmHpiuNFKBhZYh2IcFuYTkTWWBuR3ikBik0zbMaSrMWgF5BF4y9SEB5ErrBBKYwA8UTx2_xGEFxchFzU9H4hPr30hRGHa36_0qypsOtBpSQjTUlkeCtRmCvJRp0-804Kg=="
     },
     "all_moves": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq9XbfjDpe_wGV-fSMOrwRDtmunpXYifMKKeinOiZnbTXn1n-LV6ktKxhWbknEKcf38OcKyDpx6gH7p371tefXklTm5uRtsdBWRhM8y3X5KSK8boK-bZlp65yjR6ugcwzysFqhXq53j0mpQVgCJ2SI1pb3C4HXzVde5TzWF0VUcU3Cfgh2-QYAwsb7vcXcmqzU9SRhNqJrVD42qgAeszkQSXIejAVREaPbGR89VHoyhXEeYhHKo5l--v_AdhSX7z_Z4zVs"
+      "__shark_answer_ciphertext_v1__": "gAAAAABq9XztRghtpOmGMlbcA0n1-uCY9IWXOJ633apZznPLQ6k17v8ElAmQR9gqY24wuQ1mc8RUu8KdGlfkrJzOWK6waNn9DK1VZdR-61dxXFPnq9DevhKk1BFy8cv2OkHpKqdsHZS7M97ZUoHI-Jn5jFH4MwRGyhJIDmKwTokKNWWIw38uHLN_pBMTmX-GbjiNVk92dWPZPE5Z0wvytGr-wO1G4cjNBlYeQcHRyArN0uuxm7DrH7EiBAVtxoPGiquD0y6ff2FP"
     },
     "player_moves": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq9XbfdGhsnvKVsxeEbCISDJJ5v7yq5cJZY0cvNd7Ejhsglu80-Nra5gkQzEC698QTub4hJgcaXxeMeBF7ihxgasvJ93qMp-dQcbE0ffUy0toH9aZzUYfFWDXs3BENSfEN04FqxtCBDgHc9Lv_tR9nKlTq7teLosbSv4B7yszEisnbGYvIMnG24PWEOuQ7SuJHkk-M"
+      "__shark_answer_ciphertext_v1__": "gAAAAABq9XztU-U9wot0sdsTDeOzaoTaGUs1aZXovqHbImz18PxHarCC4puwpBPc0r2ITcUPZIyG3VUT4rNT532Zl4cb203AibcCi29ttB5ZecR47aAB4_ZnzmYsDh_w5sv6DTJiLH9gdLU9LggiTVTpttPEF1lm_nCsXhHbBnN27f66OU1m2g9bwuiF154LeV7wa4vgGWna"
     },
     "player_color": "white",
     "player_move_count": 2,
-    "posted_at": "2026-11-11T08:41:05.969259+00:00",
-    "answer_posted": true,
+    "posted_at": "2026-11-12T08:46:37.712255+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "daily_1794386465969",
+    "puzzle_id": "daily_1794473197712",
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_id": 1569995373743710278,
+    "message_id": null,
     "attempted_users": {},
     "first_move_user_id": null,
     "first_move_user_name": null,
     "first_move_awarded": false,
     "helper_awarded_users": [],
-    "helper_candidate_users": [],
-    "message_ids": {
-      "1468320170891022417": 1569995373743710278
-    },
-    "channel_id": 1468320170891022417,
-    "board_attachment_filenames": {
-      "1468320170891022417": "daily_puzzle.png"
-    },
-    "chat_since_refresh": 0,
-    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Rg6+ Rf8#"
+    "helper_candidate_users": []
   },
   "lichess_rating_used": {
     "2000": [
