@@ -625,8 +625,8 @@
         "accessory": "glasses",
         "activity_xp": 45.0,
         "born_at": 1792184809.6673455,
-        "fed_at": 1794503168.140055,
-        "feed_day": "2026-11-12",
+        "fed_at": 1794651719.7692788,
+        "feed_day": "2026-11-14",
         "happiness": 45,
         "happy_at": 1793204793.6210465,
         "id": "93f7026f2e0e4ae587bd180fef05031b",
@@ -659,7 +659,7 @@
         "puzzle_day": "2026-10-28",
         "rarity": "rare",
         "species": "Wolf",
-        "xp": 805.9,
+        "xp": 810.9,
         "xp_day": "2026-11-09"
       },
       {
