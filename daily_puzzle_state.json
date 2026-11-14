@@ -56,32 +56,32 @@
   "latest_puzzle_type": "daily",
   "leaderboard_last_posted_date": "2026-10-01",
   "current_puzzle": {
-    "url": "https://www.chess.com/daily/2026-11-13",
-    "title": "Shocking Reveal 😨",
-    "fen": "4r1k1/3q1pp1/p3b1np/1p1p4/1P3b2/PBNP1Q1P/1B3PP1/4R1K1 b - - 0 1",
-    "current_fen": "4r1k1/3q1pp1/p3b1np/1p1p4/1P3b2/PBNP1Q1P/1B3PP1/4R1K1 b - - 0 1",
+    "url": "https://www.chess.com/daily/2026-11-14",
+    "title": "Free Lunch?",
+    "fen": "r1b1k2r/1p1nqpp1/p3p2p/3pP1N1/8/P2BQ3/1P3PPP/2R2RK1 w kq - 0 1",
+    "current_fen": "r1b1k2r/1p1nqpp1/p3p2p/3pP1N1/8/P2BQ3/1P3PPP/2R2RK1 w kq - 0 1",
     "last_move_uci": null,
     "pgn": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq9_o-ddjk3VBn5JjdfbkkqSjYDXcRRCSktj4m66jMGDvuMNIHTmcXdJ6JNkgUEmBbV8xuWHhKK6EZ6O4ocFXgShBA-W1VebHmBMOnI_y46hLsF-E16Bl8JiV1RmXgEifWJstW6xo6__B7qnzgzzhDsmrLc0ZrWuS91JqEE4bGwrsR5bUTPXSf8pSgjXORmrBnNJB6JywC1c7iwJ0D4eswuuSYqFJ5YuJDg8AsSdkxyqjcESEQ_RZgricO0VoFZfXhpIvH"
+      "__shark_answer_ciphertext_v1__": "gAAAAABq-BaVqyQwJIeJRhkhUeJJakcptU-P7sQfXqkYFdr2R2rVz4Hu03HOw3DdE6I9lwEC85xXzwKMuiJ7D3FKIxaJlu4wwvv1qqaxmbigTSHnbhm6otDFJI4dvkPL-yGD6TqPqrZ9JNxRM41QZenQYXvWXoAW68Ki4xJ8ds8NQR0YGU3XPqE7qt0SrPvNwLcDMzgiEJUNm1C38ZYCj_VFKCFPo38zgB6ltK_1bBJl6XEh31hC663wkc7kVfG-hxTAqpqHQVY9TFv4hl9YPQ-6pV5g67zGd03KNmkZ6HiIdl0TVzaaKABRZyj8cN7xsaZV8c7wBgkA1x055aMGOiO_QvoujUQ_k8jz0-YB8z2iGJVzFh1j5P7FIznsaBRCcEZE2aj74icSZ3uL-CJ900JW0qrm7kUE4OQwpF16sFq8qZzbb18Xxfo="
     },
     "all_moves": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq9_o-XiNsP87I939hI-0QmJ2tkE3SArbXSTG4URz9kk-StdpMu2fCdiRpTRG-bZOrjmR0KOYxCYbByAxD3iyG6I6u4ODxXVbANKe5bBCfmpa9CLtluXIsWRvK6VIbWCjKZM79bp_Qxx9oLv3E-Yv2eOOnhHGnTU-xWPkLSnZSgTGXn_WQHZX_wsSu8R1JhQHXWRmCDaYrYaYZYx_u4kZA_RSXBqv1y6FYrRbrIuvlwluXGOe8TQndtOyjLwbRiDDgqDViEDi6TBvLSBC_8AxbPdc_Ws0WSkrOVB5Dp8IqrCRlVtUi-RM3zMKLvUrOcR8VrRbja3W7ZviFxk01tWhaT-MRyQpq8e9W6MVYAkeM5TAm4cE="
+      "__shark_answer_ciphertext_v1__": "gAAAAABq-BaVpcY9xJkd_kWJYHz1ojYNcRCb66cMD0SqMiPzEO2-Gv6FSeYTa0VH_KCY8IxRNwM0WruRdxTrW7lWh3PC06Ad9AzoWmK1hr_hhIaJ-rculLSWvBrXFrqJ7yrC2Q0mdJj17YpLRA1QH488YZOgVs1-JyCIQmOonEM_o8emyUqU5EfvX83F1BfMViNI8r6JQcY1oGWaLvuA-AqJVwqkdECF6mLwlK1RMEMvASmgPPhOvX_eUR63B7VNzFfXr81gK9YE0J-mGPiPf6lSL4OnBz_tr_ZiPrEKUpAyv79wNfpkQyxHb6CYmhv6VQ1c4xJF8A3HePQBfN4xoKu1GZtNWCr3bGwfXvsnYpWdAHTTst9xwWBSE9hhlj6Tt0BfUT0CRhgo95fZMRpPNEJJ2ZUVAKVm6EHFz-C8zSUEcriMFioPAmd-nN-MjZCyau3N9C_f6qsTU2tGDKrw8DisET-3msQdlSzxx8TDImqS9MRsLXq2ZPacqg5BB7F8V4pPt3g4A9BCWovGIyEen43eomEhexXc2CSKqpe3w7lrgDi4FFPpbMgGc9HyskOgqmwDxFJfDDJk82aLUco6xA59l7T7zakQcw=="
     },
     "player_moves": {
-      "__shark_answer_ciphertext_v1__": "gAAAAABq9_o-dQAv81KRTJYLZDE5WvMiXNZ3a0LxXupVz_BzlegIuU6rkxwIsgMAb5TPMNoxYUqIYrW5EFiETUTDRCBJtSChxbVs-IrkrLEAr75RQ2wRo236B50h8My_hUGTyvgwKHNDi_2FoVah7l63T3WoMtHxicinEzLwVdTDqYRmR7P20AAcsR2ebCeWZzHGoJUg1W4ZqQGvCz3aeClRIhXwVGSd3l74S-jUY3YVkLYKlGNePz2h7PIBzLuEFadD_DcqZi4p"
+      "__shark_answer_ciphertext_v1__": "gAAAAABq-BaViPvJoqWarRUq5_jJWRKoQgmWJqpmrQlRaEr9kg_z2YEevtX6877OE2Gccd_nfhFFrn0oCOt5wvGuY-2I6nt8pmBpP8NjkgG3nWShX1EkHCHUVXHJCKzFa4wS0CaDGCrjMyUDQN_2WFJa9XRdp9MZiLb8jaSSw8gVhwvOE4iDhOlwc1UlZZUrBXSXdxd9iG6UDGITMRzSq2nzTuqjrkk7suJp-zSzgx0wfJu1BpQlNekbWCfSm_QXaSUtT-GMwSuFD_MSj4U6EiB3erJonXlGD1uB9g7EylajKj4T-MRaheqUaFeFc6CkG00QwyLmmAjAiDxP9M7S8Ilg66gnYS-bYBnwo6MP66BhdV-2fbjzB4M="
     },
-    "player_color": "black",
-    "player_move_count": 3,
-    "posted_at": "2026-11-13T08:45:58.102350+00:00",
-    "answer_posted": true,
+    "player_color": "white",
+    "player_move_count": 5,
+    "posted_at": "2026-11-14T08:06:45.838725+00:00",
+    "answer_posted": false,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
-    "puzzle_id": "daily_1794559558102",
+    "puzzle_id": "daily_1794643605838",
     "next_solution_index": 0,
     "next_player_index": 0,
     "solved": false,
-    "message_id": 1570721374501212183,
+    "message_id": 1571073896986312825,
     "attempted_users": {},
     "first_move_user_id": null,
     "first_move_user_name": null,
@@ -89,14 +89,13 @@
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1570721374501212183
+      "1468320170891022417": 1571073896986312825
     },
     "channel_id": 1468320170891022417,
     "board_attachment_filenames": {
       "1468320170891022417": "daily_puzzle.png"
     },
-    "chat_since_refresh": 0,
-    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Bg4 Qxe8 Qe1#"
+    "chat_since_refresh": 0
   },
   "lichess_rating_used": {
     "2000": [
