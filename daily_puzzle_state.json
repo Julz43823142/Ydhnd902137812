@@ -73,7 +73,7 @@
     "player_color": "white",
     "player_move_count": 5,
     "posted_at": "2026-11-14T08:06:45.838725+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
@@ -95,7 +95,8 @@
     "board_attachment_filenames": {
       "1468320170891022417": "daily_puzzle.png"
     },
-    "chat_since_refresh": 0
+    "chat_since_refresh": 0,
+    "last_feedback": "⏰ **Puzzle closed.**\n💡 **Solution:** Qa7 Rxc8+ Rxd8+ Nxf7+ Nxh8"
   },
   "lichess_rating_used": {
     "2000": [
