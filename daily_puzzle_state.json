@@ -59,8 +59,8 @@
     "url": "https://www.chess.com/daily/2026-11-16",
     "title": "Got 'Em!",
     "fen": "2r3k1/3n1pbp/p3pnp1/1pp5/R7/1P1BP1Pq/1BPNQP1P/6K1 w - - 0 1",
-    "current_fen": "2r3k1/3n1pbp/p3pnp1/1pp5/7q/1P1BP1P1/1BPNQP1P/6K1 w - - 0 2",
-    "last_move_uci": "h3h4",
+    "current_fen": "2r3k1/3n1pbp/p3pnp1/1pp5/7P/1P1BP3/1BPNQP1P/6K1 b - - 0 2",
+    "last_move_uci": "g3h4",
     "pgn": {
       "__shark_answer_ciphertext_v1__": "gAAAAABq-tz-vunSFajXExj-wzl1iqrOsX_QVzBD3iHtc3iMKq92qYWRuuDsa8hKRKFj7sh5x7R-kbSfmh3V-3PRt6kZq4WeHxo5zv5MpARR0QlniZDaawG5kIf8MMCtfoK-rIdEWnWIx-IGgEZ5gojx9yiXkJuJTlphHf7JMklwuOTzPb9uxupk44lvbaaFRdCiQMSwPQZ1j9xo1_9PMeKkFwjbXCMgEQ_7C8I9LBi4IkEzikhRHmw="
     },
@@ -73,37 +73,37 @@
     "player_color": "white",
     "player_move_count": 2,
     "posted_at": "2026-11-16T08:31:01.603766+00:00",
-    "answer_posted": false,
+    "answer_posted": true,
     "winner_user_id": null,
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1794817861603",
-    "next_solution_index": 2,
-    "next_player_index": 1,
-    "solved": false,
-    "message_id": 1571852959615287410,
+    "next_solution_index": 3,
+    "next_player_index": 2,
+    "solved": true,
+    "message_id": 1571852978300780685,
     "attempted_users": {
       "442597396195704832": {
         "name": "Thice",
-        "move": "Rh4",
+        "move": "Gxh4",
         "correct": true,
-        "timestamp": "2026-11-16T11:42:28.988806+00:00"
+        "timestamp": "2026-11-16T11:42:33.475727+00:00"
       }
     },
     "first_move_user_id": "442597396195704832",
     "first_move_user_name": "Thice",
-    "first_move_awarded": false,
+    "first_move_awarded": true,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1571852959615287410
+      "1468320170891022417": 1571852978300780685
     },
     "channel_id": 1468320170891022417,
     "board_attachment_filenames": {
       "1468320170891022417": "random_puzzle.png"
     },
     "chat_since_refresh": 0,
-    "last_card_activity_at": "2026-11-16T11:42:28.988538+00:00",
+    "last_card_activity_at": "2026-11-16T11:42:33.475085+00:00",
     "recent_accepted_moves": [
       {
         "accepted_at": 1794829348.9888108,
@@ -114,6 +114,16 @@
           "uci": "a4h4"
         },
         "accepted_uci": "a4h4"
+      },
+      {
+        "accepted_at": 1794829353.475734,
+        "fen_before": "2r3k1/3n1pbp/p3pnp1/1pp5/7q/1P1BP1P1/1BPNQP1P/6K1 w - - 0 2",
+        "expected": {
+          "color": "white",
+          "san": "gxh4",
+          "uci": "g3h4"
+        },
+        "accepted_uci": "g3h4"
       }
     ],
     "accepted_solution_moves": [
@@ -121,9 +131,19 @@
         "san": "Rh4",
         "uci": "a4h4",
         "principal": true
+      },
+      {
+        "san": "gxh4",
+        "uci": "g3h4",
+        "principal": true
       }
     ],
-    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** Qxh4"
+    "last_feedback": "✅ **Correct, Thice!**\n🎉 **Puzzle solved!**\n**+1 point** — you now have **1831 points.**\n🔥 **Daily Activity Bonus: +10 coins**\n\nPuzzle Elo: **2482**\n\n💡 **Solution:** Rh4 gxh4\n\n🏆 **Your ranking**\n**#1 🦉 Thice — 1831 points ← you**\n**#2 🍅 TheMakina — 1564 points**",
+    "completion_solver_id": "442597396195704832",
+    "completion_solver_name": "Thice",
+    "activity_bonus_users": [
+      "442597396195704832"
+    ]
   },
   "lichess_rating_used": {
     "2000": [
