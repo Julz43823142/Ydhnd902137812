@@ -59,8 +59,8 @@
     "url": "https://www.chess.com/daily/2026-11-18",
     "title": "Tilted",
     "fen": "4rr2/p1b2kpp/1pp2p2/3q1N2/1PnP4/2PQ2P1/1P3P1P/R3R1K1 w - - 0 1",
-    "current_fen": "4rr2/p1b2kpp/1pp2p2/3q1N2/1PnP4/2PQ2P1/1P3P1P/R3R1K1 w - - 0 1",
-    "last_move_uci": null,
+    "current_fen": "4rr2/p1b2k1p/1pp2p1p/3q4/1PnP4/2PQ2P1/1P3P1P/R3R1K1 w - - 0 2",
+    "last_move_uci": "g7h6",
     "pgn": {
       "__shark_answer_ciphertext_v1__": "gAAAAABq_WLo6GEZTd55_ufKEU7iSQnrM0j6HbK0JhHpQfiUta2SA64sIFqpmQV9isMjUaUnf-f51T9xnGnrcfYf6m_x7PfM5au-PxB8J0Ffb8HdmD4oVij72SY4GN1AjfZ-3oPRQxcpglhRGmb9W2IQxD-EBM7djcdXYZBkPZfgJGHI-o9rwMIpP22WA02OAKyO-xnHiXbwuxOUWDGCzr44zCV31mPdK4S4kC2yJ5XF8D3lRpxcBQU="
     },
@@ -78,24 +78,52 @@
     "winner_name": null,
     "latest_attempts": {},
     "puzzle_id": "daily_1794990824330",
-    "next_solution_index": 0,
-    "next_player_index": 0,
+    "next_solution_index": 2,
+    "next_player_index": 1,
     "solved": false,
-    "message_id": 1572530236862763028,
-    "attempted_users": {},
-    "first_move_user_id": null,
-    "first_move_user_name": null,
+    "message_id": 1572535930940686337,
+    "attempted_users": {
+      "442597396195704832": {
+        "name": "Thice",
+        "move": "Nh6",
+        "correct": true,
+        "timestamp": "2026-11-18T08:56:22.086744+00:00"
+      }
+    },
+    "first_move_user_id": "442597396195704832",
+    "first_move_user_name": "Thice",
     "first_move_awarded": false,
     "helper_awarded_users": [],
     "helper_candidate_users": [],
     "message_ids": {
-      "1468320170891022417": 1572530236862763028
+      "1468320170891022417": 1572535930940686337
     },
     "channel_id": 1468320170891022417,
     "board_attachment_filenames": {
-      "1468320170891022417": "daily_puzzle.png"
+      "1468320170891022417": "random_puzzle.png"
     },
-    "chat_since_refresh": 0
+    "chat_since_refresh": 0,
+    "last_card_activity_at": "2026-11-18T08:56:22.086473+00:00",
+    "recent_accepted_moves": [
+      {
+        "accepted_at": 1794992182.086748,
+        "fen_before": "4rr2/p1b2kpp/1pp2p2/3q1N2/1PnP4/2PQ2P1/1P3P1P/R3R1K1 w - - 0 1",
+        "expected": {
+          "uci": "f5h6",
+          "san": "Nh6+",
+          "color": "white"
+        },
+        "accepted_uci": "f5h6"
+      }
+    ],
+    "accepted_solution_moves": [
+      {
+        "san": "Nh6+",
+        "uci": "f5h6",
+        "principal": true
+      }
+    ],
+    "last_feedback": "**✅ Correct! Now make your final move.**\n↩️ **Opponent replies:** gxh6"
   },
   "lichess_rating_used": {
     "2000": [
